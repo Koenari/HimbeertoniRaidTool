@@ -4,13 +4,13 @@ using Dalamud.Plugin;
 using System.IO;
 using System.Reflection;
 
-namespace SamplePlugin
+namespace HimbeertoniRaidTool
 {
     public sealed class Plugin : IDalamudPlugin
     {
-        public string Name => "Sample Plugin";
+        public string Name => "Himbeertoni Raid Tool";
 
-        private const string commandName = "/pmycommand";
+        private const string commandName = "/hrt";
 
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }

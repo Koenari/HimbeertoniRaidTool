@@ -2,12 +2,12 @@
 using Dalamud.Plugin;
 using System;
 
-namespace SamplePlugin
+namespace HimbeertoniRaidTool
 {
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
-        public int Version { get; set; } = 0;
+        public int Version { get; set; } = 1;
 
         public bool SomePropertyToBeSavedAndWithADefault { get; set; } = true;
 
