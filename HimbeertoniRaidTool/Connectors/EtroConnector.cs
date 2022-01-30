@@ -22,7 +22,7 @@ namespace HimbeertoniRaidTool.Connectors
 
         bool GearConnector.GetGearStats(GearItem item)
         {
-            int itemID = item.getID();
+            int itemID = item.GetID();
             string myJsonResponse = new StreamReader(Client.OpenRead(BaseUri + itemID)).ReadToEnd();
             EtroGearItem etroResponse = (EtroGearItem)JsonConvert.DeserializeObject(myJsonResponse);
             if (etroResponse == null)

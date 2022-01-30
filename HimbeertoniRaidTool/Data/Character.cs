@@ -14,7 +14,7 @@ namespace HimbeertoniRaidTool.Data
         }
         public List<PlayableClass> Classes;
 
-        public bool AddClass(AvailabbleClasses ClassToAdd){
+        public bool AddClass(AvailableClasses ClassToAdd){
             //Todo: Look if Calss already present
             if (false)
             {

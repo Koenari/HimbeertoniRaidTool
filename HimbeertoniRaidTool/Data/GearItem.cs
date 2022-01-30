@@ -26,7 +26,7 @@ namespace HimbeertoniRaidTool.Data
             con.GetGearStats(this);
         }
 
-        public int getID()
+        public int GetID()
         {
             return this.ID;
         }

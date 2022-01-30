@@ -8,17 +8,17 @@ namespace HimbeertoniRaidTool.Data
 {
     class PlayableClass
     {
-        public PlayableClass (AvailabbleClasses ClassNameArg)
+        public PlayableClass (AvailableClasses ClassNameArg)
         {
             this.ClassName = ClassNameArg;
         }
-        public readonly AvailabbleClasses ClassName;
+        public readonly AvailableClasses ClassName;
         public GearSet Gear = new();
         public GearSet BIS = new();
 
     }
 
-    enum AvailabbleClasses
+    enum AvailableClasses
     {
         AST,
         BLM,
