@@ -15,15 +15,21 @@ namespace HimbeertoniRaidTool
 
         [NonSerialized]
         private DalamudPluginInterface? pluginInterface;
+        [NonSerialized]
+        public HrtDB? LocalDB;
 
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             this.pluginInterface = pluginInterface;
+            this.LocalDB = new HrtDB();
         }
 
         public void Save()
         {
             this.pluginInterface!.SavePluginConfig(this);
         }
+    }
+    public class HrtDB 
+    { 
     }
 }

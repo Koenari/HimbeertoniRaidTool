@@ -8,10 +8,16 @@ namespace HimbeertoniRaidTool.Data
 {
     class Player
     {
-        private List<Character> Chars;
+        public string NickName = "";
+        private List<Character> Chars = new();
         public Player()
         {
-            Chars = new List<Character>();
+
+        }
+        public Player(string name, Character Character)
+        {
+            this.NickName = name;
+            this.Chars.Add(Character);
         }
         public Character GetMainChar()
         {
@@ -21,6 +27,10 @@ namespace HimbeertoniRaidTool.Data
         {
             this.Chars.Remove(main);
             this.Chars.Insert(0, main);
+        }
+        public Character GetChar(int id)
+        {
+            return Chars[id];
         }
     }
 }

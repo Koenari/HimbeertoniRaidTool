@@ -20,11 +20,13 @@ namespace HimbeertoniRaidTool.Connectors
             Client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
         }
 
-        bool GearConnector.GetGearStats(GearItem item)
+        async Task<bool> GearConnector.GetGearStats(GearItem item)
         {
             int itemID = item.GetID();
-            string myJsonResponse = new StreamReader(Client.OpenRead(BaseUri + itemID)).ReadToEnd();
-            EtroGearItem etroResponse = (EtroGearItem)JsonConvert.DeserializeObject(myJsonResponse);
+            string myJsonResponse = await new StreamReader(Client.OpenRead(BaseUri + itemID)).ReadToEndAsync();
+#pragma warning disable CS8600 // Das NULL-Literal oder ein möglicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
+            EtroGearItem etroResponse = JsonConvert.DeserializeObject< EtroGearItem>(myJsonResponse);
+#pragma warning restore CS8600 // Das NULL-Literal oder ein möglicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
             if (etroResponse == null)
                 return false;
             item.name = etroResponse.name;

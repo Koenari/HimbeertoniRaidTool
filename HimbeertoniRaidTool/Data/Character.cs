@@ -8,15 +8,19 @@ namespace HimbeertoniRaidTool.Data
 {
     class Character
     {
-        public Character()
+        public List<PlayableClass> Classes;
+        public string name = "";
+        public Character(string? name)
         {
             Classes = new List<PlayableClass>();
+            if(name != null)
+                this.name = name;
         }
-        public List<PlayableClass> Classes;
+        
 
         public bool AddClass(AvailableClasses ClassToAdd){
-            //Todo: Look if Calss already present
-            if (false)
+            //Todo: Look if Calss is already present
+            if (Classes.Find(x => x.ClassName == ClassToAdd) != null)
             {
                 return false;
             } else
@@ -24,6 +28,11 @@ namespace HimbeertoniRaidTool.Data
                 Classes.Add(new PlayableClass(ClassToAdd));
                 return true;
             }
+        }
+
+        internal PlayableClass? getClass(AvailableClasses type)
+        {
+            return Classes.Find( x => x.ClassName == type);
         }
     }
 }

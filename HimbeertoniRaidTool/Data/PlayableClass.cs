@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Data
 {
-    class PlayableClass
+    class PlayableClass : IEquatable<PlayableClass>
     {
         public PlayableClass (AvailableClasses ClassNameArg)
         {
@@ -16,11 +16,17 @@ namespace HimbeertoniRaidTool.Data
         public GearSet Gear = new();
         public GearSet BIS = new();
 
+        public bool Equals(PlayableClass? other)
+        {
+            if (other == null)
+                return false;
+            return this.ClassName == other.ClassName;
+        }
     }
 
     enum AvailableClasses
     {
-        AST,
+        AST = 1,
         BLM,
         BLU,
         BRD,

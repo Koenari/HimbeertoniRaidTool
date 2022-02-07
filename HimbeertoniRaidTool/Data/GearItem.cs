@@ -14,6 +14,7 @@ namespace HimbeertoniRaidTool.Data
         public string name { get; set; } = "";
         public string description { get; set; } = "";
         public int itemLevel { get; set; }
+        public GearSource Source { get; set; }
 
         public GearItem(int idArg)
         {
@@ -30,5 +31,11 @@ namespace HimbeertoniRaidTool.Data
         {
             return this.ID;
         }
+    }
+    enum GearSource
+    {
+        Raid,
+        Tome,
+        Crafted
     }
 }

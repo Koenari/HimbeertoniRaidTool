@@ -8,6 +8,6 @@ namespace HimbeertoniRaidTool.Connectors
 {
     interface GearConnector
     {
-        public bool GetGearStats(GearItem item);
+        public Task<bool> GetGearStats(GearItem item);
     }
 }
