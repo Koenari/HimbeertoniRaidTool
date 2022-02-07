@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Data
 {
+    [Serializable]
     public class Player
     {
         public string NickName = "";
-        private List<Character> Chars = new();
+        public List<Character> Chars { get; } = new();
         public Player()
         {
 

@@ -38,7 +38,14 @@ namespace HimbeertoniRaidTool
             chat.Enable();
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);
-            this.LM = new(this);//TODO: Get Saved Values
+            if(this.Configuration.GroupInfo != null)
+            {
+                this.LM = new(this, this.Configuration.GroupInfo);
+            }
+            else
+            {
+                this.LM = new(this);
+            }
             this.OptionsUi = new(this);
 
             InitCommands();

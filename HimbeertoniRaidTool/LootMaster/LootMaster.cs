@@ -1,4 +1,5 @@
-﻿using HimbeertoniRaidTool.Connectors;
+﻿using Dalamud.Logging;
+using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using System;
 
@@ -22,19 +23,19 @@ namespace HimbeertoniRaidTool.LootMaster
 
 		public async void Test()
         {
-            Dalamud.Logging.PluginLog.LogDebug("Lootmaster test started");
+            PluginLog.LogDebug("Lootmaster test started");
             this.Group.Heal1.NickName = "Patrick";
             this.Group.Heal1.SetMainChar(new Character("Mira Sorali"));
             Character mira = this.Group.Heal1.GetMainChar();
             mira.AddClass(AvailableClasses.WHM);
             GearSet gear = mira.getClass(AvailableClasses.WHM).Gear;
             gear.Weapon = new GearItem(35253);
-            Dalamud.Logging.PluginLog.LogDebug("Pre Stat Load: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
+            PluginLog.LogDebug("Pre Stat Load: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
             if (!await GearDB.GetGearStats(gear.Weapon))
-                Dalamud.Logging.PluginLog.LogError("Etro Failed");
-            Dalamud.Logging.PluginLog.LogDebug("Pre Stat Load: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
+                PluginLog.LogError("Etro Failed");
+            PluginLog.LogDebug("Post Stat Load: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
 
-            Dalamud.Logging.PluginLog.LogDebug("Lootmaster test finished");
+            PluginLog.LogDebug("Lootmaster test finished");
         }
 		public void OnCommand(string args)
         {
@@ -42,6 +43,14 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 case "test":
                     Test();
+                    break;
+                case "test2":
+                    PluginLog.LogDebug("Test 2 started");
+                    Character mira = this.Group.Heal1.GetMainChar();
+                    PluginLog.LogDebug("Loaded Char");
+                    GearSet gear = mira.getClass(AvailableClasses.WHM).Gear;
+                    PluginLog.LogDebug("Loaded Gearset");
+                    PluginLog.LogDebug("From Config: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
                     break;
                 default:
                     this.Ui.Show();

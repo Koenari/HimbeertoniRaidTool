@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Data
 {
+    [Serializable]
     public class PlayableClass : IEquatable<PlayableClass>
     {
         public PlayableClass (AvailableClasses ClassNameArg)
         {
             this.ClassName = ClassNameArg;
         }
-        public readonly AvailableClasses ClassName;
+        public AvailableClasses ClassName;
         public GearSet Gear = new();
         public GearSet BIS = new();
 

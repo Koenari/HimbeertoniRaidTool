@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Data
 {
+    [Serializable]
     public class GearSet
     {
         public GearItem? Weapon { get; set; }

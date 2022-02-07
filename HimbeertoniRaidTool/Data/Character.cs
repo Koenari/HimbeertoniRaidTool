@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Data
 {
+    [Serializable]
     public class Character
     {
         public List<PlayableClass> Classes;
@@ -19,7 +20,6 @@ namespace HimbeertoniRaidTool.Data
         
 
         public bool AddClass(AvailableClasses ClassToAdd){
-            //Todo: Look if Calss is already present
             if (Classes.Find(x => x.ClassName == ClassToAdd) != null)
             {
                 return false;

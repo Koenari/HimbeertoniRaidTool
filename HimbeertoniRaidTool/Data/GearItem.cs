@@ -10,7 +10,7 @@ namespace HimbeertoniRaidTool.Data
     [Serializable]
     public class GearItem
     {
-        private readonly int ID;
+        public int ID;
         public string name { get; set; } = "";
         public string description { get; set; } = "";
         public int itemLevel { get; set; }

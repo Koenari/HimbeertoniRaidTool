@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Data
 {
+    [Serializable]
     public class RaidGroup
     {
         public Player Tank1 = new();
@@ -14,7 +15,7 @@ namespace HimbeertoniRaidTool.Data
         public Player Heal2 = new();
         public Player Melee1 = new();
         public Player Melee2 = new();
-        public Player PhysicalRanged = new();
+        public Player Ranged = new();
         public Player Caster = new();
     }
 }
