@@ -5,6 +5,9 @@ using System.IO;
 using System.Reflection;
 using HimbeertoniRaidTool.LootMaster;
 using Dalamud.Game.Gui;
+using System.Collections.Generic;
+using System;
+using Dalamud.Logging;
 
 namespace HimbeertoniRaidTool
 {
@@ -12,8 +15,11 @@ namespace HimbeertoniRaidTool
     {
         public string Name => "Himbeertoni Raid Tool";
 
-        private const string commandName = "/hrt";
-        private const string LootMasterCommand = "/lootmaster";
+        private readonly List<Tuple<string, string, bool>> Commands = new List<Tuple<string, string, bool>> {
+            new Tuple<string, string, bool>("/hrt" , "Does nothing at the moment", true ),
+            new Tuple<string, string, bool>("/lootmaster", "Opens LootMaster Window", false ),
+            new Tuple<string, string, bool>("/lm" , "Opens LootMaster Window (short version)", true )
+        };
 
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
@@ -34,24 +40,32 @@ namespace HimbeertoniRaidTool
             this.Configuration.Initialize(this.PluginInterface);
             this.LM = new(this);//TODO: Get Saved Values
             this.OptionsUi = new(this);
-            this.CommandManager.AddHandler(commandName, new CommandInfo(OnCommand)
-            {
-                HelpMessage = "A useful message to display in /xlhelp"
-            });
-            this.CommandManager.AddHandler(LootMasterCommand, new CommandInfo(OnCommand)
-            {
-                HelpMessage = "Opens LootMaster Window"
-            });
 
+            InitCommands();
             //this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += OptionsUi.Draw;
+        }
+
+        private void InitCommands()
+        {
+            foreach(var command in Commands)
+            {
+                this.CommandManager.AddHandler(command.Item1, new CommandInfo(OnCommand)
+                {
+                    HelpMessage = command.Item2,
+                    ShowInHelp = command.Item3
+                });
+            }
         }
 
         public void Dispose()
         {
             this.OptionsUi.Dispose();
-            this.CommandManager.RemoveHandler(commandName);
-            this.CommandManager.RemoveHandler(LootMasterCommand);
+            this.LM.Dispose();
+            foreach(var command in Commands)
+            {
+                this.CommandManager.RemoveHandler(command.Item1);
+            }
         }
         private void OnCommand(string command, string args)
         {
@@ -60,11 +74,12 @@ namespace HimbeertoniRaidTool
                 case "/hrt":
                     this.OptionsUi.Show();
                     break;
+                case "/lm":
                 case "/lootmaster":
                     this.LM.OnCommand(args);
                     break;
                 default:
-                    chat.PrintError("Command \"" + command + "not found");
+                    PluginLog.LogError("Command \"" + command + "\" not found");
                     break;
             }            
         }

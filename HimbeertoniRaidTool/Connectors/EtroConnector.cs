@@ -24,9 +24,7 @@ namespace HimbeertoniRaidTool.Connectors
         {
             int itemID = item.GetID();
             string myJsonResponse = await new StreamReader(Client.OpenRead(BaseUri + itemID)).ReadToEndAsync();
-#pragma warning disable CS8600 // Das NULL-Literal oder ein möglicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
-            EtroGearItem etroResponse = JsonConvert.DeserializeObject< EtroGearItem>(myJsonResponse);
-#pragma warning restore CS8600 // Das NULL-Literal oder ein möglicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
+            EtroGearItem? etroResponse = JsonConvert.DeserializeObject<EtroGearItem>(myJsonResponse);
             if (etroResponse == null)
                 return false;
             item.name = etroResponse.name;

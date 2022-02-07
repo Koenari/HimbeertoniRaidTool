@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using HimbeertoniRaidTool.Data;
 namespace HimbeertoniRaidTool.Connectors
 {
-    interface GearConnector
+    public interface GearConnector
     {
         public Task<bool> GetGearStats(GearItem item);
     }

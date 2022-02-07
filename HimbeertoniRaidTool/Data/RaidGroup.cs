@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Data
 {
-    class RaidGroup
+    public class RaidGroup
     {
         public Player Tank1 = new();
         public Player Tank2 = new();

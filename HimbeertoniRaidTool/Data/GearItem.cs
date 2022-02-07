@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace HimbeertoniRaidTool.Data
 {
     [Serializable]
-    class GearItem
+    public class GearItem
     {
         private readonly int ID;
         public string name { get; set; } = "";
@@ -32,7 +32,7 @@ namespace HimbeertoniRaidTool.Data
             return this.ID;
         }
     }
-    enum GearSource
+    public enum GearSource
     {
         Raid,
         Tome,

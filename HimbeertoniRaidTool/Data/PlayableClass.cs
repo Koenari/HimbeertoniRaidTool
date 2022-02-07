@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Data
 {
-    class PlayableClass : IEquatable<PlayableClass>
+    public class PlayableClass : IEquatable<PlayableClass>
     {
         public PlayableClass (AvailableClasses ClassNameArg)
         {
@@ -24,7 +24,7 @@ namespace HimbeertoniRaidTool.Data
         }
     }
 
-    enum AvailableClasses
+    public enum AvailableClasses
     {
         AST = 1,
         BLM,

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Data
 {
-    class Player
+    public class Player
     {
         public string NickName = "";
         private List<Character> Chars = new();

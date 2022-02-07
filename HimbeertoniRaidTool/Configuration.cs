@@ -1,5 +1,6 @@
 ﻿using Dalamud.Configuration;
 using Dalamud.Plugin;
+using HimbeertoniRaidTool.Data;
 using System;
 
 namespace HimbeertoniRaidTool
@@ -11,25 +12,26 @@ namespace HimbeertoniRaidTool
 
         public bool SomePropertyToBeSavedAndWithADefault { get; set; } = true;
 
+        public RaidGroup? GroupInfo;
         // the below exist just to make saving less cumbersome
 
         [NonSerialized]
         private DalamudPluginInterface? pluginInterface;
-        [NonSerialized]
-        public HrtDB? LocalDB;
 
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             this.pluginInterface = pluginInterface;
-            this.LocalDB = new HrtDB();
         }
 
         public void Save()
         {
             this.pluginInterface!.SavePluginConfig(this);
         }
-    }
-    public class HrtDB 
-    { 
+
+        internal void UpdateRaidGroup(RaidGroup group)
+        {
+            this.GroupInfo = group;
+            this.Save();
+        }
     }
 }
