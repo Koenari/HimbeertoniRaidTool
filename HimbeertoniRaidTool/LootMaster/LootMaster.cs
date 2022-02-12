@@ -2,6 +2,7 @@
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using System;
+using static HimbeertoniRaidTool.Data.Player;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -12,7 +13,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private HRTPlugin parent;
         public LootmasterUI Ui;
 		private RaidGroup Group;
-		public LootMaster(HRTPlugin plugin) : this(plugin, new RaidGroup()) { }
+		public LootMaster(HRTPlugin plugin) : this(plugin, new RaidGroup("")) { }
         public LootMaster(HRTPlugin plugin, RaidGroup group)
         {
             this.parent = plugin;
@@ -28,8 +29,9 @@ namespace HimbeertoniRaidTool.LootMaster
             this.Group.Heal1.SetMainChar(new Character("Mira Sorali"));
             Character mira = this.Group.Heal1.GetMainChar();
             mira.AddClass(AvailableClasses.WHM);
-            GearSet gear = mira.getClass(AvailableClasses.WHM).Gear;
-            gear.Weapon = new GearItem(35253);
+            mira.MainClass = AvailableClasses.WHM;
+            GearSet gear = mira.getMainClass().Gear;
+            gear.Weapon = new Weapon(35253);
             PluginLog.LogDebug("Pre Stat Load: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
             if (!await GearDB.GetGearStats(gear.Weapon))
                 PluginLog.LogError("Etro Failed");
@@ -48,7 +50,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     PluginLog.LogDebug("Test 2 started");
                     Character mira = this.Group.Heal1.GetMainChar();
                     PluginLog.LogDebug("Loaded Char");
-                    GearSet gear = mira.getClass(AvailableClasses.WHM).Gear;
+                    GearSet gear = mira.getMainClass().Gear;
                     PluginLog.LogDebug("Loaded Gearset");
                     PluginLog.LogDebug("From Config: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
                     break;
@@ -60,6 +62,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
         public void Dispose()
         {
+            this.Ui.Dispose();
             parent.Configuration.UpdateRaidGroup(Group);
         }
 	}
