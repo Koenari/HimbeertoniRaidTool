@@ -21,7 +21,7 @@ namespace HimbeertoniRaidTool
             new Tuple<string, string, bool>("/lm" , "Opens LootMaster Window (short version)", true )
         };
 
-        private DalamudPluginInterface PluginInterface { get; init; }
+        internal DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
         internal Configuration Configuration { get; init; }
         private ConfigUI OptionsUi { get; init; }
@@ -31,7 +31,7 @@ namespace HimbeertoniRaidTool
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
             [RequiredVersion("1.0")] CommandManager commandManager,
             [RequiredVersion("1.0")] ChatGui chat)
-        {
+        {            
             this.PluginInterface = pluginInterface;
             this.CommandManager = commandManager;
             this.chat = chat;
@@ -49,8 +49,6 @@ namespace HimbeertoniRaidTool
             this.OptionsUi = new(this);
 
             InitCommands();
-            //this.PluginInterface.UiBuilder.Draw += DrawUI;
-            this.PluginInterface.UiBuilder.OpenConfigUi += OptionsUi.Draw;
         }
 
         private void InitCommands()

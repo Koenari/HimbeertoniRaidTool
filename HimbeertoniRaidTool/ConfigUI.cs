@@ -12,7 +12,7 @@ namespace HimbeertoniRaidTool
     {
         public ConfigUI(HRTPlugin parent) : base(parent)
         {
-
+            this.Parent.PluginInterface.UiBuilder.OpenConfigUi += this.Draw;
         }
         public override void Dispose()
         {
