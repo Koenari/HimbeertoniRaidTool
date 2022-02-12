@@ -10,8 +10,7 @@ namespace HimbeertoniRaidTool.Data
     [Serializable]
     public class GearSet
     {
-        public GearItem? Weapon { get; set; }
-        public GearItem? OffHand { get; set; }
+        public Weapon? Weapon { get; set; }
         public GearItem? Head { get; set; }
         public GearItem? Body { get; set; }
         public GearItem? Gloves { get; set; }
@@ -27,8 +26,6 @@ namespace HimbeertoniRaidTool.Data
         {
             if (Weapon != null && Weapon.name == "")
                 _ = db.GetGearStats(Weapon);
-            if (OffHand != null && OffHand.name == "")
-                _ = db.GetGearStats(OffHand);
             if (Head != null && Head.name == "")
                 _ = db.GetGearStats(Head);
             if (Body != null && Body.name == "")

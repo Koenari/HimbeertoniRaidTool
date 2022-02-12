@@ -11,7 +11,8 @@ namespace HimbeertoniRaidTool.Data
     {
         public List<PlayableClass> Classes;
         public string name = "";
-        public Character(string? name)
+        public AvailableClasses MainClass = AvailableClasses.AST;
+        public Character(string name = "")
         {
             Classes = new List<PlayableClass>();
             if(name != null)
@@ -33,6 +34,11 @@ namespace HimbeertoniRaidTool.Data
         internal PlayableClass? getClass(AvailableClasses type)
         {
             return Classes.Find( x => x.ClassName == type);
+        }
+
+        internal PlayableClass? getMainClass()
+        {
+            return this.getClass(MainClass);
         }
     }
 }

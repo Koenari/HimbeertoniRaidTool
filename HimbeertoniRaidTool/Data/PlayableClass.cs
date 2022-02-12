@@ -27,7 +27,7 @@ namespace HimbeertoniRaidTool.Data
 
     public enum AvailableClasses
     {
-        AST = 1,
+        AST,
         BLM,
         BLU,
         BRD,

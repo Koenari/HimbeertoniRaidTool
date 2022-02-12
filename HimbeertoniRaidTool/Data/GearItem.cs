@@ -10,21 +10,23 @@ namespace HimbeertoniRaidTool.Data
     [Serializable]
     public class GearItem
     {
-        public int ID;
+        public int ID { get; init; }
         public string name { get; set; } = "";
         public string description { get; set; } = "";
-        public int itemLevel { get; set; }
-        public GearSource Source { get; set; }
+        public int itemLevel { get; set; } = -1;
+        public GearSource Source { get; set; } = GearSource.undefined;
+
+        public GearItem() : this(-1) { }
 
         public GearItem(int idArg)
         {
             this.ID = idArg;
         }
 
-        private void RetrieveItemData()
+        internal void RetrieveItemData(GearConnector con)
         {
-            GearConnector con = new EtroConnector();
-            con.GetGearStats(this);
+            if(ID > -1)
+                con.GetGearStats(this);
         }
 
         public int GetID()
@@ -36,6 +38,25 @@ namespace HimbeertoniRaidTool.Data
     {
         Raid,
         Tome,
-        Crafted
+        Crafted,
+        undefined
+    }
+
+    public class Weapon : GearItem
+    {
+        public GearItem OffHand = new();
+
+        public Weapon() : base() { }
+        public Weapon(int id) : base(id) { }
+        public Weapon(int id, GearItem oH) : base(id) 
+        {
+            OffHand = oH;
+        }
+        internal new void RetrieveItemData(GearConnector con)
+        {
+            if (OffHand.ID > -1)
+                con.GetGearStats(this.OffHand);
+            base.RetrieveItemData(con);
+        }
     }
 }
