@@ -21,28 +21,43 @@ namespace HimbeertoniRaidTool.LootMaster
             this.Ui = new(parent, group);
             this.GearDB = new EtroConnector();
         }
-
-		public async void Test()
+#if DEBUG
+        public async void Test()
         {
-            PluginLog.LogDebug("Lootmaster test started");
-            this.Group.Heal1.NickName = "Patrick";
-            this.Group.Heal1.SetMainChar(new Character("Mira Sorali"));
-            Character mira = this.Group.Heal1.GetMainChar();
-            mira.AddClass(AvailableClasses.WHM);
-            mira.MainClass = AvailableClasses.WHM;
-            GearSet gear = mira.getMainClass().Gear;
-            gear.Weapon = new Weapon(35253);
-            PluginLog.LogDebug("Pre Stat Load: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
-            if (!await GearDB.GetGearStats(gear.Weapon))
-                PluginLog.LogError("Etro Failed");
-            PluginLog.LogDebug("Post Stat Load: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
+            try
+            {
+                PluginLog.LogDebug("Lootmaster test started");
+                this.Group.Heal1.NickName = "Patrick";
+                this.Group.Heal1.SetMainChar(new Character("Mira Sorali"));
 
-            PluginLog.LogDebug("Lootmaster test finished");
+                PluginLog.LogDebug("Lootmaster test Pre Get Char");
+                Character mira = this.Group.Heal1.GetMainChar();
+                mira.AddClass(AvailableClasses.WHM);
+                mira.MainClass = AvailableClasses.WHM;
+                PluginLog.LogDebug("Lootmaster test Pre Get Class and Gear");
+                GearSet gear = mira.getMainClass().Gear;
+                PluginLog.LogDebug("Lootmaster test Post Get Class and Gear");
+                gear.Weapon = new GearItem(35253);
+                PluginLog.LogDebug("Pre Stat Load: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
+                if (!await GearDB.GetGearStats(gear.Weapon))
+                    PluginLog.LogError("Etro Failed");
+                PluginLog.LogDebug("Post Stat Load: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
+
+                PluginLog.LogDebug("Lootmaster test finished");
+            }catch (Exception e)
+            {
+                
+                PluginLog.LogFatal(e.Message);
+                PluginLog.LogFatal(e.StackTrace ?? "");
+                PluginLog.LogFatal(e.Data.ToString() ?? "");
+            }
         }
-		public void OnCommand(string args)
+#endif
+        public void OnCommand(string args)
         {
             switch(args)
             {
+#if DEBUG
                 case "test":
                     Test();
                     break;
@@ -54,6 +69,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     PluginLog.LogDebug("Loaded Gearset");
                     PluginLog.LogDebug("From Config: " + gear.Weapon.name + " has i Lvl " + gear.Weapon.itemLevel);
                     break;
+#endif
                 default:
                     this.Ui.Show();
                     break;

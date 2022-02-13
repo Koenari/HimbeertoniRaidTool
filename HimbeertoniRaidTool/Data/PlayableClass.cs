@@ -46,17 +46,6 @@ namespace HimbeertoniRaidTool.Data
         SGE,
         SMN,
         WAR,
-        WHM,
-        ALC,
-        ARM,
-        BSM,
-        BTN,
-        CRP,
-        CUL,
-        FSH,
-        GSM,
-        LTW,
-        MIN,
-        WVR
+        WHM
     }
 }

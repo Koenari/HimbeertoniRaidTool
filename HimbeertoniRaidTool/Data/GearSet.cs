@@ -10,43 +10,69 @@ namespace HimbeertoniRaidTool.Data
     [Serializable]
     public class GearSet
     {
-        public Weapon? Weapon { get; set; }
-        public GearItem? Head { get; set; }
-        public GearItem? Body { get; set; }
-        public GearItem? Gloves { get; set; }
-        public GearItem? Legs { get; set; }
-        public GearItem? Feet { get; set; }
-        public GearItem? Earrings { get; set; }
-        public GearItem? Necklace { get; set; }
-        public GearItem? Bracelet { get; set; }
-        public GearItem? Ring1 { get; set; }
-        public GearItem? Ring2 { get; set; }
+        public DateTime? TimeStamp;
+        public string EtroID = "";
+        private const int NumSlots = 12;
+        private GearItem?[] Items = new GearItem?[NumSlots];
+        public GearItem? Weapon { get => Items[0]; set => Items[0] = value; }
+        public GearItem? Head { get => Items[1]; set => Items[1] = value; }
+        public GearItem? Body { get => Items[2]; set => Items[2] = value; }
+        public GearItem? Gloves { get => Items[3]; set => Items[3] = value; }
+        public GearItem? Legs { get => Items[4]; set => Items[4] = value; }
+        public GearItem? Feet { get => Items[5]; set => Items[5] = value; }
+        public GearItem? Earrings { get => Items[6]; set => Items[6] = value; }
+        public GearItem? Necklace { get => Items[7]; set => Items[7] = value; }
+        public GearItem? Bracelet { get => Items[8]; set => Items[8] = value; }
+        public GearItem? Ring1 { get => Items[9]; set => Items[9] = value; }
+        public GearItem? Ring2 { get => Items[10]; set => Items[10] = value; }
+        public GearItem? OffHand { get => Items[11]; set => Items[11] = value; }
 
-        public async Task FillStats(GearConnector db)
+        public int GetItemLevel()
         {
-            if (Weapon != null && Weapon.name == "")
-                _ = db.GetGearStats(Weapon);
-            if (Head != null && Head.name == "")
-                _ = db.GetGearStats(Head);
-            if (Body != null && Body.name == "")
-                _ = db.GetGearStats(Body);
-            if (Gloves != null && Gloves.name == "")
-                _ = db.GetGearStats(Gloves);
-            if (Legs != null && Legs.name == "")
-                _ = db.GetGearStats(Legs);
-            if (Feet != null && Feet.name == "")
-                _ = db.GetGearStats(Feet);
-            if (Earrings != null && Earrings.name == "")
-                _ = db.GetGearStats(Earrings);
-            if (Necklace != null && Necklace.name == "")
-                _ = db.GetGearStats(Necklace);
-            if (Bracelet != null && Bracelet.name == "")
-                _ = db.GetGearStats(Bracelet);
-            if (Ring1 != null && Ring1.name == "")
-                _ = db.GetGearStats(Ring1);
-            if (Ring2 != null && Ring2.name == "")
-                await db.GetGearStats(Ring2);
+            int itemLevel = 0;
+            int numItems = 0;
+            for(int i = 0; i < NumSlots; i++)
+            {
+                if (Items[i] != null && Items[i].itemLevel > 0)
+                {
+                    itemLevel += Items[i].itemLevel;
+                    numItems++;
+                }
+            }
+            return (int)(itemLevel / (numItems > 0 ? numItems : 1));
 
+        }
+        public async Task<bool> FillStats(GearConnector db)
+        {
+            bool result = true;
+            List<Task<bool>> tasks = new();
+            if (Weapon != null && Weapon.name == "")
+                tasks.Add(db.GetGearStats(Weapon));
+            if (Head != null && Head.name == "")
+                tasks.Add(db.GetGearStats(Head));
+            if (Body != null && Body.name == "")
+                tasks.Add(db.GetGearStats(Body));
+            if (Gloves != null && Gloves.name == "")
+                tasks.Add(db.GetGearStats(Gloves));
+            if (Legs != null && Legs.name == "")
+                tasks.Add(db.GetGearStats(Legs));
+            if (Feet != null && Feet.name == "")
+                tasks.Add(db.GetGearStats(Feet));
+            if (Earrings != null && Earrings.name == "")
+                tasks.Add(db.GetGearStats(Earrings));
+            if (Necklace != null && Necklace.name == "")
+                tasks.Add(db.GetGearStats(Necklace));
+            if (Bracelet != null && Bracelet.name == "")
+                tasks.Add(db.GetGearStats(Bracelet));
+            if (Ring1 != null && Ring1.name == "")
+                tasks.Add(db.GetGearStats(Ring1));
+            if (Ring2 != null && Ring2.name == "")
+                tasks.Add(db.GetGearStats(Ring2));
+            foreach(Task<bool> t in tasks)
+            {
+                result = result & await t;
+            }
+            return result;
         }
     }
     

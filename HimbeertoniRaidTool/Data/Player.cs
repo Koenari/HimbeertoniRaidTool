@@ -12,7 +12,7 @@ namespace HimbeertoniRaidTool.Data
         public string NickName = "";
 
         public Position Pos;
-        public List<Character> Chars { get; } = new();
+        public List<Character> Chars { get; set; } = new();
         public Player() { }
         public Player(Position pos)
         {
@@ -54,6 +54,12 @@ namespace HimbeertoniRaidTool.Data
             Melee2 = 5,
             Ranged = 6,
             Caster = 7
+        }
+
+        internal void Reset()
+        {
+            NickName = "";
+            Chars = new();
         }
     }
 }

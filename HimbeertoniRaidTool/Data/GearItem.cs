@@ -28,11 +28,6 @@ namespace HimbeertoniRaidTool.Data
             if(ID > -1)
                 con.GetGearStats(this);
         }
-
-        public int GetID()
-        {
-            return this.ID;
-        }
     }
     public enum GearSource
     {
@@ -40,23 +35,5 @@ namespace HimbeertoniRaidTool.Data
         Tome,
         Crafted,
         undefined
-    }
-
-    public class Weapon : GearItem
-    {
-        public GearItem OffHand = new();
-
-        public Weapon() : base() { }
-        public Weapon(int id) : base(id) { }
-        public Weapon(int id, GearItem oH) : base(id) 
-        {
-            OffHand = oH;
-        }
-        internal new void RetrieveItemData(GearConnector con)
-        {
-            if (OffHand.ID > -1)
-                con.GetGearStats(this.OffHand);
-            base.RetrieveItemData(con);
-        }
     }
 }
