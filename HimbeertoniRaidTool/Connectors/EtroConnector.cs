@@ -5,60 +5,89 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Connectors
 {
-    public class EtroConnector : GearConnector
+    public static class EtroConnector
     {
         private const string BaseUri = "https://etro.gg/api/";
-        private string EquipmentBaseUri { get => (BaseUri + "equipment/"); }
-        private string GearsetBaseUri { get => (BaseUri + "gearsets/"); }
-        private WebClient Client;
-        public EtroConnector() {
-            Client = new WebClient();
-            Client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
+        private static string EquipmentBaseUri { get => (BaseUri + "equipment/"); }
+        private static string GearsetBaseUri { get => (BaseUri + "gearsets/"); }
+        //private static WebClient Client;
+        private static WebHeaderCollection Headers;
+        private static JsonSerializerSettings jsonSettings => new JsonSerializerSettings
+        {
+            StringEscapeHandling = StringEscapeHandling.Default,
+            FloatParseHandling = FloatParseHandling.Double,
+            FloatFormatHandling = FloatFormatHandling.DefaultValue,
+            DateParseHandling = DateParseHandling.DateTime,
+            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+            DateFormatHandling = DateFormatHandling.IsoDateFormat,
+            NullValueHandling = NullValueHandling.Ignore,
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+
+        };
+        static EtroConnector()
+        {
+            Headers = new WebHeaderCollection();
+            Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
+
+
         }
-        public async Task<bool> GetGearStats(GearItem item)
+
+        private static string? MakeWebRequest(string URL)
+        {
+            WebClient client = new WebClient();
+            client.Headers = Headers;
+            try
+            {
+                PluginLog.LogDebug(client.IsBusy.ToString());
+                while (client.IsBusy)
+                {
+                    PluginLog.LogDebug("WEbClient Busy");
+                    System.Threading.Thread.Sleep(1000);
+                }
+                return client.DownloadString(URL);
+                
+            }
+            catch (Exception e)
+            {
+                PluginLog.LogError(e.Message);
+                return null;
+            }
+        }
+        public static bool GetGearStats(GearItem item)
         {
             if (item.ID < 1)
                 return false;
             EtroGearItem? etroResponse;
-            try
-            {
-                string jsonResponse = await new StreamReader(Client.OpenRead(EquipmentBaseUri + item.ID)).ReadToEndAsync();
-                etroResponse = JsonConvert.DeserializeObject<EtroGearItem>(jsonResponse);
-            } catch (WebException e)
-            {
-                PluginLog.LogError(e.Message);
+
+            string? jsonResponse = MakeWebRequest(EquipmentBaseUri + item.ID);
+            if (jsonResponse == null)
                 return false;
-            }
+            etroResponse = JsonConvert.DeserializeObject<EtroGearItem>(jsonResponse, jsonSettings);
+
             
             if (etroResponse == null)
                 return false;
-            item.name = etroResponse.name == null ? "" : etroResponse.name;
-            item.description = etroResponse.description == null ? "" : etroResponse.description;
-            item.itemLevel = etroResponse.itemLevel;
+            item.Name = etroResponse.name == null ? "" : etroResponse.name;
+            item.Description = etroResponse.description == null ? "" : etroResponse.description;
+            item.ItemLevel = etroResponse.itemLevel;
             return true;
         }
 
-        public async Task<bool> GetGearSet(GearSet set)
+        public static bool GetGearSet(GearSet set)
         {
-            string id = set.EtroID;
-            if (id.Equals(""))
+            if (set.EtroID.Equals(""))
                 return false;
             EtroGearSet? etroSet;
-            try
-            {
-                string jsonResponse = await new StreamReader(Client.OpenRead(GearsetBaseUri + id)).ReadToEndAsync();
-                etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse);
-            }
-            catch (WebException e)
-            {
-                PluginLog.LogError(e.Message);
+            string? jsonResponse = MakeWebRequest(GearsetBaseUri + set.EtroID);
+            if (jsonResponse == null)
                 return false;
-            }
-            
+            etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, jsonSettings);
             if (etroSet == null)
                 return false;
             set.Weapon = new(etroSet.weapon);
@@ -74,7 +103,7 @@ namespace HimbeertoniRaidTool.Connectors
             set.Ring1 = new(etroSet.fingerL);
             set.Ring2 = new(etroSet.fingerR);
             set.OffHand = new(etroSet.offHand);
-            await set.FillStats(this);
+            set.FillStats();
             return true;
         }
 
@@ -88,7 +117,7 @@ namespace HimbeertoniRaidTool.Connectors
         public bool isOwner { get; set; }
         public string? name { get; set; }
         public DateTime lastUpdate { get; set; }
-        public int minItemLevel { get; set; }
+        public int? minItemLevel { get; set; }
         public int maxItemLevel { get; set; }
         public int minMateriaTier { get; set; }
         public int maxMateriaTier { get; set; }
@@ -96,7 +125,7 @@ namespace HimbeertoniRaidTool.Connectors
         public List<TotalParam>? totalParams { get; set; }
         //public object buffs { get; set; }
         //public object relics { get; set; }
-        public int patch { get; set; }
+        public string? patch { get; set; }
         public int job { get; set; }
         public int clan { get; set; }
         public int weapon { get; set; }
