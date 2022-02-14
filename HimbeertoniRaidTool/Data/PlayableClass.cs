@@ -11,9 +11,9 @@ namespace HimbeertoniRaidTool.Data
     {
         public PlayableClass (AvailableClasses ClassNameArg)
         {
-            this.ClassName = ClassNameArg;
+            this.ClassType = ClassNameArg;
         }
-        public AvailableClasses ClassName;
+        public AvailableClasses ClassType;
         public GearSet Gear = new();
         public GearSet BIS = new();
 
@@ -21,7 +21,7 @@ namespace HimbeertoniRaidTool.Data
         {
             if (other == null)
                 return false;
-            return this.ClassName == other.ClassName;
+            return this.ClassType == other.ClassType;
         }
     }
 
