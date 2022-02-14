@@ -1,44 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
     [Serializable]
-    public class Character
+    public class Character : IEquatable<Character>
     {
-        public List<PlayableClass> Classes;
-        public string name = "";
-        public AvailableClasses MainClass = AvailableClasses.AST;
+        public List<PlayableClass> Classes = new List<PlayableClass>();
+        public string Name = "";
+        public AvailableClasses MainClassType = AvailableClasses.AST;
+        [JsonIgnore]
+        public PlayableClass MainClass => getClass(MainClassType);
+        [JsonIgnore]
+        public bool Filled => Name != "";
         public Character(string name = "")
         {
-            Classes = new List<PlayableClass>();
-            if(name != null)
-                this.name = name;
+                this.Name = name;
         }
-        
 
-        public bool AddClass(AvailableClasses ClassToAdd){
-            if (Classes.Find(x => x.ClassName == ClassToAdd) != null)
-            {
+        private PlayableClass AddClass(AvailableClasses ClassToAdd) 
+        {
+            PlayableClass toAdd = new(ClassToAdd);
+                Classes.Add(toAdd);
+            return toAdd;
+        }
+
+        public PlayableClass getClass(AvailableClasses type)
+        {
+            return Classes.Find( x => x.ClassType == type) ?? AddClass(type);
+        }
+
+        public bool Equals(Character? other)
+        {
+            if (other == null)
                 return false;
-            } else
-            {
-                Classes.Add(new PlayableClass(ClassToAdd));
-                return true;
-            }
-        }
-
-        internal PlayableClass? getClass(AvailableClasses type)
-        {
-            return Classes.Find( x => x.ClassName == type);
-        }
-
-        internal PlayableClass? getMainClass()
-        {
-            return this.getClass(MainClass);
+            return this.Name.Equals(other.Name);
         }
     }
 }
