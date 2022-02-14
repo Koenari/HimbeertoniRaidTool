@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -10,9 +8,24 @@ namespace HimbeertoniRaidTool.Data
     public class Player : IComparable<Player>
     {
         public string NickName = "";
+        [JsonIgnore]
+        public bool Filled => NickName != "";
 
         public Position Pos;
         public List<Character> Chars { get; set; } = new();
+        [JsonIgnore]
+        public Character MainChar {
+            get 
+            {
+                if (Chars.Count == 0)
+                    Chars.Insert(0,new());
+                return Chars[0]; 
+            }
+            set
+            {
+                this.Chars.Remove(value);
+                this.Chars.Insert(0, value);
+            } }
         public Player() { }
         public Player(Position pos)
         {
@@ -23,20 +36,11 @@ namespace HimbeertoniRaidTool.Data
             this.NickName = name;
             this.Chars.Add(Character);
         }
-        public Character GetMainChar()
+        internal void Reset()
         {
-            return Chars.First();
+            NickName = "";
+            Chars.Clear();
         }
-        public void SetMainChar(Character main)
-        {
-            this.Chars.Remove(main);
-            this.Chars.Insert(0, main);
-        }
-        public Character GetChar(int id)
-        {
-            return Chars[id];
-        }
-
         public int CompareTo(Player? other)
         {
             if (other == null)
@@ -56,10 +60,6 @@ namespace HimbeertoniRaidTool.Data
             Caster = 7
         }
 
-        internal void Reset()
-        {
-            NickName = "";
-            Chars = new();
-        }
+        
     }
 }
