@@ -1,7 +1,7 @@
 ﻿using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using System;
-using static HimbeertoniRaidTool.Connectors.EtroConnector;
+using static HimbeertoniRaidTool.Connectors.DalamudConnector;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -14,9 +14,9 @@ namespace HimbeertoniRaidTool.LootMaster
         public LootMaster(HRTPlugin plugin) : this(new RaidGroup("")) { }
         public LootMaster(RaidGroup group)
         {
-            GearRefresher = new(this);
             this.Group = group;
             this.Ui = new(group);
+            GearRefresher = new(this);
         }
 #if DEBUG
         public void Test()

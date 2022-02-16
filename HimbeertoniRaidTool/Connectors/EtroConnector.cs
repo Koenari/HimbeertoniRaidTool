@@ -3,10 +3,7 @@ using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Connectors
 {
@@ -59,7 +56,7 @@ namespace HimbeertoniRaidTool.Connectors
                 return null;
             }
         }
-        public static bool GetGearStats(GearItem item)
+        public static bool GetEtroGearStats(GearItem item)
         {
             if (item.ID < 1)
                 return false;
@@ -117,98 +114,98 @@ namespace HimbeertoniRaidTool.Connectors
         public bool isOwner { get; set; }
         public string? name { get; set; }
         public DateTime lastUpdate { get; set; }
-        public int? minItemLevel { get; set; }
-        public int maxItemLevel { get; set; }
-        public int minMateriaTier { get; set; }
-        public int maxMateriaTier { get; set; }
+        public uint? minItemLevel { get; set; }
+        public uint maxItemLevel { get; set; }
+        public uint minMateriaTier { get; set; }
+        public uint maxMateriaTier { get; set; }
         //public Materia materia { get; set; }
         public List<TotalParam>? totalParams { get; set; }
         //public object buffs { get; set; }
         //public object relics { get; set; }
         public string? patch { get; set; }
-        public int job { get; set; }
-        public int clan { get; set; }
-        public int weapon { get; set; }
-        public int head { get; set; }
-        public int body { get; set; }
-        public int hands { get; set; }
-        public int legs { get; set; }
-        public int feet { get; set; }
-        public int offHand { get; set; }
-        public int ears { get; set; }
-        public int neck { get; set; }
-        public int wrists { get; set; }
-        public int fingerL { get; set; }
-        public int fingerR { get; set; }
-        public int food { get; set; }
-        public int medicine { get; set; }
+        public uint job { get; set; }
+        public uint clan { get; set; }
+        public uint weapon { get; set; }
+        public uint head { get; set; }
+        public uint body { get; set; }
+        public uint hands { get; set; }
+        public uint legs { get; set; }
+        public uint feet { get; set; }
+        public uint offHand { get; set; }
+        public uint ears { get; set; }
+        public uint neck { get; set; }
+        public uint wrists { get; set; }
+        public uint fingerL { get; set; }
+        public uint fingerR { get; set; }
+        public uint food { get; set; }
+        public uint medicine { get; set; }
     }
     class EtroGearItem
     {
-        public int id { get; set; }
+        public uint id { get; set; }
         public string? name { get; set; }
         public string? description { get; set; }
-        public int param0 { get; set; }
-        public int param1 { get; set; }
-        public int param2 { get; set; }
-        public int param3 { get; set; }
+        public uint param0 { get; set; }
+        public uint param1 { get; set; }
+        public uint param2 { get; set; }
+        public uint param3 { get; set; }
         public object? param4 { get; set; }
         public object? param5 { get; set; }
-        public int param0Value { get; set; }
-        public int param1Value { get; set; }
-        public int param2Value { get; set; }
-        public int param3Value { get; set; }
-        public int param4Value { get; set; }
-        public int param5Value { get; set; }
+        public uint param0Value { get; set; }
+        public uint param1Value { get; set; }
+        public uint param2Value { get; set; }
+        public uint param3Value { get; set; }
+        public uint param4Value { get; set; }
+        public uint param5Value { get; set; }
         public MaxParams? maxParams { get; set; }
         public bool advancedMelding { get; set; }
-        public int block { get; set; }
-        public int blockRate { get; set; }
+        public uint block { get; set; }
+        public uint blockRate { get; set; }
         public bool canBeHq { get; set; }
-        public int damageMag { get; set; }
-        public int damagePhys { get; set; }
-        public int defenseMag { get; set; }
-        public int defensePhys { get; set; }
-        public int delay { get; set; }
-        public int iconId { get; set; }
+        public uint damageMag { get; set; }
+        public uint damagePhys { get; set; }
+        public uint defenseMag { get; set; }
+        public uint defensePhys { get; set; }
+        public uint delay { get; set; }
+        public uint iconId { get; set; }
         public string? iconPath { get; set; }
         public int itemLevel { get; set; }
         public object? itemSpecialBonus { get; set; }
-        public int itemSpecialBonusParam { get; set; }
-        public int level { get; set; }
-        public int materiaSlotCount { get; set; }
-        public int materializeType { get; set; }
+        public uint itemSpecialBonusParam { get; set; }
+        public uint level { get; set; }
+        public uint materiaSlotCount { get; set; }
+        public uint materializeType { get; set; }
         public bool PVP { get; set; }
-        public int rarity { get; set; }
-        public int slotCategory { get; set; }
+        public uint rarity { get; set; }
+        public uint slotCategory { get; set; }
         public bool unique { get; set; }
         public bool untradable { get; set; }
         public bool weapon { get; set; }
         public bool canCustomize { get; set; }
         public string? slotName { get; set; }
         public string? jobName { get; set; }
-        public int itemUICategory { get; set; }
-        public int jobCategory { get; set; }
+        public uint itemUICategory { get; set; }
+        public uint jobCategory { get; set; }
     }
     class MaxParams
     {
-        public int _6 { get; set; }
-        public int _10 { get; set; }
-        public int _11 { get; set; }
-        public int _19 { get; set; }
-        public int _22 { get; set; }
-        public int _27 { get; set; }
-        public int _44 { get; set; }
-        public int _45 { get; set; }
-        public int _46 { get; set; }
-        public int _70 { get; set; }
-        public int _71 { get; set; }
-        public int _72 { get; set; }
-        public int _73 { get; set; }
+        public uint _6 { get; set; }
+        public uint _10 { get; set; }
+        public uint _11 { get; set; }
+        public uint _19 { get; set; }
+        public uint _22 { get; set; }
+        public uint _27 { get; set; }
+        public uint _44 { get; set; }
+        public uint _45 { get; set; }
+        public uint _46 { get; set; }
+        public uint _70 { get; set; }
+        public uint _71 { get; set; }
+        public uint _72 { get; set; }
+        public uint _73 { get; set; }
     }
     class TotalParam
     {
-        public int? id { get; set; }
+        public uint? id { get; set; }
         public string? name { get; set; }
         public decimal value { get; set; }
         public string? units { get; set; }

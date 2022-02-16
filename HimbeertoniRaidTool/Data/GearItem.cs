@@ -1,51 +1,46 @@
-﻿using static HimbeertoniRaidTool.Connectors.EtroConnector;
+﻿using Lumina.Excel;
+using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System;
-using Dalamud.Logging;
 
 namespace HimbeertoniRaidTool.Data
 {
     public class GearItem
     {
-        private static Dictionary<int, GearItem> Dic = new();
         private static Dictionary<string, GearSource> SourceDic = new Dictionary<string, GearSource>
         {
             { "Asphodelos", GearSource.Raid },
             { "Radiant", GearSource.Tome },
             { "Classical", GearSource.Crafted },
         };
-        public int ID { get; init; }
+        public uint ID { get; init; }
+        private Item? FromSheet;
         private string _Name;
-        public string Name { get => _Name; set { _Name = value; UpdateSource(); AddToDic(); } }
+        public string Name { get => _Name; set { _Name = value; UpdateSource(); } }
         private string _Description;
-        public string Description { get => _Description; set { _Description = value; AddToDic(); } }
+        public string Description { get => _Description; set { _Description = value; } }
         private int _ItemLevel;
-        public int ItemLevel { get => _ItemLevel; set { _ItemLevel = value; AddToDic(); } }
+        public int ItemLevel { get => _ItemLevel; set { _ItemLevel = value; } }
         public GearSource Source { get; set; } = GearSource.undefined;
         [JsonIgnore]
-        public bool Filled => _ItemLevel > 0 && !_Name.Equals("") && !_Description.Equals("");
+        public bool Filled => (_ItemLevel > 0 && !_Name.Equals("") && !_Description.Equals("")) || FromSheet is not null;
         [JsonIgnore]
         public bool NeedsStats => ID > 0 && Name == "";
         [JsonIgnore]
         public bool Valid => ID > 0;
 
-        public static GearItem New(int ID){
-            GearItem? result;
-            Dic.TryGetValue(ID, out result);
-            return result ?? new(ID);
-        }
+        private ExcelSheet<Item> Sheet => Services.Data.Excel.GetSheet<Item>()!;
+
         public GearItem() : this(0) { }
 
-        public GearItem(int idArg)
+        public GearItem(uint idArg)
         {
             this.ID = idArg;
             this._Name = "";
             this._Description = "";
             this._ItemLevel = 0;
-            GearItem? dicItem;
-            if (Dic.TryGetValue(ID, out dicItem))
-                this.Fill(dicItem);            
+            if (ID > 0)
+                FromSheet = Sheet.GetRow(ID);
         }
 
         private void Fill(GearItem dicItem)
@@ -69,23 +64,7 @@ namespace HimbeertoniRaidTool.Data
             }
             this.Source = SourceDic.GetValueOrDefault(key,GearSource.undefined);
         }
-        private void AddToDic()
-        {
-            if (Filled && !Dic.ContainsKey(ID))
-                Dic.Add(ID, this);
-        }
-        internal bool RetrieveItemData()
-        {
-            if (!NeedsStats)
-                return true;
-            GearItem? dicItem;
-            if (Dic.TryGetValue(ID, out dicItem))
-            {
-                this.Fill(dicItem);
-                return true;
-            }
-            return GetGearStats(this);
-        }
+
     }
     public enum GearSource
     {
