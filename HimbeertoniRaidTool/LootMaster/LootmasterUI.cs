@@ -16,7 +16,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private AsyncTask? FinishedTask;
         private List<EditPlayerWindow> Childs = new();
         private bool modalOpen = false;
-        public LootmasterUI(HRTPlugin plugin, RaidGroup group) : base(plugin)
+        public LootmasterUI(RaidGroup group) : base()
         {
             this.Group = group;
         }
@@ -108,12 +108,13 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         private void DrawPlayer(Player player)
         {
-            if (player.Filled && player.MainChar.Filled)
+            bool PlayerExists = player.Filled && player.MainChar.Filled;
+            if (PlayerExists)
             {
                 GearSet gear = player.MainChar.MainClass.Gear;
                 GearSet bis = player.MainChar.MainClass.BIS;
                 ImGui.TableNextColumn();
-                ImGui.Text(player.NickName + "\n" + player.MainChar.Name + " (" + player.MainChar.MainClassType + ")");
+                ImGui.Text(player.Pos + "\n" + player.NickName + "\n" + player.MainChar.Name + " (" + player.MainChar.MainClassType + ")");
                 ImGui.TableNextColumn();
                 ImGui.Text(gear.GetItemLevel().ToString());
                 ImGui.NewLine();
@@ -130,26 +131,12 @@ namespace HimbeertoniRaidTool.LootMaster
                 DrawItem(gear.Ring1, bis.Ring1);
                 DrawItem(gear.Ring2, bis.Ring2);
                 ImGui.TableNextColumn();
-                if (ImGui.Button("BIS##Button" + player.Pos))
-                {
-                    modalOpen = true;
-                    ImGui.OpenPopup("BIS##" + player.Pos);
-                }
+                EditPlayerButton();
+                ImGui.SameLine();
                 if (ImGui.Button("x##"+ player.Pos))
                 {
                     player.Reset();
                 }
-                if (ImGui.BeginPopupModal("BIS##" + player.Pos, ref modalOpen))
-                {
-                    ImGui.InputText("EtroID", ref player.MainChar.MainClass.BIS.EtroID, 100);
-                    if(ImGui.Button("Close##BIS"))
-                    {
-                        this.tasks.Add(new("BIS for " + player.MainChar.Name + "succesfully updated", "BIS update for " + player.MainChar.Name + "failed", Task<bool>.Run(() => GetGearSet(player.MainChar.MainClass.BIS))));
-                        modalOpen = false;
-                        ImGui.CloseCurrentPopup();
-                    }
-                    ImGui.EndPopup();
-                } 
             }
             else
             {
@@ -161,12 +148,16 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.TableNextColumn();
                 }
                 ImGui.TableNextColumn();
-                if (ImGui.Button("Add " + player.Pos))
+                EditPlayerButton();
+            }
+            void EditPlayerButton()
+            {
+                if (ImGui.Button(PlayerExists ?  "Edit": "Add" + "## " + player.Pos))
                 {
-                    EditPlayerWindow win = new(Parent, this, player.Pos);
+                    EditPlayerWindow win = new(this, player.Pos);
                     win.Show();
                     this.Childs.Add(win);
-                    
+
                 }
             }
             void DrawItem(GearItem item, GearItem bis)
@@ -184,18 +175,16 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         class EditPlayerWindow : HrtUI
         {
-            private LootmasterUI LmUi;
-            
+            private readonly LootmasterUI LmUi;
+            private readonly Player PlayerToAdd;
+            private bool BISChanged = false;
 
-            private Player PlayerToAdd;
-
-            internal EditPlayerWindow(HRTPlugin par, LootmasterUI lmui, Player.Position pos) : base(par)
+            internal EditPlayerWindow(LootmasterUI lmui, Player.Position pos) : base()
             {
                 this.LmUi = lmui;
                 if (this.LmUi.Group.GetPlayer(pos) == null)
                     this.LmUi.Group.SetPlayer(pos, new(pos));
                 PlayerToAdd = this.LmUi.Group.GetPlayer(pos);
-                PlayerToAdd.MainChar = new Character();
             }
 
             public override void Dispose() { }
@@ -205,17 +194,37 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (!this.visible)
                     return;
                 ImGui.SetNextWindowSize(new Vector2(500, 500), ImGuiCond.Always);
-                if (ImGui.Begin("Add Player " + PlayerToAdd.Pos, ref this.visible, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
+                if (ImGui.Begin("Edit Player " + PlayerToAdd.Pos, ref this.visible, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
                 {
                     ImGui.InputText("Player Name", ref PlayerToAdd.NickName, 50);
                     ImGui.InputText("Character Name", ref PlayerToAdd.MainChar.Name, 50);
-                    int mainClass = 0;
-                    if(ImGui.ListBox("Main Class", ref mainClass, Enum.GetNames(typeof(AvailableClasses)), Enum.GetNames(typeof(AvailableClasses)).Length, 1))
+                    
+                    int mainClass = (int) PlayerToAdd.MainChar.MainClassType;
+                    if(ImGui.Combo("Main Class", ref mainClass, Enum.GetNames(typeof(AvailableClasses)), Enum.GetNames(typeof(AvailableClasses)).Length))
                     {
                         this.PlayerToAdd.MainChar.MainClassType = (AvailableClasses) mainClass;
                     }
+                    if(ImGui.InputText("BIS", ref PlayerToAdd.MainChar.MainClass.BIS.EtroID, 50))
+                    {
+                        BISChanged = true;
+                    }
+                    ImGui.SameLine();
+                    if (ImGui.Button("Default"))
+                    {
+                        if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(HRTPlugin.Plugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType]))
+                        {
+                            BISChanged = true;
+                            PlayerToAdd.MainChar.MainClass.BIS.EtroID = HRTPlugin.Plugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType];
+                        }
+                        
+                    }
                     if (ImGui.Button("Save"))
                     {
+                        if (BISChanged)
+                        {
+                            LmUi.tasks.Add(new("BIS for " + PlayerToAdd.MainChar.Name + " succesfully updated", "BIS update for " + PlayerToAdd.MainChar.Name + " failed", Task<bool>.Run(() => GetGearSet(PlayerToAdd.MainChar.MainClass.BIS))));
+                            LmUi.modalOpen = false;
+                        }
                         this.Hide();
                     }
                 }
