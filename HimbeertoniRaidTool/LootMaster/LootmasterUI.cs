@@ -96,9 +96,6 @@ namespace HimbeertoniRaidTool.LootMaster
                     }
                     ImGui.EndTable();
                 }
-                
-                
-                ImGui.EndPopup();
                 if (ImGui.Button("Close"))
                 {
                     this.Hide();
@@ -204,21 +201,29 @@ namespace HimbeertoniRaidTool.LootMaster
                     {
                         this.PlayerToAdd.MainChar.MainClassType = (AvailableClasses) mainClass;
                     }
-                    if(ImGui.InputText("BIS", ref PlayerToAdd.MainChar.MainClass.BIS.EtroID, 50))
+                    if(ImGui.InputText("BIS", ref PlayerToAdd.MainChar.MainClass.BIS.EtroID, 100))
                     {
                         BISChanged = true;
                     }
                     ImGui.SameLine();
-                    if (ImGui.Button("Default"))
+                    if (ImGui.Button("Default##BIS##EditPlayerWindow##" + PlayerToAdd.Pos))
                     {
                         if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(HRTPlugin.Plugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType]))
                         {
                             BISChanged = true;
                             PlayerToAdd.MainChar.MainClass.BIS.EtroID = HRTPlugin.Plugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType];
                         }
-                        
                     }
-                    if (ImGui.Button("Save"))
+                    ImGui.SameLine();
+                    if (ImGui.Button("Reset##BIS##EditPlayerWindow##"+PlayerToAdd.Pos))
+                    {
+                        if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals("")){
+                            PlayerToAdd.MainChar.MainClass.BIS.EtroID = "";
+                            BISChanged = false;
+                            PlayerToAdd.MainChar.MainClass.BIS.Clear();
+                        }
+                    }
+                    if (ImGui.Button("Save##EditPlayerWindow##" + PlayerToAdd.Pos))
                     {
                         if (BISChanged)
                         {

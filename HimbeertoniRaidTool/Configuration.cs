@@ -11,9 +11,6 @@ namespace HimbeertoniRaidTool
     public class Configuration : IPluginConfiguration
     {
         public int Version { get; set; } = 1;
-
-        public bool SomePropertyToBeSavedAndWithADefault { get; set; } = true;
-
         public Dictionary<AvailableClasses, string> DefaultBIS { get; set; } = new Dictionary<AvailableClasses, string>
         {
             { AST, "88647808-8a28-477b-b285-687bdcbff2d4" },
