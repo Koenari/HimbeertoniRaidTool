@@ -9,9 +9,15 @@ namespace HimbeertoniRaidTool.Data
     public class GearItem
     {
         private static Dictionary<int, GearItem> Dic = new();
+        private static Dictionary<string, GearSource> SourceDic = new Dictionary<string, GearSource>
+        {
+            { "Asphodelos", GearSource.Raid },
+            { "Radiant", GearSource.Tome },
+            { "Classical", GearSource.Crafted },
+        };
         public int ID { get; init; }
         private string _Name;
-        public string Name { get => _Name; set { _Name = value; AddToDic(); } }
+        public string Name { get => _Name; set { _Name = value; UpdateSource(); AddToDic(); } }
         private string _Description;
         public string Description { get => _Description; set { _Description = value; AddToDic(); } }
         private int _ItemLevel;
@@ -50,6 +56,19 @@ namespace HimbeertoniRaidTool.Data
                 this.Description = dicItem.Description;
             }
         }
+        private void UpdateSource()
+        {
+            string key = "";
+            foreach (string curKey in SourceDic.Keys)
+            {
+                if (_Name.Contains(curKey))
+                {
+                    key = curKey;
+                    break;
+                }
+            }
+            this.Source = SourceDic.GetValueOrDefault(key,GearSource.undefined);
+        }
         private void AddToDic()
         {
             if (Filled && !Dic.ContainsKey(ID))
@@ -73,6 +92,6 @@ namespace HimbeertoniRaidTool.Data
         Raid,
         Tome,
         Crafted,
-        undefined
+        undefined,
     }
 }
