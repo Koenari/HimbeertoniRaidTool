@@ -27,8 +27,8 @@ namespace HimbeertoniRaidTool.LootMaster
                 this.Group.Heal1.MainChar = new Character("Mira Sorali");
                 this.Group.Heal1.MainChar.MainClassType = AvailableClasses.WHM;
                 GearSet gear = this.Group.Heal1.MainChar.MainClass.Gear;
-                gear.Weapon = new GearItem(35253);
-                if (!GetGearStats(gear.Weapon))
+                gear.MainHand = new GearItem(35253);
+                if (!GetGearStats(gear.MainHand))
                     PluginLog.LogError("Etro Failed");
             }catch (Exception e)
             {

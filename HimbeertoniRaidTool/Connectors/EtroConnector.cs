@@ -90,16 +90,16 @@ namespace HimbeertoniRaidTool.Connectors
             etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, jsonSettings);
             if (etroSet == null)
                 return false;
-            set.Weapon = new(etroSet.weapon);
+            set.MainHand = new(etroSet.weapon);
             set.Head = new(etroSet.head);
             set.Head = new(etroSet.head);
             set.Body = new(etroSet.body);
-            set.Gloves = new(etroSet.hands);
+            set.Hands = new(etroSet.hands);
             set.Legs = new(etroSet.legs);
             set.Feet = new(etroSet.feet);
-            set.Earrings = new(etroSet.ears);
-            set.Necklace = new(etroSet.neck);
-            set.Bracelet = new(etroSet.wrists);
+            set.Ear = new(etroSet.ears);
+            set.Neck = new(etroSet.neck);
+            set.Wrist = new(etroSet.wrists);
             set.Ring1 = new(etroSet.fingerL);
             set.Ring2 = new(etroSet.fingerR);
             set.OffHand = new(etroSet.offHand);
