@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using static HimbeertoniRaidTool.Connectors.EtroConnector;
+using static HimbeertoniRaidTool.Connectors.DalamudConnector;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -26,7 +27,11 @@ namespace HimbeertoniRaidTool.Data
 
         public GearSet()
         {
-            for (int i = 0; i  < NumSlots; i++)
+            Clear();
+        }
+        public void Clear()
+        {
+            for (int i = 0; i < NumSlots; i++)
             {
                 Items[i] = new(0);
             }
@@ -34,51 +39,51 @@ namespace HimbeertoniRaidTool.Data
         public int GetItemLevel()
         {
             int itemLevel = 0;
-            int numItems = 0;
             for(int i = 0; i < NumSlots; i++)
             {
                 if (Items[i] != null && Items[i].ItemLevel > 0)
                 {
                     itemLevel += Items[i].ItemLevel;
-                    numItems++;
                 }
             }
-            return (int)(itemLevel / (numItems > 0 ? numItems : 1));
+            return (int)((float)itemLevel / (OffHand.Filled ? NumSlots : (NumSlots-1)));
 
         }
-        public GearItem Get(GearSetSlot slot)
+        public GearItem Set(GearSetSlot slot, GearItem value) => Items[ToIndex(slot)] = value;
+        public GearItem Get(GearSetSlot slot) => Items[ToIndex(slot)];
+        private int ToIndex(GearSetSlot slot)
         {
-
             switch (slot)
             {
                 case GearSetSlot.MainHand:
-                    return MainHand;
+                    return 0;
                 case GearSetSlot.OffHand:
-                    return OffHand;
+                    return 11;
                 case GearSetSlot.Head:
-                    return Head;
+                    return 1;
                 case GearSetSlot.Body:
-                    return Body;
+                    return 2;
                 case GearSetSlot.Hands:
-                    return Hands;
+                    return 3;
                 case GearSetSlot.Legs:
-                    return Legs;
+                    return 4;
                 case GearSetSlot.Feet:
-                    return Feet;
+                    return 5;
                 case GearSetSlot.Ear:
-                    return Ear;
+                    return 6;
                 case GearSetSlot.Neck:
-                    return Neck;
+                    return 7;
                 case GearSetSlot.Wrist:
-                    return Wrist;
+                    return 8;
                 case GearSetSlot.Ring1:
-                    return Ring1;
+                    return 9;
                 case GearSetSlot.Ring2:
-                    return Ring2;
+                    return 10;
                 default:
                     throw new IndexOutOfRangeException("GearSlot" + slot.ToString() + "does not exist");
             }
         }
+
         public bool FillStats()
         {
 
@@ -106,7 +111,9 @@ namespace HimbeertoniRaidTool.Data
                 tasks.Add(GetGearStats(Ring1));
             if (Ring2 != null && Ring2.Name == "")
                 tasks.Add(GetGearStats(Ring2));
-            foreach(bool t in tasks)
+            if (OffHand != null && OffHand.Name == "")
+                tasks.Add(GetGearStats(OffHand));
+            foreach (bool t in tasks)
             {
                 result &= t;
             }

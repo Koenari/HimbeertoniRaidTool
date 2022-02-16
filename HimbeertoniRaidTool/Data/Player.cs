@@ -26,6 +26,10 @@ namespace HimbeertoniRaidTool.Data
                 this.Chars.Remove(value);
                 this.Chars.Insert(0, value);
             } }
+        [JsonIgnore]
+        public GearSet Gear => MainChar.MainClass.Gear;
+        [JsonIgnore]
+        public GearSet BIS => MainChar.MainClass.BIS;
         public Player() { }
         public Player(Position pos)
         {

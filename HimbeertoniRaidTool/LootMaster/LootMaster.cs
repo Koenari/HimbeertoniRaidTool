@@ -16,7 +16,7 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             this.Group = group;
             this.Ui = new(group);
-            GearRefresher = new(this);
+            GearRefresher = new(Group);
         }
 #if DEBUG
         public void Test()
