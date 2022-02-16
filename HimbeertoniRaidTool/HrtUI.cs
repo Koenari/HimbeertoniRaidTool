@@ -8,14 +8,13 @@ namespace HimbeertoniRaidTool
     // to do any cleanup
     public abstract class HrtUI : IDisposable
     {
-        protected HRTPlugin Parent;
+        [Obsolete("Use HRTPlugin.Plugin")]
+        protected HRTPlugin Parent => HRTPlugin.Plugin;
+        protected bool visible = false;
 
-        internal bool visible = false;
-
-        public HrtUI(HRTPlugin parent)
+        public HrtUI()
         {
-            this.Parent = parent;
-            this.Parent.PluginInterface.UiBuilder.Draw += this.Draw;
+            HRTPlugin.Plugin.PluginInterface.UiBuilder.Draw += this.Draw;
         }
 
         public virtual void Show()
@@ -30,7 +29,7 @@ namespace HimbeertoniRaidTool
 
         public virtual void Dispose()
         {
-            this.Parent.PluginInterface.UiBuilder.Draw -= this.Draw;
+            HRTPlugin.Plugin.PluginInterface.UiBuilder.Draw -= this.Draw;
         }
 
         public abstract void Draw();

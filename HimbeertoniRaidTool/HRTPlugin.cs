@@ -1,18 +1,30 @@
 ﻿using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using System.IO;
-using System.Reflection;
-using HimbeertoniRaidTool.LootMaster;
 using Dalamud.Game.Gui;
 using System.Collections.Generic;
 using System;
 using Dalamud.Logging;
+using Dalamud.Game;
+using Dalamud.Data;
 
 namespace HimbeertoniRaidTool
 {
+#pragma warning disable CS8618
+    public class Services
+    {
+        [PluginService] public static SigScanner SigScanner { get; private set; }
+        [PluginService] public static CommandManager CommandManager { get; private set; }
+        [PluginService] public static ChatGui ChatGui { get; private set; }
+        [PluginService] public static DataManager Data { get; private set; }
+        [PluginService] public static GameGui GameGui { get; private set; }
+    }
+#pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
     {
+        
+        private static HRTPlugin? _Plugin;
+        public static HRTPlugin Plugin => _Plugin ?? throw new NullReferenceException();
         public string Name => "Himbeertoni Raid Tool";
 
         private readonly List<Tuple<string, string, bool>> Commands = new List<Tuple<string, string, bool>> {
@@ -20,34 +32,30 @@ namespace HimbeertoniRaidTool
             new Tuple<string, string, bool>("/lootmaster", "Opens LootMaster Window", false ),
             new Tuple<string, string, bool>("/lm" , "Opens LootMaster Window (short version)", true )
         };
-
+        
         internal DalamudPluginInterface PluginInterface { get; init; }
-        private CommandManager CommandManager { get; init; }
+        
         internal Configuration Configuration { get; init; }
         private ConfigUI OptionsUi { get; init; }
         private LootMaster.LootMaster LM { get; init; }
-        public ChatGui chat;
-        public HRTPlugin(
-            [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-            [RequiredVersion("1.0")] CommandManager commandManager,
-            [RequiredVersion("1.0")] ChatGui chat)
-        {            
+        
+        public HRTPlugin([RequiredVersion("1.0")]DalamudPluginInterface pluginInterface)
+        {
+            _Plugin = this;
+            pluginInterface.Create<Services>();
+            FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
             this.PluginInterface = pluginInterface;
-            this.CommandManager = commandManager;
-            this.chat = chat;
-            chat.Enable();
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);
             if(this.Configuration.GroupInfo != null)
             {
-                this.LM = new(this, this.Configuration.GroupInfo);
+                this.LM = new(Configuration.GroupInfo);
             }
             else
             {
                 this.LM = new(this);
             }
             this.OptionsUi = new(this);
-
             InitCommands();
         }
 
@@ -55,7 +63,7 @@ namespace HimbeertoniRaidTool
         {
             foreach(var command in Commands)
             {
-                this.CommandManager.AddHandler(command.Item1, new CommandInfo(OnCommand)
+                Services.CommandManager.AddHandler(command.Item1, new CommandInfo(OnCommand)
                 {
                     HelpMessage = command.Item2,
                     ShowInHelp = command.Item3
@@ -69,7 +77,7 @@ namespace HimbeertoniRaidTool
             this.LM.Dispose();
             foreach(var command in Commands)
             {
-                this.CommandManager.RemoveHandler(command.Item1);
+                Services.CommandManager.RemoveHandler(command.Item1);
             }
         }
         private void OnCommand(string command, string args)

@@ -8,15 +8,15 @@ namespace HimbeertoniRaidTool.LootMaster
 
 	public class LootMaster : IDisposable
 	{
-        private HRTPlugin parent;
         public LootmasterUI Ui;
 		private RaidGroup Group;
-		public LootMaster(HRTPlugin plugin) : this(plugin, new RaidGroup("")) { }
-        public LootMaster(HRTPlugin plugin, RaidGroup group)
+        //private GearRefresherOnExamine GearRefresher;
+        public LootMaster(HRTPlugin plugin) : this(new RaidGroup("")) { }
+        public LootMaster(RaidGroup group)
         {
-            this.parent = plugin;
+            //GearRefresher = new(this);
             this.Group = group;
-            this.Ui = new(parent, group);
+            this.Ui = new(group);
         }
 #if DEBUG
         public void Test()
@@ -56,8 +56,9 @@ namespace HimbeertoniRaidTool.LootMaster
 
         public void Dispose()
         {
+            //this.GearRefresher.Dispose();
             this.Ui.Dispose();
-            parent.Configuration.UpdateRaidGroup(Group);
+            HRTPlugin.Plugin.Configuration.UpdateRaidGroup(Group);
         }
 	}
 }
