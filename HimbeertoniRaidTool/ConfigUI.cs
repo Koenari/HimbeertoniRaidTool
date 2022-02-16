@@ -1,18 +1,15 @@
-﻿using ImGuiNET;
-using System;
+﻿using HimbeertoniRaidTool.Data;
+using ImGuiNET;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool
 {
     class ConfigUI : HrtUI
     {
-        public ConfigUI(HRTPlugin parent) : base(parent)
+        public ConfigUI(HRTPlugin parent) : base()
         {
-            this.Parent.PluginInterface.UiBuilder.OpenConfigUi += this.Draw;
+            HRTPlugin.Plugin.PluginInterface.UiBuilder.OpenConfigUi += this.Show;
         }
         public override void Dispose()
         {
@@ -25,17 +22,22 @@ namespace HimbeertoniRaidTool
                 return;
             }
 
-            ImGui.SetNextWindowSize(new Vector2(232, 75), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(350, 200), ImGuiCond.Always);
             if (ImGui.Begin("A Wonderful Configuration Window", ref this.visible,
-                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
+                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))
             {
-                // can't ref a property, so use a local copy
-                var configValue = this.Parent.Configuration.SomePropertyToBeSavedAndWithADefault;
-                if (ImGui.Checkbox("Random Config Bool", ref configValue))
+                foreach(KeyValuePair<AvailableClasses,string> pair in HRTPlugin.Plugin.Configuration.DefaultBIS)
                 {
-                    this.Parent.Configuration.SomePropertyToBeSavedAndWithADefault = configValue;
-                    // can save immediately on change, if you don't want to provide a "Save and Close" button
-                    this.Parent.Configuration.Save();
+                    string value = pair.Value;
+                    if(ImGui.InputText(pair.Key.ToString(), ref value, 100))
+                    {
+                        HRTPlugin.Plugin.Configuration.DefaultBIS[pair.Key] = value;
+                    }
+                }
+                if (ImGui.Button("Save##Config"))
+                {
+                    HRTPlugin.Plugin.Configuration.Save();
+                    this.Hide();
                 }
             }
             ImGui.End();
