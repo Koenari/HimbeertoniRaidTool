@@ -4,6 +4,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using System;
 using System.Runtime.InteropServices;
 using HimbeertoniRaidTool.Data;
+using static HimbeertoniRaidTool.LootMaster.Helper;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -50,16 +51,13 @@ namespace HimbeertoniRaidTool.LootMaster
         private void GetItemInfos()
         {
             //TODO: there may be an edge case where Target is switched before this is called 
-            Dalamud.Game.ClientState.Objects.Types.Character t = (Dalamud.Game.ClientState.Objects.Types.Character)Services.TargetManager.Target!;
-            Character? c = Group.GetCharacter(t.Name.TextValue);
+            Character? c = Group.GetCharacter(Target!.Name.TextValue);
             if (c is null)
                 return;
-            Lumina.Excel.GeneratedSheets.ClassJob? cj = t.ClassJob.GameData;
-            if (cj is null)
+            AvailableClasses? availableClass = TargetClass;
+            if (availableClass is null)
                 return;
-            if (!Enum.TryParse(cj.Abbreviation, true, out AvailableClasses availableClass))
-                return;
-            PlayableClass playableClass = c.getClass(availableClass);
+            PlayableClass playableClass = c.getClass((AvailableClasses) availableClass);
             GearSet setToFill = playableClass.Gear;
 
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
