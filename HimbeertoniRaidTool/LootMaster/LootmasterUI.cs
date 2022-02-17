@@ -217,7 +217,6 @@ namespace HimbeertoniRaidTool.LootMaster
                         if (BISChanged)
                         {
                             LmUi.tasks.Add(new("BIS for " + PlayerToAdd.MainChar.Name + " succesfully updated", "BIS update for " + PlayerToAdd.MainChar.Name + " failed", Task<bool>.Run(() => GetGearSet(PlayerToAdd.MainChar.MainClass.BIS))));
-                            LmUi.modalOpen = false;
                         }
                         this.Hide();
                     }
