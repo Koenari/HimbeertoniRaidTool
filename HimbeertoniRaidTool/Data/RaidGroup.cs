@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static HimbeertoniRaidTool.Data.Player;
 
 namespace HimbeertoniRaidTool.Data
@@ -39,6 +35,19 @@ namespace HimbeertoniRaidTool.Data
         internal void SetPlayer(Position pos, Player p)
         {
             this.Players[(int)pos] = p;
+        }
+
+        internal Character? GetCharacter(string name)
+        {
+            foreach(Player p in Players)
+            {
+                foreach(Character c in p.Chars)
+                {
+                    if (name.Equals(c.Name))
+                        return c;
+                }
+            }
+            return null;
         }
     }
 }
