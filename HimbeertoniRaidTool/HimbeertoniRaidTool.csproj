@@ -4,7 +4,7 @@
     <Authors>Koenari</Authors>
     <Company></Company>
     <Version>0.0.0.1</Version>
-    <Description>A sample plugin.</Description>
+    <Description>A collection of useful tools for RaidGroups, including loot management</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>
   </PropertyGroup>
@@ -23,10 +23,6 @@
   <ItemGroup>
     <Content Include="..\Data\HimbeertoniRaidTool.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Data\goat.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
     </Content>
   </ItemGroup>
 
