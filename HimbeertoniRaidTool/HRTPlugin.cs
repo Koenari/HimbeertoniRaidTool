@@ -7,6 +7,7 @@ using System;
 using Dalamud.Logging;
 using Dalamud.Game;
 using Dalamud.Data;
+using Dalamud.Game.ClientState.Objects;
 
 namespace HimbeertoniRaidTool
 {
@@ -18,7 +19,8 @@ namespace HimbeertoniRaidTool
         [PluginService] public static ChatGui ChatGui { get; private set; }
         [PluginService] public static DataManager Data { get; private set; }
         [PluginService] public static GameGui GameGui { get; private set; }
-    }
+        [PluginService] public static TargetManager TargetManager { get; private set; }
+}
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
     {

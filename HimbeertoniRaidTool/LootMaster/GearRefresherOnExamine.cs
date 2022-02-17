@@ -3,8 +3,6 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using System;
 using System.Runtime.InteropServices;
-using FFXIVClientStructs.Attributes;
-using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 
 namespace HimbeertoniRaidTool.LootMaster
@@ -14,8 +12,8 @@ namespace HimbeertoniRaidTool.LootMaster
     internal unsafe class GearRefresherOnExamine : IDisposable
     {
         private readonly RaidGroup Group;
-        
-        private Hook<CharacterInspectOnRefresh> Hook;
+
+        private readonly Hook<CharacterInspectOnRefresh> Hook;
         private readonly IntPtr HookAddress = Services.SigScanner.ScanText("48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2");
         private readonly IntPtr InventoryManagerAddress = Services.SigScanner.GetStaticAddressFromSig("BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B F8 48 85 C0");
         private readonly IntPtr getInventoryContainerPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 55 BB");
@@ -25,8 +23,9 @@ namespace HimbeertoniRaidTool.LootMaster
         private delegate InventoryContainer* GetInventoryContainer(IntPtr inventoryManager, InventoryType inventoryType);
         private delegate InventoryItem* GetContainerSlot(InventoryContainer* inventoryContainer, int slotId);
 
-        private GetInventoryContainer _getInventoryContainer;
-        private GetContainerSlot _getContainerSlot;
+        private readonly GetInventoryContainer _getInventoryContainer;
+        private readonly GetContainerSlot _getContainerSlot;
+
         internal GearRefresherOnExamine(RaidGroup rg)
         {
             Group = rg;
@@ -49,19 +48,23 @@ namespace HimbeertoniRaidTool.LootMaster
 
         }
         private void GetItemInfos()
-        { 
-            InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
-            if (container == null) return;
-            var examineWindow = (AddonCharacterInspect*) Services.GameGui.GetAddonByName("CharacterInspect", 1);
-            if (examineWindow == null) return;
-            var compInfo = (AtkUldComponentInfo*)examineWindow->PreviewComponent->UldManager.Objects;
-            if (compInfo == null || compInfo->ComponentType != ComponentType.Preview) return;
-            if (examineWindow->PreviewComponent->UldManager.NodeListCount < 4) return;
-            AtkResNode** nodeList = examineWindow->PreviewComponent->UldManager.NodeList;
-            AtkTextNode* textNode = (AtkTextNode*) nodeList[3];
+        {
+            //TODO: there may be an edge case where Target is switched before this is called 
+            Dalamud.Game.ClientState.Objects.Types.Character t = (Dalamud.Game.ClientState.Objects.Types.Character)Services.TargetManager.Target!;
+            Character? c = Group.GetCharacter(t.Name.TextValue);
+            if (c is null)
+                return;
+            Lumina.Excel.GeneratedSheets.ClassJob? cj = t.ClassJob.GameData;
+            if (cj is null)
+                return;
+            if (!Enum.TryParse(cj.Abbreviation, true, out AvailableClasses availableClass))
+                return;
+            PlayableClass playableClass = c.getClass(availableClass);
+            GearSet setToFill = playableClass.Gear;
 
-            //TODO: Get Correct Player/Character/Class to fill
-            GearSet setToFill = Group.Heal1.Gear;
+            InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
+            if (container == null)
+                return;
             setToFill.Clear();
             for (int i = 0; i < 13; i++)
             {
@@ -79,14 +82,5 @@ namespace HimbeertoniRaidTool.LootMaster
             Hook.Disable();
             Hook.Dispose();
         }
-    }
-    
-
-    [StructLayout(LayoutKind.Explicit, Size = 1280)]
-    [Addon("CharacterInspect")]
-    public unsafe struct AddonCharacterInspect
-    {
-        [FieldOffset(0x000)] public AtkUnitBase AtkUnitBase;
-        [FieldOffset(0x430)] public AtkComponentBase* PreviewComponent;
     }
 }
