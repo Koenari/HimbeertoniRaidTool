@@ -13,9 +13,7 @@ namespace HimbeertoniRaidTool.LootMaster
     {
         RaidGroup Group;
         private List<AsyncTask> tasks = new();
-        private AsyncTask? FinishedTask;
         private List<EditPlayerWindow> Childs = new();
-        private bool modalOpen = false;
         public LootmasterUI(RaidGroup group) : base()
         {
             this.Group = group;
@@ -37,34 +35,14 @@ namespace HimbeertoniRaidTool.LootMaster
 
         private void HandleAsync()
         {
-
-            if (modalOpen && FinishedTask != null)
+            tasks.RemoveAll(t => t.FinishedShowing);
+            foreach (AsyncTask t in tasks)
             {
-                if (ImGui.BeginPopupModal("TaskPopup", ref modalOpen))
+                if (t.IsCompleted)
                 {
-                    ImGui.Text(FinishedTask.Message);
-                    if (ImGui.Button("Close##TaskPopup"))
-                    {
-                        FinishedTask.Dispose();
-                        modalOpen = false;
-                        ImGui.CloseCurrentPopup();
-                    }
-                    ImGui.EndPopup();
-                }
-            }
-            else if (!modalOpen)
-            {
-                foreach (AsyncTask t in tasks)
-                {
-                    if (t.IsCompleted)
-                    {
-                        PluginLog.LogDebug("Task finished: " + t.Message);
-                        modalOpen = true;
-                        ImGui.OpenPopup("TaskPopup");
-                        FinishedTask = t;
-                        tasks.Remove(t);
-                        break;
-                    }
+                    t.StartShowing();
+                    Vector4 col = t.Result ? new Vector4(0.0f, 1.0f, 0.0f, 1.0f): new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                    ImGui.TextColored(col, t.Message);
                 }
             }
         }
@@ -151,6 +129,8 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 if (ImGui.Button(PlayerExists ?  "Edit": "Add" + "## " + player.Pos))
                 {
+                    if (Childs.Exists( x => x.Pos == player.Pos))
+                        return;
                     EditPlayerWindow win = new(this, player.Pos);
                     win.Show();
                     this.Childs.Add(win);
@@ -166,7 +146,7 @@ namespace HimbeertoniRaidTool.LootMaster
             }
 
         }
-        bool removeChild(EditPlayerWindow item)
+        bool RemoveChild(EditPlayerWindow item)
         {
             return this.Childs.Remove(item);
         }
@@ -175,13 +155,20 @@ namespace HimbeertoniRaidTool.LootMaster
             private readonly LootmasterUI LmUi;
             private readonly Player PlayerToAdd;
             private bool BISChanged = false;
+            internal Player.Position Pos => PlayerToAdd.Pos;
 
             internal EditPlayerWindow(LootmasterUI lmui, Player.Position pos) : base()
             {
                 this.LmUi = lmui;
-                if (this.LmUi.Group.GetPlayer(pos) == null)
-                    this.LmUi.Group.SetPlayer(pos, new(pos));
                 PlayerToAdd = this.LmUi.Group.GetPlayer(pos);
+                if (!PlayerToAdd.Filled && Helper.Target is not null)
+                { 
+                    PlayerToAdd.MainChar.Name = Helper.Target.Name.TextValue;
+                    PlayerToAdd.MainChar.MainClassType = Helper.TargetClass!;
+                    
+                }
+                    
+                
             }
 
             public override void Dispose() { }
@@ -191,7 +178,9 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (!this.visible)
                     return;
                 ImGui.SetNextWindowSize(new Vector2(500, 500), ImGuiCond.Always);
-                if (ImGui.Begin("Edit Player " + PlayerToAdd.Pos, ref this.visible, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
+                if (ImGui.Begin("Edit Player " + PlayerToAdd.Pos,  
+                    ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar 
+                    | ImGuiWindowFlags.NoScrollWithMouse))
                 {
                     ImGui.InputText("Player Name", ref PlayerToAdd.NickName, 50);
                     ImGui.InputText("Character Name", ref PlayerToAdd.MainChar.Name, 50);
@@ -238,7 +227,7 @@ namespace HimbeertoniRaidTool.LootMaster
             public override void Hide()
             {
                 base.Hide();
-                LmUi.removeChild(this);
+                LmUi.RemoveChild(this);
             }
         }
         class AsyncTask : IDisposable
@@ -246,15 +235,27 @@ namespace HimbeertoniRaidTool.LootMaster
             private string SuccessMessage;
             private string FailMessage;
             private Task<bool> Task;
+            public TimeSpan TimeToShow = TimeSpan.FromSeconds(10);
+            private DateTime? StartedShowingMessage;
             public string Message => Task.Result ? SuccessMessage : FailMessage;
+            public bool Result => Task.Result;
             public bool IsCompleted => Task.IsCompleted;
 
+            public bool FinishedShowing => DateTime.Now > StartedShowingMessage + TimeToShow;
+
+            
             internal AsyncTask(string sm, string fm, Task<bool> t)
             {
                 SuccessMessage = sm;
                 FailMessage = fm;
                 Task = t;
             }
+            public void StartShowing()
+            {
+                if (IsCompleted)
+                    StartedShowingMessage ??= DateTime.Now;
+            }
+
             public void Dispose()
             {
                 Task.Wait();
