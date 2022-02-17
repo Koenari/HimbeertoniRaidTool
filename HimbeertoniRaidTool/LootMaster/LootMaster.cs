@@ -1,7 +1,5 @@
-﻿using Dalamud.Logging;
-using HimbeertoniRaidTool.Data;
+﻿using HimbeertoniRaidTool.Data;
 using System;
-using static HimbeertoniRaidTool.Connectors.DalamudConnector;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -18,36 +16,10 @@ namespace HimbeertoniRaidTool.LootMaster
             this.Ui = new(group);
             GearRefresher = new(Group);
         }
-#if DEBUG
-        public void Test()
-        {
-            try
-            {
-                this.Group.Heal1.NickName = "Patrick";
-                this.Group.Heal1.MainChar = new Character("Mira Sorali");
-                this.Group.Heal1.MainChar.MainClassType = AvailableClasses.WHM;
-                GearSet gear = this.Group.Heal1.MainChar.MainClass.Gear;
-                gear.MainHand = new GearItem(35253);
-                if (!GetGearStats(gear.MainHand))
-                    PluginLog.LogError("Etro Failed");
-            }catch (Exception e)
-            {
-                
-                PluginLog.LogFatal(e.Message);
-                PluginLog.LogFatal(e.StackTrace ?? "");
-                PluginLog.LogFatal(e.Data.ToString() ?? "");
-            }
-        }
-#endif
         public void OnCommand(string args)
         {
             switch(args)
             {
-#if DEBUG
-                case "test":
-                    Test();
-                    break;
-#endif
                 default:
                     this.Ui.Show();
                     break;
