@@ -73,7 +73,6 @@ namespace HimbeertoniRaidTool.LootMaster
                     continue;
                 setToFill.Set((GearSetSlot)i, new(slot->ItemID));
             }
-            setToFill.FillStats();
         }
         public void Dispose()
         {

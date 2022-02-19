@@ -1,70 +1,52 @@
 ﻿using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Data
 {
     public class GearItem
     {
-        private static Dictionary<string, GearSource> SourceDic = new Dictionary<string, GearSource>
+        private readonly static Dictionary<string, GearSource> SourceDic = new(new ContainsEqualityComparer())
         {
             { "Asphodelos", GearSource.Raid },
             { "Radiant", GearSource.Tome },
             { "Classical", GearSource.Crafted },
         };
-        public uint ID { get; init; }
-        private Item? FromSheet;
-        private string _Name;
-        public string Name { get => _Name; set { _Name = value; UpdateSource(); } }
-        private string _Description;
-        public string Description { get => _Description; set { _Description = value; } }
-        private int _ItemLevel;
-        public int ItemLevel { get => _ItemLevel; set { _ItemLevel = value; } }
-        public GearSource Source { get; set; } = GearSource.undefined;
+        private uint _ID;
+        public uint ID { get => _ID; set { _ID = value; UpdateStats(); } }
         [JsonIgnore]
-        public bool Filled => (_ItemLevel > 0 && !_Name.Equals("") && !_Description.Equals("")) || FromSheet is not null;
+        public Item Item { get; private set; } = new();
         [JsonIgnore]
-        public bool NeedsStats => ID > 0 && Name == "";
+        public string Name => (Item.Name??new("")).RawString;
+        [JsonIgnore]
+        public uint ItemLevel => (Item.LevelItem is null) ? 0: Item.LevelItem.Row;
+        [JsonIgnore]
+        public GearSource Source { get; private set; } = GearSource.undefined;
+        [JsonIgnore]
+        public bool Filled => Name.Length > 0;
         [JsonIgnore]
         public bool Valid => ID > 0;
 
-        private ExcelSheet<Item> Sheet => Services.Data.Excel.GetSheet<Item>()!;
+        private static ExcelSheet<Item> Sheet => Services.Data.Excel.GetSheet<Item>()!;
 
         public GearItem() : this(0) { }
 
         public GearItem(uint idArg)
         {
             this.ID = idArg;
-            this._Name = "";
-            this._Description = "";
-            this._ItemLevel = 0;
+        }
+
+        private void UpdateStats()
+        {
             if (ID > 0)
-                FromSheet = Sheet.GetRow(ID);
-        }
-
-        private void Fill(GearItem dicItem)
-        {
-            if(this.ID == dicItem.ID)
             {
-                this.Name = dicItem.Name;
-                this.Description = dicItem.Description;
+                Item = Sheet.GetRow(ID) ?? (new Item());
+                Source = SourceDic.GetValueOrDefault(Name, GearSource.undefined);
             }
         }
-        private void UpdateSource()
-        {
-            string key = "";
-            foreach (string curKey in SourceDic.Keys)
-            {
-                if (_Name.Contains(curKey))
-                {
-                    key = curKey;
-                    break;
-                }
-            }
-            this.Source = SourceDic.GetValueOrDefault(key,GearSource.undefined);
-        }
-
     }
     public enum GearSource
     {
@@ -72,5 +54,16 @@ namespace HimbeertoniRaidTool.Data
         Tome,
         Crafted,
         undefined,
+    }
+    class ContainsEqualityComparer : IEqualityComparer<string>
+    {
+        public bool Equals(string? x, string? y)
+        {
+            if (x is null || y is null)
+                return false;
+            return x.Contains(y) || y.Contains(x);
+        }
+
+        public int GetHashCode([DisallowNull] string obj) => obj.GetHashCode();
     }
 }

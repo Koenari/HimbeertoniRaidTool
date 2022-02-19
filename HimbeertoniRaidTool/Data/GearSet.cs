@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using static HimbeertoniRaidTool.Connectors.EtroConnector;
-using static HimbeertoniRaidTool.Connectors.DalamudConnector;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -10,6 +8,7 @@ namespace HimbeertoniRaidTool.Data
     {
         public DateTime? TimeStamp;
         public string EtroID = "";
+        public string Name = "";
         private const int NumSlots = 12;
         private GearItem[] Items = new GearItem[NumSlots];
         public GearItem MainHand { get => Items[0]; set => Items[0] = value; }
@@ -24,7 +23,23 @@ namespace HimbeertoniRaidTool.Data
         public GearItem Ring1 { get => Items[9]; set => Items[9] = value; }
         public GearItem Ring2 { get => Items[10]; set => Items[10] = value; }
         public GearItem OffHand { get => Items[11]; set => Items[11] = value; }
+        [JsonIgnore]
+        public int ItemLevel
+        {
+            get
+            {
+                uint itemLevel = 0;
+                for (int i = 0; i < NumSlots; i++)
+                {
+                    if (Items[i] != null && Items[i].ItemLevel > 0)
+                    {
+                        itemLevel += Items[i].ItemLevel;
+                    }
+                }
+                return (int)((float)itemLevel / (OffHand.Filled ? NumSlots : (NumSlots - 1)));
 
+            }
+        }
         public GearSet()
         {
             Clear();
@@ -36,19 +51,7 @@ namespace HimbeertoniRaidTool.Data
                 Items[i] = new(0);
             }
         }
-        public int GetItemLevel()
-        {
-            int itemLevel = 0;
-            for(int i = 0; i < NumSlots; i++)
-            {
-                if (Items[i] != null && Items[i].ItemLevel > 0)
-                {
-                    itemLevel += Items[i].ItemLevel;
-                }
-            }
-            return (int)((float)itemLevel / (OffHand.Filled ? NumSlots : (NumSlots-1)));
-
-        }
+        
         public GearItem Set(GearSetSlot slot, GearItem value) => Items[ToIndex(slot)] = value;
         public GearItem Get(GearSetSlot slot) => Items[ToIndex(slot)];
         private int ToIndex(GearSetSlot slot)
@@ -83,43 +86,8 @@ namespace HimbeertoniRaidTool.Data
                     throw new IndexOutOfRangeException("GearSlot" + slot.ToString() + "does not exist");
             }
         }
-
-        public bool FillStats()
-        {
-
-            bool result = true;
-            List<bool> tasks = new();
-            if (MainHand != null && MainHand.Name == "")
-                tasks.Add(GetGearStats(MainHand));
-            if (Head != null && Head.Name == "")
-                tasks.Add(GetGearStats(Head));
-            if (Body != null && Body.Name == "")
-                tasks.Add(GetGearStats(Body));
-            if (Hands != null && Hands.Name == "")
-                tasks.Add(GetGearStats(Hands));
-            if (Legs != null && Legs.Name == "")
-                tasks.Add(GetGearStats(Legs));
-            if (Feet != null && Feet.Name == "")
-                tasks.Add(GetGearStats(Feet));
-            if (Ear != null && Ear.Name == "")
-                tasks.Add(GetGearStats(Ear));
-            if (Neck != null && Neck.Name == "")
-                tasks.Add(GetGearStats(Neck));
-            if (Wrist != null && Wrist.Name == "")
-                tasks.Add(GetGearStats(Wrist));
-            if (Ring1 != null && Ring1.Name == "")
-                tasks.Add(GetGearStats(Ring1));
-            if (Ring2 != null && Ring2.Name == "")
-                tasks.Add(GetGearStats(Ring2));
-            if (OffHand != null && OffHand.Name == "")
-                tasks.Add(GetGearStats(OffHand));
-            foreach (bool t in tasks)
-            {
-                result &= t;
-            }
-            return result;
-        }
     }
+        
     public enum GearSetSlot : short
     {
         MainHand = 0,
