@@ -17,7 +17,7 @@ namespace HimbeertoniRaidTool.UI
 
         public virtual void Hide() => Visible = false;
 
-        public virtual void Dispose() => Services.PluginInterface.UiBuilder.Draw -= this.Draw
+        public virtual void Dispose() => Services.PluginInterface.UiBuilder.Draw -= this.Draw;
 
         public abstract void Draw();
     }

@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using ImGuiNET;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
+using System.Drawing;
+using static HimbeertoniRaidTool.UI.Helper;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -34,7 +36,7 @@ namespace HimbeertoniRaidTool.LootMaster
             Childs.RemoveAll(x => !x.IsVisible);
             DrawMainWindow();
         }
-        static Vector4 ILevelColor(GearItem item)
+        static Color ILevelColor(GearItem item)
         {
             if (item.ItemLevel >= 600)
             {
@@ -42,7 +44,7 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             else if (item.ItemLevel >= 590)
             {
-                return Color.BabyBlue;
+                return Color.Aquamarine;
             }
             else if (item.ItemLevel >= 580)
             {
@@ -158,13 +160,14 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.TableNextColumn();
                 if (item.Valid)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Button, ILevelColor(item));
-                    ImGui.PushStyleColor(ImGuiCol.Text, Color.Black);
+                    ImGui.PushStyleColor(ImGuiCol.Button, new ColorHSVA(ILevelColor(item)) { S = 0.75f, V = 0.75f }.ToVec4);
+                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new ColorHSVA(ILevelColor(item)) { S = 0.5f, V = 0.5f }.ToVec4);
+                    ImGui.PushStyleColor(ImGuiCol.Text, Vec4(Color.Black));
                     if (ImGui.Button(item.Item.Name))
                     {
                         Childs.Add(new ShowItemWindow(item));
                     }
-                    ImGui.PopStyleColor(2);
+                    ImGui.PopStyleColor(3);
                 }
                 else
                 {
@@ -173,13 +176,14 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.NewLine();
                 if (bis.Valid)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Button, Color.White);
-                    ImGui.PushStyleColor(ImGuiCol.Text, Color.Black);
+                    ImGui.PushStyleColor(ImGuiCol.Button, new ColorARGB(Color.White) { A = 0.7f }.ToVec4);
+                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new ColorARGB(Color.White) { A = 0.9f }.ToVec4);
+                    ImGui.PushStyleColor(ImGuiCol.Text, Vec4(Color.Black));
                     if (ImGui.Button(bis.Item.Name))
                     {
                         Childs.Add(new ShowItemWindow(bis));
                     }
-                    ImGui.PopStyleColor(2);
+                    ImGui.PopStyleColor(3);
 
                 }
                 else
@@ -263,10 +267,10 @@ namespace HimbeertoniRaidTool.LootMaster
                                 Task<bool> task = (Task<bool>)t;
                                 if (task.Result)
                                 {
-                                    ImGui.TextColored(Color.Green, "BIS for " + PlayerToAdd.MainChar.Name + " succesfully updated");
+                                    ImGui.TextColored(Vec4(Color.Green), "BIS for " + PlayerToAdd.MainChar.Name + " succesfully updated");
                                 } else
                                 {
-                                    ImGui.TextColored(Color.Red, "BIS update for " + PlayerToAdd.MainChar.Name + " failed");
+                                    ImGui.TextColored(Vec4(Color.Red), "BIS update for " + PlayerToAdd.MainChar.Name + " failed");
                                 }
                             }
                                 , Task.Run(() => EtroConnector.GetGearSet(PlayerToAdd.MainChar.MainClass.BIS))));
@@ -294,7 +298,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     
                     if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
                     {
-                        ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.GetColorU32(Color.WithAlpha(Color.White, 0.5f)), 1);
+                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(new ColorHSVA(Color.White) { A = 0.5f}.ToVec4), 1);
                         ImGui.TableSetupColumn("Header");
                         ImGui.TableSetupColumn("Value");
                         ImGui.TableNextColumn();
