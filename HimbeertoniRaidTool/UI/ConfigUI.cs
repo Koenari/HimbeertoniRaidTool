@@ -17,13 +17,13 @@ namespace HimbeertoniRaidTool.UI
 
         public override void Draw()
         {
-            if (!visible)
+            if (!Visible)
             {
                 return;
             }
 
             ImGui.SetNextWindowSize(new Vector2(350, 200), ImGuiCond.Always);
-            if (ImGui.Begin("A Wonderful Configuration Window", ref this.visible,
+            if (ImGui.Begin("HimbeerToni Raid Tool Configuration", ref this.Visible,
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))
             {
                 foreach(KeyValuePair<AvailableClasses,string> pair in HRTPlugin.Configuration.DefaultBIS)

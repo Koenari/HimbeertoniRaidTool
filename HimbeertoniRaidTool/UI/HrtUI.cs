@@ -8,27 +8,16 @@ namespace HimbeertoniRaidTool.UI
     // to do any cleanup
     public abstract class HrtUI : IDisposable
     {
-        protected bool visible = false;
+        protected bool Visible = false;
+        public bool IsVisible => Visible;
 
-        public HrtUI()
-        {
-            Services.PluginInterface.UiBuilder.Draw += this.Draw;
-        }
+        public HrtUI() => Services.PluginInterface.UiBuilder.Draw += this.Draw;
 
-        public virtual void Show()
-        {
-            this.visible = true;
-        }
+        public virtual void Show() => Visible = true;
 
-        public virtual void Hide()
-        {
-            this.visible = false;
-        }
+        public virtual void Hide() => Visible = false;
 
-        public virtual void Dispose()
-        {
-            Services.PluginInterface.UiBuilder.Draw -= this.Draw;
-        }
+        public virtual void Dispose() => Services.PluginInterface.UiBuilder.Draw -= this.Draw
 
         public abstract void Draw();
     }

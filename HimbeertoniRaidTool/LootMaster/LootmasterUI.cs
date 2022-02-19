@@ -11,47 +11,66 @@ namespace HimbeertoniRaidTool.LootMaster
     public class LootmasterUI : HrtUI
     {
         RaidGroup Group;
-        private List<AsyncTask> tasks = new();
-        private List<EditPlayerWindow> Childs = new();
+        private readonly List<AsyncTaskWithUiResult> Tasks = new();
+        private readonly List<HrtUI> Childs = new();
         public LootmasterUI(RaidGroup group) : base()
         {
             this.Group = group;
         }
         public override void Dispose()
         {
-            foreach (AsyncTask t in tasks)
+            foreach (AsyncTaskWithUiResult t in Tasks)
                 t.Dispose();
-            foreach (EditPlayerWindow win in Childs)
+            Tasks.Clear();
+            foreach (HrtUI win in Childs)
                 win.Dispose();
+            Childs.Clear();
         }
 
         public override void Draw()
         {
-            if (!this.visible)
+            if (!this.Visible)
                 return;
+            Childs.RemoveAll(x => !x.IsVisible);
             DrawMainWindow();
+        }
+        static Vector4 ILevelColor(GearItem item)
+        {
+            if (item.ItemLevel >= 600)
+            {
+                return Color.Green;
+            }
+            else if (item.ItemLevel >= 590)
+            {
+                return Color.BabyBlue;
+            }
+            else if (item.ItemLevel >= 580)
+            {
+                return Color.Yellow;
+            }
+            else
+            {
+                return Color.Red;
+            }
         }
 
         private void HandleAsync()
         {
-            tasks.RemoveAll(t => t.FinishedShowing);
-            foreach (AsyncTask t in tasks)
+            Tasks.RemoveAll(t => t.FinishedShowing);
+            foreach (AsyncTaskWithUiResult t in Tasks)
             {
-                if (t.IsCompleted)
-                {
-                    t.StartShowing();
-                    Vector4 col = t.Result ? new Vector4(0.0f, 1.0f, 0.0f, 1.0f): new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-                    ImGui.TextColored(col, t.Message);
-                }
+                t.DrawResult();
             }
         }
         private void DrawMainWindow()
         {
+            
             ImGui.SetNextWindowSize(new Vector2(1000, 800), ImGuiCond.FirstUseEver);
-            if (ImGui.Begin("Loot Master", ref this.visible,ImGuiWindowFlags.NoScrollbar))
+            
+            if (ImGui.Begin("Loot Master", ref this.Visible,ImGuiWindowFlags.NoScrollbar))
             {
                 HandleAsync();
-                if (ImGui.BeginTable("RaidGruppe", 14, ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable, new Vector2(), 5))
+                if (ImGui.BeginTable("RaidGruppe", 14, ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
                 {
                     ImGui.TableSetupColumn("Player");
                     ImGui.TableSetupColumn("iLvl");
@@ -128,27 +147,48 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 if (ImGui.Button(PlayerExists ?  "Edit": "Add" + "## " + player.Pos))
                 {
-                    if (Childs.Exists( x => x.Pos == player.Pos))
+                    if (Childs.Exists( x => (x.GetType() == typeof(EditPlayerWindow)) && ((EditPlayerWindow)x).Pos == player.Pos))
                         return;
-                    EditPlayerWindow win = new(this, player.Pos);
-                    win.Show();
-                    this.Childs.Add(win);
+                    this.Childs.Add(new EditPlayerWindow(this, player.Pos));
 
                 }
             }
             void DrawItem(GearItem item, GearItem bis)
             {
                 ImGui.TableNextColumn();
-                ushort icon = item.Item.Icon;
-                ImGui.Text(item.Valid ? item.Name : "Empty");
+                if (item.Valid)
+                {
+                    ImGui.PushStyleColor(ImGuiCol.Button, ILevelColor(item));
+                    ImGui.PushStyleColor(ImGuiCol.Text, Color.Black);
+                    if (ImGui.Button(item.Item.Name))
+                    {
+                        Childs.Add(new ShowItemWindow(item));
+                    }
+                    ImGui.PopStyleColor(2);
+                }
+                else
+                {
+                    ImGui.Text("Empty");
+                }
                 ImGui.NewLine();
-                ImGui.Text(bis.Valid ? bis.Name : "Empty");
+                if (bis.Valid)
+                {
+                    ImGui.PushStyleColor(ImGuiCol.Button, Color.White);
+                    ImGui.PushStyleColor(ImGuiCol.Text, Color.Black);
+                    if (ImGui.Button(bis.Item.Name))
+                    {
+                        Childs.Add(new ShowItemWindow(bis));
+                    }
+                    ImGui.PopStyleColor(2);
+
+                }
+                else
+                {
+                    ImGui.Text("Empty");
+                }
+
             }
 
-        }
-        bool RemoveChild(EditPlayerWindow item)
-        {
-            return this.Childs.Remove(item);
         }
         class EditPlayerWindow : HrtUI
         {
@@ -167,18 +207,15 @@ namespace HimbeertoniRaidTool.LootMaster
                     PlayerToAdd.MainChar.MainClassType = Helper.TargetClass!;
                     
                 }
-                    
-                
+                Show();
             }
-
-            public override void Dispose() { }
 
             public override void Draw()
             {
-                if (!this.visible)
+                if (!this.Visible)
                     return;
                 ImGui.SetNextWindowSize(new Vector2(500, 500), ImGuiCond.Always);
-                if (ImGui.Begin("Edit Player " + PlayerToAdd.Pos,  
+                if (ImGui.Begin("Edit Player " + PlayerToAdd.Pos, ref this.Visible, 
                     ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar 
                     | ImGuiWindowFlags.NoScrollWithMouse))
                 {
@@ -190,12 +227,17 @@ namespace HimbeertoniRaidTool.LootMaster
                     {
                         this.PlayerToAdd.MainChar.MainClassType = (AvailableClasses) mainClass;
                     }
+                    ImGui.SameLine();
+                    if (ImGui.Button("Current"))
+                    {
+
+                    }
                     if(ImGui.InputText("BIS", ref PlayerToAdd.MainChar.MainClass.BIS.EtroID, 100))
                     {
                         BISChanged = true;
                     }
                     ImGui.SameLine();
-                    if (ImGui.Button("Default##BIS##EditPlayerWindow##" + PlayerToAdd.Pos))
+                    if (ImGui.Button("Default##BIS"))
                     {
                         if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(HRTPlugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType]))
                         {
@@ -204,7 +246,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         }
                     }
                     ImGui.SameLine();
-                    if (ImGui.Button("Reset##BIS##EditPlayerWindow##"+PlayerToAdd.Pos))
+                    if (ImGui.Button("Reset##BIS"))
                     {
                         if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals("")){
                             PlayerToAdd.MainChar.MainClass.BIS.EtroID = "";
@@ -212,54 +254,62 @@ namespace HimbeertoniRaidTool.LootMaster
                             PlayerToAdd.MainChar.MainClass.BIS.Clear();
                         }
                     }
-                    if (ImGui.Button("Save##EditPlayerWindow##" + PlayerToAdd.Pos))
+                    if (ImGui.Button("Save"))
                     {
                         if (BISChanged)
                         {
-                            LmUi.tasks.Add(new("BIS for " + PlayerToAdd.MainChar.Name + " succesfully updated", "BIS update for " + PlayerToAdd.MainChar.Name + " failed", Task<bool>.Run(() => EtroConnector.GetGearSet(PlayerToAdd.MainChar.MainClass.BIS))));
+                            
+                            LmUi.Tasks.Add(new( (t) => {
+                                Task<bool> task = (Task<bool>)t;
+                                if (task.Result)
+                                {
+                                    ImGui.TextColored(Color.Green, "BIS for " + PlayerToAdd.MainChar.Name + " succesfully updated");
+                                } else
+                                {
+                                    ImGui.TextColored(Color.Red, "BIS update for " + PlayerToAdd.MainChar.Name + " failed");
+                                }
+                            }
+                                , Task.Run(() => EtroConnector.GetGearSet(PlayerToAdd.MainChar.MainClass.BIS))));
                         }
                         this.Hide();
                     }
                 }
                 ImGui.End();
             }
-            public override void Hide()
-            {
-                base.Hide();
-                LmUi.RemoveChild(this);
-            }
         }
-        class AsyncTask : IDisposable
+
+        public class ShowItemWindow : HrtUI
         {
-            private string SuccessMessage;
-            private string FailMessage;
-            private Task<bool> Task;
-            public TimeSpan TimeToShow = TimeSpan.FromSeconds(10);
-            private DateTime? StartedShowingMessage;
-            public string Message => Task.Result ? SuccessMessage : FailMessage;
-            public bool Result => Task.Result;
-            public bool IsCompleted => Task.IsCompleted;
-
-            public bool FinishedShowing => DateTime.Now > StartedShowingMessage + TimeToShow;
-
-            
-            internal AsyncTask(string sm, string fm, Task<bool> t)
+            private readonly GearItem Item;
+            public ShowItemWindow(GearItem item) : base() => (Item, Visible) = (item, true);
+            public override void Draw()
             {
-                SuccessMessage = sm;
-                FailMessage = fm;
-                Task = t;
-            }
-            public void StartShowing()
-            {
-                if (IsCompleted)
-                    StartedShowingMessage ??= DateTime.Now;
-            }
-
-            public void Dispose()
-            {
-                Task.Wait();
-                Task.Dispose();
+                if (!this.Visible)
+                    return;
+                ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.Always);
+                if (ImGui.Begin(Item.Item.Name, ref Visible,
+                    ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
+                    | ImGuiWindowFlags.NoScrollWithMouse))
+                {
+                    
+                    if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
+                    {
+                        ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.GetColorU32(Color.WithAlpha(Color.White, 0.5f)), 1);
+                        ImGui.TableSetupColumn("Header");
+                        ImGui.TableSetupColumn("Value");
+                        ImGui.TableNextColumn();
+                        ImGui.Text("Name");
+                        ImGui.TableNextColumn();
+                        ImGui.Text(Item.Item.Name);
+                        ImGui.TableNextColumn();
+                        ImGui.Text("Item Level");
+                        ImGui.TableNextColumn();
+                        ImGui.Text(Item.ItemLevel.ToString());
+                        ImGui.EndTable();
+                    }
+                }
             }
         }
+        
     }
 }
