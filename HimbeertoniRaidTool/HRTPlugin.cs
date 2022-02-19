@@ -10,6 +10,7 @@ using Dalamud.Data;
 using Dalamud.Game.ClientState.Objects;
 using HimbeertoniRaidTool.UI;
 using HimbeertoniRaidTool.Data;
+using Dalamud.Game.ClientState;
 
 namespace HimbeertoniRaidTool
 {
@@ -23,6 +24,7 @@ namespace HimbeertoniRaidTool
         [PluginService] public static GameGui GameGui { get; private set; }
         [PluginService] public static TargetManager TargetManager { get; private set; }
         [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
+        [PluginService] public static ClientState ClientState { get; private set; }
     }
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin

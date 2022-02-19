@@ -7,6 +7,9 @@ using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using System.Drawing;
 using static HimbeertoniRaidTool.UI.Helper;
+using static HimbeertoniRaidTool.LootMaster.Helper;
+using static HimbeertoniRaidTool.Services;
+using Dalamud.Logging;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -231,10 +234,27 @@ namespace HimbeertoniRaidTool.LootMaster
                     {
                         this.PlayerToAdd.MainChar.MainClassType = (AvailableClasses) mainClass;
                     }
-                    ImGui.SameLine();
-                    if (ImGui.Button("Current"))
+                    
+                    AvailableClasses? curClass = null;
+                    if (PlayerToAdd.MainChar.Name.Equals(Target?.Name.TextValue))
                     {
-
+                        AvailableClasses parsed;
+                        if (Enum.TryParse(Target!.ClassJob.GameData!.Abbreviation, false, out parsed))
+                            curClass = parsed;
+                    }
+                    else if (PlayerToAdd.MainChar.Name.Equals(ClientState.LocalPlayer?.Name.TextValue))
+                    {
+                        AvailableClasses parsed;
+                        if(Enum.TryParse(ClientState.LocalPlayer!.ClassJob.GameData!.Abbreviation, false, out parsed))
+                            curClass = parsed;
+                    }
+                    if (curClass is not null)
+                    {
+                        ImGui.SameLine();
+                        if (ImGui.Button("Current"))
+                        {
+                            PlayerToAdd.MainChar.MainClassType = (AvailableClasses)curClass;
+                        }
                     }
                     if(ImGui.InputText("BIS", ref PlayerToAdd.MainChar.MainClass.BIS.EtroID, 100))
                     {
@@ -298,19 +318,24 @@ namespace HimbeertoniRaidTool.LootMaster
                     
                     if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
                     {
-                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(new ColorHSVA(Color.White) { A = 0.5f}.ToVec4), 1);
                         ImGui.TableSetupColumn("Header");
                         ImGui.TableSetupColumn("Value");
-                        ImGui.TableNextColumn();
-                        ImGui.Text("Name");
-                        ImGui.TableNextColumn();
-                        ImGui.Text(Item.Item.Name);
-                        ImGui.TableNextColumn();
-                        ImGui.Text("Item Level");
-                        ImGui.TableNextColumn();
-                        ImGui.Text(Item.ItemLevel.ToString());
+                        DrawRow("Name", Item.Item.Name);
+                        DrawRow("Item Level", Item.ItemLevel.ToString());
+                        
                         ImGui.EndTable();
                     }
+                }
+                void DrawRow(string label, string value){
+
+                    
+                    ImGui.TableNextColumn();
+                    ImGui.Text(label);
+                    ImGui.PushStyleColor(ImGuiCol.TableRowBg, new ColorHSVA(Color.White) { A = 0.5f }.ToVec4);
+                    ImGui.TableNextColumn();
+                    ImGui.Text(value);
+                    ImGui.PopStyleColor();
+
                 }
             }
         }
