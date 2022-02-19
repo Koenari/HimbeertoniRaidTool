@@ -39,7 +39,6 @@ namespace HimbeertoniRaidTool.Data
             client.Headers = Headers;
             try
             {
-                PluginLog.LogDebug(client.IsBusy.ToString());
                 while (client.IsBusy)
                 {
                     PluginLog.LogDebug("WebClient Busy");
