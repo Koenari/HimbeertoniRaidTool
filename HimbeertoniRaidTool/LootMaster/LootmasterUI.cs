@@ -91,7 +91,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.TableSetupColumn("Ring 1");
                     ImGui.TableSetupColumn("Ring 2");
                     ImGui.TableHeadersRow();
-                    foreach (Player player in Group.GetPlayers())
+                    foreach (Player player in Group.Players)
                     {
                         DrawPlayer(player);
                     }
