@@ -4,8 +4,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using ImGuiNET;
 using HimbeertoniRaidTool.Data;
-using Dalamud.Logging;
-using static HimbeertoniRaidTool.Connectors.EtroConnector;
+using HimbeertoniRaidTool.UI;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -91,9 +90,9 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.TableNextColumn();
                 ImGui.Text(player.Pos + "\n" + player.NickName + "\n" + player.MainChar.Name + " (" + player.MainChar.MainClassType + ")");
                 ImGui.TableNextColumn();
-                ImGui.Text(gear.GetItemLevel().ToString());
-                ImGui.NewLine();
-                ImGui.Text(bis.GetItemLevel().ToString());
+                ImGui.Text(gear.ItemLevel.ToString());
+                ImGui.Text("+ "+(bis.ItemLevel - gear.ItemLevel));
+                ImGui.Text(bis.ItemLevel.ToString());
                 DrawItem(gear.MainHand, bis.MainHand);
                 DrawItem(gear.Head, bis.Head);
                 DrawItem(gear.Body, bis.Body);
@@ -140,6 +139,7 @@ namespace HimbeertoniRaidTool.LootMaster
             void DrawItem(GearItem item, GearItem bis)
             {
                 ImGui.TableNextColumn();
+                ushort icon = item.Item.Icon;
                 ImGui.Text(item.Valid ? item.Name : "Empty");
                 ImGui.NewLine();
                 ImGui.Text(bis.Valid ? bis.Name : "Empty");
@@ -197,10 +197,10 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.SameLine();
                     if (ImGui.Button("Default##BIS##EditPlayerWindow##" + PlayerToAdd.Pos))
                     {
-                        if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(HRTPlugin.Plugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType]))
+                        if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(HRTPlugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType]))
                         {
                             BISChanged = true;
-                            PlayerToAdd.MainChar.MainClass.BIS.EtroID = HRTPlugin.Plugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType];
+                            PlayerToAdd.MainChar.MainClass.BIS.EtroID = HRTPlugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType];
                         }
                     }
                     ImGui.SameLine();
@@ -216,7 +216,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     {
                         if (BISChanged)
                         {
-                            LmUi.tasks.Add(new("BIS for " + PlayerToAdd.MainChar.Name + " succesfully updated", "BIS update for " + PlayerToAdd.MainChar.Name + " failed", Task<bool>.Run(() => GetGearSet(PlayerToAdd.MainChar.MainClass.BIS))));
+                            LmUi.tasks.Add(new("BIS for " + PlayerToAdd.MainChar.Name + " succesfully updated", "BIS update for " + PlayerToAdd.MainChar.Name + " failed", Task<bool>.Run(() => EtroConnector.GetGearSet(PlayerToAdd.MainChar.MainClass.BIS))));
                         }
                         this.Hide();
                     }

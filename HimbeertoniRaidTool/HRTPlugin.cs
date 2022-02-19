@@ -8,6 +8,8 @@ using Dalamud.Logging;
 using Dalamud.Game;
 using Dalamud.Data;
 using Dalamud.Game.ClientState.Objects;
+using HimbeertoniRaidTool.UI;
+using HimbeertoniRaidTool.Data;
 
 namespace HimbeertoniRaidTool
 {
@@ -20,24 +22,23 @@ namespace HimbeertoniRaidTool
         [PluginService] public static DataManager Data { get; private set; }
         [PluginService] public static GameGui GameGui { get; private set; }
         [PluginService] public static TargetManager TargetManager { get; private set; }
-}
+        [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
+    }
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
     {
         
         private static HRTPlugin? _Plugin;
-        public static HRTPlugin Plugin => _Plugin ?? throw new NullReferenceException();
+        private static HRTPlugin Plugin => _Plugin ?? throw new NullReferenceException();
+        public static Configuration Configuration => Plugin._Configuration;
         public string Name => "Himbeertoni Raid Tool";
 
         private readonly List<Tuple<string, string, bool>> Commands = new List<Tuple<string, string, bool>> {
             new Tuple<string, string, bool>("/hrt" , "Does nothing at the moment", true ),
             new Tuple<string, string, bool>("/lootmaster", "Opens LootMaster Window", false ),
             new Tuple<string, string, bool>("/lm" , "Opens LootMaster Window (short version)", true )
-        };
-        
-        internal DalamudPluginInterface PluginInterface { get; init; }
-        
-        internal Configuration Configuration { get; init; }
+        };        
+        private Configuration _Configuration { get; init; }
         private ConfigUI OptionsUi { get; init; }
         private LootMaster.LootMaster LM { get; init; }
         
@@ -46,17 +47,8 @@ namespace HimbeertoniRaidTool
             _Plugin = this;
             pluginInterface.Create<Services>();
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
-            this.PluginInterface = pluginInterface;
-            this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-            this.Configuration.Initialize(this.PluginInterface);
-            if(this.Configuration.GroupInfo != null)
-            {
-                this.LM = new(Configuration.GroupInfo);
-            }
-            else
-            {
-                this.LM = new(this);
-            }
+            _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+            LM = new(_Configuration.GroupInfo?? new RaidGroup(""));
             this.OptionsUi = new(this);
             InitCommands();
         }

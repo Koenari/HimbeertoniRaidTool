@@ -9,7 +9,6 @@ namespace HimbeertoniRaidTool.LootMaster
         public LootmasterUI Ui;
 		private RaidGroup Group;
         private GearRefresherOnExamine GearRefresher;
-        public LootMaster(HRTPlugin plugin) : this(new RaidGroup("")) { }
         public LootMaster(RaidGroup group)
         {
             this.Group = group;
@@ -30,7 +29,7 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             this.GearRefresher.Dispose();
             this.Ui.Dispose();
-            HRTPlugin.Plugin.Configuration.UpdateRaidGroup(Group);
+            HRTPlugin.Configuration.UpdateRaidGroup(Group);
         }
 	}
 }

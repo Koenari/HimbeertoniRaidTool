@@ -2,19 +2,17 @@
 using System;
 using System.Numerics;
 
-namespace HimbeertoniRaidTool
+namespace HimbeertoniRaidTool.UI
 {
     // It is good to have this be disposable in general, in case you ever need it
     // to do any cleanup
     public abstract class HrtUI : IDisposable
     {
-        [Obsolete("Use HRTPlugin.Plugin")]
-        protected HRTPlugin Parent => HRTPlugin.Plugin;
         protected bool visible = false;
 
         public HrtUI()
         {
-            HRTPlugin.Plugin.PluginInterface.UiBuilder.Draw += this.Draw;
+            Services.PluginInterface.UiBuilder.Draw += this.Draw;
         }
 
         public virtual void Show()
@@ -29,7 +27,7 @@ namespace HimbeertoniRaidTool
 
         public virtual void Dispose()
         {
-            HRTPlugin.Plugin.PluginInterface.UiBuilder.Draw -= this.Draw;
+            Services.PluginInterface.UiBuilder.Draw -= this.Draw;
         }
 
         public abstract void Draw();

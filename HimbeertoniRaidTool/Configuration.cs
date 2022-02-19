@@ -36,19 +36,11 @@ namespace HimbeertoniRaidTool
         };
 
         public RaidGroup? GroupInfo;
-        // the below exist just to make saving less cumbersome
-
-        [NonSerialized]
-        private DalamudPluginInterface? pluginInterface;
-
-        public void Initialize(DalamudPluginInterface pluginInterface)
-        {
-            this.pluginInterface = pluginInterface;
-        }
+        // the below exist just to make saving 
 
         public void Save()
         {
-            this.pluginInterface!.SavePluginConfig(this);
+            Services.PluginInterface.SavePluginConfig(this);
         }
 
         internal void UpdateRaidGroup(RaidGroup group)
