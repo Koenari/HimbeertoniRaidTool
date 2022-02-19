@@ -10,7 +10,7 @@ namespace HimbeertoniRaidTool.Data
         public string EtroID = "";
         public string Name = "";
         private const int NumSlots = 12;
-        private GearItem[] Items = new GearItem[NumSlots];
+        private readonly GearItem[] Items = new GearItem[NumSlots];
         public GearItem MainHand { get => Items[0]; set => Items[0] = value; }
         public GearItem Head { get => Items[1]; set => Items[1] = value; }
         public GearItem Body { get => Items[2]; set => Items[2] = value; }
@@ -54,37 +54,24 @@ namespace HimbeertoniRaidTool.Data
         
         public GearItem Set(GearSetSlot slot, GearItem value) => Items[ToIndex(slot)] = value;
         public GearItem Get(GearSetSlot slot) => Items[ToIndex(slot)];
-        private int ToIndex(GearSetSlot slot)
+        private static int ToIndex(GearSetSlot slot)
         {
-            switch (slot)
+            return slot switch
             {
-                case GearSetSlot.MainHand:
-                    return 0;
-                case GearSetSlot.OffHand:
-                    return 11;
-                case GearSetSlot.Head:
-                    return 1;
-                case GearSetSlot.Body:
-                    return 2;
-                case GearSetSlot.Hands:
-                    return 3;
-                case GearSetSlot.Legs:
-                    return 4;
-                case GearSetSlot.Feet:
-                    return 5;
-                case GearSetSlot.Ear:
-                    return 6;
-                case GearSetSlot.Neck:
-                    return 7;
-                case GearSetSlot.Wrist:
-                    return 8;
-                case GearSetSlot.Ring1:
-                    return 9;
-                case GearSetSlot.Ring2:
-                    return 10;
-                default:
-                    throw new IndexOutOfRangeException("GearSlot" + slot.ToString() + "does not exist");
-            }
+                GearSetSlot.MainHand => 0,
+                GearSetSlot.OffHand => 11,
+                GearSetSlot.Head => 1,
+                GearSetSlot.Body => 2,
+                GearSetSlot.Hands => 3,
+                GearSetSlot.Legs => 4,
+                GearSetSlot.Feet => 5,
+                GearSetSlot.Ear => 6,
+                GearSetSlot.Neck => 7,
+                GearSetSlot.Wrist => 8,
+                GearSetSlot.Ring1 => 9,
+                GearSetSlot.Ring2 => 10,
+                _ => throw new IndexOutOfRangeException("GearSlot" + slot.ToString() + "does not exist"),
+            };
         }
     }
         

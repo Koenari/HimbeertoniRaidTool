@@ -15,7 +15,7 @@ namespace HimbeertoniRaidTool.LootMaster
 {
     public class LootmasterUI : HrtUI
     {
-        RaidGroup Group;
+        readonly RaidGroup Group;
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
         private readonly List<HrtUI> Childs = new();
         public LootmasterUI(RaidGroup group) : base()
@@ -238,14 +238,12 @@ namespace HimbeertoniRaidTool.LootMaster
                     AvailableClasses? curClass = null;
                     if (PlayerToAdd.MainChar.Name.Equals(Target?.Name.TextValue))
                     {
-                        AvailableClasses parsed;
-                        if (Enum.TryParse(Target!.ClassJob.GameData!.Abbreviation, false, out parsed))
+                        if (Enum.TryParse(Target!.ClassJob.GameData!.Abbreviation, false, out AvailableClasses parsed))
                             curClass = parsed;
                     }
                     else if (PlayerToAdd.MainChar.Name.Equals(ClientState.LocalPlayer?.Name.TextValue))
                     {
-                        AvailableClasses parsed;
-                        if(Enum.TryParse(ClientState.LocalPlayer!.ClassJob.GameData!.Abbreviation, false, out parsed))
+                        if(Enum.TryParse(ClientState.LocalPlayer!.ClassJob.GameData!.Abbreviation, false, out AvailableClasses parsed))
                             curClass = parsed;
                     }
                     if (curClass is not null)
@@ -326,7 +324,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         ImGui.EndTable();
                     }
                 }
-                void DrawRow(string label, string value){
+                static void DrawRow(string label, string value){
 
                     
                     ImGui.TableNextColumn();

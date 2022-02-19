@@ -57,7 +57,7 @@ namespace HimbeertoniRaidTool.LootMaster
             AvailableClasses? availableClass = TargetClass;
             if (availableClass is null)
                 return;
-            PlayableClass playableClass = c.getClass((AvailableClasses) availableClass);
+            PlayableClass playableClass = c.GetClass((AvailableClasses) availableClass);
             GearSet setToFill = playableClass.Gear;
 
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);

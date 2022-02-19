@@ -32,15 +32,16 @@ namespace HimbeertoniRaidTool
         
         private static HRTPlugin? _Plugin;
         private static HRTPlugin Plugin => _Plugin ?? throw new NullReferenceException();
+        private readonly Configuration _Configuration;
         public static Configuration Configuration => Plugin._Configuration;
         public string Name => "Himbeertoni Raid Tool";
 
-        private readonly List<Tuple<string, string, bool>> Commands = new List<Tuple<string, string, bool>> {
+        private readonly List<Tuple<string, string, bool>> Commands = new() {
             new Tuple<string, string, bool>("/hrt" , "Does nothing at the moment", true ),
             new Tuple<string, string, bool>("/lootmaster", "Opens LootMaster Window", false ),
             new Tuple<string, string, bool>("/lm" , "Opens LootMaster Window (short version)", true )
         };        
-        private Configuration _Configuration { get; init; }
+        
         private ConfigUI OptionsUi { get; init; }
         private LootMaster.LootMaster LM { get; init; }
         
@@ -51,7 +52,7 @@ namespace HimbeertoniRaidTool
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             LM = new(_Configuration.GroupInfo?? new RaidGroup(""));
-            this.OptionsUi = new(this);
+            OptionsUi = new(this);
             InitCommands();
         }
 

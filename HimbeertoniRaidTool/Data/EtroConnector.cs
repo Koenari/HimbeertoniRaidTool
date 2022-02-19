@@ -8,11 +8,9 @@ namespace HimbeertoniRaidTool.Data
     public static class EtroConnector
     {
         private const string BaseUri = "https://etro.gg/api/";
-        private static string EquipmentBaseUri { get => (BaseUri + "equipment/"); }
         private static string GearsetBaseUri { get => (BaseUri + "gearsets/"); }
-        //private static WebClient Client;
-        private static WebHeaderCollection Headers;
-        private static JsonSerializerSettings jsonSettings => new JsonSerializerSettings
+        private readonly static WebHeaderCollection Headers;
+        private static JsonSerializerSettings JsonSettings => new()
         {
             StringEscapeHandling = StringEscapeHandling.Default,
             FloatParseHandling = FloatParseHandling.Double,
@@ -27,7 +25,7 @@ namespace HimbeertoniRaidTool.Data
         };
         static EtroConnector()
         {
-            Headers = new WebHeaderCollection();
+            Headers = new();
             Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
 
 
@@ -35,7 +33,7 @@ namespace HimbeertoniRaidTool.Data
 
         private static string? MakeWebRequest(string URL)
         {
-            WebClient client = new WebClient();
+            WebClient client = new();
             client.Headers = Headers;
             try
             {
@@ -62,7 +60,7 @@ namespace HimbeertoniRaidTool.Data
             string? jsonResponse = MakeWebRequest(GearsetBaseUri + set.EtroID);
             if (jsonResponse == null)
                 return false;
-            etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, jsonSettings);
+            etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);
             if (etroSet == null)
                 return false;
             set.MainHand = new(etroSet.weapon);
@@ -82,8 +80,10 @@ namespace HimbeertoniRaidTool.Data
         }
 
     }
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Benennungsstile", Justification = "class is maintained by 3rd party")]
     class EtroGearSet
     {
+        
         public string? id { get; set; }
         public string? jobAbbrev { get; set; }
         public string? name { get; set; }

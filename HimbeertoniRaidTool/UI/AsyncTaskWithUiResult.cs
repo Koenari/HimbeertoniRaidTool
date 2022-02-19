@@ -11,7 +11,7 @@ namespace HimbeertoniRaidTool.UI
         private DateTime? StartedShowingMessage;
 
         public bool FinishedShowing { get; private set; } = false;
-        private Action<Task> Action;
+        private readonly Action<Task> Action;
 
         internal AsyncTaskWithUiResult(Action<Task> action, Task task)
         {

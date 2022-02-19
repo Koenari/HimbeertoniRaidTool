@@ -7,11 +7,11 @@ namespace HimbeertoniRaidTool.Data
     [Serializable]
     public class Character : IEquatable<Character>
     {
-        public List<PlayableClass> Classes = new List<PlayableClass>();
+        public List<PlayableClass> Classes = new();
         public string Name = "";
         public AvailableClasses MainClassType = AvailableClasses.AST;
         [JsonIgnore]
-        public PlayableClass MainClass => getClass(MainClassType);
+        public PlayableClass MainClass => GetClass(MainClassType);
         [JsonIgnore]
         public bool Filled => Name != "";
         public Character(string name = "")
@@ -26,7 +26,7 @@ namespace HimbeertoniRaidTool.Data
             return toAdd;
         }
 
-        public PlayableClass getClass(AvailableClasses type)
+        public PlayableClass GetClass(AvailableClasses type)
         {
             return Classes.Find( x => x.ClassType == type) ?? AddClass(type);
         }
@@ -35,7 +35,9 @@ namespace HimbeertoniRaidTool.Data
         {
             if (other == null)
                 return false;
-            return this.Name.Equals(other.Name);
+            return Name.Equals(other.Name);
         }
+        public override bool Equals(object? obj)=> obj is Character objS && Equals(objS);
+        public override int GetHashCode() => Name.GetHashCode();
     }
 }

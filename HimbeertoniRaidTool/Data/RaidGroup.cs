@@ -9,7 +9,7 @@ namespace HimbeertoniRaidTool.Data
     {
         public DateTime TimeStamp;
         public string Name;
-        private List<Player> _Players;
+        private readonly List<Player> _Players = new();
 
         public Player Tank1 { get => _Players[0]; set => _Players[0] = value; }
         public Player Tank2 { get => _Players[1]; set => _Players[1] = value; }
@@ -23,9 +23,8 @@ namespace HimbeertoniRaidTool.Data
         public List<Player> Players => _Players;
         public RaidGroup(string name)
         {
-            this.TimeStamp = DateTime.Now;
-            this.Name = name;
-            this._Players = new();
+            TimeStamp = DateTime.Now;
+            Name = name;
             for (int i = 0; i < 8; i++)
             {
                 _Players.Add(new((Position) i));
@@ -35,7 +34,7 @@ namespace HimbeertoniRaidTool.Data
 
         internal void SetPlayer(Position pos, Player p)
         {
-            this._Players[(int)pos] = p;
+            _Players[(int)pos] = p;
         }
 
         internal Character? GetCharacter(string name)
