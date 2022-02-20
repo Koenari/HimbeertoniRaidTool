@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using static HimbeertoniRaidTool.Data.Player;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -10,8 +11,18 @@ namespace HimbeertoniRaidTool.Data
     {
         private readonly List<LootRule> _Rules = new();
 
-        private readonly ObservableCollection<LootRules> _RuleSet = new();
-        public ObservableCollection<LootRules> RuleSet => _RuleSet; 
+        private ObservableCollection<LootRules> _RuleSet = new();
+        public bool StrictRooling = false;
+        public ObservableCollection<LootRules> RuleSet
+        {
+            get => _RuleSet;
+            set
+            {
+                _RuleSet = value;
+                _RuleSet.CollectionChanged += UpdateRules;
+                UpdateRules();
+            }
+        }
 
         public LootRuling()
         {
@@ -20,57 +31,81 @@ namespace HimbeertoniRaidTool.Data
         private void UpdateRules(object? sender, NotifyCollectionChangedEventArgs e) => UpdateRules();
         private void UpdateRules()
         {
-            throw new NotImplementedException();
+            _Rules.Clear();
+            foreach (LootRules lr in _RuleSet)
+                _Rules.Add(new(lr));
         }
 
-        public List<Player> Evaluate(RaidGroup group, GearSetSlot slot)
+        public List<(Player,LootRules)> Evaluate(RaidGroup group, GearSetSlot slot)
         {
-            List<Player> result = new();
-            foreach(Player p in group.Players)
+            List<(Player, LootRules)> result = new();
+            foreach (Player p in group.Players)
             {
-                if (p.MainChar.MainClass.Gear.Get(slot).ItemLevel < p.MainChar.MainClass.BIS.Get(slot).ItemLevel)
-                    result.Add(p);
+                if (p.MainChar.MainClass.Gear[slot].ItemLevel < p.MainChar.MainClass.BIS[slot].ItemLevel)
+                    result.Add((p,LootRules.Null));
             }
             result.Sort(GetComparer(slot));
             return result;
-            
+
         }
-        private LootRulingComparer GetComparer(GearSetSlot slot) => new(_Rules,slot);
-        class LootRulingComparer:  IComparer<Player>
+        private LootRulingComparer GetComparer(GearSetSlot slot) => new(_Rules, slot);
+
+        private class LootRulingComparer : IComparer<(Player, LootRules)>
         {
             private readonly GearSetSlot Slot;
             private readonly List<LootRule> RuleSet;
-            public LootRulingComparer(List<LootRule> ruleSet, GearSetSlot slot) => (RuleSet,Slot) = (ruleSet,slot);
+            public LootRulingComparer(List<LootRule> ruleSet, GearSetSlot slot) => (RuleSet, Slot) = (ruleSet, slot);
 
-            public int Compare(Player? x, Player? y)
+            public int Compare((Player, LootRules) x, (Player, LootRules) y)
             {
-                if (x is null && y is null)
+                if (x.Item1 is null && y.Item1 is null)
                     return 0;
-                if (x is null)
+                if (x.Item1 is null)
                     return 1;
-                if (y is null)
+                if (y.Item1 is null)
                     return -1;
-                foreach(LootRule rule in RuleSet)
+                foreach (LootRule rule in RuleSet)
                 {
-                    int result = rule.Compare(x, y, Slot);
+                    int result = rule.Compare(x.Item1, y.Item1, Slot);
                     if (result != 0)
+                    {
+                        x.Item2 = rule.Rule;
                         return result;
+                    }
                 }
+                x.Item2 = LootRules.Null;
                 return 0;
             }
         }
     }
-    public class LootRule 
+    public class LootRule
     {
+        private readonly static Dictionary<LootRules, Func<Player, Player, GearSetSlot, int>> CompareDic = new()
+        {
+            { LootRules.Null, (x, y, slot) => 0 },
+            { LootRules.Random, (x, y, slot) => new Random().Next(0, 1) > 0 ? 1 : -1 },
+            { LootRules.LowestItemLevel, (x, y, slot) => x.Gear.ItemLevel - y.Gear.ItemLevel },
+            { LootRules.HighesItemLevelGain, (x, y, slot) => ((int)x.Gear[slot].ItemLevel) - (int)y.Gear[slot].ItemLevel },
+            {
+                LootRules.BISOverUpgrade,
+                (x, y, slot) =>
+                {
+                    int xBIS = x.BIS[slot].Source == GearSource.Raid ? -1 : 1;
+                    int yBIS = y.BIS[slot].Source == GearSource.Raid ? -1 : 1;
+                    return xBIS - yBIS;
+                }
+            },
+            {LootRules.ByPosition, (x, y, slot) => x.Pos.LootImportance(slot, StrictRooling) - y.Pos.LootImportance(slot, StrictRooling) }
+        };
         public LootRules Rule;
+        
         [JsonIgnore]
         public string Name => Rule.AsString();
+        private static bool StrictRooling;
 
-        public int Compare(Player x, Player y, GearSetSlot slot)
-        {
-            
-            throw new System.NotImplementedException();
-        }
+        public Func<Player, Player, GearSetSlot, int> Compare;
+        public LootRule() : this(LootRules.Null) { }
+        public LootRule(LootRules rule, bool strict = false) => (Compare, StrictRooling) = (CompareDic.GetValueOrDefault(rule, (x, y, z) => 0), strict);
     }
     public enum LootRules
     {
@@ -78,7 +113,8 @@ namespace HimbeertoniRaidTool.Data
         LowestItemLevel,
         HighesItemLevelGain,
         ByPosition,
-        Random
+        Random,
+        Null
     }
     public enum RaidTier
     {
@@ -95,7 +131,8 @@ namespace HimbeertoniRaidTool.Data
                 LootRules.HighesItemLevelGain => "Highest ItemLevel Gain",
                 LootRules.ByPosition => "DPS > Tank > Heal",
                 LootRules.Random => "Rolling",
-                        _ => "",
+                LootRules.Null => "None",
+                _ => "",
             };
         }
 
@@ -103,6 +140,20 @@ namespace HimbeertoniRaidTool.Data
         {
             return (uint)rt;
         }
-
+        public static int LootImportance(this Position pos, GearSetSlot? slot = null, bool strict = false)
+        {
+            return pos switch
+            {
+                Position.Melee1 => strict ? 0 : 0,
+                Position.Melee2 => strict ? 1 : 0,
+                Position.Caster => strict ? 2 : 0,
+                Position.Ranged => strict ? 3 : 0,
+                Position.Tank1 => slot != GearSetSlot.MainHand ? (strict ? 4 : 4) : (strict ? 6 : 6),
+                Position.Tank2 => slot != GearSetSlot.MainHand ? (strict ? 5 : 4) : (strict ? 7 : 6),
+                Position.Heal1 => slot != GearSetSlot.MainHand ? (strict ? 6 : 6) : (strict ? 4 : 4),
+                Position.Heal2 => slot != GearSetSlot.MainHand ? (strict ? 7 : 6) : (strict ? 5 : 4),
+                _ => 8
+            };
+        }
     }
 }
