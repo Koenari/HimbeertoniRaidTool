@@ -63,7 +63,5 @@ namespace HimbeertoniRaidTool.Data
             Ranged = 6,
             Caster = 7
         }
-
-        
     }
 }

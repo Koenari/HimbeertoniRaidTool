@@ -40,10 +40,7 @@ namespace HimbeertoniRaidTool.Data
 
             }
         }
-        public GearSet()
-        {
-            Clear();
-        }
+        public GearSet() => Clear();
         public void Clear()
         {
             for (int i = 0; i < NumSlots; i++)
@@ -51,9 +48,7 @@ namespace HimbeertoniRaidTool.Data
                 Items[i] = new(0);
             }
         }
-        
-        public GearItem Set(GearSetSlot slot, GearItem value) => Items[ToIndex(slot)] = value;
-        public GearItem Get(GearSetSlot slot) => Items[ToIndex(slot)];
+        public GearItem this[GearSetSlot slot] => Items[ToIndex(slot)];
         private static int ToIndex(GearSetSlot slot)
         {
             return slot switch
@@ -74,7 +69,7 @@ namespace HimbeertoniRaidTool.Data
             };
         }
     }
-        
+
     public enum GearSetSlot : short
     {
         MainHand = 0,
