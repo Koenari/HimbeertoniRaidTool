@@ -71,7 +71,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 InventoryItem* slot = _getContainerSlot(container, i);
                 if (slot->ItemID == 0)
                     continue;
-                setToFill.Set((GearSetSlot)i, new(slot->ItemID));
+                setToFill[(GearSetSlot)i] = new(slot->ItemID);
             }
         }
         public void Dispose()

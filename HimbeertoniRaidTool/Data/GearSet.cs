@@ -48,7 +48,13 @@ namespace HimbeertoniRaidTool.Data
                 Items[i] = new(0);
             }
         }
-        public GearItem this[GearSetSlot slot] => Items[ToIndex(slot)];
+        public GearItem this[GearSetSlot slot] {
+            get => Items[ToIndex(slot)];
+            set
+            {
+                Items[ToIndex(slot)] = value;
+            }
+        }
         private static int ToIndex(GearSetSlot slot)
         {
             return slot switch

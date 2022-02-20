@@ -7,7 +7,7 @@ namespace HimbeertoniRaidTool.UI
 {
     class ConfigUI : HrtUI
     {
-        public ConfigUI(HRTPlugin parent) : base()
+        public ConfigUI() : base()
         {
             Services.PluginInterface.UiBuilder.OpenConfigUi += this.Show;
         }

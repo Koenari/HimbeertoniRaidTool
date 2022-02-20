@@ -34,6 +34,18 @@ namespace HimbeertoniRaidTool
             { WAR, "6d0d2d4d-a477-44ea-8002-862eca8ef91d" },
             { WHM, "e78a29e3-1dcf-4e53-bbcf-234f33b2c831" },
         };
+        public LootRuling LootRuling { get; set; } = new LootRuling()
+        {
+            RuleSet = new()
+            {
+                LootRules.BISOverUpgrade,
+                LootRules.ByPosition,
+                LootRules.HighesItemLevelGain,
+                LootRules.LowestItemLevel,
+                LootRules.Random
+
+            }
+        };
 
         public RaidGroup? GroupInfo;
         // the below exist just to make saving 
