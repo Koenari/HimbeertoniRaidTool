@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Linq;
 using static HimbeertoniRaidTool.Data.Player;
 
 namespace HimbeertoniRaidTool.Data
@@ -13,12 +14,13 @@ namespace HimbeertoniRaidTool.Data
 
         private ObservableCollection<LootRules> _RuleSet = new();
         public bool StrictRooling = false;
-        public ObservableCollection<LootRules> RuleSet
+        public IEnumerable<LootRules> RuleSet
         {
             get => _RuleSet;
             set
             {
-                _RuleSet = value;
+                _RuleSet.CollectionChanged -= UpdateRules;
+                _RuleSet= new(value.Distinct());
                 _RuleSet.CollectionChanged += UpdateRules;
                 UpdateRules();
             }
@@ -31,9 +33,15 @@ namespace HimbeertoniRaidTool.Data
         private void UpdateRules(object? sender, NotifyCollectionChangedEventArgs e) => UpdateRules();
         private void UpdateRules()
         {
+            _RuleSet.CollectionChanged -= UpdateRules;
+            if (_RuleSet.Count != _RuleSet.Distinct().Count()) 
+            {
+                _RuleSet = new(_RuleSet.Distinct());
+            }
             _Rules.Clear();
             foreach (LootRules lr in _RuleSet)
                 _Rules.Add(new(lr));
+            _RuleSet.CollectionChanged += UpdateRules;
         }
 
         public List<(Player,LootRules)> Evaluate(RaidGroup group, GearSetSlot slot)
@@ -109,12 +117,12 @@ namespace HimbeertoniRaidTool.Data
     }
     public enum LootRules
     {
-        BISOverUpgrade,
-        LowestItemLevel,
-        HighesItemLevelGain,
-        ByPosition,
-        Random,
-        Null
+        Null = 0,
+        BISOverUpgrade = 1,
+        LowestItemLevel = 2,
+        HighesItemLevelGain = 3,
+        ByPosition = 4,
+        Random = 5,
     }
     public enum RaidTier
     {
