@@ -54,11 +54,5 @@ namespace HimbeertoniRaidTool
         {
             Services.PluginInterface.SavePluginConfig(this);
         }
-
-        internal void UpdateRaidGroup(RaidGroup group)
-        {
-            this.GroupInfo = group;
-            this.Save();
-        }
     }
 }

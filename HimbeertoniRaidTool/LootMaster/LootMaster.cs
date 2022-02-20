@@ -31,7 +31,7 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             GearRefresher.Dispose();
             Ui.Dispose();
-            HRTPlugin.Configuration.UpdateRaidGroup(Group);
+            HRTPlugin.Configuration.GroupInfo = Group;
         }
 	}
 }

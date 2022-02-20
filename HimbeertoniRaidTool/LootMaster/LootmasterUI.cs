@@ -1,15 +1,14 @@
-﻿using System;
+﻿using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.UI;
+using ImGuiNET;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
-using ImGuiNET;
-using HimbeertoniRaidTool.Data;
-using HimbeertoniRaidTool.UI;
-using System.Drawing;
-using static HimbeertoniRaidTool.UI.Helper;
 using static HimbeertoniRaidTool.LootMaster.Helper;
 using static HimbeertoniRaidTool.Services;
-using Dalamud.Logging;
+using static HimbeertoniRaidTool.UI.Helper;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -69,10 +68,10 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         private void DrawMainWindow()
         {
-            
+
             ImGui.SetNextWindowSize(new Vector2(1000, 800), ImGuiCond.FirstUseEver);
-            
-            if (ImGui.Begin("Loot Master", ref this.Visible,ImGuiWindowFlags.NoScrollbar))
+
+            if (ImGui.Begin("Loot Master", ref this.Visible, ImGuiWindowFlags.NoScrollbar))
             {
                 HandleAsync();
                 if (ImGui.BeginTable("RaidGruppe", 14, ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
@@ -115,7 +114,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.Text(player.Pos + "\n" + player.NickName + "\n" + player.MainChar.Name + " (" + player.MainChar.MainClassType + ")");
                 ImGui.TableNextColumn();
                 ImGui.Text(gear.ItemLevel.ToString());
-                ImGui.Text("+ "+(bis.ItemLevel - gear.ItemLevel));
+                ImGui.Text("+ " + (bis.ItemLevel - gear.ItemLevel));
                 ImGui.Text(bis.ItemLevel.ToString());
                 DrawItem(gear.MainHand, bis.MainHand);
                 DrawItem(gear.Head, bis.Head);
@@ -131,7 +130,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.TableNextColumn();
                 EditPlayerButton();
                 ImGui.SameLine();
-                if (ImGui.Button("x##"+ player.Pos))
+                if (ImGui.Button("x##" + player.Pos))
                 {
                     player.Reset();
                 }
@@ -140,8 +139,9 @@ namespace HimbeertoniRaidTool.LootMaster
             {
 
                 ImGui.TableNextColumn();
+                ImGui.Text(player.Pos.ToString());
                 ImGui.Text("No Player");
-                for(int i = 0; i < 12; i++)
+                for (int i = 0; i < 12; i++)
                 {
                     ImGui.TableNextColumn();
                 }
@@ -150,9 +150,9 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             void EditPlayerButton()
             {
-                if (ImGui.Button(PlayerExists ?  "Edit": "Add" + "## " + player.Pos))
+                if (ImGui.Button((PlayerExists ? "Edit" : "Add") + "## " + player.Pos))
                 {
-                    if (Childs.Exists( x => (x.GetType() == typeof(EditPlayerWindow)) && ((EditPlayerWindow)x).Pos == player.Pos))
+                    if (Childs.Exists(x => (x.GetType() == typeof(EditPlayerWindow)) && ((EditPlayerWindow)x).Pos == player.Pos))
                         return;
                     this.Childs.Add(new EditPlayerWindow(this, player.Pos));
 
@@ -209,10 +209,10 @@ namespace HimbeertoniRaidTool.LootMaster
                 this.LmUi = lmui;
                 PlayerToAdd = this.LmUi.Group.GetPlayer(pos);
                 if (!PlayerToAdd.Filled && Helper.Target is not null)
-                { 
+                {
                     PlayerToAdd.MainChar.Name = Helper.Target.Name.TextValue;
                     PlayerToAdd.MainChar.MainClassType = Helper.TargetClass!;
-                    
+
                 }
                 Show();
             }
@@ -222,19 +222,19 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (!this.Visible)
                     return;
                 ImGui.SetNextWindowSize(new Vector2(500, 500), ImGuiCond.Always);
-                if (ImGui.Begin("Edit Player " + PlayerToAdd.Pos, ref this.Visible, 
-                    ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar 
+                if (ImGui.Begin("Edit Player " + PlayerToAdd.Pos, ref this.Visible,
+                    ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
                     | ImGuiWindowFlags.NoScrollWithMouse))
                 {
                     ImGui.InputText("Player Name", ref PlayerToAdd.NickName, 50);
                     ImGui.InputText("Character Name", ref PlayerToAdd.MainChar.Name, 50);
-                    
-                    int mainClass = (int) PlayerToAdd.MainChar.MainClassType;
-                    if(ImGui.Combo("Main Class", ref mainClass, Enum.GetNames(typeof(AvailableClasses)), Enum.GetNames(typeof(AvailableClasses)).Length))
+
+                    int mainClass = (int)PlayerToAdd.MainChar.MainClassType;
+                    if (ImGui.Combo("Main Class", ref mainClass, Enum.GetNames(typeof(AvailableClasses)), Enum.GetNames(typeof(AvailableClasses)).Length))
                     {
-                        this.PlayerToAdd.MainChar.MainClassType = (AvailableClasses) mainClass;
+                        this.PlayerToAdd.MainChar.MainClassType = (AvailableClasses)mainClass;
                     }
-                    
+
                     AvailableClasses? curClass = null;
                     if (PlayerToAdd.MainChar.Name.Equals(Target?.Name.TextValue))
                     {
@@ -243,7 +243,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     }
                     else if (PlayerToAdd.MainChar.Name.Equals(ClientState.LocalPlayer?.Name.TextValue))
                     {
-                        if(Enum.TryParse(ClientState.LocalPlayer!.ClassJob.GameData!.Abbreviation, false, out AvailableClasses parsed))
+                        if (Enum.TryParse(ClientState.LocalPlayer!.ClassJob.GameData!.Abbreviation, false, out AvailableClasses parsed))
                             curClass = parsed;
                     }
                     if (curClass is not null)
@@ -254,7 +254,7 @@ namespace HimbeertoniRaidTool.LootMaster
                             PlayerToAdd.MainChar.MainClassType = (AvailableClasses)curClass;
                         }
                     }
-                    if(ImGui.InputText("BIS", ref PlayerToAdd.MainChar.MainClass.BIS.EtroID, 100))
+                    if (ImGui.InputText("BIS", ref PlayerToAdd.MainChar.MainClass.BIS.EtroID, 100))
                     {
                         BISChanged = true;
                     }
@@ -270,7 +270,8 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.SameLine();
                     if (ImGui.Button("Reset##BIS"))
                     {
-                        if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals("")){
+                        if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(""))
+                        {
                             PlayerToAdd.MainChar.MainClass.BIS.EtroID = "";
                             BISChanged = false;
                             PlayerToAdd.MainChar.MainClass.BIS.Clear();
@@ -280,13 +281,15 @@ namespace HimbeertoniRaidTool.LootMaster
                     {
                         if (BISChanged)
                         {
-                            
-                            LmUi.Tasks.Add(new( (t) => {
+
+                            LmUi.Tasks.Add(new((t) =>
+                            {
                                 Task<bool> task = (Task<bool>)t;
                                 if (task.Result)
                                 {
                                     ImGui.TextColored(Vec4(Color.Green), "BIS for " + PlayerToAdd.MainChar.Name + " succesfully updated");
-                                } else
+                                }
+                                else
                                 {
                                     ImGui.TextColored(Vec4(Color.Red), "BIS update for " + PlayerToAdd.MainChar.Name + " failed");
                                 }
@@ -299,44 +302,42 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.End();
             }
         }
-
-        public class ShowItemWindow : HrtUI
+    }
+    public class ShowItemWindow : HrtUI
+    {
+        private readonly GearItem Item;
+        public ShowItemWindow(GearItem item) : base() => (Item, Visible) = (item, true);
+        public override void Draw()
         {
-            private readonly GearItem Item;
-            public ShowItemWindow(GearItem item) : base() => (Item, Visible) = (item, true);
-            public override void Draw()
+            if (!this.Visible)
+                return;
+            ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.Always);
+            if (ImGui.Begin(Item.Item.Name, ref Visible,
+                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
+                | ImGuiWindowFlags.NoScrollWithMouse))
             {
-                if (!this.Visible)
-                    return;
-                ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.Always);
-                if (ImGui.Begin(Item.Item.Name, ref Visible,
-                    ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
-                    | ImGuiWindowFlags.NoScrollWithMouse))
+
+                if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
                 {
-                    
-                    if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
-                    {
-                        ImGui.TableSetupColumn("Header");
-                        ImGui.TableSetupColumn("Value");
-                        DrawRow("Name", Item.Item.Name);
-                        DrawRow("Item Level", Item.ItemLevel.ToString());
-                        
-                        ImGui.EndTable();
-                    }
-                }
-                static void DrawRow(string label, string value){
+                    ImGui.TableSetupColumn("Header");
+                    ImGui.TableSetupColumn("Value");
+                    DrawRow("Name", Item.Item.Name);
+                    DrawRow("Item Level", Item.ItemLevel.ToString());
+                    DrawRow("Item Source", Item.Source.ToString());
 
-                    
-                    ImGui.TableNextColumn();
-                    ImGui.Text(label);
-                    ImGui.PushStyleColor(ImGuiCol.TableRowBg, new ColorHSVA(Color.White) { A = 0.5f }.ToVec4);
-                    ImGui.TableNextColumn();
-                    ImGui.Text(value);
-                    ImGui.PopStyleColor();
-
+                    ImGui.EndTable();
                 }
             }
+            static void DrawRow(string label, string value)
+            {
+
+                ImGui.TableNextColumn();
+                ImGui.Text(label);
+                ImGui.PushStyleColor(ImGuiCol.TableRowBg, new ColorHSVA(Color.White) { A = 0.5f }.ToVec4);
+                ImGui.TableNextColumn();
+                ImGui.Text(value);
+                ImGui.PopStyleColor();
+            }
         }
-        
     }
 }

@@ -14,10 +14,7 @@ namespace HimbeertoniRaidTool.Data
         public PlayableClass MainClass => GetClass(MainClassType);
         [JsonIgnore]
         public bool Filled => Name != "";
-        public Character(string name = "")
-        {
-                this.Name = name;
-        }
+        public Character(string name = "") => Name = name;
 
         private PlayableClass AddClass(AvailableClasses ClassToAdd) 
         {
