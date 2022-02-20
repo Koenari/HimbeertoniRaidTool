@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using static HimbeertoniRaidTool.Data.Player;
 
@@ -19,7 +20,7 @@ namespace HimbeertoniRaidTool.Data
         public Player Melee2 { get => _Players[5]; set => _Players[5] = value; }
         public Player Ranged { get => _Players[6]; set => _Players[6] = value; }
         public Player Caster { get => _Players[7]; set => _Players[7] = value; }
-
+        [JsonIgnore]
         public List<Player> Players => _Players;
         public RaidGroup(string name)
         {
