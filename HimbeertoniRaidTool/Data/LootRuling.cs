@@ -14,7 +14,7 @@ namespace HimbeertoniRaidTool.Data
 
         private ObservableCollection<LootRules> _RuleSet = new();
         public bool StrictRooling = false;
-        public IEnumerable<LootRules> RuleSet
+        public Collection<LootRules> RuleSet
         {
             get => _RuleSet;
             set

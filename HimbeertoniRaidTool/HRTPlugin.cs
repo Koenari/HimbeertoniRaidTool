@@ -70,8 +70,9 @@ namespace HimbeertoniRaidTool
 
         public void Dispose()
         {
-            this.OptionsUi.Dispose();
-            this.LM.Dispose();
+            _Configuration.Save();
+            OptionsUi.Dispose();
+            LM.Dispose();
             foreach(var command in Commands)
             {
                 Services.CommandManager.RemoveHandler(command.Item1);
