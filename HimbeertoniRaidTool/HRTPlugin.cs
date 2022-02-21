@@ -20,7 +20,7 @@ namespace HimbeertoniRaidTool
         [PluginService] public static SigScanner SigScanner { get; private set; }
         [PluginService] public static CommandManager CommandManager { get; private set; }
         [PluginService] public static ChatGui ChatGui { get; private set; }
-        [PluginService] public static DataManager Data { get; private set; }
+        [PluginService] public static DataManager DataManager { get; private set; }
         [PluginService] public static GameGui GameGui { get; private set; }
         [PluginService] public static TargetManager TargetManager { get; private set; }
         [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }

@@ -1,14 +1,16 @@
-﻿using Lumina.Excel;
+﻿using ImGuiScene;
+using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using static HimbeertoniRaidTool.Services;
 
 namespace HimbeertoniRaidTool.Data
 {
     public class GearItem
     {
-        private readonly static KeyContainsDictionary<GearSource> SourceDic = new()
+        private static readonly KeyContainsDictionary<GearSource> SourceDic = new()
         {
             { "Asphodelos", GearSource.Raid },
             { "Radiant", GearSource.Tome },
@@ -17,9 +19,11 @@ namespace HimbeertoniRaidTool.Data
         private uint _ID;
         public uint ID { get => _ID; set { _ID = value; UpdateStats(); } }
         [JsonIgnore]
+        public TextureWrap? Icon => DataManager.GetImGuiTexture(DataManager.GetIcon(Item.Icon));
+        [JsonIgnore]
         public Item Item { get; private set; } = new();
         [JsonIgnore]
-        public string Name => (Item.Name??new("")).RawString;
+        public string Name => (Item.Name ?? new("")).RawString;
         [JsonIgnore]
         public uint ItemLevel => (Item.LevelItem is null) ? 0 : Item.LevelItem.Row;
         [JsonIgnore]
@@ -29,14 +33,11 @@ namespace HimbeertoniRaidTool.Data
         [JsonIgnore]
         public bool Valid => ID > 0;
 
-        private static ExcelSheet<Item> Sheet => Services.Data.Excel.GetSheet<Item>()!;
+        private static ExcelSheet<Item> Sheet => DataManager.Excel.GetSheet<Item>()!;
 
         public GearItem() : this(0) { }
 
-        public GearItem(uint idArg)
-        {
-            this.ID = idArg;
-        }
+        public GearItem(uint idArg) => ID = idArg;
 
         private void UpdateStats()
         {
@@ -55,15 +56,15 @@ namespace HimbeertoniRaidTool.Data
         undefined,
     }
     [SuppressMessage("Style", "IDE0060:Nicht verwendete Parameter entfernen", Justification = "Override all constructors for safety")]
-    public class KeyContainsDictionary<TValue> : Dictionary<string, TValue> 
+    public class KeyContainsDictionary<TValue> : Dictionary<string, TValue>
     {
         public KeyContainsDictionary() : base(new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IDictionary<string, TValue> dictionary) 
+        public KeyContainsDictionary(IDictionary<string, TValue> dictionary)
             : base(dictionary, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IEnumerable<KeyValuePair<string, TValue>> collection) 
+        public KeyContainsDictionary(IEnumerable<KeyValuePair<string, TValue>> collection)
             : base(collection, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IEqualityComparer<string>? comparer) 
-            :base(new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
+        public KeyContainsDictionary(IEqualityComparer<string>? comparer)
+            : base(new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
         public KeyContainsDictionary(int capacity)
             : base(capacity, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
         public KeyContainsDictionary(IDictionary<string, TValue> dictionary, IEqualityComparer<string>? comparer)
@@ -72,12 +73,10 @@ namespace HimbeertoniRaidTool.Data
             : base(collection, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
         public KeyContainsDictionary(int capacity, IEqualityComparer<string>? comparer)
             : base(capacity, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        class ContainsEqualityComparer : IEqualityComparer<string>
+
+        private class ContainsEqualityComparer : IEqualityComparer<string>
         {
             internal Dictionary<string, TValue>? parent;
-
-            //internal ContainsEqualityComparer(Dictionary<string, TValue> dic) => parent = dic;
-
             public bool Equals(string? x, string? y)
             {
                 if (x is null || y is null)
@@ -96,5 +95,5 @@ namespace HimbeertoniRaidTool.Data
             }
         }
     }
-    
+
 }
