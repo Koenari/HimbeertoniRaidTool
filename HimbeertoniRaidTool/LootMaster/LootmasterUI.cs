@@ -202,12 +202,12 @@ namespace HimbeertoniRaidTool.LootMaster
             private readonly LootmasterUI LmUi;
             private readonly Player PlayerToAdd;
             private bool BISChanged = false;
-            internal Player.Position Pos => PlayerToAdd.Pos;
+            internal PositionInRaidGroup Pos => PlayerToAdd.Pos;
 
-            internal EditPlayerWindow(LootmasterUI lmui, Player.Position pos) : base()
+            internal EditPlayerWindow(LootmasterUI lmui, PositionInRaidGroup pos) : base()
             {
                 this.LmUi = lmui;
-                PlayerToAdd = this.LmUi.Group.GetPlayer(pos);
+                PlayerToAdd = this.LmUi.Group[pos];
                 if (!PlayerToAdd.Filled && Helper.Target is not null)
                 {
                     PlayerToAdd.MainChar.Name = Helper.Target.Name.TextValue;
@@ -300,6 +300,13 @@ namespace HimbeertoniRaidTool.LootMaster
                     }
                 }
                 ImGui.End();
+            }
+        }
+        class LootUi : HrtUI
+        {
+            public override void Draw()
+            {
+                throw new NotImplementedException();
             }
         }
     }

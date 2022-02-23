@@ -41,19 +41,12 @@ namespace HimbeertoniRaidTool.Data
 
         private void UpdateStats()
         {
-            if (ID > 0)
+            if (_ID > 0)
             {
                 Item = Sheet.GetRow(_ID) ?? (new Item());
                 Source = SourceDic.GetValueOrDefault(Name, GearSource.undefined);
             }
         }
-    }
-    public enum GearSource
-    {
-        Raid,
-        Tome,
-        Crafted,
-        undefined,
     }
     [SuppressMessage("Style", "IDE0060:Nicht verwendete Parameter entfernen", Justification = "Override all constructors for safety")]
     public class KeyContainsDictionary<TValue> : Dictionary<string, TValue>

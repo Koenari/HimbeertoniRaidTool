@@ -21,12 +21,14 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             switch(args)
             {
+                case "roll":
+                    
+                    break;
                 default:
                     Ui.Show();
                     break;
             } 
         }
-
         public void Dispose()
         {
             GearRefresher.Dispose();

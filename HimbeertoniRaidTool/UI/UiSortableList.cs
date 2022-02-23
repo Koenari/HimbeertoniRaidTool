@@ -1,57 +1,104 @@
 ﻿using ImGuiNET;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 namespace HimbeertoniRaidTool.UI
 {
     public class UiSortableList<T>
     {
         private readonly List<T> Possibilities;
-        private int[] FieldRefs;
-        private int Lenght => FieldRefs.Length;
-        public List<T> List => new List<int>(FieldRefs).ConvertAll((x) => Possibilities[x]);
-        public UiSortableList(List<T> possibilities, List<T> list)
+        private readonly int[] OldVals;
+        private readonly int[] FieldRefs;
+        private int NumItems;
+        private int Lenght => NumItems;
+        private int NumPossibilities => Possibilities.Count;
+        /// <summary>
+        /// Get a copy of the current state of the list.
+        /// </summary>
+        public IEnumerable<T> List => (FieldRefs.Take(Lenght)).Select((x) => Possibilities[x]);
+        /// <summary>
+        /// Class <c>UiSortableList</c> represents an Ui Element to edit a list and ensures all entries are unique.
+        /// </summary>
+        /// <param name="possibilities">A List of all possible entries</param>
+        /// <param name="list">An (incomplete) list of entries used as initial state</param>
+        public UiSortableList(IEnumerable<T> possibilities, IEnumerable<T> list)
         {
-            Possibilities = possibilities;
+            Possibilities = possibilities.ToList();
             FieldRefs = new int[Possibilities.Count];
-            Array.Copy(list.ConvertAll( x => Possibilities.FindIndex(y => x!.Equals(y))).ToArray(), FieldRefs, FieldRefs.Length < list.Count ? FieldRefs.Length : list.Count);
-            ReorganizeList(0);
+            OldVals = new int[FieldRefs.Length];
+            NumItems = list.Count() < Possibilities.Count ? list.Count() : Possibilities.Count;
+            Array.Copy(list.Select(x => Possibilities.FindIndex(y => x!.Equals(y))).ToArray(), FieldRefs, Lenght);
+            ConsolidateList();
+            FieldRefs.CopyTo(OldVals, 0);
         }
         
-
+        /// <summary>
+        /// Draws Ui for Editing this list using ImGui. Should be called inside of an ImGui Frame.
+        /// </summary>
         public void Draw()
         {
             for(int i = 0; i < Lenght; i++)
             {
-                if (ImGui.Combo(i.ToString(), ref FieldRefs[i], 
+                
+                if (ImGui.Combo("##"+i, ref FieldRefs[i], 
                     Possibilities.ConvertAll(x=> x!.ToString()).ToArray(), Possibilities.Count))
                 {
                     ReorganizeList(i);
                 }
+                ImGui.SameLine();
+                if(ImGui.Button("x##" + i))
+                {
+                    DeleteItem(i);
+                }
             }
+            if (Lenght < Possibilities.Count)
+            {
+                if (ImGui.Button("+"))
+                {
+                    AddItem();
+                }
+            }
+        }
+        private void AddItem()
+        {
+            NumItems++;
+            ConsolidateList();
+            FieldRefs.CopyTo(OldVals, 0);
+        }
+        private void DeleteItem(int changed)
+        {
+            NumItems--;
+            for (int i = changed; i < NumItems; i++)
+                FieldRefs[i] = FieldRefs[i + 1];
+            ConsolidateList();
+            FieldRefs.CopyTo(OldVals, 0);
         }
         private void ReorganizeList(int changed)
         {
-            SortedList<int,int> used = new();
-            used.Add(FieldRefs[changed],FieldRefs[changed]);
-            for(int i = 0; i < Lenght; i++)
+            int otherPos = Array.FindIndex(OldVals, x => x == FieldRefs[changed]);
+            FieldRefs[otherPos] = OldVals[changed];
+            ConsolidateList();
+            FieldRefs.CopyTo(OldVals, 0);
+        }
+        private void ConsolidateList()
+        {
+            List<int> used = new();
+            for (int i = 0; i < NumItems; i++)
             {
-                if (i == changed)
-                    continue;
-                if (used.ContainsKey(FieldRefs[i]))
+                if (used.Contains(FieldRefs[i]))
                 {
-                    for (int j = 0; j < Lenght; j++)
+                    for (int j = 0; j < NumPossibilities; j++)
                     {
-                        if (!used.ContainsKey(j))
+                        if (!used.Contains(j))
                         {
                             FieldRefs[i] = j;
-                            used.Add(j, j);
+                            used.Add(j);
                             break;
                         }
                     }
                 } else
                 {
-                    used.Add(FieldRefs[i], FieldRefs[i]);
+                    used.Add(FieldRefs[i]);
                 }
             }
 

@@ -1,20 +1,29 @@
 ﻿using HimbeertoniRaidTool.Data;
 using ImGuiNET;
+using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Collections.ObjectModel;
 
 namespace HimbeertoniRaidTool.UI
 {
     class ConfigUI : HrtUI
     {
+        private UiSortableList<LootRulesWrapper> LootList;
         public ConfigUI() : base()
         {
-            Services.PluginInterface.UiBuilder.OpenConfigUi += this.Show;
+            Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
+            LootList = new(Enum.GetValues<LootRules>().Wrap(), HRTPlugin.Configuration.LootRuling.RuleSet.Wrap());
         }
         public override void Dispose()
         {
         }
-
+        public override void Show()
+        {
+            base.Show();
+            LootList = new(Enum.GetValues<LootRules>().Wrap(), HRTPlugin.Configuration.LootRuling.RuleSet.Wrap());
+        }
         public override void Draw()
         {
             if (!Visible)
@@ -22,25 +31,56 @@ namespace HimbeertoniRaidTool.UI
                 return;
             }
 
-            ImGui.SetNextWindowSize(new Vector2(350, 200), ImGuiCond.Always);
-            if (ImGui.Begin("HimbeerToni Raid Tool Configuration", ref this.Visible,
+            ImGui.SetNextWindowSize(new Vector2(450, 500), ImGuiCond.Always);
+            if (ImGui.Begin("HimbeerToni Raid Tool Configuration", ref Visible,
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))
             {
-                foreach(KeyValuePair<AvailableClasses,string> pair in HRTPlugin.Configuration.DefaultBIS)
+                ImGui.BeginTabBar("Menu");
+                if (ImGui.BeginTabItem("BIS"))
                 {
-                    string value = pair.Value;
-                    if(ImGui.InputText(pair.Key.ToString(), ref value, 100))
-                    {
-                        HRTPlugin.Configuration.DefaultBIS[pair.Key] = value;
+                    if(ImGui.BeginChildFrame(1,new Vector2(400,400),ImGuiWindowFlags.NoResize)) {
+                        foreach (KeyValuePair<AvailableClasses, string> pair in HRTPlugin.Configuration.DefaultBIS)
+                        {
+                            string value = pair.Value;
+                            if (ImGui.InputText(pair.Key.ToString(), ref value, 100))
+                            {
+                                HRTPlugin.Configuration.DefaultBIS[pair.Key] = value;
+                            }
+                        }
+                        ImGui.EndChildFrame();
                     }
+                    ImGui.EndTabItem();
+                }
+                if (ImGui.BeginTabItem("Loot"))
+                {
+                    LootList.Draw();
+                    ImGui.EndTabItem();
                 }
                 if (ImGui.Button("Save##Config"))
                 {
+                    HRTPlugin.Configuration.LootRuling.RuleSet = LootList.List.Unwrap();
                     HRTPlugin.Configuration.Save();
                     this.Hide();
                 }
+                ImGui.EndTabBar();
             }
             ImGui.End();
         }
+        
+        
+    }
+    class LootRulesWrapper
+    {
+        public LootRules Rule;
+
+        public LootRulesWrapper(LootRules rule) => Rule = rule;
+        public override string ToString() => Rule.AsString();
+        public override bool Equals(object? obj)=>Rule.Equals(obj);
+        public override int GetHashCode() => Rule.GetHashCode();
+    }
+    static class LootRulesWrapperExtension
+    {
+        public static IEnumerable<LootRules> Unwrap(this IEnumerable<LootRulesWrapper> inList) => inList.Select(x => x.Rule);
+        public static IEnumerable<LootRulesWrapper> Wrap(this IEnumerable<LootRules> inList) => inList.Select(x => new LootRulesWrapper(x));
     }
 }

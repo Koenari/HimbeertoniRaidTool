@@ -1,16 +1,15 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Collections.Generic;
-using static HimbeertoniRaidTool.Data.Player;
 
 namespace HimbeertoniRaidTool.Data
 {
-    [Serializable]
     public class RaidGroup 
     {
         public DateTime TimeStamp;
         public string Name;
-        private readonly List<Player> _Players = new();
+        private readonly Player[] _Players;
 
         public Player Tank1 { get => _Players[0]; set => _Players[0] = value; }
         public Player Tank2 { get => _Players[1]; set => _Players[1] = value; }
@@ -21,22 +20,22 @@ namespace HimbeertoniRaidTool.Data
         public Player Ranged { get => _Players[6]; set => _Players[6] = value; }
         public Player Caster { get => _Players[7]; set => _Players[7] = value; }
         [JsonIgnore]
-        public List<Player> Players => _Players;
-        public RaidGroup(string name)
+        public IEnumerable<Player> Players => _Players;
+        public RaidGroup(string name = "")
         {
             TimeStamp = DateTime.Now;
             Name = name;
+            _Players = new Player[8];
             for (int i = 0; i < 8; i++)
             {
-                _Players.Add(new((Position) i));
+                _Players[i] = new((PositionInRaidGroup) i);
             }
         }
-        public Player GetPlayer(Position pos) => _Players[(int) pos];
-
-        internal void SetPlayer(Position pos, Player p)
+        public Player this[PositionInRaidGroup pos]
         {
-            _Players[(int)pos] = p;
-        }
+            get => _Players[(int)pos];
+            set => _Players[(int)pos] = value;
+        } 
 
         internal Character? GetCharacter(string name)
         {

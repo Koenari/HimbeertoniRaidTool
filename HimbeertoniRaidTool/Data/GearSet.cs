@@ -3,7 +3,6 @@ using System;
 
 namespace HimbeertoniRaidTool.Data
 {
-    [Serializable]
     public class GearSet
     {
         public DateTime? TimeStamp;
@@ -48,12 +47,10 @@ namespace HimbeertoniRaidTool.Data
                 Items[i] = new(0);
             }
         }
+        [JsonIgnore]
         public GearItem this[GearSetSlot slot] {
             get => Items[ToIndex(slot)];
-            set
-            {
-                Items[ToIndex(slot)] = value;
-            }
+            set => Items[ToIndex(slot)] = value;
         }
         private static int ToIndex(GearSetSlot slot)
         {
@@ -74,23 +71,5 @@ namespace HimbeertoniRaidTool.Data
                 _ => throw new IndexOutOfRangeException("GearSlot" + slot.ToString() + "does not exist"),
             };
         }
-    }
-
-    public enum GearSetSlot : short
-    {
-        MainHand = 0,
-        OffHand = 1,
-        Head = 2,
-        Body = 3,
-        Hands = 4,
-        Waist = 5,
-        Legs = 6,
-        Feet = 7,
-        Ear = 8,
-        Neck = 9,
-        Wrist = 10,
-        Ring1 = 11,
-        Ring2 = 12,
-        SoulCrystal = 13,
     }
 }

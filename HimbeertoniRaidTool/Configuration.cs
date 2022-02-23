@@ -36,7 +36,7 @@ namespace HimbeertoniRaidTool
         };
         public LootRuling LootRuling { get; set; } = new LootRuling()
         {
-            RuleSet = new()
+            RuleSet = new List<LootRules>()
             {
                 LootRules.BISOverUpgrade,
                 LootRules.ByPosition,

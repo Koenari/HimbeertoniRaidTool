@@ -14,7 +14,7 @@ namespace HimbeertoniRaidTool.Data
 
         private ObservableCollection<LootRules> _RuleSet = new();
         public bool StrictRooling = false;
-        public Collection<LootRules> RuleSet
+        public IEnumerable<LootRules> RuleSet
         {
             get => _RuleSet;
             set
@@ -122,11 +122,7 @@ namespace HimbeertoniRaidTool.Data
         LowestItemLevel = 2,
         HighesItemLevelGain = 3,
         ByPosition = 4,
-        Random = 5,
-    }
-    public enum RaidTier
-    {
-        Asphodelos = 600
+        Random = 5
     }
     public static class LootRulesExtension
     {
@@ -143,23 +139,18 @@ namespace HimbeertoniRaidTool.Data
                 _ => "",
             };
         }
-
-        public static uint ItemLevel(this RaidTier rt)
-        {
-            return (uint)rt;
-        }
-        public static int LootImportance(this Position pos, GearSetSlot? slot = null, bool strict = false)
+        public static int LootImportance(this PositionInRaidGroup pos, GearSetSlot? slot = null, bool strict = false)
         {
             return pos switch
             {
-                Position.Melee1 => strict ? 0 : 0,
-                Position.Melee2 => strict ? 1 : 0,
-                Position.Caster => strict ? 2 : 0,
-                Position.Ranged => strict ? 3 : 0,
-                Position.Tank1 => slot != GearSetSlot.MainHand ? (strict ? 4 : 4) : (strict ? 6 : 6),
-                Position.Tank2 => slot != GearSetSlot.MainHand ? (strict ? 5 : 4) : (strict ? 7 : 6),
-                Position.Heal1 => slot != GearSetSlot.MainHand ? (strict ? 6 : 6) : (strict ? 4 : 4),
-                Position.Heal2 => slot != GearSetSlot.MainHand ? (strict ? 7 : 6) : (strict ? 5 : 4),
+                PositionInRaidGroup.Melee1 => strict ? 0 : 0,
+                PositionInRaidGroup.Melee2 => strict ? 1 : 0,
+                PositionInRaidGroup.Caster => strict ? 2 : 0,
+                PositionInRaidGroup.Ranged => strict ? 3 : 0,
+                PositionInRaidGroup.Tank1 => slot != GearSetSlot.MainHand ? (strict ? 4 : 4) : (strict ? 6 : 6),
+                PositionInRaidGroup.Tank2 => slot != GearSetSlot.MainHand ? (strict ? 5 : 4) : (strict ? 7 : 6),
+                PositionInRaidGroup.Heal1 => slot != GearSetSlot.MainHand ? (strict ? 6 : 6) : (strict ? 4 : 4),
+                PositionInRaidGroup.Heal2 => slot != GearSetSlot.MainHand ? (strict ? 7 : 6) : (strict ? 5 : 4),
                 _ => 8
             };
         }
