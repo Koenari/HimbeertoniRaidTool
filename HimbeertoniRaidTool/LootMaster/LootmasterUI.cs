@@ -17,10 +17,7 @@ namespace HimbeertoniRaidTool.LootMaster
         readonly RaidGroup Group;
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
         private readonly List<HrtUI> Childs = new();
-        public LootmasterUI(RaidGroup group) : base()
-        {
-            this.Group = group;
-        }
+        public LootmasterUI(RaidGroup group) : base() => Group = group;
         public override void Dispose()
         {
             foreach (AsyncTaskWithUiResult t in Tasks)
@@ -30,15 +27,14 @@ namespace HimbeertoniRaidTool.LootMaster
                 win.Dispose();
             Childs.Clear();
         }
-
         public override void Draw()
         {
-            if (!this.Visible)
+            if (!Visible)
                 return;
             Childs.RemoveAll(x => !x.IsVisible);
             DrawMainWindow();
         }
-        static Color ILevelColor(GearItem item)
+        public static Color ILevelColor(GearItem item)
         {
             if (item.ItemLevel >= 600)
             {
@@ -71,9 +67,15 @@ namespace HimbeertoniRaidTool.LootMaster
 
             ImGui.SetNextWindowSize(new Vector2(1000, 800), ImGuiCond.FirstUseEver);
 
-            if (ImGui.Begin("Loot Master", ref this.Visible, ImGuiWindowFlags.NoScrollbar))
+            if (ImGui.Begin("Loot Master", ref Visible, ImGuiWindowFlags.NoScrollbar))
             {
                 HandleAsync();
+                if (ImGui.Button("Loot Boss 1 (Erichthonios)"))
+                {
+                    LootUi lui = new LootUi(CuratedData.AsphodelosSavage, 1);
+                    Childs.Add(lui);
+                    lui.Show();
+                }
                 if (ImGui.BeginTable("RaidGruppe", 14, ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
                 {
                     ImGui.TableSetupColumn("Player");
@@ -98,7 +100,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 }
                 if (ImGui.Button("Close"))
                 {
-                    this.Hide();
+                    Hide();
                 }
             }
             ImGui.End();
@@ -193,9 +195,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 {
                     ImGui.Text("Empty");
                 }
-
             }
-
         }
         class EditPlayerWindow : HrtUI
         {
@@ -302,11 +302,36 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.End();
             }
         }
-        class LootUi : HrtUI
+    }
+    class LootUi : HrtUI
+    {
+        private readonly RaidTier RaidTier;
+        private readonly int Boss;
+        private List<GearItem> Loot => LootDB.GetPossibleLoot(RaidTier, Boss);
+
+        internal LootUi(RaidTier raidTier, int boss) => (RaidTier, Boss) = (raidTier, boss);
+        
+        public override void Draw()
         {
-            public override void Draw()
-            {
-                throw new NotImplementedException();
+            if (!Visible)
+                return;
+            if(ImGui.Begin("Loot for "+ RaidTier.Name +" Boss "+ Boss, ref Visible, ImGuiWindowFlags.NoCollapse)){
+                foreach(GearItem item in Loot)
+                {
+                    if (item.Valid)
+                    {
+                        ImGui.PushStyleColor(ImGuiCol.Button, new ColorHSVA(LootmasterUI.ILevelColor(item)) { S = 0.75f, V = 0.75f }.ToVec4);
+                        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new ColorHSVA(LootmasterUI.ILevelColor(item)) { S = 0.5f, V = 0.5f }.ToVec4);
+                        ImGui.PushStyleColor(ImGuiCol.Text, Vec4(Color.Black));
+                        ImGui.Button(item.Item.Name);
+                        ImGui.PopStyleColor(3);
+                    }
+                }
+                if (ImGui.Button("Close"))
+                {
+                    Hide();
+                }
+                ImGui.End();
             }
         }
     }
@@ -316,7 +341,7 @@ namespace HimbeertoniRaidTool.LootMaster
         public ShowItemWindow(GearItem item) : base() => (Item, Visible) = (item, true);
         public override void Draw()
         {
-            if (!this.Visible)
+            if (!Visible)
                 return;
             ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.Always);
             if (ImGui.Begin(Item.Item.Name, ref Visible,

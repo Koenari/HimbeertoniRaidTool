@@ -3,7 +3,6 @@ using System;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
-
 	public class LootMaster : IDisposable
 	{
         public readonly LootmasterUI Ui;
