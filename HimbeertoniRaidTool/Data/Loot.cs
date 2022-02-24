@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HimbeertoniRaidTool.Data
 {
-    public class Loot
-    {
-        private List<GearItem> loot = new();
-
-
-    }
-    public struct LootSource
+    public class LootSource
     {
         public static implicit operator LootSource((RaidTier, int) data) => new(data);
-     public List<(RaidTier, int)> Sources;
+        public readonly List<(RaidTier, int)> Sources;
         public LootSource(params (RaidTier, int)[] data) { Sources = new(data); }
-
+        public bool IsList => Sources.Count > 1;
         public override bool Equals(object? obj)
         {
             if (obj is null || !obj.GetType().IsAssignableTo(GetType()))
@@ -26,38 +21,52 @@ namespace HimbeertoniRaidTool.Data
         public override int GetHashCode() => base.GetHashCode();
 
         public static bool operator ==(LootSource left, LootSource right) => left.Equals(right);
-        public static bool operator !=(LootSource left, LootSource right)=> !(left == right);
+        public static bool operator !=(LootSource left, LootSource right) => !left.Equals(right);
     }
     
-    public class LootDB
+    public static class LootDB
     {
-        
-        public static List<GearItem> GetPossibleLoot(RaidTier raidTear, int boss)
+        private readonly static Dictionary<(RaidTier, int), List<GearItem>> LootSourceDB;
+
+        static LootDB()
         {
-            throw new NotImplementedException();
+            LootSourceDB = new();
+            foreach(var entry in CuratedData.LootSourceDB)
+            {
+                foreach ((RaidTier, int) source in entry.Value.Sources)
+                {
+                    if (!LootSourceDB.ContainsKey(source))
+                        LootSourceDB.Add(source, new());
+                    foreach (uint id in entry.Key.Enumerator)
+                        LootSourceDB[source].Add(new(id));
+                }
+            }
         }
+
+        public static List<GearItem> GetPossibleLoot(RaidTier raidTear, int boss) => LootSourceDB.GetValueOrDefault((raidTear, boss), new());
     }
 
     public struct ItemIDRange
     {
-        public static implicit operator ItemIDRange(int id) => new(id, id);
-        public static implicit operator ItemIDRange((int, int) id) => new(id.Item1, id.Item2);
-        public static implicit operator ItemIDRange(KeyValuePair<int, int> id) => new(id.Key, id.Value);
-        private readonly int StartID;
-        private readonly int EndID;
-        private bool InRange(int id) => StartID <= id && id <= EndID;
-        public ItemIDRange(int start, int end) => (StartID, EndID) = (start, end);
+        public static implicit operator ItemIDRange(uint id) => new(id, id);
+        public static implicit operator ItemIDRange((uint, uint) id) => new(id.Item1, id.Item2);
+        public static implicit operator ItemIDRange(KeyValuePair<uint, uint> id) => new(id.Key, id.Value);
+        private readonly uint StartID;
+        private readonly uint EndID;
+        private bool InRange(uint id) => StartID <= id && id <= EndID;
+        public IEnumerable<uint> Enumerator => Enumerable.Range((int)StartID, (int) (EndID - StartID +1)).ToList().ConvertAll(x => Convert.ToUInt32(x));
+        public ItemIDRange(uint start, uint end) => (StartID, EndID) = (start, end);
         public override bool Equals(object? obj)
         {
             if (obj == null || !obj.GetType().IsAssignableTo(typeof(ItemIDRange)))
                 return false;
             return Equals((ItemIDRange)obj);
         }
-        public bool Equals(int obj) => this == obj;
+        public bool Equals(uint obj) => this == obj;
         public bool Equals(ItemIDRange obj) => StartID == obj.StartID && EndID == obj.EndID;
         public override int GetHashCode() => (StartID, EndID).GetHashCode(); 
-        public static bool operator ==(ItemIDRange left, int right) => left.InRange(right);
-        public static bool operator !=(ItemIDRange left, int right) => !left.InRange(right);
+        public static bool operator ==(ItemIDRange left, uint right) => left.InRange(right);
+        public static bool operator !=(ItemIDRange left, uint right) => !left.InRange(right);
 
     }
 }

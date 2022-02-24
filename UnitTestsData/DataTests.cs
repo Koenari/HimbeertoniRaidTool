@@ -51,5 +51,22 @@ namespace UnitTestsData
             Assert.True(Range3 == 16000);
             Assert.False(Range3.Equals("a"));
         }
+        [Fact]
+        public void ItemIDRangeEnumeratorTest()
+        {
+            ItemIDRange Range1 = 25;
+            uint i = 25;
+            foreach (uint x in Range1.Enumerator)
+                Assert.Equal(i, x);
+            ItemIDRange Range2 = (15, 20);
+            uint j = 15;
+            foreach (uint y in Range2.Enumerator)
+            {
+                Assert.Equal(j, y);
+                j++;
+            }
+                
+
+        }
     }
 }
