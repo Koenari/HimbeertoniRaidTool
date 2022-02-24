@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 
 namespace HimbeertoniRaidTool.Data
@@ -12,8 +12,7 @@ namespace HimbeertoniRaidTool.Data
     public struct LootSource
     {
         public static implicit operator LootSource((RaidTier, int) data) => new(data);
-        public static implicit operator LootSource((RaidTier, int)[] data) => new(data);
-        public List<(RaidTier, int)> Sources;
+     public List<(RaidTier, int)> Sources;
         public LootSource(params (RaidTier, int)[] data) { Sources = new(data); }
 
         public override bool Equals(object? obj)
@@ -25,6 +24,9 @@ namespace HimbeertoniRaidTool.Data
         public bool Equals(LootSource obj) => Sources.Contains(obj.Sources[0]);
 
         public override int GetHashCode() => base.GetHashCode();
+
+        public static bool operator ==(LootSource left, LootSource right) => left.Equals(right);
+        public static bool operator !=(LootSource left, LootSource right)=> !(left == right);
     }
     
     public class LootDB
@@ -32,7 +34,7 @@ namespace HimbeertoniRaidTool.Data
         
         public static List<GearItem> GetPossibleLoot(RaidTier raidTear, int boss)
         {
-            return new();
+            throw new NotImplementedException();
         }
     }
 

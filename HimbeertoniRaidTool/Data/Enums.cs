@@ -29,12 +29,13 @@ namespace HimbeertoniRaidTool.Data
         Ring2 = 12,
         SoulCrystal = 13,
     }
-    [Obsolete("New Struct")]
-    public enum RaidTierEnum
+    public enum LootRuleEnum
     {
-        Eden,
-        UCOB,
-        Asphodelos
+        BISOverUpgrade = 1,
+        LowestItemLevel = 2,
+        HighesItemLevelGain = 3,
+        ByPosition = 4,
+        Random = 5
     }
     public enum EncounterDifficulty
     {
@@ -67,7 +68,7 @@ namespace HimbeertoniRaidTool.Data
         WAR,
         WHM
     }
-    public enum PositionInRaidGroup
+    public enum PositionInRaidGroup : byte
     {
         Tank1 = 0,
         Tank2 = 1,
@@ -82,7 +83,8 @@ namespace HimbeertoniRaidTool.Data
     {
         Raid,
         AllianceRaid,
-        Trial
+        Trial,
+        Dungeon
     }
     public static class EnumExtensions
     {

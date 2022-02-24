@@ -3,6 +3,7 @@ using Dalamud.Plugin;
 using HimbeertoniRaidTool.Data;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using static HimbeertoniRaidTool.Data.AvailableClasses;
 
 namespace HimbeertoniRaidTool
@@ -36,13 +37,13 @@ namespace HimbeertoniRaidTool
         };
         public LootRuling LootRuling { get; set; } = new LootRuling()
         {
-            RuleSet = new List<LootRules>()
+            RuleSet = new List<LootRule>()
             {
-                LootRules.BISOverUpgrade,
-                LootRules.ByPosition,
-                LootRules.HighesItemLevelGain,
-                LootRules.LowestItemLevel,
-                LootRules.Random
+                new(LootRuleEnum.BISOverUpgrade),
+                new(LootRuleEnum.ByPosition),
+                new(LootRuleEnum.HighesItemLevelGain),
+                new(LootRuleEnum.LowestItemLevel),
+                new(LootRuleEnum.Random)
 
             }
         };

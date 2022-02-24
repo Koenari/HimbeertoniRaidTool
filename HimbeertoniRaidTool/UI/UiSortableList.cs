@@ -1,4 +1,5 @@
-﻿using ImGuiNET;
+﻿using HimbeertoniRaidTool.Data;
+using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,19 +16,21 @@ namespace HimbeertoniRaidTool.UI
         /// <summary>
         /// Get a copy of the current state of the list.
         /// </summary>
-        public IEnumerable<T> List => (FieldRefs.Take(Lenght)).Select((x) => Possibilities[x]);
+        public List<T> List => FieldRefs.Take(Lenght).ToList().ConvertAll((x) => Possibilities[x]);
         /// <summary>
         /// Class <c>UiSortableList</c> represents an Ui Element to edit a list and ensures all entries are unique.
         /// </summary>
         /// <param name="possibilities">A List of all possible entries</param>
-        /// <param name="list">An (incomplete) list of entries used as initial state</param>
-        public UiSortableList(IEnumerable<T> possibilities, IEnumerable<T> list)
+        /// <param name="inList">An (incomplete) list of entries used as initial state</param>
+        public UiSortableList(IEnumerable<T> possibilities, IEnumerable<T> inList)
         {
             Possibilities = possibilities.ToList();
             FieldRefs = new int[Possibilities.Count];
             OldVals = new int[FieldRefs.Length];
-            NumItems = list.Count() < Possibilities.Count ? list.Count() : Possibilities.Count;
-            Array.Copy(list.Select(x => Possibilities.FindIndex(y => x!.Equals(y))).ToArray(), FieldRefs, Lenght);
+            NumItems = inList.Count() < Possibilities.Count ? inList.Count() : Possibilities.Count;
+            List<T> list = inList.ToList();
+            for(int i = 0; i < Lenght; i++)
+                FieldRefs[i] = Possibilities.FindIndex(x => x?.Equals(list[i]) ?? false);
             ConsolidateList();
             FieldRefs.CopyTo(OldVals, 0);
         }
