@@ -1,6 +1,8 @@
 ﻿using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
+using Lumina.Excel;
+using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,12 +11,13 @@ using System.Threading.Tasks;
 using static HimbeertoniRaidTool.LootMaster.Helper;
 using static HimbeertoniRaidTool.Services;
 using static HimbeertoniRaidTool.UI.Helper;
+using static Lumina.Excel.GeneratedSheets.EquipSlotCategoryExtensions;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
     public class LootmasterUI : HrtUI
     {
-        readonly RaidGroup Group;
+        private readonly RaidGroup Group;
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
         private readonly List<HrtUI> Childs = new();
         public LootmasterUI(RaidGroup group) : base() => Group = group;
@@ -72,9 +75,31 @@ namespace HimbeertoniRaidTool.LootMaster
                 HandleAsync();
                 if (ImGui.Button("Loot Boss 1 (Erichthonios)"))
                 {
-                    LootUi lui = new LootUi(CuratedData.AsphodelosSavage, 1);
+                    LootUi lui = new(CuratedData.AsphodelosSavage, 1, Group);
                     Childs.Add(lui);
                     lui.Show();
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Loot Boss 2 (Hippokampos)"))
+                {
+                    LootUi lui = new(CuratedData.AsphodelosSavage, 2, Group);
+                    Childs.Add(lui);
+                    lui.Show();
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Loot Boss 3 (Phoinix)"))
+                {
+                    LootUi lui = new(CuratedData.AsphodelosSavage, 3, Group);
+                    Childs.Add(lui);
+                    lui.Show();
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Loot Boss 4 (Hesperos)"))
+                {
+                    LootUi lui = new(CuratedData.AsphodelosSavage, 4, Group);
+                    Childs.Add(lui);
+                    lui.Show();
+
                 }
                 if (ImGui.BeginTable("RaidGruppe", 14, ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
                 {
@@ -305,26 +330,50 @@ namespace HimbeertoniRaidTool.LootMaster
     }
     class LootUi : HrtUI
     {
+        private readonly RaidGroup Group;
         private readonly RaidTier RaidTier;
         private readonly int Boss;
-        private List<GearItem> Loot => LootDB.GetPossibleLoot(RaidTier, Boss);
+        private readonly (GearItem,int )[] Loot;
+        private LootRuling LootRuling => HRTPlugin.Configuration.LootRuling;
 
-        internal LootUi(RaidTier raidTier, int boss) => (RaidTier, Boss) = (raidTier, boss);
+        internal LootUi(RaidTier raidTier, int boss, RaidGroup group)
+        {
+            RaidTier = raidTier;
+            Boss = boss;
+            Group = group;
+            Loot = LootDB.GetPossibleLoot(RaidTier, Boss).ConvertAll(x => (x, 0)).ToArray();
+        }
         
         public override void Draw()
         {
             if (!Visible)
                 return;
             if(ImGui.Begin("Loot for "+ RaidTier.Name +" Boss "+ Boss, ref Visible, ImGuiWindowFlags.NoCollapse)){
-                foreach(GearItem item in Loot)
+                for (int i = 0; i <Loot.Length; i++)
                 {
-                    if (item.Valid)
+                    if (Loot[i].Item1.Valid)
                     {
-                        ImGui.PushStyleColor(ImGuiCol.Button, new ColorHSVA(LootmasterUI.ILevelColor(item)) { S = 0.75f, V = 0.75f }.ToVec4);
-                        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new ColorHSVA(LootmasterUI.ILevelColor(item)) { S = 0.5f, V = 0.5f }.ToVec4);
-                        ImGui.PushStyleColor(ImGuiCol.Text, Vec4(Color.Black));
-                        ImGui.Button(item.Item.Name);
-                        ImGui.PopStyleColor(3);
+                        ImGui.Text(Loot[i].Item1.Item.Name);
+                        ImGui.SameLine();
+                        ImGui.InputInt("##"+Loot[i].Item1.Item.Name, ref Loot[i].Item2);
+
+                    }
+                }
+                if (ImGui.Button("Distribute"))
+                {
+                    foreach((GearItem, int ) lootItem in Loot)
+                    {
+                        List<Player> alreadyLooted = new();
+                        for (int j = 0; j < lootItem.Item2; j++)
+                        {
+                            try
+                            {
+                                var evalLoot = LootRuling.Evaluate(Group, lootItem.Item1.Slot, alreadyLooted);
+                                alreadyLooted.Add(evalLoot[0].Item1);
+                                DrawLoot(lootItem.Item1, evalLoot);
+                            }
+                            catch { }
+                        }
                     }
                 }
                 if (ImGui.Button("Close"))
@@ -332,6 +381,15 @@ namespace HimbeertoniRaidTool.LootMaster
                     Hide();
                 }
                 ImGui.End();
+            }
+        }
+        private void DrawLoot(GearItem item, List<(Player, LootRule)> looters)
+        {
+            ChatGui.Print("Loot Results for: " + item.Name);
+            int place = 1;
+            foreach(var looter in looters)
+            {
+                ChatGui.Print("Priority "+ place+" for Player "+ looter.Item1.NickName+ "by rule"+looter.Item2.ToString());
             }
         }
     }

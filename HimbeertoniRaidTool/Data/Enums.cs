@@ -28,6 +28,7 @@ namespace HimbeertoniRaidTool.Data
         Ring1 = 11,
         Ring2 = 12,
         SoulCrystal = 13,
+        None = 999
     }
     public enum LootRuleEnum
     {

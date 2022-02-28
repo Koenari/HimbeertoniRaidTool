@@ -9,7 +9,7 @@ namespace UnitTestsData
         public void LootRuleEqualsTest()
         {
             Assert.Equal(new LootRule(LootRuleEnum.Random), new LootRule(LootRuleEnum.Random));
-            Assert.NotEqual(new LootRule(LootRuleEnum.Random),(new LootRule(LootRuleEnum.LowestItemLevel)));
+            Assert.NotEqual(new LootRule(LootRuleEnum.Random), (new LootRule(LootRuleEnum.LowestItemLevel)));
             Assert.False(new LootRule(LootRuleEnum.Random).Equals("Roll"));
         }
         [Fact]
@@ -24,9 +24,11 @@ namespace UnitTestsData
         {
             RaidTier T1 = new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos");
             RaidTier T2 = new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
-            Assert.Equal(new LootSource((T1,1)), new LootSource((T1, 1)));
+            Assert.Equal(new LootSource((T1, 1)), new LootSource((T1, 1)));
             Assert.NotEqual(new LootSource((T1, 1)), new LootSource((T1, 2)));
             Assert.NotEqual(new LootSource((T2, 1)), new LootSource((T1, 1)));
+            Assert.True(new LootSource(T1, 1) == new LootSource(T1, 1));
+            Assert.True(new LootSource(T1, 1) != new LootSource(T1, 2));
             Assert.False(new LootSource((T1, 1)).Equals(T1));
         }
         [Fact]
@@ -35,7 +37,7 @@ namespace UnitTestsData
             ItemIDRange Range1 = 15111;
             ItemIDRange Range1a = 15111;
             ItemIDRange Range2 = 14111;
-            ItemIDRange Range3 = (15000,16000);
+            ItemIDRange Range3 = (15000, 16000);
 
             Assert.Equal(Range1, Range1);
             Assert.Equal(Range1, Range1a);
@@ -65,7 +67,7 @@ namespace UnitTestsData
                 Assert.Equal(j, y);
                 j++;
             }
-                
+
 
         }
     }

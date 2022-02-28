@@ -23,15 +23,30 @@ namespace HimbeertoniRaidTool.Data
         }
         public List<LootRule> RuleSet = new();
         public bool StrictRooling = false;
-        public List<(Player,LootRule)> Evaluate(RaidGroup group, GearSetSlot slot)
+        
+        public List<(Player,LootRule)> Evaluate(RaidGroup group, GearSetSlot slot, List<Player> excluded = null)
         {
+            excluded ??= new();
             List<(Player, LootRule)> result = new();
+            List<Player> greed = new();
             foreach (Player p in group.Players)
             {
+                if (excluded.Contains(p))
+                    continue;
                 if (p.MainChar.MainClass.Gear[slot].ItemLevel < p.MainChar.MainClass.BIS[slot].ItemLevel)
-                    result.Add((p,null!));
+                {
+                    result.Add((p, null!));
+                }else
+                {
+                    greed.Add(p);
+                }
+                    
             }
             result.Sort(GetComparer(slot));
+            foreach(Player p in greed)
+            {
+                result.Add((p, new(null)));
+            }
             return result;
 
         }

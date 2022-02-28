@@ -8,6 +8,7 @@ namespace HimbeertoniRaidTool.Data
     {
         public static implicit operator LootSource((RaidTier, int) data) => new(data);
         public readonly List<(RaidTier, int)> Sources;
+        public LootSource(RaidTier raidTier, int boss) : this((raidTier, boss)) { }
         public LootSource(params (RaidTier, int)[] data) { Sources = new(data); }
         public bool IsList => Sources.Count > 1;
         public override bool Equals(object? obj)
@@ -18,7 +19,7 @@ namespace HimbeertoniRaidTool.Data
         }
         public bool Equals(LootSource obj) => Sources.Contains(obj.Sources[0]);
 
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode() => Sources.GetHashCode();
 
         public static bool operator ==(LootSource left, LootSource right) => left.Equals(right);
         public static bool operator !=(LootSource left, LootSource right) => !left.Equals(right);

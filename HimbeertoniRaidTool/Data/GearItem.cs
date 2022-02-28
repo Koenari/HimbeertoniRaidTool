@@ -10,12 +10,8 @@ namespace HimbeertoniRaidTool.Data
 {
     public class GearItem
     {
-        private static readonly KeyContainsDictionary<GearSource> SourceDic = new()
-        {
-            { "Asphodelos", GearSource.Raid },
-            { "Radiant", GearSource.Tome },
-            { "Classical", GearSource.Crafted },
-        };
+        private static KeyContainsDictionary<GearSource> SourceDic => CuratedData.GearSourceDictionary;
+        private GearSetSlot? SlotOverride => CuratedData.SlotOverrideDB.ContainsKey(_ID) ? CuratedData.SlotOverrideDB.GetValueOrDefault(_ID) : null;
         private uint _ID;
         public uint ID { get => _ID; set { _ID = value; UpdateStats(); } }
         [JsonIgnore]
@@ -32,7 +28,8 @@ namespace HimbeertoniRaidTool.Data
         public bool Filled => Name.Length > 0;
         [JsonIgnore]
         public bool Valid => ID > 0;
-
+        [JsonIgnore]
+        public GearSetSlot Slot => SlotOverride ?? (Item.EquipSlotCategory.Value?.ToSlot()) ?? GearSetSlot.None;
         private static ExcelSheet<Item> Sheet => DataManager.Excel.GetSheet<Item>()!;
 
         public GearItem() : this(0) { }
