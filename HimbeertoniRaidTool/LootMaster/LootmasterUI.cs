@@ -1,8 +1,6 @@
 ﻿using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
-using Lumina.Excel;
-using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,7 +9,6 @@ using System.Threading.Tasks;
 using static HimbeertoniRaidTool.LootMaster.Helper;
 using static HimbeertoniRaidTool.Services;
 using static HimbeertoniRaidTool.UI.Helper;
-using static Lumina.Excel.GeneratedSheets.EquipSlotCategoryExtensions;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -34,6 +31,7 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             if (!Visible)
                 return;
+            Childs.ForEach(x => { if (!x.IsVisible) x.Dispose(); });
             Childs.RemoveAll(x => !x.IsVisible);
             DrawMainWindow();
         }
@@ -73,34 +71,7 @@ namespace HimbeertoniRaidTool.LootMaster
             if (ImGui.Begin("Loot Master", ref Visible, ImGuiWindowFlags.NoScrollbar))
             {
                 HandleAsync();
-                if (ImGui.Button("Loot Boss 1 (Erichthonios)"))
-                {
-                    LootUi lui = new(CuratedData.AsphodelosSavage, 1, Group);
-                    Childs.Add(lui);
-                    lui.Show();
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Loot Boss 2 (Hippokampos)"))
-                {
-                    LootUi lui = new(CuratedData.AsphodelosSavage, 2, Group);
-                    Childs.Add(lui);
-                    lui.Show();
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Loot Boss 3 (Phoinix)"))
-                {
-                    LootUi lui = new(CuratedData.AsphodelosSavage, 3, Group);
-                    Childs.Add(lui);
-                    lui.Show();
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Loot Boss 4 (Hesperos)"))
-                {
-                    LootUi lui = new(CuratedData.AsphodelosSavage, 4, Group);
-                    Childs.Add(lui);
-                    lui.Show();
-
-                }
+                //DrawLootHandlerButtons();
                 if (ImGui.BeginTable("RaidGruppe", 14, ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
                 {
                     ImGui.TableSetupColumn("Player");
@@ -129,6 +100,37 @@ namespace HimbeertoniRaidTool.LootMaster
                 }
             }
             ImGui.End();
+        }
+        private void DrawLootHandlerButtons()
+        {
+            if (ImGui.Button("Loot Boss 1 (Erichthonios)"))
+            {
+                LootUi lui = new(CuratedData.AsphodelosSavage, 1, Group);
+                Childs.Add(lui);
+                lui.Show();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Loot Boss 2 (Hippokampos)"))
+            {
+                LootUi lui = new(CuratedData.AsphodelosSavage, 2, Group);
+                Childs.Add(lui);
+                lui.Show();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Loot Boss 3 (Phoinix)"))
+            {
+                LootUi lui = new(CuratedData.AsphodelosSavage, 3, Group);
+                Childs.Add(lui);
+                lui.Show();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Loot Boss 4 (Hesperos)"))
+            {
+                LootUi lui = new(CuratedData.AsphodelosSavage, 4, Group);
+                Childs.Add(lui);
+                lui.Show();
+
+            }
         }
         private void DrawPlayer(Player player)
         {
@@ -335,6 +337,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private readonly int Boss;
         private readonly (GearItem,int )[] Loot;
         private LootRuling LootRuling => HRTPlugin.Configuration.LootRuling;
+        private List<HrtUI> Children = new();
 
         internal LootUi(RaidTier raidTier, int boss, RaidGroup group)
         {
@@ -343,7 +346,18 @@ namespace HimbeertoniRaidTool.LootMaster
             Group = group;
             Loot = LootDB.GetPossibleLoot(RaidTier, Boss).ConvertAll(x => (x, 0)).ToArray();
         }
-        
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            foreach (var child in Children)
+            {
+                child.Hide();
+                child.Dispose();
+            }
+            Children.Clear();
+        }
+
         public override void Draw()
         {
             if (!Visible)
@@ -366,13 +380,11 @@ namespace HimbeertoniRaidTool.LootMaster
                         List<Player> alreadyLooted = new();
                         for (int j = 0; j < lootItem.Item2; j++)
                         {
-                            try
-                            {
-                                var evalLoot = LootRuling.Evaluate(Group, lootItem.Item1.Slot, alreadyLooted);
-                                alreadyLooted.Add(evalLoot[0].Item1);
-                                DrawLoot(lootItem.Item1, evalLoot);
-                            }
-                            catch { }
+                            var evalLoot = LootRuling.Evaluate(Group, lootItem.Item1.Slot, alreadyLooted);
+                            alreadyLooted.Add(evalLoot[0].Item1);
+                            var lootWindow = new LootResultWindow(lootItem.Item1, evalLoot);
+                            Children.Add(lootWindow);
+                            lootWindow.Show();
                         }
                     }
                 }
@@ -383,13 +395,44 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.End();
             }
         }
-        private void DrawLoot(GearItem item, List<(Player, LootRule)> looters)
+        public override void Hide()
         {
-            ChatGui.Print("Loot Results for: " + item.Name);
-            int place = 1;
-            foreach(var looter in looters)
+            base.Hide();
+            foreach (var win in Children)
+                win.Hide();
+        }
+        class LootResultWindow : HrtUI
+        {
+            public LootResultWindow(GearItem item1, List<(Player, string)> looters)
             {
-                ChatGui.Print("Priority "+ place+" for Player "+ looter.Item1.NickName+ "by rule"+looter.Item2.ToString());
+                Item = item1;
+                Looters = looters;
+            }
+
+            public GearItem Item { get; }
+            public List<(Player, string)> Looters { get; }
+
+            private LootRuling LootRuling => HRTPlugin.Configuration.LootRuling;
+            public override void Draw()
+            {
+                if (!Visible)
+                    return;
+                if(ImGui.Begin("Loot Results for: " + Item.Name, ref Visible))
+                {
+                    ImGui.Text("Loot Results for: " + Item.Name);
+                    ImGui.Text("LootRuling used:");
+                    foreach (LootRule rule in LootRuling.RuleSet)
+                        ImGui.BulletText(rule.ToString());
+                    int place = 1;
+                    foreach ((Player, string) looter in Looters)
+                    {
+                        ImGui.Text("Priority " + place + " for Player " + looter.Item1.NickName + " won by rule " + looter.Item2);
+                        place++;
+                    }
+                    ImGui.End();
+                }
+                
+                
             }
         }
     }

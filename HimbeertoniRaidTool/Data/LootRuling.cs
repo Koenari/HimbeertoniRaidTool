@@ -1,16 +1,12 @@
-﻿using HimbeertoniRaidTool.UI;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Linq;
-using static HimbeertoniRaidTool.Data.Player;
 
 namespace HimbeertoniRaidTool.Data
 {
     public class LootRuling
     {
+        [JsonIgnore]
         public static List<LootRule> PossibleRules
         {
             get
@@ -24,10 +20,10 @@ namespace HimbeertoniRaidTool.Data
         public List<LootRule> RuleSet = new();
         public bool StrictRooling = false;
         
-        public List<(Player,LootRule)> Evaluate(RaidGroup group, GearSetSlot slot, List<Player> excluded = null)
+        public List<(Player,string)> Evaluate(RaidGroup group, GearSetSlot slot, List<Player>? excluded = null)
         {
             excluded ??= new();
-            List<(Player, LootRule)> result = new();
+            List<Player> need = new();
             List<Player> greed = new();
             foreach (Player p in group.Players)
             {
@@ -35,48 +31,60 @@ namespace HimbeertoniRaidTool.Data
                     continue;
                 if (p.MainChar.MainClass.Gear[slot].ItemLevel < p.MainChar.MainClass.BIS[slot].ItemLevel)
                 {
-                    result.Add((p, null!));
+                    need.Add(p);
                 }else
                 {
                     greed.Add(p);
                 }
                     
             }
-            result.Sort(GetComparer(slot));
-            foreach(Player p in greed)
+            LootRulingComparer comparer = GetComparer(slot);
+            need.Sort(comparer);
+            List<(Player, string)> result = new();
+            for (int i = 0; i < need.Count - 1;i++)
             {
-                result.Add((p, new(null)));
+                result.Add((need[i], 
+                    comparer.RulingReason.GetValueOrDefault((need[i], need[i + 1]), new()).ToString()));
+            }
+            result.Add((need[need.Count - 1], "Need > Greed"));
+            foreach (Player p in greed)
+            {
+                result.Add((p, "Greed"));
             }
             return result;
 
         }
         private LootRulingComparer GetComparer(GearSetSlot slot) => new(RuleSet, slot, StrictRooling);
 
-        private class LootRulingComparer : IComparer<(Player, LootRule)>
+        private class LootRulingComparer : IComparer<Player>
         {
             private readonly GearSetSlot Slot;
             private readonly List<LootRule> RuleSet;
+            public Dictionary<(Player, Player), LootRule> RulingReason = new();
             private readonly bool StrictRuling;
             public LootRulingComparer(List<LootRule> ruleSet, GearSetSlot slot, bool strict) => (RuleSet, Slot, StrictRuling) = (ruleSet, slot, strict);
 
-            public int Compare((Player, LootRule) x, (Player, LootRule) y)
+            public int Compare(Player? x, Player? y)
             {
-                if (x.Item1 is null && y.Item1 is null)
+                if (x is null && y is null)
                     return 0;
-                if (x.Item1 is null)
+                if (x is null)
                     return 1;
-                if (y.Item1 is null)
+                if (y is null)
                     return -1;
+                if (RulingReason.ContainsKey((x, y)))
+                    return RulingReason[(x, y)].Compare(x, y, Slot, StrictRuling);
                 foreach (LootRule rule in RuleSet)
                 {
-                    int result = rule.Compare(x.Item1, y.Item1, Slot, StrictRuling);
+                    int result = rule.Compare(x, y, Slot, StrictRuling);
                     if (result != 0)
                     {
-                        x.Item2 = rule;
+                        RulingReason.Add((x, y), rule);
+                        RulingReason.Add((y, x), rule);
                         return result;
                     }
                 }
-                x.Item2 = new();
+                RulingReason.Add((x, y), new());
                 return 0;
             }
         }
