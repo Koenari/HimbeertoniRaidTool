@@ -1,10 +1,8 @@
 ﻿using Dalamud.Configuration;
-using Dalamud.Plugin;
 using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using static HimbeertoniRaidTool.Data.AvailableClasses;
 
 namespace HimbeertoniRaidTool
@@ -39,18 +37,7 @@ namespace HimbeertoniRaidTool
             { WAR, "6d0d2d4d-a477-44ea-8002-862eca8ef91d" },
             { WHM, "e78a29e3-1dcf-4e53-bbcf-234f33b2c831" },
         };
-        public LootRuling LootRuling { get; set; } = new LootRuling()
-        {
-            RuleSet = new List<LootRule>()
-            {
-                new(LootRuleEnum.BISOverUpgrade),
-                new(LootRuleEnum.ByPosition),
-                new(LootRuleEnum.HighesItemLevelGain),
-                new(LootRuleEnum.LowestItemLevel),
-                new(LootRuleEnum.Random)
-
-            }
-        };
+        public LootRuling LootRuling { get; set; } = new();
 
         public RaidGroup? GroupInfo;
 
@@ -66,6 +53,19 @@ namespace HimbeertoniRaidTool
                 return;
             if (Version != TargetVersion)
                 Upgrade();
+            if(LootRuling.RuleSet.Count == 0)
+            {
+                LootRuling.RuleSet.AddRange(
+                    new List<LootRule>()
+                        {
+                            new(LootRuleEnum.BISOverUpgrade),
+                            new(LootRuleEnum.ByPosition),
+                            new(LootRuleEnum.HighesItemLevelGain),
+                            new(LootRuleEnum.LowestItemLevel),
+                            new(LootRuleEnum.Random)
+                        }
+                );
+            }
             FullyLoaded = true;
         }
     }
