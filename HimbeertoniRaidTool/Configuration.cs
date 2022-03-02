@@ -1,6 +1,7 @@
 ﻿using Dalamud.Configuration;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Data;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +12,9 @@ namespace HimbeertoniRaidTool
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
+        [JsonIgnore]
+        public bool FullyLoaded { get; private set; } = false;
+        private int TargetVersion = 1;
         public int Version { get; set; } = 1;
         public Dictionary<AvailableClasses, string> DefaultBIS { get; set; } = new Dictionary<AvailableClasses, string>
         {
@@ -49,11 +53,20 @@ namespace HimbeertoniRaidTool
         };
 
         public RaidGroup? GroupInfo;
-        // the below exist just to make saving 
 
-        public void Save()
+        public void Save() => Services.PluginInterface.SavePluginConfig(this);
+
+        private void Upgrade()
         {
-            Services.PluginInterface.SavePluginConfig(this);
+            Version = TargetVersion;
+        }
+        internal void AfterLoad()
+        {
+            if (FullyLoaded)
+                return;
+            if (Version != TargetVersion)
+                Upgrade();
+            FullyLoaded = true;
         }
     }
 }

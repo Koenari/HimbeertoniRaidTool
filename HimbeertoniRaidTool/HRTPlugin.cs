@@ -25,6 +25,7 @@ namespace HimbeertoniRaidTool
         [PluginService] public static TargetManager TargetManager { get; private set; }
         [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
         [PluginService] public static ClientState ClientState { get; private set; }
+        [PluginService] public static Framework Framework { get; private set; }
     }
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
@@ -51,6 +52,7 @@ namespace HimbeertoniRaidTool
             pluginInterface.Create<Services>();
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+            _Configuration.AfterLoad();
             LM = new(_Configuration.GroupInfo ?? new RaidGroup(""), _Configuration.LootRuling);
             OptionsUi = new();
             InitCommands();
