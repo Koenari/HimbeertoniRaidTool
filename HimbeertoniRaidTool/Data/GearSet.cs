@@ -103,7 +103,7 @@ namespace Lumina.Excel.GeneratedSheets
         }
         public static GearSetSlot ToSlot(this EquipSlotCategory self)
         {
-            for (int i = 1; i < (int)GearSetSlot.SoulCrystal; i++)
+            for (int i = 0; i < (int)GearSetSlot.SoulCrystal; i++)
             {
                 if (self.Contains((GearSetSlot) i))
                 {

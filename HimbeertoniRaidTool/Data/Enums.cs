@@ -89,6 +89,28 @@ namespace HimbeertoniRaidTool.Data
     }
     public static class EnumExtensions
     {
+        public static string FriendlyName(this GearSetSlot slot)
+        {
+            return slot switch
+            {
+                GearSetSlot.MainHand => "Weapon",
+                GearSetSlot.OffHand => "Shield",
+                GearSetSlot.Head => "Had",
+                GearSetSlot.Body => "Body",
+                GearSetSlot.Hands => "Gloves",
+                GearSetSlot.Waist => "THere no longer are belts you fuckwit",
+                GearSetSlot.Legs => "Trousers",
+                GearSetSlot.Feet => "Shoes",
+                GearSetSlot.Ear => "Earrings",
+                GearSetSlot.Neck => "Necklace",
+                GearSetSlot.Wrist => "Bracelet",
+                GearSetSlot.Ring1 => "Ring",
+                GearSetSlot.Ring2 => "Ring",
+                GearSetSlot.SoulCrystal => "Soul Crystal",
+                _ => "undefined"
+
+            };
+        }
 
     }
 }
