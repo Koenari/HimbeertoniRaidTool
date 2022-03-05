@@ -35,6 +35,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ColorHelper" Version="1.6.2">
+    </PackageReference>
     <PackageReference Include="DalamudPackager" Version="2.1.5" />
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>

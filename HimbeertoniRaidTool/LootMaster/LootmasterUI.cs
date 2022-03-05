@@ -1,9 +1,9 @@
-﻿using HimbeertoniRaidTool.Data;
+﻿using ColorHelper;
+using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
 using static HimbeertoniRaidTool.LootMaster.Helper;
@@ -29,32 +29,40 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         public override void Draw()
         {
+            UpdateChildren();
             if (!Visible)
                 return;
-            Childs.ForEach(x => { if (!x.IsVisible) x.Dispose(); });
-            Childs.RemoveAll(x => !x.IsVisible);
+            
             DrawMainWindow();
         }
-        public static Color ILevelColor(GearItem item)
+        public static HSV ILevelColor(GearItem item)
         {
-            if (item.ItemLevel >= 600)
+            uint currentMaxILevel = CuratedData.CurrentRaidSavage.ArmorItemLevel;
+            if (item.ItemLevel >= currentMaxILevel)
             {
-                return Color.Green;
+                return ColorName.Green.ToHsv();
             }
-            else if (item.ItemLevel >= 590)
+            else if (item.ItemLevel >= currentMaxILevel - 10)
             {
-                return Color.Aquamarine;
+                return ColorName.Aquamarine.ToHsv();
             }
-            else if (item.ItemLevel >= 580)
+            else if (item.ItemLevel >= currentMaxILevel - 20)
             {
-                return Color.Yellow;
+                return ColorName.Yellow.ToHsv();
             }
             else
             {
-                return Color.Red;
+                return ColorName.Red.ToHsv();
             }
         }
 
+        private void UpdateChildren()
+        {
+            if(!Visible)
+                Childs.ForEach(x =>  x.Hide());
+            Childs.ForEach(x => { if (!x.IsVisible) x.Dispose(); });
+            Childs.RemoveAll(x => !x.IsVisible);
+        }
         private void HandleAsync()
         {
             Tasks.RemoveAll(t => t.FinishedShowing);
@@ -66,13 +74,15 @@ namespace HimbeertoniRaidTool.LootMaster
         private void DrawMainWindow()
         {
 
-            ImGui.SetNextWindowSize(new Vector2(1000, 800), ImGuiCond.FirstUseEver);
-
-            if (ImGui.Begin("Loot Master", ref Visible, ImGuiWindowFlags.NoScrollbar))
+            ImGui.SetNextWindowSize(new Vector2(1600, 600), ImGuiCond.Appearing);
+            if (ImGui.Begin("Loot Master", ref Visible, 
+                ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize))
             {
                 HandleAsync();
                 //DrawLootHandlerButtons();
-                if (ImGui.BeginTable("RaidGruppe", 14, ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
+
+                if (ImGui.BeginTable("RaidGruppe", 14, 
+                    ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingStretchProp))
                 {
                     ImGui.TableSetupColumn("Player");
                     ImGui.TableSetupColumn("iLvl");
@@ -87,6 +97,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.TableSetupColumn("Bracers");
                     ImGui.TableSetupColumn("Ring 1");
                     ImGui.TableSetupColumn("Ring 2");
+                    ImGui.TableSetupColumn("Options");
                     ImGui.TableHeadersRow();
                     foreach (Player player in Group.Players)
                     {
@@ -132,6 +143,29 @@ namespace HimbeertoniRaidTool.LootMaster
 
             }
         }
+        private static void DrawItemTooltip(GearItem item)
+        {
+            ImGui.BeginTooltip();
+            if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
+            {
+                ImGui.TableSetupColumn("Header");
+                ImGui.TableSetupColumn("Value");
+                DrawRow("Name", item.Item.Name);
+                DrawRow("Item Level", item.ItemLevel.ToString());
+                DrawRow("Item Source", item.Source.ToString());
+                ImGui.EndTable();
+            }
+            ImGui.EndTooltip();
+
+            static void DrawRow(string label, string value)
+            {
+
+                ImGui.TableNextColumn();
+                ImGui.Text(label);
+                ImGui.TableNextColumn();
+                ImGui.Text(value);
+            }
+        }
         private void DrawPlayer(Player player)
         {
             bool PlayerExists = player.Filled && player.MainChar.Filled;
@@ -143,7 +177,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.Text(player.Pos + "\n" + player.NickName + "\n" + player.MainChar.Name + " (" + player.MainChar.MainClassType + ")");
                 ImGui.TableNextColumn();
                 ImGui.Text(gear.ItemLevel.ToString());
-                ImGui.Text("+ " + (bis.ItemLevel - gear.ItemLevel));
+                ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} to BIS");
                 ImGui.Text(bis.ItemLevel.ToString());
                 DrawItem(gear.MainHand, bis.MainHand);
                 DrawItem(gear.Head, bis.Head);
@@ -157,6 +191,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 DrawItem(gear.Ring1, bis.Ring1);
                 DrawItem(gear.Ring2, bis.Ring2);
                 ImGui.TableNextColumn();
+                ImGui.NewLine();
                 EditPlayerButton();
                 ImGui.SameLine();
                 if (ImGui.Button("x##" + player.Pos))
@@ -183,44 +218,46 @@ namespace HimbeertoniRaidTool.LootMaster
                 {
                     if (Childs.Exists(x => (x.GetType() == typeof(EditPlayerWindow)) && ((EditPlayerWindow)x).Pos == player.Pos))
                         return;
-                    this.Childs.Add(new EditPlayerWindow(this, player.Pos));
+                    Childs.Add(new EditPlayerWindow(this, player.Pos));
 
                 }
             }
             void DrawItem(GearItem item, GearItem bis)
             {
                 ImGui.TableNextColumn();
-                if (item.Valid)
+                if (item.Valid && bis.Valid && item.Equals(bis))
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Button, new ColorHSVA(ILevelColor(item)) { S = 0.75f, V = 0.75f }.ToVec4);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new ColorHSVA(ILevelColor(item)) { S = 0.5f, V = 0.5f }.ToVec4);
-                    ImGui.PushStyleColor(ImGuiCol.Text, Vec4(Color.Black));
-                    if (ImGui.Button(item.Item.Name))
-                    {
-                        Childs.Add(new ShowItemWindow(item));
-                    }
-                    ImGui.PopStyleColor(3);
+                    ImGui.NewLine();
+                    ImGui.TextColored(
+                            Vec4(ILevelColor(item).Saturation(0.8f).Value(0.85f), 1f),
+                            $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
+                    if (ImGui.IsItemHovered())
+                        DrawItemTooltip(item);
+                    //if (ImGui.IsItemClicked()) Childs.Add(new ShowItemWindow(item));
                 }
                 else
                 {
-                    ImGui.Text("Empty");
-                }
-                ImGui.NewLine();
-                if (bis.Valid)
-                {
-                    ImGui.PushStyleColor(ImGuiCol.Button, new ColorARGB(Color.White) { A = 0.7f }.ToVec4);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new ColorARGB(Color.White) { A = 0.9f }.ToVec4);
-                    ImGui.PushStyleColor(ImGuiCol.Text, Vec4(Color.Black));
-                    if (ImGui.Button(bis.Item.Name))
+                    if (item.Valid)
                     {
-                        Childs.Add(new ShowItemWindow(bis));
+                        ImGui.TextColored(
+                            Vec4(ILevelColor(item).Saturation(0.8f).Value(0.85f), 1f),
+                            $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
+                        if (ImGui.IsItemHovered())
+                            DrawItemTooltip(item);
+                        //if (ImGui.IsItemClicked()) Childs.Add(new ShowItemWindow(item));
                     }
-                    ImGui.PopStyleColor(3);
-
-                }
-                else
-                {
-                    ImGui.Text("Empty");
+                    else
+                        ImGui.Text("Empty");
+                    ImGui.NewLine();
+                    if (bis.Valid)
+                    {
+                        ImGui.Text($"{bis.ItemLevel} {bis.Source} {bis.Slot.FriendlyName()}");
+                        if (ImGui.IsItemHovered())
+                            DrawItemTooltip(bis);
+                        //if (ImGui.IsItemClicked()) Childs.Add(new ShowItemWindow(bis));
+                    }
+                    else
+                        ImGui.Text("Empty");
                 }
             }
         }
@@ -246,10 +283,10 @@ namespace HimbeertoniRaidTool.LootMaster
 
             public override void Draw()
             {
-                if (!this.Visible)
+                if (!Visible)
                     return;
-                ImGui.SetNextWindowSize(new Vector2(500, 500), ImGuiCond.Always);
-                if (ImGui.Begin("Edit Player " + PlayerToAdd.Pos, ref this.Visible,
+                ImGui.SetNextWindowSize(new Vector2(500, 250), ImGuiCond.Always);
+                if (ImGui.Begin("Edit Player " + PlayerToAdd.Pos,
                     ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
                     | ImGuiWindowFlags.NoScrollWithMouse))
                 {
@@ -309,33 +346,33 @@ namespace HimbeertoniRaidTool.LootMaster
                         if (BISChanged)
                         {
 
-                            LmUi.Tasks.Add(new((t) =>
-                            {
-                                Task<bool> task = (Task<bool>)t;
-                                if (task.Result)
+                            LmUi.Tasks.Add(
+                                new((t) =>
                                 {
-                                    ImGui.TextColored(Vec4(Color.Green), "BIS for " + PlayerToAdd.MainChar.Name + " succesfully updated");
-                                }
-                                else
-                                {
-                                    ImGui.TextColored(Vec4(Color.Red), "BIS update for " + PlayerToAdd.MainChar.Name + " failed");
-                                }
-                            }
-                                , Task.Run(() => EtroConnector.GetGearSet(PlayerToAdd.MainChar.MainClass.BIS))));
+                                    if (((Task<bool>)t).Result)
+                                        ImGui.TextColored(Vec4(ColorName.Green), 
+                                            $"BIS for {PlayerToAdd.MainChar.Name} ({PlayerToAdd.MainChar.MainClassType}) succesfully updated");
+                                    else
+                                        ImGui.TextColored(Vec4(ColorName.Red), 
+                                            $"BIS update for {PlayerToAdd.MainChar.Name} ({PlayerToAdd.MainChar.MainClassType}) failed");
+                                },
+                                Task.Run(() => EtroConnector.GetGearSet(PlayerToAdd.MainChar.MainClass.BIS)))
+                                );
                         }
-                        this.Hide();
+                        Hide();
                     }
                 }
                 ImGui.End();
             }
         }
     }
+    
     class LootUi : HrtUI
     {
         private readonly RaidGroup Group;
         private readonly RaidTier RaidTier;
         private readonly int Boss;
-        private readonly (GearItem,int )[] Loot;
+        private readonly (GearItem, int)[] Loot;
         private LootRuling LootRuling => HRTPlugin.Configuration.LootRuling;
         private List<HrtUI> Children = new();
 
@@ -362,20 +399,21 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             if (!Visible)
                 return;
-            if(ImGui.Begin("Loot for "+ RaidTier.Name +" Boss "+ Boss, ref Visible, ImGuiWindowFlags.NoCollapse)){
-                for (int i = 0; i <Loot.Length; i++)
+            if (ImGui.Begin("Loot for " + RaidTier.Name + " Boss " + Boss, ref Visible, ImGuiWindowFlags.NoCollapse))
+            {
+                for (int i = 0; i < Loot.Length; i++)
                 {
                     if (Loot[i].Item1.Valid)
                     {
                         ImGui.Text(Loot[i].Item1.Item.Name);
                         ImGui.SameLine();
-                        ImGui.InputInt("##"+Loot[i].Item1.Item.Name, ref Loot[i].Item2);
+                        ImGui.InputInt("##" + Loot[i].Item1.Item.Name, ref Loot[i].Item2);
 
                     }
                 }
                 if (ImGui.Button("Distribute"))
                 {
-                    foreach((GearItem, int ) lootItem in Loot)
+                    foreach ((GearItem, int) lootItem in Loot)
                     {
                         List<Player> alreadyLooted = new();
                         for (int j = 0; j < lootItem.Item2; j++)
@@ -417,7 +455,7 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 if (!Visible)
                     return;
-                if(ImGui.Begin("Loot Results for: " + Item.Name, ref Visible))
+                if (ImGui.Begin("Loot Results for: " + Item.Name, ref Visible))
                 {
                     ImGui.Text("Loot Results for: " + Item.Name);
                     ImGui.Text("LootRuling used:");
@@ -431,8 +469,8 @@ namespace HimbeertoniRaidTool.LootMaster
                     }
                     ImGui.End();
                 }
-                
-                
+
+
             }
         }
     }
@@ -466,7 +504,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
                 ImGui.TableNextColumn();
                 ImGui.Text(label);
-                ImGui.PushStyleColor(ImGuiCol.TableRowBg, new ColorHSVA(Color.White) { A = 0.5f }.ToVec4);
+                ImGui.PushStyleColor(ImGuiCol.TableRowBg, Vec4(ColorName.White, 0.5f));
                 ImGui.TableNextColumn();
                 ImGui.Text(value);
                 ImGui.PopStyleColor();
