@@ -54,9 +54,15 @@ namespace HimbeertoniRaidTool.Data
         };
         public static readonly KeyContainsDictionary<GearSource> GearSourceDictionary = new()
         {
-            { "Asphodelos", GearSource.Raid },
-            { "Radiant", GearSource.Tome },
-            { "Classical", GearSource.Crafted },
+            //6.0x
+            { "Asphodelos",     GearSource.Raid },
+            { "Radiant",        GearSource.Tome },
+            { "Classical",      GearSource.Crafted },
+            { "Limbo",          GearSource.Raid },
+            { "Last",           GearSource.Dungeon },
+            { "Radiant",        GearSource.Tome },
+            { "Eternal Dark",   GearSource.Trial },
+            { "Moonward",       GearSource.Tome },
         };
     }
     public static class CuratedDataExtension
