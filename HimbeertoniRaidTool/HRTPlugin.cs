@@ -53,7 +53,7 @@ namespace HimbeertoniRaidTool
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
-            LM = new(_Configuration.GroupInfo ?? new RaidGroup(""), _Configuration.LootRuling);
+            LM = new(_Configuration.GroupInfo ?? new RaidGroup(""));
             OptionsUi = new();
             InitCommands();
         }
