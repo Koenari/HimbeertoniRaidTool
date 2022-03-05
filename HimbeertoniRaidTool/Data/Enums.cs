@@ -1,7 +1,4 @@
-﻿
-using System;
-
-namespace HimbeertoniRaidTool.Data
+﻿namespace HimbeertoniRaidTool.Data
 {
     public enum GearSource
     {

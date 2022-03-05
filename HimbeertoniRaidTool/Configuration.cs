@@ -53,7 +53,7 @@ namespace HimbeertoniRaidTool
                 return;
             if (Version != TargetVersion)
                 Upgrade();
-            if(LootRuling.RuleSet.Count == 0)
+            if (LootRuling.RuleSet.Count == 0)
             {
                 LootRuling.RuleSet.AddRange(
                     new List<LootRule>()

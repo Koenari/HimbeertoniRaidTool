@@ -3,10 +3,10 @@ using System;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
-	public class LootMaster : IDisposable
-	{
+    public class LootMaster : IDisposable
+    {
         public readonly LootmasterUI Ui;
-		private readonly RaidGroup MainGroup;
+        private readonly RaidGroup MainGroup;
         private readonly GearRefresherOnExamine GearRefresher;
         public LootMaster(RaidGroup group)
         {
@@ -16,12 +16,12 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         public void OnCommand(string args)
         {
-            switch(args)
+            switch (args)
             {
                 default:
                     Ui.Show();
                     break;
-            } 
+            }
         }
         public void Dispose()
         {
@@ -29,5 +29,5 @@ namespace HimbeertoniRaidTool.LootMaster
             Ui.Dispose();
             HRTPlugin.Configuration.GroupInfo = MainGroup;
         }
-	}
+    }
 }

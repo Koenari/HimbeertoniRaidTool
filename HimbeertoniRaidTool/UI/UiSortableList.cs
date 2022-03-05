@@ -1,5 +1,4 @@
-﻿using HimbeertoniRaidTool.Data;
-using ImGuiNET;
+﻿using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,27 +28,27 @@ namespace HimbeertoniRaidTool.UI
             OldVals = new int[FieldRefs.Length];
             NumItems = inList.Count() < Possibilities.Count ? inList.Count() : Possibilities.Count;
             List<T> list = inList.ToList();
-            for(int i = 0; i < Lenght; i++)
+            for (int i = 0; i < Lenght; i++)
                 FieldRefs[i] = Possibilities.FindIndex(x => x?.Equals(list[i]) ?? false);
             ConsolidateList();
             FieldRefs.CopyTo(OldVals, 0);
         }
-        
+
         /// <summary>
         /// Draws Ui for Editing this list using ImGui. Should be called inside of an ImGui Frame.
         /// </summary>
         public void Draw()
         {
-            for(int i = 0; i < Lenght; i++)
+            for (int i = 0; i < Lenght; i++)
             {
-                
-                if (ImGui.Combo("##"+i, ref FieldRefs[i], 
-                    Possibilities.ConvertAll(x=> x!.ToString()).ToArray(), Possibilities.Count))
+
+                if (ImGui.Combo("##" + i, ref FieldRefs[i],
+                    Possibilities.ConvertAll(x => x!.ToString()).ToArray(), Possibilities.Count))
                 {
                     ReorganizeList(i);
                 }
                 ImGui.SameLine();
-                if(ImGui.Button("x##" + i))
+                if (ImGui.Button("x##" + i))
                 {
                     DeleteItem(i);
                 }
@@ -99,7 +98,8 @@ namespace HimbeertoniRaidTool.UI
                             break;
                         }
                     }
-                } else
+                }
+                else
                 {
                     used.Add(FieldRefs[i]);
                 }

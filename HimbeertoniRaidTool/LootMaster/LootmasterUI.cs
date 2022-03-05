@@ -32,7 +32,7 @@ namespace HimbeertoniRaidTool.LootMaster
             UpdateChildren();
             if (!Visible)
                 return;
-            
+
             DrawMainWindow();
         }
         public static HSV ILevelColor(GearItem item)
@@ -58,8 +58,8 @@ namespace HimbeertoniRaidTool.LootMaster
 
         private void UpdateChildren()
         {
-            if(!Visible)
-                Childs.ForEach(x =>  x.Hide());
+            if (!Visible)
+                Childs.ForEach(x => x.Hide());
             Childs.ForEach(x => { if (!x.IsVisible) x.Dispose(); });
             Childs.RemoveAll(x => !x.IsVisible);
         }
@@ -75,13 +75,13 @@ namespace HimbeertoniRaidTool.LootMaster
         {
 
             ImGui.SetNextWindowSize(new Vector2(1600, 600), ImGuiCond.Appearing);
-            if (ImGui.Begin("Loot Master", ref Visible, 
+            if (ImGui.Begin("Loot Master", ref Visible,
                 ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize))
             {
                 HandleAsync();
                 //DrawLootHandlerButtons();
 
-                if (ImGui.BeginTable("RaidGruppe", 14, 
+                if (ImGui.BeginTable("RaidGruppe", 14,
                     ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingStretchProp))
                 {
                     ImGui.TableSetupColumn("Player");
@@ -350,10 +350,10 @@ namespace HimbeertoniRaidTool.LootMaster
                                 new((t) =>
                                 {
                                     if (((Task<bool>)t).Result)
-                                        ImGui.TextColored(Vec4(ColorName.Green), 
+                                        ImGui.TextColored(Vec4(ColorName.Green),
                                             $"BIS for {PlayerToAdd.MainChar.Name} ({PlayerToAdd.MainChar.MainClassType}) succesfully updated");
                                     else
-                                        ImGui.TextColored(Vec4(ColorName.Red), 
+                                        ImGui.TextColored(Vec4(ColorName.Red),
                                             $"BIS update for {PlayerToAdd.MainChar.Name} ({PlayerToAdd.MainChar.MainClassType}) failed");
                                 },
                                 Task.Run(() => EtroConnector.GetGearSet(PlayerToAdd.MainChar.MainClass.BIS)))
@@ -366,7 +366,7 @@ namespace HimbeertoniRaidTool.LootMaster
             }
         }
     }
-    
+
     class LootUi : HrtUI
     {
         private readonly RaidGroup Group;

@@ -24,7 +24,7 @@ namespace HimbeertoniRaidTool.Data
         public static bool operator ==(LootSource left, LootSource right) => left.Equals(right);
         public static bool operator !=(LootSource left, LootSource right) => !left.Equals(right);
     }
-    
+
     public static class LootDB
     {
         private readonly static Dictionary<(RaidTier, int), List<GearItem>> LootSourceDB;
@@ -32,7 +32,7 @@ namespace HimbeertoniRaidTool.Data
         static LootDB()
         {
             LootSourceDB = new();
-            foreach(var entry in CuratedData.LootSourceDB)
+            foreach (var entry in CuratedData.LootSourceDB)
             {
                 foreach ((RaidTier, int) source in entry.Value.Sources)
                 {
@@ -55,7 +55,7 @@ namespace HimbeertoniRaidTool.Data
         private readonly uint StartID;
         private readonly uint EndID;
         private bool InRange(uint id) => StartID <= id && id <= EndID;
-        public IEnumerable<uint> Enumerator => Enumerable.Range((int)StartID, (int) (EndID - StartID +1)).ToList().ConvertAll(x => Convert.ToUInt32(x));
+        public IEnumerable<uint> Enumerator => Enumerable.Range((int)StartID, (int)(EndID - StartID + 1)).ToList().ConvertAll(x => Convert.ToUInt32(x));
         public ItemIDRange(uint start, uint end) => (StartID, EndID) = (start, end);
         public override bool Equals(object? obj)
         {
@@ -65,7 +65,7 @@ namespace HimbeertoniRaidTool.Data
         }
         public bool Equals(uint obj) => this == obj;
         public bool Equals(ItemIDRange obj) => StartID == obj.StartID && EndID == obj.EndID;
-        public override int GetHashCode() => (StartID, EndID).GetHashCode(); 
+        public override int GetHashCode() => (StartID, EndID).GetHashCode();
         public static bool operator ==(ItemIDRange left, uint right) => left.InRange(right);
         public static bool operator !=(ItemIDRange left, uint right) => !left.InRange(right);
 

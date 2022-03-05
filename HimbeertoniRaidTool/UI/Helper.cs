@@ -1,6 +1,5 @@
-﻿using System;
+﻿using ColorHelper;
 using System.Numerics;
-using ColorHelper;
 
 namespace HimbeertoniRaidTool.UI
 {
@@ -13,7 +12,7 @@ namespace HimbeertoniRaidTool.UI
         public static Vector4 Vec4(RGB c) => Vec4(c, 1f);
         public static Vector4 Vec4(RGB c, float alpha) => new(c.R / 100f, c.G / 100f, c.B / 100f, alpha);
     }
-    
+
 }
 namespace ColorHelper
 {
@@ -21,10 +20,10 @@ namespace ColorHelper
     {
         public static HSV Saturation(this HSV hsv, float sat)
         {
-            hsv.S = (byte) (hsv.S * sat);
-            if(hsv.S < 0)
+            hsv.S = (byte)(hsv.S * sat);
+            if (hsv.S < 0)
                 hsv.S = 0;
-            if(hsv.S > 100)
+            if (hsv.S > 100)
                 hsv.S = 100;
             return hsv;
         }

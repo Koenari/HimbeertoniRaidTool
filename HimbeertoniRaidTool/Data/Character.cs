@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -16,16 +16,16 @@ namespace HimbeertoniRaidTool.Data
         public bool Filled => Name != "";
         public Character(string name = "") => Name = name;
 
-        private PlayableClass AddClass(AvailableClasses ClassToAdd) 
+        private PlayableClass AddClass(AvailableClasses ClassToAdd)
         {
             PlayableClass toAdd = new(ClassToAdd);
-                Classes.Add(toAdd);
+            Classes.Add(toAdd);
             return toAdd;
         }
 
         public PlayableClass GetClass(AvailableClasses type)
         {
-            return Classes.Find( x => x.ClassType == type) ?? AddClass(type);
+            return Classes.Find(x => x.ClassType == type) ?? AddClass(type);
         }
 
         public bool Equals(Character? other)
@@ -34,7 +34,7 @@ namespace HimbeertoniRaidTool.Data
                 return false;
             return Name.Equals(other.Name);
         }
-        public override bool Equals(object? obj)=> obj is Character objS && Equals(objS);
+        public override bool Equals(object? obj) => obj is Character objS && Equals(objS);
         public override int GetHashCode() => Name.GetHashCode();
     }
 }

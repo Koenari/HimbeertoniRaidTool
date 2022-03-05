@@ -83,7 +83,7 @@ namespace HimbeertoniRaidTool.Data
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Benennungsstile", Justification = "class is maintained by 3rd party")]
     class EtroGearSet
     {
-        
+
         public string? id { get; set; }
         public string? jobAbbrev { get; set; }
         public string? name { get; set; }

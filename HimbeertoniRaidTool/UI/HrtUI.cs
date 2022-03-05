@@ -1,6 +1,4 @@
-﻿using ImGuiNET;
-using System;
-using System.Numerics;
+﻿using System;
 
 namespace HimbeertoniRaidTool.UI
 {

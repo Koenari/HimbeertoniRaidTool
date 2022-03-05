@@ -4,7 +4,8 @@
     {
         public static implicit operator GameExpansion(byte v) => new(v);
         public readonly byte Value;
-        public string Name { 
+        public string Name
+        {
             get
             {
                 return Value switch
@@ -16,7 +17,8 @@
                     6 => "Endwalker",
                     _ => "Unknown"
                 };
-            } }
+            }
+        }
         public GameExpansion(byte v) => Value = v;
     }
     public readonly struct RaidTier

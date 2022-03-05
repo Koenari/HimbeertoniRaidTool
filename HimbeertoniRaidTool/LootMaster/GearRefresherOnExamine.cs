@@ -1,9 +1,9 @@
 ﻿using Dalamud.Hooking;
-using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Component.GUI;
+using HimbeertoniRaidTool.Data;
 using System;
 using System.Runtime.InteropServices;
-using HimbeertoniRaidTool.Data;
 using static HimbeertoniRaidTool.LootMaster.Helper;
 
 namespace HimbeertoniRaidTool.LootMaster
@@ -57,7 +57,7 @@ namespace HimbeertoniRaidTool.LootMaster
             AvailableClasses? availableClass = TargetClass;
             if (availableClass is null)
                 return;
-            PlayableClass playableClass = c.GetClass((AvailableClasses) availableClass);
+            PlayableClass playableClass = c.GetClass((AvailableClasses)availableClass);
             GearSet setToFill = playableClass.Gear;
 
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);

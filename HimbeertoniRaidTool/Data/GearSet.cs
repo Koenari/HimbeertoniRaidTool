@@ -48,7 +48,8 @@ namespace HimbeertoniRaidTool.Data
             }
         }
         [JsonIgnore]
-        public GearItem this[GearSetSlot slot] {
+        public GearItem this[GearSetSlot slot]
+        {
             get => Items[ToIndex(slot)];
             set => Items[ToIndex(slot)] = value;
         }
@@ -76,7 +77,7 @@ namespace HimbeertoniRaidTool.Data
 namespace Lumina.Excel.GeneratedSheets
 {
     using HimbeertoniRaidTool.Data;
-    
+
     public static class EquipSlotCategoryExtensions
     {
         public static bool Contains(this EquipSlotCategory self, GearSetSlot slot)
@@ -105,7 +106,7 @@ namespace Lumina.Excel.GeneratedSheets
         {
             for (int i = 0; i < (int)GearSetSlot.SoulCrystal; i++)
             {
-                if (self.Contains((GearSetSlot) i))
+                if (self.Contains((GearSetSlot)i))
                 {
                     return (GearSetSlot)i;
                 }

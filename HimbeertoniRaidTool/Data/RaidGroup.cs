@@ -1,11 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace HimbeertoniRaidTool.Data
 {
-    public class RaidGroup 
+    public class RaidGroup
     {
         public DateTime TimeStamp;
         public string Name;
@@ -28,20 +27,20 @@ namespace HimbeertoniRaidTool.Data
             _Players = new Player[8];
             for (int i = 0; i < 8; i++)
             {
-                _Players[i] = new((PositionInRaidGroup) i);
+                _Players[i] = new((PositionInRaidGroup)i);
             }
         }
         public Player this[PositionInRaidGroup pos]
         {
             get => _Players[(int)pos];
             set => _Players[(int)pos] = value;
-        } 
+        }
 
         internal Character? GetCharacter(string name)
         {
-            foreach(Player p in _Players)
+            foreach (Player p in _Players)
             {
-                foreach(Character c in p.Chars)
+                foreach (Character c in p.Chars)
                 {
                     if (name.Equals(c.Name))
                         return c;

@@ -19,8 +19,8 @@ namespace HimbeertoniRaidTool.Data
         }
         public List<LootRule> RuleSet = new();
         public bool StrictRooling = false;
-        
-        public List<(Player,string)> Evaluate(RaidGroup group, GearSetSlot slot, List<Player>? excluded = null)
+
+        public List<(Player, string)> Evaluate(RaidGroup group, GearSetSlot slot, List<Player>? excluded = null)
         {
             excluded ??= new();
             List<Player> need = new();
@@ -32,18 +32,19 @@ namespace HimbeertoniRaidTool.Data
                 if (p.MainChar.MainClass.Gear[slot].ItemLevel < p.MainChar.MainClass.BIS[slot].ItemLevel)
                 {
                     need.Add(p);
-                }else
+                }
+                else
                 {
                     greed.Add(p);
                 }
-                    
+
             }
             LootRulingComparer comparer = GetComparer(slot);
             need.Sort(comparer);
             List<(Player, string)> result = new();
-            for (int i = 0; i < need.Count - 1;i++)
+            for (int i = 0; i < need.Count - 1; i++)
             {
-                result.Add((need[i], 
+                result.Add((need[i],
                     comparer.RulingReason.GetValueOrDefault((need[i], need[i + 1]), new()).ToString()));
             }
             result.Add((need[need.Count - 1], "Need > Greed"));
@@ -99,7 +100,7 @@ namespace HimbeertoniRaidTool.Data
             {
                 if (Rule == null)
                     return (x, y, z, strict) => 0;
-                 return CompareDic.GetValueOrDefault((LootRuleEnum)Rule!) ?? ((x, y, z, strict) => 0);
+                return CompareDic.GetValueOrDefault((LootRuleEnum)Rule!) ?? ((x, y, z, strict) => 0);
             }
         }
         private readonly static Dictionary<LootRuleEnum, Func<Player, Player, GearSetSlot, bool, int>> CompareDic = new()
@@ -116,7 +117,7 @@ namespace HimbeertoniRaidTool.Data
                     return xBIS - yBIS;
                 }
             },
-            {LootRuleEnum.ByPosition, (x, y, slot, strict) => x.Pos.LootImportance(slot, strict) - y.Pos.LootImportance(slot, strict) }
+            { LootRuleEnum.ByPosition, (x, y, slot, strict) => x.Pos.LootImportance(slot, strict) - y.Pos.LootImportance(slot, strict) }
         };
         public override string ToString()
         {
@@ -136,7 +137,7 @@ namespace HimbeertoniRaidTool.Data
         {
             if (obj is null || !obj.GetType().Equals(typeof(LootRule)))
                 return false;
-             return ((LootRule)obj).Rule.Equals(Rule);
+            return ((LootRule)obj).Rule.Equals(Rule);
         }
 
 
@@ -144,7 +145,7 @@ namespace HimbeertoniRaidTool.Data
 
         public override int GetHashCode() => Rule.GetHashCode();
     }
-   
+
     public static class LootRulesExtension
     {
         public static int LootImportance(this PositionInRaidGroup pos, GearSetSlot? slot = null, bool strict = false)

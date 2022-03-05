@@ -1,8 +1,7 @@
 ﻿using HimbeertoniRaidTool.Data;
 using ImGuiNET;
-using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace HimbeertoniRaidTool.UI
@@ -38,7 +37,8 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.BeginTabBar("Menu");
                 if (ImGui.BeginTabItem("BIS"))
                 {
-                    if(ImGui.BeginChildFrame(1,new Vector2(400,400),ImGuiWindowFlags.NoResize)) {
+                    if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
+                    {
                         foreach (KeyValuePair<AvailableClasses, string> pair in HRTPlugin.Configuration.DefaultBIS)
                         {
                             string value = pair.Value;
@@ -66,8 +66,8 @@ namespace HimbeertoniRaidTool.UI
             }
             ImGui.End();
         }
-        
-        
+
+
     }
-   
+
 }

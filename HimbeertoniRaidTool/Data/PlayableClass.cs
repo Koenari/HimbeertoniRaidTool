@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace HimbeertoniRaidTool.Data
+﻿namespace HimbeertoniRaidTool.Data
 {
     public class PlayableClass
     {
-        public PlayableClass (AvailableClasses ClassNameArg)
+        public PlayableClass(AvailableClasses ClassNameArg)
         {
             this.ClassType = ClassNameArg;
         }
