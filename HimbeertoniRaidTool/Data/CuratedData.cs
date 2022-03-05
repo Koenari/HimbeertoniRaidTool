@@ -60,7 +60,6 @@ namespace HimbeertoniRaidTool.Data
             { "Classical",      GearSource.Crafted },
             { "Limbo",          GearSource.Raid },
             { "Last",           GearSource.Dungeon },
-            { "Radiant",        GearSource.Tome },
             { "Eternal Dark",   GearSource.Trial },
             { "Moonward",       GearSource.Tome },
         };

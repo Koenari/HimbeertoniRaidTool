@@ -8,7 +8,7 @@ using static HimbeertoniRaidTool.Services;
 
 namespace HimbeertoniRaidTool.Data
 {
-    public class GearItem
+    public class GearItem 
     {
         private static KeyContainsDictionary<GearSource> SourceDic => CuratedData.GearSourceDictionary;
         private GearSetSlot? SlotOverride => CuratedData.SlotOverrideDB.ContainsKey(_ID) ? CuratedData.SlotOverrideDB.GetValueOrDefault(_ID) : null;
@@ -44,6 +44,15 @@ namespace HimbeertoniRaidTool.Data
                 Source = SourceDic.GetValueOrDefault(Name, GearSource.undefined);
             }
         }
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+            if(obj == null) return false;
+            GearItem? other =  obj as GearItem;
+            if (other == null) return false;
+                return _ID == other._ID;
+        }
+        public override int GetHashCode() => _ID.GetHashCode();
     }
     [SuppressMessage("Style", "IDE0060:Nicht verwendete Parameter entfernen", Justification = "Override all constructors for safety")]
     public class KeyContainsDictionary<TValue> : Dictionary<string, TValue>

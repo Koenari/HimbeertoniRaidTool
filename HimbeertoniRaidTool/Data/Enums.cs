@@ -95,7 +95,7 @@ namespace HimbeertoniRaidTool.Data
             {
                 GearSetSlot.MainHand => "Weapon",
                 GearSetSlot.OffHand => "Shield",
-                GearSetSlot.Head => "Had",
+                GearSetSlot.Head => "Head",
                 GearSetSlot.Body => "Body",
                 GearSetSlot.Hands => "Gloves",
                 GearSetSlot.Waist => "THere no longer are belts you fuckwit",
