@@ -2,9 +2,24 @@
 
 namespace HimbeertoniRaidTool.Data
 {
+    /// <summary>
+    /// This class/file encapsulates all data that needs to be update for new Patches of the game.
+    /// It is intended to be servicable by someone not familiar with programming.
+    /// First there are entries for each RaidTier. To make a new one make it in the following way:
+    /// 'public static RaidTier' DescriptiveName(no spaces) ' => 
+    ///     new('Expansion number, Raid number (1-3), EncounterDifficulty, ILvl of Weapons, iLvl of other Gear, "A descriptive name");
+    /// Then there is a list which links loot  to boss encounter
+    ///     Just add entries as a new line of format:
+    ///     { ItemID(S), (RaidTier (Named like above), Encounter Number(1-4)) },
+    ///AFter that information on which Slot Item Coffers belong to
+    ///     Just add entries as a new line of format:
+    ///     { ItemID, GearSlot.Name },
+    /// </summary>
     internal static class CuratedData
     {
-        public static RaidTier Asphodelos => new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
+        public static RaidTier CurrentRaidSavage => AsphodelosSavage;
+        public static RaidTier CurrentRaidNormal => AsphodelosNormal;
+        public static RaidTier AsphodelosNormal => new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
         public static RaidTier AsphodelosSavage => new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos Savage");
         
         public static readonly Dictionary<ItemIDRange, LootSource> LootSourceDB = new()
@@ -37,7 +52,7 @@ namespace HimbeertoniRaidTool.Data
         public static readonly Dictionary<ItemIDRange, GearSetSlot> SlotOverrideDB = new()
         {
             { 35734, GearSetSlot.MainHand },//Asphodelos weapon coffer
-            { 35735, GearSetSlot .Head},//Asphodelos head gear coffer
+            { 35735, GearSetSlot.Head},//Asphodelos head gear coffer
             { 35736, GearSetSlot.Body },//Asphodelos chest gear coffer
             { 35737, GearSetSlot.Hands },//Asphodelos hand gear coffer
             { 35738, GearSetSlot.Legs },//Asphodelos leg gear coffer
@@ -62,6 +77,7 @@ namespace HimbeertoniRaidTool.Data
             { "Last",           GearSource.Dungeon },
             { "Eternal Dark",   GearSource.Trial },
             { "Moonward",       GearSource.Tome },
+            { "Divine Light",   GearSource.Trial},
         };
     }
     public static class CuratedDataExtension

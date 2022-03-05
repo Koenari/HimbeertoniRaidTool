@@ -94,5 +94,4 @@ namespace HimbeertoniRaidTool.Data
             }
         }
     }
-
 }
