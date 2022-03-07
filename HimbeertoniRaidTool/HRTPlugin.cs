@@ -39,11 +39,15 @@ namespace HimbeertoniRaidTool
         public static Configuration Configuration => Plugin._Configuration;
         public string Name => "Himbeertoni Raid Tool";
 
-        private readonly List<Tuple<string, string, bool>> Commands = new()
+        private readonly List<(string, string, bool)> Commands = new()
         {
-            new Tuple<string, string, bool>("/hrt", "Does nothing at the moment", true),
-            new Tuple<string, string, bool>("/lootmaster", "Opens LootMaster Window", false),
-            new Tuple<string, string, bool>("/lm", "Opens LootMaster Window (short version)", true)
+            ("/hrt", "Does nothing at the moment", true),
+            ("/lootmaster", "Opens LootMaster Window", false),
+            ("/lm", "Opens LootMaster Window (short version)", true),
+#if DEBUG
+            ("/hrtexport", "Exports tranlation", true),
+#endif
+
         };
 
         private ConfigUI OptionsUi { get; init; }
@@ -103,6 +107,11 @@ namespace HimbeertoniRaidTool
                 case "/lootmaster":
                     this.LM.OnCommand(args);
                     break;
+#if DEBUG
+                case "/hrtexport":
+                    Services.Localization.ExportLocalizable();
+                    break;
+#endif
                 default:
                     PluginLog.LogError("Command \"" + command + "\" not found");
                     break;
