@@ -1,4 +1,0 @@
-﻿[*.cs]
-
-# CA1816: Dispose-Methoden müssen SuppressFinalize aufrufen
-dotnet_diagnostic.CA1816.severity = silent
