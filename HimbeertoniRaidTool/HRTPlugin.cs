@@ -1,4 +1,5 @@
-﻿using Dalamud.Data;
+﻿using Dalamud;
+using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Objects;
@@ -26,6 +27,7 @@ namespace HimbeertoniRaidTool
         [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
         [PluginService] public static ClientState ClientState { get; private set; }
         [PluginService] public static Framework Framework { get; private set; }
+        public static Localization Localization { get; internal set; }
     }
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
@@ -49,14 +51,22 @@ namespace HimbeertoniRaidTool
 
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
+            //Init all services and public staic references
             _Plugin = this;
             pluginInterface.Create<Services>();
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
+            InitCommands();
+            //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
-            LM = new(_Configuration.GroupInfo ?? new RaidGroup(""));
             OptionsUi = new();
-            InitCommands();
+            //Init Localization
+            Services.Localization = new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale");
+            Services.Localization.SetupWithLangCode(Services.PluginInterface.UiLanguage);
+            Services.PluginInterface.LanguageChanged += Services.Localization.SetupWithLangCode;
+
+
+            LM = new(_Configuration.GroupInfo ?? new RaidGroup(""));
         }
 
         private void InitCommands()
@@ -80,6 +90,7 @@ namespace HimbeertoniRaidTool
             {
                 Services.CommandManager.RemoveHandler(command.Item1);
             }
+            Services.PluginInterface.LanguageChanged -= Services.Localization.SetupWithLangCode;
         }
         private void OnCommand(string command, string args)
         {

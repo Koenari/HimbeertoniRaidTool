@@ -87,4 +87,14 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="locale\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="locale\de.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
