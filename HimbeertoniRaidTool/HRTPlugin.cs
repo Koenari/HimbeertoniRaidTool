@@ -1,5 +1,4 @@
-﻿using Dalamud;
-using Dalamud.Data;
+﻿using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Objects;
@@ -12,6 +11,7 @@ using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using System;
 using System.Collections.Generic;
+
 
 namespace HimbeertoniRaidTool
 {
@@ -27,7 +27,15 @@ namespace HimbeertoniRaidTool
         [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
         [PluginService] public static ClientState ClientState { get; private set; }
         [PluginService] public static Framework Framework { get; private set; }
-        public static Localization Localization { get; internal set; }
+    }
+    public class Localization
+    {
+        public static Dalamud.Localization ParentLoc { get; private set; }
+        public static void Init(Dalamud.Localization parent) => ParentLoc = parent;
+
+        public static string Localize(string key, string fallBack) => Dalamud.Localization.Localize(key, fallBack);
+        public static string Localize(string format, params object?[] args) => string.Format(Dalamud.Localization.Localize(format, format), args);
+
     }
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
@@ -65,9 +73,9 @@ namespace HimbeertoniRaidTool
             _Configuration.AfterLoad();
             OptionsUi = new();
             //Init Localization
-            Services.Localization = new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale");
-            Services.Localization.SetupWithLangCode(Services.PluginInterface.UiLanguage);
-            Services.PluginInterface.LanguageChanged += Services.Localization.SetupWithLangCode;
+            Localization.Init(new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale"));
+            Localization.ParentLoc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
+            Services.PluginInterface.LanguageChanged += Localization.ParentLoc.SetupWithLangCode;
 
 
             LM = new(_Configuration.GroupInfo ?? new RaidGroup(""));
@@ -94,7 +102,7 @@ namespace HimbeertoniRaidTool
             {
                 Services.CommandManager.RemoveHandler(command.Item1);
             }
-            Services.PluginInterface.LanguageChanged -= Services.Localization.SetupWithLangCode;
+            Services.PluginInterface.LanguageChanged -= Localization.ParentLoc.SetupWithLangCode;
         }
         private void OnCommand(string command, string args)
         {
@@ -109,7 +117,7 @@ namespace HimbeertoniRaidTool
                     break;
 #if DEBUG
                 case "/hrtexport":
-                    Services.Localization.ExportLocalizable();
+                    Localization.ParentLoc.ExportLocalizable();
                     break;
 #endif
                 default:
