@@ -335,9 +335,9 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.SameLine();
                     if (ImGui.Button(Localize("Reset##BIS", "Reset##BIS")))
                     {
-                        if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(Localize("", "")))
+                        if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(""))
                         {
-                            PlayerToAdd.MainChar.MainClass.BIS.EtroID = Localize("", "");
+                            PlayerToAdd.MainChar.MainClass.BIS.EtroID = "";
                             BISChanged = false;
                             PlayerToAdd.MainChar.MainClass.BIS.Clear();
                         }
@@ -465,8 +465,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     int place = 1;
                     foreach ((Player, string) looter in Looters)
                     {
-                        ImGui.Text(string.Format(
-                            Localize("Priority {0} for Player {1} won by rule {2} ", "Priority {0} for Player {1} won by rule {2}"),
+                        ImGui.Text(Localize("LootMessage", "Priority {0} for Player {1} won by rule {2} ",
                             place, looter.Item1.NickName, looter.Item2));
                         place++;
                     }
@@ -491,7 +490,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 | ImGuiWindowFlags.NoScrollWithMouse))
             {
 
-                if (ImGui.BeginTable(Localize("ItemTable", "ItemTable"), 2, ImGuiTableFlags.Borders))
+                if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
                 {
                     ImGui.TableSetupColumn(Localize("Header", "Header"));
                     ImGui.TableSetupColumn(Localize("Value", "Value"));

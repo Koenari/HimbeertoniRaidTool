@@ -34,7 +34,7 @@ namespace HimbeertoniRaidTool
         public static void Init(Dalamud.Localization parent) => ParentLoc = parent;
 
         public static string Localize(string key, string fallBack) => Dalamud.Localization.Localize(key, fallBack);
-        public static string Localize(string format, params object?[] args) => string.Format(Dalamud.Localization.Localize(format, format), args);
+        public static string Localize(string format, string fallBack, params object?[] args) => string.Format(Dalamud.Localization.Localize(format, format), fallBack);
 
     }
 #pragma warning restore CS8618
