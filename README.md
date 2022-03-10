@@ -1,47 +1,33 @@
-# SamplePlugin
+# HimbeerToni Raid Tool
 
-Simple example plugin for Dalamud.
+A Tool for raid leaders and raiders alike. All raiders know the hassle it can be to manage a raid group 
+or simply keep track of your gear and strategies. While there is a plethora of good tools to help with all these
+tasks online I found myself missing an easily accessible hub for these tasks, especially with an in-game
+interface. To counter these hardships, I started this project. 
 
-This is not designed to be the simplest possible example, but it is also not designed to cover everything you might want to do. For more detailed questions, come ask in [the Discord](https://discord.gg/3NMcUV5).
+## Functionality
 
-## Main Points
+* Lootmaster
+  * Overview of current and BIS Gear of players 
+      > /lootmaster or /lm
 
-* Simple functional plugin
-  * Slash command
-  * Main UI
-  * Settings UI
-  * Image loading
-  * Plugin json
-* Simple, slightly-improved plugin configuration handling
-* Project organization
-  * Copies all necessary plugin files to the output directory
-    * Does not copy dependencies that are provided by dalamud
-    * Output directory can be zipped directly and have exactly what is required
-  * Hides data files from visual studio to reduce clutter
-    * Also allows having data files in different paths than VS would usually allow if done in the IDE directly
+### Future Features
+For details, please refer to **ToDo.md**
+* Strat Planning
+* Loot distribution
 
+## Installation
+### Prerequisites
+This plugin needs [XIV Launcher](https://goatcorp.github.io/) with activated in-game features to work. 
 
-The intention is less that any of this is used directly in other projects, and more to show how similar things can be done.
+For help with installation and configuration please refer to their [FAQ](https://goatcorp.github.io/faq/)
 
-## To Use
-### Building
+### Early Access
+This plugin is currently published via my personal Plugin repository [Link](https://github.com/Koenari/MyDalamudPlugins)
 
-1. Open up `SamplePlugin.sln` in your C# editor of choice (likely [Visual Studio 2022](https://visualstudio.microsoft.com) or [JetBrains Rider](https://www.jetbrains.com/rider/)).
-2. Build the solution. By default, this will build a `Debug` build, but you can switch to `Release` in your IDE.
-3. The resulting plugin can be found at `SamplePlugin/obj/x64/Debug/SamplePlugin.dll` (or `Release` if appropriate.)
+Builds released to there are tested to not interrupt functionality of Dalamud and FFXIV Game. There may be bugs in internal features of the plugin though.
+### Official 
 
-### Activating in-game
-
-1. Launch the game and use `/xlsettings` in chat or `xlsettings` in the Dalamud Console to open up the Dalamud settings.
-    * In here, go to `Experimental`, and add the full path to the `SamplePlugin.dll` to the list of Dev Plugin Locations.
-2. Next, use `/xlplugins` (chat) or `xlplugins` (console) to open up the Plugin Installer.
-    * In here, go to `Dev Tools > Installed Dev Plugins`, and the `SamplePlugin` should be visible. Enable it.
-3. You should now be able to use `/pmycommand` (chat) or `pmycommand` (console)!
-
-Note that you only need to add it to the Dev Plugin Locations once (Step 1); it is preserved afterwards. You can disable, enable, or load your plugin on startup through the Plugin Installer.
-
-### Reconfiguring for your own uses
-
-Basically, just replace all references to `SamplePlugin` in all of the files and filenames with your desired name. You'll figure it out 😁
-
-Dalamud will load the JSON file (by default, `Data/SamplePlugin.json`) next to your DLL and use it for metadata, including the description for your plugin in the Plugin Installer. Make sure to update this with information relevant to _your_ plugin!
+Unfortunately, there is no official release at this point. This will follow later this year. Until then refer to early access. These builds are tested and safe to use.
+## Contributing
+If you have ideas or any constructive input on the project. Feel free to contact me here on GitHub.
