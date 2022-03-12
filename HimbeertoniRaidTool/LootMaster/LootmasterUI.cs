@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
-using static HimbeertoniRaidTool.Localization;
+using static Dalamud.Localization;
 using static HimbeertoniRaidTool.LootMaster.Helper;
 using static HimbeertoniRaidTool.Services;
 using static HimbeertoniRaidTool.UI.Helper;
@@ -324,7 +324,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         BISChanged = true;
                     }
                     ImGui.SameLine();
-                    if (ImGui.Button(Localize("Default##BIS", "Default##BIS")))
+                    if (ImGui.Button(Localize("Default", "Default") + "##BIS"))
                     {
                         if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(HRTPlugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType]))
                         {
@@ -333,7 +333,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         }
                     }
                     ImGui.SameLine();
-                    if (ImGui.Button(Localize("Reset##BIS", "Reset##BIS")))
+                    if (ImGui.Button(Localize("Reset", "Reset") + "##BIS"))
                     {
                         if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(""))
                         {
@@ -400,7 +400,7 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             if (!Visible)
                 return;
-            if (ImGui.Begin(Localize("Loot for {0} boss number {1}", RaidTier.Name, Boss), ref Visible, ImGuiWindowFlags.NoCollapse))
+            if (ImGui.Begin(String.Format("Loot for {0} boss number {1}", RaidTier.Name, Boss), ref Visible, ImGuiWindowFlags.NoCollapse))
             {
                 for (int i = 0; i < Loot.Length; i++)
                 {
@@ -456,16 +456,16 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 if (!Visible)
                     return;
-                if (ImGui.Begin(Localize("Loot Results for {0}: ", Item.Name), ref Visible))
+                if (ImGui.Begin(String.Format("Loot Results for {0}: ", Item.Name), ref Visible))
                 {
-                    ImGui.Text(Localize("Loot Results for {0}: ", Item.Name));
+                    ImGui.Text(string.Format(Localize("LootRuleHeader", "Loot Results for {0}: "), Item.Name));
                     ImGui.Text(Localize("Following rules were used:", "Following rules were used:"));
                     foreach (LootRule rule in LootRuling.RuleSet)
                         ImGui.BulletText(rule.ToString());
                     int place = 1;
                     foreach ((Player, string) looter in Looters)
                     {
-                        ImGui.Text(Localize("LootMessage", "Priority {0} for Player {1} won by rule {2} ",
+                        ImGui.Text(string.Format(Localize("LootDistributionLine", "Priority {0} for Player {1} won by rule {2} "),
                             place, looter.Item1.NickName, looter.Item2));
                         place++;
                     }

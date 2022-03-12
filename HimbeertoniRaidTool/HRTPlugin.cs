@@ -1,4 +1,5 @@
-﻿using Dalamud.Data;
+﻿#define EXPORTLOCALE
+using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Objects;
@@ -11,10 +12,11 @@ using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using System;
 using System.Collections.Generic;
-
+using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool
 {
+
 #pragma warning disable CS8618
     public class Services
     {
@@ -28,33 +30,21 @@ namespace HimbeertoniRaidTool
         [PluginService] public static ClientState ClientState { get; private set; }
         [PluginService] public static Framework Framework { get; private set; }
     }
-    public class Localization
-    {
-        public static Dalamud.Localization ParentLoc { get; private set; }
-        public static void Init(Dalamud.Localization parent) => ParentLoc = parent;
-
-        public static string Localize(string key, string fallBack) => Dalamud.Localization.Localize(key, fallBack);
-        public static string Localize(string format, string fallBack, params object?[] args) => string.Format(Dalamud.Localization.Localize(format, format), fallBack);
-
-    }
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
     {
-
+        private readonly Dalamud.Localization Loc;
         private static HRTPlugin? _Plugin;
         private static HRTPlugin Plugin => _Plugin ?? throw new NullReferenceException();
         private readonly Configuration _Configuration;
         public static Configuration Configuration => Plugin._Configuration;
         public string Name => "Himbeertoni Raid Tool";
 
-        private readonly List<(string, string, bool)> Commands = new()
+        private readonly List<(string, Func<string>, bool)> Commands = new()
         {
-            ("/hrt", "Does nothing at the moment", true),
-            ("/lootmaster", "Opens LootMaster Window", false),
-            ("/lm", "Opens LootMaster Window (short version)", true),
-#if DEBUG
-            ("/hrtexport", "Exports tranlation", true),
-#endif
+            ("/hrt", () => Localize("/hrt", "Does nothing at the moment"), true),
+            ("/lootmaster", () => Localize("/lootmaster", "Opens LootMaster Window"), false),
+            ("/lm", () => Localize("/lm", "Opens LootMaster Window (short version)"), true),
 
         };
 
@@ -67,27 +57,33 @@ namespace HimbeertoniRaidTool
             _Plugin = this;
             pluginInterface.Create<Services>();
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
+            //Init Localization
+            Loc = new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale");
+            Loc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
+            Services.PluginInterface.LanguageChanged += OnLanguageChanged;
             InitCommands();
             //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
             OptionsUi = new();
-            //Init Localization
-            Localization.Init(new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale"));
-            Localization.ParentLoc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
-            Services.PluginInterface.LanguageChanged += Localization.ParentLoc.SetupWithLangCode;
+
 
 
             LM = new(_Configuration.GroupInfo ?? new RaidGroup(""));
         }
-
+        private void OnLanguageChanged(string langCode)
+        {
+            Loc.SetupWithLangCode(langCode);
+            Commands.ForEach(c => Services.CommandManager.RemoveHandler(c.Item1));
+            InitCommands();
+        }
         private void InitCommands()
         {
             foreach (var command in Commands)
             {
                 Services.CommandManager.AddHandler(command.Item1, new CommandInfo(OnCommand)
                 {
-                    HelpMessage = command.Item2,
+                    HelpMessage = command.Item2.Invoke(),
                     ShowInHelp = command.Item3
                 });
             }
@@ -98,28 +94,25 @@ namespace HimbeertoniRaidTool
             _Configuration.Save();
             OptionsUi.Dispose();
             LM.Dispose();
-            foreach (var command in Commands)
-            {
-                Services.CommandManager.RemoveHandler(command.Item1);
-            }
-            Services.PluginInterface.LanguageChanged -= Localization.ParentLoc.SetupWithLangCode;
+            Commands.ForEach(command => Services.CommandManager.RemoveHandler(command.Item1));
+            Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
         }
         private void OnCommand(string command, string args)
         {
             switch (command)
             {
                 case "/hrt":
-                    this.OptionsUi.Show();
+                    if (args.Equals("exportlocale"))
+                        Loc.ExportLocalizable();
+                    else if (args.Contains("option"))
+                        OptionsUi.Show();
+                    else
+                        PluginLog.LogError($"Argument {args} for command hrt not recognized");
                     break;
                 case "/lm":
                 case "/lootmaster":
                     this.LM.OnCommand(args);
                     break;
-#if DEBUG
-                case "/hrtexport":
-                    Localization.ParentLoc.ExportLocalizable();
-                    break;
-#endif
                 default:
                     PluginLog.LogError("Command \"" + command + "\" not found");
                     break;
