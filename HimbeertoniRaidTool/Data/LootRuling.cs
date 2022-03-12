@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -47,10 +48,10 @@ namespace HimbeertoniRaidTool.Data
                 result.Add((need[i],
                     comparer.RulingReason.GetValueOrDefault((need[i], need[i + 1]), new()).ToString()));
             }
-            result.Add((need[need.Count - 1], "Need > Greed"));
+            result.Add((need[^1], Localize("Need > Greed", "Need > Greed")));
             foreach (Player p in greed)
             {
-                result.Add((p, "Greed"));
+                result.Add((p, Localize("Greed", "Greed")));
             }
             return result;
 
@@ -123,13 +124,13 @@ namespace HimbeertoniRaidTool.Data
         {
             return Rule switch
             {
-                LootRuleEnum.BISOverUpgrade => "BIS > Upgrade",
-                LootRuleEnum.LowestItemLevel => "Lowest overall ItemLevel",
-                LootRuleEnum.HighesItemLevelGain => "Highest ItemLevel Gain",
-                LootRuleEnum.ByPosition => "DPS > Tank > Heal",
-                LootRuleEnum.Random => "Rolling",
-                null => "None",
-                _ => "Not defined",
+                LootRuleEnum.BISOverUpgrade => Localize("BISOverUpgrade", "BIS > Upgrade"),
+                LootRuleEnum.LowestItemLevel => Localize("LowestItemLevel", "Lowest overall ItemLevel"),
+                LootRuleEnum.HighesItemLevelGain => Localize("HighesItemLevelGain", "Highest ItemLevel Gain"),
+                LootRuleEnum.ByPosition => Localize("ByPosition", "DPS > Tank > Heal"),
+                LootRuleEnum.Random => Localize("Rolling", "Rolling"),
+                null => Localize("None", "None"),
+                _ => Localize("Not defined", "Not defined"),
             };
         }
 

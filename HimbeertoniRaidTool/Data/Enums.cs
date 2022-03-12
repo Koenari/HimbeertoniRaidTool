@@ -1,4 +1,6 @@
-﻿namespace HimbeertoniRaidTool.Data
+﻿using static Dalamud.Localization;
+
+namespace HimbeertoniRaidTool.Data
 {
     public enum GearSource
     {
@@ -88,26 +90,37 @@
     {
         public static string FriendlyName(this GearSetSlot slot)
         {
+
             return slot switch
             {
-                GearSetSlot.MainHand => "Weapon",
-                GearSetSlot.OffHand => "Shield",
-                GearSetSlot.Head => "Head",
-                GearSetSlot.Body => "Body",
-                GearSetSlot.Hands => "Gloves",
-                GearSetSlot.Waist => "THere no longer are belts you fuckwit",
-                GearSetSlot.Legs => "Trousers",
-                GearSetSlot.Feet => "Shoes",
-                GearSetSlot.Ear => "Earrings",
-                GearSetSlot.Neck => "Necklace",
-                GearSetSlot.Wrist => "Bracelet",
-                GearSetSlot.Ring1 => "Ring",
-                GearSetSlot.Ring2 => "Ring",
-                GearSetSlot.SoulCrystal => "Soul Crystal",
-                _ => "undefined"
+                GearSetSlot.MainHand => Localize("Weapon", "Weapon"),
+                GearSetSlot.OffHand => Localize("Shield", "Shield"),
+                GearSetSlot.Head => Localize("Head", "Head"),
+                GearSetSlot.Body => Localize("Body", "Body"),
+                GearSetSlot.Hands => Localize("Gloves", "Gloves"),
+                GearSetSlot.Waist => Localize("NoBelts", "There no longer are belts you fuckwit"),
+                GearSetSlot.Legs => Localize("Trousers", "Trousers"),
+                GearSetSlot.Feet => Localize("Shoes", "Shoes"),
+                GearSetSlot.Ear => Localize("Earrings", "Earrings"),
+                GearSetSlot.Neck => Localize("Necklace", "Necklace"),
+                GearSetSlot.Wrist => Localize("Bracelet", "Bracelet"),
+                GearSetSlot.Ring1 => Localize("Ring", "Ring"),
+                GearSetSlot.Ring2 => Localize("Ring", "Ring"),
+                GearSetSlot.SoulCrystal => Localize("Soul Crystal", "Soul Crystal"),
+                _ => Localize("undefined", "undefined")
 
             };
         }
+        public static string FriendlyName(this GearSource source) => source switch
+        {
+            GearSource.Raid => Localize("Raid", "Raid"),
+            GearSource.Dungeon => Localize("Dungeon", "Dungeon"),
+            GearSource.Trial => Localize("Trial", "Trial"),
+            GearSource.Tome => Localize("Tome", "Tome"),
+            GearSource.Crafted => Localize("Crafted", "Crafted"),
+            _ => Localize("undefined", "undefined")
+
+        };
 
     }
 }

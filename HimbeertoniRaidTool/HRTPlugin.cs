@@ -11,9 +11,11 @@ using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using System;
 using System.Collections.Generic;
+using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool
 {
+
 #pragma warning disable CS8618
     public class Services
     {
@@ -30,18 +32,19 @@ namespace HimbeertoniRaidTool
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
     {
-
+        private readonly Dalamud.Localization Loc;
         private static HRTPlugin? _Plugin;
         private static HRTPlugin Plugin => _Plugin ?? throw new NullReferenceException();
         private readonly Configuration _Configuration;
         public static Configuration Configuration => Plugin._Configuration;
         public string Name => "Himbeertoni Raid Tool";
 
-        private readonly List<Tuple<string, string, bool>> Commands = new()
+        private readonly List<(string, Func<string>, bool)> Commands = new()
         {
-            new Tuple<string, string, bool>("/hrt", "Does nothing at the moment", true),
-            new Tuple<string, string, bool>("/lootmaster", "Opens LootMaster Window", false),
-            new Tuple<string, string, bool>("/lm", "Opens LootMaster Window (short version)", true)
+            ("/hrt", () => Localize("/hrt", "Does nothing at the moment"), true),
+            ("/lootmaster", () => Localize("/lootmaster", "Opens LootMaster Window"), false),
+            ("/lm", () => Localize("/lm", "Opens LootMaster Window (short version)"), true),
+
         };
 
         private ConfigUI OptionsUi { get; init; }
@@ -49,23 +52,37 @@ namespace HimbeertoniRaidTool
 
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
+            //Init all services and public staic references
             _Plugin = this;
             pluginInterface.Create<Services>();
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
+            //Init Localization
+            Loc = new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale");
+            Loc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
+            Services.PluginInterface.LanguageChanged += OnLanguageChanged;
+            InitCommands();
+            //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
-            LM = new(_Configuration.GroupInfo ?? new RaidGroup(""));
             OptionsUi = new();
+
+
+
+            LM = new(_Configuration.GroupInfo ?? new RaidGroup(""));
+        }
+        private void OnLanguageChanged(string langCode)
+        {
+            Loc.SetupWithLangCode(langCode);
+            Commands.ForEach(c => Services.CommandManager.RemoveHandler(c.Item1));
             InitCommands();
         }
-
         private void InitCommands()
         {
             foreach (var command in Commands)
             {
                 Services.CommandManager.AddHandler(command.Item1, new CommandInfo(OnCommand)
                 {
-                    HelpMessage = command.Item2,
+                    HelpMessage = command.Item2.Invoke(),
                     ShowInHelp = command.Item3
                 });
             }
@@ -76,17 +93,20 @@ namespace HimbeertoniRaidTool
             _Configuration.Save();
             OptionsUi.Dispose();
             LM.Dispose();
-            foreach (var command in Commands)
-            {
-                Services.CommandManager.RemoveHandler(command.Item1);
-            }
+            Commands.ForEach(command => Services.CommandManager.RemoveHandler(command.Item1));
+            Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
         }
         private void OnCommand(string command, string args)
         {
             switch (command)
             {
                 case "/hrt":
-                    this.OptionsUi.Show();
+                    if (args.Equals("exportlocale"))
+                        Loc.ExportLocalizable();
+                    else if (args.Contains("option"))
+                        OptionsUi.Show();
+                    else
+                        PluginLog.LogError($"Argument {args} for command hrt not recognized");
                     break;
                 case "/lm":
                 case "/lootmaster":
