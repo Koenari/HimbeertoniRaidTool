@@ -63,10 +63,6 @@ namespace HimbeertoniRaidTool
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
             OptionsUi = new();
-
-
-
-            LM = new(_Configuration.GroupInfo ?? new RaidGroup(""));
         }
         private void OnLanguageChanged(string langCode)
         {
