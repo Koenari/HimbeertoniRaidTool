@@ -73,10 +73,7 @@ namespace HimbeertoniRaidTool
             _Configuration.Save();
             OptionsUi.Dispose();
             LootMaster.LootMaster.Dispose();
-            foreach (var command in Commands)
-            {
-                Services.CommandManager.RemoveHandler(command.Item1);
-            }
+            Commands.ForEach(command => Services.CommandManager.RemoveHandler(command.Item1));
         }
         private void OnCommand(string command, string args)
         {
