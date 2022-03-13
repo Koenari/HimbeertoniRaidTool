@@ -7,7 +7,6 @@ using Dalamud.Game.Gui;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using System;
 using System.Collections.Generic;
@@ -45,7 +44,6 @@ namespace HimbeertoniRaidTool
         };
 
         private ConfigUI OptionsUi { get; init; }
-        private LootMaster.LootMaster LM { get; init; }
 
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
@@ -54,7 +52,6 @@ namespace HimbeertoniRaidTool
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
-            LM = new(_Configuration.GroupInfo ?? new RaidGroup(""));
             OptionsUi = new();
             InitCommands();
         }
@@ -75,7 +72,7 @@ namespace HimbeertoniRaidTool
         {
             _Configuration.Save();
             OptionsUi.Dispose();
-            LM.Dispose();
+            LootMaster.LootMaster.Dispose();
             foreach (var command in Commands)
             {
                 Services.CommandManager.RemoveHandler(command.Item1);
@@ -90,7 +87,7 @@ namespace HimbeertoniRaidTool
                     break;
                 case "/lm":
                 case "/lootmaster":
-                    this.LM.OnCommand(args);
+                    LootMaster.LootMaster.OnCommand(args);
                     break;
                 default:
                     PluginLog.LogError("Command \"" + command + "\" not found");

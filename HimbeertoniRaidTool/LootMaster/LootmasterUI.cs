@@ -14,10 +14,13 @@ namespace HimbeertoniRaidTool.LootMaster
 {
     public class LootmasterUI : HrtUI
     {
-        private readonly RaidGroup Group;
+        [Obsolete]
+        private RaidGroup Group => LootMaster.MainGroup;
+        private int _CurrenGroupIndex = 0;
+        private RaidGroup CurrentGroup => LootMaster.RaidGroups[_CurrenGroupIndex];
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
         private readonly List<HrtUI> Childs = new();
-        public LootmasterUI(RaidGroup group) : base() => Group = group;
+        public LootmasterUI() : base() { }
         public override void Dispose()
         {
             foreach (AsyncTaskWithUiResult t in Tasks)
@@ -116,28 +119,28 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             if (ImGui.Button("Loot Boss 1 (Erichthonios)"))
             {
-                LootUi lui = new(CuratedData.AsphodelosSavage, 1, Group);
+                LootUi lui = new(CuratedData.AsphodelosSavage, 1, CurrentGroup);
                 Childs.Add(lui);
                 lui.Show();
             }
             ImGui.SameLine();
             if (ImGui.Button("Loot Boss 2 (Hippokampos)"))
             {
-                LootUi lui = new(CuratedData.AsphodelosSavage, 2, Group);
+                LootUi lui = new(CuratedData.AsphodelosSavage, 2, CurrentGroup);
                 Childs.Add(lui);
                 lui.Show();
             }
             ImGui.SameLine();
             if (ImGui.Button("Loot Boss 3 (Phoinix)"))
             {
-                LootUi lui = new(CuratedData.AsphodelosSavage, 3, Group);
+                LootUi lui = new(CuratedData.AsphodelosSavage, 3, CurrentGroup);
                 Childs.Add(lui);
                 lui.Show();
             }
             ImGui.SameLine();
             if (ImGui.Button("Loot Boss 4 (Hesperos)"))
             {
-                LootUi lui = new(CuratedData.AsphodelosSavage, 4, Group);
+                LootUi lui = new(CuratedData.AsphodelosSavage, 4, CurrentGroup);
                 Childs.Add(lui);
                 lui.Show();
 
@@ -270,8 +273,8 @@ namespace HimbeertoniRaidTool.LootMaster
 
             internal EditPlayerWindow(LootmasterUI lmui, PositionInRaidGroup pos) : base()
             {
-                this.LmUi = lmui;
-                PlayerToAdd = this.LmUi.Group[pos];
+                LmUi = lmui;
+                PlayerToAdd = LmUi.CurrentGroup[pos];
                 if (!PlayerToAdd.Filled && Helper.Target is not null)
                 {
                     PlayerToAdd.MainChar.Name = Helper.Target.Name.TextValue;

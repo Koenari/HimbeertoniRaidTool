@@ -10,32 +10,30 @@ namespace HimbeertoniRaidTool.LootMaster
 {
     //Credit and apologies for taking and butchering their code goes to Caraxi https://github.com/Caraxi
     //https://github.com/Caraxi/SimpleTweaksPlugin/blob/main/Tweaks/UiAdjustment/ExamineItemLevel.cs
-    internal unsafe class GearRefresherOnExamine : IDisposable
+    internal static unsafe class GearRefresherOnExamine
     {
-        private readonly RaidGroup Group;
-
-        private readonly Hook<CharacterInspectOnRefresh> Hook;
-        private readonly IntPtr HookAddress = Services.SigScanner.ScanText("48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2");
-        private readonly IntPtr InventoryManagerAddress = Services.SigScanner.GetStaticAddressFromSig("BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B F8 48 85 C0");
-        private readonly IntPtr getInventoryContainerPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 55 BB");
-        private readonly IntPtr getContainerSlotPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 5B 0C");
+        private static readonly Hook<CharacterInspectOnRefresh> Hook;
+        private static readonly IntPtr HookAddress = Services.SigScanner.ScanText("48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2");
+        private static readonly IntPtr InventoryManagerAddress = Services.SigScanner.GetStaticAddressFromSig("BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B F8 48 85 C0");
+        private static readonly IntPtr getInventoryContainerPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 55 BB");
+        private static readonly IntPtr getContainerSlotPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 5B 0C");
 
         private delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
         private delegate InventoryContainer* GetInventoryContainer(IntPtr inventoryManager, InventoryType inventoryType);
         private delegate InventoryItem* GetContainerSlot(InventoryContainer* inventoryContainer, int slotId);
 
-        private readonly GetInventoryContainer _getInventoryContainer;
-        private readonly GetContainerSlot _getContainerSlot;
+        private static readonly GetInventoryContainer _getInventoryContainer;
+        private static readonly GetContainerSlot _getContainerSlot;
 
-        internal GearRefresherOnExamine(RaidGroup rg)
+        static GearRefresherOnExamine()
         {
-            Group = rg;
             Hook = new(HookAddress, OnExamineRefresh);
             _getContainerSlot = Marshal.GetDelegateForFunctionPointer<GetContainerSlot>(getContainerSlotPtr);
             _getInventoryContainer = Marshal.GetDelegateForFunctionPointer<GetInventoryContainer>(getInventoryContainerPtr);
-            Hook.Enable();
+
         }
-        private byte OnExamineRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* loadingStage)
+        internal static void Enable() => Hook.Enable();
+        private static byte OnExamineRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* loadingStage)
         {
             byte result = Hook.Original(atkUnitBase, a2, loadingStage);
             if (loadingStage != null && a2 > 0)
@@ -48,10 +46,11 @@ namespace HimbeertoniRaidTool.LootMaster
             return result;
 
         }
-        private void GetItemInfos()
+        private static void GetItemInfos()
         {
-            //TODO: there may be an edge case where Target is switched before this is called 
-            Character? c = Group.GetCharacter(Target!.Name.TextValue);
+            Character? c = null;
+            foreach (RaidGroup g in LootMaster.RaidGroups)
+                c = g.GetCharacter(Target!.Name.TextValue);
             if (c is null)
                 return;
             AvailableClasses? availableClass = TargetClass;
@@ -74,7 +73,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 setToFill[(GearSetSlot)i] = new(slot->ItemID);
             }
         }
-        public void Dispose()
+        public static void Dispose()
         {
             Hook.Disable();
             Hook.Dispose();
