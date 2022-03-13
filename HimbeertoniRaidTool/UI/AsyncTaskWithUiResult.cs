@@ -48,7 +48,7 @@ namespace HimbeertoniRaidTool.UI
 
         public void Dispose()
         {
-            Task.Wait();
+            Task.Wait(1000);
             Task.Dispose();
         }
     }
