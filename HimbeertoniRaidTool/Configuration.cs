@@ -12,7 +12,7 @@ namespace HimbeertoniRaidTool
     {
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
-        private int TargetVersion = 1;
+        private readonly int TargetVersion = 2;
         public int Version { get; set; } = 1;
         public Dictionary<AvailableClasses, string> DefaultBIS { get; set; } = new Dictionary<AvailableClasses, string>
         {
@@ -41,11 +41,35 @@ namespace HimbeertoniRaidTool
 
         public RaidGroup? GroupInfo;
 
+        public List<RaidGroup> RaidGroups = new();
+
         public void Save() => Services.PluginInterface.SavePluginConfig(this);
 
         private void Upgrade()
         {
-            Version = TargetVersion;
+            int oldVersion;
+            while (Version < TargetVersion)
+            {
+                oldVersion = Version;
+                DoUpgradeStep();
+                //Detect endless loops and "crash gracefully"
+                if (Version == oldVersion)
+                    throw new Exception("Configuration upgrade ran into an unexpected issue");
+            }
+            void DoUpgradeStep()
+            {
+                switch (Version)
+                {
+                    case 1:
+                        RaidGroups.Clear();
+                        RaidGroups.Add(GroupInfo ?? new());
+                        GroupInfo = null;
+                        Version = 2;
+                        break;
+                    default:
+                        throw new Exception("Unsupported Version of Configuration");
+                }
+            }
         }
         internal void AfterLoad()
         {

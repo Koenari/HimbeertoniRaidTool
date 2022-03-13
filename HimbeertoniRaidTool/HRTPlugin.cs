@@ -7,7 +7,6 @@ using Dalamud.Game.Gui;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using System;
 using System.Collections.Generic;
@@ -48,7 +47,6 @@ namespace HimbeertoniRaidTool
         };
 
         private ConfigUI OptionsUi { get; init; }
-        private LootMaster.LootMaster LM { get; init; }
 
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
@@ -92,9 +90,9 @@ namespace HimbeertoniRaidTool
         {
             _Configuration.Save();
             OptionsUi.Dispose();
-            LM.Dispose();
             Commands.ForEach(command => Services.CommandManager.RemoveHandler(command.Item1));
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
+            LootMaster.LootMaster.Dispose();
         }
         private void OnCommand(string command, string args)
         {
@@ -110,7 +108,7 @@ namespace HimbeertoniRaidTool
                     break;
                 case "/lm":
                 case "/lootmaster":
-                    this.LM.OnCommand(args);
+                    LootMaster.LootMaster.OnCommand(args);
                     break;
                 default:
                     PluginLog.LogError("Command \"" + command + "\" not found");
