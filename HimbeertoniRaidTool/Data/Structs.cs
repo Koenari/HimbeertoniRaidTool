@@ -1,4 +1,5 @@
-﻿namespace HimbeertoniRaidTool.Data
+﻿using static Dalamud.Localization;
+namespace HimbeertoniRaidTool.Data
 {
     public readonly struct GameExpansion
     {
@@ -10,12 +11,12 @@
             {
                 return Value switch
                 {
-                    2 => "A Realm Reborn",
-                    3 => "Heavensward",
-                    4 => "Stormblood",
-                    5 => "Shadowbringers",
-                    6 => "Endwalker",
-                    _ => "Unknown"
+                    2 => Localize("EXP_2", "A Realm Reborn"),
+                    3 => Localize("EXP_3", "Heavensward"),
+                    4 => Localize("EXP_4", "Stormblood"),
+                    5 => Localize("EXP_5", "Shadowbringers"),
+                    6 => Localize("EXP_6", "Endwalker"),
+                    _ => Localize("Unknown", "Unknown")
                 };
             }
         }

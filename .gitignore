@@ -3,3 +3,4 @@ obj/
 bin/
 *.user
 /DevResources/Items.xlsx
+.editorconfig

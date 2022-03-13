@@ -1,0 +1,326 @@
+{
+  "/hrt": {
+    "message": "Noch nicht benutzt",
+    "description": "<>c.<.ctor>b__18_0"
+  },
+  "/lootmaster": {
+    "message": "Öffnet das LootMaster Fenster",
+    "description": "<>c.<.ctor>b__18_1"
+  },
+  "/lm": {
+    "message": "Öffnet das LootMaster Fenster (Abk)",
+    "description": "<>c.<.ctor>b__18_2"
+  },
+  "LootMasterWindowTitle": {
+    "message": "Loot Master",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "RaidGroup": {
+    "message": "Raid Gruppe",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "Player": {
+    "message": "Spieler",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "itemLevelShort": {
+    "message": "iLvl",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "Weapon": {
+    "message": "Waffe",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "HeadGear": {
+    "message": "Kopfteil",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "ChestGear": {
+    "message": "Brust",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "Gloves": {
+    "message": "Handschuhe",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "LegGear": {
+    "message": "Hose",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "FeetGear": {
+    "message": "Schuhe",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "Earrings": {
+    "message": "Ohrringe",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "NeckGear": {
+    "message": "Halskette",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "WristGear": {
+    "message": "Armband",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "LeftRing": {
+    "message": "linker Ring",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "RightRing": {
+    "message": "rechter Ring",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "Options": {
+    "message": "Optionen",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "Close": {
+    "message": "Schließen",
+    "description": "LootmasterUI.DrawMainWindow"
+  },
+  "Loot Boss 1 (Erichthonios)": {
+    "message": "Loot Boss 1 (Erichthonios)",
+    "description": "LootmasterUI.DrawLootHandlerButtons"
+  },
+  "Loot Boss 2 (Hippokampos)": {
+    "message": "Loot Boss 2 (Hippokampos)",
+    "description": "LootmasterUI.DrawLootHandlerButtons"
+  },
+  "Loot Boss 3 (Phoinix)": {
+    "message": "Loot Boss 3 (Phoinix)",
+    "description": "LootmasterUI.DrawLootHandlerButtons"
+  },
+  "Loot Boss 4 (Hesperos)": {
+    "message": "Loot Boss 4 (Hesperos)",
+    "description": "LootmasterUI.DrawLootHandlerButtons"
+  },
+  "ItemTableHeaderHeader": {
+    "message": "Kopf",
+    "description": "LootmasterUI.DrawItemTooltip"
+  },
+  "Value": {
+    "message": "Wert",
+    "description": "LootmasterUI.DrawItemTooltip"
+  },
+  "Name": {
+    "message": "Name",
+    "description": "LootmasterUI.DrawItemTooltip"
+  },
+  "itemLevelLong": {
+    "message": "Item Level",
+    "description": "LootmasterUI.DrawItemTooltip"
+  },
+  "itemSource": {
+    "message": "Quelle",
+    "description": "LootmasterUI.DrawItemTooltip"
+  },
+  "to BIS": {
+    "message": "bis BiS",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "No Player": {
+    "message": "Kein Spieler",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "Empty": {
+    "message": "Leer",
+    "description": "LootmasterUI.<DrawPlayer>g__DrawItem|12_1"
+  },
+  "Edit Player ": {
+    "message": "Spieler Editieren ",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Player Name": {
+    "message": "Spieler Name",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Character Name": {
+    "message": "Charakter Name",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Main Class": {
+    "message": "Haupt Klasse",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Current": {
+    "message": "Aktuell",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "BIS": {
+    "message": "BiS",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Default": {
+    "message": "Standard",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Reset": {
+    "message": "Zurücksetzen",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Save": {
+    "message": "Speichern",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Add": {
+    "message": "Hinzufügen",
+    "description": "<>c__DisplayClass12_0.<DrawPlayer>g__EditPlayerButton|0"
+  },
+  "Edit": {
+    "message": "Editieren",
+    "description": "<>c__DisplayClass12_0.<DrawPlayer>g__EditPlayerButton|0"
+  },
+  "Distribute": {
+    "message": "Verteilen",
+    "description": "LootUi.Draw"
+  },
+  "LootRuleHeader": {
+    "message": "Ergebnisse der Lootverteilung für {0}: ",
+    "description": "LootResultWindow.Draw"
+  },
+  "Following rules were used:": {
+    "message": "Folgende Reihenfolge der Regeln wurde genutzt:",
+    "description": "LootResultWindow.Draw"
+  },
+  "LootDistributionLine": {
+    "message": "Spieler {1} hat Priorität {0} entschieden bei ({2}) Regel",
+    "description": "LootResultWindow.Draw"
+  },
+  "Header": {
+    "message": "Kopf",
+    "description": "ShowItemWindow.Draw"
+  },
+  "Item Level": {
+    "message": "Item Level",
+    "description": "ShowItemWindow.Draw"
+  },
+  "Item Source": {
+    "message": "Item Quelle",
+    "description": "ShowItemWindow.Draw"
+  },
+  "Shield": {
+    "message": "Schild",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Head": {
+    "message": "Kopf",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Body": {
+    "message": "Brust",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "NoBelts": {
+    "message": "Gürtel sind ein Konzept derr Vergangenheit",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Trousers": {
+    "message": "Hosen",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Shoes": {
+    "message": "Schuhe",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Necklace": {
+    "message": "Halskette",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Bracelet": {
+    "message": "Armband",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Ring": {
+    "message": "Ring",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Soul Crystal": {
+    "message": "Seelen Kristall",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "undefined": {
+    "message": "Nicht defniert",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Raid": {
+    "message": "Raid",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Dungeon": {
+    "message": "Dungeon",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Trial": {
+    "message": "Prüfung",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Tome": {
+    "message": "Stein",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Crafted": {
+    "message": "Hergestellt",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Need > Greed": {
+    "message": "Bedarf > Gier",
+    "description": "LootRuling.Evaluate"
+  },
+  "Greed": {
+    "message": "Gier",
+    "description": "LootRuling.Evaluate"
+  },
+  "BISOverUpgrade": {
+    "message": "BiS über Upgrade",
+    "description": "LootRule.ToString"
+  },
+  "LowestItemLevel": {
+    "message": "Niedrigeres ItemLevel",
+    "description": "LootRule.ToString"
+  },
+  "HighesItemLevelGain": {
+    "message": "Größter ItemLevel Gewinn",
+    "description": "LootRule.ToString"
+  },
+  "ByPosition": {
+    "message": "DPS > Tank > Heiler",
+    "description": "LootRule.ToString"
+  },
+  "Rolling": {
+    "message": "Würfeln",
+    "description": "LootRule.ToString"
+  },
+  "None": {
+    "message": "Keine",
+    "description": "LootRule.ToString"
+  },
+  "Not defined": {
+    "message": "Nicht Definiert",
+    "description": "LootRule.ToString"
+  },
+  "EXP_2": {
+    "message": "A Realm Reborn",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_3": {
+    "message": "Heavensward",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_4": {
+    "message": "Stormblood",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_5": {
+    "message": "Shadowbringers",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_6": {
+    "message": "Endwalker",
+    "description": "GameExpansion.get_Name"
+  },
+  "Unknown": {
+    "message": "Unbekannt",
+    "description": "GameExpansion.get_Name"
+  }
+}

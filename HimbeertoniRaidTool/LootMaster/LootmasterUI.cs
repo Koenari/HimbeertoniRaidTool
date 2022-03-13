@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
+using static Dalamud.Localization;
 using static HimbeertoniRaidTool.LootMaster.Helper;
 using static HimbeertoniRaidTool.Services;
 using static HimbeertoniRaidTool.UI.Helper;
@@ -78,29 +79,29 @@ namespace HimbeertoniRaidTool.LootMaster
         {
 
             ImGui.SetNextWindowSize(new Vector2(1600, 600), ImGuiCond.Appearing);
-            if (ImGui.Begin("Loot Master", ref Visible,
+            if (ImGui.Begin(Localize("LootMasterWindowTitle", "Loot Master"), ref Visible,
                 ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize))
             {
                 HandleAsync();
                 //DrawLootHandlerButtons();
 
-                if (ImGui.BeginTable("RaidGruppe", 14,
+                if (ImGui.BeginTable(Localize("RaidGroup", "RaidGroup"), 14,
                     ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingStretchProp))
                 {
-                    ImGui.TableSetupColumn("Player");
-                    ImGui.TableSetupColumn("iLvl");
-                    ImGui.TableSetupColumn("Weapon");
-                    ImGui.TableSetupColumn("Head");
-                    ImGui.TableSetupColumn("Chest");
-                    ImGui.TableSetupColumn("Gloves");
-                    ImGui.TableSetupColumn("Legs");
-                    ImGui.TableSetupColumn("Feet");
-                    ImGui.TableSetupColumn("Ear");
-                    ImGui.TableSetupColumn("Neck");
-                    ImGui.TableSetupColumn("Bracers");
-                    ImGui.TableSetupColumn("Ring 1");
-                    ImGui.TableSetupColumn("Ring 2");
-                    ImGui.TableSetupColumn("Options");
+                    ImGui.TableSetupColumn(Localize("Player", "Player"));
+                    ImGui.TableSetupColumn(Localize("itemLevelShort", "iLvl"));
+                    ImGui.TableSetupColumn(Localize("Weapon", "Weapon"));
+                    ImGui.TableSetupColumn(Localize("HeadGear", "Head"));
+                    ImGui.TableSetupColumn(Localize("ChestGear", "Chest"));
+                    ImGui.TableSetupColumn(Localize("Gloves", "Gloves"));
+                    ImGui.TableSetupColumn(Localize("LegGear", "Legs"));
+                    ImGui.TableSetupColumn(Localize("FeetGear", "Feet"));
+                    ImGui.TableSetupColumn(Localize("Earrings", "Earrings"));
+                    ImGui.TableSetupColumn(Localize("NeckGear", "Necklace"));
+                    ImGui.TableSetupColumn(Localize("WristGear", "Bracelet"));
+                    ImGui.TableSetupColumn(Localize("LeftRing", "Ring 1"));
+                    ImGui.TableSetupColumn(Localize("RightRing", "Ring 2"));
+                    ImGui.TableSetupColumn(Localize("Options", "Options"));
                     ImGui.TableHeadersRow();
                     foreach (Player player in Group.Players)
                     {
@@ -108,7 +109,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     }
                     ImGui.EndTable();
                 }
-                if (ImGui.Button("Close"))
+                if (ImGui.Button(Localize("Close", "Close")))
                 {
                     Hide();
                 }
@@ -117,28 +118,28 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         private void DrawLootHandlerButtons()
         {
-            if (ImGui.Button("Loot Boss 1 (Erichthonios)"))
+            if (ImGui.Button(Localize("Loot Boss 1 (Erichthonios)", "Loot Boss 1 (Erichthonios)")))
             {
                 LootUi lui = new(CuratedData.AsphodelosSavage, 1, CurrentGroup);
                 Childs.Add(lui);
                 lui.Show();
             }
             ImGui.SameLine();
-            if (ImGui.Button("Loot Boss 2 (Hippokampos)"))
+            if (ImGui.Button(Localize("Loot Boss 2 (Hippokampos)", "Loot Boss 2 (Hippokampos)")))
             {
                 LootUi lui = new(CuratedData.AsphodelosSavage, 2, CurrentGroup);
                 Childs.Add(lui);
                 lui.Show();
             }
             ImGui.SameLine();
-            if (ImGui.Button("Loot Boss 3 (Phoinix)"))
+            if (ImGui.Button(Localize("Loot Boss 3 (Phoinix)", "Loot Boss 3 (Phoinix)")))
             {
                 LootUi lui = new(CuratedData.AsphodelosSavage, 3, CurrentGroup);
                 Childs.Add(lui);
                 lui.Show();
             }
             ImGui.SameLine();
-            if (ImGui.Button("Loot Boss 4 (Hesperos)"))
+            if (ImGui.Button(Localize("Loot Boss 4 (Hesperos)", "Loot Boss 4 (Hesperos)")))
             {
                 LootUi lui = new(CuratedData.AsphodelosSavage, 4, CurrentGroup);
                 Childs.Add(lui);
@@ -151,11 +152,11 @@ namespace HimbeertoniRaidTool.LootMaster
             ImGui.BeginTooltip();
             if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
             {
-                ImGui.TableSetupColumn("Header");
-                ImGui.TableSetupColumn("Value");
-                DrawRow("Name", item.Item.Name);
-                DrawRow("Item Level", item.ItemLevel.ToString());
-                DrawRow("Item Source", item.Source.ToString());
+                ImGui.TableSetupColumn(Localize("ItemTableHeaderHeader", "Header"));
+                ImGui.TableSetupColumn(Localize("Value", "Value"));
+                DrawRow(Localize("Name", "Name"), item.Item.Name);
+                DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel.ToString());
+                DrawRow(Localize("itemSource", "Source"), item.Source.ToString());
                 ImGui.EndTable();
             }
             ImGui.EndTooltip();
@@ -177,10 +178,10 @@ namespace HimbeertoniRaidTool.LootMaster
                 GearSet gear = player.MainChar.MainClass.Gear;
                 GearSet bis = player.MainChar.MainClass.BIS;
                 ImGui.TableNextColumn();
-                ImGui.Text(player.Pos + "\n" + player.NickName + "\n" + player.MainChar.Name + " (" + player.MainChar.MainClassType + ")");
+                ImGui.Text($"{player.Pos}\n{player.NickName}\n{player.MainChar.Name}({player.MainChar.MainClassType})");
                 ImGui.TableNextColumn();
                 ImGui.Text(gear.ItemLevel.ToString());
-                ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} to BIS");
+                ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
                 ImGui.Text(bis.ItemLevel.ToString());
                 DrawItem(gear.MainHand, bis.MainHand);
                 DrawItem(gear.Head, bis.Head);
@@ -197,7 +198,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.NewLine();
                 EditPlayerButton();
                 ImGui.SameLine();
-                if (ImGui.Button("x##" + player.Pos))
+                if (ImGui.Button($"x##{player.Pos}"))
                 {
                     player.Reset();
                 }
@@ -207,7 +208,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
                 ImGui.TableNextColumn();
                 ImGui.Text(player.Pos.ToString());
-                ImGui.Text("No Player");
+                ImGui.Text(Localize("No Player", "No Player"));
                 for (int i = 0; i < 12; i++)
                 {
                     ImGui.TableNextColumn();
@@ -217,7 +218,7 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             void EditPlayerButton()
             {
-                if (ImGui.Button((PlayerExists ? "Edit" : "Add") + "## " + player.Pos))
+                if (ImGui.Button($"{(PlayerExists ? Localize("Edit", "Edit") : Localize("Add", "Add"))}##{player.Pos}"))
                 {
                     if (Childs.Exists(x => (x.GetType() == typeof(EditPlayerWindow)) && ((EditPlayerWindow)x).Pos == player.Pos))
                         return;
@@ -250,7 +251,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         //if (ImGui.IsItemClicked()) Childs.Add(new ShowItemWindow(item));
                     }
                     else
-                        ImGui.Text("Empty");
+                        ImGui.Text(Localize("Empty", "Empty"));
                     ImGui.NewLine();
                     if (bis.Valid)
                     {
@@ -260,7 +261,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         //if (ImGui.IsItemClicked()) Childs.Add(new ShowItemWindow(bis));
                     }
                     else
-                        ImGui.Text("Empty");
+                        ImGui.Text(Localize("Empty", "Empty"));
                 }
             }
         }
@@ -289,15 +290,15 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (!Visible)
                     return;
                 ImGui.SetNextWindowSize(new Vector2(500, 250), ImGuiCond.Always);
-                if (ImGui.Begin("Edit Player " + PlayerToAdd.Pos,
+                if (ImGui.Begin(Localize("Edit Player ", "Edit Player ") + PlayerToAdd.Pos,
                     ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
                     | ImGuiWindowFlags.NoScrollWithMouse))
                 {
-                    ImGui.InputText("Player Name", ref PlayerToAdd.NickName, 50);
-                    ImGui.InputText("Character Name", ref PlayerToAdd.MainChar.Name, 50);
+                    ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerToAdd.NickName, 50);
+                    ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerToAdd.MainChar.Name, 50);
 
                     int mainClass = (int)PlayerToAdd.MainChar.MainClassType;
-                    if (ImGui.Combo("Main Class", ref mainClass, Enum.GetNames(typeof(AvailableClasses)), Enum.GetNames(typeof(AvailableClasses)).Length))
+                    if (ImGui.Combo(Localize("Main Class", "Main Class"), ref mainClass, Enum.GetNames(typeof(AvailableClasses)), Enum.GetNames(typeof(AvailableClasses)).Length))
                     {
                         this.PlayerToAdd.MainChar.MainClassType = (AvailableClasses)mainClass;
                     }
@@ -316,17 +317,17 @@ namespace HimbeertoniRaidTool.LootMaster
                     if (curClass is not null)
                     {
                         ImGui.SameLine();
-                        if (ImGui.Button("Current"))
+                        if (ImGui.Button(Localize("Current", "Current")))
                         {
                             PlayerToAdd.MainChar.MainClassType = (AvailableClasses)curClass;
                         }
                     }
-                    if (ImGui.InputText("BIS", ref PlayerToAdd.MainChar.MainClass.BIS.EtroID, 100))
+                    if (ImGui.InputText(Localize("BIS", "BIS"), ref PlayerToAdd.MainChar.MainClass.BIS.EtroID, 100))
                     {
                         BISChanged = true;
                     }
                     ImGui.SameLine();
-                    if (ImGui.Button("Default##BIS"))
+                    if (ImGui.Button(Localize("Default", "Default") + "##BIS"))
                     {
                         if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(HRTPlugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType]))
                         {
@@ -335,7 +336,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         }
                     }
                     ImGui.SameLine();
-                    if (ImGui.Button("Reset##BIS"))
+                    if (ImGui.Button(Localize("Reset", "Reset") + "##BIS"))
                     {
                         if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(""))
                         {
@@ -344,7 +345,7 @@ namespace HimbeertoniRaidTool.LootMaster
                             PlayerToAdd.MainChar.MainClass.BIS.Clear();
                         }
                     }
-                    if (ImGui.Button("Save"))
+                    if (ImGui.Button(Localize("Save", "Save")))
                     {
                         if (BISChanged)
                         {
@@ -402,7 +403,7 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             if (!Visible)
                 return;
-            if (ImGui.Begin("Loot for " + RaidTier.Name + " Boss " + Boss, ref Visible, ImGuiWindowFlags.NoCollapse))
+            if (ImGui.Begin(String.Format("Loot for {0} boss number {1}", RaidTier.Name, Boss), ref Visible, ImGuiWindowFlags.NoCollapse))
             {
                 for (int i = 0; i < Loot.Length; i++)
                 {
@@ -414,7 +415,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
                     }
                 }
-                if (ImGui.Button("Distribute"))
+                if (ImGui.Button(Localize("Distribute", "Distribute")))
                 {
                     foreach ((GearItem, int) lootItem in Loot)
                     {
@@ -429,7 +430,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         }
                     }
                 }
-                if (ImGui.Button("Close"))
+                if (ImGui.Button(Localize("Close", "Close")))
                 {
                     Hide();
                 }
@@ -458,16 +459,17 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 if (!Visible)
                     return;
-                if (ImGui.Begin("Loot Results for: " + Item.Name, ref Visible))
+                if (ImGui.Begin(String.Format("Loot Results for {0}: ", Item.Name), ref Visible))
                 {
-                    ImGui.Text("Loot Results for: " + Item.Name);
-                    ImGui.Text("LootRuling used:");
+                    ImGui.Text(string.Format(Localize("LootRuleHeader", "Loot Results for {0}: "), Item.Name));
+                    ImGui.Text(Localize("Following rules were used:", "Following rules were used:"));
                     foreach (LootRule rule in LootRuling.RuleSet)
                         ImGui.BulletText(rule.ToString());
                     int place = 1;
                     foreach ((Player, string) looter in Looters)
                     {
-                        ImGui.Text("Priority " + place + " for Player " + looter.Item1.NickName + " won by rule " + looter.Item2);
+                        ImGui.Text(string.Format(Localize("LootDistributionLine", "Priority {0} for Player {1} won by rule {2} "),
+                            place, looter.Item1.NickName, looter.Item2));
                         place++;
                     }
                     ImGui.End();
@@ -493,11 +495,11 @@ namespace HimbeertoniRaidTool.LootMaster
 
                 if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
                 {
-                    ImGui.TableSetupColumn("Header");
-                    ImGui.TableSetupColumn("Value");
-                    DrawRow("Name", Item.Item.Name);
-                    DrawRow("Item Level", Item.ItemLevel.ToString());
-                    DrawRow("Item Source", Item.Source.ToString());
+                    ImGui.TableSetupColumn(Localize("Header", "Header"));
+                    ImGui.TableSetupColumn(Localize("Value", "Value"));
+                    DrawRow(Localize("Name", "Name"), Item.Item.Name);
+                    DrawRow(Localize("Item Level", "Item Level"), Item.ItemLevel.ToString());
+                    DrawRow(Localize("Item Source", "Item Source"), Item.Source.ToString());
 
                     ImGui.EndTable();
                 }
