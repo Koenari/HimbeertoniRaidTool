@@ -32,12 +32,12 @@ namespace HimbeertoniRaidTool.UI
         public AsyncTaskWithUiResult()
         {
             _Action = (t) => { };
-            Task = new(() => { });
+            _Task = new(() => { });
         }
         public AsyncTaskWithUiResult(Action<Task> action, Task task)
         {
             _Action = action;
-            Task = task;
+            _Task = task;
         }
         public void DrawResult()
         {
