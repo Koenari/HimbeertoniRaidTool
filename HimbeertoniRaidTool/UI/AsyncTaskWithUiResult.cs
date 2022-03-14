@@ -1,49 +1,52 @@
-﻿using ImGuiNET;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.UI
 {
     public class AsyncTaskWithUiResult : IDisposable
     {
-        private readonly Task Task;
+        private Task _Task;
+        public Task Task
+        {
+            get => _Task;
+            set
+            {
+                if (_Task is null || Task.Status == TaskStatus.Created)
+                    _Task = value;
+            }
+        }
         public TimeSpan TimeToShow = TimeSpan.FromSeconds(10);
         private DateTime? StartedShowingMessage;
 
         public bool FinishedShowing { get; private set; } = false;
-        private readonly Action<Task> Action;
-
-        internal AsyncTaskWithUiResult(Action<Task> action, Task task)
+        private Action<Task> _Action;
+        public Action<Task> Action
         {
-            Action = action;
+            get => _Action;
+            set
+            {
+                if (Task is null || Task.Status == TaskStatus.Created)
+                    _Action = value;
+            }
+        }
+        public AsyncTaskWithUiResult()
+        {
+            _Action = (t) => { };
+            Task = new(() => { });
+        }
+        public AsyncTaskWithUiResult(Action<Task> action, Task task)
+        {
+            _Action = action;
             Task = task;
         }
         public void DrawResult()
         {
-            if (!Task.IsCompleted)
+            if (Task is null || !Task.IsCompleted)
                 return;
-            //TODO: This is not working!
-            bool InsideWindow = ImGui.GetWindowWidth() > 0;
-            if (!InsideWindow)
-            {
-                if (ImGui.BeginPopupModal("TaskFinished"))
-                {
-                    Action.Invoke(Task);
-                    if (ImGui.Button("OK"))
-                    {
-                        FinishedShowing = true;
-                        ImGui.CloseCurrentPopup();
-                    }
-                    ImGui.EndPopup();
-                }
-                ImGui.OpenPopup("TaskFinished");
-            }
-            else
-            {
-                StartedShowingMessage ??= DateTime.Now;
-                Action.Invoke(Task);
-                FinishedShowing = DateTime.Now > StartedShowingMessage + TimeToShow;
-            }
+            StartedShowingMessage ??= DateTime.Now;
+            Action.Invoke(Task);
+            FinishedShowing = DateTime.Now > StartedShowingMessage + TimeToShow;
+
         }
 
         public void Dispose()

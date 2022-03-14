@@ -4,7 +4,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Data;
 using System;
 using System.Runtime.InteropServices;
-using static HimbeertoniRaidTool.LootMaster.Helper;
+using static HimbeertoniRaidTool.Helper;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
