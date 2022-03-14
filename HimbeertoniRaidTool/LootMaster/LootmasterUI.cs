@@ -5,11 +5,8 @@ using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Threading.Tasks;
+using static ColorHelper.HRTColorConversions;
 using static Dalamud.Localization;
-using static HimbeertoniRaidTool.LootMaster.Helper;
-using static HimbeertoniRaidTool.Services;
-using static HimbeertoniRaidTool.UI.Helper;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -21,6 +18,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private RaidGroup CurrentGroup => LootMaster.RaidGroups[_CurrenGroupIndex];
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
         private readonly List<HrtUI> Childs = new();
+        private string? LocalStringRef = "";
         public LootmasterUI() : base() { }
         public override void Dispose()
         {
@@ -85,6 +83,43 @@ namespace HimbeertoniRaidTool.LootMaster
                 HandleAsync();
                 //DrawLootHandlerButtons();
 
+                ImGui.BeginTabBar("RaidGroupSwichtBar");
+                ImGui.PushStyleColor(ImGuiCol.TabActive, Vec4(ColorName.Redwood.ToRgb()));
+                for (int tabBarIdx = 0; tabBarIdx < LootMaster.RaidGroups.Count; tabBarIdx++)
+                {
+                    RaidGroup g = LootMaster.RaidGroups[tabBarIdx];
+                    ImGuiTabItemFlags flags = ImGuiTabItemFlags.None;
+                    if (tabBarIdx == _CurrenGroupIndex)
+                        flags = ImGuiTabItemFlags.SetSelected;
+
+                    if (ImGui.TabItemButton(g.Name, flags))
+                    {
+                        _CurrenGroupIndex = tabBarIdx;
+                    }
+                    if (ImGui.BeginPopupContextItem($"{g.Name}##{tabBarIdx}"))
+                    {
+
+                        if (LocalStringRef is null)
+                            LocalStringRef = g.Name;
+                        ImGui.InputText(Localize("Name", "Name"), ref LocalStringRef, 100);
+                        if (ImGui.Button(Localize("Save", "Save")))
+                        {
+                            g.Name = LocalStringRef;
+                            LocalStringRef = null;
+                            ImGui.CloseCurrentPopup();
+                        }
+                        ImGui.SameLine();
+                        if (ImGui.Button(Localize("Cancel", "Cancel")))
+                        {
+                            LocalStringRef = null;
+                            ImGui.CloseCurrentPopup();
+                        }
+                        ImGui.EndPopup();
+                    }
+                    tabBarIdx++;
+                }
+                ImGui.PopStyleColor();
+                ImGui.EndTabBar();
                 if (ImGui.BeginTable(Localize("RaidGroup", "RaidGroup"), 14,
                     ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingStretchProp))
                 {
@@ -103,7 +138,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.TableSetupColumn(Localize("RightRing", "Ring 2"));
                     ImGui.TableSetupColumn(Localize("Options", "Options"));
                     ImGui.TableHeadersRow();
-                    foreach (Player player in Group.Players)
+                    foreach (Player player in CurrentGroup.Players)
                     {
                         DrawPlayer(player);
                     }
@@ -222,8 +257,9 @@ namespace HimbeertoniRaidTool.LootMaster
                 {
                     if (Childs.Exists(x => (x.GetType() == typeof(EditPlayerWindow)) && ((EditPlayerWindow)x).Pos == player.Pos))
                         return;
-                    Childs.Add(new EditPlayerWindow(this, player.Pos));
-
+                    AsyncTaskWithUiResult result;
+                    Childs.Add(new EditPlayerWindow(out result, CurrentGroup, player.Pos));
+                    Tasks.Add(result);
                 }
             }
             void DrawItem(GearItem item, GearItem bis)
@@ -265,110 +301,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 }
             }
         }
-        class EditPlayerWindow : HrtUI
-        {
-            private readonly LootmasterUI LmUi;
-            private readonly Player PlayerToAdd;
-            private bool BISChanged = false;
-            internal PositionInRaidGroup Pos => PlayerToAdd.Pos;
 
-            internal EditPlayerWindow(LootmasterUI lmui, PositionInRaidGroup pos) : base()
-            {
-                LmUi = lmui;
-                PlayerToAdd = LmUi.CurrentGroup[pos];
-                if (!PlayerToAdd.Filled && Helper.Target is not null)
-                {
-                    PlayerToAdd.MainChar.Name = Helper.Target.Name.TextValue;
-                    PlayerToAdd.MainChar.MainClassType = Helper.TargetClass!;
-
-                }
-                Show();
-            }
-
-            public override void Draw()
-            {
-                if (!Visible)
-                    return;
-                ImGui.SetNextWindowSize(new Vector2(500, 250), ImGuiCond.Always);
-                if (ImGui.Begin(Localize("Edit Player ", "Edit Player ") + PlayerToAdd.Pos,
-                    ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
-                    | ImGuiWindowFlags.NoScrollWithMouse))
-                {
-                    ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerToAdd.NickName, 50);
-                    ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerToAdd.MainChar.Name, 50);
-
-                    int mainClass = (int)PlayerToAdd.MainChar.MainClassType;
-                    if (ImGui.Combo(Localize("Main Class", "Main Class"), ref mainClass, Enum.GetNames(typeof(AvailableClasses)), Enum.GetNames(typeof(AvailableClasses)).Length))
-                    {
-                        this.PlayerToAdd.MainChar.MainClassType = (AvailableClasses)mainClass;
-                    }
-
-                    AvailableClasses? curClass = null;
-                    if (PlayerToAdd.MainChar.Name.Equals(Target?.Name.TextValue))
-                    {
-                        if (Enum.TryParse(Target!.ClassJob.GameData!.Abbreviation, false, out AvailableClasses parsed))
-                            curClass = parsed;
-                    }
-                    else if (PlayerToAdd.MainChar.Name.Equals(ClientState.LocalPlayer?.Name.TextValue))
-                    {
-                        if (Enum.TryParse(ClientState.LocalPlayer!.ClassJob.GameData!.Abbreviation, false, out AvailableClasses parsed))
-                            curClass = parsed;
-                    }
-                    if (curClass is not null)
-                    {
-                        ImGui.SameLine();
-                        if (ImGui.Button(Localize("Current", "Current")))
-                        {
-                            PlayerToAdd.MainChar.MainClassType = (AvailableClasses)curClass;
-                        }
-                    }
-                    if (ImGui.InputText(Localize("BIS", "BIS"), ref PlayerToAdd.MainChar.MainClass.BIS.EtroID, 100))
-                    {
-                        BISChanged = true;
-                    }
-                    ImGui.SameLine();
-                    if (ImGui.Button(Localize("Default", "Default") + "##BIS"))
-                    {
-                        if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(HRTPlugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType]))
-                        {
-                            BISChanged = true;
-                            PlayerToAdd.MainChar.MainClass.BIS.EtroID = HRTPlugin.Configuration.DefaultBIS[PlayerToAdd.MainChar.MainClass.ClassType];
-                        }
-                    }
-                    ImGui.SameLine();
-                    if (ImGui.Button(Localize("Reset", "Reset") + "##BIS"))
-                    {
-                        if (!PlayerToAdd.MainChar.MainClass.BIS.EtroID.Equals(""))
-                        {
-                            PlayerToAdd.MainChar.MainClass.BIS.EtroID = "";
-                            BISChanged = false;
-                            PlayerToAdd.MainChar.MainClass.BIS.Clear();
-                        }
-                    }
-                    if (ImGui.Button(Localize("Save", "Save")))
-                    {
-                        if (BISChanged)
-                        {
-
-                            LmUi.Tasks.Add(
-                                new((t) =>
-                                {
-                                    if (((Task<bool>)t).Result)
-                                        ImGui.TextColored(Vec4(ColorName.Green),
-                                            $"BIS for {PlayerToAdd.MainChar.Name} ({PlayerToAdd.MainChar.MainClassType}) succesfully updated");
-                                    else
-                                        ImGui.TextColored(Vec4(ColorName.Red),
-                                            $"BIS update for {PlayerToAdd.MainChar.Name} ({PlayerToAdd.MainChar.MainClassType}) failed");
-                                },
-                                Task.Run(() => EtroConnector.GetGearSet(PlayerToAdd.MainChar.MainClass.BIS)))
-                                );
-                        }
-                        Hide();
-                    }
-                }
-                ImGui.End();
-            }
-        }
     }
 
     class LootUi : HrtUI
@@ -479,41 +412,5 @@ namespace HimbeertoniRaidTool.LootMaster
             }
         }
     }
-    public class ShowItemWindow : HrtUI
-    {
-        private readonly GearItem Item;
-        public ShowItemWindow(GearItem item) : base() => (Item, Visible) = (item, true);
-        public override void Draw()
-        {
-            if (!Visible)
-                return;
-            ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.Always);
-            if (ImGui.Begin(Item.Item.Name, ref Visible,
-                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
-                | ImGuiWindowFlags.NoScrollWithMouse))
-            {
 
-                if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
-                {
-                    ImGui.TableSetupColumn(Localize("Header", "Header"));
-                    ImGui.TableSetupColumn(Localize("Value", "Value"));
-                    DrawRow(Localize("Name", "Name"), Item.Item.Name);
-                    DrawRow(Localize("Item Level", "Item Level"), Item.ItemLevel.ToString());
-                    DrawRow(Localize("Item Source", "Item Source"), Item.Source.ToString());
-
-                    ImGui.EndTable();
-                }
-            }
-            static void DrawRow(string label, string value)
-            {
-
-                ImGui.TableNextColumn();
-                ImGui.Text(label);
-                ImGui.PushStyleColor(ImGuiCol.TableRowBg, Vec4(ColorName.White, 0.5f));
-                ImGui.TableNextColumn();
-                ImGui.Text(value);
-                ImGui.PopStyleColor();
-            }
-        }
-    }
 }
