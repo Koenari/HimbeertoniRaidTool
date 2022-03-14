@@ -63,6 +63,8 @@ namespace HimbeertoniRaidTool.Data
             etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);
             if (etroSet == null)
                 return false;
+            set.Name = etroSet.name ?? "";
+            set.TimeStamp = etroSet.lastUpdate;
             set.MainHand = new(etroSet.weapon);
             set.Head = new(etroSet.head);
             set.Head = new(etroSet.head);
