@@ -1,25 +1,28 @@
 ﻿# TODO List
 ## Under progress
 ### New Features
-* Semi automatic Loot distribution [branch: [LootRuling](https://github.com/Koenari/HimbeertoniRaidTool/tree/LootRuling)]
+* Working Branch: [LootRuling](https://github.com/Koenari/HimbeertoniRaidTool/tree/LootRuling)
+    * Semi automatic Loot distribution 
 ### Bigger Changes
-* Localization [branch: [Localization](https://github.com/Koenari/HimbeertoniRaidTool/tree/Localization)]
+* None
 ### Small changes
-* Support for MultiRaidGroups & Solo/Pug Raiders [branch: [MultipleRaidGroups](https://github.com/Koenari/HimbeertoniRaidTool/tree/MultipleRaidGroups)]
+* Working Branch: [MultipleRaidGroups](https://github.com/Koenari/HimbeertoniRaidTool/tree/MultipleRaidGroups)
+    * Support for MultiRaidGroups & Solo/Pug Raiders
+    * Rework all edit windows to feature Save and cancel buttons
+    * Links to Etro
+    * Quick way to change active class of character
 ## Planned
 ### New Features
 * Module for encounter planning
     * Drawing tool
 * WebService including an API
     * Overview of your raid group online
-    * Syncing data between multiple addons /game clients
+    * Syncing data between multiple addons/game clients
 ### Bigger Changes
-* Rework all edit windows to feature Save and cancel buttons
 * Possibility to have multiple BiS sets
 * Tracking of Loot/Currencies not worn
 ### Small changes
-* Links to Etro
-* Quick way to change active class of character
+* None
 ## Maybes
 ### New Features
 * FF14 ToolBox integration
@@ -31,4 +34,4 @@
 ### Small changes
 * Update Current GearSet to Etro
 ## Done
-* None
+* Localization [[Release 0.1.1.3](https://github.com/Koenari/HimbeertoniRaidTool/releases/tag/0.1.1.3a)]
