@@ -1,16 +1,12 @@
 ﻿# TODO List
 ## Under progress
-### New Features
-* Working Branch: [LootRuling](https://github.com/Koenari/HimbeertoniRaidTool/tree/LootRuling)
-    * Semi automatic Loot distribution 
-### Bigger Changes
-* None
-### Small changes
-* Working Branch: [MultipleRaidGroups](https://github.com/Koenari/HimbeertoniRaidTool/tree/MultipleRaidGroups)
-    * Support for MultiRaidGroups & Solo/Pug Raiders
-    * Rework all edit windows to feature Save and cancel buttons
-    * Links to Etro
-    * Quick way to change active class of character
+### Working Branch: [LootRuling](https://github.com/Koenari/HimbeertoniRaidTool/tree/LootRuling)
+* Semi automatic Loot distribution 
+### Working Branch: [MultipleRaidGroups](https://github.com/Koenari/HimbeertoniRaidTool/tree/MultipleRaidGroups)
+* Support for MultiRaidGroups & Solo/Pug Raiders
+* Rework all edit windows to feature Save and cancel buttons
+* Links to Etro
+* Quick way to change active class of character
 ## Planned
 ### New Features
 * Module for encounter planning
