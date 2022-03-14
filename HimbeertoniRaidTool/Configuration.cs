@@ -1,4 +1,5 @@
 ﻿using Dalamud.Configuration;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 using System;
@@ -41,8 +42,13 @@ namespace HimbeertoniRaidTool
 
         public RaidGroup? GroupInfo;
 
-        public void Save() => Services.PluginInterface.SavePluginConfig(this);
-
+        public void Save()
+        {
+            if (Version == TargetVersion)
+                Services.PluginInterface.SavePluginConfig(this);
+            else
+                PluginLog.LogError("Configuration Version mismatch. Did not Save!");
+        }
         private void Upgrade()
         {
             Version = TargetVersion;
@@ -51,6 +57,12 @@ namespace HimbeertoniRaidTool
         {
             if (FullyLoaded)
                 return;
+            if (Version > TargetVersion)
+            {
+                string msg = "Tried loading a configuration from a newer version of the plugin. To prevent data loss operation has been stopped. You need to update to use this plugin!"
+                PluginLog.LogFatal(msg);
+                throw new NotSupportedException($"[HimbeerToniRaidTool{msg}");
+            }
             if (Version != TargetVersion)
                 Upgrade();
             if (LootRuling.RuleSet.Count == 0)
