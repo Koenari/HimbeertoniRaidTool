@@ -8,7 +8,7 @@ namespace HimbeertoniRaidTool.UI
         private Task _Task;
         public Task Task
         {
-            get => _Task;
+            private get => _Task;
             set
             {
                 if (_Task is null || Task.Status == TaskStatus.Created)
@@ -17,7 +17,7 @@ namespace HimbeertoniRaidTool.UI
         }
         public TimeSpan TimeToShow = TimeSpan.FromSeconds(10);
         private DateTime? StartedShowingMessage;
-
+        public TaskStatus Status => _Task.Status;
         public bool FinishedShowing { get; private set; } = false;
         private Action<Task> _Action;
         public Action<Task> Action
