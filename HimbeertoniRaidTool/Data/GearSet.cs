@@ -8,6 +8,7 @@ namespace HimbeertoniRaidTool.Data
         public DateTime? TimeStamp;
         public string EtroID = "";
         public string Name = "";
+        public GearSetManager ManagedBy;
         private const int NumSlots = 12;
         private readonly GearItem[] Items = new GearItem[NumSlots];
         public GearItem MainHand { get => Items[0]; set => Items[0] = value; }
@@ -39,7 +40,11 @@ namespace HimbeertoniRaidTool.Data
 
             }
         }
-        public GearSet() => Clear();
+        public GearSet(GearSetManager manager = GearSetManager.HRT)
+        {
+            ManagedBy = manager;
+            Clear();
+        }
         public void Clear()
         {
             for (int i = 0; i < NumSlots; i++)
