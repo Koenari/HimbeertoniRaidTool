@@ -3,6 +3,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Data;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using static HimbeertoniRaidTool.Helper;
 
@@ -48,21 +49,26 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         private static void GetItemInfos()
         {
-            Character? c = null;
+            List<Character> chars = new();
             foreach (RaidGroup g in LootMaster.RaidGroups)
-                c = g.GetCharacter(Target!.Name.TextValue);
-            if (c is null)
+            {
+                Character? c = g.GetCharacter(Target!.Name.TextValue);
+                if (c is not null)
+                    chars.Add(c);
+            }
+            if (chars.Count == 0)
                 return;
             AvailableClasses? availableClass = TargetClass;
             if (availableClass is null)
                 return;
-            PlayableClass playableClass = c.GetClass((AvailableClasses)availableClass);
-            GearSet setToFill = playableClass.Gear;
+            List<GearSet> setsToFill = new();
+            foreach (Character c in chars)
+                setsToFill.Add(c.GetClass((AvailableClasses)availableClass).Gear);
 
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
             if (container == null)
                 return;
-            setToFill.Clear();
+            setsToFill.ForEach((x) => x.Clear());
             for (int i = 0; i < 13; i++)
             {
                 if (i == ((int)GearSetSlot.Waist))
@@ -70,7 +76,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 InventoryItem* slot = _getContainerSlot(container, i);
                 if (slot->ItemID == 0)
                     continue;
-                setToFill[(GearSetSlot)i] = new(slot->ItemID);
+                setsToFill.ForEach((set) => set[(GearSetSlot)i] = new(slot->ItemID));
             }
         }
         public static void Dispose()
