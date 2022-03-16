@@ -8,7 +8,7 @@ using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
-    class EditPlayerWindow : HrtUI
+    internal class EditPlayerWindow : HrtUI
     {
         private readonly Player Player;
         private readonly Player PlayerCopy;
@@ -119,6 +119,56 @@ namespace HimbeertoniRaidTool.UI
                     Hide();
             }
             ImGui.End();
+        }
+    }
+
+    internal class EditGroupWindow : HrtUI
+    {
+        private readonly RaidGroup Group;
+        private readonly RaidGroup GroupCopy;
+        private readonly Action OnSave;
+        private readonly Action OnCancel;
+
+        Action doNothing = () => { };
+        internal EditGroupWindow(ref RaidGroup group, Action? onSave = null, Action? onCancel = null)
+        {
+            Group = group;
+            OnSave = onSave ?? (() => { });
+            OnCancel = onCancel ?? (() => { });
+            GroupCopy = Group.Clone();
+            Show();
+        }
+
+        public override void Draw()
+        {
+            if (!Visible)
+                return;
+            ImGui.SetNextWindowSize(new Vector2(500, 250), ImGuiCond.Always);
+            if (ImGui.Begin(Localize("Edit Group ", "Edit Group ") + Group.Name,
+                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
+                | ImGuiWindowFlags.NoScrollWithMouse))
+            {
+                ImGui.InputText(Localize("Group Name", "Group Name"), ref GroupCopy.Name, 100);
+                int groupType = (int)GroupCopy.Type;
+                if (ImGui.Combo(Localize("Group Type", "Group Type"), ref groupType, Enum.GetNames(typeof(GroupType)), Enum.GetNames(typeof(GroupType)).Length))
+                {
+                    GroupCopy.Type = (GroupType)groupType;
+                }
+                if (ImGui.Button(Localize("Save", "Save")))
+                {
+                    Group.Name = GroupCopy.Name;
+                    Group.Type = GroupCopy.Type;
+                    OnSave();
+                    Hide();
+                }
+                ImGui.SameLine();
+                if (ImGui.Button(Localize("Cancel", "Cancel")))
+                {
+                    OnCancel();
+                    Hide();
+                }
+                ImGui.End();
+            }
         }
     }
 }
