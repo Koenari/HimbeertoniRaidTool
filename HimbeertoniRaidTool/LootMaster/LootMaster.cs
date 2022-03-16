@@ -1,5 +1,4 @@
 ﻿using HimbeertoniRaidTool.Data;
-using System;
 using System.Collections.Generic;
 
 namespace HimbeertoniRaidTool.LootMaster
@@ -7,13 +6,13 @@ namespace HimbeertoniRaidTool.LootMaster
     public static class LootMaster
     {
         internal static readonly LootmasterUI Ui = new();
-        [Obsolete("")]
-        internal static RaidGroup MainGroup => RaidGroups[0];
         internal static List<RaidGroup> RaidGroups => HRTPlugin.Configuration.RaidGroups;
         static LootMaster()
         {
             if (RaidGroups.Count == 0)
-                RaidGroups.Add(new());
+                RaidGroups.Add(new("Solo", GroupType.Solo));
+            if (RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
+                RaidGroups.Insert(0, new("Solo", GroupType.Solo));
             GearRefresherOnExamine.Enable();
         }
         public static void OnCommand(string args)
