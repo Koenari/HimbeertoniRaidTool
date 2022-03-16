@@ -12,13 +12,10 @@ namespace HimbeertoniRaidTool.LootMaster
 {
     public class LootmasterUI : HrtUI
     {
-        [Obsolete]
-        private RaidGroup Group => LootMaster.MainGroup;
         private int _CurrenGroupIndex = 0;
         private RaidGroup CurrentGroup => LootMaster.RaidGroups[_CurrenGroupIndex];
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
         private readonly List<HrtUI> Childs = new();
-        private string? LocalStringRef = "";
         public LootmasterUI() : base() { }
         public override void Dispose()
         {
@@ -75,82 +72,98 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         private void DrawMainWindow()
         {
-
+            if (_CurrenGroupIndex > LootMaster.RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
+                _CurrenGroupIndex = 0;
             ImGui.SetNextWindowSize(new Vector2(1600, 600), ImGuiCond.Appearing);
             if (ImGui.Begin(Localize("LootMasterWindowTitle", "Loot Master"), ref Visible,
-                ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize))
+                ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize))
             {
                 HandleAsync();
                 //DrawLootHandlerButtons();
-
-                ImGui.BeginTabBar("RaidGroupSwichtBar");
-                ImGui.PushStyleColor(ImGuiCol.TabActive, Vec4(ColorName.Redwood.ToRgb()));
-                for (int tabBarIdx = 0; tabBarIdx < LootMaster.RaidGroups.Count; tabBarIdx++)
+                DrawRaidGroupSwitchBar();
+                if (CurrentGroup.Type == GroupType.Solo)
                 {
-                    RaidGroup g = LootMaster.RaidGroups[tabBarIdx];
-                    ImGuiTabItemFlags flags = ImGuiTabItemFlags.None;
-                    if (tabBarIdx == _CurrenGroupIndex)
-                        flags = ImGuiTabItemFlags.SetSelected;
-
-                    if (ImGui.TabItemButton(g.Name, flags))
-                    {
-                        _CurrenGroupIndex = tabBarIdx;
-                    }
-                    if (ImGui.BeginPopupContextItem($"{g.Name}##{tabBarIdx}"))
-                    {
-
-                        if (LocalStringRef is null)
-                            LocalStringRef = g.Name;
-                        ImGui.InputText(Localize("Name", "Name"), ref LocalStringRef, 100);
-                        if (ImGui.Button(Localize("Save", "Save")))
-                        {
-                            g.Name = LocalStringRef;
-                            LocalStringRef = null;
-                            ImGui.CloseCurrentPopup();
-                        }
-                        ImGui.SameLine();
-                        if (ImGui.Button(Localize("Cancel", "Cancel")))
-                        {
-                            LocalStringRef = null;
-                            ImGui.CloseCurrentPopup();
-                        }
-                        ImGui.EndPopup();
-                    }
-                    tabBarIdx++;
+                    ImGui.Text("SoloView");
                 }
-                ImGui.PopStyleColor();
-                ImGui.EndTabBar();
-                if (ImGui.BeginTable(Localize("RaidGroup", "RaidGroup"), 14,
+
+                {
+                    if (ImGui.BeginTable(Localize("RaidGroup", "RaidGroup"), 14,
                     ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingStretchProp))
-                {
-                    ImGui.TableSetupColumn(Localize("Player", "Player"));
-                    ImGui.TableSetupColumn(Localize("itemLevelShort", "iLvl"));
-                    ImGui.TableSetupColumn(Localize("Weapon", "Weapon"));
-                    ImGui.TableSetupColumn(Localize("HeadGear", "Head"));
-                    ImGui.TableSetupColumn(Localize("ChestGear", "Chest"));
-                    ImGui.TableSetupColumn(Localize("Gloves", "Gloves"));
-                    ImGui.TableSetupColumn(Localize("LegGear", "Legs"));
-                    ImGui.TableSetupColumn(Localize("FeetGear", "Feet"));
-                    ImGui.TableSetupColumn(Localize("Earrings", "Earrings"));
-                    ImGui.TableSetupColumn(Localize("NeckGear", "Necklace"));
-                    ImGui.TableSetupColumn(Localize("WristGear", "Bracelet"));
-                    ImGui.TableSetupColumn(Localize("LeftRing", "Ring 1"));
-                    ImGui.TableSetupColumn(Localize("RightRing", "Ring 2"));
-                    ImGui.TableSetupColumn(Localize("Options", "Options"));
-                    ImGui.TableHeadersRow();
-                    foreach (Player player in CurrentGroup.Players)
                     {
-                        DrawPlayer(player);
+                        ImGui.TableSetupColumn(Localize("Player", "Player"));
+                        ImGui.TableSetupColumn(Localize("itemLevelShort", "iLvl"));
+                        ImGui.TableSetupColumn(Localize("Weapon", "Weapon"));
+                        ImGui.TableSetupColumn(Localize("HeadGear", "Head"));
+                        ImGui.TableSetupColumn(Localize("ChestGear", "Chest"));
+                        ImGui.TableSetupColumn(Localize("Gloves", "Gloves"));
+                        ImGui.TableSetupColumn(Localize("LegGear", "Legs"));
+                        ImGui.TableSetupColumn(Localize("FeetGear", "Feet"));
+                        ImGui.TableSetupColumn(Localize("Earrings", "Earrings"));
+                        ImGui.TableSetupColumn(Localize("NeckGear", "Necklace"));
+                        ImGui.TableSetupColumn(Localize("WristGear", "Bracelet"));
+                        ImGui.TableSetupColumn(Localize("LeftRing", "Ring 1"));
+                        ImGui.TableSetupColumn(Localize("RightRing", "Ring 2"));
+                        ImGui.TableSetupColumn(Localize("Options", "Options"));
+                        ImGui.TableHeadersRow();
+                        foreach (Player player in CurrentGroup.Players)
+                        {
+                            DrawPlayer(player);
+                        }
+                        ImGui.EndTable();
                     }
-                    ImGui.EndTable();
-                }
-                if (ImGui.Button(Localize("Close", "Close")))
-                {
-                    Hide();
                 }
             }
             ImGui.End();
         }
+
+        private void DrawRaidGroupSwitchBar()
+        {
+            ImGui.BeginTabBar("RaidGroupSwichtBar");
+
+            for (int tabBarIdx = 0; tabBarIdx < LootMaster.RaidGroups.Count; tabBarIdx++)
+            {
+                bool colorPushed = false;
+                RaidGroup g = LootMaster.RaidGroups[tabBarIdx];
+                if (tabBarIdx == _CurrenGroupIndex)
+                {
+                    ImGui.PushStyleColor(ImGuiCol.Tab, Vec4(ColorName.Redwood.ToHsv().Value(0.6f)));
+                    colorPushed = true;
+                }
+                if (ImGui.TabItemButton($"{g.Name}##{tabBarIdx}"))
+                    _CurrenGroupIndex = tabBarIdx;
+                //0 is reserved for Solo on current Character (non editable)x
+                if (tabBarIdx > 0)
+                {
+                    if (ImGui.BeginPopupContextItem($"{g.Name}##{tabBarIdx}"))
+                    {
+                        if (ImGui.Button(Localize("Edit", "Edit")))
+                        {
+                            Childs.Add(new EditGroupWindow(ref g));
+                            ImGui.CloseCurrentPopup();
+                        }
+                        ImGui.SameLine();
+                        if (ImGui.Button(Localize("Delete", "Delete")))
+                        {
+                            Childs.Add(new ConfimationDialog(
+                                () => LootMaster.RaidGroups.Remove(g),
+                                $"{Localize("DeleteRaidGroup", "Do you really want to delete following group:")} {g.Name}"));
+                            ImGui.CloseCurrentPopup();
+                        }
+                        ImGui.EndPopup();
+
+                    }
+                }
+                if (colorPushed)
+                    ImGui.PopStyleColor();
+            }
+            if (ImGui.TabItemButton("+"))
+            {
+                RaidGroup group = new();
+                EditGroupWindow groupWindow = new(ref group, () => LootMaster.RaidGroups.Add(group));
+            }
+            ImGui.EndTabBar();
+        }
+
         private void DrawLootHandlerButtons()
         {
             if (ImGui.Button(Localize("Loot Boss 1 (Erichthonios)", "Loot Boss 1 (Erichthonios)")))
