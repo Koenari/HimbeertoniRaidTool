@@ -86,31 +86,59 @@ namespace HimbeertoniRaidTool.Data
         Trial,
         Dungeon
     }
+    public enum GroupType
+    {
+        Solo,
+        Group,
+        Raid
+    }
+    public enum GearSetManager
+    {
+        HRT,
+        Etro
+    }
     public static class EnumExtensions
     {
-        public static string FriendlyName(this GearSetSlot slot)
+        public static string FriendlyName(this GearSetManager manager) => manager switch
         {
+            GearSetManager.HRT => Localize("HimbeerToni Raid Tool", "HimbeerToni Raid Tool"),
+            GearSetManager.Etro => Localize("etro.gg", "etro.gg"),
+            _ => Localize("undefined", "undefined"),
+        };
+        public static int GroupSize(this GroupType groupType) => groupType switch
+        {
+            GroupType.Solo => 1,
+            GroupType.Group => 4,
+            GroupType.Raid => 8,
+            _ => -1
+        };
+        public static string FriendlyName(this GroupType groupType) => groupType switch
+        {
+            GroupType.Solo => Localize("Solo", "Solo"),
+            GroupType.Group => Localize("Group", "Group"),
+            GroupType.Raid => Localize("FullGroup", "Full Group"),
+            _ => Localize("undefined", "undefined")
 
-            return slot switch
-            {
-                GearSetSlot.MainHand => Localize("Weapon", "Weapon"),
-                GearSetSlot.OffHand => Localize("Shield", "Shield"),
-                GearSetSlot.Head => Localize("Head", "Head"),
-                GearSetSlot.Body => Localize("Body", "Body"),
-                GearSetSlot.Hands => Localize("Gloves", "Gloves"),
-                GearSetSlot.Waist => Localize("NoBelts", "There no longer are belts you fuckwit"),
-                GearSetSlot.Legs => Localize("Trousers", "Trousers"),
-                GearSetSlot.Feet => Localize("Shoes", "Shoes"),
-                GearSetSlot.Ear => Localize("Earrings", "Earrings"),
-                GearSetSlot.Neck => Localize("Necklace", "Necklace"),
-                GearSetSlot.Wrist => Localize("Bracelet", "Bracelet"),
-                GearSetSlot.Ring1 => Localize("Ring", "Ring"),
-                GearSetSlot.Ring2 => Localize("Ring", "Ring"),
-                GearSetSlot.SoulCrystal => Localize("Soul Crystal", "Soul Crystal"),
-                _ => Localize("undefined", "undefined")
+        };
+        public static string FriendlyName(this GearSetSlot slot) => slot switch
+        {
+            GearSetSlot.MainHand => Localize("Weapon", "Weapon"),
+            GearSetSlot.OffHand => Localize("Shield", "Shield"),
+            GearSetSlot.Head => Localize("Head", "Head"),
+            GearSetSlot.Body => Localize("Body", "Body"),
+            GearSetSlot.Hands => Localize("Gloves", "Gloves"),
+            GearSetSlot.Waist => Localize("NoBelts", "There no longer are belts you fuckwit"),
+            GearSetSlot.Legs => Localize("Trousers", "Trousers"),
+            GearSetSlot.Feet => Localize("Shoes", "Shoes"),
+            GearSetSlot.Ear => Localize("Earrings", "Earrings"),
+            GearSetSlot.Neck => Localize("Necklace", "Necklace"),
+            GearSetSlot.Wrist => Localize("Bracelet", "Bracelet"),
+            GearSetSlot.Ring1 => Localize("Ring", "Ring"),
+            GearSetSlot.Ring2 => Localize("Ring", "Ring"),
+            GearSetSlot.SoulCrystal => Localize("Soul Crystal", "Soul Crystal"),
+            _ => Localize("undefined", "undefined")
 
-            };
-        }
+        };
         public static string FriendlyName(this GearSource source) => source switch
         {
             GearSource.Raid => Localize("Raid", "Raid"),
