@@ -4,11 +4,12 @@
     {
         public PlayableClass(AvailableClasses ClassNameArg)
         {
-            this.ClassType = ClassNameArg;
+            ClassType = ClassNameArg;
         }
         public AvailableClasses ClassType;
         public GearSet Gear = new();
-        public GearSet BIS = new();
+        public GearSet BIS = new(GearSetManager.Etro);
+        public GearSet AltBIS = new(GearSetManager.Etro);
 
         public bool Equals(PlayableClass? other)
         {
