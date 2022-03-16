@@ -51,8 +51,11 @@ namespace HimbeertoniRaidTool.UI
 
         public void Dispose()
         {
-            Task.Wait(1000);
-            Task.Dispose();
+            if (Task is not null && Task.Status != TaskStatus.Created)
+            {
+                Task.Wait(1000);
+                Task.Dispose();
+            }
         }
     }
 }
