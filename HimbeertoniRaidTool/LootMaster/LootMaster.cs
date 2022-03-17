@@ -7,7 +7,7 @@ namespace HimbeertoniRaidTool.LootMaster
     {
         internal static readonly LootmasterUI Ui = new();
         internal static List<RaidGroup> RaidGroups => HRTPlugin.Configuration.RaidGroups;
-        static LootMaster()
+        internal static void Init()
         {
             if (RaidGroups.Count == 0)
                 RaidGroups.Add(new("Solo", GroupType.Solo));

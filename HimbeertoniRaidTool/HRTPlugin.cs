@@ -62,6 +62,7 @@ namespace HimbeertoniRaidTool
             //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
+            LootMaster.LootMaster.Init();
             OptionsUi = new();
         }
         private void OnLanguageChanged(string langCode)
