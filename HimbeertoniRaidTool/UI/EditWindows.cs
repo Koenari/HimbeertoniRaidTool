@@ -73,7 +73,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.InputText(Localize("BIS", "BIS"), ref PlayerCopy.MainChar.MainClass.BIS.EtroID, 100);
                 ImGui.SameLine();
                 if (ImGui.Button(Localize("Default", "Default") + "##BIS"))
-                    PlayerCopy.BIS.EtroID = HRTPlugin.Configuration.DefaultBIS[Player.MainChar.MainClass.ClassType];
+                    PlayerCopy.BIS.EtroID = HRTPlugin.Configuration.DefaultBIS[PlayerCopy.MainChar.MainClass.ClassType];
                 ImGui.SameLine();
                 if (ImGui.Button(Localize("Reset", "Reset") + "##BIS"))
                     PlayerCopy.MainChar.MainClass.BIS.EtroID = "";
