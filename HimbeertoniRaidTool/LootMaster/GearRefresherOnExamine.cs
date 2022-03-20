@@ -5,7 +5,6 @@ using HimbeertoniRaidTool.Data;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using static HimbeertoniRaidTool.Helper;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -50,20 +49,21 @@ namespace HimbeertoniRaidTool.LootMaster
         private static void GetItemInfos()
         {
             List<Character> chars = new();
+            if (Helper.Target is null)
+                return;
+            string name = Helper.Target!.Name.TextValue;
+            AvailableClasses targetClass = Helper.Target!.GetClass();
             foreach (RaidGroup g in LootMaster.RaidGroups)
             {
-                Character? c = g.GetCharacter(Target!.Name.TextValue);
+                Character? c = g.GetCharacter(name);
                 if (c is not null)
                     chars.Add(c);
             }
             if (chars.Count == 0)
                 return;
-            AvailableClasses? availableClass = TargetClass;
-            if (availableClass is null)
-                return;
             List<GearSet> setsToFill = new();
             foreach (Character c in chars)
-                setsToFill.Add(c.GetClass((AvailableClasses)availableClass).Gear);
+                setsToFill.Add(c.GetClass(targetClass).Gear);
 
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
             if (container == null)

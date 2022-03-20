@@ -24,7 +24,7 @@ namespace HimbeertoniRaidTool.UI
             if (!Player.Filled && Helper.Target is not null)
             {
                 PlayerCopy.MainChar.Name = Helper.Target.Name.TextValue;
-                PlayerCopy.MainChar.MainClassType = Helper.TargetClass!;
+                PlayerCopy.MainChar.MainClassType = Helper.Target.GetClass();
             }
             else if (Player.Filled)
             {

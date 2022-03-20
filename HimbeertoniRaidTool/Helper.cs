@@ -8,7 +8,9 @@ namespace HimbeertoniRaidTool
     public static class Helper
     {
         public static Dalamud.Game.ClientState.Objects.Types.Character? Target => (Dalamud.Game.ClientState.Objects.Types.Character?)Services.TargetManager.Target;
-        public static AvailableClasses TargetClass => Enum.Parse<AvailableClasses>(Target!.ClassJob.GameData!.Abbreviation.RawString, true);
+        public static AvailableClasses GetClass(this Dalamud.Game.ClientState.Objects.Types.Character target) =>
+            Enum.Parse<AvailableClasses>(target.ClassJob.GameData!.Abbreviation.RawString, true);
+        public static Dalamud.Game.ClientState.Objects.SubKinds.PlayerCharacter? Self => Services.ClientState.LocalPlayer;
     }
     public static class HRTExtensions
     {
