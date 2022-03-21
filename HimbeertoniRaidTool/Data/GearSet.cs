@@ -58,6 +58,12 @@ namespace HimbeertoniRaidTool.Data
             get => Items[ToIndex(slot)];
             set => Items[ToIndex(slot)] = value;
         }
+        public int GetStat(StatType type)
+        {
+            int result = 0;
+            Array.ForEach(Items, x => result += x.GetStat(type));
+            return result;
+        }
         private static int ToIndex(GearSetSlot slot)
         {
             return slot switch

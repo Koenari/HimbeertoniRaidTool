@@ -4,46 +4,66 @@ using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using static HimbeertoniRaidTool.Services;
 
 namespace HimbeertoniRaidTool.Data
 {
-    public class GearItem
+    public class GearItem : HrtItem
     {
         private static KeyContainsDictionary<GearSource> SourceDic => CuratedData.GearSourceDictionary;
         private GearSetSlot? SlotOverride => CuratedData.SlotOverrideDB.ContainsKey(_ID) ? CuratedData.SlotOverrideDB.GetValueOrDefault(_ID) : null;
-        private uint _ID;
-        public uint ID { get => _ID; set { _ID = value; UpdateStats(); } }
-        [JsonIgnore]
-        public TextureWrap? Icon => DataManager.GetImGuiTexture(DataManager.GetIcon(Item.Icon));
-        [JsonIgnore]
-        public Item Item { get; private set; } = new();
-        [JsonIgnore]
-        public string Name => (Item.Name ?? new("")).RawString;
-        [JsonIgnore]
-        public uint ItemLevel => (Item.LevelItem is null) ? 0 : Item.LevelItem.Row;
-        [JsonIgnore]
-        public GearSource Source { get; private set; } = GearSource.undefined;
-        [JsonIgnore]
-        public bool Filled => Name.Length > 0;
-        [JsonIgnore]
-        public bool Valid => ID > 0;
         [JsonIgnore]
         public GearSetSlot Slot => SlotOverride ?? (Item.EquipSlotCategory.Value?.ToSlot()) ?? GearSetSlot.None;
-        private static ExcelSheet<Item> Sheet => DataManager.Excel.GetSheet<Item>()!;
+        [JsonIgnore]
+        public GearSource Source => _ID > 0 ? SourceDic.GetValueOrDefault(Name, GearSource.undefined) : GearSource.undefined;
 
-        public GearItem() : this(0) { }
+        public List<Materia> Materia = new();
 
-        public GearItem(uint idArg) => ID = idArg;
-
-        private void UpdateStats()
+        public int GetStat(StatType type)
         {
-            if (_ID > 0)
+            if (_ID == 0 || Item.Name is null) return 0;
+            switch (type)
             {
-                Item = Sheet.GetRow(_ID) ?? (new Item());
-                Source = SourceDic.GetValueOrDefault(Name, GearSource.undefined);
+                case StatType.PhysicalDamage: return Item.DamagePhys;
+                case StatType.MagicalDamage: return Item.DamageMag;
+                case StatType.Defense: return Item.DefensePhys;
+                case StatType.MagicDefense: return Item.DefenseMag;
             }
+            if (Item?.UnkData59 is null)
+                return 0;
+            foreach (Item.ItemUnkData59Obj param in Item.UnkData59)
+            {
+                if (param.BaseParam == (ushort)type)
+                    return param.BaseParamValue;
+            }
+            return 0;
         }
+        public GearItem() : base() { }
+        public GearItem(uint id) : base(id) { }
+    }
+    public class HrtItem
+    {
+        protected uint _ID;
+        public uint ID { get => _ID; set { _ID = value; } }
+        [JsonIgnore]
+        public TextureWrap? Icon => Services.DataManager.GetImGuiTextureIcon(Item.Icon);
+        [JsonIgnore]
+        public Item Item => Sheet.GetRow(_ID) ?? new Item();
+        [JsonIgnore]
+        public string Name => _ID > 0 ? Item.Name.RawString : "";
+        [JsonIgnore]
+        public uint ItemLevel => (Item.LevelItem is null) ? 0 : Item.LevelItem.Row;
+
+        [JsonIgnore]
+        public bool Filled => _ID > 0 && Name.Length > 0;
+        [JsonIgnore]
+        public bool Valid => ID > 0;
+
+        protected static ExcelSheet<Item> Sheet => Services.DataManager.Excel.GetSheet<Item>()!;
+
+        public HrtItem() : this(0) { }
+
+        public HrtItem(uint idArg) => ID = idArg;
+
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj)) return true;
@@ -54,6 +74,15 @@ namespace HimbeertoniRaidTool.Data
         }
         public override int GetHashCode() => _ID.GetHashCode();
     }
+
+    public class Materia : HrtItem
+    {
+
+        public Materia() : this(0) { }
+
+        public Materia(uint idArg) : base(idArg) { }
+    }
+
     [SuppressMessage("Style", "IDE0060:Nicht verwendete Parameter entfernen", Justification = "Override all constructors for safety")]
     public class KeyContainsDictionary<TValue> : Dictionary<string, TValue>
     {
