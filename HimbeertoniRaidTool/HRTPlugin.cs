@@ -10,6 +10,7 @@ using Dalamud.Plugin;
 using HimbeertoniRaidTool.UI;
 using System;
 using System.Collections.Generic;
+using XivCommon;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool
@@ -27,6 +28,9 @@ namespace HimbeertoniRaidTool
         [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
         [PluginService] public static ClientState ClientState { get; private set; }
         [PluginService] public static Framework Framework { get; private set; }
+        public static XivCommonBase XivCommonBase { get; private set; } = new XivCommonBase();
+
+
     }
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
@@ -90,6 +94,7 @@ namespace HimbeertoniRaidTool
             Commands.ForEach(command => Services.CommandManager.RemoveHandler(command.Item1));
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
             LootMaster.LootMaster.Dispose();
+            Services.XivCommonBase.Dispose();
         }
         private void OnCommand(string command, string args)
         {
