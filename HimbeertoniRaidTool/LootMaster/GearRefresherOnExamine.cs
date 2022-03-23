@@ -53,6 +53,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 return;
             string name = Helper.Target!.Name.TextValue;
             AvailableClasses targetClass = Helper.Target!.GetClass();
+            int level = Helper.Target!.Level;
             foreach (RaidGroup g in LootMaster.RaidGroups)
             {
                 Character? c = g.GetCharacter(name);
@@ -63,7 +64,11 @@ namespace HimbeertoniRaidTool.LootMaster
                 return;
             List<GearSet> setsToFill = new();
             foreach (Character c in chars)
-                setsToFill.Add(c.GetClass(targetClass).Gear);
+            {
+                PlayableClass playableClass = c.GetClass(targetClass);
+                playableClass.Level = level;
+                setsToFill.Add(playableClass.Gear);
+            }
 
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
             if (container == null)

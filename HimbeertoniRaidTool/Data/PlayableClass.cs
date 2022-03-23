@@ -7,6 +7,7 @@
             ClassType = ClassNameArg;
         }
         public AvailableClasses ClassType;
+        public int Level;
         public GearSet Gear = new();
         public GearSet BIS = new(GearSetManager.Etro);
         public GearSet AltBIS = new(GearSetManager.Etro);
