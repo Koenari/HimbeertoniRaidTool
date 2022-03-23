@@ -187,6 +187,17 @@ namespace HimbeertoniRaidTool.Data
     }
     public static class EnumExtensions
     {
+        public static string FriendlyName(this StatType t) => t switch
+        {
+            StatType.PhysicalDamage => "Physical Damage",
+            StatType.MagicalDamage => "Magical Damage",
+            StatType.CriticalHit => "Critical Hit",
+            StatType.DirectHitRate => "Direct Hit",
+            StatType.SkillSpeed => "Skill Speed",
+            StatType.SpellSpeed => "Spell Speed",
+            StatType.MagicDefense => "Magic Defense",
+            _ => t.ToString(),
+        };
         public static Role GetRole(this AvailableClasses c) => c switch
         {
             AvailableClasses.AST => Role.Healer,

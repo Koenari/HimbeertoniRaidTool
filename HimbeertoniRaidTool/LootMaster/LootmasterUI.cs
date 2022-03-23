@@ -1,4 +1,5 @@
 ﻿using ColorHelper;
+using Dalamud.Interface;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
@@ -31,7 +32,8 @@ namespace HimbeertoniRaidTool.LootMaster
             UpdateChildren();
             if (!Visible)
                 return;
-
+            if (!Services.ClientState.IsLoggedIn)
+                return;
             DrawMainWindow();
         }
         public static HSV ILevelColor(GearItem item)
@@ -70,6 +72,99 @@ namespace HimbeertoniRaidTool.LootMaster
                 t.DrawResult();
             }
         }
+        private void DrawDetailedPlayer(Player p)
+        {
+            ImGui.BeginChild("SoloView");
+            ImGui.Columns(3);
+            ImGui.BeginChild("CharOVerview");
+            ImGui.Text(p.NickName);
+            ImGui.TextWrapped(p.NickName);
+            ImGui.EndChild();
+
+            ImGui.NextColumn();
+            {
+                var playerRole = p.MainChar.MainClass.ClassType.GetRole();
+                var mainStat = p.MainChar.MainClass.ClassType.MainStat();
+                var weaponStat = (p.MainChar.MainClassType.GetRole() == Role.Healer || p.MainChar.MainClassType.GetRole() == Role.Caster) ?
+                    StatType.MagicalDamage : StatType.PhysicalDamage;
+                ImGui.TextColored(Vec4(ColorName.RedCrayola.ToRgb()),
+                    Localize("StatsUnfinished", "Stats are under development and only summarize values on gear atm (no materia)"));
+
+                ImGui.BeginTable("MainStats", 3, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
+                ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
+                ImGui.TableSetupColumn(Localize("Value", "Value"));
+                ImGui.TableSetupColumn("");
+                ImGui.TableHeadersRow();
+                DrawStatRow(p.Gear, weaponStat);
+                DrawStatRow(p.Gear, mainStat);
+                DrawStatRow(p.Gear, StatType.Defense);
+                DrawStatRow(p.Gear, StatType.MagicDefense);
+                ImGui.EndTable();
+                ImGui.BeginTable("SecondaryStats", 3, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
+                ImGui.TableSetupColumn(Localize("SecondaryStats", "Secondary Stats"));
+                ImGui.TableSetupColumn(Localize("Value", "Value"));
+                ImGui.TableSetupColumn("");
+                ImGui.TableHeadersRow();
+                DrawStatRow(p.Gear, StatType.CriticalHit);
+                DrawStatRow(p.Gear, StatType.Determination);
+                DrawStatRow(p.Gear, StatType.DirectHitRate);
+                if (playerRole == Role.Healer || playerRole == Role.Caster)
+                {
+                    DrawStatRow(p.Gear, StatType.SpellSpeed);
+                    if (playerRole == Role.Healer)
+                        DrawStatRow(p.Gear, StatType.Piety);
+                    //Thease two are Magic to me -> Need Allagan Studies
+                    //DrawStatRow(p.Gear, StatType.AttackMagicPotency);
+                    //if (playerRole == Role.Healer)
+                    //    DrawStatRow(p.Gear, StatType.HealingMagicPotency);
+                }
+                else
+                {
+                    DrawStatRow(p.Gear, StatType.SkillSpeed);
+                    //DrawStatRow(p.Gear, StatType.AttackPower);
+                    if (playerRole == Role.Tank)
+                    {
+                        DrawStatRow(p.Gear, StatType.Tenacity);
+                    }
+                }
+                ImGui.EndTable();
+                ImGui.NewLine();
+                void DrawStatRow(GearSet gear, StatType type)
+                {
+                    ImGui.TableNextColumn();
+                    ImGui.Text(Localize(type.ToString(), type.FriendlyName()));
+                    ImGui.TableNextColumn();
+                    ImGui.Text(Stat().ToString());
+                    ImGui.TableNextColumn();
+                    float evaluatedStat = AllaganLibraryMock.EvaluateStat(type, Stat());
+                    if (!float.IsNaN(evaluatedStat))
+                        ImGui.Text(evaluatedStat.ToString());
+                    else
+                        ImGui.Text("n.A.");
+
+                    int Stat() => gear.GetStat(type) + AllaganLibraryMock.GetBaseStatAt90(type);
+                }
+            }
+            ImGui.NextColumn();
+            ImGui.BeginTable("SoloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
+            ImGui.TableSetupColumn("Gear");
+            ImGui.TableSetupColumn("Gear");
+            ImGui.TableHeadersRow();
+            DrawItem(p.Gear.MainHand, p.BIS.MainHand);
+            DrawItem(p.Gear.OffHand, p.BIS.OffHand);
+            DrawItem(p.Gear.Head, p.BIS.Head);
+            DrawItem(p.Gear.Ear, p.BIS.Ear);
+            DrawItem(p.Gear.Body, p.BIS.Body);
+            DrawItem(p.Gear.Neck, p.BIS.Neck);
+            DrawItem(p.Gear.Hands, p.BIS.Hands);
+            DrawItem(p.Gear.Wrist, p.BIS.Wrist);
+            DrawItem(p.Gear.Legs, p.BIS.Legs);
+            DrawItem(p.Gear.Ring1, p.BIS.Ring1);
+            DrawItem(p.Gear.Feet, p.BIS.Feet);
+            DrawItem(p.Gear.Ring2, p.BIS.Ring2);
+            ImGui.EndTable();
+            ImGui.EndChild();
+        }
         private void DrawMainWindow()
         {
             if (_CurrenGroupIndex > LootMaster.RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
@@ -83,11 +178,14 @@ namespace HimbeertoniRaidTool.LootMaster
                 DrawRaidGroupSwitchBar();
                 if (CurrentGroup.Type == GroupType.Solo)
                 {
-                    ImGui.Text("SoloView");
+                    Player p = CurrentGroup.Tank1;
+                    if (p.MainChar.Name.Equals(Helper.Target?.Name.TextValue ?? ""))
+                        p.MainChar.MainClassType = Helper.Target!.GetClass();
+                    DrawDetailedPlayer(p);
                 }
-
+                else if (CurrentGroup.Type == GroupType.Raid || CurrentGroup.Type == GroupType.Group) //|| CurrentGroup.Type == GroupType.Group)
                 {
-                    if (ImGui.BeginTable(Localize("RaidGroup", "RaidGroup"), 14,
+                    if (ImGui.BeginTable("RaidGroup", 14,
                     ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingStretchProp))
                     {
                         ImGui.TableSetupColumn(Localize("Player", "Player"));
@@ -111,6 +209,10 @@ namespace HimbeertoniRaidTool.LootMaster
                         }
                         ImGui.EndTable();
                     }
+                }
+                else
+                {
+                    ImGui.TextColored(Vec4(ColorName.Red.ToRgb()), $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
                 }
             }
             ImGui.End();
@@ -163,38 +265,6 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             ImGui.EndTabBar();
         }
-
-        private void DrawLootHandlerButtons()
-        {
-            if (ImGui.Button(Localize("Loot Boss 1 (Erichthonios)", "Loot Boss 1 (Erichthonios)")))
-            {
-                LootUi lui = new(CuratedData.AsphodelosSavage, 1, CurrentGroup);
-                Childs.Add(lui);
-                lui.Show();
-            }
-            ImGui.SameLine();
-            if (ImGui.Button(Localize("Loot Boss 2 (Hippokampos)", "Loot Boss 2 (Hippokampos)")))
-            {
-                LootUi lui = new(CuratedData.AsphodelosSavage, 2, CurrentGroup);
-                Childs.Add(lui);
-                lui.Show();
-            }
-            ImGui.SameLine();
-            if (ImGui.Button(Localize("Loot Boss 3 (Phoinix)", "Loot Boss 3 (Phoinix)")))
-            {
-                LootUi lui = new(CuratedData.AsphodelosSavage, 3, CurrentGroup);
-                Childs.Add(lui);
-                lui.Show();
-            }
-            ImGui.SameLine();
-            if (ImGui.Button(Localize("Loot Boss 4 (Hesperos)", "Loot Boss 4 (Hesperos)")))
-            {
-                LootUi lui = new(CuratedData.AsphodelosSavage, 4, CurrentGroup);
-                Childs.Add(lui);
-                lui.Show();
-
-            }
-        }
         private static void DrawItemTooltip(GearItem item)
         {
             ImGui.BeginTooltip();
@@ -244,12 +314,27 @@ namespace HimbeertoniRaidTool.LootMaster
                 DrawItem(gear.Ring2, bis.Ring2);
                 ImGui.TableNextColumn();
                 ImGui.NewLine();
+                ImGui.PushFont(UiBuilder.IconFont);
+                //TODO: Look at all nearby GameObjects
+                bool inspectPossible = Helper.Self is not null && player.MainChar.Name.Equals(Helper.Self!.Name.TextValue);
+                if (!inspectPossible)
+                    ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.5f);
+                if (ImGui.Button($"{FontAwesomeIcon.Search.ToIconString()}##{player.Pos}"))
+                {
+                    if (inspectPossible)
+                        Services.XivCommonBase.Functions.Examine.OpenExamineWindow(Services.ClientState.LocalPlayer!);
+                }
+                if (!inspectPossible)
+                    ImGui.PopStyleVar();
+                ImGui.SameLine();
                 EditPlayerButton();
                 ImGui.SameLine();
-                if (ImGui.Button($"x##{player.Pos}"))
+
+                if (ImGui.Button($"{FontAwesomeIcon.WindowClose.ToIconString()}##{player.Pos}"))
                 {
                     player.Reset();
                 }
+                ImGui.PopFont();
             }
             else
             {
@@ -266,52 +351,54 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             void EditPlayerButton()
             {
-                if (ImGui.Button($"{(PlayerExists ? Localize("Edit", "Edit") : Localize("Add", "Add"))}##{player.Pos}"))
+                ImGui.PushFont(UiBuilder.IconFont);
+                if (ImGui.Button($"{(PlayerExists ? FontAwesomeIcon.Edit.ToIconString() : FontAwesomeIcon.Plus.ToIconString())}##{player.Pos}"))
                 {
                     if (Childs.Exists(x => (x.GetType() == typeof(EditPlayerWindow)) && ((EditPlayerWindow)x).Pos == player.Pos))
                         return;
-                    AsyncTaskWithUiResult result;
-                    Childs.Add(new EditPlayerWindow(out result, CurrentGroup, player.Pos));
+                    Childs.Add(new EditPlayerWindow(out AsyncTaskWithUiResult result, CurrentGroup, player.Pos));
                     Tasks.Add(result);
                 }
+                ImGui.PopFont();
             }
-            void DrawItem(GearItem item, GearItem bis)
+        }
+        private void DrawItem(GearItem item, GearItem bis)
+        {
+            ImGui.TableNextColumn();
+            if (item.Valid && bis.Valid && item.Equals(bis))
             {
-                ImGui.TableNextColumn();
-                if (item.Valid && bis.Valid && item.Equals(bis))
+                ImGui.NewLine();
+                ImGui.TextColored(
+                        Vec4(ILevelColor(item).Saturation(0.8f).Value(0.85f), 1f),
+                        $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
+                if (ImGui.IsItemHovered())
+                    DrawItemTooltip(item);
+                ImGui.NewLine();
+                //if (ImGui.IsItemClicked()) Childs.Add(new ShowItemWindow(item));
+            }
+            else
+            {
+                if (item.Valid)
                 {
-                    ImGui.NewLine();
                     ImGui.TextColored(
-                            Vec4(ILevelColor(item).Saturation(0.8f).Value(0.85f), 1f),
-                            $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
+                        Vec4(ILevelColor(item).Saturation(0.8f).Value(0.85f), 1f),
+                        $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
                     if (ImGui.IsItemHovered())
                         DrawItemTooltip(item);
                     //if (ImGui.IsItemClicked()) Childs.Add(new ShowItemWindow(item));
                 }
                 else
+                    ImGui.Text(Localize("Empty", "Empty"));
+                ImGui.NewLine();
+                if (bis.Valid)
                 {
-                    if (item.Valid)
-                    {
-                        ImGui.TextColored(
-                            Vec4(ILevelColor(item).Saturation(0.8f).Value(0.85f), 1f),
-                            $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
-                        if (ImGui.IsItemHovered())
-                            DrawItemTooltip(item);
-                        //if (ImGui.IsItemClicked()) Childs.Add(new ShowItemWindow(item));
-                    }
-                    else
-                        ImGui.Text(Localize("Empty", "Empty"));
-                    ImGui.NewLine();
-                    if (bis.Valid)
-                    {
-                        ImGui.Text($"{bis.ItemLevel} {bis.Source} {bis.Slot.FriendlyName()}");
-                        if (ImGui.IsItemHovered())
-                            DrawItemTooltip(bis);
-                        //if (ImGui.IsItemClicked()) Childs.Add(new ShowItemWindow(bis));
-                    }
-                    else
-                        ImGui.Text(Localize("Empty", "Empty"));
+                    ImGui.Text($"{bis.ItemLevel} {bis.Source} {bis.Slot.FriendlyName()}");
+                    if (ImGui.IsItemHovered())
+                        DrawItemTooltip(bis);
+                    //if (ImGui.IsItemClicked()) Childs.Add(new ShowItemWindow(bis));
                 }
+                else
+                    ImGui.Text(Localize("Empty", "Empty"));
             }
         }
 
