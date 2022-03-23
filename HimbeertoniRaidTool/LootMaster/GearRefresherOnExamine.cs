@@ -49,11 +49,12 @@ namespace HimbeertoniRaidTool.LootMaster
         private static void GetItemInfos()
         {
             List<Character> chars = new();
-            if (Helper.Target is null)
+            var target = Helper.Target;
+            if (target is null)
                 return;
-            string name = Helper.Target!.Name.TextValue;
-            AvailableClasses targetClass = Helper.Target!.GetClass();
-            int level = Helper.Target!.Level;
+            string name = target.Name.TextValue;
+            AvailableClasses targetClass = target.GetClass();
+            int level = target.Level;
             foreach (RaidGroup g in LootMaster.RaidGroups)
             {
                 Character? c = g.GetCharacter(name);
@@ -73,15 +74,15 @@ namespace HimbeertoniRaidTool.LootMaster
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
             if (container == null)
                 return;
-            setsToFill.ForEach((x) => x.Clear());
+            setsToFill.ForEach(x => x.Clear());
             for (int i = 0; i < 13; i++)
             {
-                if (i == ((int)GearSetSlot.Waist))
+                if (i == (int)GearSetSlot.Waist)
                     continue;
                 InventoryItem* slot = _getContainerSlot(container, i);
                 if (slot->ItemID == 0)
                     continue;
-                setsToFill.ForEach((set) => set[(GearSetSlot)i] = new(slot->ItemID));
+                setsToFill.ForEach(set => set[(GearSetSlot)i] = new(slot->ItemID));
             }
         }
         public static void Dispose()
