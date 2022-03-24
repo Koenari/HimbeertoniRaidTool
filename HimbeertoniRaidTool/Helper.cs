@@ -1,4 +1,5 @@
-﻿using HimbeertoniRaidTool.Data;
+﻿using ColorHelper;
+using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 using System;
 using System.Numerics;
@@ -7,10 +8,33 @@ namespace HimbeertoniRaidTool
 {
     public static class Helper
     {
-        public static Dalamud.Game.ClientState.Objects.Types.Character? Target => (Dalamud.Game.ClientState.Objects.Types.Character?)Services.TargetManager.Target;
+        public static Dalamud.Game.ClientState.Objects.Types.Character? TargetChar
+        {
+            get
+            {
+                var _targetCopy = Services.TargetManager.Target;
+                if (_targetCopy == null)
+                    return null;
+                else if (!_targetCopy.GetType().IsAssignableTo(typeof(Dalamud.Game.ClientState.Objects.Types.Character)))
+                    return null;
+                return (Dalamud.Game.ClientState.Objects.Types.Character)_targetCopy;
+            }
+        }
         public static AvailableClasses GetClass(this Dalamud.Game.ClientState.Objects.Types.Character target) =>
-            Enum.Parse<AvailableClasses>(target.ClassJob.GameData!.Abbreviation.RawString, true);
+            Enum.Parse<AvailableClasses>(target.ClassJob.GameData?.Abbreviation.RawString, true);
         public static Dalamud.Game.ClientState.Objects.SubKinds.PlayerCharacter? Self => Services.ClientState.LocalPlayer;
+        public static HSV ILevelColor(GearItem item, uint maxItemLevel = 0)
+        {
+            uint currentMaxILevel = maxItemLevel > 0 ? maxItemLevel : CuratedData.CurrentRaidSavage.ArmorItemLevel;
+            if (item.ItemLevel >= currentMaxILevel)
+                return ColorName.Green.ToHsv();
+            else if (item.ItemLevel >= currentMaxILevel - 10)
+                return ColorName.Aquamarine.ToHsv();
+            else if (item.ItemLevel >= currentMaxILevel - 20)
+                return ColorName.Yellow.ToHsv();
+            else
+                return ColorName.Red.ToHsv();
+        }
     }
     public static class HRTExtensions
     {

@@ -21,10 +21,10 @@ namespace HimbeertoniRaidTool.UI
             callBack = CallBack = new();
             Player = group[pos];
             PlayerCopy = new();
-            if (!Player.Filled && Helper.Target is not null)
+            if (!Player.Filled && Helper.TargetChar is not null)
             {
-                PlayerCopy.MainChar.Name = Helper.Target.Name.TextValue;
-                PlayerCopy.MainChar.MainClassType = Helper.Target.GetClass();
+                PlayerCopy.MainChar.Name = Helper.TargetChar.Name.TextValue;
+                PlayerCopy.MainChar.MainClassType = Helper.TargetChar.GetClass();
             }
             else if (Player.Filled)
             {
@@ -52,14 +52,14 @@ namespace HimbeertoniRaidTool.UI
                 }
 
                 AvailableClasses? curClass = null;
-                if (PlayerCopy.MainChar.Name.Equals(Helper.Target?.Name.TextValue))
+                if (PlayerCopy.MainChar.Name.Equals(Helper.TargetChar?.Name.TextValue))
                 {
-                    if (Enum.TryParse(Helper.Target!.ClassJob.GameData!.Abbreviation, false, out AvailableClasses parsed))
+                    if (Enum.TryParse(Helper.TargetChar?.ClassJob.GameData?.Abbreviation ?? "", false, out AvailableClasses parsed))
                         curClass = parsed;
                 }
                 else if (PlayerCopy.MainChar.Name.Equals(Services.ClientState.LocalPlayer?.Name.TextValue))
                 {
-                    if (Enum.TryParse(Services.ClientState.LocalPlayer!.ClassJob.GameData!.Abbreviation, false, out AvailableClasses parsed))
+                    if (Enum.TryParse(Services.ClientState.LocalPlayer?.ClassJob.GameData?.Abbreviation ?? "", false, out AvailableClasses parsed))
                         curClass = parsed;
                 }
                 if (curClass is not null)
@@ -119,7 +119,7 @@ namespace HimbeertoniRaidTool.UI
 
                                 if (error.Length > 0)
                                     ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
-                                            $"BIS update for Chracter {Player.MainChar.Name} on classes ({error[0..^1]}) failedd");
+                                            $"BIS update for Chracter {Player.MainChar.Name} on classes ({error[0..^1]}) failed");
                             };
                         CallBack.Task = Task.Run(() => bisUpdates.ConvertAll((x) => (x.Item1, x.Item2.Invoke())));
                     }

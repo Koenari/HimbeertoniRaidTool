@@ -49,7 +49,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private static void GetItemInfos()
         {
             List<Character> chars = new();
-            var target = Helper.Target;
+            var target = Helper.TargetChar;
             if (target is null)
                 return;
             string name = target.Name.TextValue;
@@ -75,6 +75,7 @@ namespace HimbeertoniRaidTool.LootMaster
             if (container == null)
                 return;
             setsToFill.ForEach(x => x.Clear());
+            setsToFill.ForEach(x => x.TimeStamp = DateTime.UtcNow);
             for (int i = 0; i < 13; i++)
             {
                 if (i == (int)GearSetSlot.Waist)
