@@ -1,4 +1,6 @@
-﻿namespace HimbeertoniRaidTool.Data
+﻿using Newtonsoft.Json;
+
+namespace HimbeertoniRaidTool.Data
 {
     public class PlayableClass
     {
@@ -7,10 +9,13 @@
             ClassType = ClassNameArg;
         }
         public AvailableClasses ClassType;
-        public int Level;
-        public GearSet Gear = new();
+        public int Level = 0;
+        public GearSet Gear = new(GearSetManager.HRT);
         public GearSet BIS = new(GearSetManager.Etro);
-        public GearSet AltBIS = new(GearSetManager.Etro);
+
+        [JsonIgnore]
+        public bool IsEmpty => Level == 0 && Gear.IsEmpty && BIS.IsEmpty;
+
 
         public bool Equals(PlayableClass? other)
         {

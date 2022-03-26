@@ -24,6 +24,8 @@ namespace HimbeertoniRaidTool.Data
         public GearItem Ring2 { get => Items[10]; set => Items[10] = value; }
         public GearItem OffHand { get => Items[11]; set => Items[11] = value; }
         [JsonIgnore]
+        public bool IsEmpty => Array.TrueForAll(Items, x => x.ID == 0);
+        [JsonIgnore]
         public int ItemLevel
         {
             get
