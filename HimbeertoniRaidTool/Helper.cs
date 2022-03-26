@@ -1,4 +1,5 @@
 ﻿using ColorHelper;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 using System;
@@ -8,21 +9,37 @@ namespace HimbeertoniRaidTool
 {
     public static class Helper
     {
-        public static Dalamud.Game.ClientState.Objects.Types.Character? TargetChar
+        public static PlayerCharacter? TryGetChar(string name, Lumina.Excel.GeneratedSheets.World? w = null)
+        {
+            if (name == null)
+                return null;
+            if (name.Equals(TargetChar?.Name.TextValue))
+                if (w is null || TargetChar!.HomeWorld.GameData?.RowId == w.RowId)
+                    return TargetChar;
+            if (name.Equals(Self?.Name.TextValue))
+                if (w is null || Self!.HomeWorld.GameData?.RowId == w.RowId)
+                    return Self;
+            foreach (var obj in Services.ObjectTable)
+                if (obj.GetType().IsAssignableTo(typeof(PlayerCharacter)) && name.Equals(obj?.Name.TextValue))
+                    if (w is null || ((PlayerCharacter)obj).HomeWorld.GameData?.RowId == w.RowId)
+                        return (PlayerCharacter)obj;
+            return null;
+        }
+        public static PlayerCharacter? TargetChar
         {
             get
             {
                 var _targetCopy = Services.TargetManager.Target;
                 if (_targetCopy == null)
                     return null;
-                else if (!_targetCopy.GetType().IsAssignableTo(typeof(Dalamud.Game.ClientState.Objects.Types.Character)))
+                else if (!_targetCopy.GetType().IsAssignableTo(typeof(PlayerCharacter)))
                     return null;
-                return (Dalamud.Game.ClientState.Objects.Types.Character)_targetCopy;
+                return (PlayerCharacter)_targetCopy;
             }
         }
-        public static AvailableClasses GetClass(this Dalamud.Game.ClientState.Objects.Types.Character target) =>
-            Enum.Parse<AvailableClasses>(target.ClassJob.GameData?.Abbreviation.RawString, true);
-        public static Dalamud.Game.ClientState.Objects.SubKinds.PlayerCharacter? Self => Services.ClientState.LocalPlayer;
+        public static AvailableClasses GetClass(this PlayerCharacter target) =>
+            Enum.Parse<AvailableClasses>(target.ClassJob.GameData!.Abbreviation.RawString, true);
+        public static PlayerCharacter? Self => Services.ClientState.LocalPlayer;
         public static HSV ILevelColor(GearItem item, uint maxItemLevel = 0)
         {
             uint currentMaxILevel = maxItemLevel > 0 ? maxItemLevel : CuratedData.CurrentRaidSavage.ArmorItemLevel;
