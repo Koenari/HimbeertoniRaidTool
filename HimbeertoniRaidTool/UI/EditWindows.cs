@@ -11,13 +11,15 @@ namespace HimbeertoniRaidTool.UI
 {
     internal class EditPlayerWindow : HrtUI
     {
+        private readonly RaidGroup RaidGroup;
         private readonly Player Player;
         private readonly Player PlayerCopy;
         private readonly AsyncTaskWithUiResult CallBack;
         internal PositionInRaidGroup Pos => Player.Pos;
 
-        internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos) : base()
+        internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, bool openHidden = false) : base()
         {
+            RaidGroup = group;
             callBack = CallBack = new();
             Player = group[pos];
             PlayerCopy = new();
@@ -30,7 +32,8 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy = Player.Clone();
             }
-            Show();
+            if (!openHidden)
+                Show();
         }
 
         public override void Draw()
@@ -38,31 +41,29 @@ namespace HimbeertoniRaidTool.UI
             if (!Visible)
                 return;
             ImGui.SetNextWindowSize(new Vector2(500, 250), ImGuiCond.Always);
-            if (ImGui.Begin(Localize("Edit Player ", "Edit Player ") + Player.Pos,
+            if (ImGui.Begin($"{Localize("Edit Player ", "Edit Player ")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}",
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
                 | ImGuiWindowFlags.NoScrollWithMouse))
             {
                 ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
-                ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50);
+                if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50))
+                    PlayerCopy.MainChar.HomeWorld = null;
+                string world = PlayerCopy.MainChar.HomeWorld?.Name.RawString ?? "";
+                ImGui.InputText(Localize("HomeWorld", "Home World"), ref world, 50, ImGuiInputTextFlags.ReadOnly);
 
+                if (Helper.TryGetChar(PlayerCopy.MainChar.Name) is not null)
+                {
+                    ImGui.SameLine();
+                    if (ImGui.Button(Localize("Get", "Get")))
+                        PlayerCopy.MainChar.HomeWorld = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.HomeWorld.GameData;
+                    if (ImGui.IsItemHovered())
+                        ImGui.SetTooltip(Localize("WorksOnTargetrOnly", "You need to target the Character to retrieve world information."));
+                }
                 int mainClass = (int)PlayerCopy.MainChar.MainClassType;
                 if (ImGui.Combo(Localize("Main Class", "Main Class"), ref mainClass, Enum.GetNames(typeof(AvailableClasses)), Enum.GetNames(typeof(AvailableClasses)).Length))
-                {
                     PlayerCopy.MainChar.MainClassType = (AvailableClasses)mainClass;
-                }
-
-                AvailableClasses? curClass = null;
-                if (PlayerCopy.MainChar.Name.Equals(Helper.TargetChar?.Name.TextValue))
-                {
-                    if (Enum.TryParse(Helper.TargetChar?.ClassJob.GameData?.Abbreviation ?? "", false, out AvailableClasses parsed))
-                        curClass = parsed;
-                }
-                else if (PlayerCopy.MainChar.Name.Equals(Services.ClientState.LocalPlayer?.Name.TextValue))
-                {
-                    if (Enum.TryParse(Services.ClientState.LocalPlayer?.ClassJob.GameData?.Abbreviation ?? "", false, out AvailableClasses parsed))
-                        curClass = parsed;
-                }
-                if (curClass is not null)
+                AvailableClasses? curClass = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.GetClass();
+                if (curClass is not null && curClass != PlayerCopy.MainChar.MainClassType)
                 {
                     ImGui.SameLine();
                     if (ImGui.Button(Localize("Current", "Current")))
@@ -82,6 +83,7 @@ namespace HimbeertoniRaidTool.UI
                     List<(AvailableClasses, Func<bool>)> bisUpdates = new();
                     Player.NickName = PlayerCopy.NickName;
                     Player.MainChar.Name = PlayerCopy.MainChar.Name;
+                    Player.MainChar.HomeWorld = PlayerCopy.MainChar.HomeWorld;
                     Player.MainChar.MainClassType = PlayerCopy.MainChar.MainClassType;
                     foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
                     {
@@ -130,6 +132,15 @@ namespace HimbeertoniRaidTool.UI
                     Hide();
             }
             ImGui.End();
+        }
+        public bool Equals(EditPlayerWindow other)
+        {
+            if (!RaidGroup.Equals(other.RaidGroup))
+                return false;
+            if (Pos != other.Pos)
+                return false;
+
+            return true;
         }
     }
 
