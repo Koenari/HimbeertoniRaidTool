@@ -3,6 +3,7 @@ using ImGuiNET;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
@@ -35,7 +36,11 @@ namespace HimbeertoniRaidTool.UI
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))
             {
                 ImGui.BeginTabBar("Menu");
-                if (ImGui.BeginTabItem("BIS"))
+                if (ImGui.BeginTabItem(Localize("Genaral", "Genaral")))
+                {
+                    ImGui.Checkbox(Localize("Open Lootmaster on startup", "Open Lootmaster on startup"), ref HRTPlugin.Configuration.OpenLootMasterOnStartup);
+                }
+                if (ImGui.BeginTabItem("BiS"))
                 {
                     if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
                     {
@@ -60,7 +65,7 @@ namespace HimbeertoniRaidTool.UI
                 {
                     HRTPlugin.Configuration.LootRuling.RuleSet = LootList.List;
                     HRTPlugin.Configuration.Save();
-                    this.Hide();
+                    Hide();
                 }
                 ImGui.EndTabBar();
             }

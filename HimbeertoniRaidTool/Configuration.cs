@@ -14,7 +14,7 @@ namespace HimbeertoniRaidTool
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
         private readonly int TargetVersion = 2;
-        public int Version { get; set; } = 1;
+        public int Version { get; set; } = 2;
         public Dictionary<AvailableClasses, string> DefaultBIS { get; set; } = new Dictionary<AvailableClasses, string>
         {
             { AST, "88647808-8a28-477b-b285-687bdcbff2d4" },
@@ -40,10 +40,11 @@ namespace HimbeertoniRaidTool
         };
         public LootRuling LootRuling { get; set; } = new();
 
-        public RaidGroup? GroupInfo;
+        public RaidGroup? GroupInfo = null;
 
         public List<RaidGroup> RaidGroups = new();
-
+        public bool OpenLootMasterOnStartup = false;
+        public int LootmasterUiLastIndex = 0;
         public void Save()
         {
             if (Version == TargetVersion)
@@ -86,7 +87,7 @@ namespace HimbeertoniRaidTool
             {
                 string msg = "Tried loading a configuration from a newer version of the plugin. To prevent data loss operation has been stopped. You need to update to use this plugin!";
                 PluginLog.LogFatal(msg);
-                throw new NotSupportedException($"[HimbeerToniRaidTool{msg}");
+                throw new NotSupportedException($"[HimbeerToniRaidTool] {msg}");
             }
             if (Version != TargetVersion)
                 Upgrade();
@@ -103,6 +104,9 @@ namespace HimbeertoniRaidTool
                         }
                 );
             }
+            foreach (RaidGroup group in RaidGroups)
+                foreach (Player player in group.Players)
+                    player.MainChar.CleanUpClasses();
             FullyLoaded = true;
         }
     }

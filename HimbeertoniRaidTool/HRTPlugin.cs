@@ -29,6 +29,7 @@ namespace HimbeertoniRaidTool
         [PluginService] public static ClientState ClientState { get; private set; }
         [PluginService] public static Framework Framework { get; private set; }
         public static XivCommonBase XivCommonBase { get; private set; } = new XivCommonBase();
+        [PluginService] public static ObjectTable ObjectTable { get; private set; }
 
 
     }
@@ -68,6 +69,8 @@ namespace HimbeertoniRaidTool
             _Configuration.AfterLoad();
             LootMaster.LootMaster.Init();
             OptionsUi = new();
+            if (Configuration.OpenLootMasterOnStartup)
+                LootMaster.LootMaster.Ui.Show();
         }
         private void OnLanguageChanged(string langCode)
         {
@@ -89,12 +92,12 @@ namespace HimbeertoniRaidTool
 
         public void Dispose()
         {
-            _Configuration.Save();
             OptionsUi.Dispose();
             Commands.ForEach(command => Services.CommandManager.RemoveHandler(command.Item1));
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
             LootMaster.LootMaster.Dispose();
             Services.XivCommonBase.Dispose();
+            _Configuration.Save();
         }
         private void OnCommand(string command, string args)
         {
