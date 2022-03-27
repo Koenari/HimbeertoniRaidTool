@@ -12,9 +12,7 @@ interface. To counter these hardships, I started this project.
       > /lootmaster or /lm
 
 ### Future Features
-For details, please refer to **ToDo.md**
-* Strat Planning
-* Loot distribution
+Please refer to the [**Project**](https://github.com/users/Koenari/projects/3)
 
 ## Installation
 ### Prerequisites

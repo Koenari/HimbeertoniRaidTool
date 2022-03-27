@@ -41,10 +41,10 @@ namespace HimbeertoniRaidTool
         public LootRuling LootRuling { get; set; } = new();
 
         public RaidGroup? GroupInfo = null;
-
         public List<RaidGroup> RaidGroups = new();
         public bool OpenLootMasterOnStartup = false;
         public int LootmasterUiLastIndex = 0;
+
         public void Save()
         {
             if (Version == TargetVersion)
@@ -52,7 +52,6 @@ namespace HimbeertoniRaidTool
             else
                 PluginLog.LogError("Configuration Version mismatch. Did not Save!");
         }
-
         private void Upgrade()
         {
             int oldVersion;
@@ -85,9 +84,10 @@ namespace HimbeertoniRaidTool
                 return;
             if (Version > TargetVersion)
             {
-                string msg = "Tried loading a configuration from a newer version of the plugin. To prevent data loss operation has been stopped. You need to update to use this plugin!";
+                string msg = "Tried loading a configuration from a newer version of the plugin.\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
                 PluginLog.LogFatal(msg);
-                throw new NotSupportedException($"[HimbeerToniRaidTool] {msg}");
+                Services.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+                throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
             }
             if (Version != TargetVersion)
                 Upgrade();
