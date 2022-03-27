@@ -10,7 +10,7 @@ namespace HimbeertoniRaidTool.Data
         public static readonly string ApiBaseUrl = "https://etro.gg/api/";
         public static readonly string WebBaseUrl = "https://etro.gg/";
         public static string GearsetApiBaseUrl => ApiBaseUrl + "gearsets/";
-        public static string GearsetWebBaseUrl => WebBaseUrl + "gearsets/";
+        public static string GearsetWebBaseUrl => WebBaseUrl + "gearset/";
         private readonly static WebHeaderCollection Headers;
         private static JsonSerializerSettings JsonSettings => new()
         {
