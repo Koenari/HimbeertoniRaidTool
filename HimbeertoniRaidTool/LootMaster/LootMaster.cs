@@ -1,20 +1,21 @@
 ﻿using HimbeertoniRaidTool.Data;
-using System;
+using System.Collections.Generic;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
-    public class LootMaster : IDisposable
+    public static class LootMaster
     {
-        public readonly LootmasterUI Ui;
-        private readonly RaidGroup MainGroup;
-        private readonly GearRefresherOnExamine GearRefresher;
-        public LootMaster(RaidGroup group)
+        internal static readonly LootmasterUI Ui = new();
+        internal static List<RaidGroup> RaidGroups => HRTPlugin.Configuration.RaidGroups;
+        internal static void Init()
         {
-            MainGroup = group;
-            Ui = new(group);
-            GearRefresher = new(MainGroup);
+            if (RaidGroups.Count == 0)
+                RaidGroups.Add(new("Solo", GroupType.Solo));
+            if (RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
+                RaidGroups.Insert(0, new("Solo", GroupType.Solo));
+            GearRefresherOnExamine.Enable();
         }
-        public void OnCommand(string args)
+        public static void OnCommand(string args)
         {
             switch (args)
             {
@@ -23,11 +24,10 @@ namespace HimbeertoniRaidTool.LootMaster
                     break;
             }
         }
-        public void Dispose()
+        public static void Dispose()
         {
-            GearRefresher.Dispose();
+            GearRefresherOnExamine.Dispose();
             Ui.Dispose();
-            HRTPlugin.Configuration.GroupInfo = MainGroup;
         }
     }
 }

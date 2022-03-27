@@ -47,7 +47,7 @@ namespace HimbeertoniRaidTool.Data
         public static List<GearItem> GetPossibleLoot(RaidTier raidTear, int boss) => LootSourceDB.GetValueOrDefault((raidTear, boss), new());
     }
 
-    public struct ItemIDRange
+    public class ItemIDRange
     {
         public static implicit operator ItemIDRange(uint id) => new(id, id);
         public static implicit operator ItemIDRange((uint, uint) id) => new(id.Item1, id.Item2);

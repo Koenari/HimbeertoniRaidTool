@@ -13,8 +13,8 @@ namespace HimbeertoniRaidTool
     {
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
-        private int TargetVersion = 1;
-        public int Version { get; set; } = 1;
+        private readonly int TargetVersion = 2;
+        public int Version { get; set; } = 2;
         public Dictionary<AvailableClasses, string> DefaultBIS { get; set; } = new Dictionary<AvailableClasses, string>
         {
             { AST, "88647808-8a28-477b-b285-687bdcbff2d4" },
@@ -40,7 +40,10 @@ namespace HimbeertoniRaidTool
         };
         public LootRuling LootRuling { get; set; } = new();
 
-        public RaidGroup? GroupInfo;
+        public RaidGroup? GroupInfo = null;
+        public List<RaidGroup> RaidGroups = new();
+        public bool OpenLootMasterOnStartup = false;
+        public int LootmasterUiLastIndex = 0;
 
         public void Save()
         {
@@ -51,7 +54,29 @@ namespace HimbeertoniRaidTool
         }
         private void Upgrade()
         {
-            Version = TargetVersion;
+            int oldVersion;
+            while (Version < TargetVersion)
+            {
+                oldVersion = Version;
+                DoUpgradeStep();
+                //Detect endless loops and "crash gracefully"
+                if (Version == oldVersion)
+                    throw new Exception("Configuration upgrade ran into an unexpected issue");
+            }
+            void DoUpgradeStep()
+            {
+                switch (Version)
+                {
+                    case 1:
+                        RaidGroups.Clear();
+                        RaidGroups.Add(GroupInfo ?? new());
+                        GroupInfo = null;
+                        Version = 2;
+                        break;
+                    default:
+                        throw new Exception("Unsupported Version of Configuration");
+                }
+            }
         }
         internal void AfterLoad()
         {
@@ -79,6 +104,9 @@ namespace HimbeertoniRaidTool
                         }
                 );
             }
+            foreach (RaidGroup group in RaidGroups)
+                foreach (Player player in group.Players)
+                    player.MainChar.CleanUpClasses();
             FullyLoaded = true;
         }
     }

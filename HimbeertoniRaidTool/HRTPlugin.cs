@@ -7,10 +7,10 @@ using Dalamud.Game.Gui;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using System;
 using System.Collections.Generic;
+using XivCommon;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool
@@ -28,6 +28,10 @@ namespace HimbeertoniRaidTool
         [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
         [PluginService] public static ClientState ClientState { get; private set; }
         [PluginService] public static Framework Framework { get; private set; }
+        public static XivCommonBase XivCommonBase { get; private set; } = new XivCommonBase();
+        [PluginService] public static ObjectTable ObjectTable { get; private set; }
+
+
     }
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
@@ -48,7 +52,6 @@ namespace HimbeertoniRaidTool
         };
 
         private ConfigUI OptionsUi { get; init; }
-        private LootMaster.LootMaster LM { get; init; }
 
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
@@ -64,11 +67,10 @@ namespace HimbeertoniRaidTool
             //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
+            LootMaster.LootMaster.Init();
             OptionsUi = new();
-
-
-
-            LM = new(_Configuration.GroupInfo ?? new RaidGroup(""));
+            if (Configuration.OpenLootMasterOnStartup)
+                LootMaster.LootMaster.Ui.Show();
         }
         private void OnLanguageChanged(string langCode)
         {
@@ -90,11 +92,12 @@ namespace HimbeertoniRaidTool
 
         public void Dispose()
         {
-            _Configuration.Save();
             OptionsUi.Dispose();
-            LM.Dispose();
             Commands.ForEach(command => Services.CommandManager.RemoveHandler(command.Item1));
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
+            LootMaster.LootMaster.Dispose();
+            Services.XivCommonBase.Dispose();
+            _Configuration.Save();
         }
         private void OnCommand(string command, string args)
         {
@@ -110,7 +113,7 @@ namespace HimbeertoniRaidTool
                     break;
                 case "/lm":
                 case "/lootmaster":
-                    this.LM.OnCommand(args);
+                    LootMaster.LootMaster.OnCommand(args);
                     break;
                 default:
                     PluginLog.LogError("Command \"" + command + "\" not found");

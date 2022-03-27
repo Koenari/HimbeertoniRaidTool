@@ -7,8 +7,10 @@ namespace HimbeertoniRaidTool.Data
 {
     public static class EtroConnector
     {
-        private const string BaseUri = "https://etro.gg/api/";
-        private static string GearsetBaseUri { get => (BaseUri + "gearsets/"); }
+        public static readonly string ApiBaseUrl = "https://etro.gg/api/";
+        public static readonly string WebBaseUrl = "https://etro.gg/";
+        public static string GearsetApiBaseUrl => ApiBaseUrl + "gearsets/";
+        public static string GearsetWebBaseUrl => WebBaseUrl + "gearset/";
         private readonly static WebHeaderCollection Headers;
         private static JsonSerializerSettings JsonSettings => new()
         {
@@ -57,12 +59,14 @@ namespace HimbeertoniRaidTool.Data
             if (set.EtroID.Equals(""))
                 return false;
             EtroGearSet? etroSet;
-            string? jsonResponse = MakeWebRequest(GearsetBaseUri + set.EtroID);
+            string? jsonResponse = MakeWebRequest(GearsetApiBaseUrl + set.EtroID);
             if (jsonResponse == null)
                 return false;
             etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);
             if (etroSet == null)
                 return false;
+            set.Name = etroSet.name ?? "";
+            set.TimeStamp = etroSet.lastUpdate;
             set.MainHand = new(etroSet.weapon);
             set.Head = new(etroSet.head);
             set.Head = new(etroSet.head);

@@ -8,6 +8,7 @@ namespace HimbeertoniRaidTool.Data
         public DateTime? TimeStamp;
         public string EtroID = "";
         public string Name = "";
+        public GearSetManager ManagedBy;
         private const int NumSlots = 12;
         private readonly GearItem[] Items = new GearItem[NumSlots];
         public GearItem MainHand { get => Items[0]; set => Items[0] = value; }
@@ -22,6 +23,8 @@ namespace HimbeertoniRaidTool.Data
         public GearItem Ring1 { get => Items[9]; set => Items[9] = value; }
         public GearItem Ring2 { get => Items[10]; set => Items[10] = value; }
         public GearItem OffHand { get => Items[11]; set => Items[11] = value; }
+        [JsonIgnore]
+        public bool IsEmpty => Array.TrueForAll(Items, x => x.ID == 0);
         [JsonIgnore]
         public int ItemLevel
         {
@@ -39,7 +42,11 @@ namespace HimbeertoniRaidTool.Data
 
             }
         }
-        public GearSet() => Clear();
+        public GearSet(GearSetManager manager = GearSetManager.HRT)
+        {
+            ManagedBy = manager;
+            Clear();
+        }
         public void Clear()
         {
             for (int i = 0; i < NumSlots; i++)
@@ -52,6 +59,12 @@ namespace HimbeertoniRaidTool.Data
         {
             get => Items[ToIndex(slot)];
             set => Items[ToIndex(slot)] = value;
+        }
+        public int GetStat(StatType type)
+        {
+            int result = 0;
+            Array.ForEach(Items, x => result += x.GetStat(type));
+            return result;
         }
         private static int ToIndex(GearSetSlot slot)
         {

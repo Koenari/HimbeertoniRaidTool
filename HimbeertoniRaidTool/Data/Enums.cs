@@ -68,6 +68,15 @@ namespace HimbeertoniRaidTool.Data
         WAR,
         WHM
     }
+    public enum Role
+    {
+        None,
+        Tank,
+        Healer,
+        Melee,
+        Ranged,
+        Caster
+    }
     public enum PositionInRaidGroup : byte
     {
         Tank1 = 0,
@@ -86,31 +95,197 @@ namespace HimbeertoniRaidTool.Data
         Trial,
         Dungeon
     }
+    public enum GroupType
+    {
+        Solo,
+        Group,
+        Raid
+    }
+    public enum GearSetManager
+    {
+        HRT,
+        Etro
+    }
+    public enum StatType
+    {
+        None,
+        Strength,
+        Dexterity,
+        Vitality,
+        Intelligence,
+        Mind,
+        Piety,
+        HP,
+        MP,
+        TP,
+        GP,
+        CP,
+        PhysicalDamage,
+        MagicalDamage,
+        Delay,
+        AdditionalEffect,
+        AttackSpeed,
+        BlockRate,
+        BlockStrength,
+        Tenacity,
+        AttackPower,
+        Defense,
+        DirectHitRate,
+        Evasion,
+        MagicDefense,
+        CriticalHitPower,
+        CriticalHitResilience,
+        CriticalHit,
+        CriticalHitEvasion,
+        SlashingResistance,
+        PiercingResistance,
+        BluntResistance,
+        ProjectileResistance,
+        AttackMagicPotency,
+        HealingMagicPotency,
+        EnhancementMagicPotency,
+        EnfeeblingMagicPotency,
+        FireResistance,
+        IceResistance,
+        WindResistance,
+        EarthResistance,
+        LightningResistance,
+        WaterResistance,
+        MagicResistance,
+        Determination,
+        SkillSpeed,
+        SpellSpeed,
+        Haste,
+        Morale,
+        Enmity,
+        EnmityReduction,
+        CarefulDesynthesis,
+        EXPBonus,
+        Regen,
+        Refresh,
+        MovementSpeed,
+        Spikes,
+        SlowResistance,
+        PetrificationResistance,
+        ParalysisResistance,
+        SilenceResistance,
+        BlindResistance,
+        PoisonResistance,
+        StunResistance,
+        SleepResistance,
+        BindResistance,
+        HeavyResistance,
+        DoomResistance,
+        ReducedDurabilityLoss,
+        IncreasedSpiritbondGain,
+        Craftsmanship,
+        Control,
+        Gathering,
+        Perception,
+        Unknown73,
+        Count
+    }
     public static class EnumExtensions
     {
-        public static string FriendlyName(this GearSetSlot slot)
+        public static string FriendlyName(this StatType t) => t switch
         {
+            StatType.PhysicalDamage => "Physical Damage",
+            StatType.MagicalDamage => "Magical Damage",
+            StatType.CriticalHit => "Critical Hit",
+            StatType.DirectHitRate => "Direct Hit",
+            StatType.SkillSpeed => "Skill Speed",
+            StatType.SpellSpeed => "Spell Speed",
+            StatType.MagicDefense => "Magic Defense",
+            _ => t.ToString(),
+        };
+        public static Role GetRole(this AvailableClasses c) => c switch
+        {
+            AvailableClasses.AST => Role.Healer,
+            AvailableClasses.BLM => Role.Caster,
+            AvailableClasses.BLU => Role.Caster,
+            AvailableClasses.BRD => Role.Ranged,
+            AvailableClasses.DNC => Role.Ranged,
+            AvailableClasses.DRG => Role.Melee,
+            AvailableClasses.DRK => Role.Tank,
+            AvailableClasses.GNB => Role.Tank,
+            AvailableClasses.MCH => Role.Ranged,
+            AvailableClasses.MNK => Role.Melee,
+            AvailableClasses.NIN => Role.Melee,
+            AvailableClasses.PLD => Role.Tank,
+            AvailableClasses.RDM => Role.Caster,
+            AvailableClasses.RPR => Role.Melee,
+            AvailableClasses.SAM => Role.Melee,
+            AvailableClasses.SCH => Role.Healer,
+            AvailableClasses.SGE => Role.Healer,
+            AvailableClasses.SMN => Role.Caster,
+            AvailableClasses.WAR => Role.Tank,
+            AvailableClasses.WHM => Role.Healer,
+            _ => Role.None,
+        };
+        public static StatType MainStat(this AvailableClasses c) => c switch
+        {
+            AvailableClasses.AST => StatType.Mind,
+            AvailableClasses.BLM => StatType.Intelligence,
+            AvailableClasses.BLU => StatType.Intelligence,
+            AvailableClasses.BRD => StatType.Dexterity,
+            AvailableClasses.DNC => StatType.Dexterity,
+            AvailableClasses.DRG => StatType.Strength,
+            AvailableClasses.DRK => StatType.Strength,
+            AvailableClasses.GNB => StatType.Strength,
+            AvailableClasses.MCH => StatType.Dexterity,
+            AvailableClasses.MNK => StatType.Strength,
+            AvailableClasses.NIN => StatType.Dexterity,
+            AvailableClasses.PLD => StatType.Strength,
+            AvailableClasses.RDM => StatType.Intelligence,
+            AvailableClasses.RPR => StatType.Strength,
+            AvailableClasses.SAM => StatType.Strength,
+            AvailableClasses.SCH => StatType.Mind,
+            AvailableClasses.SGE => StatType.Mind,
+            AvailableClasses.SMN => StatType.Intelligence,
+            AvailableClasses.WAR => StatType.Strength,
+            AvailableClasses.WHM => StatType.Mind,
+            _ => throw new System.NotImplementedException(),
+        };
+        public static string FriendlyName(this GearSetManager manager) => manager switch
+        {
+            GearSetManager.HRT => Localize("HimbeerToni Raid Tool", "HimbeerToni Raid Tool"),
+            GearSetManager.Etro => Localize("etro.gg", "etro.gg"),
+            _ => Localize("undefined", "undefined"),
+        };
+        public static int GroupSize(this GroupType groupType) => groupType switch
+        {
+            GroupType.Solo => 1,
+            GroupType.Group => 4,
+            GroupType.Raid => 8,
+            _ => -1
+        };
+        public static string FriendlyName(this GroupType groupType) => groupType switch
+        {
+            GroupType.Solo => Localize("Solo", "Solo"),
+            GroupType.Group => Localize("Group", "Group"),
+            GroupType.Raid => Localize("FullGroup", "Full Group"),
+            _ => Localize("undefined", "undefined")
 
-            return slot switch
-            {
-                GearSetSlot.MainHand => Localize("Weapon", "Weapon"),
-                GearSetSlot.OffHand => Localize("Shield", "Shield"),
-                GearSetSlot.Head => Localize("Head", "Head"),
-                GearSetSlot.Body => Localize("Body", "Body"),
-                GearSetSlot.Hands => Localize("Gloves", "Gloves"),
-                GearSetSlot.Waist => Localize("NoBelts", "There no longer are belts you fuckwit"),
-                GearSetSlot.Legs => Localize("Trousers", "Trousers"),
-                GearSetSlot.Feet => Localize("Shoes", "Shoes"),
-                GearSetSlot.Ear => Localize("Earrings", "Earrings"),
-                GearSetSlot.Neck => Localize("Necklace", "Necklace"),
-                GearSetSlot.Wrist => Localize("Bracelet", "Bracelet"),
-                GearSetSlot.Ring1 => Localize("Ring", "Ring"),
-                GearSetSlot.Ring2 => Localize("Ring", "Ring"),
-                GearSetSlot.SoulCrystal => Localize("Soul Crystal", "Soul Crystal"),
-                _ => Localize("undefined", "undefined")
+        };
+        public static string FriendlyName(this GearSetSlot slot) => slot switch
+        {
+            GearSetSlot.MainHand => Localize("Weapon", "Weapon"),
+            GearSetSlot.OffHand => Localize("Shield", "Shield"),
+            GearSetSlot.Head => Localize("Head", "Head"),
+            GearSetSlot.Body => Localize("Body", "Body"),
+            GearSetSlot.Hands => Localize("Gloves", "Gloves"),
+            GearSetSlot.Waist => Localize("NoBelts", "There no longer are belts you fuckwit"),
+            GearSetSlot.Legs => Localize("Trousers", "Trousers"),
+            GearSetSlot.Feet => Localize("Shoes", "Shoes"),
+            GearSetSlot.Ear => Localize("Earrings", "Earrings"),
+            GearSetSlot.Neck => Localize("Necklace", "Necklace"),
+            GearSetSlot.Wrist => Localize("Bracelet", "Bracelet"),
+            GearSetSlot.Ring1 => Localize("Ring", "Ring"),
+            GearSetSlot.Ring2 => Localize("Ring", "Ring"),
+            GearSetSlot.SoulCrystal => Localize("Soul Crystal", "Soul Crystal"),
+            _ => Localize("undefined", "undefined")
 
-            };
-        }
+        };
         public static string FriendlyName(this GearSource source) => source switch
         {
             GearSource.Raid => Localize("Raid", "Raid"),
