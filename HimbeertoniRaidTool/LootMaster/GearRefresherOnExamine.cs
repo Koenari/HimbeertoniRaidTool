@@ -1,4 +1,6 @@
-﻿using Dalamud.Hooking;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Hooking;
+using FFXIVClientStructs.Attributes;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Data;
@@ -24,7 +26,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
         private static readonly GetInventoryContainer _getInventoryContainer;
         private static readonly GetContainerSlot _getContainerSlot;
-
+        public static PlayerCharacter? TargetOverrride = null;
         static GearRefresherOnExamine()
         {
             Hook = new(HookAddress, OnExamineRefresh);
@@ -48,8 +50,18 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         private static void GetItemInfos()
         {
+            /*
+             * TODO: Get ChracterInfo from Examine Window
+            var examineWindow = (AddonCharacterInspect*)Services.GameGui.GetAddonByName("CharacterInspect", 1);
+            var compInfo = (AtkUldComponentInfo*)examineWindow->PreviewComponent->UldManager.Objects;
+            if (compInfo == null || compInfo->ComponentType != ComponentType.Preview) return;
+            var nodeList = examineWindow->PreviewComponent->UldManager.NodeList;
+            var node = nodeList[1];
+            var text = (AtkTextNode*)node;
+            */
             List<Character> chars = new();
-            var target = Helper.TargetChar;
+            var target = TargetOverrride ?? Helper.TargetChar;
+            TargetOverrride = null;
             if (target is null)
                 return;
             string name = target.Name.TextValue;
@@ -91,5 +103,12 @@ namespace HimbeertoniRaidTool.LootMaster
             Hook.Disable();
             Hook.Dispose();
         }
+    }
+    [StructLayout(LayoutKind.Explicit, Size = 1280)]
+    [Addon("CharacterInspect")]
+    public unsafe struct AddonCharacterInspect
+    {
+        [FieldOffset(0x000)] public AtkUnitBase AtkUnitBase;
+        [FieldOffset(0x430)] public AtkComponentBase* PreviewComponent;
     }
 }
