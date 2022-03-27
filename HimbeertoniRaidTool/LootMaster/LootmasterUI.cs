@@ -179,8 +179,22 @@ namespace HimbeertoniRaidTool.LootMaster
                 DrawRaidGroupSwitchBar();
                 if (CurrentGroup.Type == GroupType.Solo)
                 {
-                    Player p = CurrentGroup.Tank1;
-                    DrawDetailedPlayer(p);
+                    if (CurrentGroup.Tank1.MainChar.Filled)
+                        DrawDetailedPlayer(CurrentGroup.Tank1);
+                    else
+                    {
+                        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo"))
+                        {
+                            var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1, true);
+                            if (!Childs.Exists(x => x.Equals(window)))
+                            {
+                                Childs.Add(window);
+                                Tasks.Add(callBack);
+                                window.Show();
+                            }
+
+                        }
+                    }
                 }
                 else if (CurrentGroup.Type == GroupType.Raid || CurrentGroup.Type == GroupType.Group)
                 {
