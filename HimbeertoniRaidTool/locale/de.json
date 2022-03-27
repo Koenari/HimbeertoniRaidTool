@@ -11,12 +11,128 @@
     "message": "Öffnet das LootMaster Fenster (Abk)",
     "description": "<>c.<.ctor>b__18_2"
   },
+  "Genaral": {
+    "message": "Allgemein",
+    "description": "ConfigUI.Draw"
+  },
+  "Open Lootmaster on startup": {
+    "message": "Lootmaster beim Starten öffnen",
+    "description": "ConfigUI.Draw"
+  },
+  "Edit Player ": {
+    "message": "Spieler editieren",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Player Name": {
+    "message": "Spieler Name",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Character Name": {
+    "message": "Charakter Name",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "HomeWorld": {
+    "message": "Heimwelt",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Get": {
+    "message": "Holen",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "WorksOnTargetrOnly": {
+    "message": "You need to target the Character to retrieve world information.",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Main Class": {
+    "message": "Hauptklasse",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Current": {
+    "message": "Aktuell",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "BIS": {
+    "message": "BiS",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Default": {
+    "message": "Standard",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Reset": {
+    "message": "Reset",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Save": {
+    "message": "Speichern",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Cancel": {
+    "message": "Abbrechen",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Edit Group ": {
+    "message": "Gruppe editieren ",
+    "description": "EditGroupWindow.Draw"
+  },
+  "Group Name": {
+    "message": "Gruppen Name",
+    "description": "EditGroupWindow.Draw"
+  },
+  "Group Type": {
+    "message": "Gruppen Typ",
+    "description": "EditGroupWindow.Draw"
+  },
+  "Confirmation": {
+    "message": "Bestätigung",
+    "description": "ConfimationDialog..ctor"
+  },
+  "OK": {
+    "message": "OK",
+    "description": "ConfimationDialog.Draw"
+  },
+  "Header": {
+    "message": "Kopf",
+    "description": "ShowItemWindow.Draw"
+  },
+  "Value": {
+    "message": "Wert",
+    "description": "ShowItemWindow.Draw"
+  },
+  "Name": {
+    "message": "Name",
+    "description": "ShowItemWindow.Draw"
+  },
+  "Item Level": {
+    "message": "Item Level",
+    "description": "ShowItemWindow.Draw"
+  },
+  "Item Source": {
+    "message": "Item Quelle",
+    "description": "ShowItemWindow.Draw"
+  },
+  "Edit": {
+    "message": "Editieren",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "iLvl": {
+    "message": "iLvL: ",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "StatsUnfinished": {
+    "message": "Diese Tabelle ist in der Entwicklung und enthält Fehler(ohne Materia)",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "MainStats": {
+    "message": "Hauptwerte",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "SecondaryStats": {
+    "message": "Sekundäre Werte",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
   "LootMasterWindowTitle": {
     "message": "Loot Master",
-    "description": "LootmasterUI.DrawMainWindow"
-  },
-  "RaidGroup": {
-    "message": "Raid Gruppe",
     "description": "LootmasterUI.DrawMainWindow"
   },
   "Player": {
@@ -75,36 +191,16 @@
     "message": "Optionen",
     "description": "LootmasterUI.DrawMainWindow"
   },
-  "Close": {
-    "message": "Schließen",
-    "description": "LootmasterUI.DrawMainWindow"
+  "Delete": {
+    "message": "Löschen",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
-  "Loot Boss 1 (Erichthonios)": {
-    "message": "Loot Boss 1 (Erichthonios)",
-    "description": "LootmasterUI.DrawLootHandlerButtons"
-  },
-  "Loot Boss 2 (Hippokampos)": {
-    "message": "Loot Boss 2 (Hippokampos)",
-    "description": "LootmasterUI.DrawLootHandlerButtons"
-  },
-  "Loot Boss 3 (Phoinix)": {
-    "message": "Loot Boss 3 (Phoinix)",
-    "description": "LootmasterUI.DrawLootHandlerButtons"
-  },
-  "Loot Boss 4 (Hesperos)": {
-    "message": "Loot Boss 4 (Hesperos)",
-    "description": "LootmasterUI.DrawLootHandlerButtons"
+  "DeleteRaidGroup": {
+    "message": "Möchtest du wirklich diese Gruppe löschen:",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "ItemTableHeaderHeader": {
     "message": "Kopf",
-    "description": "LootmasterUI.DrawItemTooltip"
-  },
-  "Value": {
-    "message": "Wert",
-    "description": "LootmasterUI.DrawItemTooltip"
-  },
-  "Name": {
-    "message": "Name",
     "description": "LootmasterUI.DrawItemTooltip"
   },
   "itemLevelLong": {
@@ -119,6 +215,26 @@
     "message": "bis BiS",
     "description": "LootmasterUI.DrawPlayer"
   },
+  "ClickToCopyEtro": {
+    "message": "Klciken um den Link zu Etro zu kopieren",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "Inspect": {
+    "message": "Examine",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "Player not in reach": {
+    "message": "Spieler nicht in Reichweite",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "Delete {0}": {
+    "message": "{0} löschen",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "DeletePlayerConfirmation": {
+    "message": "Wirklich folgenden Spieler löschen:\"{0}\" ",
+    "description": "LootmasterUI.DrawPlayer"
+  },
   "No Player": {
     "message": "Kein Spieler",
     "description": "LootmasterUI.DrawPlayer"
@@ -126,42 +242,6 @@
   "Empty": {
     "message": "Leer",
     "description": "LootmasterUI.<DrawPlayer>g__DrawItem|12_1"
-  },
-  "Edit Player ": {
-    "message": "Spieler Editieren ",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "Player Name": {
-    "message": "Spieler Name",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "Character Name": {
-    "message": "Charakter Name",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "Main Class": {
-    "message": "Haupt Klasse",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "Current": {
-    "message": "Aktuell",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "BIS": {
-    "message": "BiS",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "Default": {
-    "message": "Standard",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "Reset": {
-    "message": "Zurücksetzen",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "Save": {
-    "message": "Speichern",
-    "description": "EditPlayerWindow.Draw"
   },
   "Add": {
     "message": "Hinzufügen",
@@ -173,6 +253,10 @@
   },
   "Distribute": {
     "message": "Verteilen",
+    "description": "LootUi.Draw"
+  },
+  "Close": {
+    "message": "SChließen",
     "description": "LootUi.Draw"
   },
   "LootRuleHeader": {
@@ -187,17 +271,29 @@
     "message": "Spieler {1} hat Priorität {0} entschieden bei ({2}) Regel",
     "description": "LootResultWindow.Draw"
   },
-  "Header": {
-    "message": "Kopf",
-    "description": "ShowItemWindow.Draw"
+  "HimbeerToni Raid Tool": {
+    "message": "HimbeerToni Raid Tool",
+    "description": "EnumExtensions.FriendlyName"
   },
-  "Item Level": {
-    "message": "Item Level",
-    "description": "ShowItemWindow.Draw"
+  "etro.gg": {
+    "message": "etro.gg",
+    "description": "EnumExtensions.FriendlyName"
   },
-  "Item Source": {
-    "message": "Item Quelle",
-    "description": "ShowItemWindow.Draw"
+  "undefined": {
+    "message": "nicht definiert",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Solo": {
+    "message": "Solo",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Group": {
+    "message": "Gruppe",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "FullGroup": {
+    "message": "Volle Gruppe",
+    "description": "EnumExtensions.FriendlyName"
   },
   "Shield": {
     "message": "Schild",
@@ -237,10 +333,6 @@
   },
   "Soul Crystal": {
     "message": "Seelen Kristall",
-    "description": "EnumExtensions.FriendlyName"
-  },
-  "undefined": {
-    "message": "Nicht defniert",
     "description": "EnumExtensions.FriendlyName"
   },
   "Raid": {

@@ -134,7 +134,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 void DrawStatRow(GearSet gear, StatType type)
                 {
                     ImGui.TableNextColumn();
-                    ImGui.Text(Localize(type.ToString(), type.FriendlyName()));
+                    ImGui.Text(type.FriendlyName());
                     ImGui.TableNextColumn();
                     ImGui.Text(Stat().ToString());
                     ImGui.TableNextColumn();
