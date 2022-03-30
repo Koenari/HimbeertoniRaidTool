@@ -1,9 +1,9 @@
-﻿using ImGuiScene;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using ImGuiScene;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -43,6 +43,18 @@ namespace HimbeertoniRaidTool.Data
         }
         public GearItem() : base() { }
         public GearItem(uint id) : base(id) { }
+        public bool Equals(GearItem other)
+        {
+            if (other == null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            if (ID != other.ID) return false;
+            if (Materia.Count != other.Materia.Count) return false;
+            for (int i = 0; i < Materia.Count; i++)
+            {
+                if (!Materia[i].Equals(other.Materia[i])) return false;
+            }
+            return true;
+        }
     }
     public class HrtItem
     {
