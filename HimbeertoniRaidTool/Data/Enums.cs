@@ -106,6 +106,23 @@ namespace HimbeertoniRaidTool.Data
         HRT,
         Etro
     }
+    public enum MateriaCategory : ushort
+    {
+        None = 0,
+        Piety = 7,
+        DirectHit = 14,
+        CriticalHit = 15,
+        Determination = 16,
+        Tenacity = 17,
+        Gathering = 18,
+        Perception = 19,
+        GP = 20,
+        Craftsmanship = 21,
+        CP = 22,
+        Control = 23,
+        SkillSpeed = 24,
+        SpellSpeed = 25,
+    }
     public enum StatType
     {
         None,
@@ -187,6 +204,23 @@ namespace HimbeertoniRaidTool.Data
     }
     public static class EnumExtensions
     {
+        public static StatType GetStatType(this MateriaCategory c) => c switch
+        {
+            MateriaCategory.Piety => StatType.Piety,
+            MateriaCategory.DirectHit => StatType.DirectHitRate,
+            MateriaCategory.CriticalHit => StatType.CriticalHit,
+            MateriaCategory.Determination => StatType.Determination,
+            MateriaCategory.Tenacity => StatType.Tenacity,
+            MateriaCategory.Gathering => StatType.Gathering,
+            MateriaCategory.Perception => StatType.Perception,
+            MateriaCategory.GP => StatType.GP,
+            MateriaCategory.Craftsmanship => StatType.Craftsmanship,
+            MateriaCategory.CP => StatType.CP,
+            MateriaCategory.Control => StatType.Control,
+            MateriaCategory.SkillSpeed => StatType.SkillSpeed,
+            MateriaCategory.SpellSpeed => StatType.SpellSpeed,
+            _ => StatType.None,
+        };
         public static string FriendlyName(this StatType t) => t switch
         {
             StatType.PhysicalDamage => "Physical Damage",
