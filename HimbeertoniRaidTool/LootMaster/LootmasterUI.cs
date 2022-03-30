@@ -60,9 +60,17 @@ namespace HimbeertoniRaidTool.LootMaster
             ImGui.Columns(3);
             ImGui.Text($"{p.NickName} : {p.MainChar.Name} @ {p.MainChar.HomeWorld?.Name ?? "n.A"}");
             ImGui.SameLine();
+
+            var playerChar = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
+            if (ImGuiHelper.Button(FontAwesomeIcon.Search, p.Pos.ToString(),
+                    Localize("Inspect", "Update Gear"), playerChar is not null))
+            {
+                GearRefresherOnExamine.TargetOverrride = playerChar;
+                Services.XivCommonBase.Functions.Examine.OpenExamineWindow(playerChar!);
+            }
+            ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Solo", Localize("Edit", "Edit")))
             {
-
                 var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1, true);
                 if (!Childs.Exists(x => x.Equals(window)))
                 {
@@ -70,8 +78,6 @@ namespace HimbeertoniRaidTool.LootMaster
                     Tasks.Add(callBack);
                     window.Show();
                 }
-
-
             }
             foreach (PlayableClass playableClass in p.MainChar.Classes)
             {
@@ -82,6 +88,22 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.Text("Level: " + playableClass.Level);
                 ImGui.SameLine();
                 ImGui.Text(Localize("iLvl", "iLvL: ") + playableClass.Gear.ItemLevel);
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
+                    string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
+                {
+                    Tasks.Add(new(
+                        (t) =>
+                        {
+                            if (((Task<bool>)t).Result)
+                                ImGui.TextColored(Vec4(ColorName.Green),
+                                        $"BIS for Character { p.MainChar.Name} ({playableClass.ClassType}) succesfully updated");
+                            else
+                                ImGui.TextColored(Vec4(ColorName.Red),
+                                        $"BIS for Character { p.MainChar.Name} ({playableClass.ClassType}) failed");
+                        },
+                        Task.Run(() => EtroConnector.GetGearSet(playableClass.BIS))));
+                }
             }
 
             ImGui.NextColumn();
@@ -359,40 +381,13 @@ namespace HimbeertoniRaidTool.LootMaster
                 }
                 ImGui.TableNextColumn();
                 var playerChar = Helper.TryGetChar(player.MainChar.Name);
-                float offset = 10f;
-                if (playerChar is not null)
+                if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(),
+                    Localize("Inspect", "Update Gear"), playerChar is not null))
                 {
-                    if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(),
-                        Localize("Inspect", "Update Gear")))
-                    {
-                        GearRefresherOnExamine.TargetOverrride = playerChar;
-                        Services.XivCommonBase.Functions.Examine.OpenExamineWindow(playerChar!);
-                    }
-                    offset += ImGui.GetItemRectSize().X;
+                    GearRefresherOnExamine.TargetOverrride = playerChar;
+                    Services.XivCommonBase.Functions.Examine.OpenExamineWindow(playerChar!);
                 }
-                else
-                {
-                    ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.5f);
-                    ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(), Localize("Player not in reach", "Player not in reach"));
-                    ImGui.PopStyleVar();
-                    offset += ImGui.GetItemRectSize().X;
-                }
-                if (ImGuiHelper.Button(FontAwesomeIcon.Redo, player.BIS.EtroID,
-                    string.Format(Localize("UpdateBis", "Update {0} from Etro.gg"), player.BIS.Name)))
-                {
-                    Tasks.Add(new(
-                        (t) =>
-                        {
-                            if (((Task<bool>)t).Result)
-                                ImGui.TextColored(Vec4(ColorName.Green),
-                                        $"BIS for Character { player.MainChar.Name} ({player.MainChar.MainClassType}) succesfully updated");
-                            else
-                                ImGui.TextColored(Vec4(ColorName.Green),
-                                        $"BIS for Character { player.MainChar.Name} ({player.MainChar.MainClassType}) failed");
-                        },
-                        Task.Run(() => EtroConnector.GetGearSet(player.BIS))));
-                }
-                ImGui.SameLine(5 + offset);
+                ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, player.Pos.ToString(),
                     string.Format(Localize("Edit", "Edit {0}"), player.NickName)))
                 {
@@ -404,7 +399,22 @@ namespace HimbeertoniRaidTool.LootMaster
                         editWindow.Show();
                     }
                 }
-                ImGui.SameLine(5 + 2 * offset);
+                if (ImGuiHelper.Button(FontAwesomeIcon.Redo, player.BIS.EtroID,
+                    string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), player.BIS.Name)))
+                {
+                    Tasks.Add(new(
+                        (t) =>
+                        {
+                            if (((Task<bool>)t).Result)
+                                ImGui.TextColored(Vec4(ColorName.Green),
+                                        $"BIS for Character { player.MainChar.Name} ({player.MainChar.MainClassType}) succesfully updated");
+                            else
+                                ImGui.TextColored(Vec4(ColorName.Red),
+                                        $"BIS for Character { player.MainChar.Name} ({player.MainChar.MainClassType}) failed");
+                        },
+                        Task.Run(() => EtroConnector.GetGearSet(player.BIS))));
+                }
+                ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, player.Pos.ToString(),
                     string.Format(Localize("Delete {0}", "Delete {0}"), player.NickName)))
                 {
