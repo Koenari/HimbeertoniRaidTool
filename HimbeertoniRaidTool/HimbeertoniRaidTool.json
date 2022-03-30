@@ -8,7 +8,7 @@
         "plugin"
     ],
     "InternalName": "HimbeertoniRaidTool",
-    "AssemblyVersion": "0.1.2.5",
+    "AssemblyVersion": "0.1.3.6",
     "RepoUrl": "https://github.com/Koenari/HimbeertoniRaidTool",
     "IconUrl": "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png",
     "IsHide": "False",
