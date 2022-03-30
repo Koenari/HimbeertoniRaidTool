@@ -65,7 +65,9 @@ namespace HimbeertoniRaidTool.LootMaster
             if (target is null)
                 return;
             string name = target.Name.TextValue;
-            AvailableClasses targetClass = target.GetClass();
+            AvailableClasses? targetClass = target.GetClass();
+            if (targetClass == null)
+                return;
             int level = target.Level;
             foreach (RaidGroup g in LootMaster.RaidGroups)
             {
@@ -78,7 +80,7 @@ namespace HimbeertoniRaidTool.LootMaster
             List<GearSet> setsToFill = new();
             foreach (Character c in chars)
             {
-                PlayableClass playableClass = c.GetClass(targetClass);
+                PlayableClass playableClass = c.GetClass((AvailableClasses)targetClass);
                 playableClass.Level = level;
                 setsToFill.Add(playableClass.Gear);
             }
@@ -96,6 +98,12 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (slot->ItemID == 0)
                     continue;
                 setsToFill.ForEach(set => set[(GearSetSlot)i] = new(slot->ItemID));
+                for (int j = 0; j < 5; j++)
+                {
+                    if (slot->Materia[j] == 0)
+                        break;
+                    setsToFill.ForEach(set => set[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j])));
+                }
             }
         }
         public static void Dispose()
