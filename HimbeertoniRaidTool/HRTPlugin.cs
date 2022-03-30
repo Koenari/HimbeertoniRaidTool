@@ -1,4 +1,6 @@
-﻿using Dalamud.Data;
+﻿using System;
+using System.Collections.Generic;
+using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Objects;
@@ -8,8 +10,6 @@ using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.UI;
-using System;
-using System.Collections.Generic;
 using XivCommon;
 using static Dalamud.Localization;
 
@@ -104,9 +104,7 @@ namespace HimbeertoniRaidTool
             switch (command)
             {
                 case "/hrt":
-                    if (args.Equals("exportlocale"))
-                        Loc.ExportLocalizable();
-                    else if (args.Contains("option"))
+                    if (args.Contains("option"))
                         OptionsUi.Show();
                     else
                         PluginLog.LogError($"Argument {args} for command hrt not recognized");

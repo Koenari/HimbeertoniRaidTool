@@ -37,8 +37,9 @@ namespace HimbeertoniRaidTool
                 return (PlayerCharacter)_targetCopy;
             }
         }
-        public static AvailableClasses GetClass(this PlayerCharacter target) =>
-            Enum.Parse<AvailableClasses>(target.ClassJob.GameData!.Abbreviation.RawString, true);
+        public static AvailableClasses? GetClass(this PlayerCharacter target) =>
+            Enum.TryParse(target.ClassJob.GameData?.Abbreviation.RawString, true, out AvailableClasses result) ? result : null;
+
         public static PlayerCharacter? Self => Services.ClientState.LocalPlayer;
         public static HSV ILevelColor(GearItem item, uint maxItemLevel = 0)
         {

@@ -1,17 +1,20 @@
 ﻿using Dalamud.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net;
 
 namespace HimbeertoniRaidTool.Data
 {
     public static class EtroConnector
     {
-        public static readonly string ApiBaseUrl = "https://etro.gg/api/";
-        public static readonly string WebBaseUrl = "https://etro.gg/";
+        public static string ApiBaseUrl => "https://etro.gg/api/";
+        public static string WebBaseUrl => "https://etro.gg/";
         public static string GearsetApiBaseUrl => ApiBaseUrl + "gearsets/";
         public static string GearsetWebBaseUrl => WebBaseUrl + "gearset/";
+        public static string MateriaApiBaseUrl => ApiBaseUrl + "materia/";
         private readonly static WebHeaderCollection Headers;
+        private readonly static Dictionary<uint, (MateriaCategory, byte)> MateriaCache = new();
         private static JsonSerializerSettings JsonSettings => new()
         {
             StringEscapeHandling = StringEscapeHandling.Default,
@@ -29,6 +32,13 @@ namespace HimbeertoniRaidTool.Data
         {
             Headers = new();
             Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
+
+            string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
+            EtroMateria[]? matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
+            if (matList != null)
+                foreach (var mat in matList)
+                    for (byte i = 0; i < mat.tiers.Length; i++)
+                        MateriaCache.Add(mat.tiers[i].id, ((MateriaCategory)mat.id, i));
 
 
         }
@@ -67,22 +77,29 @@ namespace HimbeertoniRaidTool.Data
                 return false;
             set.Name = etroSet.name ?? "";
             set.TimeStamp = etroSet.lastUpdate;
-            set.MainHand = new(etroSet.weapon);
-            set.Head = new(etroSet.head);
-            set.Head = new(etroSet.head);
-            set.Body = new(etroSet.body);
-            set.Hands = new(etroSet.hands);
-            set.Legs = new(etroSet.legs);
-            set.Feet = new(etroSet.feet);
-            set.Ear = new(etroSet.ears);
-            set.Neck = new(etroSet.neck);
-            set.Wrist = new(etroSet.wrists);
-            set.Ring1 = new(etroSet.fingerL);
-            set.Ring2 = new(etroSet.fingerR);
-            set.OffHand = new(etroSet.offHand);
+            FillItem(etroSet.weapon, GearSetSlot.MainHand);
+            FillItem(etroSet.head, GearSetSlot.Head);
+            FillItem(etroSet.body, GearSetSlot.Body);
+            FillItem(etroSet.hands, GearSetSlot.Hands);
+            FillItem(etroSet.legs, GearSetSlot.Legs);
+            FillItem(etroSet.feet, GearSetSlot.Feet);
+            FillItem(etroSet.ears, GearSetSlot.Ear);
+            FillItem(etroSet.neck, GearSetSlot.Neck);
+            FillItem(etroSet.wrists, GearSetSlot.Wrist);
+            FillItem(etroSet.fingerL, GearSetSlot.Ring1);
+            FillItem(etroSet.fingerR, GearSetSlot.Ring2);
+            FillItem(etroSet.offHand, GearSetSlot.OffHand);
             return true;
-        }
 
+            void FillItem(uint id, GearSetSlot slot)
+            {
+                set[slot] = new(id);
+                string idString = id.ToString() + (slot == GearSetSlot.Ring1 ? "L" : slot == GearSetSlot.Ring2 ? "R" : "");
+                if (etroSet!.materia.TryGetValue(idString, out Dictionary<uint, uint>? materia))
+                    foreach (uint matId in materia.Values)
+                        set[slot].Materia.Add(new(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, byte)>(matId, (0, 0))));
+            }
+        }
     }
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Benennungsstile", Justification = "class is maintained by 3rd party")]
     class EtroGearSet
@@ -92,6 +109,7 @@ namespace HimbeertoniRaidTool.Data
         public string? jobAbbrev { get; set; }
         public string? name { get; set; }
         public DateTime lastUpdate { get; set; }
+        public Dictionary<string, Dictionary<uint, uint>> materia { get; set; }
         public uint weapon { get; set; }
         public uint head { get; set; }
         public uint body { get; set; }
@@ -104,5 +122,28 @@ namespace HimbeertoniRaidTool.Data
         public uint wrists { get; set; }
         public uint fingerL { get; set; }
         public uint fingerR { get; set; }
+    }
+    public class EtroMateriaTier
+    {
+        public ushort id;
+    }
+
+
+
+    public class EtroMateria
+    {
+        public uint id;
+        public EtroMateriaTier tier1 { get => tiers[0]; set => tiers[0] = value; }
+        public EtroMateriaTier tier2 { get => tiers[1]; set => tiers[1] = value; }
+        public EtroMateriaTier tier3 { get => tiers[2]; set => tiers[2] = value; }
+        public EtroMateriaTier tier4 { get => tiers[3]; set => tiers[3] = value; }
+        public EtroMateriaTier tier5 { get => tiers[4]; set => tiers[4] = value; }
+        public EtroMateriaTier tier6 { get => tiers[5]; set => tiers[5] = value; }
+        public EtroMateriaTier tier7 { get => tiers[6]; set => tiers[6] = value; }
+        public EtroMateriaTier tier8 { get => tiers[7]; set => tiers[7] = value; }
+        public EtroMateriaTier tier9 { get => tiers[8]; set => tiers[8] = value; }
+        public EtroMateriaTier tier10 { get => tiers[9]; set => tiers[9] = value; }
+        [JsonIgnore]
+        public EtroMateriaTier[] tiers = new EtroMateriaTier[10];
     }
 }

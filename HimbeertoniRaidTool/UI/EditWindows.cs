@@ -1,10 +1,10 @@
-﻿using ColorHelper;
-using HimbeertoniRaidTool.Data;
-using ImGuiNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
+using ColorHelper;
+using HimbeertoniRaidTool.Data;
+using ImGuiNET;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
@@ -26,7 +26,7 @@ namespace HimbeertoniRaidTool.UI
             if (!Player.Filled && Helper.TargetChar is not null)
             {
                 PlayerCopy.MainChar.Name = Helper.TargetChar.Name.TextValue;
-                PlayerCopy.MainChar.MainClassType = Helper.TargetChar.GetClass();
+                PlayerCopy.MainChar.MainClassType = Helper.TargetChar.GetClass() ?? AvailableClasses.AST;
             }
             else if (Player.Filled)
             {
@@ -117,11 +117,11 @@ namespace HimbeertoniRaidTool.UI
                                 }
                                 if (success.Length > 0)
                                     ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
-                                            $"BIS for Chracter {Player.MainChar.Name} on classes ({success[0..^1]}) succesfully updated");
+                                            $"BIS for Character {Player.MainChar.Name} on classes ({success[0..^1]}) succesfully updated");
 
                                 if (error.Length > 0)
                                     ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
-                                            $"BIS update for Chracter {Player.MainChar.Name} on classes ({error[0..^1]}) failed");
+                                            $"BIS update for Character {Player.MainChar.Name} on classes ({error[0..^1]}) failed");
                             };
                         CallBack.Task = Task.Run(() => bisUpdates.ConvertAll((x) => (x.Item1, x.Item2.Invoke())));
                     }

@@ -1,9 +1,9 @@
-﻿using ImGuiScene;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using ImGuiScene;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -16,49 +16,62 @@ namespace HimbeertoniRaidTool.Data
         [JsonIgnore]
         public GearSource Source => _ID > 0 ? SourceDic.GetValueOrDefault(Name, GearSource.undefined) : GearSource.undefined;
 
-        public List<Materia> Materia = new();
-
-        public int GetStat(StatType type)
+        public List<HrtMateria> Materia = new();
+        [JsonIgnore]
+        public uint ItemLevel => (Item.LevelItem is null) ? 0 : Item.LevelItem.Row;
+        public int GetStat(StatType type, bool includeMateria = true)
         {
+            int result = 0;
             if (_ID == 0 || Item.Name is null) return 0;
             switch (type)
             {
-                case StatType.PhysicalDamage: return Item.DamagePhys;
-                case StatType.MagicalDamage: return Item.DamageMag;
-                case StatType.Defense: return Item.DefensePhys;
-                case StatType.MagicDefense: return Item.DefenseMag;
+                case StatType.PhysicalDamage: result += Item.DamagePhys; break;
+                case StatType.MagicalDamage: result += Item.DamageMag; break;
+                case StatType.Defense: result += Item.DefensePhys; break;
+                case StatType.MagicDefense: result += Item.DefenseMag; break;
+                default:
+                    if (Item?.UnkData59 is not null)
+                        foreach (Item.ItemUnkData59Obj param in Item.UnkData59)
+                            if (param.BaseParam == (ushort)type)
+                                result += param.BaseParamValue;
+                    break;
             }
-            if (Item?.UnkData59 is null)
-                return 0;
-            foreach (Item.ItemUnkData59Obj param in Item.UnkData59)
-            {
-                if (param.BaseParam == (ushort)type)
-                    return param.BaseParamValue;
-            }
-            return 0;
+            if (includeMateria)
+                foreach (HrtMateria materia in Materia)
+                    result += materia.GetStat(type);
+            return result;
         }
         public GearItem() : base() { }
         public GearItem(uint id) : base(id) { }
+        public bool Equals(GearItem other)
+        {
+            if (other == null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            if (ID != other.ID) return false;
+            if (Materia.Count != other.Materia.Count) return false;
+            for (int i = 0; i < Materia.Count; i++)
+            {
+                if (!Materia[i].Equals(other.Materia[i])) return false;
+            }
+            return true;
+        }
     }
     public class HrtItem
     {
         protected uint _ID;
-        public uint ID { get => _ID; set { _ID = value; } }
+        public virtual uint ID { get => _ID; set { _ID = value; } }
         [JsonIgnore]
         public TextureWrap? Icon => Services.DataManager.GetImGuiTextureIcon(Item.Icon);
         [JsonIgnore]
-        public Item Item => Sheet.GetRow(_ID) ?? new Item();
+        public Item Item => Sheet?.GetRow(ID) ?? new Item();
         [JsonIgnore]
-        public string Name => _ID > 0 ? Item.Name.RawString : "";
+        public string Name => ID > 0 ? Item.Name.RawString : "";
         [JsonIgnore]
-        public uint ItemLevel => (Item.LevelItem is null) ? 0 : Item.LevelItem.Row;
-
-        [JsonIgnore]
-        public bool Filled => _ID > 0 && Name.Length > 0;
+        public bool Filled => ID > 0 && Name.Length > 0;
         [JsonIgnore]
         public bool Valid => ID > 0;
 
-        protected static ExcelSheet<Item> Sheet => Services.DataManager.Excel.GetSheet<Item>()!;
+        protected static ExcelSheet<Item>? Sheet => Services.DataManager.Excel.GetSheet<Item>();
 
         public HrtItem() : this(0) { }
 
@@ -66,21 +79,34 @@ namespace HimbeertoniRaidTool.Data
 
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(this, obj)) return true;
             if (obj == null) return false;
-            GearItem? other = obj as GearItem;
-            if (other == null) return false;
-            return _ID == other._ID;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is not HrtItem other) return false;
+            return ID == other.ID;
         }
-        public override int GetHashCode() => _ID.GetHashCode();
+        public override int GetHashCode() => ID.GetHashCode();
     }
 
-    public class Materia : HrtItem
+    public class HrtMateria : HrtItem
     {
-
-        public Materia() : this(0) { }
-
-        public Materia(uint idArg) : base(idArg) { }
+        public MateriaCategory Category;
+        public byte MateriaLevel;
+        [JsonIgnore]
+        private ExcelSheet<Materia> MateriaSheet => Services.DataManager.Excel.GetSheet<Materia>()!;
+        [JsonIgnore]
+        public override uint ID => Category != MateriaCategory.None ? Materia?.Item[MateriaLevel].Row ?? 0 : 0;
+        [JsonIgnore]
+        public Materia? Materia => MateriaSheet.GetRow((ushort)Category);
+        public HrtMateria() : this(0, 0) { }
+        public HrtMateria((MateriaCategory cat, byte lvl) mat) : this(mat.cat, mat.lvl) { }
+        public HrtMateria(MateriaCategory cat, byte lvl) => (Category, MateriaLevel) = (cat, lvl);
+        public int GetStat(StatType type)
+        {
+            if (!Valid || Materia is null) return 0;
+            if (Category.GetStatType() == type)
+                return Materia.Value[MateriaLevel];
+            return 0;
+        }
     }
 
     [SuppressMessage("Style", "IDE0060:Nicht verwendete Parameter entfernen", Justification = "Override all constructors for safety")]
