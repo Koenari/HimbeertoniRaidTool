@@ -1,7 +1,7 @@
-﻿using Lumina.Excel.GeneratedSheets;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Lumina.Excel.GeneratedSheets;
+using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -24,11 +24,15 @@ namespace HimbeertoniRaidTool.Data
 
         [JsonIgnore]
         public bool Filled => Name != "";
-        public Character(string name = "") => Name = name;
+        public Character(string name = "", uint worldID = 0)
+        {
+            Name = name;
+            HomeWorldID = worldID;
+        }
 
         private PlayableClass AddClass(AvailableClasses ClassToAdd)
         {
-            PlayableClass toAdd = new(ClassToAdd);
+            PlayableClass toAdd = new(ClassToAdd, this);
             Classes.Add(toAdd);
             return toAdd;
         }

@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -7,6 +7,7 @@ namespace HimbeertoniRaidTool.Data
     {
         public DateTime? TimeStamp;
         public string EtroID = "";
+        public string HrtID = "";
         public string Name = "";
         public GearSetManager ManagedBy;
         private const int NumSlots = 12;
@@ -42,9 +43,18 @@ namespace HimbeertoniRaidTool.Data
 
             }
         }
-        public GearSet(GearSetManager manager = GearSetManager.HRT)
+        [JsonConstructor]
+        public GearSet()
+        {
+            ManagedBy = GearSetManager.HRT;
+            Clear();
+        }
+        public GearSet(GearSetManager manager, Character c, AvailableClasses ac, string name = "HrtCurrent")
         {
             ManagedBy = manager;
+            Name = name;
+            if (ManagedBy == GearSetManager.HRT)
+                HrtID = GenerateID(c, ac, this);
             Clear();
         }
         public void Clear()
@@ -84,6 +94,25 @@ namespace HimbeertoniRaidTool.Data
                 GearSetSlot.Ring2 => 10,
                 _ => throw new IndexOutOfRangeException("GearSlot" + slot.ToString() + "does not exist"),
             };
+        }
+
+        internal void CopyFrom(GearSet gearSet)
+        {
+            TimeStamp = gearSet.TimeStamp;
+            EtroID = gearSet.EtroID;
+            HrtID = gearSet.HrtID;
+            Name = gearSet.Name;
+            ManagedBy = gearSet.ManagedBy;
+            gearSet.Items.CopyTo(Items, 0);
+        }
+
+        public static string GenerateID(Character c, AvailableClasses ac, GearSet g)
+        {
+            string result = "";
+            result += string.Format("{0:X}-{1:X}-{2}-{3:X}", (c.HomeWorld?.Name ?? "").GetHashCode(), c.Name.GetHashCode(), ac, g.Name.GetHashCode());
+
+            return result;
+
         }
     }
 }

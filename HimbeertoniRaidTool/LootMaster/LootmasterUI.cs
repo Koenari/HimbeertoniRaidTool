@@ -354,6 +354,8 @@ namespace HimbeertoniRaidTool.LootMaster
                 GearSet bis = player.MainChar.MainClass.BIS;
                 ImGui.TableNextColumn();
                 ImGui.Text(gear.ItemLevel.ToString());
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip(gear.HrtID);
                 ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
                 ImGui.Text(bis.ItemLevel.ToString() + " (Link)");
                 if (ImGui.IsItemClicked())

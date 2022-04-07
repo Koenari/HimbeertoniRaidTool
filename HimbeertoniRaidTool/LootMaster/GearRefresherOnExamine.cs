@@ -1,12 +1,12 @@
-﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Hooking;
 using FFXIVClientStructs.Attributes;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Data;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -59,37 +59,28 @@ namespace HimbeertoniRaidTool.LootMaster
             var node = nodeList[1];
             var text = (AtkTextNode*)node;
             */
-            List<Character> chars = new();
             var target = TargetOverrride ?? Helper.TargetChar;
             TargetOverrride = null;
             if (target is null)
                 return;
             string name = target.Name.TextValue;
-            AvailableClasses? targetClass = target.GetClass();
-            if (targetClass == null)
+            uint worldID = target.HomeWorld.Id;
+            if (target.GetClass() is null)
                 return;
-            int level = target.Level;
-            foreach (RaidGroup g in LootMaster.RaidGroups)
-            {
-                Character? c = g.GetCharacter(name);
-                if (c is not null)
-                    chars.Add(c);
-            }
-            if (chars.Count == 0)
-                return;
-            List<GearSet> setsToFill = new();
-            foreach (Character c in chars)
-            {
-                PlayableClass playableClass = c.GetClass((AvailableClasses)targetClass);
-                playableClass.Level = level;
-                setsToFill.Add(playableClass.Gear);
-            }
-
+            AvailableClasses targetClass = (AvailableClasses)target.GetClass()!;
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
             if (container == null)
                 return;
-            setsToFill.ForEach(x => x.Clear());
-            setsToFill.ForEach(x => x.TimeStamp = DateTime.UtcNow);
+            Character targetChar = new(name, worldID);
+            DataManagement.DataManager.GetManagedCharacter(ref targetChar);
+            if (targetChar is null)
+                return;
+            targetChar.GetClass(targetClass).Level = target.Level;
+            GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar!, targetClass);
+            DataManagement.DataManager.GetManagedGearSet(ref setToFill);
+
+            setToFill.Clear();
+            setToFill.TimeStamp = DateTime.UtcNow;
             for (int i = 0; i < 13; i++)
             {
                 if (i == (int)GearSetSlot.Waist)
@@ -97,12 +88,12 @@ namespace HimbeertoniRaidTool.LootMaster
                 InventoryItem* slot = _getContainerSlot(container, i);
                 if (slot->ItemID == 0)
                     continue;
-                setsToFill.ForEach(set => set[(GearSetSlot)i] = new(slot->ItemID));
+                setToFill[(GearSetSlot)i] = new(slot->ItemID);
                 for (int j = 0; j < 5; j++)
                 {
                     if (slot->Materia[j] == 0)
                         break;
-                    setsToFill.ForEach(set => set[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j])));
+                    setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
                 }
             }
         }

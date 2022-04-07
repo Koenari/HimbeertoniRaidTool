@@ -1,12 +1,12 @@
-﻿using HimbeertoniRaidTool.Data;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using HimbeertoniRaidTool.Data;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
     public static class LootMaster
     {
         internal static readonly LootmasterUI Ui = new();
-        internal static List<RaidGroup> RaidGroups => HRTPlugin.Configuration.RaidGroups;
+        internal static List<RaidGroup> RaidGroups => DataManagement.DataManager.Groups;
         internal static void Init()
         {
             if (RaidGroups.Count == 0)

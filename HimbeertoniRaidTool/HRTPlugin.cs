@@ -64,6 +64,7 @@ namespace HimbeertoniRaidTool
             Loc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
             Services.PluginInterface.LanguageChanged += OnLanguageChanged;
             InitCommands();
+            DataManagement.DataManager.Init();
             //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
@@ -97,7 +98,7 @@ namespace HimbeertoniRaidTool
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
             LootMaster.LootMaster.Dispose();
             Services.XivCommonBase.Dispose();
-            _Configuration.Save();
+            DataManagement.DataManager.Save();
         }
         private void OnCommand(string command, string args)
         {

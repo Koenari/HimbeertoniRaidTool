@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -20,11 +19,18 @@ namespace HimbeertoniRaidTool.Data
         public Player Ranged { get => _Players[6]; set => _Players[6] = value; }
         public Player Caster { get => _Players[7]; set => _Players[7] = value; }
         [JsonIgnore]
-        public IEnumerable<Player> Players => Type switch
+        public Player[] Players => Type switch
         {
             GroupType.Solo => new[] { _Players[0] },
             GroupType.Group => new[] { _Players[0], _Players[2], _Players[4], _Players[6], },
             GroupType.Raid => _Players,
+            _ => throw new NotImplementedException(),
+        };
+        public int Count => Type switch
+        {
+            GroupType.Solo => 1,
+            GroupType.Group => 4,
+            GroupType.Raid => 8,
             _ => throw new NotImplementedException(),
         };
         public RaidGroup(string name = "", GroupType type = GroupType.Raid)
