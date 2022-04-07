@@ -1,9 +1,11 @@
-﻿using ColorHelper;
+﻿using System;
+using System.Numerics;
+using System.Security.Cryptography;
+using System.Text;
+using ColorHelper;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
-using System;
-using System.Numerics;
 
 namespace HimbeertoniRaidTool
 {
@@ -60,6 +62,12 @@ namespace HimbeertoniRaidTool
         {
             var serialized = JsonConvert.SerializeObject(source);
             return JsonConvert.DeserializeObject<T>(serialized)!;
+        }
+        public static int ConsistentHash(this string obj)
+        {
+            var alg = SHA512.Create();
+            var sha = alg.ComputeHash(Encoding.UTF8.GetBytes(obj));
+            return sha[0] + 256 * sha[1] + 256 * 256 * sha[2] + 256 * 256 * 256 * sha[2];
         }
     }
 

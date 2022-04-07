@@ -120,11 +120,11 @@ namespace HimbeertoniRaidTool.Data
             ManagedBy = gearSet.ManagedBy;
             gearSet.Items.CopyTo(Items, 0);
         }
-
+        public void UpdateID(Character c, AvailableClasses ac) => HrtID = GenerateID(c, ac, this);
         public static string GenerateID(Character c, AvailableClasses ac, GearSet g)
         {
             string result = "";
-            result += string.Format("{0:X}-{1:X}-{2}-{3:X}", (c.HomeWorld?.Name ?? "").GetHashCode(), c.Name.GetHashCode(), ac, g.Name.GetHashCode());
+            result += string.Format("{0:X}-{1:X}-{2}-{3:X}", c.HomeWorldID, c.Name.ConsistentHash(), ac, g.Name.ConsistentHash());
 
             return result;
 
