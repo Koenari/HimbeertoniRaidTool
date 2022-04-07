@@ -49,7 +49,21 @@ namespace HimbeertoniRaidTool.DataManagement
                     gearSet = result;
             }
         }
-
+        internal void UpdateIndex(string oldID, ref GearSet gs)
+        {
+            if (gs.ManagedBy == GearSetManager.HRT)
+            {
+                if (HrtGearDB.ContainsKey(oldID))
+                    HrtGearDB.Remove(oldID);
+                AddOrGetSet(ref gs);
+            }
+            else if (gs.ManagedBy == GearSetManager.Etro)
+            {
+                if (EtroGearDB.ContainsKey(oldID))
+                    EtroGearDB.Remove(oldID);
+                AddOrGetSet(ref gs);
+            }
+        }
         internal void Save()
         {
             File.WriteAllText(HrtDBJsonFile.FullName,

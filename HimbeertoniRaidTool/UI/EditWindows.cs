@@ -15,18 +15,30 @@ namespace HimbeertoniRaidTool.UI
         private readonly Player Player;
         private readonly Player PlayerCopy;
         private readonly AsyncTaskWithUiResult CallBack;
+        private static string[]? Worlds;
         internal PositionInRaidGroup Pos => Player.Pos;
 
         internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, bool openHidden = false) : base()
         {
+            if (Worlds == null)
+            {
+                Worlds = new string[100];
+                for (uint i = 0; i < Worlds.Length; i++)
+                    if (i >= 21 && i < 100)
+                        Worlds[i] = Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(i)?.Name ?? "";
+                    else
+                        Worlds[i] = "";
+            }
             RaidGroup = group;
             callBack = CallBack = new();
             Player = group[pos];
             PlayerCopy = new();
-            if (!Player.Filled && Helper.TargetChar is not null)
+            var target = Helper.TargetChar;
+            if (!Player.Filled && target is not null)
             {
-                PlayerCopy.MainChar.Name = Helper.TargetChar.Name.TextValue;
-                PlayerCopy.MainChar.MainClassType = Helper.TargetChar.GetClass() ?? AvailableClasses.AST;
+                PlayerCopy.MainChar.Name = target.Name.TextValue;
+                PlayerCopy.MainChar.HomeWorldID = target.HomeWorld.Id;
+                PlayerCopy.MainChar.MainClassType = target.GetClass() ?? AvailableClasses.AST;
             }
             else if (Player.Filled)
             {
@@ -47,17 +59,15 @@ namespace HimbeertoniRaidTool.UI
             {
                 ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
                 if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50))
-                    PlayerCopy.MainChar.HomeWorld = null;
-                string world = PlayerCopy.MainChar.HomeWorld?.Name.RawString ?? "";
-                ImGui.InputText(Localize("HomeWorld", "Home World"), ref world, 50, ImGuiInputTextFlags.ReadOnly);
-
+                    PlayerCopy.MainChar.HomeWorldID = 0;
+                int worldID = (int)PlayerCopy.MainChar.HomeWorldID;
+                if (ImGui.Combo(Localize("HomeWorld", "Home World"), ref worldID, Worlds, Worlds!.Length))
+                    PlayerCopy.MainChar.HomeWorldID = (uint)(worldID < 0 ? 0 : worldID);
                 if (Helper.TryGetChar(PlayerCopy.MainChar.Name) is not null)
                 {
                     ImGui.SameLine();
                     if (ImGui.Button(Localize("Get", "Get")))
                         PlayerCopy.MainChar.HomeWorld = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.HomeWorld.GameData;
-                    if (ImGui.IsItemHovered())
-                        ImGui.SetTooltip(Localize("WorksOnTargetrOnly", "You need to target the Character to retrieve world information."));
                 }
                 int mainClass = (int)PlayerCopy.MainChar.MainClassType;
                 if (ImGui.Combo(Localize("Main Class", "Main Class"), ref mainClass, Enum.GetNames(typeof(AvailableClasses)), Enum.GetNames(typeof(AvailableClasses)).Length))
@@ -78,60 +88,71 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.SameLine();
                 if (ImGui.Button(Localize("Reset", "Reset") + "##BIS"))
                     PlayerCopy.MainChar.MainClass.BIS.EtroID = "";
-                if (ImGui.Button(Localize("Save", "Save")))
+                if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Save, "Save", Localize("Save", "Save Player")))
                 {
-                    List<(AvailableClasses, Func<bool>)> bisUpdates = new();
-                    Player.NickName = PlayerCopy.NickName;
-                    Player.MainChar.Name = PlayerCopy.MainChar.Name;
-                    Player.MainChar.HomeWorld = PlayerCopy.MainChar.HomeWorld;
-                    Player.MainChar.MainClassType = PlayerCopy.MainChar.MainClassType;
-                    foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
-                    {
-                        PlayableClass target = Player.MainChar.GetClass(c.ClassType);
-                        if (target.BIS.EtroID.Equals(c.BIS.EtroID))
-                            continue;
-                        target.BIS.EtroID = c.BIS.EtroID;
-                        if (target.BIS.EtroID.Equals(""))
-                        {
-                            target.BIS.Clear();
-                        }
-                        else
-                        {
-                            bisUpdates.Add((target.ClassType, () => EtroConnector.GetGearSet(target.BIS)));
-                        }
-                    }
-                    if (bisUpdates.Count > 0)
-                    {
-                        CallBack.Action =
-                            (t) =>
-                            {
-                                string success = "";
-                                string error = "";
-                                List<(AvailableClasses, bool)> results = ((Task<List<(AvailableClasses, bool)>>)t).Result;
-                                foreach (var result in results)
-                                {
-                                    if (result.Item2)
-                                        success += result.Item1 + ",";
-                                    else
-                                        error += result.Item1 + ",";
-                                }
-                                if (success.Length > 0)
-                                    ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
-                                            $"BIS for Character {Player.MainChar.Name} on classes ({success[0..^1]}) succesfully updated");
-
-                                if (error.Length > 0)
-                                    ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
-                                            $"BIS update for Character {Player.MainChar.Name} on classes ({error[0..^1]}) failed");
-                            };
-                        CallBack.Task = Task.Run(() => bisUpdates.ConvertAll((x) => (x.Item1, x.Item2.Invoke())));
-                    }
+                    SavePlayer();
                     Hide();
                 }
                 ImGui.SameLine();
-                if (ImGui.Button(Localize("Cancel", "Cancel")))
+                if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.WindowClose, "Cancel", Localize("Cancel", "Cancel")))
                     Hide();
             }
             ImGui.End();
+        }
+        private void SavePlayer()
+        {
+            List<(AvailableClasses, Func<bool>)> bisUpdates = new();
+            Player.NickName = PlayerCopy.NickName;
+            if (Player.MainChar.Name != PlayerCopy.MainChar.Name || Player.MainChar.HomeWorldID != PlayerCopy.MainChar.HomeWorldID)
+            {
+                uint oldWorld = Player.MainChar.HomeWorldID;
+                string oldName = Player.MainChar.Name;
+                Player.MainChar.Name = PlayerCopy.MainChar.Name;
+                Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
+                Character c = Player.MainChar;
+                DataManagement.DataManager.RearrangeCharacter(oldWorld, oldName, ref c);
+            }
+            Player.MainChar.MainClassType = PlayerCopy.MainChar.MainClassType;
+            foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
+            {
+                PlayableClass target = Player.MainChar.GetClass(c.ClassType);
+                if (target.BIS.EtroID.Equals(c.BIS.EtroID))
+                    continue;
+                target.BIS.EtroID = c.BIS.EtroID;
+                if (target.BIS.EtroID.Equals(""))
+                {
+                    target.BIS.Clear();
+                }
+                else
+                {
+                    bisUpdates.Add((target.ClassType, () => EtroConnector.GetGearSet(target.BIS)));
+                }
+            }
+            if (bisUpdates.Count > 0)
+            {
+                CallBack.Action =
+                    (t) =>
+                    {
+                        string success = "";
+                        string error = "";
+                        List<(AvailableClasses, bool)> results = ((Task<List<(AvailableClasses, bool)>>)t).Result;
+                        foreach (var result in results)
+                        {
+                            if (result.Item2)
+                                success += result.Item1 + ",";
+                            else
+                                error += result.Item1 + ",";
+                        }
+                        if (success.Length > 0)
+                            ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
+                                    $"BIS for Character {Player.MainChar.Name} on classes ({success[0..^1]}) succesfully updated");
+
+                        if (error.Length > 0)
+                            ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
+                                    $"BIS update for Character {Player.MainChar.Name} on classes ({error[0..^1]}) failed");
+                    };
+                CallBack.Task = Task.Run(() => bisUpdates.ConvertAll((x) => (x.Item1, x.Item2.Invoke())));
+            }
         }
         public bool Equals(EditPlayerWindow other)
         {

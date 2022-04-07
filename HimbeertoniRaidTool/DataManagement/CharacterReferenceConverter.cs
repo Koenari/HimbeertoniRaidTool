@@ -30,11 +30,12 @@ namespace HimbeertoniRaidTool.DataManagement
                 return null;
             JObject jt = JObject.Load(reader);
 
-            CharacterReference? cRef = jt.ContainsKey("WorldID") && jt.ContainsKey("Name") ? new((uint)(jt["WorldID"] ?? 0), (string?)jt["Name"] ?? "") : null;
+            CharacterReference? cRef = jt.ContainsKey("WorldID") && jt.ContainsKey("Name") ?
+                new((uint)(jt["WorldID"] ?? 0), (string?)jt["Name"] ?? "") : null;
             if (cRef == null)
                 return null;
             Character result = new(cRef.Name, cRef.HomeWorldID);
-            DataManager.CharacterDB.AddOrGetCharacter(cRef.HomeWorldID, cRef.Name, ref result);
+            DataManager.CharacterDB.AddOrGetCharacter(ref result);
             return result;
         }
     }

@@ -76,7 +76,7 @@ namespace HimbeertoniRaidTool.LootMaster
             if (targetChar is null)
                 return;
             targetChar.GetClass(targetClass).Level = target.Level;
-            GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar!, targetClass);
+            GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
             DataManagement.DataManager.GetManagedGearSet(ref setToFill);
 
             setToFill.Clear();

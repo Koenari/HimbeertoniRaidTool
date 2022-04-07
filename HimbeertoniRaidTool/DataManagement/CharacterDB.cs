@@ -25,14 +25,20 @@ namespace HimbeertoniRaidTool.DataManagement
                 DataManager.JsonSerializerSettings) ?? new();
             DataManager.JsonSerializerSettings.Converters.Remove(conv);
         }
-        internal void AddOrGetCharacter(uint worldID, string name, ref Character c)
+        internal void AddOrGetCharacter(ref Character c)
         {
-            if (!CharDB.ContainsKey(worldID))
-                CharDB.Add(worldID, new Dictionary<string, Character>());
-            if (!CharDB[worldID].ContainsKey(name))
-                CharDB[worldID].Add(name, c);
-            if (CharDB[worldID].TryGetValue(name, out Character? c2))
+            if (!CharDB.ContainsKey(c.HomeWorldID))
+                CharDB.Add(c.HomeWorldID, new Dictionary<string, Character>());
+            if (!CharDB[c.HomeWorldID].ContainsKey(c.Name))
+                CharDB[c.HomeWorldID].Add(c.Name, c);
+            if (CharDB[c.HomeWorldID].TryGetValue(c.Name, out Character? c2))
                 c = c2;
+        }
+        internal void UpdateIndex(uint oldWorld, string oldName, ref Character c)
+        {
+            if (CharDB.ContainsKey(oldWorld))
+                CharDB[oldWorld].Remove(oldName);
+            AddOrGetCharacter(ref c);
         }
         internal void Save()
         {
@@ -43,6 +49,7 @@ namespace HimbeertoniRaidTool.DataManagement
                 JsonConvert.SerializeObject(CharDB, DataManager.JsonSerializerSettings));
             DataManager.JsonSerializerSettings.Converters.Remove(conv);
         }
+
     }
     public struct CharacterDBIndex
     {

@@ -51,7 +51,23 @@ namespace HimbeertoniRaidTool.DataManagement
         public static void GetManagedCharacter(ref Character c)
         {
             if (Initialized)
-                CharacterDB.AddOrGetCharacter(c.HomeWorldID, c.Name, ref c);
+                CharacterDB.AddOrGetCharacter(ref c);
+        }
+        public static void RearrangeCharacter(uint oldWorld, string oldName, ref Character c)
+        {
+            if (!Initialized)
+                return;
+            CharacterDB.UpdateIndex(oldWorld, oldName, ref c);
+            for (int i = 0; i < c.Classes.Count; i++)
+            {
+                string oldID = c.Classes[i].Gear.HrtID;
+                c.Classes[i].Gear.UpdateID(c, c.Classes[i].ClassType);
+                RearrangeGearSet(oldID, ref c.Classes[i].Gear);
+            }
+        }
+        public static void RearrangeGearSet(string oldID, ref GearSet gs)
+        {
+            GearDB.UpdateIndex(oldID, ref gs);
         }
         public static void Fill(List<RaidGroup> rg)
         {

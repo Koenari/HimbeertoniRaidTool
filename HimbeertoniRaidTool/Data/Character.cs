@@ -16,7 +16,7 @@ namespace HimbeertoniRaidTool.Data
         public AvailableClasses MainClassType = AvailableClasses.AST;
         public PlayableClass MainClass => GetClass(MainClassType);
         [JsonProperty("WorldID")]
-        public uint HomeWorldID { get; private set; }
+        public uint HomeWorldID;
         public World? HomeWorld
         {
             get => HomeWorldID > 0 ? Services.DataManager.GetExcelSheet<World>()?.GetRow(HomeWorldID) : null;
