@@ -49,10 +49,24 @@ namespace HimbeertoniRaidTool.Data
             if (ReferenceEquals(this, other)) return true;
             if (ID != other.ID) return false;
             if (Materia.Count != other.Materia.Count) return false;
-            for (int i = 0; i < Materia.Count; i++)
+            var cnt = new Dictionary<HrtMateria, int>();
+            foreach (HrtMateria s in Materia)
             {
-                if (!Materia[i].Equals(other.Materia[i])) return false;
+                if (cnt.ContainsKey(s))
+                    cnt[s]++;
+                else
+                    cnt.Add(s, 1);
             }
+            foreach (HrtMateria s in other.Materia)
+            {
+                if (cnt.ContainsKey(s))
+                    cnt[s]--;
+                else
+                    return false;
+            }
+            foreach (int s in cnt.Values)
+                if (s != 0)
+                    return false;
             return true;
         }
     }
