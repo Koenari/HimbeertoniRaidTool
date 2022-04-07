@@ -5,25 +5,25 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
-    [Serializable]
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class Character : IEquatable<Character>
     {
+        [JsonProperty("Classes")]
         public List<PlayableClass> Classes = new();
+        [JsonProperty("Name")]
         public string Name = "";
+        [JsonProperty("MainClassType")]
         public AvailableClasses MainClassType = AvailableClasses.AST;
-        [JsonIgnore]
         public PlayableClass MainClass => GetClass(MainClassType);
         [JsonProperty("WorldID")]
         public uint HomeWorldID { get; private set; }
-        [JsonIgnore]
         public World? HomeWorld
         {
             get => HomeWorldID > 0 ? Services.DataManager.GetExcelSheet<World>()?.GetRow(HomeWorldID) : null;
             set => HomeWorldID = value?.RowId ?? 0;
         }
-
-        [JsonIgnore]
         public bool Filled => Name != "";
+        [JsonConstructor]
         public Character(string name = "", uint worldID = 0)
         {
             Name = name;

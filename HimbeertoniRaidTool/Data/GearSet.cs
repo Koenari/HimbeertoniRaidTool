@@ -3,30 +3,46 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class GearSet
     {
+        [JsonProperty("TimeStamp")]
         public DateTime? TimeStamp;
+        [JsonProperty("EtroID")]
         public string EtroID = "";
+        [JsonProperty("HrtID")]
         public string HrtID = "";
+        [JsonProperty("Name")]
         public string Name = "";
+        [JsonProperty("ManagedBy")]
         public GearSetManager ManagedBy;
         private const int NumSlots = 12;
         private readonly GearItem[] Items = new GearItem[NumSlots];
+        [JsonProperty]
         public GearItem MainHand { get => Items[0]; set => Items[0] = value; }
+        [JsonProperty]
         public GearItem Head { get => Items[1]; set => Items[1] = value; }
+        [JsonProperty]
         public GearItem Body { get => Items[2]; set => Items[2] = value; }
+        [JsonProperty]
         public GearItem Hands { get => Items[3]; set => Items[3] = value; }
+        [JsonProperty]
         public GearItem Legs { get => Items[4]; set => Items[4] = value; }
+        [JsonProperty]
         public GearItem Feet { get => Items[5]; set => Items[5] = value; }
+        [JsonProperty]
         public GearItem Ear { get => Items[6]; set => Items[6] = value; }
+        [JsonProperty]
         public GearItem Neck { get => Items[7]; set => Items[7] = value; }
+        [JsonProperty]
         public GearItem Wrist { get => Items[8]; set => Items[8] = value; }
+        [JsonProperty]
         public GearItem Ring1 { get => Items[9]; set => Items[9] = value; }
+        [JsonProperty]
         public GearItem Ring2 { get => Items[10]; set => Items[10] = value; }
+        [JsonProperty]
         public GearItem OffHand { get => Items[11]; set => Items[11] = value; }
-        [JsonIgnore]
         public bool IsEmpty => Array.TrueForAll(Items, x => x.ID == 0);
-        [JsonIgnore]
         public int ItemLevel
         {
             get
@@ -64,7 +80,6 @@ namespace HimbeertoniRaidTool.Data
                 Items[i] = new(0);
             }
         }
-        [JsonIgnore]
         public GearItem this[GearSetSlot slot]
         {
             get => Items[ToIndex(slot)];
