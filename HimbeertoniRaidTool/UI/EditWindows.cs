@@ -118,15 +118,17 @@ namespace HimbeertoniRaidTool.UI
                 PlayableClass target = Player.MainChar.GetClass(c.ClassType);
                 if (target.BIS.EtroID.Equals(c.BIS.EtroID))
                     continue;
-                target.BIS.EtroID = c.BIS.EtroID;
-                if (target.BIS.EtroID.Equals(""))
+                GearSet set = new()
                 {
-                    target.BIS.Clear();
-                }
-                else
+                    ManagedBy = GearSetManager.Etro,
+                    EtroID = c.BIS.EtroID
+                };
+                if (!set.EtroID.Equals(""))
                 {
+                    DataManagement.DataManager.GearDB.AddOrGetSet(ref set);
                     bisUpdates.Add((target.ClassType, () => EtroConnector.GetGearSet(target.BIS)));
                 }
+                target.BIS = set;
             }
             if (bisUpdates.Count > 0)
             {
