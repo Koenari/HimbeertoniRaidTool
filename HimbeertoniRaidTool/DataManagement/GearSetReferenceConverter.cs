@@ -25,7 +25,7 @@ namespace HimbeertoniRaidTool.DataManagement
                 return null;
             JObject jt = JObject.Load(reader);
 
-            GearSetReference? gsRef = jt.ContainsKey("ID") && jt.ContainsKey("ManagedBy") ? new((string?)jt["ID"] ?? "", (GearSetManager)(int)jt["ManagedBy"]) : null;
+            GearSetReference? gsRef = jt.ContainsKey("ID") && jt.ContainsKey("ManagedBy") ? new((string)jt["ID"]!, (GearSetManager)(int)jt["ManagedBy"]!) : null;
             if (gsRef == null)
                 return null;
             GearSet result = new()
