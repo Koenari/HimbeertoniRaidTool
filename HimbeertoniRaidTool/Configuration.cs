@@ -77,6 +77,7 @@ namespace HimbeertoniRaidTool
                         DataManagement.DataManager.Fill(RaidGroups);
                         RaidGroups = new();
                         Version = 3;
+                        Save();
                         break;
                     default:
                         throw new Exception("Unsupported Version of Configuration");
