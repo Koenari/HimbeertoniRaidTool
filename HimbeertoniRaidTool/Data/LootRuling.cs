@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.Data
 {
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class LootRuling
     {
-        [JsonIgnore]
         public static List<LootRule> PossibleRules
         {
             get
@@ -18,7 +18,9 @@ namespace HimbeertoniRaidTool.Data
                 return result;
             }
         }
+        [JsonProperty("RuleSet")]
         public List<LootRule> RuleSet = new();
+        [JsonProperty("StrictRooling")]
         public bool StrictRooling = false;
 
         public List<(Player, string)> Evaluate(RaidGroup group, GearSetSlot slot, List<Player>? excluded = null)
@@ -91,10 +93,11 @@ namespace HimbeertoniRaidTool.Data
             }
         }
     }
+    [JsonObject(MemberSerialization.OptIn)]
     public class LootRule
     {
+        [JsonProperty("Rule")]
         public LootRuleEnum? Rule;
-        [JsonIgnore]
         public Func<Player, Player, GearSetSlot, bool, int> Compare
         {
             get
@@ -141,7 +144,7 @@ namespace HimbeertoniRaidTool.Data
             return ((LootRule)obj).Rule.Equals(Rule);
         }
 
-
+        [JsonConstructor]
         public LootRule(LootRuleEnum? rule = null) => Rule = rule;
 
         public override int GetHashCode() => Rule.GetHashCode();

@@ -1,8 +1,8 @@
-﻿using Dalamud.Logging;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using Dalamud.Logging;
+using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -95,13 +95,12 @@ namespace HimbeertoniRaidTool.Data
             {
                 set[slot] = new(id);
                 string idString = id.ToString() + (slot == GearSetSlot.Ring1 ? "L" : slot == GearSetSlot.Ring2 ? "R" : "");
-                if (etroSet!.materia.TryGetValue(idString, out Dictionary<uint, uint>? materia))
+                if (etroSet!.materia?.TryGetValue(idString, out Dictionary<uint, uint>? materia) ?? false)
                     foreach (uint matId in materia.Values)
                         set[slot].Materia.Add(new(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, byte)>(matId, (0, 0))));
             }
         }
     }
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Benennungsstile", Justification = "class is maintained by 3rd party")]
     class EtroGearSet
     {
 
@@ -109,7 +108,7 @@ namespace HimbeertoniRaidTool.Data
         public string? jobAbbrev { get; set; }
         public string? name { get; set; }
         public DateTime lastUpdate { get; set; }
-        public Dictionary<string, Dictionary<uint, uint>> materia { get; set; }
+        public Dictionary<string, Dictionary<uint, uint>>? materia { get; set; }
         public uint weapon { get; set; }
         public uint head { get; set; }
         public uint body { get; set; }

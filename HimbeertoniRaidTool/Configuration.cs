@@ -1,9 +1,9 @@
-﻿using Dalamud.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using Dalamud.Configuration;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using static HimbeertoniRaidTool.Data.AvailableClasses;
 
 namespace HimbeertoniRaidTool
@@ -13,7 +13,7 @@ namespace HimbeertoniRaidTool
     {
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
-        private readonly int TargetVersion = 2;
+        private readonly int TargetVersion = 3;
         public int Version { get; set; } = 2;
         public Dictionary<AvailableClasses, string> DefaultBIS { get; set; } = new Dictionary<AvailableClasses, string>
         {
@@ -73,6 +73,12 @@ namespace HimbeertoniRaidTool
                         GroupInfo = null;
                         Version = 2;
                         break;
+                    case 2:
+                        DataManagement.DataManager.Fill(RaidGroups);
+                        RaidGroups = new();
+                        Version = 3;
+                        Save();
+                        break;
                     default:
                         throw new Exception("Unsupported Version of Configuration");
                 }
@@ -104,9 +110,6 @@ namespace HimbeertoniRaidTool
                         }
                 );
             }
-            foreach (RaidGroup group in RaidGroups)
-                foreach (Player player in group.Players)
-                    player.MainChar.CleanUpClasses();
             FullyLoaded = true;
         }
     }

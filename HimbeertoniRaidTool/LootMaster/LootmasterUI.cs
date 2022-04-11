@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ColorHelper;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.DataManagement;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using static ColorHelper.HRTColorConversions;
@@ -338,6 +339,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.TableNextColumn();
                 ImGui.Text($"{player.Pos}  { player.NickName}");
                 ImGui.Text($"{ player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? "n.A."}");
+                Character c = player.MainChar;
 
                 if (player.MainChar.Classes.Count > 1)
                 {
@@ -354,6 +356,8 @@ namespace HimbeertoniRaidTool.LootMaster
                 GearSet bis = player.MainChar.MainClass.BIS;
                 ImGui.TableNextColumn();
                 ImGui.Text(gear.ItemLevel.ToString());
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip(gear.HrtID);
                 ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
                 ImGui.Text(bis.ItemLevel.ToString() + " (Link)");
                 if (ImGui.IsItemClicked())
@@ -380,7 +384,17 @@ namespace HimbeertoniRaidTool.LootMaster
                     DrawItem(gear.Ring2, bis.Ring2);
                 }
                 ImGui.TableNextColumn();
-                var playerChar = Helper.TryGetChar(player.MainChar.Name);
+                var playerChar = Helper.TryGetChar(player.MainChar.Name, player.MainChar.HomeWorld);
+                if (c.HomeWorldID == 0 && playerChar is null)
+                {
+                    playerChar = Helper.TryGetChar(player.MainChar.Name);
+                    if (playerChar is not null && !DataManager.CharacterExists(playerChar.HomeWorld.Id, player.MainChar.Name))
+                    {
+                        uint worldID = player.MainChar.HomeWorldID;
+                        player.MainChar.HomeWorldID = playerChar.HomeWorld.Id;
+                        DataManager.RearrangeCharacter(worldID, player.MainChar.Name, ref c);
+                    }
+                }
                 if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(),
                     Localize("Inspect", "Update Gear"), playerChar is not null))
                 {

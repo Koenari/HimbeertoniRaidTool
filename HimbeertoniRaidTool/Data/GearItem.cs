@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class GearItem : HrtItem
     {
         private static KeyContainsDictionary<GearSource> SourceDic => CuratedData.GearSourceDictionary;
@@ -15,7 +16,7 @@ namespace HimbeertoniRaidTool.Data
         public GearSetSlot Slot => SlotOverride ?? (Item.EquipSlotCategory.Value?.ToSlot()) ?? GearSetSlot.None;
         [JsonIgnore]
         public GearSource Source => _ID > 0 ? SourceDic.GetValueOrDefault(Name, GearSource.undefined) : GearSource.undefined;
-
+        [JsonProperty("Materia")]
         public List<HrtMateria> Materia = new();
         [JsonIgnore]
         public uint ItemLevel => (Item.LevelItem is null) ? 0 : Item.LevelItem.Row;
@@ -42,6 +43,7 @@ namespace HimbeertoniRaidTool.Data
             return result;
         }
         public GearItem() : base() { }
+        [JsonConstructor]
         public GearItem(uint id) : base(id) { }
         public bool Equals(GearItem other)
         {
@@ -49,26 +51,37 @@ namespace HimbeertoniRaidTool.Data
             if (ReferenceEquals(this, other)) return true;
             if (ID != other.ID) return false;
             if (Materia.Count != other.Materia.Count) return false;
-            for (int i = 0; i < Materia.Count; i++)
+            var cnt = new Dictionary<HrtMateria, int>();
+            foreach (HrtMateria s in Materia)
             {
-                if (!Materia[i].Equals(other.Materia[i])) return false;
+                if (cnt.ContainsKey(s))
+                    cnt[s]++;
+                else
+                    cnt.Add(s, 1);
             }
+            foreach (HrtMateria s in other.Materia)
+            {
+                if (cnt.ContainsKey(s))
+                    cnt[s]--;
+                else
+                    return false;
+            }
+            foreach (int s in cnt.Values)
+                if (s != 0)
+                    return false;
             return true;
         }
     }
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class HrtItem
     {
         protected uint _ID;
+        [JsonProperty("ID")]
         public virtual uint ID { get => _ID; set { _ID = value; } }
-        [JsonIgnore]
         public TextureWrap? Icon => Services.DataManager.GetImGuiTextureIcon(Item.Icon);
-        [JsonIgnore]
         public Item Item => Sheet?.GetRow(ID) ?? new Item();
-        [JsonIgnore]
         public string Name => ID > 0 ? Item.Name.RawString : "";
-        [JsonIgnore]
         public bool Filled => ID > 0 && Name.Length > 0;
-        [JsonIgnore]
         public bool Valid => ID > 0;
 
         protected static ExcelSheet<Item>? Sheet => Services.DataManager.Excel.GetSheet<Item>();
@@ -86,19 +99,19 @@ namespace HimbeertoniRaidTool.Data
         }
         public override int GetHashCode() => ID.GetHashCode();
     }
-
+    [JsonObject(MemberSerialization.OptIn)]
     public class HrtMateria : HrtItem
     {
+        [JsonProperty("Category")]
         public MateriaCategory Category;
+        [JsonProperty("MateriaLevel")]
         public byte MateriaLevel;
-        [JsonIgnore]
         private ExcelSheet<Materia> MateriaSheet => Services.DataManager.Excel.GetSheet<Materia>()!;
-        [JsonIgnore]
         public override uint ID => Category != MateriaCategory.None ? Materia?.Item[MateriaLevel].Row ?? 0 : 0;
-        [JsonIgnore]
         public Materia? Materia => MateriaSheet.GetRow((ushort)Category);
         public HrtMateria() : this(0, 0) { }
         public HrtMateria((MateriaCategory cat, byte lvl) mat) : this(mat.cat, mat.lvl) { }
+        [JsonConstructor]
         public HrtMateria(MateriaCategory cat, byte lvl) => (Category, MateriaLevel) = (cat, lvl);
         public int GetStat(StatType type)
         {

@@ -1,18 +1,19 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class Player : IComparable<Player>
     {
+        [JsonProperty("NickName")]
         public string NickName = "";
-        [JsonIgnore]
-        public bool Filled => NickName != "";
-
+        [JsonProperty("Pos")]
         public PositionInRaidGroup Pos;
+        [JsonProperty("Chars")]
         public List<Character> Chars { get; set; } = new();
-        [JsonIgnore]
+        public bool Filled => NickName != "";
         public Character MainChar
         {
             get
@@ -27,11 +28,10 @@ namespace HimbeertoniRaidTool.Data
                 Chars.Insert(0, value);
             }
         }
-        [JsonIgnore]
         public GearSet Gear => MainChar.MainClass.Gear;
-        [JsonIgnore]
         public GearSet BIS => MainChar.MainClass.BIS;
         public Player() { }
+        [JsonConstructor]
         public Player(PositionInRaidGroup pos) => Pos = pos;
         internal void Reset()
         {
@@ -41,8 +41,8 @@ namespace HimbeertoniRaidTool.Data
         public int CompareTo(Player? other)
         {
             if (other == null)
-                return Int32.MaxValue;
-            return this.Pos - other.Pos;
+                return int.MaxValue;
+            return Pos - other.Pos;
         }
 
 
