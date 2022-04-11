@@ -15,7 +15,8 @@ namespace HimbeertoniRaidTool.UI
         private readonly Player Player;
         private readonly Player PlayerCopy;
         private readonly AsyncTaskWithUiResult CallBack;
-        private static string[]? Worlds;
+        private bool IsNew = false;
+        private static string[] Worlds;
         internal PositionInRaidGroup Pos => Player.Pos;
 
         internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, bool openHidden = false) : base()
@@ -34,7 +35,8 @@ namespace HimbeertoniRaidTool.UI
             Player = group[pos];
             PlayerCopy = new();
             var target = Helper.TargetChar;
-            if (!Player.Filled && target is not null)
+            IsNew = !Player.Filled;
+            if (IsNew && target is not null)
             {
                 PlayerCopy.MainChar.Name = target.Name.TextValue;
                 PlayerCopy.MainChar.HomeWorldID = target.HomeWorld.Id;
@@ -61,7 +63,7 @@ namespace HimbeertoniRaidTool.UI
                 if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50))
                     PlayerCopy.MainChar.HomeWorldID = 0;
                 int worldID = (int)PlayerCopy.MainChar.HomeWorldID;
-                if (ImGui.Combo(Localize("HomeWorld", "Home World"), ref worldID, Worlds, Worlds!.Length))
+                if (ImGui.Combo(Localize("HomeWorld", "Home World"), ref worldID, Worlds, Worlds.Length))
                     PlayerCopy.MainChar.HomeWorldID = (uint)(worldID < 0 ? 0 : worldID);
                 if (Helper.TryGetChar(PlayerCopy.MainChar.Name) is not null)
                 {
@@ -103,6 +105,14 @@ namespace HimbeertoniRaidTool.UI
         {
             List<(AvailableClasses, Func<bool>)> bisUpdates = new();
             Player.NickName = PlayerCopy.NickName;
+            if (IsNew)
+            {
+                Character c = new Character(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
+                DataManagement.DataManager.GetManagedCharacter(ref c);
+                Player.MainChar = c;
+                if (c.Classes.Count > 0)
+                    return;
+            }
             if (Player.MainChar.Name != PlayerCopy.MainChar.Name || Player.MainChar.HomeWorldID != PlayerCopy.MainChar.HomeWorldID)
             {
                 uint oldWorld = Player.MainChar.HomeWorldID;
@@ -111,6 +121,7 @@ namespace HimbeertoniRaidTool.UI
                 Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
                 Character c = Player.MainChar;
                 DataManagement.DataManager.RearrangeCharacter(oldWorld, oldName, ref c);
+                Player.MainChar = c;
             }
             Player.MainChar.MainClassType = PlayerCopy.MainChar.MainClassType;
             foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
@@ -154,6 +165,7 @@ namespace HimbeertoniRaidTool.UI
                                     $"BIS update for Character {Player.MainChar.Name} on classes ({error[0..^1]}) failed");
                     };
                 CallBack.Task = Task.Run(() => bisUpdates.ConvertAll((x) => (x.Item1, x.Item2.Invoke())));
+
             }
         }
         public bool Equals(EditPlayerWindow other)
