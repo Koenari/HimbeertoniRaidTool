@@ -10,6 +10,7 @@ namespace HimbeertoniRaidTool.Data
         Tome,
         Crafted,
         undefined,
+        AllianceRaid,
     }
     public enum GearSetSlot : short
     {
@@ -327,8 +328,8 @@ namespace HimbeertoniRaidTool.Data
             GearSource.Trial => Localize("Trial", "Trial"),
             GearSource.Tome => Localize("Tome", "Tome"),
             GearSource.Crafted => Localize("Crafted", "Crafted"),
+            GearSource.AllianceRaid => Localize("Alliance", "Alliance"),
             _ => Localize("undefined", "undefined")
-
         };
 
     }

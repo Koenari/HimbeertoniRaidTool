@@ -32,7 +32,7 @@ namespace HimbeertoniRaidTool.Data
                 case StatType.MagicDefense: result += Item.DefenseMag; break;
                 default:
                     if (Item?.UnkData59 is not null)
-                        foreach (Item.ItemUnkData59Obj param in Item.UnkData59)
+                        foreach (Item.UnkData59Obj param in Item.UnkData59)
                             if (param.BaseParam == (ushort)type)
                                 result += param.BaseParamValue;
                     break;

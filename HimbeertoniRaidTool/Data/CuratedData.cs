@@ -82,6 +82,8 @@ namespace HimbeertoniRaidTool.Data
             { "Eternal Dark", GearSource.Trial },
             { "Moonward", GearSource.Tome },
             { "Divine Light", GearSource.Trial },
+            { "Panthean", GearSource.AllianceRaid },
+            { "Bluefeather", GearSource.Trial },
         };
     }
     public static class CuratedDataExtension
