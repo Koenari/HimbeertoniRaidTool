@@ -64,10 +64,9 @@ namespace HimbeertoniRaidTool.LootMaster
 
             var playerChar = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, p.Pos.ToString(),
-                    "Unavailable due to recent game update", false))//Localize("Inspect", "Update Gear"), playerChar is not null))
+                    Localize("Inspect", "Update Gear"), playerChar is not null))
             {
-                GearRefresherOnExamine.TargetOverrride = playerChar;
-                Services.XivCommonBase.Functions.Examine.OpenExamineWindow(playerChar!);
+                GearRefresherOnExamine.RefreshGearInfos(playerChar);
             }
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Solo", Localize("Edit", "Edit")))
@@ -396,10 +395,9 @@ namespace HimbeertoniRaidTool.LootMaster
                     }
                 }
                 if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(),
-                    "Unavailable due to recent game update", false))//Localize("Inspect", "Update Gear"), playerChar is not null))
+                    Localize("Inspect", "Update Gear"), playerChar is not null))
                 {
-                    GearRefresherOnExamine.TargetOverrride = playerChar;
-                    Services.XivCommonBase.Functions.Examine.OpenExamineWindow(playerChar!);
+                    GearRefresherOnExamine.RefreshGearInfos(playerChar);
                 }
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, player.Pos.ToString(),

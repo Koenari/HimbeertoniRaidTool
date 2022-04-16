@@ -8,7 +8,7 @@
         "plugin"
     ],
     "InternalName": "HimbeertoniRaidTool",
-    "AssemblyVersion": "0.1.5.8",
+    "AssemblyVersion": "0.1.5.9",
     "DalamudApiLevel": 6,
     "RepoUrl": "https://github.com/Koenari/HimbeertoniRaidTool",
     "IconUrl": "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png",

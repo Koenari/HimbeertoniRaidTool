@@ -19,20 +19,45 @@ namespace HimbeertoniRaidTool.LootMaster
         private static readonly IntPtr InventoryManagerAddress = Services.SigScanner.GetStaticAddressFromSig("BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B F8 48 85 C0");
         private static readonly IntPtr getInventoryContainerPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 55 BB");
         private static readonly IntPtr getContainerSlotPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 5B 0C");
+        private static readonly IntPtr RequestCharacterInfoPtr = Services.SigScanner.ScanText("40 53 48 83 EC 40 48 8B D9 48 8B 49 10 48 8b 01 ff 90 20 01 00 00 ba 01 00 00 00");
 
         private delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
         private delegate InventoryContainer* GetInventoryContainer(IntPtr inventoryManager, InventoryType inventoryType);
         private delegate InventoryItem* GetContainerSlot(InventoryContainer* inventoryContainer, int slotId);
+        private delegate long RequestCharInfoDelegate(IntPtr ptr);
 
         private static readonly GetInventoryContainer _getInventoryContainer;
         private static readonly GetContainerSlot _getContainerSlot;
-        public static PlayerCharacter? TargetOverrride = null;
+        private static readonly RequestCharInfoDelegate _requestCharacterInfo;
+        private static PlayerCharacter? TargetOverrride = null;
         static GearRefresherOnExamine()
         {
             Hook = new(HookAddress, OnExamineRefresh);
             _getContainerSlot = Marshal.GetDelegateForFunctionPointer<GetContainerSlot>(getContainerSlotPtr);
             _getInventoryContainer = Marshal.GetDelegateForFunctionPointer<GetInventoryContainer>(getInventoryContainerPtr);
+            _requestCharacterInfo = Marshal.GetDelegateForFunctionPointer<RequestCharInfoDelegate>(RequestCharacterInfoPtr);
 
+        }
+        internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
+        {
+            if (@object == null)
+                return;
+            uint objectId = @object.ObjectId;
+            if (_requestCharacterInfo == null)
+            {
+                Dalamud.Logging.PluginLog.LogError("Could not find signature for Examine function");
+
+                return;
+            }
+            TargetOverrride = @object;
+            IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
+            uint* ptr = (uint*)(void*)intPtr;
+            ptr[10] = objectId;
+            ptr[11] = objectId;
+            ptr[12] = objectId;
+            ptr[13] = 3758096384u;
+            ptr[301] = 0u;
+            _requestCharacterInfo(intPtr);
         }
         internal static void Enable() => Hook.Enable();
         private static byte OnExamineRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* loadingStage)
