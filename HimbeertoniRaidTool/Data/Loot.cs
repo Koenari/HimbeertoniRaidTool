@@ -27,7 +27,7 @@ namespace HimbeertoniRaidTool.Data
 
     public static class LootDB
     {
-        private readonly static Dictionary<(RaidTier, int), List<GearItem>> LootSourceDB;
+        private readonly static Dictionary<(RaidTier, int), List<HrtItem>> LootSourceDB;
 
         static LootDB()
         {
@@ -38,36 +38,14 @@ namespace HimbeertoniRaidTool.Data
                 {
                     if (!LootSourceDB.ContainsKey(source))
                         LootSourceDB.Add(source, new());
-                    foreach (uint id in entry.Key.Enumerator)
+                    foreach (uint id in entry.Key.AsList)
                         LootSourceDB[source].Add(new(id));
+
+
                 }
             }
         }
 
-        public static List<GearItem> GetPossibleLoot(RaidTier raidTear, int boss) => LootSourceDB.GetValueOrDefault((raidTear, boss), new());
-    }
-
-    public class ItemIDRange
-    {
-        public static implicit operator ItemIDRange(uint id) => new(id, id);
-        public static implicit operator ItemIDRange((uint, uint) id) => new(id.Item1, id.Item2);
-        public static implicit operator ItemIDRange(KeyValuePair<uint, uint> id) => new(id.Key, id.Value);
-        private readonly uint StartID;
-        private readonly uint EndID;
-        private bool InRange(uint id) => StartID <= id && id <= EndID;
-        public IEnumerable<uint> Enumerator => Enumerable.Range((int)StartID, (int)(EndID - StartID + 1)).ToList().ConvertAll(x => Convert.ToUInt32(x));
-        public ItemIDRange(uint start, uint end) => (StartID, EndID) = (start, end);
-        public override bool Equals(object? obj)
-        {
-            if (obj == null || !obj.GetType().IsAssignableTo(typeof(ItemIDRange)))
-                return false;
-            return Equals((ItemIDRange)obj);
-        }
-        public bool Equals(uint obj) => this == obj;
-        public bool Equals(ItemIDRange obj) => StartID == obj.StartID && EndID == obj.EndID;
-        public override int GetHashCode() => (StartID, EndID).GetHashCode();
-        public static bool operator ==(ItemIDRange left, uint right) => left.InRange(right);
-        public static bool operator !=(ItemIDRange left, uint right) => !left.InRange(right);
-
+        public static List<HrtItem> GetPossibleLoot(RaidTier raidTear, int boss) => LootSourceDB.GetValueOrDefault((raidTear, boss), new());
     }
 }

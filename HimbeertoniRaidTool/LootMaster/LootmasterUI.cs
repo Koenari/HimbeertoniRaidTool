@@ -194,11 +194,12 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             if (_CurrenGroupIndex > LootMaster.RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
                 _CurrenGroupIndex = 0;
-            ImGui.SetNextWindowSize(new Vector2(1600, 650), ImGuiCond.Appearing);
+            ImGui.SetNextWindowSize(new Vector2(1600, 670), ImGuiCond.Appearing);
             if (ImGui.Begin(Localize("LootMasterWindowTitle", "Loot Master"), ref Visible,
                 ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize))
             {
                 HandleAsync();
+                DrawLootHandlerButtons();
                 DrawRaidGroupSwitchBar();
                 if (CurrentGroup.Type == GroupType.Solo)
                 {
@@ -495,6 +496,37 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.Text(Localize("Empty", "Empty"));
             }
         }
+        private void DrawLootHandlerButtons()
+        {
+            if (ImGui.Button(Localize("Loot Boss 1 (Erichthonios)", "Loot Boss 1 (Erichthonios)")))
+            {
+                LootUi lui = new(CuratedData.AsphodelosSavage, 1, CurrentGroup);
+                Childs.Add(lui);
+                lui.Show();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button(Localize("Loot Boss 2 (Hippokampos)", "Loot Boss 2 (Hippokampos)")))
+            {
+                LootUi lui = new(CuratedData.AsphodelosSavage, 2, CurrentGroup);
+                Childs.Add(lui);
+                lui.Show();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button(Localize("Loot Boss 3 (Phoinix)", "Loot Boss 3 (Phoinix)")))
+            {
+                LootUi lui = new(CuratedData.AsphodelosSavage, 3, CurrentGroup);
+                Childs.Add(lui);
+                lui.Show();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button(Localize("Loot Boss 4 (Hesperos)", "Loot Boss 4 (Hesperos)")))
+            {
+                LootUi lui = new(CuratedData.AsphodelosSavage, 4, CurrentGroup);
+                Childs.Add(lui);
+                lui.Show();
+
+            }
+        }
 
     }
 
@@ -503,7 +535,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private readonly RaidGroup Group;
         private readonly RaidTier RaidTier;
         private readonly int Boss;
-        private readonly (GearItem, int)[] Loot;
+        private readonly (HrtItem, int)[] Loot;
         private LootRuling LootRuling => HRTPlugin.Configuration.LootRuling;
         private List<HrtUI> Children = new();
 
@@ -544,12 +576,12 @@ namespace HimbeertoniRaidTool.LootMaster
                 }
                 if (ImGui.Button(Localize("Distribute", "Distribute")))
                 {
-                    foreach ((GearItem, int) lootItem in Loot)
+                    foreach ((HrtItem, int) lootItem in Loot)
                     {
                         List<Player> alreadyLooted = new();
                         for (int j = 0; j < lootItem.Item2; j++)
                         {
-                            var evalLoot = LootRuling.Evaluate(Group, lootItem.Item1.Slot, alreadyLooted);
+                            var evalLoot = LootRuling.Evaluate(Group, lootItem.Item1, alreadyLooted);
                             alreadyLooted.Add(evalLoot[0].Item1);
                             var lootWindow = new LootResultWindow(lootItem.Item1, evalLoot);
                             Children.Add(lootWindow);
@@ -572,13 +604,13 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         class LootResultWindow : HrtUI
         {
-            public LootResultWindow(GearItem item1, List<(Player, string)> looters)
+            public LootResultWindow(HrtItem item1, List<(Player, string)> looters)
             {
                 Item = item1;
                 Looters = looters;
             }
 
-            public GearItem Item { get; }
+            public HrtItem Item { get; }
             public List<(Player, string)> Looters { get; }
 
             private LootRuling LootRuling => HRTPlugin.Configuration.LootRuling;

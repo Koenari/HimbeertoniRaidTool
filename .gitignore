@@ -2,5 +2,5 @@
 obj/
 bin/
 *.user
-/DevResources/Items.xlsx
+/DevResources/*
 .editorconfig

@@ -85,6 +85,8 @@ namespace HimbeertoniRaidTool.Data
             get => Items[ToIndex(slot)];
             set => Items[ToIndex(slot)] = value;
         }
+        public bool Contains(HrtItem item) => Array.Exists(Items, x => x.ID == item.ID);
+        public bool ContainsExact(GearItem item) => Array.Exists(Items, x => x.Equals(item));
         public int GetStat(StatType type)
         {
             int result = 0;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using static Dalamud.Localization;
 
@@ -8,6 +9,7 @@ namespace HimbeertoniRaidTool.Data
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class LootRuling
     {
+        public static Random Random = new Random(Guid.NewGuid().GetHashCode());
         public static List<LootRule> PossibleRules
         {
             get
@@ -22,27 +24,39 @@ namespace HimbeertoniRaidTool.Data
         public List<LootRule> RuleSet = new();
         [JsonProperty("StrictRooling")]
         public bool StrictRooling = false;
-
-        public List<(Player, string)> Evaluate(RaidGroup group, GearSetSlot slot, List<Player>? excluded = null)
+        public List<(Player, string)> Evaluate(RaidGroup group, HrtItem inItem, List<Player>? excluded = null)
         {
             excluded ??= new();
+            if (inItem.IsExhangableItem)
+                return Evaluate(group, new ExchangableItem(inItem.ID).PossiblePurchases, excluded);
+            else if (inItem.IsContainerItem)
+                return Evaluate(group, new ContainerItem(inItem.ID).PossiblePurchases, excluded);
+            else if (inItem.IsGear)
+                return Evaluate(group, new List<GearItem> { new(inItem.ID) }, excluded);
+            else
+                return new();
+
+        }
+        private List<(Player, string)> Evaluate(RaidGroup group, List<GearItem> possibleItems, List<Player> excluded)
+        {
             List<Player> need = new();
             List<Player> greed = new();
             foreach (Player p in group.Players)
             {
                 if (excluded.Contains(p))
                     continue;
-                if (p.MainChar.MainClass.Gear[slot].ItemLevel < p.MainChar.MainClass.BIS[slot].ItemLevel)
+                foreach (GearItem item in possibleItems)
                 {
-                    need.Add(p);
+                    if (p.Gear[item.Slot].ItemLevel < item.ItemLevel)
+                    {
+                        need.Add(p);
+                        break;
+                    }
                 }
-                else
-                {
+                if (!need.Contains(p))
                     greed.Add(p);
-                }
-
             }
-            LootRulingComparer comparer = GetComparer(slot);
+            LootRulingComparer comparer = GetComparer(possibleItems);
             need.Sort(comparer);
             List<(Player, string)> result = new();
             for (int i = 0; i < need.Count - 1; i++)
@@ -50,23 +64,24 @@ namespace HimbeertoniRaidTool.Data
                 result.Add((need[i],
                     comparer.RulingReason.GetValueOrDefault((need[i], need[i + 1]), new()).ToString()));
             }
-            result.Add((need[^1], Localize("Need > Greed", "Need > Greed")));
+            if (need.Count > 0)
+                result.Add((need[^1], Localize("Need > Greed", "Need > Greed")));
             foreach (Player p in greed)
             {
                 result.Add((p, Localize("Greed", "Greed")));
             }
             return result;
-
         }
-        private LootRulingComparer GetComparer(GearSetSlot slot) => new(RuleSet, slot, StrictRooling);
+        private LootRulingComparer GetComparer(List<GearItem> possibleItems) => new(RuleSet, possibleItems, StrictRooling);
 
         private class LootRulingComparer : IComparer<Player>
         {
-            private readonly GearSetSlot Slot;
+            private readonly List<GearItem> PossibleItems;
             private readonly List<LootRule> RuleSet;
             public Dictionary<(Player, Player), LootRule> RulingReason = new();
             private readonly bool StrictRuling;
-            public LootRulingComparer(List<LootRule> ruleSet, GearSetSlot slot, bool strict) => (RuleSet, Slot, StrictRuling) = (ruleSet, slot, strict);
+            public LootRulingComparer(List<LootRule> ruleSet, List<GearItem> possibleItems, bool strict)
+            => (RuleSet, PossibleItems, StrictRuling) = (ruleSet, possibleItems, strict);
 
             public int Compare(Player? x, Player? y)
             {
@@ -77,10 +92,10 @@ namespace HimbeertoniRaidTool.Data
                 if (y is null)
                     return -1;
                 if (RulingReason.ContainsKey((x, y)))
-                    return RulingReason[(x, y)].Compare(x, y, Slot, StrictRuling);
+                    return RulingReason[(x, y)].Compare(x, y, PossibleItems, StrictRuling);
                 foreach (LootRule rule in RuleSet)
                 {
-                    int result = rule.Compare(x, y, Slot, StrictRuling);
+                    int result = rule.Compare(x, y, PossibleItems, StrictRuling);
                     if (result != 0)
                     {
                         RulingReason.Add((x, y), rule);
@@ -98,30 +113,33 @@ namespace HimbeertoniRaidTool.Data
     {
         [JsonProperty("Rule")]
         public LootRuleEnum? Rule;
-        public Func<Player, Player, GearSetSlot, bool, int> Compare
+        public Func<Player, Player, List<GearItem>, bool, int> Compare
+        => Rule is not null ? CompareDic.GetValueOrDefault((LootRuleEnum)Rule, (x, y, loot, strict) => 0) : (x, y, loot, strict) => 0;
+
+
+        private readonly static Dictionary<LootRuleEnum, Func<Player, Player, List<GearItem>, bool, int>> CompareDic = new()
         {
-            get
+            { LootRuleEnum.Random, (x, y, loot, strict) => LootRuling.Random.Next(0, 2) > 0 ? 1 : -1 },
+            { LootRuleEnum.LowestItemLevel, (x, y, loot, strict) => x.Gear.ItemLevel - y.Gear.ItemLevel },
             {
-                if (Rule == null)
-                    return (x, y, z, strict) => 0;
-                return CompareDic.GetValueOrDefault((LootRuleEnum)Rule!) ?? ((x, y, z, strict) => 0);
-            }
-        }
-        private readonly static Dictionary<LootRuleEnum, Func<Player, Player, GearSetSlot, bool, int>> CompareDic = new()
-        {
-            { LootRuleEnum.Random, (x, y, slot, strict) => new Random().Next(0, 1) > 0 ? 1 : -1 },
-            { LootRuleEnum.LowestItemLevel, (x, y, slot, strict) => x.Gear.ItemLevel - y.Gear.ItemLevel },
-            { LootRuleEnum.HighesItemLevelGain, (x, y, slot, strict) => ((int)x.Gear[slot].ItemLevel) - (int)y.Gear[slot].ItemLevel },
+                LootRuleEnum.HighesItemLevelGain,
+                (x, y, loot, strict) =>
+                {
+                    int xMaxGain = (int)loot.ConvertAll(item => item.ItemLevel - x.Gear[item.Slot].ItemLevel).Max();
+                    int yMaxGain = (int)loot.ConvertAll(item => item.ItemLevel - y.Gear[item.Slot].ItemLevel).Max();
+                    return yMaxGain - xMaxGain;
+                }
+            },
             {
                 LootRuleEnum.BISOverUpgrade,
-                (x, y, slot, strict) =>
+                (x, y, loot, strict) =>
                 {
-                    int xBIS = x.BIS[slot].Source == GearSource.Raid ? -1 : 1;
-                    int yBIS = y.BIS[slot].Source == GearSource.Raid ? -1 : 1;
+                    int xBIS = loot.Any(item => x.BIS.Contains(item) && !x.Gear.Contains(item)) ? -1 : 1;
+                    int yBIS = loot.Any(item => y.BIS.Contains(item) && !y.Gear.Contains(item)) ? -1 : 1;
                     return xBIS - yBIS;
                 }
             },
-            { LootRuleEnum.ByPosition, (x, y, slot, strict) => x.Pos.LootImportance(slot, strict) - y.Pos.LootImportance(slot, strict) }
+            { LootRuleEnum.ByPosition, (x, y, loot, strict) => x.Pos.LootImportance(strict) - y.Pos.LootImportance(strict) }
         };
         public override string ToString()
         {
@@ -152,7 +170,7 @@ namespace HimbeertoniRaidTool.Data
 
     public static class LootRulesExtension
     {
-        public static int LootImportance(this PositionInRaidGroup pos, GearSetSlot? slot = null, bool strict = false)
+        public static int LootImportance(this PositionInRaidGroup pos, bool strict = false)
         {
             return pos switch
             {
@@ -160,10 +178,10 @@ namespace HimbeertoniRaidTool.Data
                 PositionInRaidGroup.Melee2 => strict ? 1 : 0,
                 PositionInRaidGroup.Caster => strict ? 2 : 0,
                 PositionInRaidGroup.Ranged => strict ? 3 : 0,
-                PositionInRaidGroup.Tank1 => slot != GearSetSlot.MainHand ? (strict ? 4 : 4) : (strict ? 6 : 6),
-                PositionInRaidGroup.Tank2 => slot != GearSetSlot.MainHand ? (strict ? 5 : 4) : (strict ? 7 : 6),
-                PositionInRaidGroup.Heal1 => slot != GearSetSlot.MainHand ? (strict ? 6 : 6) : (strict ? 4 : 4),
-                PositionInRaidGroup.Heal2 => slot != GearSetSlot.MainHand ? (strict ? 7 : 6) : (strict ? 5 : 4),
+                PositionInRaidGroup.Tank1 => strict ? 4 : 4,
+                PositionInRaidGroup.Tank2 => strict ? 5 : 4,
+                PositionInRaidGroup.Heal1 => strict ? 6 : 6,
+                PositionInRaidGroup.Heal2 => strict ? 7 : 6,
                 _ => 8
             };
         }

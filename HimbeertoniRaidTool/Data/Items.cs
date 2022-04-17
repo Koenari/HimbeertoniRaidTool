@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using ImGuiScene;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
@@ -11,9 +13,8 @@ namespace HimbeertoniRaidTool.Data
     public class GearItem : HrtItem
     {
         private static KeyContainsDictionary<GearSource> SourceDic => CuratedData.GearSourceDictionary;
-        private GearSetSlot? SlotOverride => CuratedData.SlotOverrideDB.ContainsKey(_ID) ? CuratedData.SlotOverrideDB.GetValueOrDefault(_ID) : null;
         [JsonIgnore]
-        public GearSetSlot Slot => SlotOverride ?? (Item.EquipSlotCategory.Value?.ToSlot()) ?? GearSetSlot.None;
+        public GearSetSlot Slot => Item.EquipSlotCategory.Value?.ToSlot() ?? GearSetSlot.None;
         [JsonIgnore]
         public GearSource Source => _ID > 0 ? SourceDic.GetValueOrDefault(Name, GearSource.undefined) : GearSource.undefined;
         [JsonProperty("Materia")]
@@ -84,6 +85,14 @@ namespace HimbeertoniRaidTool.Data
         public bool Filled => ID > 0 && Name.Length > 0;
         public bool Valid => ID > 0;
 
+        public bool IsGear => Item.EquipSlotCategory.Value is not null;
+        /// <summary>
+        /// Is done this way since HrtMateria cannot be created from ItemID alone 
+        /// and always will be of type HrtMateria
+        /// </summary>
+        public bool IsMateria => GetType().IsAssignableTo(typeof(HrtMateria));
+        public bool IsExhangableItem => CuratedData.ExchangedFor.ContainsKey(ID);
+        public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
         protected static ExcelSheet<Item>? Sheet => Services.DataManager.Excel.GetSheet<Item>();
 
         public HrtItem() : this(0) { }
@@ -121,6 +130,29 @@ namespace HimbeertoniRaidTool.Data
             return 0;
         }
     }
+    /// <summary>
+    /// Models an item that can be exchanged for another item
+    /// Items with FilterGroup 16??
+    /// </summary>
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
+    public class ExchangableItem : HrtItem
+    {
+        public List<GearItem> PossiblePurchases =>
+            CuratedData.ExchangedFor.GetValueOrDefault(_ID)?.AsList.ConvertAll(id => new GearItem(id))
+            ?? new();
+
+        public ExchangableItem(uint id) : base(id) { }
+    }
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
+    public class ContainerItem : HrtItem
+    {
+        public List<GearItem> PossiblePurchases =>
+            CuratedData.ItemContainerDB.GetValueOrDefault(_ID)?.AsList.ConvertAll(id => new GearItem(id))
+            ?? new();
+
+        public ContainerItem(uint id) : base(id) { }
+    }
+
 
     [SuppressMessage("Style", "IDE0060:Nicht verwendete Parameter entfernen", Justification = "Override all constructors for safety")]
     public class KeyContainsDictionary<TValue> : Dictionary<string, TValue>
@@ -162,4 +194,41 @@ namespace HimbeertoniRaidTool.Data
             }
         }
     }
+    public class ItemIDRange : ItemIDCollection
+    {
+        public static implicit operator ItemIDRange(uint id) => new(id, id);
+        public static implicit operator ItemIDRange((uint, uint) id) => new(id.Item1, id.Item2);
+        private readonly uint StartID;
+        private readonly uint EndID;
+        private bool InRange(uint id) => StartID <= id && id <= EndID;
+        public List<uint> AsList => Enumerable.Range((int)StartID, (int)(EndID - StartID + 1)).ToList().ConvertAll(x => (uint)x);
+        public ItemIDRange(uint start, uint end) => (StartID, EndID) = (start, end);
+        public override bool Equals(object? obj)
+        {
+            if (obj == null || !obj.GetType().IsAssignableTo(typeof(ItemIDRange)))
+                return false;
+            return Equals((ItemIDRange)obj);
+        }
+        public bool Contains(uint obj) => InRange(obj);
+        public bool Equals(ItemIDRange obj) => StartID == obj.StartID && EndID == obj.EndID;
+        public override int GetHashCode() => (StartID, EndID).GetHashCode();
+
+    }
+    public class ItemIDList : ItemIDCollection
+    {
+        private readonly ReadOnlyCollection<uint> _IDs;
+        public static implicit operator ItemIDList(uint[] ids) => new ItemIDList(ids);
+        public List<uint> AsList => _IDs.ToList();
+        public bool Contains(uint id) => _IDs.Contains(id);
+        public ItemIDList(params uint[] ids)
+        {
+            _IDs = new ReadOnlyCollection<uint>(ids);
+        }
+    }
+    public interface ItemIDCollection
+    {
+        public abstract List<uint> AsList { get; }
+        public abstract bool Contains(uint id);
+    }
+
 }
