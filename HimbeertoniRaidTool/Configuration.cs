@@ -96,7 +96,7 @@ namespace HimbeertoniRaidTool
                     case 3:
                         foreach (var c in Enum.GetValues<AvailableClasses>())
                         {
-                            if (BISUserOverride[c] == OldDefaultBIS[c])
+                            if (BISUserOverride.ContainsKey(c) && BISUserOverride[c] == OldDefaultBIS[c])
                                 BISUserOverride.Remove(c);
                         }
                         Version = 4;
