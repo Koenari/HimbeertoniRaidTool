@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Numerics;
 using Dalamud.Configuration;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.UI;
+using ImGuiNET;
 using Newtonsoft.Json;
+using static Dalamud.Localization;
 using static HimbeertoniRaidTool.Data.AvailableClasses;
 
 namespace HimbeertoniRaidTool
@@ -13,9 +19,13 @@ namespace HimbeertoniRaidTool
     {
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
-        private readonly int TargetVersion = 3;
-        public int Version { get; set; } = 2;
-        public Dictionary<AvailableClasses, string> DefaultBIS { get; set; } = new Dictionary<AvailableClasses, string>
+        [JsonIgnore]
+        private readonly int TargetVersion = 4;
+        public int Version { get; set; } = 4;
+        [JsonIgnore]
+        private readonly ReadOnlyDictionary<AvailableClasses, string> OldDefaultBIS =
+            new ReadOnlyDictionary<AvailableClasses, string>(
+            new Dictionary<AvailableClasses, string>
         {
             { AST, "88647808-8a28-477b-b285-687bdcbff2d4" },
             { BLM, "327d090b-2d5a-4c3c-9eb9-8fd42342cce3" },
@@ -37,11 +47,15 @@ namespace HimbeertoniRaidTool
             { SMN, "840a5088-23fa-49c5-a12a-3731ca55b4a6" },
             { WAR, "6d0d2d4d-a477-44ea-8002-862eca8ef91d" },
             { WHM, "e78a29e3-1dcf-4e53-bbcf-234f33b2c831" },
-        };
+        });
+        [JsonProperty("DefaultBIS")]
+        private Dictionary<AvailableClasses, string> BISUserOverride { get; set; } = new Dictionary<AvailableClasses, string>();
+        public string GetDefaultBiS(AvailableClasses c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : CuratedData.DefaultBIS[c];
         public LootRuling LootRuling { get; set; } = new();
-
-        public RaidGroup? GroupInfo = null;
-        public List<RaidGroup> RaidGroups = new();
+        [JsonProperty]
+        private RaidGroup? GroupInfo = null;
+        [JsonProperty]
+        private List<RaidGroup> RaidGroups = new();
         public bool OpenLootMasterOnStartup = false;
         public int LootmasterUiLastIndex = 0;
 
@@ -79,6 +93,15 @@ namespace HimbeertoniRaidTool
                         Version = 3;
                         Save();
                         break;
+                    case 3:
+                        foreach (var c in Enum.GetValues<AvailableClasses>())
+                        {
+                            if (BISUserOverride[c] == OldDefaultBIS[c])
+                                BISUserOverride.Remove(c);
+                        }
+                        Version = 4;
+                        Save();
+                        break;
                     default:
                         throw new Exception("Unsupported Version of Configuration");
                 }
@@ -90,7 +113,8 @@ namespace HimbeertoniRaidTool
                 return;
             if (Version > TargetVersion)
             {
-                string msg = "Tried loading a configuration from a newer version of the plugin.\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
+                string msg = "Tried loading a configuration from a newer version of the plugin." +
+                    "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
                 PluginLog.LogFatal(msg);
                 Services.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
                 throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
@@ -111,6 +135,96 @@ namespace HimbeertoniRaidTool
                 );
             }
             FullyLoaded = true;
+        }
+
+        public class ConfigUI : HrtUI
+        {
+            private UiSortableList<LootRule> LootList;
+            public ConfigUI() : base()
+            {
+                Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
+                LootList = new(LootRuling.PossibleRules, HRTPlugin.Configuration.LootRuling.RuleSet.Cast<LootRule>());
+            }
+            public override void Dispose()
+            {
+                Services.PluginInterface.UiBuilder.OpenConfigUi -= Show;
+            }
+            public override void Show()
+            {
+                base.Show();
+                LootList = new(LootRuling.PossibleRules, HRTPlugin.Configuration.LootRuling.RuleSet);
+            }
+            public override void Draw()
+            {
+                if (!Visible)
+                {
+                    return;
+                }
+
+                ImGui.SetNextWindowSize(new Vector2(450, 500), ImGuiCond.Always);
+                if (ImGui.Begin("HimbeerToni Raid Tool Configuration", ref Visible,
+                    ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))
+                {
+                    ImGui.BeginTabBar("Menu");
+                    if (ImGui.BeginTabItem(Localize("General", "General")))
+                    {
+                        ImGui.Checkbox(Localize("Open Lootmaster on startup", "Open Lootmaster on startup"),
+                            ref HRTPlugin.Configuration.OpenLootMasterOnStartup);
+                        ImGui.EndTabItem();
+                    }
+                    if (ImGui.BeginTabItem("BiS"))
+                    {
+                        if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
+                        {
+                            foreach (var c in Enum.GetValues<AvailableClasses>())
+                            {
+                                bool isOverriden = HRTPlugin.Configuration.BISUserOverride.ContainsKey(c);
+                                string value = HRTPlugin.Configuration.GetDefaultBiS(c);
+                                if (ImGui.InputText(c.ToString(), ref value, 100))
+                                {
+                                    if (value != CuratedData.DefaultBIS[c])
+                                    {
+                                        if (isOverriden)
+                                            HRTPlugin.Configuration.BISUserOverride[c] = value;
+                                        else
+                                            HRTPlugin.Configuration.BISUserOverride.Add(c, value);
+                                    }
+                                    else
+                                    {
+                                        if (isOverriden)
+                                            HRTPlugin.Configuration.BISUserOverride.Remove(c);
+                                    }
+
+                                }
+                                if (isOverriden)
+                                {
+                                    ImGui.SameLine();
+                                    if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Undo,
+                                        $"Reset{c}", Localize("Reset to default", "Reset to default")))
+                                        HRTPlugin.Configuration.BISUserOverride.Remove(c);
+                                }
+                            }
+                            ImGui.EndChildFrame();
+                        }
+                        ImGui.EndTabItem();
+                    }
+                    if (ImGui.BeginTabItem("Loot"))
+                    {
+                        LootList.Draw();
+                        ImGui.EndTabItem();
+                    }
+                    ImGui.EndTabBar();
+                    if (ImGui.Button("Save##Config"))
+                    {
+                        HRTPlugin.Configuration.LootRuling.RuleSet = LootList.List;
+                        HRTPlugin.Configuration.Save();
+                        Hide();
+                    }
+                }
+                ImGui.End();
+            }
+
+
         }
     }
 }

@@ -51,7 +51,7 @@ namespace HimbeertoniRaidTool
 
         };
 
-        private ConfigUI OptionsUi { get; init; }
+        private Configuration.ConfigUI OptionsUi { get; init; }
 
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
@@ -105,17 +105,17 @@ namespace HimbeertoniRaidTool
             switch (command)
             {
                 case "/hrt":
-                    if (args.Contains("option"))
+                    if (args.Contains("option") || args.Contains("config"))
                         OptionsUi.Show();
                     else
-                        PluginLog.LogError($"Argument {args} for command hrt not recognized");
+                        PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
                     break;
                 case "/lm":
                 case "/lootmaster":
                     LootMaster.LootMaster.OnCommand(args);
                     break;
                 default:
-                    PluginLog.LogError("Command \"" + command + "\" not found");
+                    PluginLog.LogError($"Command \"{command}\" not found");
                     break;
             }
         }
