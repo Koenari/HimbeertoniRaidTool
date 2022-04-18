@@ -113,53 +113,35 @@ namespace HimbeertoniRaidTool.Data
     {
         [JsonProperty("Rule")]
         public LootRuleEnum? Rule;
-        public Func<Player, Player, List<GearItem>, bool, int> Compare
-        => Rule is not null ? CompareDic.GetValueOrDefault((LootRuleEnum)Rule, (x, y, loot, strict) => 0) : (x, y, loot, strict) => 0;
-
-
-        private readonly static Dictionary<LootRuleEnum, Func<Player, Player, List<GearItem>, bool, int>> CompareDic = new()
+        public int Compare(Player x, Player y, List<GearItem> loot, bool strict) => Rule switch
         {
-            { LootRuleEnum.Random, (x, y, loot, strict) => LootRuling.Random.Next(0, 2) > 0 ? 1 : -1 },
-            { LootRuleEnum.LowestItemLevel, (x, y, loot, strict) => x.Gear.ItemLevel - y.Gear.ItemLevel },
-            {
-                LootRuleEnum.HighesItemLevelGain,
-                (x, y, loot, strict) =>
-                {
-                    int xMaxGain = (int)loot.ConvertAll(item => item.ItemLevel - x.Gear[item.Slot].ItemLevel).Max();
-                    int yMaxGain = (int)loot.ConvertAll(item => item.ItemLevel - y.Gear[item.Slot].ItemLevel).Max();
-                    return yMaxGain - xMaxGain;
-                }
-            },
-            {
-                LootRuleEnum.BISOverUpgrade,
-                (x, y, loot, strict) =>
-                {
-                    int xBIS = loot.Any(item => x.BIS.Contains(item) && !x.Gear.Contains(item)) ? -1 : 1;
-                    int yBIS = loot.Any(item => y.BIS.Contains(item) && !y.Gear.Contains(item)) ? -1 : 1;
-                    return xBIS - yBIS;
-                }
-            },
-            { LootRuleEnum.ByPosition, (x, y, loot, strict) => x.Pos.LootImportance(strict) - y.Pos.LootImportance(strict) }
+            LootRuleEnum.Random => LootRuling.Random.Next(0, 2) > 0 ? 1 : -1,
+            LootRuleEnum.LowestItemLevel => x.Gear.ItemLevel - y.Gear.ItemLevel,
+            LootRuleEnum.HighesItemLevelGain =>
+                (int)loot.ConvertAll(item => item.ItemLevel - y.Gear[item.Slot].ItemLevel).Max() -
+                    (int)loot.ConvertAll(item => item.ItemLevel - x.Gear[item.Slot].ItemLevel).Max(),
+            LootRuleEnum.BISOverUpgrade =>
+                (loot.Any(item => x.BIS.Contains(item) && !x.Gear.Contains(item)) ? -1 : 1) -
+                    (loot.Any(item => y.BIS.Contains(item) && !y.Gear.Contains(item)) ? -1 : 1),
+            LootRuleEnum.ByPosition => x.Pos.LootImportance(strict) - y.Pos.LootImportance(strict),
+            _ => 0
         };
-        public override string ToString()
+        public override string ToString() => Rule switch
         {
-            return Rule switch
-            {
-                LootRuleEnum.BISOverUpgrade => Localize("BISOverUpgrade", "BIS > Upgrade"),
-                LootRuleEnum.LowestItemLevel => Localize("LowestItemLevel", "Lowest overall ItemLevel"),
-                LootRuleEnum.HighesItemLevelGain => Localize("HighesItemLevelGain", "Highest ItemLevel Gain"),
-                LootRuleEnum.ByPosition => Localize("ByPosition", "DPS > Tank > Heal"),
-                LootRuleEnum.Random => Localize("Rolling", "Rolling"),
-                null => Localize("None", "None"),
-                _ => Localize("Not defined", "Not defined"),
-            };
-        }
+            LootRuleEnum.BISOverUpgrade => Localize("BISOverUpgrade", "BIS > Upgrade"),
+            LootRuleEnum.LowestItemLevel => Localize("LowestItemLevel", "Lowest overall ItemLevel"),
+            LootRuleEnum.HighesItemLevelGain => Localize("HighesItemLevelGain", "Highest ItemLevel Gain"),
+            LootRuleEnum.ByPosition => Localize("ByPosition", "DPS > Tank > Heal"),
+            LootRuleEnum.Random => Localize("Rolling", "Rolling"),
+            null => Localize("None", "None"),
+            _ => Localize("Not defined", "Not defined"),
+        };
 
         public override bool Equals(object? obj)
         {
             if (obj is null || !obj.GetType().Equals(typeof(LootRule)))
                 return false;
-            return ((LootRule)obj).Rule.Equals(Rule);
+            return ((LootRule)obj).Rule == Rule;
         }
 
         [JsonConstructor]
