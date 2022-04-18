@@ -26,7 +26,6 @@ namespace HimbeertoniRaidTool.LootMaster
             foreach (AsyncTaskWithUiResult t in Tasks)
                 t.Dispose();
             Tasks.Clear();
-            base.Dispose();
         }
         protected override void Draw()
         {
