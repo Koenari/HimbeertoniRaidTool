@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HimbeertoniRaidTool.Data;
 using static Dalamud.Localization;
 
+
 namespace HimbeertoniRaidTool.LootMaster
 {
     public class LootSession
@@ -20,7 +21,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.Item2);
         public LootSession(RaidGroup group, LootRuling rulingOptions, (HrtItem, int)[] items)
         {
-            RulingOptions = rulingOptions;
+            RulingOptions = rulingOptions.Clone();
             Loot = items;
             _group = group;
             Rolls = new();

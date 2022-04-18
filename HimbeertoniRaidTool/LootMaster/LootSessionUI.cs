@@ -11,6 +11,7 @@ namespace HimbeertoniRaidTool.LootMaster
     {
         private readonly LootSource _lootSource;
         private readonly LootSession _session;
+        private UiSortableList<LootRule> _ruleListUi;
 
         internal LootSessionUI(LootSource lootSource, RaidGroup group) : base()
         {
@@ -18,68 +19,80 @@ namespace HimbeertoniRaidTool.LootMaster
             _session = new(group,
                 HRTPlugin.Configuration.LootRuling,
                 LootDB.GetPossibleLoot(_lootSource).ConvertAll(x => (x, 0)).ToArray());
+            _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
         }
-
+        private void StartLootDistribution()
+        {
+            _session.RulingOptions.RuleSet = _ruleListUi.List;
+            _session.EvaluateAll(true);
+            ClearChildren();
+            AddChild(new LootResultWindow(_session));
+        }
         protected override void Draw()
         {
             if (ImGui.Begin(string.Format("Loot session for {0}", _lootSource), ref Visible, ImGuiWindowFlags.NoCollapse))
             {
-                for (int i = 0; i < _session.Loot.Length; i++)
-                {
-                    if (_session.Loot[i].Item1.Valid)
-                    {
-                        ImGui.Text(_session.Loot[i].Item1.Item.Name);
-                        ImGui.SameLine();
-                        ImGui.InputInt("##" + _session.Loot[i].Item1.Item.Name, ref _session.Loot[i].Item2);
-
-                    }
-                }
                 if (ImGui.Button(Localize("Distribute", "Distribute")))
-                {
-                    _session.EvaluateAll();
-                    foreach (var result in _session.Results)
-                    {
-                        var lootWindow = new LootResultWindow(result);
-                        AddChild(lootWindow);
-                        lootWindow.Show();
-                    }
-                }
+                    StartLootDistribution();
+                ImGui.SameLine();
                 if (ImGui.Button(Localize("Close", "Close")))
-                {
                     Hide();
+                //
+                ImGui.Columns(2);
+                if (ImGui.BeginChild("Loot"))
+                {
+                    for (int i = 0; i < _session.Loot.Length; i++)
+                    {
+                        if (_session.Loot[i].Item1.Valid)
+                        {
+                            ImGui.Text(_session.Loot[i].Item1.Item.Name);
+                            ImGui.InputInt($"Input##{i}", ref _session.Loot[i].Item2);
+                        }
+                    }
+                    ImGui.EndChild();
                 }
+                ImGui.NextColumn();
+                if (ImGui.BeginChild("Rules"))
+                {
+                    _ruleListUi.Draw();
+                    ImGui.EndChild();
+                }
+                ImGui.NextColumn();
+
+                ImGui.Columns(1);
                 ImGui.End();
             }
         }
         private class LootResultWindow : HrtUI
         {
-            public LootResultWindow(KeyValuePair<(HrtItem, int), List<(Player, string)>> result) : base()
+            private readonly LootSession _session;
+            public LootResultWindow(LootSession session) : base()
             {
-                Item = result.Key.Item1;
-                Num = result.Key.Item2;
-                Looters = result.Value;
+                _session = session;
             }
-
-            public HrtItem Item { get; }
-            public int Num { get; }
-            public List<(Player, string)> Looters { get; }
-
-            private LootRuling LootRuling => HRTPlugin.Configuration.LootRuling;
             protected override void Draw()
             {
-                if (ImGui.Begin(String.Format(Localize("LootResultTitle", "Loot Results for {0} number {1}"), Item.Name, Num), ref Visible))
+                if (ImGui.Begin(Localize("LootResultTitle", "Loot Results"), ref Visible))
                 {
-                    ImGui.Text(string.Format(Localize("LootRuleHeader", "Loot Results for {0}: "), Item.Name));
                     ImGui.Text(Localize("Following rules were used:", "Following rules were used:"));
-                    foreach (LootRule rule in LootRuling.RuleSet)
+                    foreach (LootRule rule in _session.RulingOptions.RuleSet)
                         ImGui.BulletText(rule.ToString());
-                    int place = 1;
-                    foreach ((Player, string) looter in Looters)
+                    ImGui.BeginTabBar("Items");
+                    foreach (var result in _session.Results)
                     {
-                        ImGui.Text(string.Format(Localize("LootDistributionLine", "Priority {0} for Player {1} won by rule {2} "),
-                            place, looter.Item1.NickName, looter.Item2));
-                        place++;
+                        if (ImGui.BeginTabItem($"{result.Key.Item1.Name} # {result.Key.Item2 + 1}"))
+                        {
+                            ImGui.Text(string.Format(Localize("LootRuleHeader", "Loot Results for {0}: "), result.Key.Item1.Name));
+                            int place = 1;
+                            foreach ((Player Player, string Reason) looter in result.Value)
+                            {
+                                ImGui.Text($"{place}: {looter.Player.NickName} Rule: { looter.Reason} Roll: {_session.Rolls[looter.Player]}");
+                                place++;
+                            }
+                            ImGui.EndTabItem();
+                        }
                     }
+                    ImGui.EndTabBar();
                     ImGui.End();
                 }
 

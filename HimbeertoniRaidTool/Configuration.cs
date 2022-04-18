@@ -145,7 +145,7 @@ namespace HimbeertoniRaidTool
                 Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
                 LootList = new(LootRuling.PossibleRules, HRTPlugin.Configuration.LootRuling.RuleSet.Cast<LootRule>());
             }
-            public override void BeforeDispose()
+            protected override void BeforeDispose()
             {
                 Services.PluginInterface.UiBuilder.OpenConfigUi -= Show;
             }

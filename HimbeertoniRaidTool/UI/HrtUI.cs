@@ -62,13 +62,15 @@ namespace HimbeertoniRaidTool.UI
             Children.Add(child);
         }
         protected bool ChildExists<T>(T c) => Children.Exists(x => c?.Equals(x) ?? false);
+        protected void ClearChildren() => Children.ForEach(x => x.Dispose());
         private void SetUpAsChild()
         {
             _volatile = true;
             _isChild = true;
             UnRegisterActions();
+            Show();
         }
-        public virtual void BeforeDispose() { }
+        protected virtual void BeforeDispose() { }
         public void Dispose()
         {
             if (_disposed)

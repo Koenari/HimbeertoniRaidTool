@@ -20,7 +20,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
         //private readonly List<HrtUI> Childs = new();
         public LootmasterUI() : base(false) => _CurrenGroupIndex = HRTPlugin.Configuration.LootmasterUiLastIndex;
-        public override void BeforeDispose()
+        protected override void BeforeDispose()
         {
             HRTPlugin.Configuration.LootmasterUiLastIndex = _CurrenGroupIndex;
             foreach (AsyncTaskWithUiResult t in Tasks)
