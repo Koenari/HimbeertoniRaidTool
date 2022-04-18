@@ -34,6 +34,8 @@ namespace HimbeertoniRaidTool.UI
         }
         public void Show()
         {
+            if (_disposed)
+                return;
             OnShow();
             Visible = true;
             Children.ForEach(x => x.Show());
@@ -44,8 +46,6 @@ namespace HimbeertoniRaidTool.UI
             Children.ForEach(x => x.Hide());
             Visible = false;
             OnHide();
-            if (_volatile)
-                Dispose();
         }
         protected virtual void OnHide() { }
         private void Update(Framework fw)
@@ -73,6 +73,7 @@ namespace HimbeertoniRaidTool.UI
         {
             if (_disposed)
                 return;
+            Hide();
             BeforeDispose();
             Children.ForEach(c => c.Dispose());
             Children.Clear();
@@ -82,7 +83,7 @@ namespace HimbeertoniRaidTool.UI
         }
         private void InternalDraw()
         {
-            if (!Visible)
+            if (!Visible || _disposed)
                 return;
             Children.ForEach(_ => _.InternalDraw());
             Draw();
