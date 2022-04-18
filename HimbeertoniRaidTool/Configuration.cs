@@ -140,27 +140,21 @@ namespace HimbeertoniRaidTool
         public class ConfigUI : HrtUI
         {
             private UiSortableList<LootRule> LootList;
-            public ConfigUI() : base()
+            public ConfigUI() : base(false)
             {
                 Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
                 LootList = new(LootRuling.PossibleRules, HRTPlugin.Configuration.LootRuling.RuleSet.Cast<LootRule>());
             }
-            public override void Dispose()
+            public override void BeforeDispose()
             {
                 Services.PluginInterface.UiBuilder.OpenConfigUi -= Show;
             }
-            public override void Show()
+            protected override void OnShow()
             {
-                base.Show();
                 LootList = new(LootRuling.PossibleRules, HRTPlugin.Configuration.LootRuling.RuleSet);
             }
-            public override void Draw()
+            protected override void Draw()
             {
-                if (!Visible)
-                {
-                    return;
-                }
-
                 ImGui.SetNextWindowSize(new Vector2(450, 500), ImGuiCond.Always);
                 if (ImGui.Begin("HimbeerToni Raid Tool Configuration", ref Visible,
                     ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))

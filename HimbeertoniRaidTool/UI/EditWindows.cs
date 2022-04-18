@@ -50,7 +50,7 @@ namespace HimbeertoniRaidTool.UI
                 Show();
         }
 
-        public override void Draw()
+        protected override void Draw()
         {
             if (!Visible)
                 return;
@@ -168,6 +168,12 @@ namespace HimbeertoniRaidTool.UI
 
             }
         }
+        public override bool Equals(object? obj)
+        {
+            if (!(obj?.GetType().IsAssignableTo(GetType()) ?? false))
+                return false;
+            return Equals((EditPlayerWindow)obj);
+        }
         public bool Equals(EditPlayerWindow other)
         {
             if (!RaidGroup.Equals(other.RaidGroup))
@@ -186,7 +192,6 @@ namespace HimbeertoniRaidTool.UI
         private readonly Action OnSave;
         private readonly Action OnCancel;
 
-        Action doNothing = () => { };
         internal EditGroupWindow(ref RaidGroup group, Action? onSave = null, Action? onCancel = null)
         {
             Group = group;
@@ -196,10 +201,8 @@ namespace HimbeertoniRaidTool.UI
             Show();
         }
 
-        public override void Draw()
+        protected override void Draw()
         {
-            if (!Visible)
-                return;
             ImGui.SetNextWindowSize(new Vector2(500, 250), ImGuiCond.Always);
             if (ImGui.Begin(Localize("Edit Group ", "Edit Group ") + Group.Name,
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar

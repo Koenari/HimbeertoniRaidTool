@@ -20,6 +20,16 @@ namespace HimbeertoniRaidTool.Data
         public bool Equals(LootSource obj) => Sources.Contains(obj.Sources[0]);
 
         public override int GetHashCode() => Sources.GetHashCode();
+        public override string ToString()
+        {
+            string result = "";
+            for (int i = 0; i < Sources.Count - 1; i++)
+            {
+                result += $"{Sources[i].Item1.Name} Boss {Sources[i].Item2}";
+            }
+            result += $"{Sources.Last().Item1.Name} Boss {Sources.Last().Item2}";
+            return result;
+        }
 
         public static bool operator ==(LootSource left, LootSource right) => left.Equals(right);
         public static bool operator !=(LootSource left, LootSource right) => !left.Equals(right);
@@ -27,7 +37,7 @@ namespace HimbeertoniRaidTool.Data
 
     public static class LootDB
     {
-        private readonly static Dictionary<(RaidTier, int), List<HrtItem>> LootSourceDB;
+        private static readonly Dictionary<(RaidTier, int), List<HrtItem>> LootSourceDB;
 
         static LootDB()
         {
@@ -45,7 +55,17 @@ namespace HimbeertoniRaidTool.Data
                 }
             }
         }
-
-        public static List<HrtItem> GetPossibleLoot(RaidTier raidTear, int boss) => LootSourceDB.GetValueOrDefault((raidTear, boss), new());
+        public static List<HrtItem> GetPossibleLoot(LootSource source)
+        {
+            if (!source.IsList)
+                return GetPossibleLoot(source.Sources.First());
+            List<HrtItem> result = new List<HrtItem>();
+            foreach (var entry in source.Sources)
+                if (LootSourceDB.TryGetValue(entry, out List<HrtItem>? loot))
+                    result.AddRange(loot);
+            return result.Distinct().ToList();
+        }
+        public static List<HrtItem> GetPossibleLoot((RaidTier raidTear, int boss) source) =>
+            LootSourceDB.GetValueOrDefault((source.raidTear, source.boss), new());
     }
 }
