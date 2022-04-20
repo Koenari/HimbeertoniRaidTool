@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using System.Threading.Tasks;
 using ColorHelper;
@@ -346,11 +347,15 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip(gear.HrtID);
                 ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
-                ImGui.Text(bis.ItemLevel.ToString() + " (Link)");
+                ImGui.Text(bis.ItemLevel.ToString() + " (Etro)");
                 if (ImGui.IsItemClicked())
-                    ImGui.SetClipboardText(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = EtroConnector.GearsetWebBaseUrl + bis.EtroID,
+                        UseShellExecute = true,
+                    });
                 if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip(Localize("ClickToCopyEtro", "Click to Copy Link to Gearset on Etro"));
+                    ImGui.SetTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
                 DrawItem(gear.MainHand, bis.MainHand);
                 DrawItem(gear.Head, bis.Head);
                 DrawItem(gear.Body, bis.Body);
