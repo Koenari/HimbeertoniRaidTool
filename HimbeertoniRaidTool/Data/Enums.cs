@@ -1,4 +1,7 @@
-﻿using static Dalamud.Localization;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -48,34 +51,61 @@ namespace HimbeertoniRaidTool.Data
     }
     public enum AvailableClasses
     {
+        [Role(Role.Healer)]
         AST,
+        [Role(Role.Caster)]
         BLM,
+        [Role(Role.Caster)]
         BLU,
+        [Role(Role.Ranged)]
         BRD,
+        [Role(Role.Ranged)]
         DNC,
+        [Role(Role.Melee)]
         DRG,
+        [Role(Role.Tank)]
         DRK,
+        [Role(Role.Tank)]
         GNB,
+        [Role(Role.Ranged)]
         MCH,
+        [Role(Role.Melee)]
         MNK,
+        [Stat(StatType.Dexterity)]
+        [Role(Role.Melee)]
         NIN,
+        [Role(Role.Tank)]
         PLD,
+        [Role(Role.Caster)]
         RDM,
+        [Role(Role.Melee)]
         RPR,
+        [Role(Role.Melee)]
         SAM,
+        [Role(Role.Healer)]
         SCH,
+        [Role(Role.Healer)]
         SGE,
+        [Role(Role.Caster)]
         SMN,
+        [Role(Role.Tank)]
         WAR,
+        [Role(Role.Healer)]
         WHM
     }
     public enum Role
     {
+        [Stat(StatType.None)]
         None,
+        [Stat(StatType.Strength)]
         Tank,
+        [Stat(StatType.Mind)]
         Healer,
+        [Stat(StatType.Strength)]
         Melee,
+        [Stat(StatType.Dexterity)]
         Ranged,
+        [Stat(StatType.Intelligence)]
         Caster
     }
     public enum PositionInRaidGroup : byte
@@ -109,22 +139,36 @@ namespace HimbeertoniRaidTool.Data
     }
     public enum MateriaCategory : ushort
     {
+        [Stat(StatType.None)]
         None = 0,
+        [Stat(StatType.Piety)]
         Piety = 7,
+        [Stat(StatType.DirectHitRate)]
         DirectHit = 14,
+        [Stat(StatType.CriticalHit)]
         CriticalHit = 15,
+        [Stat(StatType.Determination)]
         Determination = 16,
+        [Stat(StatType.Tenacity)]
         Tenacity = 17,
+        [Stat(StatType.Gathering)]
         Gathering = 18,
+        [Stat(StatType.Perception)]
         Perception = 19,
+        [Stat(StatType.GP)]
         GP = 20,
+        [Stat(StatType.Craftsmanship)]
         Craftsmanship = 21,
+        [Stat(StatType.CP)]
         CP = 22,
+        [Stat(StatType.Control)]
         Control = 23,
+        [Stat(StatType.SkillSpeed)]
         SkillSpeed = 24,
+        [Stat(StatType.SpellSpeed)]
         SpellSpeed = 25,
     }
-    public enum StatType
+    public enum StatType : uint
     {
         None,
         Strength,
@@ -205,23 +249,8 @@ namespace HimbeertoniRaidTool.Data
     }
     public static class EnumExtensions
     {
-        public static StatType GetStatType(this MateriaCategory c) => c switch
-        {
-            MateriaCategory.Piety => StatType.Piety,
-            MateriaCategory.DirectHit => StatType.DirectHitRate,
-            MateriaCategory.CriticalHit => StatType.CriticalHit,
-            MateriaCategory.Determination => StatType.Determination,
-            MateriaCategory.Tenacity => StatType.Tenacity,
-            MateriaCategory.Gathering => StatType.Gathering,
-            MateriaCategory.Perception => StatType.Perception,
-            MateriaCategory.GP => StatType.GP,
-            MateriaCategory.Craftsmanship => StatType.Craftsmanship,
-            MateriaCategory.CP => StatType.CP,
-            MateriaCategory.Control => StatType.Control,
-            MateriaCategory.SkillSpeed => StatType.SkillSpeed,
-            MateriaCategory.SpellSpeed => StatType.SpellSpeed,
-            _ => StatType.None,
-        };
+        public static StatType GetStatType(this MateriaCategory c) =>
+            c.GetAttribute<StatAttribute>()?.StatType ?? StatType.None;
         public static string FriendlyName(this StatType t) => t switch
         {
             StatType.PhysicalDamage => "Physical Damage",
@@ -233,54 +262,23 @@ namespace HimbeertoniRaidTool.Data
             StatType.MagicDefense => "Magic Defense",
             _ => t.ToString(),
         };
-        public static Role GetRole(this AvailableClasses c) => c switch
+        public static Role GetRole(this AvailableClasses c) =>
+            c.GetAttribute<RoleAttribute>()?.Role ?? Role.None;
+
+        public static T? GetAttribute<T>(this Enum field) where T : Attribute
         {
-            AvailableClasses.AST => Role.Healer,
-            AvailableClasses.BLM => Role.Caster,
-            AvailableClasses.BLU => Role.Caster,
-            AvailableClasses.BRD => Role.Ranged,
-            AvailableClasses.DNC => Role.Ranged,
-            AvailableClasses.DRG => Role.Melee,
-            AvailableClasses.DRK => Role.Tank,
-            AvailableClasses.GNB => Role.Tank,
-            AvailableClasses.MCH => Role.Ranged,
-            AvailableClasses.MNK => Role.Melee,
-            AvailableClasses.NIN => Role.Melee,
-            AvailableClasses.PLD => Role.Tank,
-            AvailableClasses.RDM => Role.Caster,
-            AvailableClasses.RPR => Role.Melee,
-            AvailableClasses.SAM => Role.Melee,
-            AvailableClasses.SCH => Role.Healer,
-            AvailableClasses.SGE => Role.Healer,
-            AvailableClasses.SMN => Role.Caster,
-            AvailableClasses.WAR => Role.Tank,
-            AvailableClasses.WHM => Role.Healer,
-            _ => Role.None,
-        };
-        public static StatType MainStat(this AvailableClasses c) => c switch
-        {
-            AvailableClasses.AST => StatType.Mind,
-            AvailableClasses.BLM => StatType.Intelligence,
-            AvailableClasses.BLU => StatType.Intelligence,
-            AvailableClasses.BRD => StatType.Dexterity,
-            AvailableClasses.DNC => StatType.Dexterity,
-            AvailableClasses.DRG => StatType.Strength,
-            AvailableClasses.DRK => StatType.Strength,
-            AvailableClasses.GNB => StatType.Strength,
-            AvailableClasses.MCH => StatType.Dexterity,
-            AvailableClasses.MNK => StatType.Strength,
-            AvailableClasses.NIN => StatType.Dexterity,
-            AvailableClasses.PLD => StatType.Strength,
-            AvailableClasses.RDM => StatType.Intelligence,
-            AvailableClasses.RPR => StatType.Strength,
-            AvailableClasses.SAM => StatType.Strength,
-            AvailableClasses.SCH => StatType.Mind,
-            AvailableClasses.SGE => StatType.Mind,
-            AvailableClasses.SMN => StatType.Intelligence,
-            AvailableClasses.WAR => StatType.Strength,
-            AvailableClasses.WHM => StatType.Mind,
-            _ => throw new System.NotImplementedException(),
-        };
+            return
+                field.GetType().GetMember(field.ToString())
+                .Where(member => member.MemberType == MemberTypes.Field)
+                .FirstOrDefault()?
+                .GetCustomAttributes<T>(false)
+                .SingleOrDefault();
+        }
+        public static StatType MainStat(this AvailableClasses c) =>
+            c.GetAttribute<StatAttribute>()?.StatType
+            ?? c.GetAttribute<RoleAttribute>()?.Role.GetAttribute<StatAttribute>()?.StatType
+            ?? StatType.None;
+
         public static string FriendlyName(this GearSetManager manager) => manager switch
         {
             GearSetManager.HRT => Localize("HimbeerToni Raid Tool", "HimbeerToni Raid Tool"),
@@ -292,7 +290,7 @@ namespace HimbeertoniRaidTool.Data
             GroupType.Solo => 1,
             GroupType.Group => 4,
             GroupType.Raid => 8,
-            _ => -1
+            _ => 0
         };
         public static string FriendlyName(this GroupType groupType) => groupType switch
         {
@@ -332,5 +330,17 @@ namespace HimbeertoniRaidTool.Data
             _ => Localize("undefined", "undefined")
         };
 
+    }
+    [AttributeUsage(AttributeTargets.Field)]
+    class StatAttribute : Attribute
+    {
+        public StatType StatType;
+        public StatAttribute(StatType t) => StatType = t;
+    }
+    [AttributeUsage(AttributeTargets.Field)]
+    class RoleAttribute : Attribute
+    {
+        public Role Role;
+        public RoleAttribute(Role r) => Role = r;
     }
 }

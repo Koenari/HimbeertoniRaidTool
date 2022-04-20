@@ -1,6 +1,8 @@
-﻿using ImGuiNET;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
+using Dalamud.Game;
+using ImGuiNET;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
@@ -9,18 +11,86 @@ namespace HimbeertoniRaidTool.UI
     // to do any cleanup
     public abstract class HrtUI : IDisposable
     {
+        private bool _disposed = false;
+        private bool _volatile;
+        private bool _isChild = false;
         protected bool Visible = false;
-        public bool IsVisible => Visible;
+        private readonly List<HrtUI> Children = new();
 
-        public HrtUI() => Services.PluginInterface.UiBuilder.Draw += Draw;
-
-        public virtual void Show() => Visible = true;
-
-        public virtual void Hide() => Visible = false;
-
-        public virtual void Dispose() => Services.PluginInterface.UiBuilder.Draw -= Draw;
-
-        public abstract void Draw();
+        public HrtUI(bool @volatile = true)
+        {
+            RegisterActions();
+            _volatile = @volatile;
+        }
+        private void RegisterActions()
+        {
+            Services.PluginInterface.UiBuilder.Draw += InternalDraw;
+            Services.Framework.Update += Update;
+        }
+        private void UnRegisterActions()
+        {
+            Services.PluginInterface.UiBuilder.Draw -= InternalDraw;
+            Services.Framework.Update -= Update;
+        }
+        public void Show()
+        {
+            if (_disposed)
+                return;
+            OnShow();
+            Visible = true;
+            Children.ForEach(x => x.Show());
+        }
+        protected virtual void OnShow() { }
+        public void Hide()
+        {
+            Children.ForEach(x => x.Hide());
+            Visible = false;
+            OnHide();
+        }
+        protected virtual void OnHide() { }
+        private void Update(Framework fw)
+        {
+            if (!Visible)
+                Children.ForEach(x => x.Hide());
+            if (!Visible && _volatile)
+                Dispose();
+            Children.RemoveAll(x => x._disposed);
+        }
+        protected void AddChild(HrtUI child)
+        {
+            child.SetUpAsChild();
+            Children.Add(child);
+        }
+        protected bool ChildExists<T>(T c) => Children.Exists(x => c?.Equals(x) ?? false);
+        protected void ClearChildren() => Children.ForEach(x => x.Dispose());
+        private void SetUpAsChild()
+        {
+            _volatile = true;
+            _isChild = true;
+            UnRegisterActions();
+            Show();
+        }
+        protected virtual void BeforeDispose() { }
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+            Hide();
+            BeforeDispose();
+            Children.ForEach(c => c.Dispose());
+            Children.Clear();
+            if (!_isChild)
+                UnRegisterActions();
+            _disposed = true;
+        }
+        private void InternalDraw()
+        {
+            if (!Visible || _disposed)
+                return;
+            Children.ForEach(_ => _.InternalDraw());
+            Draw();
+        }
+        protected abstract void Draw();
     }
     public class ConfimationDialog : HrtUI
     {
@@ -36,7 +106,7 @@ namespace HimbeertoniRaidTool.UI
             _Action = action;
             Show();
         }
-        public override void Draw()
+        protected override void Draw()
         {
             if (!Visible)
                 return;

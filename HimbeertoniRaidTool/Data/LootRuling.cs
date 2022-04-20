@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using HimbeertoniRaidTool.LootMaster;
 using Newtonsoft.Json;
 using static Dalamud.Localization;
 
@@ -22,126 +24,46 @@ namespace HimbeertoniRaidTool.Data
         public List<LootRule> RuleSet = new();
         [JsonProperty("StrictRooling")]
         public bool StrictRooling = false;
-
-        public List<(Player, string)> Evaluate(RaidGroup group, GearSetSlot slot, List<Player>? excluded = null)
-        {
-            excluded ??= new();
-            List<Player> need = new();
-            List<Player> greed = new();
-            foreach (Player p in group.Players)
-            {
-                if (excluded.Contains(p))
-                    continue;
-                if (p.MainChar.MainClass.Gear[slot].ItemLevel < p.MainChar.MainClass.BIS[slot].ItemLevel)
-                {
-                    need.Add(p);
-                }
-                else
-                {
-                    greed.Add(p);
-                }
-
-            }
-            LootRulingComparer comparer = GetComparer(slot);
-            need.Sort(comparer);
-            List<(Player, string)> result = new();
-            for (int i = 0; i < need.Count - 1; i++)
-            {
-                result.Add((need[i],
-                    comparer.RulingReason.GetValueOrDefault((need[i], need[i + 1]), new()).ToString()));
-            }
-            result.Add((need[^1], Localize("Need > Greed", "Need > Greed")));
-            foreach (Player p in greed)
-            {
-                result.Add((p, Localize("Greed", "Greed")));
-            }
-            return result;
-
-        }
-        private LootRulingComparer GetComparer(GearSetSlot slot) => new(RuleSet, slot, StrictRooling);
-
-        private class LootRulingComparer : IComparer<Player>
-        {
-            private readonly GearSetSlot Slot;
-            private readonly List<LootRule> RuleSet;
-            public Dictionary<(Player, Player), LootRule> RulingReason = new();
-            private readonly bool StrictRuling;
-            public LootRulingComparer(List<LootRule> ruleSet, GearSetSlot slot, bool strict) => (RuleSet, Slot, StrictRuling) = (ruleSet, slot, strict);
-
-            public int Compare(Player? x, Player? y)
-            {
-                if (x is null && y is null)
-                    return 0;
-                if (x is null)
-                    return 1;
-                if (y is null)
-                    return -1;
-                if (RulingReason.ContainsKey((x, y)))
-                    return RulingReason[(x, y)].Compare(x, y, Slot, StrictRuling);
-                foreach (LootRule rule in RuleSet)
-                {
-                    int result = rule.Compare(x, y, Slot, StrictRuling);
-                    if (result != 0)
-                    {
-                        RulingReason.Add((x, y), rule);
-                        RulingReason.Add((y, x), rule);
-                        return result;
-                    }
-                }
-                RulingReason.Add((x, y), new());
-                return 0;
-            }
-        }
     }
+
+
+
     [JsonObject(MemberSerialization.OptIn)]
     public class LootRule
     {
         [JsonProperty("Rule")]
         public LootRuleEnum? Rule;
-        public Func<Player, Player, GearSetSlot, bool, int> Compare
+        public int Compare(Player x, Player y, LootSession session, List<GearItem> currentPossibleLoot) => Rule switch
         {
-            get
-            {
-                if (Rule == null)
-                    return (x, y, z, strict) => 0;
-                return CompareDic.GetValueOrDefault((LootRuleEnum)Rule!) ?? ((x, y, z, strict) => 0);
-            }
-        }
-        private readonly static Dictionary<LootRuleEnum, Func<Player, Player, GearSetSlot, bool, int>> CompareDic = new()
-        {
-            { LootRuleEnum.Random, (x, y, slot, strict) => new Random().Next(0, 1) > 0 ? 1 : -1 },
-            { LootRuleEnum.LowestItemLevel, (x, y, slot, strict) => x.Gear.ItemLevel - y.Gear.ItemLevel },
-            { LootRuleEnum.HighesItemLevelGain, (x, y, slot, strict) => ((int)x.Gear[slot].ItemLevel) - (int)y.Gear[slot].ItemLevel },
-            {
-                LootRuleEnum.BISOverUpgrade,
-                (x, y, slot, strict) =>
-                {
-                    int xBIS = x.BIS[slot].Source == GearSource.Raid ? -1 : 1;
-                    int yBIS = y.BIS[slot].Source == GearSource.Raid ? -1 : 1;
-                    return xBIS - yBIS;
-                }
-            },
-            { LootRuleEnum.ByPosition, (x, y, slot, strict) => x.Pos.LootImportance(slot, strict) - y.Pos.LootImportance(slot, strict) }
+            LootRuleEnum.Random => session.Rolls[y] - session.Rolls[x],
+            LootRuleEnum.LowestItemLevel => x.Gear.ItemLevel - y.Gear.ItemLevel,
+            LootRuleEnum.HighesItemLevelGain =>
+                (int)currentPossibleLoot.ConvertAll(item => item.ItemLevel - y.Gear[item.Slot].ItemLevel).Max() -
+                    (int)currentPossibleLoot.ConvertAll(item => item.ItemLevel - x.Gear[item.Slot].ItemLevel).Max(),
+            LootRuleEnum.BISOverUpgrade =>
+                (currentPossibleLoot.Any(item => x.BIS.Contains(item) && !x.Gear.Contains(item)) ? -1 : 1) -
+                    (currentPossibleLoot.Any(item => y.BIS.Contains(item) && !y.Gear.Contains(item)) ? -1 : 1),
+            LootRuleEnum.ByPosition =>
+                x.Pos.LootImportance(session.RulingOptions.StrictRooling)
+                    - y.Pos.LootImportance(session.RulingOptions.StrictRooling),
+            _ => 0
         };
-        public override string ToString()
+        public override string ToString() => Rule switch
         {
-            return Rule switch
-            {
-                LootRuleEnum.BISOverUpgrade => Localize("BISOverUpgrade", "BIS > Upgrade"),
-                LootRuleEnum.LowestItemLevel => Localize("LowestItemLevel", "Lowest overall ItemLevel"),
-                LootRuleEnum.HighesItemLevelGain => Localize("HighesItemLevelGain", "Highest ItemLevel Gain"),
-                LootRuleEnum.ByPosition => Localize("ByPosition", "DPS > Tank > Heal"),
-                LootRuleEnum.Random => Localize("Rolling", "Rolling"),
-                null => Localize("None", "None"),
-                _ => Localize("Not defined", "Not defined"),
-            };
-        }
+            LootRuleEnum.BISOverUpgrade => Localize("BISOverUpgrade", "BIS > Upgrade"),
+            LootRuleEnum.LowestItemLevel => Localize("LowestItemLevel", "Lowest overall ItemLevel"),
+            LootRuleEnum.HighesItemLevelGain => Localize("HighesItemLevelGain", "Highest ItemLevel Gain"),
+            LootRuleEnum.ByPosition => Localize("ByPosition", "DPS > Tank > Heal"),
+            LootRuleEnum.Random => Localize("Rolling", "Rolling"),
+            null => Localize("None", "None"),
+            _ => Localize("Not defined", "Not defined"),
+        };
 
         public override bool Equals(object? obj)
         {
             if (obj is null || !obj.GetType().Equals(typeof(LootRule)))
                 return false;
-            return ((LootRule)obj).Rule.Equals(Rule);
+            return ((LootRule)obj).Rule == Rule;
         }
 
         [JsonConstructor]
@@ -152,20 +74,17 @@ namespace HimbeertoniRaidTool.Data
 
     public static class LootRulesExtension
     {
-        public static int LootImportance(this PositionInRaidGroup pos, GearSetSlot? slot = null, bool strict = false)
+        public static int LootImportance(this PositionInRaidGroup pos, bool strict = false) => pos switch
         {
-            return pos switch
-            {
-                PositionInRaidGroup.Melee1 => strict ? 0 : 0,
-                PositionInRaidGroup.Melee2 => strict ? 1 : 0,
-                PositionInRaidGroup.Caster => strict ? 2 : 0,
-                PositionInRaidGroup.Ranged => strict ? 3 : 0,
-                PositionInRaidGroup.Tank1 => slot != GearSetSlot.MainHand ? (strict ? 4 : 4) : (strict ? 6 : 6),
-                PositionInRaidGroup.Tank2 => slot != GearSetSlot.MainHand ? (strict ? 5 : 4) : (strict ? 7 : 6),
-                PositionInRaidGroup.Heal1 => slot != GearSetSlot.MainHand ? (strict ? 6 : 6) : (strict ? 4 : 4),
-                PositionInRaidGroup.Heal2 => slot != GearSetSlot.MainHand ? (strict ? 7 : 6) : (strict ? 5 : 4),
-                _ => 8
-            };
-        }
+            PositionInRaidGroup.Melee1 => strict ? 0 : 0,
+            PositionInRaidGroup.Melee2 => strict ? 1 : 0,
+            PositionInRaidGroup.Caster => strict ? 2 : 0,
+            PositionInRaidGroup.Ranged => strict ? 3 : 0,
+            PositionInRaidGroup.Tank1 => strict ? 4 : 4,
+            PositionInRaidGroup.Tank2 => strict ? 5 : 4,
+            PositionInRaidGroup.Heal1 => strict ? 6 : 6,
+            PositionInRaidGroup.Heal2 => strict ? 7 : 6,
+            _ => 8
+        };
     }
 }

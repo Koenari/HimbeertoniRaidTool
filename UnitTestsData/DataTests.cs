@@ -1,5 +1,5 @@
-﻿using Xunit;
-using HimbeertoniRaidTool.Data;
+﻿using HimbeertoniRaidTool.Data;
+using Xunit;
 
 namespace UnitTestsData
 {
@@ -45,12 +45,12 @@ namespace UnitTestsData
             Assert.NotEqual(Range3, Range2);
             Assert.NotEqual(Range3, Range1);
             Assert.NotEqual(Range1, Range3);
-            Assert.True(Range3 == 15123);
-            Assert.False(Range3 == 14123);
-            Assert.True(Range3 != 14111);
-            Assert.False(Range3 != 15123);
-            Assert.True(Range3 == 15000);
-            Assert.True(Range3 == 16000);
+            Assert.True(Range3.Contains(15123));
+            Assert.False(Range3.Contains(14123));
+            Assert.True(!Range3.Contains(14111));
+            Assert.False(!Range3.Contains(15123));
+            Assert.True(Range3.Contains(15000));
+            Assert.True(Range3.Contains(16000));
             Assert.False(Range3.Equals("a"));
         }
         [Fact]
@@ -58,11 +58,11 @@ namespace UnitTestsData
         {
             ItemIDRange Range1 = 25;
             uint i = 25;
-            foreach (uint x in Range1.Enumerator)
+            foreach (uint x in Range1.AsList)
                 Assert.Equal(i, x);
             ItemIDRange Range2 = (15, 20);
             uint j = 15;
-            foreach (uint y in Range2.Enumerator)
+            foreach (uint y in Range2.AsList)
             {
                 Assert.Equal(j, y);
                 j++;

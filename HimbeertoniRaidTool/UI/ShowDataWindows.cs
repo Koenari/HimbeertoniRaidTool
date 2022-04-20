@@ -1,7 +1,7 @@
-﻿using ColorHelper;
+﻿using System.Numerics;
+using ColorHelper;
 using HimbeertoniRaidTool.Data;
 using ImGuiNET;
-using System.Numerics;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
@@ -10,7 +10,7 @@ namespace HimbeertoniRaidTool.UI
     {
         private readonly GearItem Item;
         public ShowItemWindow(GearItem item) : base() => (Item, Visible) = (item, true);
-        public override void Draw()
+        protected override void Draw()
         {
             if (!Visible)
                 return;

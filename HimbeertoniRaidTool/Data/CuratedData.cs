@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using static HimbeertoniRaidTool.Data.AvailableClasses;
 
 namespace HimbeertoniRaidTool.Data
@@ -22,28 +23,15 @@ namespace HimbeertoniRaidTool.Data
         public static RaidTier CurrentRaidNormal => AsphodelosNormal;
         public static RaidTier AsphodelosNormal => new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
         public static RaidTier AsphodelosSavage => new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos Savage");
-
         public static readonly Dictionary<ItemIDRange, LootSource> LootSourceDB = new()
         {
             { (35245, 35264), (AsphodelosSavage, 4) },//All Asphodelos Weapons
             { 35734, (AsphodelosSavage, 4) },//Asphodelos weapon coffer
-            {
-                35735,
-                new((AsphodelosSavage, 2),
-                    (AsphodelosSavage, 3))
-            },//Asphodelos head gear coffer
+            { 35735, new((AsphodelosSavage, 2), (AsphodelosSavage, 3)) },//Asphodelos head gear coffer
             { 35736, (AsphodelosSavage, 4) },//Asphodelos chest gear coffer
-            {
-                35737,
-                new((AsphodelosSavage, 2),
-                    (AsphodelosSavage, 3))
-            },//Asphodelos hand gear coffer
+            { 35737, new((AsphodelosSavage, 2), (AsphodelosSavage, 3)) },//Asphodelos hand gear coffer
             { 35738, (AsphodelosSavage, 3) },//Asphodelos leg gear coffer
-            {
-                35739,
-                new((AsphodelosSavage, 2),
-                    (AsphodelosSavage, 3))
-            },//Asphodelos foot gear coffer
+            { 35739, new((AsphodelosSavage, 2), (AsphodelosSavage, 3)) },//Asphodelos foot gear coffer
             { 35740, (AsphodelosSavage, 1) },//Asphodelos earring coffer
             { 35741, (AsphodelosSavage, 1) },//Asphodelos necklace coffer
             { 35742, (AsphodelosSavage, 1) },//Asphodelos bracelet coffer
@@ -54,23 +42,26 @@ namespace HimbeertoniRaidTool.Data
             { 35831, (AsphodelosSavage, 2) } //Discal Tomestone
 
         };
-        public static readonly Dictionary<ItemIDRange, GearSetSlot> SlotOverrideDB = new()
+        public static readonly Dictionary<ItemIDRange, ItemIDCollection> ItemContainerDB = new()
         {
-            { 35734, GearSetSlot.MainHand },//Asphodelos weapon coffer
-            { 35735, GearSetSlot.Head },//Asphodelos head gear coffer
-            { 35736, GearSetSlot.Body },//Asphodelos chest gear coffer
-            { 35737, GearSetSlot.Hands },//Asphodelos hand gear coffer
-            { 35738, GearSetSlot.Legs },//Asphodelos leg gear coffer
-            { 35739, GearSetSlot.Feet },//Asphodelos foot gear coffer
-            { 35740, GearSetSlot.Ear },//Asphodelos earring coffer
-            { 35741, GearSetSlot.Neck },//Asphodelos necklace coffer
-            { 35742, GearSetSlot.Wrist },//Asphodelos bracelet coffer
-            { 35743, GearSetSlot.Ring1 },//Asphodelos ring coffers
-            //Todo
-            /*{ 35828, (AsphodelosSavage, 3) },//Radiant Roborant
-            { 35829, (AsphodelosSavage, 3) },//Radiant Twine
-            { 35830, (AsphodelosSavage, 2) },//Radiant Coating
-            { 35831, (AsphodelosSavage, 2) } //Discal Tomestone*/
+            { 35734, new ItemIDRange(35245, 35264) },//Asphodelos weapon coffer
+            { 35735, new ItemIDList(35265, 35270, 35275, 35280, 35285, 35290, 35295) },//Asphodelos head gear coffer
+            { 35736, new ItemIDList(35266, 35271, 35276, 35281, 35286, 35291, 35296) },//Asphodelos chest gear coffer
+            { 35737, new ItemIDList(35267, 35272, 35277, 35282, 35287, 35292, 35297) },//Asphodelos hand gear coffer
+            { 35738, new ItemIDList(35268, 35273, 35278, 35283, 35288, 35293, 35298) },//Asphodelos leg gear coffer
+            { 35739, new ItemIDList(35269, 35274, 35279, 35284, 35289, 35294, 35299) },//Asphodelos foot gear coffer
+            { 35740, new ItemIDRange(35300, 35304) },//Asphodelos earring coffer
+            { 35741, new ItemIDRange(35305, 35309) },//Asphodelos necklace coffer
+            { 35742, new ItemIDRange(35310, 35314) },//Asphodelos bracelet coffer
+            { 35743, new ItemIDRange(35315, 35319) },//Asphodelos ring coffers
+        };
+        public static readonly Dictionary<uint, ItemIDRange> ExchangedFor = new()
+        {
+            //{ 35734, (35245, 35264) },//Asphodelos weapon coffer
+            { 35828, (35170, 35189) },//Radiant Robortant
+            { 35829, (35190, 35224) },//Radiant Twine
+            { 35830, (35225, 35244) },//Radiatn Coating
+            { 35831, (35095, 35114) },//Discal TomeStone
         };
         public static readonly KeyContainsDictionary<GearSource> GearSourceDictionary = new()
         {
