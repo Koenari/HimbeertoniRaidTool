@@ -17,6 +17,8 @@ namespace HimbeertoniRaidTool
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
+        public delegate void ConfigurationChangedDelegate();
+        public event ConfigurationChangedDelegate ConfigurationChanged;
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
         [JsonIgnore]
@@ -57,6 +59,7 @@ namespace HimbeertoniRaidTool
         [JsonProperty]
         private List<RaidGroup> RaidGroups = new();
         public bool OpenLootMasterOnStartup = false;
+        public bool LootMasterHideInBattle = true;
         public int LootmasterUiLastIndex = 0;
 
         public void Save()
@@ -162,8 +165,10 @@ namespace HimbeertoniRaidTool
                     ImGui.BeginTabBar("Menu");
                     if (ImGui.BeginTabItem(Localize("General", "General")))
                     {
-                        ImGui.Checkbox(Localize("Open Lootmaster on startup", "Open Lootmaster on startup"),
+                        ImGui.Checkbox(Localize("Open group overview on startup", "Open group overview on startup"),
                             ref HRTPlugin.Configuration.OpenLootMasterOnStartup);
+                        ImGui.Checkbox(Localize("Hide windows in combat", "Hide windows in combat"),
+                            ref HRTPlugin.Configuration.LootMasterHideInBattle);
                         ImGui.EndTabItem();
                     }
                     if (ImGui.BeginTabItem("BiS"))
@@ -213,6 +218,7 @@ namespace HimbeertoniRaidTool
                         HRTPlugin.Configuration.LootRuling.RuleSet = LootList.List;
                         HRTPlugin.Configuration.Save();
                         Hide();
+                        HRTPlugin.Configuration.ConfigurationChanged();
                     }
                 }
                 ImGui.End();

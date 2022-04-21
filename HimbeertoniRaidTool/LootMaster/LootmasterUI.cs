@@ -20,10 +20,22 @@ namespace HimbeertoniRaidTool.LootMaster
         private RaidGroup CurrentGroup => LootMaster.RaidGroups[_CurrenGroupIndex];
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
         //private readonly List<HrtUI> Childs = new();
-        public LootmasterUI() : base(false) => _CurrenGroupIndex = HRTPlugin.Configuration.LootmasterUiLastIndex;
+        public LootmasterUI() : base(false)
+        {
+            _CurrenGroupIndex = HRTPlugin.Configuration.LootmasterUiLastIndex;
+            OnConfigChange();
+            HRTPlugin.Configuration.ConfigurationChanged += OnConfigChange;
+
+        }
+        public void OnConfigChange()
+        {
+            HideInBattle = HRTPlugin.Configuration.LootMasterHideInBattle;
+        }
         protected override void BeforeDispose()
         {
+            HRTPlugin.Configuration.ConfigurationChanged -= OnConfigChange;
             HRTPlugin.Configuration.LootmasterUiLastIndex = _CurrenGroupIndex;
+            HRTPlugin.Configuration.Save();
             foreach (AsyncTaskWithUiResult t in Tasks)
                 t.Dispose();
             Tasks.Clear();

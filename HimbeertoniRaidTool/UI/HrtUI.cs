@@ -14,6 +14,7 @@ namespace HimbeertoniRaidTool.UI
         private bool _disposed = false;
         private bool _volatile;
         private bool _isChild = false;
+        protected bool HideInBattle = false;
         protected bool Visible = false;
         private readonly List<HrtUI> Children = new();
 
@@ -87,6 +88,9 @@ namespace HimbeertoniRaidTool.UI
         {
             if (!Visible || _disposed)
                 return;
+            if (HideInBattle
+                && (Services.ClientState.LocalPlayer?.StatusFlags.HasFlag(Dalamud.Game.ClientState.Objects.Enums.StatusFlags.InCombat) ?? false))
+                return;
             Children.ForEach(_ => _.InternalDraw());
             Draw();
         }
@@ -108,10 +112,7 @@ namespace HimbeertoniRaidTool.UI
         }
         protected override void Draw()
         {
-            if (!Visible)
-                return;
-            if (Visible)
-                ImGui.OpenPopup(_Title);
+            ImGui.OpenPopup(_Title);
             ImGui.SetNextWindowPos(
                 new Vector2(ImGui.GetMainViewport().Size.X * 0.5f, ImGui.GetMainViewport().Size.Y * 0.5f),
                 ImGuiCond.Appearing, new Vector2(0.5f, 0.5f));
