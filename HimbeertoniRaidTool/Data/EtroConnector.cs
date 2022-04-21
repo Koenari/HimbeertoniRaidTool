@@ -25,7 +25,7 @@ namespace HimbeertoniRaidTool.Data
             DateFormatHandling = DateFormatHandling.IsoDateFormat,
             NullValueHandling = NullValueHandling.Ignore,
             MissingMemberHandling = MissingMemberHandling.Ignore,
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 
         };
         static EtroConnector()
@@ -95,9 +95,10 @@ namespace HimbeertoniRaidTool.Data
             {
                 set[slot] = new(id);
                 string idString = id.ToString() + (slot == GearSetSlot.Ring1 ? "L" : slot == GearSetSlot.Ring2 ? "R" : "");
-                if (etroSet!.materia?.TryGetValue(idString, out Dictionary<uint, uint>? materia) ?? false)
-                    foreach (uint matId in materia.Values)
-                        set[slot].Materia.Add(new(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, byte)>(matId, (0, 0))));
+                if (etroSet!.materia?.TryGetValue(idString, out Dictionary<uint, uint?>? materia) ?? false)
+                    foreach (uint? matId in materia.Values)
+                        if (matId.HasValue)
+                            set[slot].Materia.Add(new(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, byte)>(matId.Value, (0, 0))));
             }
         }
     }
@@ -108,7 +109,7 @@ namespace HimbeertoniRaidTool.Data
         public string? jobAbbrev { get; set; }
         public string? name { get; set; }
         public DateTime lastUpdate { get; set; }
-        public Dictionary<string, Dictionary<uint, uint>>? materia { get; set; }
+        public Dictionary<string, Dictionary<uint, uint?>>? materia { get; set; }
         public uint weapon { get; set; }
         public uint head { get; set; }
         public uint body { get; set; }
