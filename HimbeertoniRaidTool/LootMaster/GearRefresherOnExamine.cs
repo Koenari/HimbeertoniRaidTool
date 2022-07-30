@@ -100,7 +100,9 @@ namespace HimbeertoniRaidTool.LootMaster
             DataManagement.DataManager.GetManagedCharacter(ref targetChar);
             if (targetChar is null)
                 return;
-            targetChar.GetClass(targetClass).Level = target.Level;
+            //Does not work in level synced content
+            if (target.Level > targetChar.GetClass(targetClass).Level)
+                targetChar.GetClass(targetClass).Level = target.Level;
             GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
             DataManagement.DataManager.GetManagedGearSet(ref setToFill);
 

@@ -90,8 +90,7 @@ namespace HimbeertoniRaidTool.LootMaster
             private readonly List<GearItem> _possibleItems;
             public Dictionary<(Player, Player), LootRule> RulingReason = new();
             public LootRulingComparer(LootSession session, List<GearItem> possibleItems)
-
-            => (_session, _possibleItems) = (session, possibleItems);
+                => (_session, _possibleItems) = (session, possibleItems);
 
             public int Compare(Player? x, Player? y)
             {

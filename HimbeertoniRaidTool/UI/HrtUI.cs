@@ -55,6 +55,7 @@ namespace HimbeertoniRaidTool.UI
                 Children.ForEach(x => x.Hide());
             if (!Visible && _volatile)
                 Dispose();
+            Children.ForEach(x => x.Update(fw));
             Children.RemoveAll(x => x._disposed);
         }
         protected void AddChild(HrtUI child)
@@ -102,7 +103,7 @@ namespace HimbeertoniRaidTool.UI
         private readonly string _Title;
         private readonly string _Text;
 
-        public ConfimationDialog(Action action, string text, string title = "")
+        public ConfimationDialog(Action action, string text, string title = "") : base()
         {
             title = title.Equals("") ? Localize("Confirmation", "Confirmation") : title;
             _Text = text;

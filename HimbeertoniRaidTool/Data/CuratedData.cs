@@ -61,7 +61,7 @@ namespace HimbeertoniRaidTool.Data
             { 35828, (35170, 35189) },//Radiant Robortant
             { 35829, (35190, 35224) },//Radiant Twine
             { 35830, (35225, 35244) },//Radiatn Coating
-            { 35831, (35095, 35114) },//Discal TomeStone
+            { 35831, (35095, 35113) },//Discal TomeStone
         };
         public static readonly KeyContainsDictionary<GearSource> GearSourceDictionary = new()
         {
