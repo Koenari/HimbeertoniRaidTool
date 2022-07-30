@@ -192,7 +192,7 @@ namespace HimbeertoniRaidTool.UI
         private readonly Action OnSave;
         private readonly Action OnCancel;
 
-        internal EditGroupWindow(ref RaidGroup group, Action? onSave = null, Action? onCancel = null)
+        internal EditGroupWindow(RaidGroup group, Action? onSave = null, Action? onCancel = null)
         {
             Group = group;
             OnSave = onSave ?? (() => { });

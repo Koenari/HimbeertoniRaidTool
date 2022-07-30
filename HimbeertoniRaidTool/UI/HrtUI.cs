@@ -58,10 +58,20 @@ namespace HimbeertoniRaidTool.UI
             Children.ForEach(x => x.Update(fw));
             Children.RemoveAll(x => x._disposed);
         }
-        protected void AddChild(HrtUI child)
+        protected bool AddChild(HrtUI child)
         {
-            child.SetUpAsChild();
-            Children.Add(child);
+            if (!ChildExists(child))
+            {
+                child.SetUpAsChild();
+                Children.Add(child);
+                return true;
+            }
+            else
+            {
+                child.Dispose();
+                return false;
+            }
+
         }
         protected bool ChildExists<T>(T c) => Children.Exists(x => c?.Equals(x) ?? false);
         protected void ClearChildren() => Children.ForEach(x => x.Dispose());

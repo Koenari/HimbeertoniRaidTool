@@ -4,6 +4,7 @@ using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Objects;
+using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.IoC;
@@ -30,6 +31,7 @@ namespace HimbeertoniRaidTool
         [PluginService] public static Framework Framework { get; private set; }
         public static XivCommonBase XivCommonBase { get; private set; } = new XivCommonBase();
         [PluginService] public static ObjectTable ObjectTable { get; private set; }
+        [PluginService] public static PartyList PartyList { get; private set; }
 
 
     }

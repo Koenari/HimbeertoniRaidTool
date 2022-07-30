@@ -122,6 +122,7 @@ namespace HimbeertoniRaidTool.Data
         public HrtMateria((MateriaCategory cat, byte lvl) mat) : this(mat.cat, mat.lvl) { }
         [JsonConstructor]
         public HrtMateria(MateriaCategory cat, byte lvl) => (Category, MateriaLevel) = (cat, lvl);
+        public int GetStat() => GetStat(this.Category.GetStatType());
         public int GetStat(StatType type)
         {
             if (!Valid || Materia is null) return 0;

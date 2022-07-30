@@ -330,6 +330,20 @@ namespace HimbeertoniRaidTool.Data
             _ => Localize("undefined", "undefined")
         };
 
+        public static bool IsPartOf(this PositionInRaidGroup pos, GroupType type) => pos switch
+        {
+            PositionInRaidGroup.Tank1 => true,
+            PositionInRaidGroup.Tank2 => type == GroupType.Raid,
+            PositionInRaidGroup.Heal1 => type == GroupType.Group || type == GroupType.Raid,
+            PositionInRaidGroup.Heal2 => type == GroupType.Raid,
+            PositionInRaidGroup.Melee1 => type == GroupType.Group || type == GroupType.Raid,
+            PositionInRaidGroup.Melee2 => type == GroupType.Raid,
+            PositionInRaidGroup.Ranged => type == GroupType.Group || type == GroupType.Raid,
+            PositionInRaidGroup.Caster => type == GroupType.Raid,
+            _ => false,
+        };
+
+
     }
     [AttributeUsage(AttributeTargets.Field)]
     class StatAttribute : Attribute
