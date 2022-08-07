@@ -32,7 +32,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private static PlayerCharacter? TargetOverrride = null;
         static GearRefresherOnExamine()
         {
-            Hook = new(HookAddress, OnExamineRefresh);
+            Hook = Hook<CharacterInspectOnRefresh>.FromAddress(HookAddress, OnExamineRefresh);
             _getContainerSlot = Marshal.GetDelegateForFunctionPointer<GetContainerSlot>(getContainerSlotPtr);
             _getInventoryContainer = Marshal.GetDelegateForFunctionPointer<GetInventoryContainer>(getInventoryContainerPtr);
             _requestCharacterInfo = Marshal.GetDelegateForFunctionPointer<RequestCharInfoDelegate>(RequestCharacterInfoPtr);
