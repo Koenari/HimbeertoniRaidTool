@@ -245,7 +245,7 @@ namespace HimbeertoniRaidTool.Data
         Gathering,
         Perception,
         Unknown73,
-        Count
+        Count,
     }
     public static class EnumExtensions
     {

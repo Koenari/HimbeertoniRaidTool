@@ -58,7 +58,7 @@ namespace HimbeertoniRaidTool.Data
         public static readonly Dictionary<uint, ItemIDRange> ExchangedFor = new()
         {
             //{ 35734, (35245, 35264) },//Asphodelos weapon coffer
-            { 35828, (35170, 35189) },//Radiant Robortant
+            { 35828, (35170, 35188) },//Radiant Robortant
             { 35829, (35190, 35224) },//Radiant Twine
             { 35830, (35225, 35244) },//Radiatn Coating
             { 35831, (35095, 35113) },//Discal TomeStone

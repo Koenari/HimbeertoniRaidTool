@@ -77,13 +77,13 @@ namespace HimbeertoniRaidTool.Data
         public static int LootImportance(this PositionInRaidGroup pos, bool strict = false) => pos switch
         {
             PositionInRaidGroup.Melee1 => strict ? 0 : 0,
-            PositionInRaidGroup.Melee2 => strict ? 1 : 0,
-            PositionInRaidGroup.Caster => strict ? 2 : 0,
-            PositionInRaidGroup.Ranged => strict ? 3 : 0,
+            PositionInRaidGroup.Melee2 => strict ? 0 : 0,
+            PositionInRaidGroup.Caster => strict ? 2 : 2,
+            PositionInRaidGroup.Ranged => strict ? 3 : 2,
             PositionInRaidGroup.Tank1 => strict ? 4 : 4,
-            PositionInRaidGroup.Tank2 => strict ? 5 : 4,
+            PositionInRaidGroup.Tank2 => strict ? 4 : 4,
             PositionInRaidGroup.Heal1 => strict ? 6 : 6,
-            PositionInRaidGroup.Heal2 => strict ? 7 : 6,
+            PositionInRaidGroup.Heal2 => strict ? 6 : 6,
             _ => 8
         };
     }

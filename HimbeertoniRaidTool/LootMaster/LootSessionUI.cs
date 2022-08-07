@@ -53,12 +53,15 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.EndChild();
                 }
                 ImGui.SameLine();
+
                 if (ImGui.BeginChild("Rules", new Vector2(250, 250), false))
                 {
                     if (ImGui.Button(Localize("Reset to default", "Reset to default")))
                     {
                         _ruleListUi = new(LootRuling.PossibleRules, HRTPlugin.Configuration.LootRuling.RuleSet);
+                        _session.RulingOptions.StrictRooling = HRTPlugin.Configuration.LootRuling.StrictRooling;
                     }
+                    ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref _session.RulingOptions.StrictRooling);
                     _ruleListUi.Draw();
                     ImGui.NewLine();
 
