@@ -11,7 +11,6 @@ using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.UI;
-using XivCommon;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool
@@ -29,7 +28,6 @@ namespace HimbeertoniRaidTool
         [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
         [PluginService] public static ClientState ClientState { get; private set; }
         [PluginService] public static Framework Framework { get; private set; }
-        public static XivCommonBase XivCommonBase { get; private set; } = new XivCommonBase();
         [PluginService] public static ObjectTable ObjectTable { get; private set; }
         [PluginService] public static PartyList PartyList { get; private set; }
 
@@ -70,6 +68,7 @@ namespace HimbeertoniRaidTool
             //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
+            Data.AllaganLibrary.Init();
             LootMaster.LootMaster.Init();
             OptionsUi = new();
             if (Configuration.OpenLootMasterOnStartup)
@@ -99,8 +98,8 @@ namespace HimbeertoniRaidTool
             Commands.ForEach(command => Services.CommandManager.RemoveHandler(command.Item1));
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
             LootMaster.LootMaster.Dispose();
-            Services.XivCommonBase.Dispose();
             DataManagement.DataManager.Save();
+            Data.AllaganLibrary.Dispose();
         }
         private void OnCommand(string command, string args)
         {

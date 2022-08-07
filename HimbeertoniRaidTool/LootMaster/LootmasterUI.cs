@@ -159,16 +159,45 @@ namespace HimbeertoniRaidTool.LootMaster
                 {
                     ImGui.TableNextColumn();
                     ImGui.Text(type.FriendlyName());
+                    if (type == StatType.CriticalHit)
+                        ImGui.Text("Critical Damage");
                     ImGui.TableNextColumn();
                     ImGui.Text(Stat().ToString());
                     ImGui.TableNextColumn();
-                    float evaluatedStat = AllaganLibraryMock.EvaluateStat(type, Stat());
+                    float evaluatedStat = AllaganLibrary.EvaluateStat(type, Stat(), p.MainChar.MainClass.Level);
                     if (!float.IsNaN(evaluatedStat))
-                        ImGui.Text(evaluatedStat.ToString());
+                    {
+                        if (type == StatType.CriticalHit)
+                        {
+                            ImGui.Text($"{evaluatedStat * 100} %%");
+                            evaluatedStat = AllaganLibrary.EvaluateStat(StatType.CriticalHitPower, Stat(), p.MainChar.MainClass.Level);
+                            ImGui.Text($"{evaluatedStat * 100} %%");
+                        }
+                        else if (type == StatType.Determination)
+                        {
+                            ImGui.Text($"{evaluatedStat * 100 + 100} %%");
+                        }
+                        else if (type == StatType.DirectHitRate)
+                        {
+                            ImGui.Text($"{evaluatedStat * 100} %%");
+                        }
+                        else if (type == StatType.SkillSpeed || type == StatType.SpellSpeed)
+                        {
+                            ImGui.Text($"{evaluatedStat} s");
+                        }
+                        else if (type == StatType.Piety)
+                        {
+                            ImGui.Text($"+{evaluatedStat} MP/s");
+                        }
+                        else
+                            ImGui.Text($"{evaluatedStat} ");
+
+                    }
                     else
                         ImGui.Text("n.A.");
 
-                    int Stat() => gear.GetStat(type) + AllaganLibraryMock.GetBaseStatAt90(type);
+
+                    int Stat() => AllaganLibrary.GetStatWithModifiers(type, gear.GetStat(type), p.MainChar.MainClass.Level, p.MainChar.MainClassType, p.MainChar.Race, p.MainChar.Clan);
                 }
             }
             ImGui.NextColumn();
