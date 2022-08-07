@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ColorHelper;
 using HimbeertoniRaidTool.Data;
 using ImGuiNET;
+using Lumina.Text;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
@@ -17,18 +18,26 @@ namespace HimbeertoniRaidTool.UI
         private readonly AsyncTaskWithUiResult CallBack;
         private bool IsNew = false;
         private static string[] Worlds;
+        private static uint[] WorldIDs;
         internal PositionInRaidGroup Pos => Player.Pos;
 
         internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, bool openHidden = false) : base()
         {
             if (Worlds == null)
             {
-                Worlds = new string[100];
-                for (uint i = 0; i < Worlds.Length; i++)
-                    if (i >= 21 && i < 100)
-                        Worlds[i] = Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(i)?.Name ?? "";
-                    else
-                        Worlds[i] = "";
+                List<(uint, string)> WorldList = new();
+                for (uint i = 21; i < (Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.RowCount ?? 0); i++)
+                {
+                    string? worldName = Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(i)?.Name ?? "";
+                    if (!worldName.Equals("") && !worldName.Contains("-") && !worldName.Contains("_") && !worldName.Contains("contents"))
+                        WorldList.Add((i, worldName));
+                }
+                Worlds = new string[WorldList.Count + 1];
+                WorldIDs = new uint[WorldList.Count + 1];
+                Worlds[0] = "";
+                WorldIDs[0] = 0;
+                for (int i = 0; i < WorldList.Count; i++)
+                    (WorldIDs[i + 1], Worlds[i + 1]) = WorldList[i];
             }
             RaidGroup = group;
             callBack = CallBack = new();
@@ -62,9 +71,11 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
                 if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50))
                     PlayerCopy.MainChar.HomeWorldID = 0;
-                int worldID = (int)PlayerCopy.MainChar.HomeWorldID;
+                int worldID = Array.IndexOf(WorldIDs, PlayerCopy.MainChar.HomeWorldID);
+                if (worldID < 0)
+                    worldID = 0;
                 if (ImGui.Combo(Localize("HomeWorld", "Home World"), ref worldID, Worlds, Worlds.Length))
-                    PlayerCopy.MainChar.HomeWorldID = (uint)(worldID < 0 ? 0 : worldID);
+                    PlayerCopy.MainChar.HomeWorldID = WorldIDs[worldID] < 0 ? 0 : WorldIDs[worldID];
                 if (Helper.TryGetChar(PlayerCopy.MainChar.Name) is not null)
                 {
                     ImGui.SameLine();
