@@ -16,29 +16,29 @@ namespace HimbeertoniRaidTool.UI
         private readonly Player Player;
         private readonly Player PlayerCopy;
         private readonly AsyncTaskWithUiResult CallBack;
-        private bool IsNew = false;
-        private static string[] Worlds;
-        private static uint[] WorldIDs;
+        private readonly bool IsNew;
+        private static readonly string[] Worlds;
+        private static readonly uint[] WorldIDs;
         internal PositionInRaidGroup Pos => Player.Pos;
 
+        static EditPlayerWindow()
+        {
+            List<(uint, string)> WorldList = new();
+            for (uint i = 21; i < (Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.RowCount ?? 0); i++)
+            {
+                string? worldName = Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(i)?.Name ?? "";
+                if (!worldName.Equals("") && !worldName.Contains("-") && !worldName.Contains("_") && !worldName.Contains("contents"))
+                    WorldList.Add((i, worldName));
+            }
+            Worlds = new string[WorldList.Count + 1];
+            WorldIDs = new uint[WorldList.Count + 1];
+            Worlds[0] = "";
+            WorldIDs[0] = 0;
+            for (int i = 0; i < WorldList.Count; i++)
+                (WorldIDs[i + 1], Worlds[i + 1]) = WorldList[i];
+        }
         internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, bool openHidden = false) : base()
         {
-            if (Worlds == null)
-            {
-                List<(uint, string)> WorldList = new();
-                for (uint i = 21; i < (Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.RowCount ?? 0); i++)
-                {
-                    string? worldName = Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(i)?.Name ?? "";
-                    if (!worldName.Equals("") && !worldName.Contains("-") && !worldName.Contains("_") && !worldName.Contains("contents"))
-                        WorldList.Add((i, worldName));
-                }
-                Worlds = new string[WorldList.Count + 1];
-                WorldIDs = new uint[WorldList.Count + 1];
-                Worlds[0] = "";
-                WorldIDs[0] = 0;
-                for (int i = 0; i < WorldList.Count; i++)
-                    (WorldIDs[i + 1], Worlds[i + 1]) = WorldList[i];
-            }
             RaidGroup = group;
             callBack = CallBack = new();
             Player = group[pos];
@@ -194,8 +194,11 @@ namespace HimbeertoniRaidTool.UI
 
             return true;
         }
+        public override int GetHashCode()
+        {
+            return RaidGroup.GetHashCode() << 3 + (int)Pos;
+        }
     }
-
     internal class EditGroupWindow : HrtUI
     {
         private readonly RaidGroup Group;

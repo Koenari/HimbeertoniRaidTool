@@ -18,7 +18,7 @@ namespace HimbeertoniRaidTool
     public class Configuration : IPluginConfiguration
     {
         public delegate void ConfigurationChangedDelegate();
-        public event ConfigurationChangedDelegate ConfigurationChanged;
+        public event ConfigurationChangedDelegate? ConfigurationChanged;
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
         [JsonIgnore]
@@ -218,7 +218,7 @@ namespace HimbeertoniRaidTool
                         HRTPlugin.Configuration.LootRuling.RuleSet = LootList.List;
                         HRTPlugin.Configuration.Save();
                         Hide();
-                        HRTPlugin.Configuration.ConfigurationChanged();
+                        HRTPlugin.Configuration.ConfigurationChanged?.Invoke();
                     }
                 }
                 ImGui.End();
