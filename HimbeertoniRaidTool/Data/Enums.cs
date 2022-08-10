@@ -93,20 +93,20 @@ namespace HimbeertoniRaidTool.Data
         [Role(Role.Healer)]
         WHM
     }
-    public enum Role
+    public enum Role : byte
     {
         [Stat(StatType.None)]
-        None,
+        None = 0,
         [Stat(StatType.Strength)]
-        Tank,
+        Tank = 1,
         [Stat(StatType.Mind)]
-        Healer,
+        Healer = 4,
         [Stat(StatType.Strength)]
-        Melee,
+        Melee = 2,
         [Stat(StatType.Dexterity)]
-        Ranged,
+        Ranged = 3,
         [Stat(StatType.Intelligence)]
-        Caster
+        Caster = 5,
     }
     public enum PositionInRaidGroup : byte
     {
