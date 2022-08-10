@@ -60,6 +60,9 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             ImGui.BeginChild("SoloView");
             ImGui.Columns(3);
+            /**
+             * Job Selection
+             */
             ImGui.Text($"{p.NickName} : {p.MainChar.Name} @ {p.MainChar.HomeWorld?.Name ?? "n.A"}");
             ImGui.SameLine();
 
@@ -105,7 +108,9 @@ namespace HimbeertoniRaidTool.LootMaster
                         Task.Run(() => EtroConnector.GetGearSet(playableClass.BIS))));
                 }
             }
-
+            /**
+             * Stat Table
+             */
             ImGui.NextColumn();
             {
                 var playerRole = p.MainChar.MainClass.ClassType.GetRole();
@@ -113,93 +118,79 @@ namespace HimbeertoniRaidTool.LootMaster
                 var weaponStat = (p.MainChar.MainClassType.GetRole() == Role.Healer || p.MainChar.MainClassType.GetRole() == Role.Caster) ?
                     StatType.MagicalDamage : StatType.PhysicalDamage;
                 ImGui.TextColored(Vec4(ColorName.RedCrayola.ToRgb()),
-                    Localize("StatsUnfinished", "Stats are under development and may not include adjustments for class, race, etc."));
+                    Localize("StatsUnfinished", "Stats are under development and only work corrrectly for level 90 jobs"));
 
-                ImGui.BeginTable("MainStats", 3, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
+                ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
                 ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
                 ImGui.TableSetupColumn(Localize("Value", "Value"));
                 ImGui.TableSetupColumn("");
-                ImGui.TableHeadersRow();
-                DrawStatRow(p.Gear, weaponStat);
-                DrawStatRow(p.Gear, StatType.Vitality);
-                DrawStatRow(p.Gear, mainStat);
-                DrawStatRow(p.Gear, StatType.Defense);
-                DrawStatRow(p.Gear, StatType.MagicDefense);
-                ImGui.EndTable();
-                ImGui.NewLine();
-                ImGui.BeginTable("SecondaryStats", 3, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
-                ImGui.TableSetupColumn(Localize("SecondaryStats", "Secondary Stats"));
-                ImGui.TableSetupColumn(Localize("Value", "Value"));
+                ImGui.TableSetupColumn(Localize("BiS", "BiS"));
                 ImGui.TableSetupColumn("");
                 ImGui.TableHeadersRow();
-                DrawStatRow(p.Gear, StatType.CriticalHit);
-                DrawStatRow(p.Gear, StatType.Determination);
-                DrawStatRow(p.Gear, StatType.DirectHitRate);
+                DrawStatRow(weaponStat);
+                DrawStatRow(StatType.Vitality);
+                DrawStatRow(mainStat);
+                DrawStatRow(StatType.Defense);
+                DrawStatRow(StatType.MagicDefense);
+                ImGui.EndTable();
+                ImGui.NewLine();
+                ImGui.BeginTable("SecondaryStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
+                ImGui.TableSetupColumn(Localize("SecondaryStats", "Secondary Stats"));
+                ImGui.TableSetupColumn(Localize("Current", "Current"));
+                ImGui.TableSetupColumn("");
+                ImGui.TableSetupColumn(Localize("BiS", "BiS"));
+                ImGui.TableSetupColumn("");
+                ImGui.TableHeadersRow();
+                DrawStatRow(StatType.CriticalHit);
+                DrawStatRow(StatType.Determination);
+                DrawStatRow(StatType.DirectHitRate);
                 if (playerRole == Role.Healer || playerRole == Role.Caster)
                 {
-                    DrawStatRow(p.Gear, StatType.SpellSpeed);
+                    DrawStatRow(StatType.SpellSpeed);
                     if (playerRole == Role.Healer)
-                        DrawStatRow(p.Gear, StatType.Piety);
-                    //Thease two are Magic to me -> Need Allagan Studies
+                        DrawStatRow(StatType.Piety);
+                    //These two are Magic to me -> Need Allagan Studies
                     //DrawStatRow(p.Gear, StatType.AttackMagicPotency);
                     //if (playerRole == Role.Healer)
                     //    DrawStatRow(p.Gear, StatType.HealingMagicPotency);
                 }
                 else
                 {
-                    DrawStatRow(p.Gear, StatType.SkillSpeed);
+                    DrawStatRow(StatType.SkillSpeed);
                     //See AMP and HMP
                     //DrawStatRow(p.Gear, StatType.AttackPower);
                     if (playerRole == Role.Tank)
-                        DrawStatRow(p.Gear, StatType.Tenacity);
+                        DrawStatRow(StatType.Tenacity);
                 }
                 ImGui.EndTable();
                 ImGui.NewLine();
-                void DrawStatRow(GearSet gear, StatType type)
+                void DrawStatRow(StatType type)
                 {
+                    int numEvals = 1;
+                    if (type == StatType.CriticalHit || type == StatType.Tenacity)
+                        numEvals++;
                     ImGui.TableNextColumn();
                     ImGui.Text(type.FriendlyName());
                     if (type == StatType.CriticalHit)
                         ImGui.Text("Critical Damage");
+                    //Current
                     ImGui.TableNextColumn();
-                    ImGui.Text(Stat().ToString());
+                    ImGui.Text(Stat(p.Gear).ToString());
                     ImGui.TableNextColumn();
-                    float evaluatedStat = AllaganLibrary.EvaluateStat(type, Stat(), p.MainChar.MainClass.Level);
-                    if (!float.IsNaN(evaluatedStat))
-                    {
-                        if (type == StatType.CriticalHit)
-                        {
-                            ImGui.Text($"{evaluatedStat * 100} %%");
-                            evaluatedStat = AllaganLibrary.EvaluateStat(StatType.CriticalHitPower, Stat(), p.MainChar.MainClass.Level);
-                            ImGui.Text($"{evaluatedStat * 100} %%");
-                        }
-                        else if (type == StatType.Determination)
-                        {
-                            ImGui.Text($"{evaluatedStat * 100 + 100} %%");
-                        }
-                        else if (type == StatType.DirectHitRate)
-                        {
-                            ImGui.Text($"{evaluatedStat * 100} %%");
-                        }
-                        else if (type == StatType.SkillSpeed || type == StatType.SpellSpeed)
-                        {
-                            ImGui.Text($"{evaluatedStat} s");
-                        }
-                        else if (type == StatType.Piety)
-                        {
-                            ImGui.Text($"+{evaluatedStat} MP/s");
-                        }
-                        else
-                            ImGui.Text($"{evaluatedStat} ");
-
-                    }
-                    else
-                        ImGui.Text("n.A.");
-
-
-                    int Stat() => AllaganLibrary.GetStatWithModifiers(type, gear.GetStat(type), p.MainChar.MainClass.Level, p.MainChar.MainClassType, p.MainChar.Race, p.MainChar.Clan);
+                    for (int i = 0; i < numEvals; i++)
+                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, Stat(p.Gear), p.MainChar.MainClass.Level, p.MainChar.MainClassType, i));
+                    //BiS
+                    ImGui.TableNextColumn();
+                    ImGui.Text(Stat(p.BIS).ToString());
+                    ImGui.TableNextColumn();
+                    for (int i = 0; i < numEvals; i++)
+                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, Stat(p.BIS), p.MainChar.MainClass.Level, p.MainChar.MainClassType, i));
+                    int Stat(GearSet gear) => AllaganLibrary.GetStatWithModifiers(type, gear.GetStat(type), p.MainChar.MainClass.Level, p.MainChar.MainClassType, p.MainChar.Race, p.MainChar.Clan);
                 }
             }
+            /**
+             * Show Gear
+             */
             ImGui.NextColumn();
             ImGui.BeginTable("SoloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
             ImGui.TableSetupColumn("Gear");
@@ -515,8 +506,6 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         private static void DrawSlot(GearItem item, GearItem bis, bool extended = false)
         {
-            //Icon drawing still broken
-            extended = false;
             ImGui.TableNextColumn();
             if (item.Valid && bis.Valid && item.Equals(bis))
             {
@@ -535,14 +524,17 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (item.Valid)
                 {
                     ImGui.BeginGroup();
-                    if (extended && item.Icon != null)
-                    {
-                        ImGui.Image(item.Icon.ImGuiHandle, new Vector2(32));
-                        ImGui.SameLine();
-                    }
                     ImGui.TextColored(
                         Vec4(Helper.ILevelColor(item).Saturation(0.8f).Value(0.85f), 1f),
                         $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
+                    if (extended)
+                    {
+                        string materria = "";
+                        foreach (HrtMateria mat in item.Materia)
+                            materria += $"{mat.Category.GetAttribute<StatAttribute>()?.StatType.Abbrev()} +{mat.GetStat()}  ";
+                        ImGui.SameLine();
+                        ImGui.Text($"(  {materria})");
+                    }
                     ImGui.EndGroup();
                     if (ImGui.IsItemHovered())
                     {

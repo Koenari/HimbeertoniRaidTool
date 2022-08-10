@@ -262,6 +262,21 @@ namespace HimbeertoniRaidTool.Data
             StatType.MagicDefense => "Magic Defense",
             _ => t.ToString(),
         };
+        public static string Abbrev(this StatType t) => t switch
+        {
+            StatType.CriticalHit => "CRT",
+            StatType.DirectHitRate => "DH",
+            StatType.SkillSpeed => "SKS",
+            StatType.SpellSpeed => "SPS",
+            StatType.Determination => "DET",
+            StatType.Piety => "PIE",
+            StatType.Mind => "MND",
+            StatType.Strength => "STR",
+            StatType.Dexterity => "DEX",
+            StatType.Intelligence => "INT",
+            StatType.Vitality => "VIT",
+            _ => "XXX",
+        };
         public static Role GetRole(this AvailableClasses c) =>
             c.GetAttribute<RoleAttribute>()?.Role ?? Role.None;
 

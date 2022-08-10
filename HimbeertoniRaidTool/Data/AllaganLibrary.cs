@@ -13,70 +13,132 @@ namespace HimbeertoniRaidTool.Data
         {
             AllaganLibraryData.Init();
         }
-        public static float EvaluateStat(StatType type, int totalStat, int level)
+        /// <summary>
+        /// This function evaluates a stat to it's respective effective used effect.
+        /// Only works for level 90
+        /// </summary>
+        /// <param name="type">Type of stat that is input</param>
+        /// <param name="totalStat">total value of stat</param>
+        /// <param name="level">level of the job to evaluate for</param>
+        /// <param name="job">current job</param>
+        /// <param name="alternative">a way to use alternative formulas for stats that have multiple effects (0 is default furmula)</param>
+        /// <returns>Evaluated value including unit</returns>
+        public static string EvaluateStatToDisplay(StatType type, int totalStat, int level, AvailableClasses job, int alternative = 0)
         {
+            string notAvail = "n.A.";
+            float evaluatedValue = EvaluateStat(type, totalStat, level, job, alternative);
+            if (float.IsNaN(evaluatedValue))
+                return notAvail;
+            if (type == StatType.CriticalHit && alternative == 1)
+                type = StatType.CriticalHitPower;
+            return type switch
+            {
+                StatType.CriticalHit => $"{evaluatedValue * 100:N1} %%",
+                StatType.CriticalHitPower => $"{evaluatedValue * 100:N1} %%",
+                StatType.DirectHitRate => $"{evaluatedValue * 100:N1} %%",
+                StatType.Determination => $"{100 + evaluatedValue * 100:N1} %%",
+                StatType.Tenacity => $"{evaluatedValue * 100:N1} %%",
+                StatType.Piety => $"+{evaluatedValue:N0} MP/s",
+                StatType.SkillSpeed or StatType.SpellSpeed =>
+                     alternative switch
+                     {
+                         //GCD
+                         0 => $"{evaluatedValue:N2} s",
+                         //AA/DoT Multiplier
+                         1 => $"{evaluatedValue * 100:N1} %%",
+                         _ => notAvail
+                     },
+                StatType.Defense or StatType.MagicDefense => $"{evaluatedValue * 100:N1} %%",
+                StatType.Vitality => $"{evaluatedValue:N0} HP",
+                _ => notAvail
+            };
+        }
+        /// <summary>
+        /// This function evaluates a stat to it's respective effective used effect.
+        /// Only works for level 90
+        /// </summary>
+        /// <param name="type">Type of stat that is input</param>
+        /// <param name="totalStat">total value of stat</param>
+        /// <param name="level">level of the job to evaluate for</param>
+        /// <param name="job">current job</param>
+        /// <param name="alternative">a way to use alternative formulas for stats that have multiple effects (0 is default furmula)</param>
+        /// <returns>Evaluated value (percentage values are in mathematical correct value, means 100% = 1.0)</returns>
+        public static float EvaluateStat(StatType type, int totalStat, int level, AvailableClasses job, int alternative = 0)
+        {
+            if (level < 90)
+                return float.NaN;
+            if (type == StatType.CriticalHit && alternative == 1)
+                type = StatType.CriticalHitPower;
             return type switch
             {
                 StatType.CriticalHit => MathF.Floor(200 * (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "SUB")) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV") + 50) / 1000f,
                 StatType.CriticalHitPower => MathF.Floor(200 * (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "SUB")) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV") + 1400) / 1000f,
                 StatType.DirectHitRate => MathF.Floor(550 * (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "SUB")) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")) / 1000f,
                 StatType.Determination => MathF.Floor(140 * (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "MAIN")) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")) / 1000f,
-                StatType.Tenacity => MathF.Floor(100 * (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "SUB")) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")) / 1000f,
-                StatType.Piety => MathF.Floor(150 * (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "MAIN")) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")),
-                StatType.SkillSpeed => MathF.Floor(2500f * (1000 + MathF.Ceiling(130 * (GetTableData<int>(AllaganTables.Level, $"LV = {level}", "SUB") - totalStat) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV"))) / 10000f) / 100f,
-                StatType.SpellSpeed => MathF.Floor(2500f * (1000 + MathF.Ceiling(130 * (GetTableData<int>(AllaganTables.Level, $"LV = {level}", "SUB") - totalStat) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV"))) / 10000f) / 100f,
+                StatType.Tenacity =>
+                    alternative switch
+                    {
+                        //Inc Dmg Mitigation
+                        0 => (1000f - MathF.Floor(100 * (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "SUB")) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV"))) / 1000f,
+                        //Out DMG%Heal
+                        1 => (1000f + MathF.Floor(100 * (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "SUB")) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV"))) / 1000f,
+                        _ => float.NaN,
+                    },
+                StatType.Piety => MathF.Floor(150 * (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "MAIN")) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")) + 200f,
+                StatType.SkillSpeed or StatType.SpellSpeed =>
+                     alternative switch
+                     {
+                         //GCD
+                         0 => MathF.Floor(2500f * (1000 + MathF.Ceiling(130 * (GetTableData<int>(AllaganTables.Level, $"LV = {level}", "SUB") - totalStat) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV"))) / 10000f) / 100f,
+                         //AA/DoT Multiplier
+                         1 => (1000f + MathF.Ceiling(130f * (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "SUB")) / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV"))) / 1000f,
+                         _ => float.NaN
+                     },
+                StatType.Defense or StatType.MagicDefense => MathF.Floor(15 * totalStat / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")) / 100f,
+                StatType.Vitality => MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", "HP") * GetTableData<int>(AllaganTables.Job, $"JOB = '{job}'", "HP") / 100f)
+                    + (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "Main")) *
+                    job.GetRole() switch
+                    {
+                        Role.Tank => 34.6f,
+                        _ => 24.3f,
+                    },
                 _ => float.NaN
             };
         }
         public static int GetStatWithModifiers(StatType type, int fromGear, int level, AvailableClasses job, string race, string clan)
         {
-            return fromGear + GetBaseStat(type, level) + GetRacialModifier(type, race, clan);
+            return fromGear + (int)(GetBaseStat(type, level) * GetJobModifier(type, job)) + GetRacialModifier(type, race, clan);
         }
         public static int GetBaseStat(StatType type, int level)
         {
-            string col = type switch
+            string levelCol = type switch
             {
                 StatType.HP => "HP",
                 StatType.MP => "MP",
-                StatType.Strength => "MAIN",
-                StatType.Dexterity => "MAIN",
-                StatType.Vitality => "MAIN",
-                StatType.Intelligence => "MAIN",
-                StatType.Mind => "MAIN",
-                StatType.Piety => "MAIN",
-                StatType.Tenacity => "SUB",
-                StatType.DirectHitRate => "SUB",
-                StatType.CriticalHit => "SUB",
-                StatType.CriticalHitPower => "SUB",
-                StatType.Determination => "MAIN",
-                StatType.SkillSpeed => "SUB",
-                StatType.SpellSpeed => "SUB",
+                StatType.Strength or StatType.Dexterity or StatType.Vitality or StatType.Intelligence or StatType.Mind or StatType.Determination or StatType.Piety => "MAIN",
+                StatType.Tenacity or StatType.DirectHitRate or StatType.CriticalHit or StatType.CriticalHitPower or StatType.SkillSpeed or StatType.SpellSpeed => "SUB",
                 _ => ""
             };
-            return col.Equals("") ? 0 : GetTableData<int>(AllaganTables.Level, $"LV = {level}", col);
+
+            return levelCol.Equals("") ? 0 : (int)MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", levelCol));
         }
 
-        public static int GetJobModifier(StatType type, AvailableClasses job)
+
+        public static float GetJobModifier(StatType statType, AvailableClasses job)
         {
-            string rowFilter = $"Job = '{Enum.GetName(job)}'";
-            try
+            string jobCol = statType switch
             {
-                return type switch
-                {
-                    StatType.HP => GetTableData<int>(AllaganTables.Job, rowFilter, "HP"),
-                    StatType.MP => GetTableData<int>(AllaganTables.Job, rowFilter, "MP"),
-                    StatType.Strength => GetTableData<int>(AllaganTables.Job, rowFilter, "STR"),
-                    StatType.Dexterity => GetTableData<int>(AllaganTables.Job, rowFilter, "DEX"),
-                    StatType.Vitality => GetTableData<int>(AllaganTables.Job, rowFilter, "VIT"),
-                    StatType.Intelligence => GetTableData<int>(AllaganTables.Job, rowFilter, "INT"),
-                    StatType.Mind => GetTableData<int>(AllaganTables.Job, rowFilter, "MND"),
-                    _ => 0
-                };
-            }
-            catch
-            {
-                return 0;
-            }
+                StatType.Strength => "STR",
+                StatType.Dexterity => "DEX",
+                StatType.Intelligence => "INT",
+                StatType.Mind => "MND",
+                StatType.Vitality => "VIT",
+                StatType.HP => "HP",
+                StatType.MP => "MP",
+                _ => ""
+            };
+            return jobCol.Equals("") ? 1 :
+                GetTableData<int>(AllaganTables.Job, $"JOB = '{job}'", jobCol) / 100f;
         }
         public static int GetRacialModifier(StatType type, string race, string clan)
         {
@@ -94,6 +156,11 @@ namespace HimbeertoniRaidTool.Data
                 };
             }
             catch { return 0; }
+        }
+        private static bool IsMainStat(StatType statType)
+        {
+            StatType[] mainStats = new StatType[] { StatType.Strength, StatType.Dexterity, StatType.Mind, StatType.Intelligence };
+            return mainStats.Contains(statType);
         }
         private static T GetTableData<T>(AllaganTables table, string whereClause, string col)
         {
