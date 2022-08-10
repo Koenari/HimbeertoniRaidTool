@@ -59,7 +59,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (excluded.Contains(p))
                     continue;
                 foreach (GearItem item in possibleItems)
-                    if (p.Gear[item.Slot].ID != p.BIS[item.Slot].ID)
+                    if (p.Gear[item.Slot].ID != p.BIS[item.Slot].ID && !possibleItems.Any(x => x.ID == p.Gear[item.Slot].ID))
                     {
                         need.Add(p);
                         break;
