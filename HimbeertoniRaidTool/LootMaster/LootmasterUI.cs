@@ -350,7 +350,8 @@ namespace HimbeertoniRaidTool.LootMaster
                 }
                 foreach (PartyMember p in players)
                 {
-                    AvailableClasses c = Enum.Parse<AvailableClasses>(p.ClassJob.GameData!.Abbreviation.RawString);
+                    if (!Enum.TryParse(p.ClassJob.GameData!.Abbreviation.RawString, out AvailableClasses c))
+                        continue;
                     Role r = c.GetRole();
                     switch (r)
                     {
@@ -587,6 +588,11 @@ namespace HimbeertoniRaidTool.LootMaster
                         editWindow.Show();
                     }
                 }
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(), Localize("Add from DB", "Add from DB")))
+                {
+                    AddChild(new GetCharacterFromDBWindow(ref player));
+                }
             }
         }
         private static void DrawSlot(GearItem item, GearItem bis, bool extended = false)
@@ -670,6 +676,54 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.End();
                 }
 
+            }
+        }
+    }
+    internal class GetCharacterFromDBWindow : HrtUI
+    {
+        private readonly Player _p;
+        private readonly uint[] Worlds;
+        private readonly string[] WorldNames;
+        private int worldSelectIndex;
+        private string[] CharacterNames = Array.Empty<string>();
+        private int CharacterNameIndex = 0;
+        private string NickName = " ";
+        internal GetCharacterFromDBWindow(ref Player p)
+        {
+            _p = p;
+            Worlds = DataManager.GetWorldsWithCharacters().ToArray();
+            WorldNames = Array.ConvertAll(Worlds, x => Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name.RawString ?? "");
+            Show();
+        }
+        protected override void Draw()
+        {
+            ImGui.SetNextWindowSize(new Vector2(350, 420), ImGuiCond.Appearing);
+            if (ImGui.Begin(Localize("GetCharacterTitle", "Get character from DB") + _p.Pos, ref Visible,
+                ImGuiWindowFlags.NoScrollbar))
+            {
+                ImGui.InputText(Localize("Player Name", "Player Name"), ref NickName, 50);
+                if (ImGui.ListBox("World", ref worldSelectIndex, WorldNames, WorldNames.Length))
+                {
+                    List<string> list = DataManager.GetCharacters(Worlds[worldSelectIndex]);
+                    list.Sort();
+                    CharacterNames = list.ToArray();
+                }
+                ImGui.ListBox("Name", ref CharacterNameIndex, CharacterNames, CharacterNames.Length);
+                if (ImGuiHelper.Button(FontAwesomeIcon.Save, "save", Localize("Save", "Save")))
+                {
+
+                    _p.NickName = NickName;
+                    Character c = _p.MainChar;
+                    c.Name = CharacterNames[CharacterNameIndex];
+                    c.HomeWorldID = Worlds[worldSelectIndex];
+                    DataManager.GetManagedCharacter(ref c);
+                    _p.MainChar = c;
+                    Hide();
+                }
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, "cancel", Localize("Cancel", "Cancel")))
+                    Hide();
+                ImGui.End();
             }
         }
     }

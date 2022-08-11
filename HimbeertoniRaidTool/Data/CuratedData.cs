@@ -23,6 +23,8 @@ namespace HimbeertoniRaidTool.Data
         public static RaidTier CurrentRaidNormal => AsphodelosNormal;
         public static RaidTier AsphodelosNormal => new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
         public static RaidTier AsphodelosSavage => new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos Savage");
+        public static RaidTier DragonsongRepriseUltimate => new(6, 1, EncounterDifficulty.Ultimate, 605, 0, "Dragonsong Reprise Ultimate");
+
         public static readonly Dictionary<ItemIDRange, LootSource> LootSourceDB = new()
         {
             { (35245, 35264), (AsphodelosSavage, 4) },//All Asphodelos Weapons

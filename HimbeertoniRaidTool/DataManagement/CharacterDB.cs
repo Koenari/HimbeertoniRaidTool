@@ -25,6 +25,17 @@ namespace HimbeertoniRaidTool.DataManagement
                 DataManager.JsonSerializerSettings) ?? new();
             DataManager.JsonSerializerSettings.Converters.Remove(conv);
         }
+        internal List<uint> GetUsedWorlds()
+        {
+            return new List<uint>(CharDB.Keys);
+        }
+        internal List<string> GetCharactersList(uint worldID)
+        {
+            List<string> result = new List<string>();
+            foreach (var character in CharDB[worldID].Values)
+                result.Add(character.Name);
+            return result;
+        }
         internal bool Exists(uint worldID, string name) =>
             CharDB.ContainsKey(worldID) && CharDB[worldID].ContainsKey(name);
 

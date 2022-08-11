@@ -43,6 +43,18 @@ namespace HimbeertoniRaidTool.DataManagement
             JsonSerializerSettings.Converters.Remove(crc);
             Initialized = true;
         }
+        public static List<uint> GetWorldsWithCharacters()
+        {
+            if (Initialized)
+                return CharacterDB.GetUsedWorlds();
+            return new();
+        }
+        public static List<string> GetCharacters(uint worldID)
+        {
+            if (Initialized)
+                return CharacterDB.GetCharactersList(worldID);
+            return new();
+        }
         public static bool CharacterExists(uint worldID, string name) =>
             CharacterDB.Exists(worldID, name);
         public static void GetManagedGearSet(ref GearSet gs)
