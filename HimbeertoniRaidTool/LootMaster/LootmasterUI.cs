@@ -677,6 +677,20 @@ namespace HimbeertoniRaidTool.LootMaster
                 }
 
             }
+            public override bool Equals(object? obj)
+            {
+                if (!(obj?.GetType().IsAssignableTo(GetType()) ?? false))
+                    return false;
+                return Equals((PlayerdetailWindow)obj);
+            }
+            public bool Equals(PlayerdetailWindow obj)
+            {
+                return P.Equals(obj.P);
+            }
+            public override int GetHashCode()
+            {
+                return P.GetHashCode();
+            }
         }
     }
     internal class GetCharacterFromDBWindow : HrtUI
@@ -725,6 +739,20 @@ namespace HimbeertoniRaidTool.LootMaster
                     Hide();
                 ImGui.End();
             }
+        }
+        public override bool Equals(object? obj)
+        {
+            if (!(obj?.GetType().IsAssignableTo(GetType()) ?? false))
+                return false;
+            return Equals((GetCharacterFromDBWindow)obj);
+        }
+        public bool Equals(GetCharacterFromDBWindow obj)
+        {
+            return _p.Equals(obj._p);
+        }
+        public override int GetHashCode()
+        {
+            return _p.GetHashCode();
         }
     }
     internal class SwapPositionWindow : HrtUI
