@@ -5,12 +5,23 @@ using System.Text;
 using ColorHelper;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using HimbeertoniRaidTool.Data;
+using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool
 {
     public static class Helper
     {
+        public static World? TryGetWorldByName(string name)
+        {
+            var sheet = Services.DataManager.GetExcelSheet<World>();
+            if (sheet == null)
+                return null;
+            foreach (var row in sheet)
+                if (row.Name == name)
+                    return row;
+            return null;
+        }
         public static PlayerCharacter? TryGetChar(string name, Lumina.Excel.GeneratedSheets.World? w = null)
         {
             if (name == null)

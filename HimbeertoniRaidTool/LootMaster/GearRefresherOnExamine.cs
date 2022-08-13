@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Hooking;
-using FFXIVClientStructs.Attributes;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Data;
+using Lumina.Excel.GeneratedSheets;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -49,6 +49,9 @@ namespace HimbeertoniRaidTool.LootMaster
 
                 return;
             }
+            /*
+             * ToDo: Does not work if last examine was not a player chracter
+             */
             TargetOverrride = @object;
             IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
             uint* ptr = (uint*)(void*)intPtr;
@@ -67,42 +70,71 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 if (loadingStage->UInt == 4)
                 {
-                    GetItemInfos();
+                    GetItemInfos(atkUnitBase);
                 }
             }
             return result;
 
         }
-        private static void GetItemInfos()
+        private static void GetItemInfos(AtkUnitBase* examineWindow)
         {
-            /*
-             * TODO: Get ChracterInfo from Examine Window
-            var examineWindow = (AddonCharacterInspect*)Services.GameGui.GetAddonByName("CharacterInspect", 1);
-            var compInfo = (AtkUldComponentInfo*)examineWindow->PreviewComponent->UldManager.Objects;
-            if (compInfo == null || compInfo->ComponentType != ComponentType.Preview) return;
-            var nodeList = examineWindow->PreviewComponent->UldManager.NodeList;
-            var node = nodeList[1];
-            var text = (AtkTextNode*)node;
-            */
-            var target = TargetOverrride ?? Helper.TargetChar;
-            TargetOverrride = null;
+            //Get Chracter Information from examine window
+            string charNameFromExamine;
+            int levelFromExamine;
+            World? worldFromExamine;
+            string classFromExamine;
+            try
+            {
+                charNameFromExamine = examineWindow->UldManager.NodeList[59]->GetAsAtkTextNode()->NodeText.ToString();
+                levelFromExamine = int.Parse(examineWindow->UldManager.NodeList[51]->GetAsAtkTextNode()->NodeText.ToString().Split(" ")[1]);
+                worldFromExamine = Helper.TryGetWorldByName(examineWindow->UldManager.NodeList[57]->GetAsAtkTextNode()->NodeText.ToString());
+                classFromExamine = examineWindow->UldManager.NodeList[50]->GetAsAtkTextNode()->NodeText.ToString();
+
+            }
+            catch (Exception)
+            {
+                return;
+            }
+            //Make sure examine window correspods to intended character
+            PlayerCharacter? target = null;
+            if (TargetOverrride is not null)
+            {
+                target = TargetOverrride;
+                TargetOverrride = null;
+            }
+            else
+            {
+                target = Helper.TryGetChar(charNameFromExamine, worldFromExamine);
+            }
             if (target is null)
                 return;
-            string name = target.Name.TextValue;
-            uint worldID = target.HomeWorld.Id;
+            if (!charNameFromExamine.Equals(target.Name.TextValue))
+                return;
+            if (worldFromExamine is null || worldFromExamine != target.HomeWorld.GameData)
+                return;
+            if (!classFromExamine.ToLower().Equals(target.ClassJob.GameData?.Name?.RawString.ToLower()))
+                return;
             if (target.GetClass() is null)
+                return;
+            IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
+            var objID = target.ObjectId;
+            uint* ptr = (uint*)(void*)intPtr;
+            //Do not execute on characters not part of any managed raid group
+            if (!DataManagement.DataManager.CharacterExists(worldFromExamine.RowId, charNameFromExamine))
+                return;
+            Character targetChar = new(charNameFromExamine, worldFromExamine.RowId);
+            DataManagement.DataManager.GetManagedCharacter(ref targetChar);
+            if (targetChar is null)
                 return;
             AvailableClasses targetClass = (AvailableClasses)target.GetClass()!;
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
             if (container == null)
                 return;
-            Character targetChar = new(name, worldID);
-            DataManagement.DataManager.GetManagedCharacter(ref targetChar);
-            if (targetChar is null)
-                return;
-            //Does not work in level synced content
-            if (target.Level > targetChar.GetClass(targetClass).Level)
-                targetChar.GetClass(targetClass).Level = target.Level;
+
+
+            //Getting level does not work in level synced content
+            if (levelFromExamine > targetChar.GetClass(targetClass).Level)
+                targetChar.GetClass(targetClass).Level = levelFromExamine;
             GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
             DataManagement.DataManager.GetManagedGearSet(ref setToFill);
 
@@ -129,12 +161,5 @@ namespace HimbeertoniRaidTool.LootMaster
             Hook.Disable();
             Hook.Dispose();
         }
-    }
-    [StructLayout(LayoutKind.Explicit, Size = 1280)]
-    [Addon("CharacterInspect")]
-    public unsafe struct AddonCharacterInspect
-    {
-        [FieldOffset(0x000)] public AtkUnitBase AtkUnitBase;
-        [FieldOffset(0x430)] public AtkComponentBase* PreviewComponent;
     }
 }
