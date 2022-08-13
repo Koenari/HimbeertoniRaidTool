@@ -3,12 +3,14 @@
   <PropertyGroup>
     <Authors>Koenari</Authors>
     <Company></Company>
-    <Version>0.2.0.11</Version>
+    <Version>0.2.1.12</Version>
     <Description>A collection of useful tools for RaidGroups, including loot management</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>
   </PropertyGroup>
-
+  <PropertyGroup>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
     <Platforms>x64</Platforms>
@@ -26,6 +28,22 @@
     </Content>
   </ItemGroup>
 
+  <ProjectExtensions>
+    <DalamudPlugin>
+      <ApiLevel>6</ApiLevel>
+      <Author>Koenari</Author>
+      <Name>Himbeertoni Raid Tool</Name>
+      <Punchline>All you need for Raiding</Punchline>
+      <Description>A collection of useful tools for RaidGroups, including loot managemen</Description>
+      <IconUrl>https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png</IconUrl>
+      <Tags>
+        <Tag>Raid</Tag>
+        <Tag>Loot</Tag>
+        <Tag>Equipment</Tag>
+      </Tags>
+      <Hidden>False</Hidden>
+    </DalamudPlugin>
+  </ProjectExtensions>
   <PropertyGroup>
     <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
     <AssemblyName>HimbeertoniRaidTool</AssemblyName>
@@ -34,7 +52,9 @@
     <RootNamespace>HimbeertoniRaidTool</RootNamespace>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/Koenari/HimbeertoniRaidTool</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Koenari/HimbeertoniRaidTool.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Raid;Loot;Equipment</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -10,7 +10,7 @@ interface. To counter these hardships, I started this project.
 * Lootmaster
   * Overview of current and BIS Gear of players 
       > /lootmaster or /lm
-
+  * Loot distribution helper: Gives a priotrity for loot based on a rule set
 ### Future Features
 Please refer to the [**Project**](https://github.com/users/Koenari/projects/3)
 

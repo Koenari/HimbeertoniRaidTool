@@ -8,12 +8,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{421C307F-86F9-4723-9EEF-104BA4D1A983}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		ToDo.md = ToDo.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestsData", "UnitTestsData\UnitTestsData.csproj", "{DDC4950D-1C86-40A3-8600-CBA8345B6C16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRTWebAPI", "..\HRTWEbApps\HRTWebAPI\HRTWebAPI.csproj", "{6294417C-7FF7-4D31-96CB-FFFB297F9E02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HRTWebAPI", "..\HRTWEbApps\HRTWebAPI\HRTWebAPI.csproj", "{6294417C-7FF7-4D31-96CB-FFFB297F9E02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
