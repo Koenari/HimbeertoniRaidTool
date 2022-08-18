@@ -21,7 +21,6 @@ namespace HimbeertoniRaidTool.LootMaster
         private int _CurrenGroupIndex;
         private RaidGroup CurrentGroup => LootMaster.RaidGroups[_CurrenGroupIndex];
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
-        //private readonly List<HrtUI> Childs = new();
         public LootmasterUI() : base(false)
         {
             _CurrenGroupIndex = HRTPlugin.Configuration.LootmasterUiLastIndex;
@@ -123,7 +122,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
                 ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
                 ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
-                ImGui.TableSetupColumn(Localize("Value", "Value"));
+                ImGui.TableSetupColumn(Localize("Current", "Current"));
                 ImGui.TableSetupColumn("");
                 ImGui.TableSetupColumn(Localize("BiS", "BiS"));
                 ImGui.TableSetupColumn("");
@@ -315,26 +314,27 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.PopStyleColor();
             }
             const string newGroupContextMenuID = "NewGroupContextMenu";
-            bool isInGroup = true;//Services.ClientState.LocalPlayer?.StatusFlags.HasFlag(Dalamud.Game.ClientState.Objects.Enums.StatusFlags.PartyMember) ?? false;
             if (ImGui.TabItemButton("+"))
             {
-                if (isInGroup)
-                    ImGui.OpenPopup(newGroupContextMenuID);
-                else
-                    AddGroup();
-
+                ImGui.OpenPopup(newGroupContextMenuID);
             }
             if (ImGui.BeginPopupContextItem(newGroupContextMenuID))
             {
-                if (ImGuiHelper.Button(Localize("From current Group", "From current Group"), null, isInGroup))
-                    AddGroup(true);
+                if (ImGuiHelper.Button(Localize("From current Group", "From current Group"), null))
+                {
+                    RaidGroup group = new();
+                    EditGroupWindow groupWindow = new EditGroupWindow(group, () => AddGroup(group, true), () => { });
+                }
                 if (ImGui.Button(Localize("From scratch", "From scratch")))
-                    AddGroup();
+                {
+                    RaidGroup group = new();
+                    EditGroupWindow groupWindow = new EditGroupWindow(group, () => AddGroup(group, true), () => { });
+                }
                 ImGui.EndPopup();
             }
             ImGui.EndTabBar();
         }
-        private static void PerformAfterGroupAddTasks(RaidGroup group, bool getGroupInfos)
+        private static void AddGroup(RaidGroup group, bool getGroupInfos)
         {
             LootMaster.RaidGroups.Add(group);
             if (getGroupInfos)
@@ -429,14 +429,6 @@ namespace HimbeertoniRaidTool.LootMaster
                     }
                 }
             }
-        }
-        private void AddGroup(bool getGroupInfos = false)
-        {
-            RaidGroup group = new();
-            EditGroupWindow groupWindow = new EditGroupWindow(group, () => PerformAfterGroupAddTasks(group, getGroupInfos), () => { });
-
-
-
         }
         private void DrawPlayer(Player player)
         {
@@ -649,7 +641,6 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (ImGui.Button(lootSource.ToString()))
                 {
                     LootSessionUI lui = new(lootSource, CurrentGroup);
-                    //Childs.Add(lui);
                     lui.Show();
                 }
                 ImGui.SameLine();
@@ -760,8 +751,8 @@ namespace HimbeertoniRaidTool.LootMaster
         private readonly RaidGroup _group;
         private readonly PositionInRaidGroup _oldPos;
         private int _newPos;
-        private PositionInRaidGroup[] possiblePositions;
-        private string[] possiblePositionNames;
+        private readonly PositionInRaidGroup[] possiblePositions;
+        private readonly string[] possiblePositionNames;
         internal SwapPositionWindow(PositionInRaidGroup pos, RaidGroup g) : base()
         {
             _group = g;
