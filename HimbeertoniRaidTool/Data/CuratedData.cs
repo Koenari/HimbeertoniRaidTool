@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using static Dalamud.Localization;
 using static HimbeertoniRaidTool.Data.AvailableClasses;
 
 namespace HimbeertoniRaidTool.Data
@@ -22,8 +23,8 @@ namespace HimbeertoniRaidTool.Data
         public static RaidTier CurrentRaidSavage => AsphodelosSavage;
         public static RaidTier CurrentRaidNormal => AsphodelosNormal;
         public static RaidTier AsphodelosNormal => new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
-        public static RaidTier AsphodelosSavage => new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos Savage");
-        public static RaidTier DragonsongRepriseUltimate => new(6, 1, EncounterDifficulty.Ultimate, 605, 0, "Dragonsong Reprise Ultimate");
+        public static RaidTier AsphodelosSavage => new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos " + Localize("Savage", "Savage"));
+        public static RaidTier DragonsongRepriseUltimate => new(6, 1, EncounterDifficulty.Ultimate, 605, 0, $"{Localize("Dragonsong Reprise", "Dragonsong Reprise")} {Localize("Ultimate", "Ultimate")}");
 
         public static readonly Dictionary<ItemIDRange, LootSource> LootSourceDB = new()
         {
@@ -76,6 +77,7 @@ namespace HimbeertoniRaidTool.Data
             { "Eternal Dark", GearSource.Trial },
             { "Moonward", GearSource.Tome },
             { "Divine Light", GearSource.Trial },
+            //6.1
             { "Panthean", GearSource.AllianceRaid },
             { "Bluefeather", GearSource.Trial },
         };

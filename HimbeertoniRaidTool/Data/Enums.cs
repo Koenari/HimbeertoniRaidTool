@@ -253,28 +253,29 @@ namespace HimbeertoniRaidTool.Data
             c.GetAttribute<StatAttribute>()?.StatType ?? StatType.None;
         public static string FriendlyName(this StatType t) => t switch
         {
-            StatType.PhysicalDamage => "Physical Damage",
-            StatType.MagicalDamage => "Magical Damage",
-            StatType.CriticalHit => "Critical Hit",
-            StatType.DirectHitRate => "Direct Hit",
-            StatType.SkillSpeed => "Skill Speed",
-            StatType.SpellSpeed => "Spell Speed",
-            StatType.MagicDefense => "Magic Defense",
+            StatType.PhysicalDamage => Localize("Physical Damage", "Physical Damage"),
+            StatType.MagicalDamage => Localize("Magical Damage", "Magical Damage"),
+            StatType.CriticalHit => Localize("Critical Hit", "Critical Hit"),
+            StatType.DirectHitRate => Localize("Direct Hit", "Direct Hit"),
+            StatType.SkillSpeed => Localize("Skill Speed", "Skill Speed"),
+            StatType.SpellSpeed => Localize("Spell Speed", "Spell Speed"),
+            StatType.MagicDefense => Localize("Magic Defense", "Magic Defense"),
             _ => t.ToString(),
         };
         public static string Abbrev(this StatType t) => t switch
         {
-            StatType.CriticalHit => "CRT",
-            StatType.DirectHitRate => "DH",
-            StatType.SkillSpeed => "SKS",
-            StatType.SpellSpeed => "SPS",
-            StatType.Determination => "DET",
-            StatType.Piety => "PIE",
-            StatType.Mind => "MND",
-            StatType.Strength => "STR",
-            StatType.Dexterity => "DEX",
-            StatType.Intelligence => "INT",
-            StatType.Vitality => "VIT",
+            StatType.CriticalHit => Localize("CRT", "CRT"),
+            StatType.DirectHitRate => Localize("DH", "DH"),
+            StatType.SkillSpeed => Localize("SKS", "SKS"),
+            StatType.SpellSpeed => Localize("SPS", "SPS"),
+            StatType.Determination => Localize("DET", "DET"),
+            StatType.Piety => Localize("PIE", "PIE"),
+            StatType.Mind => Localize("MND", "MND"),
+            StatType.Strength => Localize("STR", "STR"),
+            StatType.Dexterity => Localize("DEX", "DEX"),
+            StatType.Intelligence => Localize("INT", "INT"),
+            StatType.Vitality => Localize("VIT", "VIT"),
+            StatType.Tenacity => Localize("TEN", "TEN"),
             _ => "XXX",
         };
         public static Role GetRole(this AvailableClasses c) =>
