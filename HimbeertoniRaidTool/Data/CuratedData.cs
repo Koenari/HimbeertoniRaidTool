@@ -20,8 +20,10 @@ namespace HimbeertoniRaidTool.Data
     /// </summary>
     internal static class CuratedData
     {
-        public static RaidTier CurrentRaidSavage => AsphodelosSavage;
-        public static RaidTier CurrentRaidNormal => AsphodelosNormal;
+        public static RaidTier CurrentRaidSavage => AbyssosSavage;
+        public static RaidTier CurrentRaidNormal => AbyssosNormal;
+        public static RaidTier AbyssosNormal => new(6, 1, EncounterDifficulty.Normal, 620, 610, "Abyssos");
+        public static RaidTier AbyssosSavage => new(6, 1, EncounterDifficulty.Savage, 635, 630, "Abyssos " + Localize("Savage", "Savage"));
         public static RaidTier AsphodelosNormal => new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
         public static RaidTier AsphodelosSavage => new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos " + Localize("Savage", "Savage"));
         public static RaidTier DragonsongRepriseUltimate => new(6, 1, EncounterDifficulty.Ultimate, 605, 0, $"{Localize("Dragonsong Reprise", "Dragonsong Reprise")} {Localize("Ultimate", "Ultimate")}");
@@ -60,7 +62,6 @@ namespace HimbeertoniRaidTool.Data
         };
         public static readonly Dictionary<uint, ItemIDRange> ExchangedFor = new()
         {
-            //{ 35734, (35245, 35264) },//Asphodelos weapon coffer
             { 35828, (35170, 35188) },//Radiant Robortant
             { 35829, (35190, 35224) },//Radiant Twine
             { 35830, (35225, 35244) },//Radiatn Coating
@@ -80,6 +81,9 @@ namespace HimbeertoniRaidTool.Data
             //6.1
             { "Panthean", GearSource.AllianceRaid },
             { "Bluefeather", GearSource.Trial },
+            //6.2
+            { "Abyssos", GearSource.Raid },
+
         };
         /// <summary>
         /// Holds a list of Etro IDs to use as BiS sets if users did not enter a preferred BiS
