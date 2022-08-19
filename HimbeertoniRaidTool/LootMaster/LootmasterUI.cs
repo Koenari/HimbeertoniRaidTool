@@ -519,7 +519,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
 
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, player.Pos.ToString(),
-                        string.Format(Localize("Edit", "Edit {0}"), player.NickName)))
+                        string.Format(Localize("Edit {0}", "Edit {0}"), player.NickName)))
                     {
                         EditPlayerWindow editWindow = new(out AsyncTaskWithUiResult result, CurrentGroup, player.Pos, true);
                         if (AddChild(editWindow))

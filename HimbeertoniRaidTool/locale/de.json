@@ -1,23 +1,59 @@
 {
-  "/hrt": {
-    "message": "Noch nicht benutzt",
-    "description": "<>c.<.ctor>b__18_0"
-  },
-  "/lootmaster": {
-    "message": "Öffnet das LootMaster Fenster",
-    "description": "<>c.<.ctor>b__18_1"
-  },
-  "/lm": {
-    "message": "Öffnet das LootMaster Fenster (Abk)",
-    "description": "<>c.<.ctor>b__18_2"
-  },
-  "Genaral": {
+  "General": {
     "message": "Allgemein",
     "description": "ConfigUI.Draw"
   },
-  "Open Lootmaster on startup": {
-    "message": "Lootmaster beim Starten öffnen",
+  "Open group overview on startup": {
+    "message": "Gruppenübersicht bei Spielstart öffnen",
     "description": "ConfigUI.Draw"
+  },
+  "Hide windows in combat": {
+    "message": "FEnster im Kampf verbergen",
+    "description": "ConfigUI.Draw"
+  },
+  "Reset to default": {
+    "message": "Auf Standard zurücksetzen",
+    "description": "ConfigUI.Draw"
+  },
+  "/hrt": {
+    "message": "Noch nicht benutzt",
+    "description": "<>c.<.ctor>b__14_0"
+  },
+  "/lootmaster": {
+    "message": "Öffnet das LootMaster Fenster",
+    "description": "<>c.<.ctor>b__14_1"
+  },
+  "/lm": {
+    "message": "Öffnet das LootMaster Fenster (Abk)",
+    "description": "<>c.<.ctor>b__14_2"
+  },
+  "ItemTableHeader": {
+    "message": "Kopf",
+    "description": "DrawDataExtension.Draw"
+  },
+  "Value": {
+    "message": "Wert",
+    "description": "DrawDataExtension.Draw"
+  },
+  "Name": {
+    "message": "Name",
+    "description": "DrawDataExtension.Draw"
+  },
+  "itemLevelLong": {
+    "message": "Item Level",
+    "description": "DrawDataExtension.Draw"
+  },
+  "itemSource": {
+    "message": "Quelle",
+    "description": "DrawDataExtension.Draw"
+  },
+  "MagicDamage": {
+    "message": "Magischer Schaden",
+    "description": "DrawDataExtension.Draw"
+  },
+  "PhysicalDamage": {
+    "message": "Physischer Schaden",
+    "description": "DrawDataExtension.Draw"                  
   },
   "Edit Player ": {
     "message": "Spieler editieren",
@@ -37,10 +73,6 @@
   },
   "Get": {
     "message": "Holen",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "WorksOnTargetrOnly": {
-    "message": "You need to target the Character to retrieve world information.",
     "description": "EditPlayerWindow.Draw"
   },
   "Main Class": {
@@ -63,8 +95,8 @@
     "message": "Reset",
     "description": "EditPlayerWindow.Draw"
   },
-  "Save": {
-    "message": "Speichern",
+  "Save Player": {
+    "message": "Spieler Speichern",
     "description": "EditPlayerWindow.Draw"
   },
   "Cancel": {
@@ -83,6 +115,10 @@
     "message": "Gruppen Typ",
     "description": "EditGroupWindow.Draw"
   },
+  "Save": {
+    "message": "Speichern",
+    "description": "EditGroupWindow.Draw"
+  },
   "Confirmation": {
     "message": "Bestätigung",
     "description": "ConfimationDialog..ctor"
@@ -91,25 +127,9 @@
     "message": "OK",
     "description": "ConfimationDialog.Draw"
   },
-  "Header": {
-    "message": "Kopf",
-    "description": "ShowItemWindow.Draw"
-  },
-  "Value": {
-    "message": "Wert",
-    "description": "ShowItemWindow.Draw"
-  },
-  "Name": {
-    "message": "Name",
-    "description": "ShowItemWindow.Draw"
-  },
-  "Item Level": {
-    "message": "Item Level",
-    "description": "ShowItemWindow.Draw"
-  },
-  "Item Source": {
-    "message": "Item Quelle",
-    "description": "ShowItemWindow.Draw"
+  "Inspect": {
+    "message": "Ausrüstung aktualisieren",
+    "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "Edit": {
     "message": "Editieren",
@@ -119,12 +139,20 @@
     "message": "iLvL: ",
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
+  "UpdateBis": {
+    "message": "Update \"{0}\" von Etro.gg",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
   "StatsUnfinished": {
-    "message": "Diese Tabelle ist in der Entwicklung und enthält Fehler(ohne Materia)",
+    "message": "Werte sind in der Entwicklung und funktioniert nur für Level 90 korrekt",
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "MainStats": {
     "message": "Hauptwerte",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "BiS": {
+    "message": "BiS",
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "SecondaryStats": {
@@ -199,32 +227,28 @@
     "message": "Möchtest du wirklich diese Gruppe löschen:",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
-  "ItemTableHeaderHeader": {
-    "message": "Kopf",
-    "description": "LootmasterUI.DrawItemTooltip"
+  "From current Group": {
+    "message": "Aus aktueller Gruppe",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
-  "itemLevelLong": {
-    "message": "Item Level",
-    "description": "LootmasterUI.DrawItemTooltip"
+  "From scratch": {
+    "message": "Leer",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
-  "itemSource": {
-    "message": "Quelle",
-    "description": "LootmasterUI.DrawItemTooltip"
+  "LvLShort": {
+    "message": "Lvl: {0}",
+    "description": "LootmasterUI.DrawPlayer"
   },
   "to BIS": {
-    "message": "bis BiS",
+    "message": "zu BIS",
     "description": "LootmasterUI.DrawPlayer"
   },
-  "ClickToCopyEtro": {
-    "message": "Klciken um den Link zu Etro zu kopieren",
+  "Edit {0}": {
+    "message": "{0} editieren",
     "description": "LootmasterUI.DrawPlayer"
   },
-  "Inspect": {
-    "message": "Examine",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "Player not in reach": {
-    "message": "Spieler nicht in Reichweite",
+  "PlayerDetails": {
+    "message": "Details für Spieler {0} anzeigen",
     "description": "LootmasterUI.DrawPlayer"
   },
   "Delete {0}": {
@@ -237,39 +261,163 @@
   },
   "No Player": {
     "message": "Kein Spieler",
+   "description": "LootmasterUI.DrawPlayer"
+  },
+  "Add": {
+    "message": "Hinzufügen",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "Add from DB": {
+    "message": "Aus Datenabnk",
     "description": "LootmasterUI.DrawPlayer"
   },
   "Empty": {
     "message": "Leer",
-    "description": "LootmasterUI.<DrawPlayer>g__DrawItem|12_1"
+    "description": "LootmasterUI.<DrawSlot>g__DrawItem|14_0"
   },
   "Add": {
     "message": "Hinzufügen",
-    "description": "<>c__DisplayClass12_0.<DrawPlayer>g__EditPlayerButton|0"
+    "description": "PlayerdetailWindow.Draw"
   },
-  "Edit": {
-    "message": "Editieren",
-    "description": "<>c__DisplayClass12_0.<DrawPlayer>g__EditPlayerButton|0"
+  "GetCharacterTitle": {
+    "message": "Charakter aus Datenbank laden",
+    "description": "GetCharacterFromDBWindow.Draw"
+  },
+  "Need > Greed": {
+    "message": "Need > Greed",
+    "description": "LootSession.Evaluate"
+  },
+  "Greed": {
+    "message": "Greed",
+    "description": "LootSession.Evaluate"
   },
   "Distribute": {
     "message": "Verteilen",
-    "description": "LootUi.Draw"
+    "description": "LootSessionUI.Draw"
   },
   "Close": {
-    "message": "SChließen",
-    "description": "LootUi.Draw"
+    "message": "Schließen",
+    "description": "LootSessionUI.Draw"
+  },
+  "Strict Ruling": {
+    "message": "Strikte Regeln",
+    "description": "LootSessionUI.Draw"
+  },
+  "ChangesOnlyForThisLootSesseion": {
+    "message": "Ändereungen gelten nur für die aktuelle Loot Sitzung",
+    "description": "LootSessionUI.Draw"
+  },
+  "LootResultTitle": {
+    "message": "Ergebnisse der Loot Verteilung",
+    "description": "LootResultWindow.Draw"
   },
   "LootRuleHeader": {
     "message": "Ergebnisse der Lootverteilung für {0}: ",
     "description": "LootResultWindow.Draw"
   },
-  "Following rules were used:": {
-    "message": "Folgende Reihenfolge der Regeln wurde genutzt:",
+  "Pos": {
+    "message": "Pos",
     "description": "LootResultWindow.Draw"
   },
-  "LootDistributionLine": {
-    "message": "Spieler {1} hat Priorität {0} entschieden bei ({2}) Regel",
+  "Rule": {
+    "message": "Regel",
     "description": "LootResultWindow.Draw"
+  },
+  "Roll": {
+    "message": "Wurf",
+    "description": "LootResultWindow.Draw"
+  },
+  "Copy Chat Message": {
+    "message": "Chat Nachrcht kopieren",
+    "description": "LootResultWindow.Draw"
+  },
+  "Savage": {
+    "message": "Episch",
+    "description": "CuratedData.get_AsphodelosSavage"
+  },
+  "Dragonsong Reprise": {
+    "message": "Traumprüfung",
+    "description": "CuratedData.get_DragonsongRepriseUltimate"
+  },
+  "Ultimate": {
+    "message": "Ultima",
+    "description": "CuratedData.get_DragonsongRepriseUltimate"
+  },
+  "Physical Damage": {
+    "message": "Physischer Scahden",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Magical Damage": {
+    "message": "Magischer Schaden",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Critical Hit": {
+    "message": "Kritischer Treffer",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Direct Hit": {
+    "message": "Direkter Treffer",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Skill Speed": {
+    "message": "Schnelligkeit",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Spell Speed": {
+    "message": "Zaubertempo",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Magic Defense": {
+    "message": "Magische Verteidigung",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "CRT": {
+    "message": "KRT",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "DH": {
+    "message": "DT",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "SKS": {
+    "message": "SCH",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "SPS": {
+    "message": "ZBT",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "DET": {
+    "message": "ENT",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "PIE": {
+    "message": "FRM",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "MND": {
+    "message": "WLS",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "STR": {
+    "message": "STR",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "DEX": {
+    "message": "GES",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "INT": {
+    "message": "INT",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "VIT": {
+    "message": "KON",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "TEN": {
+    "message": "UNB",
+    "description": "EnumExtensions.Abbrev"
   },
   "HimbeerToni Raid Tool": {
     "message": "HimbeerToni Raid Tool",
@@ -332,7 +480,7 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "Soul Crystal": {
-    "message": "Seelen Kristall",
+    "message": "Seelenkristall",
     "description": "EnumExtensions.FriendlyName"
   },
   "Raid": {
@@ -355,13 +503,9 @@
     "message": "Hergestellt",
     "description": "EnumExtensions.FriendlyName"
   },
-  "Need > Greed": {
-    "message": "Bedarf > Gier",
-    "description": "LootRuling.Evaluate"
-  },
-  "Greed": {
-    "message": "Gier",
-    "description": "LootRuling.Evaluate"
+  "Alliance": {
+    "message": "Allianz",
+    "description": "EnumExtensions.FriendlyName"
   },
   "BISOverUpgrade": {
     "message": "BiS über Upgrade",

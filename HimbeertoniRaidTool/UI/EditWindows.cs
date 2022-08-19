@@ -101,7 +101,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.SameLine();
                 if (ImGui.Button(Localize("Reset", "Reset") + "##BIS"))
                     PlayerCopy.MainChar.MainClass.BIS.EtroID = "";
-                if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Save, "Save", Localize("Save", "Save Player")))
+                if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Save, "Save", Localize("Save Player", "Save Player")))
                 {
                     SavePlayer();
                     Hide();

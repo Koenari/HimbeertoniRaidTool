@@ -1,21 +1,26 @@
 {
-    "Author": "Koenari",
-    "Name": "Himbeertoni Raid Tool",
-    "Punchline": "All you need for Raiding",
-    "Description": "A collection of useful tools for RaidGroups, including loot management",
-    "Tags": [
-        "Raid",
-        "Loot",
-        "Equipment"
-    ],
-    "InternalName": "HimbeertoniRaidTool",
-    "AssemblyVersion": "0.2.1.12",
-    "DalamudApiLevel": 6,
-    "RepoUrl": "https://github.com/Koenari/HimbeertoniRaidTool",
-    "IconUrl": "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png",
-    "IsHide": "False",
-    "IsTestingExclusive": "False",
-    "DownloadLinkInstall": "https://raw.githubusercontent.com/Koenari/MyDalamudPlugins/master/plugins/HimbeerToniRaidTool/latest.zip",
-    "DownloadLinkTesting": "https://raw.githubusercontent.com/Koenari/MyDalamudPlugins/master/testing/HimbeerToniRaidTool/latest.zip",
-    "DownloadLinkUpdate": "https://raw.githubusercontent.com/Koenari/MyDalamudPlugins/master/plugins/HimbeerToniRaidTool/latest.zip"
+  "Author": "Koenari",
+  "Name": "Himbeertoni Raid Tool",
+  "Punchline": "All you need for Raiding",
+  "Description": "A collection of useful tools for RaidGroups, including loot management",
+  "Tags": [
+    "Raid",
+    "Loot",
+    "Equipment"
+  ],
+  "InternalName": "HimbeertoniRaidTool",
+  "AssemblyVersion": "0.2.1.13",
+  "DalamudApiLevel": 6,
+  "RepoUrl": "https://github.com/Koenari/HimbeertoniRaidTool",
+  "IconUrl": "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png",
+  "ImageUrls": [
+    "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/Promotion/Loot Session.png",
+    "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/Promotion/Raid View.png",
+    "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/Promotion/Solo View.png"
+  ],
+  "IsHide": "False",
+  "IsTestingExclusive": "False",
+  "DownloadLinkInstall": "https://raw.githubusercontent.com/Koenari/MyDalamudPlugins/master/plugins/HimbeerToniRaidTool/latest.zip",
+  "DownloadLinkTesting": "https://raw.githubusercontent.com/Koenari/MyDalamudPlugins/master/testing/HimbeerToniRaidTool/latest.zip",
+  "DownloadLinkUpdate": "https://raw.githubusercontent.com/Koenari/MyDalamudPlugins/master/plugins/HimbeerToniRaidTool/latest.zip"
 }

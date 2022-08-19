@@ -108,6 +108,10 @@ namespace HimbeertoniRaidTool
                 case "/hrt":
                     if (args.Contains("option") || args.Contains("config"))
                         OptionsUi.Show();
+                    else if (args.Contains("exportlocale"))
+                    {
+                        Loc.ExportLocalizable();
+                    }
                     else
                         PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
                     break;
