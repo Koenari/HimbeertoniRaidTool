@@ -82,7 +82,10 @@ namespace HimbeertoniRaidTool.Data
             { "Panthean", GearSource.AllianceRaid },
             { "Bluefeather", GearSource.Trial },
             //6.2
+            { "Purgatory", GearSource.Raid },
             { "Abyssos", GearSource.Raid },
+            { "Rinascita", GearSource.Crafted },
+            { "Lunar Envoy", GearSource.Tome }
 
         };
         /// <summary>
