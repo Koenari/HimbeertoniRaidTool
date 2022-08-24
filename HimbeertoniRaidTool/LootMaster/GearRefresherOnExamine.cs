@@ -14,12 +14,13 @@ namespace HimbeertoniRaidTool.LootMaster
     //https://github.com/Caraxi/SimpleTweaksPlugin/blob/main/Tweaks/UiAdjustment/ExamineItemLevel.cs
     internal static unsafe class GearRefresherOnExamine
     {
+        private static readonly bool LoadSuccessful;
         private static readonly Hook<CharacterInspectOnRefresh> Hook;
-        private static readonly IntPtr HookAddress = Services.SigScanner.ScanText("48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2");
-        private static readonly IntPtr InventoryManagerAddress = Services.SigScanner.GetStaticAddressFromSig("BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B F8 48 85 C0");
-        private static readonly IntPtr getInventoryContainerPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 55 BB");
-        private static readonly IntPtr getContainerSlotPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 5B 0C");
-        private static readonly IntPtr RequestCharacterInfoPtr = Services.SigScanner.ScanText("40 53 48 83 EC 40 48 8B D9 48 8B 49 10 48 8b 01 ff 90 20 01 00 00 ba 01 00 00 00");
+        private static readonly IntPtr HookAddress;
+        private static readonly IntPtr InventoryManagerAddress;
+        private static readonly IntPtr getInventoryContainerPtr;
+        private static readonly IntPtr getContainerSlotPtr;
+        private static readonly IntPtr RequestCharacterInfoPtr;
 
         private delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
         private delegate InventoryContainer* GetInventoryContainer(IntPtr inventoryManager, InventoryType inventoryType);
@@ -32,14 +33,31 @@ namespace HimbeertoniRaidTool.LootMaster
         private static PlayerCharacter? TargetOverrride = null;
         static GearRefresherOnExamine()
         {
-            Hook = Hook<CharacterInspectOnRefresh>.FromAddress(HookAddress, OnExamineRefresh);
-            _getContainerSlot = Marshal.GetDelegateForFunctionPointer<GetContainerSlot>(getContainerSlotPtr);
-            _getInventoryContainer = Marshal.GetDelegateForFunctionPointer<GetInventoryContainer>(getInventoryContainerPtr);
-            _requestCharacterInfo = Marshal.GetDelegateForFunctionPointer<RequestCharInfoDelegate>(RequestCharacterInfoPtr);
+            try
+            {
+                HookAddress = Services.SigScanner.ScanText("48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2");
+                InventoryManagerAddress = Services.SigScanner.GetStaticAddressFromSig("BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B F8 48 85 C0");
+                getInventoryContainerPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 55 BB");
+                getContainerSlotPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 5B 0C");
+                RequestCharacterInfoPtr = Services.SigScanner.ScanText("40 53 48 83 EC 40 48 8B D9 48 8B 49 10 48 8b 01 ff 90 20 01 00 00 ba 01 00 00 00");
+                Hook = Hook<CharacterInspectOnRefresh>.FromAddress(HookAddress, OnExamineRefresh);
+                _getContainerSlot = Marshal.GetDelegateForFunctionPointer<GetContainerSlot>(getContainerSlotPtr);
+                _getInventoryContainer = Marshal.GetDelegateForFunctionPointer<GetInventoryContainer>(getInventoryContainerPtr);
+                _requestCharacterInfo = Marshal.GetDelegateForFunctionPointer<RequestCharInfoDelegate>(RequestCharacterInfoPtr);
+                LoadSuccessful = true;
+            }
+            catch (Exception e)
+            {
+                Dalamud.Logging.PluginLog.LogError(e.Message);
+                Dalamud.Logging.PluginLog.LogError(e.StackTrace ?? "");
+                LoadSuccessful = false;
+            }
 
         }
         internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
         {
+            if (!LoadSuccessful)
+                return;
             if (@object == null)
                 return;
             uint objectId = @object.ObjectId;
@@ -51,6 +69,7 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             /*
              * ToDo: Does not work if last examine was not a player chracter
+             * And generally crashes game on exit
              */
             TargetOverrride = @object;
             IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
@@ -62,7 +81,11 @@ namespace HimbeertoniRaidTool.LootMaster
             ptr[301] = 0u;
             _requestCharacterInfo(intPtr);
         }
-        internal static void Enable() => Hook.Enable();
+        internal static void Enable()
+        {
+            if (LoadSuccessful) Hook.Enable();
+        }
+
         private static byte OnExamineRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* loadingStage)
         {
             byte result = Hook.Original(atkUnitBase, a2, loadingStage);
@@ -164,8 +187,11 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         public static void Dispose()
         {
-            Hook.Disable();
-            Hook.Dispose();
+            if (Hook is not null)
+            {
+                Hook.Disable();
+                Hook.Dispose();
+            }
         }
     }
 }
