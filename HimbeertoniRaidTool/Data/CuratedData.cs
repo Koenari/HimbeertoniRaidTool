@@ -83,7 +83,6 @@ namespace HimbeertoniRaidTool.Data
             { 35741, new ItemIDRange(35305, 35309) },//Asphodelos necklace coffer
             { 35742, new ItemIDRange(35310, 35314) },//Asphodelos bracelet coffer
             { 35743, new ItemIDRange(35315, 35319) },//Asphodelos ring coffers
-            { 35734, new ItemIDRange(35245, 35264) },//Asphodelos weapon coffer
             //6.2
             { 38390, new ItemIDRange(38081, 38099) },//Abyssos weapon coffer
             { 38391, new ItemIDList(38101, 38106, 38111, 38116, 38121, 38126, 38131) },//Abyssos head gear coffer
@@ -106,10 +105,10 @@ namespace HimbeertoniRaidTool.Data
             //6.1
             { 36820, (35828, 35830) },//Aglaia Coin
             //6.2
-            { 35828, (38006, 38024) },//Moonshine Robortant
-            { 35829, (38026, 38060) },//Moonshine Twine
-            { 35830, (38061, 38080) },//Moonshine Coating
-            { 35831, (37856, 37874) },//Ultralight TomeStone
+            { 38386, (38006, 38024) },//Moonshine Brine
+            { 38387, (38026, 38060) },//Moonshine Twine
+            { 38388, (38061, 38080) },//Moonshine Shine
+            { 38389, (37856, 37874) },//Ultralight TomeStone
         };
         public static readonly KeyContainsDictionary<GearSource> GearSourceDictionary = new()
         {
