@@ -634,8 +634,18 @@ namespace HimbeertoniRaidTool.LootMaster
         private void DrawLootHandlerButtons()
         {
             LootSource[] currentLootSources = new LootSource[4];
+            int selectedTier = Array.IndexOf(CuratedData.RaidTiers, HRTPlugin.Configuration.SelectedRaidTier);
+            ImGui.SetNextItemWidth(150);
+            if (ImGui.Combo("##Raid Tier", ref selectedTier, Array.ConvertAll(CuratedData.RaidTiers, x => x.Name), CuratedData.RaidTiers.Length))
+            {
+                if (selectedTier != Array.IndexOf(CuratedData.RaidTiers, CuratedData.CurrentRaidSavage))
+                    HRTPlugin.Configuration.RaidTierOverride = CuratedData.RaidTiers[selectedTier];
+                else
+                    HRTPlugin.Configuration.RaidTierOverride = null;
+            }
+            ImGui.SameLine();
             for (int i = 0; i < currentLootSources.Length; i++)
-                currentLootSources[i] = new(CuratedData.CurrentRaidSavage, i + 1);
+                currentLootSources[i] = new(HRTPlugin.Configuration.SelectedRaidTier, i + 1);
             foreach (var lootSource in currentLootSources)
             {
                 if (ImGui.Button(lootSource.ToString()))

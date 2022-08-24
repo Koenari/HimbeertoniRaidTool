@@ -58,10 +58,16 @@ namespace HimbeertoniRaidTool
         private RaidGroup? GroupInfo = null;
         [JsonProperty]
         private List<RaidGroup> RaidGroups = new();
+        [JsonProperty]
         public bool OpenLootMasterOnStartup = false;
+        [JsonProperty]
         public bool LootMasterHideInBattle = true;
+        [JsonProperty]
         public int LootmasterUiLastIndex = 0;
-
+        [JsonIgnore]
+        public RaidTier SelectedRaidTier => RaidTierOverride ?? CuratedData.CurrentRaidSavage;
+        [JsonProperty]
+        public RaidTier? RaidTierOverride;
         public void Save()
         {
             if (Version == TargetVersion)
@@ -137,6 +143,12 @@ namespace HimbeertoniRaidTool
                         }
                 );
             }
+            try
+            {
+                if (RaidTierOverride is not null)
+                    RaidTierOverride = CuratedData.RaidTiers[Array.IndexOf(CuratedData.RaidTiers, RaidTierOverride)];
+            }
+            catch (Exception) { };
             FullyLoaded = true;
         }
 

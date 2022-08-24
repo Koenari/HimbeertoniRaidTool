@@ -56,7 +56,7 @@ namespace HimbeertoniRaidTool
         public static PlayerCharacter? Self => Services.ClientState.LocalPlayer;
         public static HSV ILevelColor(GearItem item, uint maxItemLevel = 0)
         {
-            uint currentMaxILevel = maxItemLevel > 0 ? maxItemLevel : CuratedData.CurrentRaidSavage.ArmorItemLevel;
+            uint currentMaxILevel = maxItemLevel > 0 ? maxItemLevel : HRTPlugin.Configuration.SelectedRaidTier.ArmorItemLevel;
             if (item.ItemLevel >= currentMaxILevel)
                 return ColorName.Green.ToHsv();
             else if (item.ItemLevel >= currentMaxILevel - 10)
