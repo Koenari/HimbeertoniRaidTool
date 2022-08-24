@@ -15,7 +15,7 @@ namespace HimbeertoniRaidTool.LootMaster
     internal static unsafe class GearRefresherOnExamine
     {
         private static readonly bool HookLoadSuccessful;
-        private static readonly bool CanOpenExamine;
+        internal static readonly bool CanOpenExamine;
         private static readonly Hook<CharacterInspectOnRefresh> Hook;
         private static readonly IntPtr HookAddress;
         private static readonly IntPtr InventoryManagerAddress;
@@ -55,7 +55,7 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             try
             {
-                RequestCharacterInfoPtr = Services.SigScanner.ScanText("40 53 48 83 EC 40 48 8B D9 48 8B 49 10 48 8b 01 ff 90 20 01 00 00 ba 01 00 00 00");
+                RequestCharacterInfoPtr = Services.SigScanner.ScanText("40 53 48 83 EC 40 48 8B D9 48 8B 49 10 48 8b 01 ff 90 28 01 00 00 ba 01 00 00 00");
                 _requestCharacterInfo = Marshal.GetDelegateForFunctionPointer<RequestCharInfoDelegate>(RequestCharacterInfoPtr);
                 CanOpenExamine = true;
             }
@@ -66,8 +66,8 @@ namespace HimbeertoniRaidTool.LootMaster
                 Dalamud.Logging.PluginLog.LogError(e.StackTrace ?? "");
                 CanOpenExamine = false;
             }
-
-
+            //Temporarily disabled examine button until I have time to reverse engeneer changes
+            CanOpenExamine = false;
 
         }
         internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
