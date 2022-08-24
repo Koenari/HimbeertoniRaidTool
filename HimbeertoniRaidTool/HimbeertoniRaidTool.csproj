@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors>Koenari</Authors>
     <Company></Company>
-    <Version>0.3.0.14</Version>
+    <Version>0.4.0.15</Version>
     <Description>A collection of useful tools for RaidGroups, including loot management</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>
@@ -30,7 +30,7 @@
 
   <ProjectExtensions>
     <DalamudPlugin>
-      <ApiLevel>6</ApiLevel>
+      <ApiLevel>7</ApiLevel>
       <Author>Koenari</Author>
       <Name>Himbeertoni Raid Tool</Name>
       <Punchline>All you need for Raiding</Punchline>
