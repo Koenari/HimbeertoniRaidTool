@@ -14,7 +14,8 @@ namespace HimbeertoniRaidTool.LootMaster
     //https://github.com/Caraxi/SimpleTweaksPlugin/blob/main/Tweaks/UiAdjustment/ExamineItemLevel.cs
     internal static unsafe class GearRefresherOnExamine
     {
-        private static readonly bool LoadSuccessful;
+        private static readonly bool HookLoadSuccessful;
+        private static readonly bool CanOpenExamine;
         private static readonly Hook<CharacterInspectOnRefresh> Hook;
         private static readonly IntPtr HookAddress;
         private static readonly IntPtr InventoryManagerAddress;
@@ -37,26 +38,41 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 HookAddress = Services.SigScanner.ScanText("48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2");
                 InventoryManagerAddress = Services.SigScanner.GetStaticAddressFromSig("BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B F8 48 85 C0");
-                getInventoryContainerPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 55 BB");
+                getInventoryContainerPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 55 AB");
                 getContainerSlotPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 5B 0C");
-                RequestCharacterInfoPtr = Services.SigScanner.ScanText("40 53 48 83 EC 40 48 8B D9 48 8B 49 10 48 8b 01 ff 90 20 01 00 00 ba 01 00 00 00");
+
                 Hook = Hook<CharacterInspectOnRefresh>.FromAddress(HookAddress, OnExamineRefresh);
                 _getContainerSlot = Marshal.GetDelegateForFunctionPointer<GetContainerSlot>(getContainerSlotPtr);
                 _getInventoryContainer = Marshal.GetDelegateForFunctionPointer<GetInventoryContainer>(getInventoryContainerPtr);
-                _requestCharacterInfo = Marshal.GetDelegateForFunctionPointer<RequestCharInfoDelegate>(RequestCharacterInfoPtr);
-                LoadSuccessful = true;
+                HookLoadSuccessful = true;
             }
             catch (Exception e)
             {
+                Dalamud.Logging.PluginLog.LogError("Failed to hook into examine window");
                 Dalamud.Logging.PluginLog.LogError(e.Message);
                 Dalamud.Logging.PluginLog.LogError(e.StackTrace ?? "");
-                LoadSuccessful = false;
+                HookLoadSuccessful = false;
             }
+            try
+            {
+                RequestCharacterInfoPtr = Services.SigScanner.ScanText("40 53 48 83 EC 40 48 8B D9 48 8B 49 10 48 8b 01 ff 90 20 01 00 00 ba 01 00 00 00");
+                _requestCharacterInfo = Marshal.GetDelegateForFunctionPointer<RequestCharInfoDelegate>(RequestCharacterInfoPtr);
+                CanOpenExamine = true;
+            }
+            catch (Exception e)
+            {
+                Dalamud.Logging.PluginLog.LogError("Failed to load examine function");
+                Dalamud.Logging.PluginLog.LogError(e.Message);
+                Dalamud.Logging.PluginLog.LogError(e.StackTrace ?? "");
+                CanOpenExamine = false;
+            }
+
+
 
         }
         internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
         {
-            if (!LoadSuccessful)
+            if (!CanOpenExamine)
                 return;
             if (@object == null)
                 return;
@@ -83,7 +99,7 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         internal static void Enable()
         {
-            if (LoadSuccessful) Hook.Enable();
+            if (HookLoadSuccessful) Hook.Enable();
         }
 
         private static byte OnExamineRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* loadingStage)
@@ -101,6 +117,8 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         private static void GetItemInfos(AtkUnitBase* examineWindow)
         {
+            if (!HookLoadSuccessful)
+                return;
             //Get Chracter Information from examine window
             string charNameFromExamine;
             int levelFromExamine;
