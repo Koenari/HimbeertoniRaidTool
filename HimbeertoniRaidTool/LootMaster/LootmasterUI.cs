@@ -506,7 +506,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         }
                     }
                     if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(),
-                        Localize("Inspect", "Update Gear"), playerChar is not null))
+                        GearRefresherOnExamine.CanOpenExamine ? Localize("Inspect", "Update Gear") : "Functionality unavailible", playerChar is not null && GearRefresherOnExamine.CanOpenExamine))
                     {
                         GearRefresherOnExamine.RefreshGearInfos(playerChar);
                     }
@@ -545,7 +545,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     }
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, player.Pos.ToString(),
-                        string.Format(Localize("PlayerDetails", "Show player details for  {0}"), player.NickName)))
+                        string.Format(Localize("PlayerDetails", "Show player details for {0}"), player.NickName)))
                     {
                         AddChild(new PlayerdetailWindow(this, player));
                     }
