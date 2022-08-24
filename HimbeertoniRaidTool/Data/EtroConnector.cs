@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Dalamud.Logging;
 using Newtonsoft.Json;
 
@@ -13,7 +15,7 @@ namespace HimbeertoniRaidTool.Data
         public static string GearsetApiBaseUrl => ApiBaseUrl + "gearsets/";
         public static string GearsetWebBaseUrl => WebBaseUrl + "gearset/";
         public static string MateriaApiBaseUrl => ApiBaseUrl + "materia/";
-        private readonly static WebHeaderCollection Headers;
+        private readonly static HttpClient HttpClient;
         private readonly static Dictionary<uint, (MateriaCategory, byte)> MateriaCache = new();
         private static JsonSerializerSettings JsonSettings => new()
         {
@@ -30,8 +32,7 @@ namespace HimbeertoniRaidTool.Data
         };
         static EtroConnector()
         {
-            Headers = new();
-            Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
+            HttpClient = new HttpClient();
 
             string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
             EtroMateria[]? matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
@@ -45,16 +46,18 @@ namespace HimbeertoniRaidTool.Data
 
         private static string? MakeWebRequest(string URL)
         {
-            WebClient client = new();
-            client.Headers = Headers;
+            var requestTask = MakeAsyncWebRequest(URL);
+            requestTask.Wait();
+            return requestTask.Result;
+        }
+        private static async Task<string?> MakeAsyncWebRequest(string URL)
+        {
+            HttpClient client = new();
             try
             {
-                while (client.IsBusy)
-                {
-                    PluginLog.LogDebug("WebClient Busy");
-                    System.Threading.Thread.Sleep(1000);
-                }
-                return client.DownloadString(URL);
+                var response = await client.GetAsync(URL);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
 
             }
             catch (Exception e)
@@ -63,6 +66,7 @@ namespace HimbeertoniRaidTool.Data
                 return null;
             }
         }
+
 
         public static bool GetGearSet(GearSet set)
         {

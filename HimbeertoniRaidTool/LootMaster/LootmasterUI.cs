@@ -506,7 +506,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         }
                     }
                     if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(),
-                        Localize("Inspect", "Update Gear"), playerChar is not null))
+                        GearRefresherOnExamine.CanOpenExamine ? Localize("Inspect", "Update Gear") : "Functionality unavailible", playerChar is not null && GearRefresherOnExamine.CanOpenExamine))
                     {
                         GearRefresherOnExamine.RefreshGearInfos(playerChar);
                     }
@@ -545,7 +545,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     }
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, player.Pos.ToString(),
-                        string.Format(Localize("PlayerDetails", "Show player details for  {0}"), player.NickName)))
+                        string.Format(Localize("PlayerDetails", "Show player details for {0}"), player.NickName)))
                     {
                         AddChild(new PlayerdetailWindow(this, player));
                     }
@@ -634,8 +634,18 @@ namespace HimbeertoniRaidTool.LootMaster
         private void DrawLootHandlerButtons()
         {
             LootSource[] currentLootSources = new LootSource[4];
+            int selectedTier = Array.IndexOf(CuratedData.RaidTiers, HRTPlugin.Configuration.SelectedRaidTier);
+            ImGui.SetNextItemWidth(150);
+            if (ImGui.Combo("##Raid Tier", ref selectedTier, Array.ConvertAll(CuratedData.RaidTiers, x => x.Name), CuratedData.RaidTiers.Length))
+            {
+                if (selectedTier != Array.IndexOf(CuratedData.RaidTiers, CuratedData.CurrentRaidSavage))
+                    HRTPlugin.Configuration.RaidTierOverride = CuratedData.RaidTiers[selectedTier];
+                else
+                    HRTPlugin.Configuration.RaidTierOverride = null;
+            }
+            ImGui.SameLine();
             for (int i = 0; i < currentLootSources.Length; i++)
-                currentLootSources[i] = new(CuratedData.CurrentRaidSavage, i + 1);
+                currentLootSources[i] = new(HRTPlugin.Configuration.SelectedRaidTier, i + 1);
             foreach (var lootSource in currentLootSources)
             {
                 if (ImGui.Button(lootSource.ToString()))

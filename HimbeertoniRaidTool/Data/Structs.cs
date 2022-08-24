@@ -1,10 +1,13 @@
-﻿using static Dalamud.Localization;
+﻿using Newtonsoft.Json;
+using static Dalamud.Localization;
 namespace HimbeertoniRaidTool.Data
 {
     public readonly struct GameExpansion
     {
         public static implicit operator GameExpansion(byte v) => new(v);
+        [JsonProperty]
         public readonly byte Value;
+        [JsonIgnore]
         public string Name => Value switch
         {
             2 => Localize("EXP_2", "A Realm Reborn"),
@@ -39,5 +42,20 @@ namespace HimbeertoniRaidTool.Data
         }
 
         public uint ItemLevel(GearSetSlot slot) => slot == GearSetSlot.MainHand ? WeaponItemLevel : ArmorItemLevel;
+
+        public override bool Equals(object? obj)
+        {
+            if (obj?.GetType() != GetType())
+                return false;
+            return Equals((RaidTier)obj);
+        }
+        public bool Equals(RaidTier obj)
+        {
+            return
+                Expansion.Value == obj.Expansion.Value &&
+                RaidNumber == obj.RaidNumber &&
+                Difficulty == obj.Difficulty;
+
+        }
     }
 }

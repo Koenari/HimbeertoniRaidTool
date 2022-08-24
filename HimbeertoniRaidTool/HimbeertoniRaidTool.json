@@ -9,14 +9,14 @@
     "Equipment"
   ],
   "InternalName": "HimbeertoniRaidTool",
-  "AssemblyVersion": "0.2.1.13",
-  "DalamudApiLevel": 6,
+  "AssemblyVersion": "0.4.0.17",
+  "DalamudApiLevel": 7,
   "RepoUrl": "https://github.com/Koenari/HimbeertoniRaidTool",
   "IconUrl": "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png",
   "ImageUrls": [
-    "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/Promotion/Loot Session.png",
-    "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/Promotion/Raid View.png",
-    "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/Promotion/Solo View.png"
+    "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/loot_session.png",
+    "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png",
+    "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png"
   ],
   "IsHide": "False",
   "IsTestingExclusive": "False",
