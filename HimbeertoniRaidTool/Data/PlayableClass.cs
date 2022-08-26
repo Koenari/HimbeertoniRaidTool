@@ -9,7 +9,7 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty("ClassType")]
         public AvailableClasses ClassType;
         [JsonProperty("Level")]
-        public int Level = 0;
+        public int Level = 1;
         [JsonProperty("Gear")]
         public GearSet Gear;
         [JsonProperty("BIS")]

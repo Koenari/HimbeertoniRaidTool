@@ -120,7 +120,7 @@ namespace HimbeertoniRaidTool.Data
                 _ => ""
             };
 
-            return levelCol.Equals("") ? 0 : (int)MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", levelCol));
+            return levelCol.Equals("") || level < 1 ? 0 : (int)MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", levelCol));
         }
 
 
