@@ -84,7 +84,7 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             foreach (PlayableClass playableClass in p.MainChar.Classes)
             {
-                if (ImGui.Button(playableClass.ClassType.ToString() + (p.MainChar.MainClassType == playableClass.ClassType ? " *" : "")))
+                if (ImGuiHelper.Button(playableClass.ClassType.ToString() + (p.MainChar.MainClassType == playableClass.ClassType ? " *" : ""), null))
                     p.MainChar.MainClassType = playableClass.ClassType;
 
                 ImGui.SameLine();
@@ -228,7 +228,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         DrawDetailedPlayer(CurrentGroup.Tank1);
                     else
                     {
-                        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo"))
+                        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
                         {
                             var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1, true);
                             if (AddChild(window))
@@ -293,13 +293,13 @@ namespace HimbeertoniRaidTool.LootMaster
                 {
                     if (ImGui.BeginPopupContextItem($"{g.Name}##{tabBarIdx}"))
                     {
-                        if (ImGui.Button(Localize("Edit", "Edit")))
+                        if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditGroup", Localize("Edit group", "Edit group")))
                         {
                             AddChild(new EditGroupWindow(g));
                             ImGui.CloseCurrentPopup();
                         }
                         ImGui.SameLine();
-                        if (ImGui.Button(Localize("Delete", "Delete")))
+                        if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "DeleteGroup", Localize("Delete group", "Delete group")))
                         {
                             AddChild(new ConfimationDialog(
                                 () => LootMaster.RaidGroups.Remove(g),
@@ -325,7 +325,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     RaidGroup group = new();
                     EditGroupWindow groupWindow = new EditGroupWindow(group, () => AddGroup(group, true), () => { });
                 }
-                if (ImGui.Button(Localize("From scratch", "From scratch")))
+                if (ImGuiHelper.Button(Localize("From scratch", "From scratch"), Localize("Add emtpy group", "Add emtpy group")))
                 {
                     RaidGroup group = new();
                     EditGroupWindow groupWindow = new EditGroupWindow(group, () => AddGroup(group, true), () => { });
@@ -644,8 +644,11 @@ namespace HimbeertoniRaidTool.LootMaster
                     HRTPlugin.Configuration.RaidTierOverride = null;
             }
             ImGui.SameLine();
+            ImGui.Text(Localize("Distribute loot for:", "Distribute loot for:"));
+            ImGui.SameLine();
             for (int i = 0; i < currentLootSources.Length; i++)
                 currentLootSources[i] = new(HRTPlugin.Configuration.SelectedRaidTier, i + 1);
+
             foreach (var lootSource in currentLootSources)
             {
                 if (ImGui.Button(lootSource.ToString()))
@@ -782,7 +785,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))
             {
                 ImGui.ListBox("", ref _newPos, possiblePositionNames, possiblePositions.Length);
-                if (ImGuiHelper.Button("Swap"))
+                if (ImGuiHelper.Button(Localize("Swap", "Swap"), Localize("Swap players positions", "Swap players positions")))
                 {
                     PositionInRaidGroup newPos = possiblePositions[_newPos];
                     (_group[_oldPos], _group[newPos]) = (_group[newPos], _group[_oldPos]);

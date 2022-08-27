@@ -5,7 +5,7 @@ namespace HimbeertoniRaidTool.UI
 {
     public static class ImGuiHelper
     {
-        public static bool Button(string label, string? tooltip = null, bool enabled = true)
+        public static bool Button(string label, string? tooltip, bool enabled = true)
         {
             if (!enabled)
                 ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.5f);
@@ -21,7 +21,7 @@ namespace HimbeertoniRaidTool.UI
 
             return result && enabled;
         }
-        public static bool Button(FontAwesomeIcon icon, string id, string? tooltip = null, bool enabled = true)
+        public static bool Button(FontAwesomeIcon icon, string id, string? tooltip, bool enabled = true)
         {
             ImGui.PushFont(UiBuilder.IconFont);
             if (!enabled)

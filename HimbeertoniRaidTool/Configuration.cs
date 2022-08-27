@@ -225,7 +225,7 @@ namespace HimbeertoniRaidTool
                         ImGui.EndTabItem();
                     }
                     ImGui.EndTabBar();
-                    if (ImGui.Button("Save##Config"))
+                    if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Save, "SaveConfig", $"{Localize("Save configuration", "Save configuration")}##Config"))
                     {
                         HRTPlugin.Configuration.LootRuling.RuleSet = LootList.List;
                         HRTPlugin.Configuration.Save();
