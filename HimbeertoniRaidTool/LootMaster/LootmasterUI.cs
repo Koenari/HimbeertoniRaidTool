@@ -68,7 +68,8 @@ namespace HimbeertoniRaidTool.LootMaster
 
             var playerChar = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, p.Pos.ToString(),
-                    Localize("Inspect", "Update Gear"), playerChar is not null))
+                    GearRefresherOnExamine.CanOpenExamine ? Localize("Inspect", "Update Gear") : Localize("PatchBrokeIt", "Functionality broken due to 6.2 game update"),
+                    playerChar is not null && GearRefresherOnExamine.CanOpenExamine))
             {
                 GearRefresherOnExamine.RefreshGearInfos(playerChar);
             }
@@ -506,7 +507,8 @@ namespace HimbeertoniRaidTool.LootMaster
                         }
                     }
                     if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(),
-                        GearRefresherOnExamine.CanOpenExamine ? Localize("Inspect", "Update Gear") : "Functionality unavailible", playerChar is not null && GearRefresherOnExamine.CanOpenExamine))
+                        GearRefresherOnExamine.CanOpenExamine ? Localize("Inspect", "Update Gear") : Localize("PatchBrokeIt", "Functionality broken due to 6.2 game update"),
+                        playerChar is not null && GearRefresherOnExamine.CanOpenExamine))
                     {
                         GearRefresherOnExamine.RefreshGearInfos(playerChar);
                     }
