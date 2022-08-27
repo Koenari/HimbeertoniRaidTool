@@ -5,6 +5,10 @@ namespace HimbeertoniRaidTool.UI
 {
     public static class ImGuiHelper
     {
+        public static bool SaveButton(string? tooltip = "Save")
+        => ImGuiHelper.Button(FontAwesomeIcon.Save, "Save", tooltip);
+        public static bool CancelButton(string? tooltip = "Cancel")
+        => ImGuiHelper.Button(FontAwesomeIcon.WindowClose, "Cancel", tooltip);
         public static bool Button(string label, string? tooltip, bool enabled = true)
         {
             if (!enabled)

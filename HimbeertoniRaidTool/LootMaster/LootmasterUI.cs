@@ -651,7 +651,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
             foreach (var lootSource in currentLootSources)
             {
-                if (ImGui.Button(lootSource.ToString()))
+                if (ImGuiHelper.Button(lootSource.ToString(), null))
                 {
                     LootSessionUI lui = new(lootSource, CurrentGroup);
                     lui.Show();
