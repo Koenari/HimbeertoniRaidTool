@@ -151,12 +151,14 @@ namespace HimbeertoniRaidTool.LootMaster
                 target = Helper.TryGetChar(charNameFromExamine, worldFromExamine);
                 if (target is null)
                     target = Helper.TryGetChar(charNameFromExamine2, worldFromExamine);
-                if (target is null)
+                if (target is not null)
+                    charNameFromExamine = charNameFromExamine2;
+                else
                     target = Helper.TargetChar;
             }
             if (target is null)
                 return;
-            if (!(charNameFromExamine.Equals(target.Name.TextValue) || charNameFromExamine2.Equals(target.Name.TextValue)))
+            if (!charNameFromExamine.Equals(target.Name.TextValue))
                 return;
             if (worldFromExamine is null || worldFromExamine != target.HomeWorld.GameData)
                 return;
