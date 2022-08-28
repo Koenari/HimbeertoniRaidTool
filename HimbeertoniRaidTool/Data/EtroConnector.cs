@@ -15,8 +15,7 @@ namespace HimbeertoniRaidTool.Data
         public static string GearsetApiBaseUrl => ApiBaseUrl + "gearsets/";
         public static string GearsetWebBaseUrl => WebBaseUrl + "gearset/";
         public static string MateriaApiBaseUrl => ApiBaseUrl + "materia/";
-        private readonly static HttpClient HttpClient;
-        private readonly static Dictionary<uint, (MateriaCategory, byte)> MateriaCache = new();
+        private static readonly Dictionary<uint, (MateriaCategory, byte)> MateriaCache = new();
         private static JsonSerializerSettings JsonSettings => new()
         {
             StringEscapeHandling = StringEscapeHandling.Default,
@@ -32,8 +31,6 @@ namespace HimbeertoniRaidTool.Data
         };
         static EtroConnector()
         {
-            HttpClient = new HttpClient();
-
             string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
             EtroMateria[]? matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
             if (matList != null)
