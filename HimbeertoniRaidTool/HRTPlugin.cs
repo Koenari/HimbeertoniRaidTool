@@ -71,6 +71,11 @@ namespace HimbeertoniRaidTool
             Data.AllaganLibrary.Init();
             LootMaster.LootMaster.Init();
             OptionsUi = new();
+            if (Configuration.FirstStartup)
+            {
+                WelcomeWindow wcw = new();
+                wcw.Show();
+            }
             if (Configuration.OpenLootMasterOnStartup)
                 LootMaster.LootMaster.Ui.Show();
         }
