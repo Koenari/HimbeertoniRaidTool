@@ -34,10 +34,11 @@ namespace HimbeertoniRaidTool.LootMaster
             if (ImGui.Begin(string.Format("Loot session for {0}##{1}", _lootSource, _sessionGuid), ref Visible,
                 ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar))
             {
-                if (ImGui.Button(Localize("Distribute", "Distribute")))
+                if (ImGuiHelper.Button(Localize("Distribute", "Distribute"),
+                    Localize("OpenLootResultTooltip", "Opens a window with results of loot distribution according to these rules and current equipment of players")))
                     StartLootDistribution();
                 ImGui.SameLine();
-                if (ImGui.Button(Localize("Close", "Close")))
+                if (ImGuiHelper.Button(Localize("Close", "Close"), null))
                     Hide();
                 //
                 if (ImGui.BeginChild("Loot", new Vector2(250, 300), false))
@@ -56,7 +57,8 @@ namespace HimbeertoniRaidTool.LootMaster
 
                 if (ImGui.BeginChild("Rules", new Vector2(250, 250), false))
                 {
-                    if (ImGui.Button(Localize("Reset to default", "Reset to default")))
+                    if (ImGuiHelper.Button(Localize("Reset to default", "Reset to default"),
+                        Localize("Overrides these settings with defaults from configuration", "Overrides these settings with defaults from configuration")))
                     {
                         _ruleListUi = new(LootRuling.PossibleRules, HRTPlugin.Configuration.LootRuling.RuleSet);
                         _session.RulingOptions.StrictRooling = HRTPlugin.Configuration.LootRuling.StrictRooling;
@@ -125,7 +127,8 @@ namespace HimbeertoniRaidTool.LootMaster
                         }
                     }
                     ImGui.EndTabBar();
-                    if (ImGui.Button(Localize("Copy Chat Message", "Copy Chat Message")))
+                    if (ImGuiHelper.Button(Localize("Copy Chat Message", "Copy Chat Message"),
+                        Localize("CopyLootMessageTooltip", "Copies the results to clipboard. Unfortunately only the first line is sent when pasting to FFXIV chat")))
                     {
                         string message = "";
                         foreach (var result in _session.Results)

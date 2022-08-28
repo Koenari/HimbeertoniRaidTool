@@ -79,7 +79,7 @@ namespace HimbeertoniRaidTool.UI
                 if (Helper.TryGetChar(PlayerCopy.MainChar.Name) is not null)
                 {
                     ImGui.SameLine();
-                    if (ImGui.Button(Localize("Get", "Get")))
+                    if (ImGuiHelper.Button(Localize("Get", "Get"), Localize("FetchHomeworldTooltip", "Fetch home world information based on character name (from local players)")))
                         PlayerCopy.MainChar.HomeWorld = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.HomeWorld.GameData;
                 }
                 int mainClass = (int)PlayerCopy.MainChar.MainClassType;
@@ -89,25 +89,26 @@ namespace HimbeertoniRaidTool.UI
                 if (curClass is not null && curClass != PlayerCopy.MainChar.MainClassType)
                 {
                     ImGui.SameLine();
-                    if (ImGui.Button(Localize("Current", "Current")))
+                    if (ImGuiHelper.Button(Localize("Current", "Current"),
+                        Localize("CurrentClassTooltip", "Fetch curretn class of character")))
                     {
                         PlayerCopy.MainChar.MainClassType = (AvailableClasses)curClass;
                     }
                 }
                 ImGui.InputText(Localize("BIS", "BIS"), ref PlayerCopy.MainChar.MainClass.BIS.EtroID, 100);
                 ImGui.SameLine();
-                if (ImGui.Button(Localize("Default", "Default") + "##BIS"))
+                if (ImGuiHelper.Button(Localize("Default", "Default") + "##BIS", Localize("DefaultBiSTooltip", "Fetch default value from configuration")))
                     PlayerCopy.BIS.EtroID = HRTPlugin.Configuration.GetDefaultBiS(PlayerCopy.MainChar.MainClass.ClassType);
                 ImGui.SameLine();
-                if (ImGui.Button(Localize("Reset", "Reset") + "##BIS"))
+                if (ImGuiHelper.Button(Localize("Reset", "Reset") + "##BIS", Localize("ResetBisTooltip", "Empty out BiS gear")))
                     PlayerCopy.MainChar.MainClass.BIS.EtroID = "";
-                if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Save, "Save", Localize("Save Player", "Save Player")))
+                if (ImGuiHelper.SaveButton(Localize("Save Player", "Save Player")))
                 {
                     SavePlayer();
                     Hide();
                 }
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.WindowClose, "Cancel", Localize("Cancel", "Cancel")))
+                if (ImGuiHelper.CancelButton())
                     Hide();
             }
             ImGui.End();
@@ -228,7 +229,7 @@ namespace HimbeertoniRaidTool.UI
                 {
                     GroupCopy.Type = (GroupType)groupType;
                 }
-                if (ImGui.Button(Localize("Save", "Save")))
+                if (ImGuiHelper.SaveButton())
                 {
                     Group.Name = GroupCopy.Name;
                     Group.Type = GroupCopy.Type;
@@ -236,7 +237,7 @@ namespace HimbeertoniRaidTool.UI
                     Hide();
                 }
                 ImGui.SameLine();
-                if (ImGui.Button(Localize("Cancel", "Cancel")))
+                if (ImGuiHelper.CancelButton())
                 {
                     OnCancel();
                     Hide();

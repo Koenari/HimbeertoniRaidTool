@@ -131,13 +131,13 @@ namespace HimbeertoniRaidTool.UI
             if (ImGui.BeginPopupModal(_Title, ref Visible, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar))
             {
                 ImGui.Text(_Text);
-                if (ImGui.Button(Localize("OK", "OK")))
+                if (ImGuiHelper.Button(Localize("OK", "OK"), Localize("Confirm action", "OK")))
                 {
                     _Action();
                     Hide();
                 }
                 ImGui.SameLine();
-                if (ImGui.Button(Localize("Cancel", "Cancel")))
+                if (ImGuiHelper.CancelButton())
                     Hide();
                 ImGui.End();
             }

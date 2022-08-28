@@ -11,7 +11,7 @@
   "InternalName": "HimbeertoniRaidTool",
   "AssemblyVersion": "0.4.1.20",
   "DalamudApiLevel": 7,
-  "RepoUrl": "https://github.com/Koenari/HimbeertoniRaidTool",
+  "RepoUrl": "https://github.com/Koenari/HimbeertoniRaidTool/wiki",
   "IconUrl": "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png",
   "ImageUrls": [
     "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/loot_session.png",

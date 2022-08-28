@@ -21,6 +21,8 @@ namespace HimbeertoniRaidTool
         public event ConfigurationChangedDelegate? ConfigurationChanged;
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
+        [JsonProperty]
+        public bool ShowWelcomeWindow = true;
         [JsonIgnore]
         private readonly int TargetVersion = 4;
         public int Version { get; set; } = 4;
@@ -225,7 +227,7 @@ namespace HimbeertoniRaidTool
                         ImGui.EndTabItem();
                     }
                     ImGui.EndTabBar();
-                    if (ImGui.Button("Save##Config"))
+                    if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Save, "SaveConfig", $"{Localize("Save configuration", "Save configuration")}##Config"))
                     {
                         HRTPlugin.Configuration.LootRuling.RuleSet = LootList.List;
                         HRTPlugin.Configuration.Save();

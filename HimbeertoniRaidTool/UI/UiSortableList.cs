@@ -1,7 +1,8 @@
-﻿using ImGuiNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ImGuiNET;
+using static Dalamud.Localization;
 namespace HimbeertoniRaidTool.UI
 {
     public class UiSortableList<T>
@@ -48,14 +49,14 @@ namespace HimbeertoniRaidTool.UI
                     ReorganizeList(i);
                 }
                 ImGui.SameLine();
-                if (ImGui.Button("x##" + i))
+                if (ImGuiHelper.Button($"x##{i}", Localize("Remove option", "Remove option")))
                 {
                     DeleteItem(i);
                 }
             }
             if (Lenght < Possibilities.Count)
             {
-                if (ImGui.Button("+"))
+                if (ImGuiHelper.Button("+", Localize("Add option", "Add option")))
                 {
                     AddItem();
                 }
