@@ -22,7 +22,7 @@ namespace HimbeertoniRaidTool
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
         [JsonProperty]
-        public bool FirstStartup = true;
+        public bool ShowWelcomeWindow = true;
         [JsonIgnore]
         private readonly int TargetVersion = 4;
         public int Version { get; set; } = 4;

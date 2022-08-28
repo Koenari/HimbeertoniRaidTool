@@ -41,6 +41,7 @@ namespace HimbeertoniRaidTool
         private static HRTPlugin Plugin => _Plugin ?? throw new NullReferenceException();
         private readonly Configuration _Configuration;
         public static Configuration Configuration => Plugin._Configuration;
+        public static Configuration.ConfigUI ConfigUi => Plugin.OptionsUi;
         public string Name => "Himbeertoni Raid Tool";
 
         private readonly List<(string, Func<string>, bool)> Commands = new()
@@ -71,7 +72,7 @@ namespace HimbeertoniRaidTool
             Data.AllaganLibrary.Init();
             LootMaster.LootMaster.Init();
             OptionsUi = new();
-            if (Configuration.FirstStartup)
+            if (Configuration.ShowWelcomeWindow)
             {
                 WelcomeWindow wcw = new();
                 wcw.Show();
@@ -96,7 +97,6 @@ namespace HimbeertoniRaidTool
                 });
             }
         }
-
         public void Dispose()
         {
             OptionsUi.Dispose();
