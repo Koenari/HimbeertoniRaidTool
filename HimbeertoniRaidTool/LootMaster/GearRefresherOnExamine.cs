@@ -120,13 +120,16 @@ namespace HimbeertoniRaidTool.LootMaster
             if (!HookLoadSuccessful)
                 return;
             //Get Chracter Information from examine window
-            string charNameFromExamine;
+            //There are two possible fields for name/title depending on their order
+            string charNameFromExamine = "";
+            string charNameFromExamine2 = "";
             int levelFromExamine;
             World? worldFromExamine;
             string classFromExamine;
             try
             {
-                charNameFromExamine = examineWindow->UldManager.NodeList[59]->GetAsAtkTextNode()->NodeText.ToString();
+                charNameFromExamine = examineWindow->UldManager.NodeList[60]->GetAsAtkTextNode()->NodeText.ToString();
+                charNameFromExamine2 = examineWindow->UldManager.NodeList[59]->GetAsAtkTextNode()->NodeText.ToString();
                 levelFromExamine = int.Parse(examineWindow->UldManager.NodeList[51]->GetAsAtkTextNode()->NodeText.ToString().Split(" ")[1]);
                 worldFromExamine = Helper.TryGetWorldByName(examineWindow->UldManager.NodeList[57]->GetAsAtkTextNode()->NodeText.ToString());
                 classFromExamine = examineWindow->UldManager.NodeList[50]->GetAsAtkTextNode()->NodeText.ToString();
@@ -145,17 +148,15 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             else
             {
-                if (charNameFromExamine.Equals(""))
+                target = Helper.TryGetChar(charNameFromExamine, worldFromExamine);
+                if (target is null)
+                    target = Helper.TryGetChar(charNameFromExamine2, worldFromExamine);
+                if (target is null)
                     target = Helper.TargetChar;
-                else
-                    target = Helper.TryGetChar(charNameFromExamine, worldFromExamine);
             }
             if (target is null)
                 return;
-            //Temporary fix for wrong UTF8 conversions (' character for example)
-            if (charNameFromExamine.Equals(""))
-                charNameFromExamine = target.Name.TextValue;
-            if (!charNameFromExamine.Equals(target.Name.TextValue))
+            if (!(charNameFromExamine.Equals(target.Name.TextValue) || charNameFromExamine2.Equals(target.Name.TextValue)))
                 return;
             if (worldFromExamine is null || worldFromExamine != target.HomeWorld.GameData)
                 return;

@@ -91,7 +91,23 @@ namespace HimbeertoniRaidTool.Data
         [Role(Role.Tank)]
         WAR,
         [Role(Role.Healer)]
-        WHM
+        WHM,
+        [Role(Role.Tank)]
+        GLA,
+        [Role(Role.Tank)]
+        MRD,
+        [Role(Role.Melee)]
+        LNC,
+        [Role(Role.Melee)]
+        PGL,
+        [Role(Role.Ranged)]
+        ARC,
+        [Role(Role.Caster)]
+        THM,
+        [Role(Role.Caster)]
+        ACN,
+        [Role(Role.Healer)]
+        CNJ
     }
     public enum Role : byte
     {
