@@ -35,7 +35,7 @@ namespace HimbeertoniRaidTool.UI
                 }
                 foreach (var stat in item.Item.UnkData59)
                     if ((StatType)stat.BaseParam != StatType.None)
-                        DrawRow(((StatType)stat.BaseParam).FriendlyName(), stat.BaseParamValue.ToString());
+                        DrawRow(((StatType)stat.BaseParam).FriendlyName(), item.GetStat((StatType)stat.BaseParam, false).ToString());
                 ImGui.TableNextColumn();
                 ImGui.Text("Materia");
                 ImGui.TableNextColumn();

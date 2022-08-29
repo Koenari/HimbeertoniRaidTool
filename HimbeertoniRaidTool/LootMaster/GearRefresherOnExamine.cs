@@ -198,6 +198,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (slot->ItemID == 0)
                     continue;
                 setToFill[(GearSetSlot)i] = new(slot->ItemID);
+                setToFill[(GearSetSlot)i].IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ);
                 for (int j = 0; j < 5; j++)
                 {
                     if (slot->Materia[j] == 0)

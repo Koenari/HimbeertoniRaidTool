@@ -12,6 +12,8 @@ namespace HimbeertoniRaidTool.Data
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class GearItem : HrtItem
     {
+        [JsonProperty]
+        public bool IsHq = false;
         private static KeyContainsDictionary<GearSource> SourceDic => CuratedData.GearSourceDictionary;
         [JsonIgnore]
         public GearSetSlot Slot => Item.EquipSlotCategory.Value?.ToSlot() ?? GearSetSlot.None;
@@ -32,6 +34,12 @@ namespace HimbeertoniRaidTool.Data
                 case StatType.Defense: result += Item.DefensePhys; break;
                 case StatType.MagicDefense: result += Item.DefenseMag; break;
                 default:
+                    if (IsHq)
+                        if (Item?.UnkData73 is not null)
+                            foreach (Item.ItemUnkData73Obj param in Item.UnkData73)
+                                if (param.BaseParamSpecial == (ushort)type)
+                                    result += param.BaseParamValueSpecial;
+
                     if (Item?.UnkData59 is not null)
                         foreach (Item.ItemUnkData59Obj param in Item.UnkData59)
                             if (param.BaseParam == (ushort)type)
