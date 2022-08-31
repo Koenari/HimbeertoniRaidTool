@@ -4,11 +4,12 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Dalamud.Logging;
+using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 
-namespace HimbeertoniRaidTool.Data
+namespace HimbeertoniRaidTool.Connectors
 {
-    public static class EtroConnector
+    internal static class EtroConnector
     {
         public static string ApiBaseUrl => "https://etro.gg/api/";
         public static string WebBaseUrl => "https://etro.gg/";
@@ -31,7 +32,7 @@ namespace HimbeertoniRaidTool.Data
         };
         static EtroConnector()
         {
-            string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
+            string? jsonResponse = BaseConnector.MakeWebRequest(MateriaApiBaseUrl);
             EtroMateria[]? matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
             if (matList != null)
                 foreach (var mat in matList)
@@ -41,36 +42,13 @@ namespace HimbeertoniRaidTool.Data
 
         }
 
-        private static string? MakeWebRequest(string URL)
-        {
-            var requestTask = MakeAsyncWebRequest(URL);
-            requestTask.Wait();
-            return requestTask.Result;
-        }
-        private static async Task<string?> MakeAsyncWebRequest(string URL)
-        {
-            HttpClient client = new();
-            try
-            {
-                var response = await client.GetAsync(URL);
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsStringAsync();
-
-            }
-            catch (Exception e)
-            {
-                PluginLog.LogError(e.Message);
-                return null;
-            }
-        }
-
 
         public static bool GetGearSet(GearSet set)
         {
             if (set.EtroID.Equals(""))
                 return false;
             EtroGearSet? etroSet;
-            string? jsonResponse = MakeWebRequest(GearsetApiBaseUrl + set.EtroID);
+            string? jsonResponse = BaseConnector.MakeWebRequest(GearsetApiBaseUrl + set.EtroID);
             if (jsonResponse == null)
                 return false;
             etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);

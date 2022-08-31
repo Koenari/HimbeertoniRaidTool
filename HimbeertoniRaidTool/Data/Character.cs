@@ -21,7 +21,8 @@ namespace HimbeertoniRaidTool.Data
         public string Race = "";
         [JsonProperty("Clan")]
         public string Clan = "";
-
+        [JsonProperty("LodestoneID")]
+        public int LodestoneID = 0;
         public World? HomeWorld
         {
             get => HomeWorldID > 0 ? Services.DataManager.GetExcelSheet<World>()?.GetRow(HomeWorldID) : null;
