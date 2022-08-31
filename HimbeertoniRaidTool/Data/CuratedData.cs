@@ -90,8 +90,8 @@ namespace HimbeertoniRaidTool.Data
             { 38393, new ItemIDList(38103, 38108, 38113, 38118, 38123, 38128, 38133) },//Abyssos hand gear coffer
             { 38394, new ItemIDList(38104, 38109, 38114, 38119, 38124, 38129, 38134) },//Abyssos leg gear coffer
             { 38395, new ItemIDList(38105, 38110, 38115, 38120, 38125, 38130, 38135) },//Abyssos foot gear coffer
-            { 38396, new ItemIDRange(38136, 38139) },//Abyssos earring coffer
-            { 38397, new ItemIDRange(38140, 38145) },//Abyssos necklace coffer
+            { 38396, new ItemIDRange(38136, 38140) },//Abyssos earring coffer
+            { 38397, new ItemIDRange(38141, 38145) },//Abyssos necklace coffer
             { 38398, new ItemIDRange(38146, 38150) },//Abyssos bracelet coffer
             { 38399, new ItemIDRange(38151, 38155) },//Abyssos ring coffers
         };
