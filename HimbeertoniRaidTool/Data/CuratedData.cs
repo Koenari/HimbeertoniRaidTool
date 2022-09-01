@@ -138,26 +138,25 @@ namespace HimbeertoniRaidTool.Data
         /// </summary>
         public static Dictionary<AvailableClasses, string> DefaultBIS { get; set; } = new Dictionary<AvailableClasses, string>
         {
-            { AST, "" },
-            { BLM, "" },
-            { BLU, "" },
+            { AST, "a2201358-04ad-4b07-81e4-003a514f0694" },
+            { BLM, "bd1b7a52-5893-4928-9d7c-d47aea22d8d2" },
             { BRD, "2a242f9b-8a41-4d09-9e14-3c8fb08e97e4" },
             { DNC, "fb5976d5-a94c-4052-9092-3c3990fefa76" },
             { DRG, "de153cb0-05e7-4f23-a924-1fc28c7ae8db" },
-            { DRK, "" },
+            { DRK, "9467c373-ba77-4f20-aa76-06c8e6f926b8" },
             { GNB, "" },
-            { MCH, "" },
+            { MCH, "8a0bdf80-80f5-42e8-b10a-160b0fc2d151" },
             { MNK, "" },
-            { NIN, "" },
+            { NIN, "c0c2ba50-b93a-4d18-8cba-a0ebb0705fed" },
             { PLD, "" },
-            { RDM, "" },
-            { RPR, "00b6b315-5807-4238-9164-428ab3dedeaa" },
-            { SAM, "" },
-            { SCH, "" },
-            { SGE, "" },
-            { SMN, "" },
+            { RDM, "5f972eb8-c3cd-44da-aa73-0fa769957e5b" },
+            { RPR, "c293f73b-5c58-4855-b43d-aae55b212611" },
+            { SAM, "4356046d-2f05-432a-a98c-632f11098ade" },
+            { SCH, "41c65b56-fa08-4c6a-b86b-627fd14d04ff" },
+            { SGE, "80bec2f5-8e9e-43fb-adcf-0cd7f7018c02" },
+            { SMN, "b3567b2d-5c92-4ba1-a18a-eb91b614e944" },
             { WAR, "" },
-            { WHM, "" },
+            { WHM, "da9ef350-7568-4c98-8ecc-959040d9ba3a" },
         };
     }
     public static class CuratedDataExtension
