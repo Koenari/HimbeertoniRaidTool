@@ -126,6 +126,7 @@ namespace HimbeertoniRaidTool.LootMaster
             int levelFromExamine;
             World? worldFromExamine;
             string classFromExamine;
+            bool ignoreExamine = false;
             try
             {
                 charNameFromExamine = examineWindow->UldManager.NodeList[60]->GetAsAtkTextNode()->NodeText.ToString();
@@ -150,29 +151,37 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 target = Helper.TryGetChar(charNameFromExamine, worldFromExamine);
                 if (target is null)
+                {
                     target = Helper.TryGetChar(charNameFromExamine2, worldFromExamine);
-                if (target is not null)
                     charNameFromExamine = charNameFromExamine2;
-                else
-                    target = Helper.TargetChar;
+                    if (target is null)
+                    {
+                        target = Helper.TargetChar;
+                        ignoreExamine = true;
+                    }
+                        
+                }
             }
             if (target is null)
                 return;
-            if (!charNameFromExamine.Equals(target.Name.TextValue))
-                return;
-            if (worldFromExamine is null || worldFromExamine != target.HomeWorld.GameData)
-                return;
-            if (!classFromExamine.ToLower().Equals(target.ClassJob.GameData?.Name?.RawString.ToLower()))
-                return;
+            if (!ignoreExamine)
+            {
+                if (!charNameFromExamine.Equals(target.Name.TextValue))
+                    return;
+                if (worldFromExamine is null || worldFromExamine != target.HomeWorld.GameData)
+                    return;
+                if (!classFromExamine.ToLower().Equals(target.ClassJob.GameData?.Name?.RawString.ToLower()))
+                    return;
+            }
             if (target.GetClass() is null)
                 return;
             IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
             var objID = target.ObjectId;
             uint* ptr = (uint*)(void*)intPtr;
             //Do not execute on characters not part of any managed raid group
-            if (!DataManagement.DataManager.CharacterExists(worldFromExamine.RowId, charNameFromExamine))
+            if (!DataManagement.DataManager.CharacterExists(target.HomeWorld.GameData?.RowId ?? 0, charNameFromExamine))
                 return;
-            Character targetChar = new(charNameFromExamine, worldFromExamine.RowId);
+            Character targetChar = new(charNameFromExamine, target.HomeWorld.GameData?.RowId ?? 0);
             DataManagement.DataManager.GetManagedCharacter(ref targetChar);
             if (targetChar is null)
                 return;
