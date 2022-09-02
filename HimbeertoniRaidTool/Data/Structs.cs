@@ -57,5 +57,14 @@ namespace HimbeertoniRaidTool.Data
                 Difficulty == obj.Difficulty;
 
         }
+        public override int GetHashCode()
+        {
+            int hash = Expansion.Value;
+            hash <<= 2;
+            hash += RaidNumber;
+            hash <<= 4;
+            hash += (byte)Difficulty;
+            return hash;
+        }
     }
 }
