@@ -73,6 +73,8 @@ namespace HimbeertoniRaidTool.Connectors
             void FillItem(uint id, GearSetSlot slot)
             {
                 set[slot] = new(id);
+                if (set[slot].Source == GearSource.Crafted)
+                    set[slot].IsHq = true;
                 string idString = id.ToString() + (slot == GearSetSlot.Ring1 ? "L" : slot == GearSetSlot.Ring2 ? "R" : "");
                 if (etroSet!.materia?.TryGetValue(idString, out Dictionary<uint, uint?>? materia) ?? false)
                     foreach (uint? matId in materia.Values)
