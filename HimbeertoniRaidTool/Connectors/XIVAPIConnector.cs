@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Connectors
 {
+    [Obsolete("Migrate to NetStone", true)]
     internal static class XIVAPIConnector
     {
         private static readonly string BaseURL = "https://xivapi.com";
