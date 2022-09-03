@@ -33,20 +33,59 @@ namespace HimbeertoniRaidTool.Connectors
             ChnaracterSearchResult? response = JsonConvert.DeserializeObject<ChnaracterSearchResponse>(jsonResponse ?? "", JsonSettings)?.Results?[0];
             return response?.ID ?? 0;
         }
-        public static void UpdateGear(Character c)
+        public static bool UpdateGear(Character c)
         {
             if (c.LodestoneID == 0)
             {
                 if (c.HomeWorld != null)
                     c.LodestoneID = GetLodestoneID(c.Name, c.HomeWorld);
                 else
-                    return;
+                    return false;
             }
+            if (c.LodestoneID == 0)
+                return false;
             string? jsonResponse = BaseConnector.MakeWebRequest(CharacterApiBaseURL + $"/{c.LodestoneID}");
             LodestoneCharacter? lsc = JsonConvert.DeserializeObject<ChnaracterResponse>(jsonResponse ?? "")?.Character;
             if (lsc is null)
-                return;
+                return false;
+            if (lsc.Name != c.Name)
+                return false;
+            if (lsc.ActiveClassJob is null || lsc.GearSet?.Gear is null)
+                return false;
 
+            var job = c.GetClass((Job)lsc.GearSet.JobID);
+            job.Level = lsc.GearSet.Level;
+            c.TribeID = (uint)lsc.Tribe;
+            var lscGear = lsc.GearSet.Gear;
+            FillItem(lscGear.MainHand, GearSetSlot.MainHand);
+            FillItem(lscGear.Head, GearSetSlot.Head);
+            FillItem(lscGear.Body, GearSetSlot.Body);
+            FillItem(lscGear.Hands, GearSetSlot.Hands);
+            FillItem(lscGear.Legs, GearSetSlot.Legs);
+            FillItem(lscGear.Feet, GearSetSlot.Feet);
+            FillItem(lscGear.OffHand, GearSetSlot.OffHand);
+            FillItem(lscGear.Earrings, GearSetSlot.Ear);
+            FillItem(lscGear.Necklace, GearSetSlot.Neck);
+            FillItem(lscGear.Bracelets, GearSetSlot.Wrist);
+            FillItem(lscGear.Ring1, GearSetSlot.Ring1);
+            FillItem(lscGear.Ring2, GearSetSlot.Ring2);
+
+            return true;
+            void FillItem(LodestoneGearItem? item, GearSetSlot slot)
+            {
+                if (item == null)
+                {
+                    job.Gear[slot] = new();
+                    return;
+                }
+                job.Gear[slot] = new(item.ID);
+                foreach (var mat in item.Materia)
+                {
+                    //Todo: figure out Materia
+                    //job.Gear[slot].Materia.Add(new(mat.))
+                }
+
+            }
         }
         private class ChnaracterSearchResult
         {
@@ -65,10 +104,10 @@ namespace HimbeertoniRaidTool.Connectors
         }
         private class LodestoneCharacter
         {
-            public ActiveClassJob ActiveClassJob { get; set; }
-            public LodestoneGearSet GearSet { get; set; }
+            public ActiveClassJob? ActiveClassJob { get; set; }
+            public LodestoneGearSet? GearSet { get; set; }
             public int ID { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
             public int Race { get; set; }
             public int Tribe { get; set; }
         }
@@ -80,27 +119,29 @@ namespace HimbeertoniRaidTool.Connectors
         {
             public int ClassID { get; set; }
             public Gear? Gear { get; set; }
-            public int JobID { get; set; }
+            public byte JobID { get; set; }
             public int Level { get; set; }
         }
         public class Gear
         {
-            public LodestoenGearItem? Body { get; set; }
-            public LodestoenGearItem? Bracelets { get; set; }
-            public LodestoenGearItem? Earrings { get; set; }
-            public LodestoenGearItem? Feet { get; set; }
-            public LodestoenGearItem? Hands { get; set; }
-            public LodestoenGearItem? Head { get; set; }
-            public LodestoenGearItem? Legs { get; set; }
-            public LodestoenGearItem? MainHand { get; set; }
-            public LodestoenGearItem? Necklace { get; set; }
-            public LodestoenGearItem? Ring1 { get; set; }
-            public LodestoenGearItem? Ring2 { get; set; }
+            public LodestoneGearItem? Body { get; set; }
+            public LodestoneGearItem? Bracelets { get; set; }
+            public LodestoneGearItem? Earrings { get; set; }
+            public LodestoneGearItem? Feet { get; set; }
+            public LodestoneGearItem? Hands { get; set; }
+            public LodestoneGearItem? Head { get; set; }
+            public LodestoneGearItem? Legs { get; set; }
+            public LodestoneGearItem? MainHand { get; set; }
+            public LodestoneGearItem? OffHand { get; set; }
+            public LodestoneGearItem? Necklace { get; set; }
+            public LodestoneGearItem? Ring1 { get; set; }
+            public LodestoneGearItem? Ring2 { get; set; }
         }
-        public class LodestoenGearItem
+        public class LodestoneGearItem
         {
-            public int ID { get; set; }
-            public List<int>? Materia { get; set; }
+            public uint ID { get; set; }
+            public List<uint> Materia { get; set; } = new();
         }
 
     }
+}
