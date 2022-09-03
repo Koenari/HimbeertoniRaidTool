@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using static Dalamud.Localization;
-using static HimbeertoniRaidTool.Data.AvailableClasses;
+using static HimbeertoniRaidTool.Data.Job;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -136,7 +136,7 @@ namespace HimbeertoniRaidTool.Data
         /// <summary>
         /// Holds a list of Etro IDs to use as BiS sets if users did not enter a preferred BiS
         /// </summary>
-        public static Dictionary<AvailableClasses, string> DefaultBIS { get; set; } = new Dictionary<AvailableClasses, string>
+        public static Dictionary<Job, string> DefaultBIS { get; set; } = new Dictionary<Job, string>
         {
             { AST, "" },
             { BLM, "" },

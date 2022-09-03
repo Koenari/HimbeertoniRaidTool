@@ -176,7 +176,7 @@ namespace HimbeertoniRaidTool.LootMaster
             DataManagement.DataManager.GetManagedCharacter(ref targetChar);
             if (targetChar is null)
                 return;
-            AvailableClasses targetClass = (AvailableClasses)target.GetClass()!;
+            Job targetClass = (Job)target.GetClass()!;
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
             if (container == null)
                 return;

@@ -49,6 +49,7 @@ namespace HimbeertoniRaidTool.Data
         Savage,
         Ultimate
     }
+    [Obsolete]
     public enum AvailableClasses
     {
         [Role(Role.Healer)]
@@ -109,6 +110,71 @@ namespace HimbeertoniRaidTool.Data
         [Role(Role.Healer)]
         CNJ
     }
+
+    public enum Job
+    {
+        ADV = 0,
+        [Role(Role.Healer)]
+        AST = 33,
+        [Role(Role.Caster)]
+        BLM = 25,
+        [Role(Role.Caster)]
+        BLU = 36,
+        [Role(Role.Ranged)]
+        BRD = 23,
+        [Role(Role.Ranged)]
+        DNC = 38,
+        [Role(Role.Melee)]
+        DRG = 22,
+        [Role(Role.Tank)]
+        DRK = 32,
+        [Role(Role.Tank)]
+        GNB = 37,
+        [Role(Role.Ranged)]
+        MCH = 31,
+        [Role(Role.Melee)]
+        MNK = 20,
+        [Stat(StatType.Dexterity)]
+        [Role(Role.Melee)]
+        NIN = 30,
+        [Role(Role.Tank)]
+        PLD = 19,
+        [Role(Role.Caster)]
+        RDM = 35,
+        [Role(Role.Melee)]
+        RPR = 39,
+        [Role(Role.Melee)]
+        SAM = 34,
+        [Role(Role.Healer)]
+        SCH = 28,
+        [Role(Role.Healer)]
+        SGE = 40,
+        [Role(Role.Caster)]
+        SMN = 27,
+        [Role(Role.Tank)]
+        WAR = 21,
+        [Role(Role.Healer)]
+        WHM = 24,
+        [Role(Role.Tank)]
+        GLA = 1,
+        [Role(Role.Tank)]
+        MRD = 3,
+        [Role(Role.Melee)]
+        LNC = 4,
+        [Role(Role.Melee)]
+        PGL = 2,
+        [Role(Role.Ranged)]
+        ARC = 5,
+        [Role(Role.Caster)]
+        THM = 7,
+        [Role(Role.Caster)]
+        ACN = 26,
+        [Role(Role.Healer)]
+        CNJ = 6,
+        [Role(Role.Melee)]
+        ROG = 29,
+    }
+
     public enum Role : byte
     {
         [Stat(StatType.None)]
@@ -294,7 +360,7 @@ namespace HimbeertoniRaidTool.Data
             StatType.Tenacity => Localize("TEN", "TEN"),
             _ => "XXX",
         };
-        public static Role GetRole(this AvailableClasses c) =>
+        public static Role GetRole(this Job c) =>
             c.GetAttribute<RoleAttribute>()?.Role ?? Role.None;
 
         public static T? GetAttribute<T>(this Enum field) where T : Attribute
@@ -306,7 +372,7 @@ namespace HimbeertoniRaidTool.Data
                 .GetCustomAttributes<T>(false)
                 .SingleOrDefault();
         }
-        public static StatType MainStat(this AvailableClasses c) =>
+        public static StatType MainStat(this Job c) =>
             c.GetAttribute<StatAttribute>()?.StatType
             ?? c.GetAttribute<RoleAttribute>()?.Role.GetAttribute<StatAttribute>()?.StatType
             ?? StatType.None;

@@ -7,6 +7,7 @@ using ColorHelper;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface;
+using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.DataManagement;
 using HimbeertoniRaidTool.UI;
@@ -85,8 +86,8 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             foreach (PlayableClass playableClass in p.MainChar.Classes)
             {
-                if (ImGuiHelper.Button(playableClass.ClassType.ToString() + (p.MainChar.MainClassType == playableClass.ClassType ? " *" : ""), null))
-                    p.MainChar.MainClassType = playableClass.ClassType;
+                if (ImGuiHelper.Button(playableClass.Job.ToString() + (p.MainChar.MainJob == playableClass.Job ? " *" : ""), null))
+                    p.MainChar.MainJob = playableClass.Job;
 
                 ImGui.SameLine();
                 ImGui.Text("Level: " + playableClass.Level);
@@ -101,10 +102,10 @@ namespace HimbeertoniRaidTool.LootMaster
                         {
                             if (((Task<bool>)t).Result)
                                 ImGui.TextColored(Vec4(ColorName.Green),
-                                        $"BIS for Character { p.MainChar.Name} ({playableClass.ClassType}) succesfully updated");
+                                        $"BIS for Character {p.MainChar.Name} ({playableClass.Job}) succesfully updated");
                             else
                                 ImGui.TextColored(Vec4(ColorName.Red),
-                                        $"BIS for Character { p.MainChar.Name} ({playableClass.ClassType}) failed");
+                                        $"BIS for Character {p.MainChar.Name} ({playableClass.Job}) failed");
                         },
                         Task.Run(() => EtroConnector.GetGearSet(playableClass.BIS))));
                 }
@@ -114,9 +115,9 @@ namespace HimbeertoniRaidTool.LootMaster
              */
             ImGui.NextColumn();
             {
-                var playerRole = p.MainChar.MainClass.ClassType.GetRole();
-                var mainStat = p.MainChar.MainClass.ClassType.MainStat();
-                var weaponStat = (p.MainChar.MainClassType.GetRole() == Role.Healer || p.MainChar.MainClassType.GetRole() == Role.Caster) ?
+                var playerRole = p.MainChar.MainClass.Job.GetRole();
+                var mainStat = p.MainChar.MainClass.Job.MainStat();
+                var weaponStat = (p.MainChar.MainJob.GetRole() == Role.Healer || p.MainChar.MainJob.GetRole() == Role.Caster) ?
                     StatType.MagicalDamage : StatType.PhysicalDamage;
                 ImGui.TextColored(Vec4(ColorName.RedCrayola.ToRgb()),
                     Localize("StatsUnfinished", "Stats are under development and only work corrrectly for level 90 jobs"));
@@ -179,14 +180,14 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.Text(Stat(p.Gear).ToString());
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
-                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, Stat(p.Gear), p.MainChar.MainClass.Level, p.MainChar.MainClassType, i));
+                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, Stat(p.Gear), p.MainChar.MainClass.Level, p.MainChar.MainJob, i));
                     //BiS
                     ImGui.TableNextColumn();
                     ImGui.Text(Stat(p.BIS).ToString());
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
-                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, Stat(p.BIS), p.MainChar.MainClass.Level, p.MainChar.MainClassType, i));
-                    int Stat(GearSet gear) => AllaganLibrary.GetStatWithModifiers(type, gear.GetStat(type), p.MainChar.MainClass.Level, p.MainChar.MainClassType, p.MainChar.Race, p.MainChar.Clan);
+                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, Stat(p.BIS), p.MainChar.MainClass.Level, p.MainChar.MainJob, i));
+                    int Stat(GearSet gear) => AllaganLibrary.GetStatWithModifiers(type, gear.GetStat(type), p.MainChar.MainClass.Level, p.MainChar.MainJob, p.MainChar.Race, p.MainChar.Clan);
                 }
             }
             /**
@@ -351,7 +352,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 }
                 foreach (PartyMember p in players)
                 {
-                    if (!Enum.TryParse(p.ClassJob.GameData!.Abbreviation.RawString, out AvailableClasses c))
+                    if (!Enum.TryParse(p.ClassJob.GameData!.Abbreviation.RawString, out Job c))
                         continue;
                     Role r = c.GetRole();
                     switch (r)
@@ -399,9 +400,9 @@ namespace HimbeertoniRaidTool.LootMaster
                     int pos = 0;
                     while (group[(PositionInRaidGroup)pos].Filled) { pos++; }
                     if (pos > 7) break;
-                    FillPosition((PositionInRaidGroup)pos, pm, Enum.Parse<AvailableClasses>(pm.ClassJob.GameData!.Abbreviation.RawString));
+                    FillPosition((PositionInRaidGroup)pos, pm, Enum.Parse<Job>(pm.ClassJob.GameData!.Abbreviation.RawString));
                 }
-                void FillPosition(PositionInRaidGroup pos, PartyMember pm, AvailableClasses c)
+                void FillPosition(PositionInRaidGroup pos, PartyMember pm, Job c)
                 {
 
                     Player p = group[pos];
@@ -414,7 +415,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     if (!characterExisted)
                     {
                         p.MainChar.Classes.Clear();
-                        p.MainChar.MainClassType = c;
+                        p.MainChar.MainJob = c;
                         PlayerCharacter? pc = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
                         if (pc != null)
                         {
@@ -438,19 +439,19 @@ namespace HimbeertoniRaidTool.LootMaster
             {
 
                 ImGui.TableNextColumn();
-                ImGui.Text($"{player.Pos}  { player.NickName}");
-                ImGui.Text($"{ player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? "n.A."}");
+                ImGui.Text($"{player.Pos}  {player.NickName}");
+                ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? "n.A."}");
                 Character c = player.MainChar;
 
                 if (player.MainChar.Classes.Count > 1)
                 {
-                    int playerClass = player.MainChar.Classes.FindIndex(x => x.ClassType == player.MainChar.MainClassType);
-                    if (ImGui.Combo($"##Class{player.Pos}", ref playerClass, player.MainChar.Classes.ConvertAll(x => x.ClassType.ToString()).ToArray(),
+                    int playerClass = player.MainChar.Classes.FindIndex(x => x.Job == player.MainChar.MainJob);
+                    if (ImGui.Combo($"##Class{player.Pos}", ref playerClass, player.MainChar.Classes.ConvertAll(x => x.Job.ToString()).ToArray(),
                         player.MainChar.Classes.Count))
-                        player.MainChar.MainClassType = player.MainChar.Classes[playerClass].ClassType;
+                        player.MainChar.MainJob = player.MainChar.Classes[playerClass].Job;
                 }
                 else
-                    ImGui.Text(player.MainChar.MainClassType.ToString());
+                    ImGui.Text(player.MainChar.MainJob.ToString());
                 ImGui.SameLine();
                 ImGui.Text(string.Format(Localize("LvLShort", "Lvl: {0}"), player.MainChar.MainClass.Level));
                 GearSet gear = player.MainChar.MainClass.Gear;
@@ -538,10 +539,10 @@ namespace HimbeertoniRaidTool.LootMaster
                             {
                                 if (((Task<bool>)t).Result)
                                     ImGui.TextColored(Vec4(ColorName.Green),
-                                            $"BIS for Character { player.MainChar.Name} ({player.MainChar.MainClassType}) succesfully updated");
+                                            $"BIS for Character {player.MainChar.Name} ({player.MainChar.MainJob}) succesfully updated");
                                 else
                                     ImGui.TextColored(Vec4(ColorName.Red),
-                                            $"BIS for Character { player.MainChar.Name} ({player.MainChar.MainClassType}) failed");
+                                            $"BIS for Character {player.MainChar.Name} ({player.MainChar.MainJob}) failed");
                             },
                             Task.Run(() => EtroConnector.GetGearSet(player.BIS))));
                     }

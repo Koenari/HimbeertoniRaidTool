@@ -10,7 +10,7 @@ using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
 using static Dalamud.Localization;
-using static HimbeertoniRaidTool.Data.AvailableClasses;
+using static HimbeertoniRaidTool.Data.Job;
 
 namespace HimbeertoniRaidTool
 {
@@ -27,9 +27,9 @@ namespace HimbeertoniRaidTool
         private readonly int TargetVersion = 4;
         public int Version { get; set; } = 4;
         [JsonIgnore]
-        private readonly ReadOnlyDictionary<AvailableClasses, string> OldDefaultBIS =
-            new ReadOnlyDictionary<AvailableClasses, string>(
-            new Dictionary<AvailableClasses, string>
+        private readonly ReadOnlyDictionary<Job, string> OldDefaultBIS =
+            new ReadOnlyDictionary<Job, string>(
+            new Dictionary<Job, string>
         {
             { AST, "88647808-8a28-477b-b285-687bdcbff2d4" },
             { BLM, "327d090b-2d5a-4c3c-9eb9-8fd42342cce3" },
@@ -53,8 +53,8 @@ namespace HimbeertoniRaidTool
             { WHM, "e78a29e3-1dcf-4e53-bbcf-234f33b2c831" },
         });
         [JsonProperty("DefaultBIS")]
-        private Dictionary<AvailableClasses, string> BISUserOverride { get; set; } = new Dictionary<AvailableClasses, string>();
-        public string GetDefaultBiS(AvailableClasses c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : CuratedData.DefaultBIS[c];
+        private Dictionary<Job, string> BISUserOverride { get; set; } = new Dictionary<Job, string>();
+        public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : CuratedData.DefaultBIS[c];
         public LootRuling LootRuling { get; set; } = new();
         [JsonProperty]
         private RaidGroup? GroupInfo = null;
@@ -105,7 +105,7 @@ namespace HimbeertoniRaidTool
                         Save();
                         break;
                     case 3:
-                        foreach (var c in Enum.GetValues<AvailableClasses>())
+                        foreach (var c in Enum.GetValues<Job>())
                         {
                             if (BISUserOverride.ContainsKey(c) && BISUserOverride[c] == OldDefaultBIS[c])
                                 BISUserOverride.Remove(c);
@@ -189,7 +189,7 @@ namespace HimbeertoniRaidTool
                     {
                         if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
                         {
-                            foreach (var c in Enum.GetValues<AvailableClasses>())
+                            foreach (var c in Enum.GetValues<Job>())
                             {
                                 bool isOverriden = HRTPlugin.Configuration.BISUserOverride.ContainsKey(c);
                                 string value = HRTPlugin.Configuration.GetDefaultBiS(c);

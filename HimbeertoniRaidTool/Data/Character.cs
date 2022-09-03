@@ -13,8 +13,10 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty("Name")]
         public string Name = "";
         [JsonProperty("MainClassType")]
-        public AvailableClasses MainClassType = AvailableClasses.AST;
-        public PlayableClass MainClass => GetClass(MainClassType);
+        public AvailableClasses? oldMainClassType = AvailableClasses.AST;
+        [JsonProperty("MainJob")]
+        public Job MainJob;
+        public PlayableClass MainClass => GetClass(MainJob);
         [JsonProperty("WorldID")]
         public uint HomeWorldID;
         [JsonProperty("Race")]
@@ -30,13 +32,17 @@ namespace HimbeertoniRaidTool.Data
         }
         public bool Filled => Name != "";
         [JsonConstructor]
-        public Character(string name = "", uint worldID = 0)
+        public Character(string name = "", uint worldID = 0, AvailableClasses? oldMainClassType = null)
         {
             Name = name;
             HomeWorldID = worldID;
+            this.oldMainClassType = oldMainClassType;
+            if (oldMainClassType.HasValue)
+                MainJob = Enum.Parse<Job>(oldMainClassType.Value.ToString());
+            this.oldMainClassType = null;
         }
 
-        private PlayableClass AddClass(AvailableClasses ClassToAdd)
+        private PlayableClass AddClass(Job ClassToAdd)
         {
             PlayableClass toAdd = new(ClassToAdd, this);
             Classes.Add(toAdd);
@@ -44,9 +50,9 @@ namespace HimbeertoniRaidTool.Data
         }
         internal void CleanUpClasses() => Classes.RemoveAll(x => x.IsEmpty);
 
-        public PlayableClass GetClass(AvailableClasses type)
+        public PlayableClass GetClass(Job type)
         {
-            return Classes.Find(x => x.ClassType == type) ?? AddClass(type);
+            return Classes.Find(x => x.Job == type) ?? AddClass(type);
         }
 
         public bool Equals(Character? other)

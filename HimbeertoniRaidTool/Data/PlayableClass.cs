@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using static HimbeertoniRaidTool.DataManagement.DataManager;
 
 namespace HimbeertoniRaidTool.Data
@@ -7,26 +8,37 @@ namespace HimbeertoniRaidTool.Data
     public class PlayableClass
     {
         [JsonProperty("ClassType")]
-        public AvailableClasses ClassType;
+        public AvailableClasses? classType;
+        [JsonProperty("Job")]
+        public Job Job;
         [JsonProperty("Level")]
         public int Level = 1;
         [JsonProperty("Gear")]
         public GearSet Gear;
         [JsonProperty("BIS")]
         public GearSet BIS;
-        [JsonConstructor]
-        public PlayableClass(AvailableClasses classType)
+        public PlayableClass(Job classType)
         {
-            ClassType = classType;
+            Job = classType;
             Gear = new();
             BIS = new();
         }
-        public PlayableClass(AvailableClasses ClassNameArg, Character c)
+        [JsonConstructor]
+        private PlayableClass(AvailableClasses? classType)
         {
-            ClassType = ClassNameArg;
-            Gear = new(GearSetManager.HRT, c, ClassType);
+            this.classType = classType;
+            if (classType != null)
+                Job = Enum.Parse<Job>(classType.Value.ToString());
+            this.classType = null;
+            Gear = new();
+            BIS = new();
+        }
+        public PlayableClass(Job ClassNameArg, Character c)
+        {
+            Job = ClassNameArg;
+            Gear = new(GearSetManager.HRT, c, Job);
             GetManagedGearSet(ref Gear);
-            BIS = new(GearSetManager.HRT, c, ClassType, "BIS");
+            BIS = new(GearSetManager.HRT, c, Job, "BIS");
             GetManagedGearSet(ref BIS);
         }
         public bool IsEmpty => Level == 0 && Gear.IsEmpty && BIS.IsEmpty;
@@ -39,7 +51,7 @@ namespace HimbeertoniRaidTool.Data
         {
             if (other == null)
                 return false;
-            return ClassType == other.ClassType;
+            return Job == other.Job;
         }
     }
 }
