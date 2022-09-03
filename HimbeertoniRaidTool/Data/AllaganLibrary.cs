@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Lumina.Excel.GeneratedSheets;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -105,9 +106,9 @@ namespace HimbeertoniRaidTool.Data
                 _ => float.NaN
             };
         }
-        public static int GetStatWithModifiers(StatType type, int fromGear, int level, Job? job, string race, string clan)
+        public static int GetStatWithModifiers(StatType type, int fromGear, int level, ClassJob? job, Tribe tribe)
         {
-            return fromGear + (int)(GetBaseStat(type, level) * GetJobModifier(type, job)) + GetRacialModifier(type, race, clan);
+            return fromGear + (int)(GetBaseStat(type, level) * GetJobModifier(type, job)) + GetRacialModifier(type, tribe);
         }
         public static int GetBaseStat(StatType type, int level)
         {
@@ -124,38 +125,36 @@ namespace HimbeertoniRaidTool.Data
         }
 
 
-        public static float GetJobModifier(StatType statType, Job? job)
+        public static float GetJobModifier(StatType statType, ClassJob? job)
         {
-            string jobCol = statType switch
+            if (job is null)
+                return 1;
+            return statType switch
             {
-                StatType.Strength => "STR",
-                StatType.Dexterity => "DEX",
-                StatType.Intelligence => "INT",
-                StatType.Mind => "MND",
-                StatType.Vitality => "VIT",
-                StatType.HP => "HP",
-                StatType.MP => "MP",
-                _ => ""
-            };
-            return jobCol.Equals("") ? 1 :
-                GetTableData<int>(AllaganTables.Job, $"JOB = '{job}'", jobCol) / 100f;
+                StatType.Strength => job.ModifierStrength,
+                StatType.Dexterity => job.ModifierDexterity,
+                StatType.Intelligence => job.ModifierIntelligence,
+                StatType.Mind => job.ModifierMind,
+                StatType.Vitality => job.ModifierVitality,
+                StatType.HP => job.ModifierHitPoints,
+                StatType.MP => job.ModifierManaPoints,
+                StatType.Piety => job.ModifierPiety,
+                _ => 100
+            } / 100f;
         }
-        public static int GetRacialModifier(StatType type, string race, string clan)
+        public static int GetRacialModifier(StatType type, Tribe? t)
         {
-            string rowFilter = $"Clan = '{clan}' AND Race = '{race}'";
-            try
+            if (t is null)
+                return 0;
+            return type switch
             {
-                return type switch
-                {
-                    StatType.Strength => GetTableData<int>(AllaganTables.Racial, rowFilter, "STR"),
-                    StatType.Dexterity => GetTableData<int>(AllaganTables.Racial, rowFilter, "DEX"),
-                    StatType.Vitality => GetTableData<int>(AllaganTables.Racial, rowFilter, "VIT"),
-                    StatType.Intelligence => GetTableData<int>(AllaganTables.Racial, rowFilter, "INT"),
-                    StatType.Mind => GetTableData<int>(AllaganTables.Racial, rowFilter, "MND"),
-                    _ => 0
-                };
-            }
-            catch { return 0; }
+                StatType.Strength => t.STR,
+                StatType.Dexterity => t.DEX,
+                StatType.Vitality => t.VIT,
+                StatType.Intelligence => t.INT,
+                StatType.Mind => t.MND,
+                _ => 0
+            };
         }
         private static bool IsMainStat(StatType statType)
         {
@@ -167,12 +166,11 @@ namespace HimbeertoniRaidTool.Data
             DataTable dataTable = table switch
             {
                 AllaganTables.Level => AllaganLibraryData.Level,
-                AllaganTables.Job => AllaganLibraryData.Job,
-                AllaganTables.Racial => AllaganLibraryData.Racial,
                 _ => throw new NotImplementedException(),
             };
             return (T)dataTable.Select($"{whereClause}")[0][col];
         }
+
         public static void Dispose()
         {
             AllaganLibraryData.Dispose();
@@ -181,8 +179,6 @@ namespace HimbeertoniRaidTool.Data
         {
             private static bool _initialized = false;
             internal static DataTable Level = new DataTable("Level", "AllaganLibrary");
-            internal static DataTable Job = new DataTable("Job", "AllaganLibrary");
-            internal static DataTable Racial = new DataTable("Racial", "AllaganLibrary");
 
             internal static void Init()
             {
@@ -288,76 +284,6 @@ namespace HimbeertoniRaidTool.Data
                     Level.Rows.Add(90, 10000, 390, 400, 1900, 3000, 0, 0);
                     Level.AcceptChanges();
                 }
-                {
-                    Job.Columns.Add("JOBID", typeof(int));
-                    Job.Columns.Add("JOB", typeof(string));
-                    Job.Columns.Add("HP", typeof(int));
-                    Job.Columns.Add("MP", typeof(int));
-                    Job.Columns.Add("STR", typeof(int));
-                    Job.Columns.Add("VIT", typeof(int));
-                    Job.Columns.Add("DEX", typeof(int));
-                    Job.Columns.Add("INT", typeof(int));
-                    Job.Columns.Add("MND", typeof(int));
-                    Job.Rows.Add(1, "GLA", 130, 100, 95, 100, 90, 50, 95);
-                    Job.Rows.Add(2, "PGL", 105, 100, 100, 95, 100, 45, 85);
-                    Job.Rows.Add(3, "MRD", 135, 100, 100, 100, 90, 30, 50);
-                    Job.Rows.Add(4, "LNC", 110, 100, 105, 100, 95, 40, 60);
-                    Job.Rows.Add(5, "ARC", 100, 100, 85, 95, 105, 80, 75);
-                    Job.Rows.Add(6, "CNJ", 100, 100, 50, 95, 100, 100, 105);
-                    Job.Rows.Add(7, "THM", 100, 100, 40, 95, 95, 105, 70);
-                    Job.Rows.Add(19, "PLD", 140, 100, 100, 110, 95, 60, 100);
-                    Job.Rows.Add(20, "MNK", 110, 100, 110, 100, 105, 50, 90);
-                    Job.Rows.Add(21, "WAR", 145, 100, 105, 110, 95, 40, 55);
-                    Job.Rows.Add(22, "DRG", 115, 100, 115, 105, 100, 45, 65);
-                    Job.Rows.Add(23, "BRD", 105, 100, 90, 100, 115, 85, 80);
-                    Job.Rows.Add(24, "WHM", 105, 100, 55, 100, 105, 105, 115);
-                    Job.Rows.Add(25, "BLM", 105, 100, 45, 100, 100, 115, 75);
-                    Job.Rows.Add(26, "ACN", 100, 100, 85, 95, 95, 105, 75);
-                    Job.Rows.Add(27, "SMN", 105, 100, 90, 100, 100, 115, 80);
-                    Job.Rows.Add(28, "SCH", 105, 100, 90, 100, 100, 105, 115);
-                    Job.Rows.Add(29, "ROG", 103, 100, 80, 95, 100, 60, 70);
-                    Job.Rows.Add(30, "NIN", 108, 100, 85, 100, 110, 65, 75);
-                    Job.Rows.Add(31, "MCH", 105, 100, 85, 100, 115, 80, 85);
-                    Job.Rows.Add(32, "DRK", 140, 100, 105, 110, 95, 60, 40);
-                    Job.Rows.Add(33, "AST", 105, 100, 50, 100, 100, 105, 115);
-                    Job.Rows.Add(34, "SAM", 109, 100, 112, 100, 108, 60, 50);
-                    Job.Rows.Add(35, "RDM", 105, 100, 55, 100, 105, 115, 110);
-                    Job.Rows.Add(36, "BLU", 105, 100, 70, 100, 110, 115, 105);
-                    Job.Rows.Add(37, "GNB", 120, 100, 100, 110, 95, 60, 100);
-                    Job.Rows.Add(38, "DNC", 105, 100, 90, 100, 115, 85, 80);
-                    Job.Rows.Add(39, "RPR", 115, 100, 115, 105, 100, 80, 40);
-                    Job.Rows.Add(40, "SGE", 105, 100, 60, 100, 100, 115, 115);
-                    Job.AcceptChanges();
-
-                }
-                {
-                    Racial.Columns.Add("Clan", typeof(string));
-                    Racial.Columns.Add("Race", typeof(string));
-                    Racial.Columns.Add("STR", typeof(int));
-                    Racial.Columns.Add("DEX", typeof(int));
-                    Racial.Columns.Add("VIT", typeof(int));
-                    Racial.Columns.Add("INT", typeof(int));
-                    Racial.Columns.Add("MND", typeof(int));
-                    Racial.Rows.Add("Dunesfolk", "Lalafell", -1, 1, -2, 2, 3);
-                    Racial.Rows.Add("Duskwight", "Elezen", 0, 0, -1, 3, 1);
-                    Racial.Rows.Add("Helion", "Hrothgar", 3, -3, 3, -3, 3);
-                    Racial.Rows.Add("Hellsguard", "Roegadyn", 0, -2, 2, 0, 2);
-                    Racial.Rows.Add("Highlander", "Hyur", 3, 0, 2, -2, 0);
-                    Racial.Rows.Add("Midlander", "Hyur", 2, -1, 0, 3, -1);
-                    Racial.Rows.Add("Moon", "Miqote", -1, 2, -2, 1, 3);
-                    Racial.Rows.Add("Plainsfolk", "Lalafell", -1, 3, -1, 2, 0);
-                    Racial.Rows.Add("Raen", "Au Ra", -1, 2, -1, 0, 3);
-                    Racial.Rows.Add("Rava", "Viera", 0, 3, -2, 1, 1);
-                    Racial.Rows.Add("Sea Wolves", "Roegadyn", 2, -1, 3, -2, 1);
-                    Racial.Rows.Add("Sun", "Miqote", 2, 3, 0, -1, -1);
-                    Racial.Rows.Add("The Lost", "Hrothgar", 3, -3, 3, -3, 3);
-                    Racial.Rows.Add("Veena", "Viera", -1, 0, -1, 3, 2);
-                    Racial.Rows.Add("Wildwood", "Elezen", 0, 3, -1, 2, -1);
-                    Racial.Rows.Add("Xaela", "Au Ra", 3, 0, 2, 0, -2);
-                    Racial.AcceptChanges();
-
-
-                }
                 _initialized = true;
             }
             internal static void Dispose()
@@ -365,13 +291,7 @@ namespace HimbeertoniRaidTool.Data
                 if (!_initialized) return;
                 Level.Clear();
                 Level.Dispose();
-                Job.Clear();
-                Job.Dispose();
-                Racial.Clear();
-                Racial.Dispose();
                 Level = new DataTable("Level", "AllaganLibrary");
-                Job = new DataTable("Job", "AllaganLibrary");
-                Racial = new DataTable("Racial", "AllaganLibrary");
                 _initialized = false;
             }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using static HimbeertoniRaidTool.DataManagement.DataManager;
 
@@ -12,6 +13,8 @@ namespace HimbeertoniRaidTool.Data
         public AvailableClasses? classType;
         [JsonProperty("Job")]
         public Job Job;
+        [JsonIgnore]
+        public ClassJob ClassJob => Services.DataManager.GetExcelSheet<ClassJob>()!.GetRow((uint)Job)!;
         [JsonProperty("Level")]
         public int Level = 1;
         [JsonProperty("Gear")]

@@ -22,8 +22,10 @@ namespace HimbeertoniRaidTool.Data
         public uint HomeWorldID;
         [JsonProperty("Race")]
         public string Race = "";
-        [JsonProperty("Clan")]
-        public string Clan = "";
+        [JsonProperty("Tribe")]
+        public uint TribeID = 0;
+        [JsonIgnore]
+        public Tribe Tribe => Services.DataManager.GetExcelSheet<Tribe>()!.GetRow(TribeID)!;
         [JsonProperty("LodestoneID")]
         public int LodestoneID = 0;
         public World? HomeWorld
