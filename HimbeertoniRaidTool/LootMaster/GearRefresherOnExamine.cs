@@ -16,7 +16,7 @@ namespace HimbeertoniRaidTool.LootMaster
     {
         private static readonly bool HookLoadSuccessful;
         internal static readonly bool CanOpenExamine;
-        private static readonly Hook<CharacterInspectOnRefresh> Hook;
+        private static readonly Hook<CharacterInspectOnRefresh>? Hook;
         private static readonly IntPtr HookAddress;
         private static readonly IntPtr InventoryManagerAddress;
         private static readonly IntPtr getInventoryContainerPtr;
@@ -28,9 +28,9 @@ namespace HimbeertoniRaidTool.LootMaster
         private delegate InventoryItem* GetContainerSlot(InventoryContainer* inventoryContainer, int slotId);
         private delegate long RequestCharInfoDelegate(IntPtr ptr);
 
-        private static readonly GetInventoryContainer _getInventoryContainer;
-        private static readonly GetContainerSlot _getContainerSlot;
-        private static readonly RequestCharInfoDelegate _requestCharacterInfo;
+        private static readonly GetInventoryContainer? _getInventoryContainer;
+        private static readonly GetContainerSlot? _getContainerSlot;
+        private static readonly RequestCharInfoDelegate? _requestCharacterInfo;
         private static PlayerCharacter? TargetOverrride = null;
         static GearRefresherOnExamine()
         {
@@ -99,12 +99,12 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         internal static void Enable()
         {
-            if (HookLoadSuccessful) Hook.Enable();
+            if (HookLoadSuccessful && Hook is not null) Hook.Enable();
         }
 
         private static byte OnExamineRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* loadingStage)
         {
-            byte result = Hook.Original(atkUnitBase, a2, loadingStage);
+            byte result = Hook!.Original(atkUnitBase, a2, loadingStage);
             if (loadingStage != null && a2 > 0)
             {
                 if (loadingStage->UInt == 4)
@@ -117,7 +117,7 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         private static void GetItemInfos(AtkUnitBase* examineWindow)
         {
-            if (!HookLoadSuccessful)
+            if (!HookLoadSuccessful || _getInventoryContainer is null || _getContainerSlot is null)
                 return;
             //Get Chracter Information from examine window
             //There are two possible fields for name/title depending on their order
@@ -148,8 +148,8 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 target = Helper.TryGetChar(charNameFromExamine, worldFromExamine);
                 if (target is null)
+                {
                     target = Helper.TryGetChar(charNameFromExamine2, worldFromExamine);
-                if (target is not null)
                     charNameFromExamine = charNameFromExamine2;
             }
             if (target is null)
@@ -163,6 +163,7 @@ namespace HimbeertoniRaidTool.LootMaster
             if (!DataManagement.DataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
                 return;
             Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
+
             DataManagement.DataManager.GetManagedCharacter(ref targetChar);
             if (targetChar is null)
                 return;
@@ -187,6 +188,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (slot->ItemID == 0)
                     continue;
                 setToFill[(GearSetSlot)i] = new(slot->ItemID);
+                setToFill[(GearSetSlot)i].IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ);
                 for (int j = 0; j < 5; j++)
                 {
                     if (slot->Materia[j] == 0)

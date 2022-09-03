@@ -54,7 +54,7 @@ namespace HimbeertoniRaidTool
         });
         [JsonProperty("DefaultBIS")]
         private Dictionary<Job, string> BISUserOverride { get; set; } = new Dictionary<Job, string>();
-        public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : CuratedData.DefaultBIS[c];
+        public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : (CuratedData.DefaultBIS.ContainsKey(c) ? CuratedData.DefaultBIS[c] : "");
         public LootRuling LootRuling { get; set; } = new();
         [JsonProperty]
         private RaidGroup? GroupInfo = null;
@@ -223,6 +223,7 @@ namespace HimbeertoniRaidTool
                     }
                     if (ImGui.BeginTabItem("Loot"))
                     {
+                        ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref HRTPlugin.Configuration.LootRuling.StrictRooling);
                         LootList.Draw();
                         ImGui.EndTabItem();
                     }
