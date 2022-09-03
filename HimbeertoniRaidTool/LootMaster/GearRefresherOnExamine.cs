@@ -123,27 +123,25 @@ namespace HimbeertoniRaidTool.LootMaster
             //There are two possible fields for name/title depending on their order
             string charNameFromExamine = "";
             string charNameFromExamine2 = "";
-            int levelFromExamine;
             World? worldFromExamine;
-            string classFromExamine;
             try
             {
                 charNameFromExamine = examineWindow->UldManager.NodeList[60]->GetAsAtkTextNode()->NodeText.ToString();
                 charNameFromExamine2 = examineWindow->UldManager.NodeList[59]->GetAsAtkTextNode()->NodeText.ToString();
-                levelFromExamine = int.Parse(examineWindow->UldManager.NodeList[51]->GetAsAtkTextNode()->NodeText.ToString().Split(" ")[1]);
                 worldFromExamine = Helper.TryGetWorldByName(examineWindow->UldManager.NodeList[57]->GetAsAtkTextNode()->NodeText.ToString());
-                classFromExamine = examineWindow->UldManager.NodeList[50]->GetAsAtkTextNode()->NodeText.ToString();
 
             }
             catch (Exception)
             {
                 return;
             }
-            //Make sure examine window correspods to intended character
+            //Make sure examine window correspods to intended character and character info is fetchable
             PlayerCharacter? target = null;
             if (TargetOverrride is not null)
             {
-                target = TargetOverrride;
+                if (TargetOverrride.Name.Equals(charNameFromExamine) || TargetOverrride.Name.Equals(charNameFromExamine2))
+                    if (TargetOverrride.HomeWorld.GameData == worldFromExamine)
+                        target = TargetOverrride;
                 TargetOverrride = null;
             }
             else
@@ -153,16 +151,8 @@ namespace HimbeertoniRaidTool.LootMaster
                     target = Helper.TryGetChar(charNameFromExamine2, worldFromExamine);
                 if (target is not null)
                     charNameFromExamine = charNameFromExamine2;
-                else
-                    target = Helper.TargetChar;
             }
             if (target is null)
-                return;
-            if (!charNameFromExamine.Equals(target.Name.TextValue))
-                return;
-            if (worldFromExamine is null || worldFromExamine != target.HomeWorld.GameData)
-                return;
-            if (!classFromExamine.ToLower().Equals(target.ClassJob.GameData?.Name?.RawString.ToLower()))
                 return;
             if (target.GetJob() is null)
                 return;
@@ -170,9 +160,9 @@ namespace HimbeertoniRaidTool.LootMaster
             var objID = target.ObjectId;
             uint* ptr = (uint*)(void*)intPtr;
             //Do not execute on characters not part of any managed raid group
-            if (!DataManagement.DataManager.CharacterExists(worldFromExamine.RowId, charNameFromExamine))
+            if (!DataManagement.DataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
                 return;
-            Character targetChar = new(charNameFromExamine, worldFromExamine.RowId);
+            Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
             DataManagement.DataManager.GetManagedCharacter(ref targetChar);
             if (targetChar is null)
                 return;
@@ -181,10 +171,9 @@ namespace HimbeertoniRaidTool.LootMaster
             if (container == null)
                 return;
 
-
             //Getting level does not work in level synced content
-            if (levelFromExamine > targetChar.GetClass(targetClass).Level)
-                targetChar.GetClass(targetClass).Level = levelFromExamine;
+            if (target.Level > targetChar.GetClass(targetClass).Level)
+                targetChar.GetClass(targetClass).Level = target.Level;
             GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
             DataManagement.DataManager.GetManagedGearSet(ref setToFill);
 
