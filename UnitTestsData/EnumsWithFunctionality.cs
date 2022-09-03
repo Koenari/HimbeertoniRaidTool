@@ -19,7 +19,7 @@ namespace UnitTestsData
         public void AllCasesHandledForMainstat()
         {
             //var mock = new Moq.Mock<Dalamud>
-            foreach (AvailableClasses c in Enum.GetValues(typeof(AvailableClasses)))
+            foreach (Job c in Enum.GetValues(typeof(Job)))
             {
                 try
                 {
@@ -35,7 +35,7 @@ namespace UnitTestsData
         public void AllCasesHandledForRole()
         {
             //var mock = new Moq.Mock<Dalamud>
-            foreach (AvailableClasses c in Enum.GetValues(typeof(AvailableClasses)))
+            foreach (Job c in Enum.GetValues(typeof(Job)))
             {
                 Assert.NotEqual(Role.None, c.GetRole());
             }

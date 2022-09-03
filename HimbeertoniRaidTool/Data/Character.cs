@@ -13,29 +13,45 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty("Name")]
         public string Name = "";
         [JsonProperty("MainClassType")]
-        public AvailableClasses MainClassType = AvailableClasses.AST;
-        public PlayableClass MainClass => GetClass(MainClassType);
+        [Obsolete]
+        public AvailableClasses? oldMainClassType = AvailableClasses.AST;
+        [JsonProperty("MainJob")]
+        public Job? MainJob;
+        public PlayableClass? MainClass => MainJob.HasValue ? GetClass(MainJob.Value) : null;
         [JsonProperty("WorldID")]
         public uint HomeWorldID;
         [JsonProperty("Race")]
         public string Race = "";
-        [JsonProperty("Clan")]
-        public string Clan = "";
-
+        [JsonProperty("Tribe")]
+        public uint TribeID = 0;
+        [JsonIgnore]
+        public Tribe Tribe => Services.DataManager.GetExcelSheet<Tribe>()!.GetRow(TribeID)!;
+        [JsonProperty("LodestoneID")]
+        public int LodestoneID = 0;
         public World? HomeWorld
         {
             get => HomeWorldID > 0 ? Services.DataManager.GetExcelSheet<World>()?.GetRow(HomeWorldID) : null;
             set => HomeWorldID = value?.RowId ?? 0;
         }
         public bool Filled => Name != "";
-        [JsonConstructor]
         public Character(string name = "", uint worldID = 0)
         {
             Name = name;
             HomeWorldID = worldID;
         }
+        [JsonConstructor]
+        [Obsolete]
+        private Character(string name = "", uint worldID = 0, AvailableClasses? oldMainClassType = null)
+        {
+            Name = name;
+            HomeWorldID = worldID;
+            this.oldMainClassType = oldMainClassType;
+            if (oldMainClassType.HasValue)
+                MainJob = Enum.Parse<Job>(oldMainClassType.Value.ToString());
+            this.oldMainClassType = null;
+        }
 
-        private PlayableClass AddClass(AvailableClasses ClassToAdd)
+        private PlayableClass AddClass(Job ClassToAdd)
         {
             PlayableClass toAdd = new(ClassToAdd, this);
             Classes.Add(toAdd);
@@ -43,9 +59,9 @@ namespace HimbeertoniRaidTool.Data
         }
         internal void CleanUpClasses() => Classes.RemoveAll(x => x.IsEmpty);
 
-        public PlayableClass GetClass(AvailableClasses type)
+        public PlayableClass GetClass(Job type)
         {
-            return Classes.Find(x => x.ClassType == type) ?? AddClass(type);
+            return Classes.Find(x => x.Job == type) ?? AddClass(type);
         }
 
         public bool Equals(Character? other)

@@ -123,28 +123,25 @@ namespace HimbeertoniRaidTool.LootMaster
             //There are two possible fields for name/title depending on their order
             string charNameFromExamine = "";
             string charNameFromExamine2 = "";
-            int levelFromExamine;
             World? worldFromExamine;
-            string classFromExamine;
-            bool ignoreExamine = false;
             try
             {
                 charNameFromExamine = examineWindow->UldManager.NodeList[60]->GetAsAtkTextNode()->NodeText.ToString();
                 charNameFromExamine2 = examineWindow->UldManager.NodeList[59]->GetAsAtkTextNode()->NodeText.ToString();
-                levelFromExamine = int.Parse(examineWindow->UldManager.NodeList[51]->GetAsAtkTextNode()->NodeText.ToString().Split(" ")[1]);
                 worldFromExamine = Helper.TryGetWorldByName(examineWindow->UldManager.NodeList[57]->GetAsAtkTextNode()->NodeText.ToString());
-                classFromExamine = examineWindow->UldManager.NodeList[50]->GetAsAtkTextNode()->NodeText.ToString();
 
             }
             catch (Exception)
             {
                 return;
             }
-            //Make sure examine window correspods to intended character
+            //Make sure examine window correspods to intended character and character info is fetchable
             PlayerCharacter? target = null;
             if (TargetOverrride is not null)
             {
-                target = TargetOverrride;
+                if (TargetOverrride.Name.Equals(charNameFromExamine) || TargetOverrride.Name.Equals(charNameFromExamine2))
+                    if (TargetOverrride.HomeWorld.GameData == worldFromExamine)
+                        target = TargetOverrride;
                 TargetOverrride = null;
             }
             else
@@ -154,65 +151,50 @@ namespace HimbeertoniRaidTool.LootMaster
                 {
                     target = Helper.TryGetChar(charNameFromExamine2, worldFromExamine);
                     charNameFromExamine = charNameFromExamine2;
-                    if (target is null)
-                    {
-                        target = Helper.TargetChar;
-                        ignoreExamine = true;
-                    }
-
                 }
-            }
-            if (target is null)
-                return;
-            if (!ignoreExamine)
-            {
-                if (!charNameFromExamine.Equals(target.Name.TextValue))
+                if (target is null)
                     return;
-                if (worldFromExamine is null || worldFromExamine != target.HomeWorld.GameData)
+                if (target.GetJob() is null)
                     return;
-                if (!classFromExamine.ToLower().Equals(target.ClassJob.GameData?.Name?.RawString.ToLower()))
+                IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
+                var objID = target.ObjectId;
+                uint* ptr = (uint*)(void*)intPtr;
+                //Do not execute on characters not part of any managed raid group
+                if (!DataManagement.DataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
                     return;
-            }
-            if (target.GetClass() is null)
-                return;
-            IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
-            var objID = target.ObjectId;
-            uint* ptr = (uint*)(void*)intPtr;
-            //Do not execute on characters not part of any managed raid group
-            if (!DataManagement.DataManager.CharacterExists(target.HomeWorld.GameData?.RowId ?? 0, charNameFromExamine))
-                return;
-            Character targetChar = new(charNameFromExamine, target.HomeWorld.GameData?.RowId ?? 0);
-            DataManagement.DataManager.GetManagedCharacter(ref targetChar);
-            if (targetChar is null)
-                return;
-            AvailableClasses targetClass = (AvailableClasses)target.GetClass()!;
-            InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
-            if (container == null)
-                return;
+                Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
 
+                DataManagement.DataManager.GetManagedCharacter(ref targetChar);
+                if (targetChar is null)
+                    return;
+                Job targetClass = (Job)target.GetJob()!;
+                InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
+                if (container == null)
+                    return;
 
-            //Getting level does not work in level synced content
-            if (levelFromExamine > targetChar.GetClass(targetClass).Level)
-                targetChar.GetClass(targetClass).Level = levelFromExamine;
-            GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
-            DataManagement.DataManager.GetManagedGearSet(ref setToFill);
+                //Getting level does not work in level synced content
+                if (target.Level > targetChar.GetClass(targetClass).Level)
+                    targetChar.GetClass(targetClass).Level = target.Level;
+                GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
+                DataManagement.DataManager.GetManagedGearSet(ref setToFill);
 
-            setToFill.Clear();
-            setToFill.TimeStamp = DateTime.UtcNow;
-            for (int i = 0; i < 13; i++)
-            {
-                if (i == (int)GearSetSlot.Waist)
-                    continue;
-                InventoryItem* slot = _getContainerSlot(container, i);
-                if (slot->ItemID == 0)
-                    continue;
-                setToFill[(GearSetSlot)i] = new(slot->ItemID);
-                setToFill[(GearSetSlot)i].IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ);
-                for (int j = 0; j < 5; j++)
+                setToFill.Clear();
+                setToFill.TimeStamp = DateTime.UtcNow;
+                for (int i = 0; i < 13; i++)
                 {
-                    if (slot->Materia[j] == 0)
-                        break;
-                    setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
+                    if (i == (int)GearSetSlot.Waist)
+                        continue;
+                    InventoryItem* slot = _getContainerSlot(container, i);
+                    if (slot->ItemID == 0)
+                        continue;
+                    setToFill[(GearSetSlot)i] = new(slot->ItemID);
+                    setToFill[(GearSetSlot)i].IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ);
+                    for (int j = 0; j < 5; j++)
+                    {
+                        if (slot->Materia[j] == 0)
+                            break;
+                        setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
+                    }
                 }
             }
         }

@@ -112,7 +112,7 @@ namespace HimbeertoniRaidTool.LootMaster
                                     ImGui.TableNextColumn();
                                     ImGui.Text(place.ToString());
                                     ImGui.TableNextColumn();
-                                    ImGui.Text($"{looter.Player.NickName} ({looter.Player.MainChar.MainClassType})");
+                                    ImGui.Text($"{looter.Player.NickName} ({looter.Player.MainChar.MainJob})");
                                     ImGui.TableNextColumn();
                                     ImGui.Text(looter.Reason);
                                     ImGui.TableNextColumn();

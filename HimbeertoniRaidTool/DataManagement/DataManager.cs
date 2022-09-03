@@ -21,7 +21,7 @@ namespace HimbeertoniRaidTool.DataManagement
             Formatting = Formatting.Indented,
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
             TypeNameHandling = TypeNameHandling.None,
-
+            NullValueHandling = NullValueHandling.Ignore,
         };
 
         public static void Init(bool reset = false)
@@ -75,7 +75,7 @@ namespace HimbeertoniRaidTool.DataManagement
             for (int i = 0; i < c.Classes.Count; i++)
             {
                 string oldID = c.Classes[i].Gear.HrtID;
-                c.Classes[i].Gear.UpdateID(c, c.Classes[i].ClassType);
+                c.Classes[i].Gear.UpdateID(c, c.Classes[i].Job);
                 RearrangeGearSet(oldID, ref c.Classes[i].Gear);
             }
         }
@@ -100,7 +100,7 @@ namespace HimbeertoniRaidTool.DataManagement
                         {
                             PlayableClass pc = c.Classes[l];
                             pc.Gear.Name = "HrtCurrent";
-                            pc.Gear.HrtID = GearSet.GenerateID(c, pc.ClassType, pc.Gear);
+                            pc.Gear.HrtID = GearSet.GenerateID(c, pc.Job, pc.Gear);
                             pc.BIS.ManagedBy = GearSetManager.Etro;
                             pc.ManageGear();
                         }

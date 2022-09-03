@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using ColorHelper;
+using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using ImGuiNET;
-using Lumina.Text;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
@@ -19,6 +19,9 @@ namespace HimbeertoniRaidTool.UI
         private readonly bool IsNew;
         private static readonly string[] Worlds;
         private static readonly uint[] WorldIDs;
+        private static readonly string[] Jobs;
+        private static readonly byte[] JobIDs;
+
         internal PositionInRaidGroup Pos => Player.Pos;
 
         static EditPlayerWindow()
@@ -36,6 +39,8 @@ namespace HimbeertoniRaidTool.UI
             WorldIDs[0] = 0;
             for (int i = 0; i < WorldList.Count; i++)
                 (WorldIDs[i + 1], Worlds[i + 1]) = WorldList[i];
+            Jobs = Enum.GetNames<Job>();
+            JobIDs = Array.ConvertAll(Enum.GetValues<Job>(), (x) => (byte)x);
         }
         internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, bool openHidden = false) : base()
         {
@@ -49,7 +54,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy.MainChar.Name = target.Name.TextValue;
                 PlayerCopy.MainChar.HomeWorldID = target.HomeWorld.Id;
-                PlayerCopy.MainChar.MainClassType = target.GetClass() ?? AvailableClasses.AST;
+                PlayerCopy.MainChar.MainJob = target.GetJob() ?? Job.AST;
             }
             else if (Player.Filled)
             {
@@ -82,26 +87,28 @@ namespace HimbeertoniRaidTool.UI
                     if (ImGuiHelper.Button(Localize("Get", "Get"), Localize("FetchHomeworldTooltip", "Fetch home world information based on character name (from local players)")))
                         PlayerCopy.MainChar.HomeWorld = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.HomeWorld.GameData;
                 }
-                int mainClass = (int)PlayerCopy.MainChar.MainClassType;
-                if (ImGui.Combo(Localize("Main Class", "Main Class"), ref mainClass, Enum.GetNames(typeof(AvailableClasses)), Enum.GetNames(typeof(AvailableClasses)).Length))
-                    PlayerCopy.MainChar.MainClassType = (AvailableClasses)mainClass;
-                AvailableClasses? curClass = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.GetClass();
-                if (curClass is not null && curClass != PlayerCopy.MainChar.MainClassType)
+                int mainClass = (int)(PlayerCopy.MainChar.MainJob ?? 0);
+                if (ImGui.Combo(Localize("Main Class", "Main Class"), ref mainClass, Enum.GetNames(typeof(Job)), Enum.GetNames(typeof(Job)).Length))
+                    PlayerCopy.MainChar.MainJob = (Job)mainClass;
+                Job? curClass = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.GetJob();
+                if (curClass is not null && curClass != PlayerCopy.MainChar.MainJob)
                 {
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(Localize("Current", "Current"),
                         Localize("CurrentClassTooltip", "Fetch curretn class of character")))
                     {
-                        PlayerCopy.MainChar.MainClassType = (AvailableClasses)curClass;
+                        PlayerCopy.MainChar.MainJob = (Job)curClass;
                     }
                 }
-                ImGui.InputText(Localize("BIS", "BIS"), ref PlayerCopy.MainChar.MainClass.BIS.EtroID, 100);
+                string BISRef = PlayerCopy.MainChar.MainClass?.BIS.EtroID ?? "";
+                if (ImGui.InputText(Localize("BIS", "BIS"), ref BISRef, 100, PlayerCopy.MainChar.MainClass is null ? ImGuiInputTextFlags.ReadOnly : ImGuiInputTextFlags.None))
+                    PlayerCopy.MainChar.MainClass!.BIS.EtroID = BISRef;
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(Localize("Default", "Default") + "##BIS", Localize("DefaultBiSTooltip", "Fetch default value from configuration")))
-                    PlayerCopy.BIS.EtroID = HRTPlugin.Configuration.GetDefaultBiS(PlayerCopy.MainChar.MainClass.ClassType);
+                if (ImGuiHelper.Button(Localize("Default", "Default") + "##BIS", Localize("DefaultBiSTooltip", "Fetch default value from configuration"), PlayerCopy.MainChar.MainClass is not null))
+                    PlayerCopy.BIS.EtroID = HRTPlugin.Configuration.GetDefaultBiS(PlayerCopy.MainChar.MainClass!.Job);
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(Localize("Reset", "Reset") + "##BIS", Localize("ResetBisTooltip", "Empty out BiS gear")))
-                    PlayerCopy.MainChar.MainClass.BIS.EtroID = "";
+                if (ImGuiHelper.Button(Localize("Reset", "Reset") + "##BIS", Localize("ResetBisTooltip", "Empty out BiS gear"), PlayerCopy.MainChar.MainClass is not null))
+                    PlayerCopy.MainChar.MainClass!.BIS.EtroID = "";
                 if (ImGuiHelper.SaveButton(Localize("Save Player", "Save Player")))
                 {
                     SavePlayer();
@@ -115,7 +122,7 @@ namespace HimbeertoniRaidTool.UI
         }
         private void SavePlayer()
         {
-            List<(AvailableClasses, Func<bool>)> bisUpdates = new();
+            List<(Job, Func<bool>)> bisUpdates = new();
             Player.NickName = PlayerCopy.NickName;
             if (IsNew)
             {
@@ -135,10 +142,10 @@ namespace HimbeertoniRaidTool.UI
                 DataManagement.DataManager.RearrangeCharacter(oldWorld, oldName, ref c);
                 Player.MainChar = c;
             }
-            Player.MainChar.MainClassType = PlayerCopy.MainChar.MainClassType;
+            Player.MainChar.MainJob = PlayerCopy.MainChar.MainJob;
             foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
             {
-                PlayableClass target = Player.MainChar.GetClass(c.ClassType);
+                PlayableClass target = Player.MainChar.GetClass(c.Job);
                 if (target.BIS.EtroID.Equals(c.BIS.EtroID))
                     continue;
                 GearSet set = new()
@@ -149,7 +156,7 @@ namespace HimbeertoniRaidTool.UI
                 if (!set.EtroID.Equals(""))
                 {
                     DataManagement.DataManager.GearDB.AddOrGetSet(ref set);
-                    bisUpdates.Add((target.ClassType, () => EtroConnector.GetGearSet(target.BIS)));
+                    bisUpdates.Add((target.Job, () => EtroConnector.GetGearSet(target.BIS)));
                 }
                 target.BIS = set;
             }
@@ -160,7 +167,7 @@ namespace HimbeertoniRaidTool.UI
                     {
                         string success = "";
                         string error = "";
-                        List<(AvailableClasses, bool)> results = ((Task<List<(AvailableClasses, bool)>>)t).Result;
+                        List<(Job, bool)> results = ((Task<List<(Job, bool)>>)t).Result;
                         foreach (var result in results)
                         {
                             if (result.Item2)
