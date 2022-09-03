@@ -151,49 +151,50 @@ namespace HimbeertoniRaidTool.LootMaster
                 {
                     target = Helper.TryGetChar(charNameFromExamine2, worldFromExamine);
                     charNameFromExamine = charNameFromExamine2;
-            }
-            if (target is null)
-                return;
-            if (target.GetJob() is null)
-                return;
-            IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
-            var objID = target.ObjectId;
-            uint* ptr = (uint*)(void*)intPtr;
-            //Do not execute on characters not part of any managed raid group
-            if (!DataManagement.DataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
-                return;
-            Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
+                }
+                if (target is null)
+                    return;
+                if (target.GetJob() is null)
+                    return;
+                IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
+                var objID = target.ObjectId;
+                uint* ptr = (uint*)(void*)intPtr;
+                //Do not execute on characters not part of any managed raid group
+                if (!DataManagement.DataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
+                    return;
+                Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
 
-            DataManagement.DataManager.GetManagedCharacter(ref targetChar);
-            if (targetChar is null)
-                return;
-            Job targetClass = (Job)target.GetJob()!;
-            InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
-            if (container == null)
-                return;
+                DataManagement.DataManager.GetManagedCharacter(ref targetChar);
+                if (targetChar is null)
+                    return;
+                Job targetClass = (Job)target.GetJob()!;
+                InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
+                if (container == null)
+                    return;
 
-            //Getting level does not work in level synced content
-            if (target.Level > targetChar.GetClass(targetClass).Level)
-                targetChar.GetClass(targetClass).Level = target.Level;
-            GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
-            DataManagement.DataManager.GetManagedGearSet(ref setToFill);
+                //Getting level does not work in level synced content
+                if (target.Level > targetChar.GetClass(targetClass).Level)
+                    targetChar.GetClass(targetClass).Level = target.Level;
+                GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
+                DataManagement.DataManager.GetManagedGearSet(ref setToFill);
 
-            setToFill.Clear();
-            setToFill.TimeStamp = DateTime.UtcNow;
-            for (int i = 0; i < 13; i++)
-            {
-                if (i == (int)GearSetSlot.Waist)
-                    continue;
-                InventoryItem* slot = _getContainerSlot(container, i);
-                if (slot->ItemID == 0)
-                    continue;
-                setToFill[(GearSetSlot)i] = new(slot->ItemID);
-                setToFill[(GearSetSlot)i].IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ);
-                for (int j = 0; j < 5; j++)
+                setToFill.Clear();
+                setToFill.TimeStamp = DateTime.UtcNow;
+                for (int i = 0; i < 13; i++)
                 {
-                    if (slot->Materia[j] == 0)
-                        break;
-                    setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
+                    if (i == (int)GearSetSlot.Waist)
+                        continue;
+                    InventoryItem* slot = _getContainerSlot(container, i);
+                    if (slot->ItemID == 0)
+                        continue;
+                    setToFill[(GearSetSlot)i] = new(slot->ItemID);
+                    setToFill[(GearSetSlot)i].IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ);
+                    for (int j = 0; j < 5; j++)
+                    {
+                        if (slot->Materia[j] == 0)
+                            break;
+                        setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
+                    }
                 }
             }
         }

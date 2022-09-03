@@ -188,7 +188,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
                         ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, Stat(p.BIS), p.MainChar.MainClass.Level, p.MainChar.MainJob, i));
-                    int Stat(GearSet gear) => AllaganLibrary.GetStatWithModifiers(type, gear.GetStat(type), p.MainChar.MainClass.Level, p.MainChar.MainClass.ClassJob, p.MainChar.Tribe);
+                    int Stat(GearSet gear) => AllaganLibrary.GetStatWithModifiers(type, gear.GetStat(type), p.MainChar.MainClass.Level, p.MainChar.MainJob, p.MainChar.Tribe);
                 }
             }
             /**

@@ -96,7 +96,7 @@ namespace HimbeertoniRaidTool.Data
                          _ => float.NaN
                      },
                 StatType.Defense or StatType.MagicDefense => MathF.Floor(15 * totalStat / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")) / 100f,
-                StatType.Vitality => MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", "HP") * (job.HasValue ? GetTableData<int>(AllaganTables.Job, $"JOB = '{job}'", "HP") : 100) / 100f)
+                StatType.Vitality => MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", "HP") * GetJobModifier(StatType.Vitality, job.GetClassJob()))
                     + (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "Main")) *
                     job.GetRole() switch
                     {
@@ -106,9 +106,9 @@ namespace HimbeertoniRaidTool.Data
                 _ => float.NaN
             };
         }
-        public static int GetStatWithModifiers(StatType type, int fromGear, int level, ClassJob? job, Tribe tribe)
+        public static int GetStatWithModifiers(StatType type, int fromGear, int level, Job? job, Tribe tribe)
         {
-            return fromGear + (int)(GetBaseStat(type, level) * GetJobModifier(type, job)) + GetRacialModifier(type, tribe);
+            return fromGear + (int)(GetBaseStat(type, level) * GetJobModifier(type, job.GetClassJob())) + GetRacialModifier(type, tribe);
         }
         public static int GetBaseStat(StatType type, int level)
         {
@@ -299,9 +299,7 @@ namespace HimbeertoniRaidTool.Data
     }
     public enum AllaganTables
     {
-        Level,
-        Job,
-        Racial
+        Level
     }
 
 }

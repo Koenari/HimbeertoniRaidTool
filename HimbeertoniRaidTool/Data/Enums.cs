@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using Lumina.Excel.GeneratedSheets;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.Data
@@ -363,7 +364,8 @@ namespace HimbeertoniRaidTool.Data
         public static Role GetRole(this Job? c) => c.HasValue ? GetRole(c.Value) : Role.None;
         public static Role GetRole(this Job c) =>
             c.GetAttribute<RoleAttribute>()?.Role ?? Role.None;
-
+        public static ClassJob? GetClassJob(this Job? c) =>
+            Services.DataManager.GetExcelSheet<ClassJob>()?.GetRow((uint)(c ?? 0));
         public static T? GetAttribute<T>(this Enum field) where T : Attribute
         {
             return
