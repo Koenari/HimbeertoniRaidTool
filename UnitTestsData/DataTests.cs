@@ -70,5 +70,17 @@ namespace UnitTestsData
 
 
         }
+
+        [Fact]
+        public void MateriaReorganize()
+        {
+            GearItem g1 = new(2000);
+            g1.Materia.Add(new HrtMateria(MateriaCategory.DirectHit, 10));
+            g1.Materia.Add(new HrtMateria(MateriaCategory.CriticalHit, 10));
+            GearItem g2 = new(2000);
+            g2.Materia.Add(new HrtMateria(MateriaCategory.CriticalHit, 10));
+            g2.Materia.Add(new HrtMateria(MateriaCategory.DirectHit, 10));
+            Assert.Equal(g1, g2);
+        }
     }
 }

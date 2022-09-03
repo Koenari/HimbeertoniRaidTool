@@ -1,5 +1,5 @@
-﻿using HimbeertoniRaidTool.Data;
-using System;
+﻿using System;
+using HimbeertoniRaidTool.Data;
 using Xunit;
 namespace UnitTestsData
 {
@@ -34,10 +34,10 @@ namespace UnitTestsData
         [Fact]
         public void AllCasesHandledForRole()
         {
-            //var mock = new Moq.Mock<Dalamud>
             foreach (Job c in Enum.GetValues(typeof(Job)))
             {
-                Assert.NotEqual(Role.None, c.GetRole());
+                if (c != Job.ADV)
+                    Assert.NotEqual(Role.None, c.GetRole());
             }
         }
     }

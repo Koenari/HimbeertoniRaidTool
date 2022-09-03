@@ -199,6 +199,7 @@ namespace HimbeertoniRaidTool.LootMaster
             ImGui.TableSetupColumn("Gear");
             ImGui.TableSetupColumn("Gear");
             ImGui.TableHeadersRow();
+            bool ringsSwapped = p.Gear.Ring1.ID == p.BIS.Ring2.ID || p.Gear.Ring2.ID == p.BIS.Ring1.ID;
             DrawSlot(p.Gear.MainHand, p.BIS.MainHand, true);
             DrawSlot(p.Gear.OffHand, p.BIS.OffHand, true);
             DrawSlot(p.Gear.Head, p.BIS.Head, true);
@@ -208,9 +209,9 @@ namespace HimbeertoniRaidTool.LootMaster
             DrawSlot(p.Gear.Hands, p.BIS.Hands, true);
             DrawSlot(p.Gear.Wrist, p.BIS.Wrist, true);
             DrawSlot(p.Gear.Legs, p.BIS.Legs, true);
-            DrawSlot(p.Gear.Ring1, p.BIS.Ring1, true);
+            DrawSlot(p.Gear.Ring1, ringsSwapped ? p.BIS.Ring2 : p.BIS.Ring1, true);
             DrawSlot(p.Gear.Feet, p.BIS.Feet, true);
-            DrawSlot(p.Gear.Ring2, p.BIS.Ring2, true);
+            DrawSlot(p.Gear.Ring2, ringsSwapped ? p.BIS.Ring1 : p.BIS.Ring2, true);
             ImGui.EndTable();
             ImGui.EndChild();
         }
