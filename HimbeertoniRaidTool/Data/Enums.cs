@@ -111,7 +111,7 @@ namespace HimbeertoniRaidTool.Data
         CNJ
     }
 
-    public enum Job
+    public enum Job : byte
     {
         ADV = 0,
         [Role(Role.Healer)]
@@ -360,6 +360,7 @@ namespace HimbeertoniRaidTool.Data
             StatType.Tenacity => Localize("TEN", "TEN"),
             _ => "XXX",
         };
+        public static Role GetRole(this Job? c) => c.HasValue ? GetRole(c.Value) : Role.None;
         public static Role GetRole(this Job c) =>
             c.GetAttribute<RoleAttribute>()?.Role ?? Role.None;
 

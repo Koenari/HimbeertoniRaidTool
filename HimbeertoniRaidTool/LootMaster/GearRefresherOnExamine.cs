@@ -164,7 +164,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 return;
             if (!classFromExamine.ToLower().Equals(target.ClassJob.GameData?.Name?.RawString.ToLower()))
                 return;
-            if (target.GetClass() is null)
+            if (target.GetJob() is null)
                 return;
             IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
             var objID = target.ObjectId;
@@ -176,7 +176,7 @@ namespace HimbeertoniRaidTool.LootMaster
             DataManagement.DataManager.GetManagedCharacter(ref targetChar);
             if (targetChar is null)
                 return;
-            Job targetClass = (Job)target.GetClass()!;
+            Job targetClass = (Job)target.GetJob()!;
             InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
             if (container == null)
                 return;

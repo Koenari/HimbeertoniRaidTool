@@ -114,6 +114,7 @@ namespace HimbeertoniRaidTool.LootMaster
              * Stat Table
              */
             ImGui.NextColumn();
+            if (p.MainChar.MainClass is not null && p.MainChar.MainJob is not null)
             {
                 var playerRole = p.MainChar.MainClass.Job.GetRole();
                 var mainStat = p.MainChar.MainClass.Job.MainStat();
@@ -419,7 +420,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         PlayerCharacter? pc = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
                         if (pc != null)
                         {
-                            p.MainChar.MainClass.Level = pc.Level;
+                            p.MainChar.MainClass!.Level = pc.Level;
                             GearSet BIS = new()
                             {
                                 ManagedBy = GearSetManager.Etro,
@@ -453,9 +454,9 @@ namespace HimbeertoniRaidTool.LootMaster
                 else
                     ImGui.Text(player.MainChar.MainJob.ToString());
                 ImGui.SameLine();
-                ImGui.Text(string.Format(Localize("LvLShort", "Lvl: {0}"), player.MainChar.MainClass.Level));
-                GearSet gear = player.MainChar.MainClass.Gear;
-                GearSet bis = player.MainChar.MainClass.BIS;
+                ImGui.Text(string.Format(Localize("LvLShort", "Lvl: {0}"), player.MainChar.MainClass?.Level ?? 1));
+                GearSet gear = player.Gear;
+                GearSet bis = player.BIS;
                 ImGui.TableNextColumn();
                 ImGui.Text(gear.ItemLevel.ToString());
                 if (ImGui.IsItemHovered())

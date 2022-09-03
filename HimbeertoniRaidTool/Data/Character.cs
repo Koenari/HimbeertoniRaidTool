@@ -13,10 +13,11 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty("Name")]
         public string Name = "";
         [JsonProperty("MainClassType")]
+        [Obsolete]
         public AvailableClasses? oldMainClassType = AvailableClasses.AST;
         [JsonProperty("MainJob")]
-        public Job MainJob;
-        public PlayableClass MainClass => GetClass(MainJob);
+        public Job? MainJob;
+        public PlayableClass? MainClass => MainJob.HasValue ? GetClass(MainJob.Value) : null;
         [JsonProperty("WorldID")]
         public uint HomeWorldID;
         [JsonProperty("Race")]
@@ -31,8 +32,14 @@ namespace HimbeertoniRaidTool.Data
             set => HomeWorldID = value?.RowId ?? 0;
         }
         public bool Filled => Name != "";
+        public Character(string name = "", uint worldID = 0)
+        {
+            Name = name;
+            HomeWorldID = worldID;
+        }
         [JsonConstructor]
-        public Character(string name = "", uint worldID = 0, AvailableClasses? oldMainClassType = null)
+        [Obsolete]
+        private Character(string name = "", uint worldID = 0, AvailableClasses? oldMainClassType = null)
         {
             Name = name;
             HomeWorldID = worldID;

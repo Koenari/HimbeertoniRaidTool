@@ -23,7 +23,7 @@ namespace HimbeertoniRaidTool.Data
         /// <param name="job">current job</param>
         /// <param name="alternative">a way to use alternative formulas for stats that have multiple effects (0 is default furmula)</param>
         /// <returns>Evaluated value including unit</returns>
-        public static string EvaluateStatToDisplay(StatType type, int totalStat, int level, Job job, int alternative = 0)
+        public static string EvaluateStatToDisplay(StatType type, int totalStat, int level, Job? job, int alternative = 0)
         {
             string notAvail = "n.A.";
             float evaluatedValue = EvaluateStat(type, totalStat, level, job, alternative);
@@ -63,7 +63,7 @@ namespace HimbeertoniRaidTool.Data
         /// <param name="job">current job</param>
         /// <param name="alternative">a way to use alternative formulas for stats that have multiple effects (0 is default furmula)</param>
         /// <returns>Evaluated value (percentage values are in mathematical correct value, means 100% = 1.0)</returns>
-        public static float EvaluateStat(StatType type, int totalStat, int level, Job job, int alternative = 0)
+        public static float EvaluateStat(StatType type, int totalStat, int level, Job? job, int alternative = 0)
         {
             if (level < 90)
                 return float.NaN;
@@ -95,7 +95,7 @@ namespace HimbeertoniRaidTool.Data
                          _ => float.NaN
                      },
                 StatType.Defense or StatType.MagicDefense => MathF.Floor(15 * totalStat / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")) / 100f,
-                StatType.Vitality => MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", "HP") * GetTableData<int>(AllaganTables.Job, $"JOB = '{job}'", "HP") / 100f)
+                StatType.Vitality => MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", "HP") * (job.HasValue ? GetTableData<int>(AllaganTables.Job, $"JOB = '{job}'", "HP") : 100) / 100f)
                     + (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "Main")) *
                     job.GetRole() switch
                     {
@@ -105,7 +105,7 @@ namespace HimbeertoniRaidTool.Data
                 _ => float.NaN
             };
         }
-        public static int GetStatWithModifiers(StatType type, int fromGear, int level, Job job, string race, string clan)
+        public static int GetStatWithModifiers(StatType type, int fromGear, int level, Job? job, string race, string clan)
         {
             return fromGear + (int)(GetBaseStat(type, level) * GetJobModifier(type, job)) + GetRacialModifier(type, race, clan);
         }
@@ -124,7 +124,7 @@ namespace HimbeertoniRaidTool.Data
         }
 
 
-        public static float GetJobModifier(StatType statType, Job job)
+        public static float GetJobModifier(StatType statType, Job? job)
         {
             string jobCol = statType switch
             {

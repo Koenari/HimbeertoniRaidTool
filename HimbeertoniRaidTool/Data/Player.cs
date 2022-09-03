@@ -28,8 +28,8 @@ namespace HimbeertoniRaidTool.Data
                 Chars.Insert(0, value);
             }
         }
-        public GearSet Gear => MainChar.MainClass.Gear;
-        public GearSet BIS => MainChar.MainClass.BIS;
+        public GearSet Gear => MainChar.MainClass?.Gear ?? new();
+        public GearSet BIS => MainChar.MainClass?.BIS ?? new();
         public Player() { }
         [JsonConstructor]
         public Player(PositionInRaidGroup pos) => Pos = pos;

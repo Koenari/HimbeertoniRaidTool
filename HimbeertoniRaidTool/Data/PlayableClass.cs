@@ -8,6 +8,7 @@ namespace HimbeertoniRaidTool.Data
     public class PlayableClass
     {
         [JsonProperty("ClassType")]
+        [Obsolete]
         public AvailableClasses? classType;
         [JsonProperty("Job")]
         public Job Job;
@@ -24,6 +25,7 @@ namespace HimbeertoniRaidTool.Data
             BIS = new();
         }
         [JsonConstructor]
+        [Obsolete]
         private PlayableClass(AvailableClasses? classType)
         {
             this.classType = classType;

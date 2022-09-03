@@ -33,8 +33,9 @@ namespace HimbeertoniRaidTool.LootMaster
             Character c = new Character(character.Name.TextValue, character.HomeWorld.Id);
             DataManagement.DataManager.GetManagedCharacter(ref c);
             p.MainChar = c;
-            c.MainJob = Helper.GetClass(character) ?? Job.AST;
-            c.MainClass.Level = character.Level;
+            c.MainJob = Helper.GetJob(character);
+            if (c.MainClass != null)
+                c.MainClass.Level = character.Level;
         }
         public static void OnCommand(string args)
         {

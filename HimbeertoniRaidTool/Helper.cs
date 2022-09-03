@@ -50,7 +50,7 @@ namespace HimbeertoniRaidTool
                 return (PlayerCharacter)_targetCopy;
             }
         }
-        public static Job? GetClass(this PlayerCharacter target) =>
+        public static Job? GetJob(this PlayerCharacter target) =>
             Enum.TryParse(target.ClassJob.GameData?.Abbreviation.RawString, true, out Job result) ? result : null;
 
         public static PlayerCharacter? Self => Services.ClientState.LocalPlayer;
