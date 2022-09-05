@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using ColorHelper;
+using Dalamud.Interface;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using ImGuiNET;
@@ -21,6 +22,7 @@ namespace HimbeertoniRaidTool.UI
         private static readonly uint[] WorldIDs;
         private static readonly string[] Jobs;
         private static readonly byte[] JobIDs;
+        private int newJob = 0;
 
         internal PositionInRaidGroup Pos => Player.Pos;
 
@@ -66,14 +68,13 @@ namespace HimbeertoniRaidTool.UI
 
         protected override void Draw()
         {
-            if (!Visible)
-                return;
-            ImGui.SetNextWindowSize(new Vector2(500, 250), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(480, 210 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Always);
             if (ImGui.Begin($"{Localize("Edit Player ", "Edit Player ")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}",
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
                 | ImGuiWindowFlags.NoScrollWithMouse))
             {
                 ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
+                //Character Data
                 if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50))
                     PlayerCopy.MainChar.HomeWorldID = 0;
                 int worldID = Array.IndexOf(WorldIDs, PlayerCopy.MainChar.HomeWorldID);
@@ -87,28 +88,54 @@ namespace HimbeertoniRaidTool.UI
                     if (ImGuiHelper.Button(Localize("Get", "Get"), Localize("FetchHomeworldTooltip", "Fetch home world information based on character name (from local players)")))
                         PlayerCopy.MainChar.HomeWorld = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.HomeWorld.GameData;
                 }
-                int mainClass = Array.IndexOf(JobIDs, (byte)(PlayerCopy.MainChar.MainJob ?? Job.ADV));
-                if (ImGui.Combo(Localize("Main Class", "Main Class"), ref mainClass, Jobs, Jobs.Length))
-                    PlayerCopy.MainChar.MainJob = (Job)JobIDs[mainClass];
-                Job? curClass = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.GetJob();
-                if (curClass is not null && curClass != PlayerCopy.MainChar.MainJob)
+                //Class Data
+                if (PlayerCopy.MainChar.MainJob is not null)
                 {
-                    ImGui.SameLine();
-                    if (ImGuiHelper.Button(Localize("Current", "Current"),
-                        Localize("CurrentClassTooltip", "Fetch curretn class of character")))
+                    int mainClass = PlayerCopy.MainChar.Classes.FindIndex(x => x.Job == PlayerCopy.MainChar.MainJob);
+                    if (mainClass < 0 || mainClass >= PlayerCopy.MainChar.Classes.Count)
                     {
-                        PlayerCopy.MainChar.MainJob = (Job)curClass;
+                        mainClass = 0;
+                        PlayerCopy.MainChar.MainJob = PlayerCopy.MainChar.Classes[mainClass].Job;
                     }
+                    if (ImGui.Combo(Localize("Main Job", "Main Job"), ref mainClass, PlayerCopy.MainChar.Classes.ConvertAll(x => x.Job.ToString()).ToArray(), PlayerCopy.MainChar.Classes.Count))
+                        PlayerCopy.MainChar.MainJob = PlayerCopy.MainChar.Classes[mainClass].Job;
                 }
-                string BISRef = PlayerCopy.MainChar.MainClass?.BIS.EtroID ?? "";
-                if (ImGui.InputText(Localize("BIS", "BIS"), ref BISRef, 100, PlayerCopy.MainChar.MainClass is null ? ImGuiInputTextFlags.ReadOnly : ImGuiInputTextFlags.None))
-                    PlayerCopy.MainChar.MainClass!.BIS.EtroID = BISRef;
+                ImGui.Columns(2, "Classes", false);
+                ImGui.SetColumnWidth(0, 70f);
+                ImGui.SetColumnWidth(1, 400f);
+                Job? toDelete = null;
+                foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
+                {
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"delete{c.Job}", $"Delete all data for {c.Job}"))
+                        toDelete = c.Job;
+                    ImGui.SameLine();
+                    ImGui.Text($"{c.Job}  ");
+                    ImGui.NextColumn();
+                    ImGui.SetNextItemWidth(250f);
+                    ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.BIS.EtroID, 50);
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button($"{Localize("Default", "Default")}##BIS#{c.Job}", Localize("DefaultBiSTooltip", "Fetch default BiS from configuration")))
+                        c.BIS.EtroID = HRTPlugin.Configuration.GetDefaultBiS(c.Job);
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button($"{Localize("Reset", "Reset")}##BIS#{c.Job}", Localize("ResetBisTooltip", "Empty out BiS gear")))
+                        c.BIS.EtroID = "";
+                    ImGui.NextColumn();
+                }
+                if (toDelete is not null)
+                    PlayerCopy.MainChar.Classes.RemoveAll(x => x.Job == toDelete);
+                ImGui.Columns(1);
+
+                var jobsNotUsed = new List<Job>(Enum.GetValues<Job>());
+                jobsNotUsed.RemoveAll(x => PlayerCopy.MainChar.Classes.Exists(y => y.Job == x));
+                var newJobs = jobsNotUsed.ConvertAll(x => x.ToString()).ToArray();
+                ImGui.Combo(Localize("Add Job", "Add Job"), ref newJob, newJobs, newJobs.Length);
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(Localize("Default", "Default") + "##BIS", Localize("DefaultBiSTooltip", "Fetch default value from configuration"), PlayerCopy.MainChar.MainClass is not null))
-                    PlayerCopy.BIS.EtroID = HRTPlugin.Configuration.GetDefaultBiS(PlayerCopy.MainChar.MainClass!.Job);
-                ImGui.SameLine();
-                if (ImGuiHelper.Button(Localize("Reset", "Reset") + "##BIS", Localize("ResetBisTooltip", "Empty out BiS gear"), PlayerCopy.MainChar.MainClass is not null))
-                    PlayerCopy.MainChar.MainClass!.BIS.EtroID = "";
+                if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
+                {
+                    PlayerCopy.MainChar.Classes.Add(new PlayableClass(jobsNotUsed[newJob], PlayerCopy.MainChar));
+                }
+
+                //Buttons
                 if (ImGuiHelper.SaveButton(Localize("Save Player", "Save Player")))
                 {
                     SavePlayer();
@@ -143,6 +170,15 @@ namespace HimbeertoniRaidTool.UI
                 Player.MainChar = c;
             }
             Player.MainChar.MainJob = PlayerCopy.MainChar.MainJob;
+            for (int i = 0; i < Player.MainChar.Classes.Count; i++)
+            {
+                PlayableClass c = Player.MainChar.Classes[i];
+                if (!PlayerCopy.MainChar.Classes.Exists(x => x.Job == c.Job))
+                {
+                    Player.MainChar.Classes.Remove(c);
+                    i--;
+                }
+            }
             foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
             {
                 PlayableClass target = Player.MainChar.GetClass(c.Job);
