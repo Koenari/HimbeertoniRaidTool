@@ -30,7 +30,7 @@ namespace HimbeertoniRaidTool.UI
             for (uint i = 21; i < (Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.RowCount ?? 0); i++)
             {
                 string? worldName = Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(i)?.Name ?? "";
-                if (!worldName.Equals("") && !worldName.Contains("-") && !worldName.Contains("_") && !worldName.Contains("contents"))
+                if (!worldName.Equals("") && !worldName.Contains('-') && !worldName.Contains('_') && !worldName.Contains("contents"))
                     WorldList.Add((i, worldName));
             }
             Worlds = new string[WorldList.Count + 1];
@@ -54,7 +54,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy.MainChar.Name = target.Name.TextValue;
                 PlayerCopy.MainChar.HomeWorldID = target.HomeWorld.Id;
-                PlayerCopy.MainChar.MainJob = target.GetJob() ?? Job.AST;
+                PlayerCopy.MainChar.MainJob = target.GetJob();
             }
             else if (Player.Filled)
             {
@@ -87,9 +87,9 @@ namespace HimbeertoniRaidTool.UI
                     if (ImGuiHelper.Button(Localize("Get", "Get"), Localize("FetchHomeworldTooltip", "Fetch home world information based on character name (from local players)")))
                         PlayerCopy.MainChar.HomeWorld = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.HomeWorld.GameData;
                 }
-                int mainClass = (int)(PlayerCopy.MainChar.MainJob ?? 0);
-                if (ImGui.Combo(Localize("Main Class", "Main Class"), ref mainClass, Enum.GetNames(typeof(Job)), Enum.GetNames(typeof(Job)).Length))
-                    PlayerCopy.MainChar.MainJob = (Job)mainClass;
+                int mainClass = Array.IndexOf(JobIDs, (byte)(PlayerCopy.MainChar.MainJob ?? Job.ADV));
+                if (ImGui.Combo(Localize("Main Class", "Main Class"), ref mainClass, Jobs, Jobs.Length))
+                    PlayerCopy.MainChar.MainJob = (Job)JobIDs[mainClass];
                 Job? curClass = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.GetJob();
                 if (curClass is not null && curClass != PlayerCopy.MainChar.MainJob)
                 {
