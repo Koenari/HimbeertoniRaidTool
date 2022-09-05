@@ -6,10 +6,7 @@
     <Version>0.4.3.26</Version>
     <Description>A collection of useful tools for RaidGroups, including loot management</Description>
     <Copyright></Copyright>
-    <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool/wiki</PackageProjectUrl>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>
   </PropertyGroup>
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
@@ -19,14 +16,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>C:\Users\koena\AppData\Roaming\XIVLauncher\devPlugins\HimbeertoniRaidTool\</OutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="HimbeertoniRaidTool.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 
   <ProjectExtensions>
     <DalamudPlugin>
@@ -58,8 +50,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ColorHelper" Version="1.8.0">
-    </PackageReference>
+    <PackageReference Include="ColorHelper" Version="1.8.0"/>
     <PackageReference Include="DalamudPackager" Version="2.1.8" />
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
