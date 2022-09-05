@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors>Koenari</Authors>
     <Company></Company>
-    <Version>0.4.3.26</Version>
+    <Version>0.4.3.27</Version>
     <Description>A collection of useful tools for RaidGroups, including loot management</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>

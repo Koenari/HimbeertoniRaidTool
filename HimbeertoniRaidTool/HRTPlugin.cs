@@ -10,6 +10,7 @@ using Dalamud.Game.Gui;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
+using Dalamud.Utility;
 using HimbeertoniRaidTool.UI;
 using static Dalamud.Localization;
 
@@ -46,7 +47,7 @@ namespace HimbeertoniRaidTool
 
         private readonly List<(string, Func<string>, bool)> Commands = new()
         {
-            ("/hrt", () => Localize("/hrt", "Does nothing at the moment"), true),
+            ("/hrt", () => Localize("/hrt", "Open Welcome Window with explanations"), true),
             ("/lootmaster", () => Localize("/lootmaster", "Opens LootMaster Window"), false),
             ("/lm", () => Localize("/lm", "Opens LootMaster Window (short version)"), true),
 
@@ -116,6 +117,11 @@ namespace HimbeertoniRaidTool
                     else if (args.Contains("exportlocale"))
                     {
                         Loc.ExportLocalizable();
+                    }
+                    else if (args.IsNullOrEmpty())
+                    {
+                        WelcomeWindow wcw = new();
+                        wcw.Show();
                     }
                     else
                         PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");

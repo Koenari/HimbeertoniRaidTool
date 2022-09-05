@@ -16,5 +16,6 @@
     "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png",
     "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png"
   ],
-  "IsHide": "False"
+  "IsHide": "False",
+  "Changelog" : "Fixed chaning of main job\nFixed HQ gear fetched from etro.gg\nAdded more default BiS sets"
 }
