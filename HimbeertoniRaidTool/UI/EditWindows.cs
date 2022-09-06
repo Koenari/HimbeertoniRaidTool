@@ -20,8 +20,6 @@ namespace HimbeertoniRaidTool.UI
         private readonly bool IsNew;
         private static readonly string[] Worlds;
         private static readonly uint[] WorldIDs;
-        private static readonly string[] Jobs;
-        private static readonly byte[] JobIDs;
         private int newJob = 0;
 
         internal PositionInRaidGroup Pos => Player.Pos;
@@ -41,8 +39,6 @@ namespace HimbeertoniRaidTool.UI
             WorldIDs[0] = 0;
             for (int i = 0; i < WorldList.Count; i++)
                 (WorldIDs[i + 1], Worlds[i + 1]) = WorldList[i];
-            Jobs = Enum.GetNames<Job>();
-            JobIDs = Array.ConvertAll(Enum.GetValues<Job>(), (x) => (byte)x);
         }
         internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, bool openHidden = false) : base()
         {
