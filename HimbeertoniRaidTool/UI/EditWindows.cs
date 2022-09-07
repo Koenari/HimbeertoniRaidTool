@@ -69,12 +69,13 @@ namespace HimbeertoniRaidTool.UI
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
                 | ImGuiWindowFlags.NoScrollWithMouse))
             {
+                //Player Data
                 ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
                 //Character Data
                 if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50))
                     PlayerCopy.MainChar.HomeWorldID = 0;
                 int worldID = Array.IndexOf(WorldIDs, PlayerCopy.MainChar.HomeWorldID);
-                if (worldID < 0)
+                if (worldID < 0 || worldID >= WorldIDs.Length)
                     worldID = 0;
                 if (ImGui.Combo(Localize("HomeWorld", "Home World"), ref worldID, Worlds, Worlds.Length))
                     PlayerCopy.MainChar.HomeWorldID = WorldIDs[worldID] < 0 ? 0 : WorldIDs[worldID];
@@ -85,7 +86,7 @@ namespace HimbeertoniRaidTool.UI
                         PlayerCopy.MainChar.HomeWorld = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.HomeWorld.GameData;
                 }
                 //Class Data
-                if (PlayerCopy.MainChar.MainJob is not null)
+                if (PlayerCopy.MainChar.Classes.Count > 0)
                 {
                     int mainClass = PlayerCopy.MainChar.Classes.FindIndex(x => x.Job == PlayerCopy.MainChar.MainJob);
                     if (mainClass < 0 || mainClass >= PlayerCopy.MainChar.Classes.Count)
@@ -95,6 +96,12 @@ namespace HimbeertoniRaidTool.UI
                     }
                     if (ImGui.Combo(Localize("Main Job", "Main Job"), ref mainClass, PlayerCopy.MainChar.Classes.ConvertAll(x => x.Job.ToString()).ToArray(), PlayerCopy.MainChar.Classes.Count))
                         PlayerCopy.MainChar.MainJob = PlayerCopy.MainChar.Classes[mainClass].Job;
+                }
+                else
+                {
+                    PlayerCopy.MainChar.MainJob = null;
+                    ImGui.NewLine();
+                    ImGui.Text(Localize("NoClasses", "Character does not have any classes created"));
                 }
                 ImGui.Columns(2, "Classes", false);
                 ImGui.SetColumnWidth(0, 70f);
