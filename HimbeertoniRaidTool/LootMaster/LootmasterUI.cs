@@ -347,7 +347,10 @@ namespace HimbeertoniRaidTool.LootMaster
             {
 
                 ImGui.TableNextColumn();
-                ImGui.Text($"{player.Pos}  {player.NickName}");
+                ImGui.Text($"{player.Pos}:");
+                ImGui.SameLine();
+                ImGui.SetCursorPosX(60f);
+                ImGui.Text($"{player.NickName}");
                 ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? "n.A."}");
                 Character c = player.MainChar;
                 if (hasClasses)
@@ -362,8 +365,9 @@ namespace HimbeertoniRaidTool.LootMaster
                     else
                     {
                         ImGui.Text(player.MainChar.MainJob.ToString());
-                        ImGui.SameLine();
                     }
+                    ImGui.SameLine();
+                    ImGui.SetCursorPosX(110f);
                     ImGui.Text(string.Format(Localize("LvLShort", "Lvl: {0}"), player.MainChar.MainClass?.Level ?? 1));
                     GearSet gear = player.Gear;
                     GearSet bis = player.BIS;
