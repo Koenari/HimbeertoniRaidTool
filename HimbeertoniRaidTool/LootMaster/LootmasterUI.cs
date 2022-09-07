@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Threading.Tasks;
 using ColorHelper;
-using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
@@ -327,113 +325,20 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (ImGuiHelper.Button(Localize("From current Group", "From current Group"), null))
                 {
                     RaidGroup group = new();
-                    EditGroupWindow groupWindow = new EditGroupWindow(group, () => AddGroup(group, true), () => { });
+                    group.Name = "AutoCreated";
+                    LootMaster.AddGroup(group, true);
+                    ImGui.CloseCurrentPopup();
                 }
                 if (ImGuiHelper.Button(Localize("From scratch", "From scratch"), Localize("Add emtpy group", "Add emtpy group")))
                 {
                     RaidGroup group = new();
-                    EditGroupWindow groupWindow = new EditGroupWindow(group, () => AddGroup(group, true), () => { });
+                    EditGroupWindow groupWindow = new EditGroupWindow(group, () => LootMaster.AddGroup(group, false), () => { });
                 }
                 ImGui.EndPopup();
             }
             ImGui.EndTabBar();
         }
-        private static void AddGroup(RaidGroup group, bool getGroupInfos)
-        {
-            LootMaster.RaidGroups.Add(group);
-            if (getGroupInfos)
-            {
-                group.Type = GroupType.Raid;
-                List<PartyMember> players = new();
-                List<PartyMember> fill = new();
-                for (int i = 0; i < Services.PartyList.Length; i++)
-                {
-                    PartyMember? p = Services.PartyList[i];
-                    if (p != null)
-                        players.Add(p);
-                }
-                foreach (PartyMember p in players)
-                {
-                    if (!Enum.TryParse(p.ClassJob.GameData!.Abbreviation.RawString, out Job c))
-                        continue;
-                    Role r = c.GetRole();
-                    switch (r)
-                    {
-                        case Role.Tank:
-                            if (!group[PositionInRaidGroup.Tank1].Filled)
-                                FillPosition(PositionInRaidGroup.Tank1, p, c);
-                            else if (!group[PositionInRaidGroup.Tank2].Filled)
-                                FillPosition(PositionInRaidGroup.Tank2, p, c);
-                            else
-                                fill.Add(p);
-                            break;
-                        case Role.Healer:
-                            if (!group[PositionInRaidGroup.Heal1].Filled)
-                                FillPosition(PositionInRaidGroup.Heal1, p, c);
-                            else if (!group[PositionInRaidGroup.Heal2].Filled)
-                                FillPosition(PositionInRaidGroup.Heal2, p, c);
-                            else
-                                fill.Add(p);
-                            break;
-                        case Role.Melee:
-                            if (!group[PositionInRaidGroup.Melee1].Filled)
-                                FillPosition(PositionInRaidGroup.Melee1, p, c);
-                            else if (!group[PositionInRaidGroup.Melee2].Filled)
-                                FillPosition(PositionInRaidGroup.Melee2, p, c);
-                            else
-                                fill.Add(p);
-                            break;
-                        case Role.Caster:
-                            if (!group[PositionInRaidGroup.Caster].Filled)
-                                FillPosition(PositionInRaidGroup.Caster, p, c);
-                            else
-                                fill.Add(p);
-                            break;
-                        case Role.Ranged:
-                            if (!group[PositionInRaidGroup.Ranged].Filled)
-                                FillPosition(PositionInRaidGroup.Ranged, p, c);
-                            else
-                                fill.Add(p);
-                            break;
-                    }
-                }
-                foreach (PartyMember pm in fill)
-                {
-                    int pos = 0;
-                    while (group[(PositionInRaidGroup)pos].Filled) { pos++; }
-                    if (pos > 7) break;
-                    FillPosition((PositionInRaidGroup)pos, pm, Enum.Parse<Job>(pm.ClassJob.GameData!.Abbreviation.RawString));
-                }
-                void FillPosition(PositionInRaidGroup pos, PartyMember pm, Job c)
-                {
 
-                    Player p = group[pos];
-                    p.Pos = pos;
-                    p.NickName = pm.Name.TextValue.Split(' ')[0];
-                    Character character = new Character(pm.Name.TextValue, pm.World.GameData!.RowId);
-                    bool characterExisted = DataManager.CharacterExists(character.HomeWorldID, character.Name);
-                    DataManager.GetManagedCharacter(ref character);
-                    p.MainChar = character;
-                    if (!characterExisted)
-                    {
-                        p.MainChar.Classes.Clear();
-                        p.MainChar.MainJob = c;
-                        PlayerCharacter? pc = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
-                        if (pc != null)
-                        {
-                            p.MainChar.MainClass!.Level = pc.Level;
-                            GearSet BIS = new()
-                            {
-                                ManagedBy = GearSetManager.Etro,
-                                EtroID = HRTPlugin.Configuration.GetDefaultBiS(c)
-                            };
-                            DataManager.GetManagedGearSet(ref BIS);
-                            p.MainChar.MainClass.BIS = BIS;
-                        }
-                    }
-                }
-            }
-        }
         private void DrawPlayer(Player player)
         {
             bool playerExists = player.Filled && player.MainChar.Filled;
