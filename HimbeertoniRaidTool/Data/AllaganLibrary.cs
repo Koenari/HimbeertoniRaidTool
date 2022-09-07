@@ -96,7 +96,7 @@ namespace HimbeertoniRaidTool.Data
                          _ => float.NaN
                      },
                 StatType.Defense or StatType.MagicDefense => MathF.Floor(15 * totalStat / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")) / 100f,
-                StatType.Vitality => MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", "HP") * GetJobModifier(StatType.Vitality, job.GetClassJob()))
+                StatType.Vitality => MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", "HP") * GetJobModifier(StatType.HP, job.GetClassJob()))
                     + (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "Main")) *
                     job.GetRole() switch
                     {
