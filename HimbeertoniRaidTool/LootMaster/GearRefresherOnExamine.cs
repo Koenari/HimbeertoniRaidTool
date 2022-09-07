@@ -7,6 +7,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Data;
 using Lumina.Excel.GeneratedSheets;
+using XivCommon;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
@@ -32,6 +33,8 @@ namespace HimbeertoniRaidTool.LootMaster
         private static readonly GetContainerSlot? _getContainerSlot;
         private static readonly RequestCharInfoDelegate? _requestCharacterInfo;
         private static PlayerCharacter? TargetOverrride = null;
+        private static readonly XivCommonBase? XivCommonBase;
+        private static readonly bool useXivCommon = true;
         static GearRefresherOnExamine()
         {
             try
@@ -53,22 +56,36 @@ namespace HimbeertoniRaidTool.LootMaster
                 Dalamud.Logging.PluginLog.LogError(e.StackTrace ?? "");
                 HookLoadSuccessful = false;
             }
-            try
+            if (useXivCommon)
             {
-                RequestCharacterInfoPtr = Services.SigScanner.ScanText("40 53 48 83 EC 40 48 8B D9 48 8B 49 10 48 8b 01 ff 90 28 01 00 00 ba 01 00 00 00");
-                _requestCharacterInfo = Marshal.GetDelegateForFunctionPointer<RequestCharInfoDelegate>(RequestCharacterInfoPtr);
+                XivCommonBase = new XivCommonBase();
                 CanOpenExamine = true;
             }
-            catch (Exception e)
+            else
             {
-                Dalamud.Logging.PluginLog.LogError("Failed to load examine function");
-                Dalamud.Logging.PluginLog.LogError(e.Message);
-                Dalamud.Logging.PluginLog.LogError(e.StackTrace ?? "");
-                CanOpenExamine = false;
+                try
+                {
+                    RequestCharacterInfoPtr = Services.SigScanner.ScanText("40 53 48 83 EC 40 48 8B D9 48 8B 49 10 48 8B 01 FF 90 ?? ?? ?? ?? BA");
+                    _requestCharacterInfo = Marshal.GetDelegateForFunctionPointer<RequestCharInfoDelegate>(RequestCharacterInfoPtr);
+                    if (_requestCharacterInfo == null)
+                    {
+                        Dalamud.Logging.PluginLog.LogError("Could not find signature for Examine function");
+                        CanOpenExamine = false;
+                    }
+                    else
+                    {
+                        //Todo Match to GameVeriosn for automatic disabling on updates
+                        CanOpenExamine = true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Dalamud.Logging.PluginLog.LogError("Failed to load examine function");
+                    Dalamud.Logging.PluginLog.LogError(e.Message);
+                    Dalamud.Logging.PluginLog.LogError(e.StackTrace ?? "");
+                    CanOpenExamine = false;
+                }
             }
-            //Temporarily disabled examine button until I have time to reverse engeneer changes
-            CanOpenExamine = false;
-
         }
         internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
         {
@@ -76,26 +93,32 @@ namespace HimbeertoniRaidTool.LootMaster
                 return;
             if (@object == null)
                 return;
-            uint objectId = @object.ObjectId;
-            if (_requestCharacterInfo == null)
+            if (useXivCommon)
             {
-                Dalamud.Logging.PluginLog.LogError("Could not find signature for Examine function");
-
-                return;
+                if (XivCommonBase is null)
+                    return;
+                XivCommonBase.Functions.Examine.OpenExamineWindow(@object);
             }
-            /*
-             * ToDo: Does not work if last examine was not a player chracter
-             * And generally crashes game on exit
-             */
-            TargetOverrride = @object;
-            IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
-            uint* ptr = (uint*)(void*)intPtr;
-            ptr[10] = objectId;
-            ptr[11] = objectId;
-            ptr[12] = objectId;
-            ptr[13] = 3758096384u;
-            ptr[301] = 0u;
-            _requestCharacterInfo(intPtr);
+            else
+            {
+                if (_requestCharacterInfo == null)
+                    return;
+                uint objectId = @object.ObjectId;
+                /*
+                 * Not needed anymore given XivCommon works fine again
+                 */
+                TargetOverrride = @object;
+                IntPtr agentModule = (IntPtr)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule();
+                IntPtr rciData = agentModule + 0x1A8;
+                uint* rawRci = (uint*)rciData;
+                rawRci[10] = objectId;
+                rawRci[11] = objectId;
+                rawRci[12] = objectId;
+                rawRci[13] = 0xE0000000;
+                rawRci[301] = 0u;
+                _requestCharacterInfo(rciData);
+            }
+
         }
         internal static void Enable()
         {
@@ -205,6 +228,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 Hook.Disable();
                 Hook.Dispose();
             }
+            XivCommonBase?.Dispose();
         }
     }
 }
