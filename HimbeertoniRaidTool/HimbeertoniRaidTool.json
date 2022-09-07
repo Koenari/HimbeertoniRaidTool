@@ -17,5 +17,5 @@
     "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png"
   ],
   "IsHide": "False",
-  "Changelog" : "Fixed chaning of main job\nFixed HQ gear fetched from etro.gg\nAdded more default BiS sets"
+  "Changelog" : "Fixed Examine\nReworked edit player interface\nPolished Ui\nFix HP calc\nBetter group creation"
 }
