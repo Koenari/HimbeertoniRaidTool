@@ -19,7 +19,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 ImGui.TableSetupColumn(Localize("ItemTableHeader", "Header"));
                 ImGui.TableSetupColumn(Localize("Value", "Value"));
-                DrawRow(Localize("Name", "Name"), item.Item.Name);
+                DrawRow(Localize("Name", "Name"), $"{item.Item.Name} {(item.IsHq ? "(HQ)" : "")}");
                 DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel.ToString());
                 DrawRow(Localize("itemSource", "Source"), item.Source.ToString());
                 if (isWeapon)
@@ -31,7 +31,8 @@ namespace HimbeertoniRaidTool.UI
                 }
                 else
                 {
-
+                    DrawRow(Localize("PhysicalDefense", "Defense"), item.Item.DefensePhys.ToString());
+                    DrawRow(Localize("MagicalDefense", "Magical Defense"), item.Item.DefenseMag.ToString());
                 }
                 foreach (var stat in item.Item.UnkData59)
                     if ((StatType)stat.BaseParam != StatType.None)
