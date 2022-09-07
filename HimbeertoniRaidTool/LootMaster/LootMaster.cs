@@ -81,73 +81,82 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             foreach (PartyMember p in players)
             {
-                if (!Enum.TryParse(p.ClassJob.GameData!.Abbreviation.RawString, out Job c))
+                if (!Enum.TryParse(p.ClassJob.GameData?.Abbreviation.RawString, out Job c))
+                {
+                    fill.Add(p);
                     continue;
+                }
                 Role r = c.GetRole();
                 switch (r)
                 {
                     case Role.Tank:
                         if (!group[PositionInRaidGroup.Tank1].Filled)
-                            FillPosition(PositionInRaidGroup.Tank1, p, c);
+                            FillPosition(PositionInRaidGroup.Tank1, p);
                         else if (!group[PositionInRaidGroup.Tank2].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Tank2, p, c);
+                            FillPosition(PositionInRaidGroup.Tank2, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Healer:
                         if (!group[PositionInRaidGroup.Heal1].Filled)
-                            FillPosition(PositionInRaidGroup.Heal1, p, c);
+                            FillPosition(PositionInRaidGroup.Heal1, p);
                         else if (!group[PositionInRaidGroup.Heal2].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Heal2, p, c);
+                            FillPosition(PositionInRaidGroup.Heal2, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Melee:
                         if (!group[PositionInRaidGroup.Melee1].Filled)
-                            FillPosition(PositionInRaidGroup.Melee1, p, c);
+                            FillPosition(PositionInRaidGroup.Melee1, p);
                         else if (!group[PositionInRaidGroup.Melee2].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Melee2, p, c);
+                            FillPosition(PositionInRaidGroup.Melee2, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Caster:
                         if (!group[PositionInRaidGroup.Caster].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Caster, p, c);
+                            FillPosition(PositionInRaidGroup.Caster, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Ranged:
                         if (!group[PositionInRaidGroup.Ranged].Filled)
-                            FillPosition(PositionInRaidGroup.Ranged, p, c);
+                            FillPosition(PositionInRaidGroup.Ranged, p);
                         else
                             fill.Add(p);
+                        break;
+                    default:
+                        fill.Add(p);
                         break;
                 }
             }
             foreach (PartyMember pm in fill)
             {
+                Dalamud.Logging.PluginLog.Debug($"To fill: {pm.Name}");
                 int pos = 0;
                 while (group[(PositionInRaidGroup)pos].Filled) { pos++; }
                 if (pos > 7) break;
-                FillPosition((PositionInRaidGroup)pos, pm, Enum.Parse<Job>(pm.ClassJob.GameData!.Abbreviation.RawString));
+                FillPosition((PositionInRaidGroup)pos, pm);
             }
-            void FillPosition(PositionInRaidGroup pos, PartyMember pm, Job c)
+            void FillPosition(PositionInRaidGroup pos, PartyMember pm)
             {
-
+                Dalamud.Logging.PluginLog.Debug($"In fill: {pm.Name}");
                 Player p = group[pos];
                 p.Pos = pos;
                 p.NickName = pm.Name.TextValue.Split(' ')[0];
-                Character character = new Character(pm.Name.TextValue, pm.World.GameData!.RowId);
+                Character character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
                 bool characterExisted = DataManager.CharacterExists(character.HomeWorldID, character.Name);
                 DataManager.GetManagedCharacter(ref character);
                 p.MainChar = character;
                 if (!characterExisted)
                 {
                     p.MainChar.Classes.Clear();
-                    p.MainChar.MainJob = c;
+                    bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
+
                     PlayerCharacter? pc = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
-                    if (pc != null)
+                    if (pc != null && canParseJob && c != Job.ADV)
                     {
+                        p.MainChar.MainJob = c;
                         p.MainChar.MainClass!.Level = pc.Level;
                         GearSet BIS = new()
                         {
