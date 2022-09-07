@@ -67,13 +67,7 @@ namespace HimbeertoniRaidTool.LootMaster
             ImGui.Text($"{p.NickName} : {p.MainChar.Name} @ {p.MainChar.HomeWorld?.Name ?? "n.A"}");
             ImGui.SameLine();
 
-            var playerChar = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
-            if (ImGuiHelper.Button(FontAwesomeIcon.Search, p.Pos.ToString(),
-                    GearRefresherOnExamine.CanOpenExamine ? Localize("Inspect", "Update Gear") : Localize("PatchBrokeIt", "Functionality broken due to 6.2 game update"),
-                    playerChar is not null && GearRefresherOnExamine.CanOpenExamine))
-            {
-                GearRefresherOnExamine.RefreshGearInfos(playerChar);
-            }
+            ImGuiHelper.GearUpdateButton(p);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Solo", Localize("Edit", "Edit")))
             {
@@ -509,12 +503,7 @@ namespace HimbeertoniRaidTool.LootMaster
                             DataManager.RearrangeCharacter(worldID, player.MainChar.Name, ref c);
                         }
                     }
-                    if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(),
-                        GearRefresherOnExamine.CanOpenExamine ? Localize("Inspect", "Update Gear") : Localize("PatchBrokeIt", "Functionality broken due to 6.2 game update"),
-                        playerChar is not null && GearRefresherOnExamine.CanOpenExamine))
-                    {
-                        GearRefresherOnExamine.RefreshGearInfos(playerChar);
-                    }
+                    ImGuiHelper.GearUpdateButton(player);
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange{player.Pos}", "Swap Position"))
                     {
