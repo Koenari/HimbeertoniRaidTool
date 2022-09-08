@@ -20,6 +20,7 @@ namespace HimbeertoniRaidTool.Data
         public PlayableClass? MainClass => MainJob.HasValue ? GetClass(MainJob.Value) : null;
         [JsonProperty("WorldID")]
         public uint HomeWorldID;
+        [Obsolete("Use Tribe")]
         [JsonProperty("Race")]
         public string Race = "";
         [JsonProperty("Tribe")]

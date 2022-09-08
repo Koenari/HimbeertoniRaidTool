@@ -26,6 +26,7 @@ namespace HimbeertoniRaidTool
         [JsonIgnore]
         private readonly int TargetVersion = 4;
         public int Version { get; set; } = 4;
+        [Obsolete]
         [JsonIgnore]
         private readonly ReadOnlyDictionary<Job, string> OldDefaultBIS =
             new ReadOnlyDictionary<Job, string>(
@@ -56,8 +57,10 @@ namespace HimbeertoniRaidTool
         private Dictionary<Job, string> BISUserOverride { get; set; } = new Dictionary<Job, string>();
         public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : (CuratedData.DefaultBIS.ContainsKey(c) ? CuratedData.DefaultBIS[c] : "");
         public LootRuling LootRuling { get; set; } = new();
+        [Obsolete]
         [JsonProperty]
         private RaidGroup? GroupInfo = null;
+        [Obsolete]
         [JsonProperty]
         private List<RaidGroup> RaidGroups = new();
         [JsonProperty]
