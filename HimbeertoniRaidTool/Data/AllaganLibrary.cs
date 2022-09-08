@@ -190,26 +190,16 @@ namespace HimbeertoniRaidTool.Data
                 _ => float.NaN
             };
         }
-        private static float GetHPMultiplier(int level, Job? job)
+        private static float GetHPMultiplier(int level, Job? job) => (job.GetRole(), level) switch
         {
-            return job.GetRole() switch
-            {
-                Role.Tank => level switch
-                {
-                    90 => 34.6f,
-                    80 => 26.6f,
-                    70 => 18.8f,
-                    _ => float.NaN
-                },
-                _ => level switch
-                {
-                    90 => 24.3f,
-                    80 => 18.8f,
-                    70 => 14f,
-                    _ => float.NaN
-                }
-            };
-        }
+            (Role.Tank, 90) => 34.6f,
+            (Role.Tank, 80) => 26.6f,
+            (Role.Tank, 70) => 18.8f,
+            (_, 90) => 34.6f,
+            (_, 80) => 34.6f,
+            (_, 70) => 34.6f,
+            _ => float.NaN
+        };
         public static int GetStatWithModifiers(StatType type, int fromGear, int level, Job? job, Tribe tribe)
         {
             return fromGear + (int)MathF.Round(GetBaseStat(type, level) * GetJobModifier(type, job.GetClassJob())) + GetRacialModifier(type, tribe);
@@ -266,9 +256,4 @@ namespace HimbeertoniRaidTool.Data
             return mainStats.Contains(statType);
         }
     }
-    public enum AllaganTables
-    {
-        Level
-    }
-
 }
