@@ -70,7 +70,6 @@ namespace HimbeertoniRaidTool
             //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
-            Data.AllaganLibrary.Init();
             LootMaster.LootMaster.Init();
             OptionsUi = new();
             if (Configuration.ShowWelcomeWindow)
@@ -105,7 +104,6 @@ namespace HimbeertoniRaidTool
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
             LootMaster.LootMaster.Dispose();
             DataManagement.DataManager.Save();
-            Data.AllaganLibrary.Dispose();
         }
         private void OnCommand(string command, string args)
         {
