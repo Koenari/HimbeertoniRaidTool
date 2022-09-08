@@ -94,12 +94,13 @@ namespace HimbeertoniRaidTool.Data
                          _ => float.NaN
                      },
                 StatType.Defense or StatType.MagicDefense => MathF.Floor(15 * totalStat / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")) / 100f,
+                //ToDO: Still rounding issues
                 StatType.Vitality => MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", "HP") * GetJobModifier(StatType.HP, job.GetClassJob()))
-                    + (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "Main")) * GetHPMultipliers(level, job),
+                    + MathF.Floor((totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "Main")) * GetHPMultiplier(level, job)),
                 _ => float.NaN
             };
         }
-        private static float GetHPMultipliers(int level, Job? job)
+        private static float GetHPMultiplier(int level, Job? job)
         {
             return job.GetRole() switch
             {
@@ -121,7 +122,7 @@ namespace HimbeertoniRaidTool.Data
         }
         public static int GetStatWithModifiers(StatType type, int fromGear, int level, Job? job, Tribe tribe)
         {
-            return fromGear + (int)(GetBaseStat(type, level) * GetJobModifier(type, job.GetClassJob())) + GetRacialModifier(type, tribe);
+            return fromGear + (int)MathF.Round(GetBaseStat(type, level) * GetJobModifier(type, job.GetClassJob())) + GetRacialModifier(type, tribe);
         }
         public static int GetBaseStat(StatType type, int level)
         {
@@ -134,14 +135,14 @@ namespace HimbeertoniRaidTool.Data
                 _ => ""
             };
 
-            return levelCol.Equals("") || level < 1 ? 0 : (int)MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", levelCol));
+            return levelCol.Equals("") || level < 1 ? 0 : GetTableData<int>(AllaganTables.Level, $"LV = {level}", levelCol);
         }
 
 
         public static float GetJobModifier(StatType statType, ClassJob? job)
         {
             if (job is null)
-                return 1;
+                return 1f;
             return statType switch
             {
                 StatType.Strength => job.ModifierStrength,
