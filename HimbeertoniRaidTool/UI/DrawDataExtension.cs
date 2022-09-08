@@ -41,7 +41,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.Text("Materia");
                 ImGui.TableNextColumn();
                 foreach (var mat in item.Materia)
-                    ImGui.BulletText($"{mat.Name} ({mat.Category.GetStatType().FriendlyName()} +{mat.GetStat()})");
+                    ImGui.BulletText($"{mat.Name} ({mat.StatType.FriendlyName()} +{mat.GetStat()})");
                 ImGui.EndTable();
             }
         }

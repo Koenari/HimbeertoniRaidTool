@@ -222,33 +222,19 @@ namespace HimbeertoniRaidTool.Data
     }
     public enum MateriaCategory : ushort
     {
-        [Stat(StatType.None)]
         None = 0,
-        [Stat(StatType.Piety)]
         Piety = 7,
-        [Stat(StatType.DirectHitRate)]
         DirectHit = 14,
-        [Stat(StatType.CriticalHit)]
         CriticalHit = 15,
-        [Stat(StatType.Determination)]
         Determination = 16,
-        [Stat(StatType.Tenacity)]
         Tenacity = 17,
-        [Stat(StatType.Gathering)]
         Gathering = 18,
-        [Stat(StatType.Perception)]
         Perception = 19,
-        [Stat(StatType.GP)]
         GP = 20,
-        [Stat(StatType.Craftsmanship)]
         Craftsmanship = 21,
-        [Stat(StatType.CP)]
         CP = 22,
-        [Stat(StatType.Control)]
         Control = 23,
-        [Stat(StatType.SkillSpeed)]
         SkillSpeed = 24,
-        [Stat(StatType.SpellSpeed)]
         SpellSpeed = 25,
     }
     public enum StatType : uint
@@ -332,8 +318,6 @@ namespace HimbeertoniRaidTool.Data
     }
     public static class EnumExtensions
     {
-        public static StatType GetStatType(this MateriaCategory c) =>
-            c.GetAttribute<StatAttribute>()?.StatType ?? StatType.None;
         public static string FriendlyName(this StatType t) => t switch
         {
             StatType.PhysicalDamage => Localize("Physical Damage", "Physical Damage"),

@@ -25,8 +25,8 @@ namespace HimbeertoniRaidTool.Data
         public uint ItemLevel => (Item.LevelItem is null) ? 0 : Item.LevelItem.Row;
         public int GetStat(StatType type, bool includeMateria = true)
         {
+            if (!Valid) return 0;
             int result = 0;
-            if (_ID == 0 || Item.Name is null) return 0;
             switch (type)
             {
                 case StatType.PhysicalDamage: result += Item.DamagePhys; break;
@@ -35,20 +35,16 @@ namespace HimbeertoniRaidTool.Data
                 case StatType.MagicDefense: result += Item.DefenseMag; break;
                 default:
                     if (IsHq)
-                        if (Item?.UnkData73 is not null)
-                            foreach (Item.ItemUnkData73Obj param in Item.UnkData73)
-                                if (param.BaseParamSpecial == (ushort)type)
-                                    result += param.BaseParamValueSpecial;
+                        foreach (Item.ItemUnkData73Obj param in Item.UnkData73.Where(x => x.BaseParamSpecial == (byte)type))
+                            result += param.BaseParamValueSpecial;
 
-                    if (Item?.UnkData59 is not null)
-                        foreach (Item.ItemUnkData59Obj param in Item.UnkData59)
-                            if (param.BaseParam == (ushort)type)
-                                result += param.BaseParamValue;
+                    foreach (Item.ItemUnkData59Obj param in Item.UnkData59.Where(x => x.BaseParam == (byte)type))
+                        result += param.BaseParamValue;
                     break;
             }
             if (includeMateria)
-                foreach (HrtMateria materia in Materia)
-                    result += materia.GetStat(type);
+                foreach (HrtMateria materia in Materia.Where(x => x.StatType == type))
+                    result += materia.GetStat();
             return result;
         }
         public GearItem() : base() { }
@@ -56,7 +52,6 @@ namespace HimbeertoniRaidTool.Data
         public GearItem(uint id) : base(id) { }
         public bool Equals(GearItem other)
         {
-            if (other == null) return false;
             if (ReferenceEquals(this, other)) return true;
             if (ID != other.ID) return false;
             if (Materia.Count != other.Materia.Count) return false;
@@ -87,10 +82,8 @@ namespace HimbeertoniRaidTool.Data
         protected uint _ID;
         [JsonProperty("ID")]
         public virtual uint ID { get => _ID; set { _ID = value; } }
-        public TextureWrap? Icon => Services.DataManager.GetImGuiTextureIcon(Item.Icon);
         public Item Item => Sheet?.GetRow(ID) ?? new Item();
         public string Name => ID > 0 ? Item.Name.RawString : "";
-        public bool Filled => ID > 0 && Name.Length > 0;
         public bool Valid => ID > 0;
 
         public bool IsGear => Item.EquipSlotCategory.Value is not null;
@@ -109,7 +102,6 @@ namespace HimbeertoniRaidTool.Data
 
         public override bool Equals(object? obj)
         {
-            if (obj == null) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj is not HrtItem other) return false;
             return ID == other.ID;
@@ -126,18 +118,12 @@ namespace HimbeertoniRaidTool.Data
         private ExcelSheet<Materia> MateriaSheet => Services.DataManager.Excel.GetSheet<Materia>()!;
         public override uint ID => Category != MateriaCategory.None ? Materia?.Item[MateriaLevel].Row ?? 0 : 0;
         public Materia? Materia => MateriaSheet.GetRow((ushort)Category);
+        public StatType StatType => (StatType)(Materia?.BaseParam.Row ?? 0);
         public HrtMateria() : this(0, 0) { }
         public HrtMateria((MateriaCategory cat, byte lvl) mat) : this(mat.cat, mat.lvl) { }
         [JsonConstructor]
         public HrtMateria(MateriaCategory cat, byte lvl) => (Category, MateriaLevel) = (cat, lvl);
-        public int GetStat() => GetStat(this.Category.GetStatType());
-        public int GetStat(StatType type)
-        {
-            if (!Valid || Materia is null) return 0;
-            if (Category.GetStatType() == type)
-                return Materia.Value[MateriaLevel];
-            return 0;
-        }
+        public int GetStat() => Materia?.Value[MateriaLevel] ?? 0;
     }
     /// <summary>
     /// Models an item that can be exchanged for another item
@@ -214,9 +200,9 @@ namespace HimbeertoniRaidTool.Data
         public ItemIDRange(uint start, uint end) => (StartID, EndID) = (start, end);
         public override bool Equals(object? obj)
         {
-            if (obj == null || !obj.GetType().IsAssignableTo(typeof(ItemIDRange)))
+            if (!obj?.GetType().IsAssignableTo(typeof(ItemIDRange)) ?? false)
                 return false;
-            return Equals((ItemIDRange)obj);
+            return Equals((ItemIDRange)obj!);
         }
         public bool Contains(uint obj) => InRange(obj);
         public bool Equals(ItemIDRange obj) => StartID == obj.StartID && EndID == obj.EndID;
