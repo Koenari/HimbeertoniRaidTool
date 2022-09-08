@@ -66,8 +66,6 @@ namespace HimbeertoniRaidTool.Data
         /// <returns>Evaluated value (percentage values are in mathematical correct value, means 100% = 1.0)</returns>
         public static float EvaluateStat(StatType type, int totalStat, int level, Job? job, int alternative = 0)
         {
-            if (level < 90)
-                return float.NaN;
             if (type == StatType.CriticalHit && alternative == 1)
                 type = StatType.CriticalHitPower;
             return type switch
@@ -97,13 +95,28 @@ namespace HimbeertoniRaidTool.Data
                      },
                 StatType.Defense or StatType.MagicDefense => MathF.Floor(15 * totalStat / GetTableData<int>(AllaganTables.Level, $"LV = {level}", "DIV")) / 100f,
                 StatType.Vitality => MathF.Floor(GetTableData<int>(AllaganTables.Level, $"LV = {level}", "HP") * GetJobModifier(StatType.HP, job.GetClassJob()))
-                    + (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "Main")) *
-                    job.GetRole() switch
-                    {
-                        Role.Tank => 34.6f,
-                        _ => 24.3f,
-                    },
+                    + (totalStat - GetTableData<int>(AllaganTables.Level, $"LV = {level}", "Main")) * GetHPMultipliers(level, job),
                 _ => float.NaN
+            };
+        }
+        private static float GetHPMultipliers(int level, Job? job)
+        {
+            return job.GetRole() switch
+            {
+                Role.Tank => level switch
+                {
+                    90 => 34.6f,
+                    80 => 26.6f,
+                    70 => 18.8f,
+                    _ => float.NaN
+                },
+                _ => level switch
+                {
+                    90 => 24.3f,
+                    80 => 18.8f,
+                    70 => 14f,
+                    _ => float.NaN
+                }
             };
         }
         public static int GetStatWithModifiers(StatType type, int fromGear, int level, Job? job, Tribe tribe)
@@ -261,7 +274,7 @@ namespace HimbeertoniRaidTool.Data
                     Level.Rows.Add(67, 10000, 268, 361, 810, 0, 0, 0);
                     Level.Rows.Add(68, 10000, 276, 362, 840, 0, 0, 0);
                     Level.Rows.Add(69, 10000, 284, 363, 870, 0, 0, 0);
-                    Level.Rows.Add(70, 10000, 292, 364, 900, 0, 0, 0);
+                    Level.Rows.Add(70, 10000, 292, 364, 900, 1700, 0, 0);
                     Level.Rows.Add(71, 10000, 296, 365, 940, 0, 0, 0);
                     Level.Rows.Add(72, 10000, 300, 366, 980, 0, 0, 0);
                     Level.Rows.Add(73, 10000, 305, 367, 1020, 0, 0, 0);
@@ -271,7 +284,7 @@ namespace HimbeertoniRaidTool.Data
                     Level.Rows.Add(77, 10000, 325, 374, 1180, 0, 0, 0);
                     Level.Rows.Add(78, 10000, 330, 376, 1220, 0, 0, 0);
                     Level.Rows.Add(79, 10000, 335, 378, 1260, 0, 0, 0);
-                    Level.Rows.Add(80, 10000, 340, 380, 1300, 0, 0, 0);
+                    Level.Rows.Add(80, 10000, 340, 380, 1300, 2000, 0, 0);
                     Level.Rows.Add(81, 10000, 345, 382, 1360, 0, 0, 0);
                     Level.Rows.Add(82, 10000, 350, 384, 1420, 0, 0, 0);
                     Level.Rows.Add(83, 10000, 355, 386, 1480, 0, 0, 0);
