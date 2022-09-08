@@ -18,7 +18,7 @@ namespace HimbeertoniRaidTool.Data
         [JsonIgnore]
         public GearSetSlot Slot => Item.EquipSlotCategory.Value?.ToSlot() ?? GearSetSlot.None;
         [JsonIgnore]
-        public GearSource Source => _ID > 0 ? SourceDic.GetValueOrDefault(Name, GearSource.undefined) : GearSource.undefined;
+        public GearSource Source => SourceDic.GetValueOrDefault(Name, GearSource.undefined);
         [JsonProperty("Materia")]
         public List<HrtMateria> Materia = new();
         [JsonIgnore]
@@ -79,11 +79,11 @@ namespace HimbeertoniRaidTool.Data
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class HrtItem
     {
-        protected uint _ID;
         [JsonProperty("ID")]
-        public virtual uint ID { get => _ID; set { _ID = value; } }
+        protected readonly uint _ID;
+        public virtual uint ID => _ID;
         public Item Item => Sheet?.GetRow(ID) ?? new Item();
-        public string Name => ID > 0 ? Item.Name.RawString : "";
+        public string Name => Item.Name.RawString;
         public bool Valid => ID > 0;
 
         public bool IsGear => Item.EquipSlotCategory.Value is not null;
@@ -94,11 +94,12 @@ namespace HimbeertoniRaidTool.Data
         public bool IsMateria => GetType().IsAssignableTo(typeof(HrtMateria));
         public bool IsExhangableItem => CuratedData.ExchangedFor.ContainsKey(ID);
         public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
-        protected static ExcelSheet<Item>? Sheet => Services.DataManager.Excel.GetSheet<Item>();
+        [JsonIgnore]
+        protected readonly static ExcelSheet<Item>? Sheet = Services.DataManager.Excel.GetSheet<Item>();
 
         public HrtItem() : this(0) { }
-
-        public HrtItem(uint idArg) => ID = idArg;
+        [JsonConstructor]
+        public HrtItem(uint idArg) => _ID = idArg;
 
         public override bool Equals(object? obj)
         {
@@ -112,17 +113,21 @@ namespace HimbeertoniRaidTool.Data
     public class HrtMateria : HrtItem
     {
         [JsonProperty("Category")]
-        public MateriaCategory Category;
+        public readonly MateriaCategory Category;
         [JsonProperty("MateriaLevel")]
-        public byte MateriaLevel;
-        private ExcelSheet<Materia> MateriaSheet => Services.DataManager.Excel.GetSheet<Materia>()!;
-        public override uint ID => Category != MateriaCategory.None ? Materia?.Item[MateriaLevel].Row ?? 0 : 0;
+        public readonly byte MateriaLevel;
+        [JsonIgnore]
+        private readonly static ExcelSheet<Materia> MateriaSheet = Services.DataManager.Excel.GetSheet<Materia>()!;
+        [JsonIgnore]
+        public override uint ID => Materia?.Item[MateriaLevel].Row ?? 0;
         public Materia? Materia => MateriaSheet.GetRow((ushort)Category);
         public StatType StatType => (StatType)(Materia?.BaseParam.Row ?? 0);
         public HrtMateria() : this(0, 0) { }
         public HrtMateria((MateriaCategory cat, byte lvl) mat) : this(mat.cat, mat.lvl) { }
         [JsonConstructor]
         public HrtMateria(MateriaCategory cat, byte lvl) => (Category, MateriaLevel) = (cat, lvl);
+
+
         public int GetStat() => Materia?.Value[MateriaLevel] ?? 0;
     }
     /// <summary>
