@@ -528,7 +528,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     {
                         string materria = "";
                         foreach (HrtMateria mat in item.Materia)
-                            materria += $"{mat.Category.GetAttribute<StatAttribute>()?.StatType.Abbrev()} +{mat.GetStat()}  ";
+                            materria += $"{mat.StatType.Abbrev()} +{mat.GetStat()}  ";
                         ImGui.SameLine();
                         ImGui.Text($"(  {materria})");
                     }

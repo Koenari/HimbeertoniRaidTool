@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Lumina.Excel.GeneratedSheets;
@@ -318,33 +319,58 @@ namespace HimbeertoniRaidTool.Data
     }
     public static class EnumExtensions
     {
-        public static string FriendlyName(this StatType t) => t switch
+        private static readonly Dictionary<StatType, string> StatTypeNameLookup;
+        private static readonly Dictionary<StatType, string> StatTypeAbbrevLookup;
+        private static readonly Dictionary<GearSetSlot, string> GearSetSlotNameLookup;
+        static EnumExtensions()
         {
-            StatType.PhysicalDamage => Localize("Physical Damage", "Physical Damage"),
-            StatType.MagicalDamage => Localize("Magical Damage", "Magical Damage"),
-            StatType.CriticalHit => Localize("Critical Hit", "Critical Hit"),
-            StatType.DirectHitRate => Localize("Direct Hit", "Direct Hit"),
-            StatType.SkillSpeed => Localize("Skill Speed", "Skill Speed"),
-            StatType.SpellSpeed => Localize("Spell Speed", "Spell Speed"),
-            StatType.MagicDefense => Localize("Magic Defense", "Magic Defense"),
-            _ => t.ToString(),
-        };
-        public static string Abbrev(this StatType t) => t switch
-        {
-            StatType.CriticalHit => Localize("CRT", "CRT"),
-            StatType.DirectHitRate => Localize("DH", "DH"),
-            StatType.SkillSpeed => Localize("SKS", "SKS"),
-            StatType.SpellSpeed => Localize("SPS", "SPS"),
-            StatType.Determination => Localize("DET", "DET"),
-            StatType.Piety => Localize("PIE", "PIE"),
-            StatType.Mind => Localize("MND", "MND"),
-            StatType.Strength => Localize("STR", "STR"),
-            StatType.Dexterity => Localize("DEX", "DEX"),
-            StatType.Intelligence => Localize("INT", "INT"),
-            StatType.Vitality => Localize("VIT", "VIT"),
-            StatType.Tenacity => Localize("TEN", "TEN"),
-            _ => "XXX",
-        };
+            StatTypeNameLookup = new()
+            {
+                [StatType.PhysicalDamage] = Localize("Physical Damage", "Physical Damage"),
+                [StatType.MagicalDamage] = Localize("Magical Damage", "Magical Damage"),
+                [StatType.CriticalHit] = Localize("Critical Hit", "Critical Hit"),
+                [StatType.DirectHitRate] = Localize("Direct Hit", "Direct Hit"),
+                [StatType.SkillSpeed] = Localize("Skill Speed", "Skill Speed"),
+                [StatType.SpellSpeed] = Localize("Spell Speed", "Spell Speed"),
+                [StatType.MagicDefense] = Localize("Magic Defense", "Magic Defense")
+            };
+
+            StatTypeAbbrevLookup = new()
+            {
+                [StatType.CriticalHit] = Localize("CRT", "CRT"),
+                [StatType.DirectHitRate] = Localize("DH", "DH"),
+                [StatType.SkillSpeed] = Localize("SKS", "SKS"),
+                [StatType.SpellSpeed] = Localize("SPS", "SPS"),
+                [StatType.Determination] = Localize("DET", "DET"),
+                [StatType.Piety] = Localize("PIE", "PIE"),
+                [StatType.Mind] = Localize("MND", "MND"),
+                [StatType.Strength] = Localize("STR", "STR"),
+                [StatType.Dexterity] = Localize("DEX", "DEX"),
+                [StatType.Intelligence] = Localize("INT", "INT"),
+                [StatType.Vitality] = Localize("VIT", "VIT"),
+                [StatType.Tenacity] = Localize("TEN", "TEN")
+            };
+            GearSetSlotNameLookup = new()
+            {
+                [GearSetSlot.MainHand] = Localize("Weapon", "Weapon"),
+                [GearSetSlot.OffHand] = Localize("Shield", "Shield"),
+                [GearSetSlot.Head] = Localize("Head", "Head"),
+                [GearSetSlot.Body] = Localize("Body", "Body"),
+                [GearSetSlot.Hands] = Localize("Gloves", "Gloves"),
+                [GearSetSlot.Waist] = Localize("NoBelts", "There no longer are belts you fuckwit"),
+                [GearSetSlot.Legs] = Localize("Trousers", "Trousers"),
+                [GearSetSlot.Feet] = Localize("Shoes", "Shoes"),
+                [GearSetSlot.Ear] = Localize("Earrings", "Earrings"),
+                [GearSetSlot.Neck] = Localize("Necklace", "Necklace"),
+                [GearSetSlot.Wrist] = Localize("Bracelet", "Bracelet"),
+                [GearSetSlot.Ring1] = Localize("Ring", "Ring"),
+                [GearSetSlot.Ring2] = Localize("Ring", "Ring"),
+                [GearSetSlot.SoulCrystal] = Localize("Soul Crystal", "Soul Crystal"),
+            };
+
+        }
+        public static string FriendlyName(this StatType t) => StatTypeNameLookup.ContainsKey(t) ? StatTypeNameLookup[t] : t.ToString();
+        public static string Abbrev(this StatType t) => StatTypeAbbrevLookup.ContainsKey(t)? StatTypeAbbrevLookup[t] : "XXX";
         public static Role GetRole(this Job? c) => c.HasValue ? GetRole(c.Value) : Role.None;
         public static Role GetRole(this Job c) =>
             c.GetAttribute<RoleAttribute>()?.Role ?? Role.None;
@@ -385,25 +411,8 @@ namespace HimbeertoniRaidTool.Data
             _ => Localize("undefined", "undefined")
 
         };
-        public static string FriendlyName(this GearSetSlot slot) => slot switch
-        {
-            GearSetSlot.MainHand => Localize("Weapon", "Weapon"),
-            GearSetSlot.OffHand => Localize("Shield", "Shield"),
-            GearSetSlot.Head => Localize("Head", "Head"),
-            GearSetSlot.Body => Localize("Body", "Body"),
-            GearSetSlot.Hands => Localize("Gloves", "Gloves"),
-            GearSetSlot.Waist => Localize("NoBelts", "There no longer are belts you fuckwit"),
-            GearSetSlot.Legs => Localize("Trousers", "Trousers"),
-            GearSetSlot.Feet => Localize("Shoes", "Shoes"),
-            GearSetSlot.Ear => Localize("Earrings", "Earrings"),
-            GearSetSlot.Neck => Localize("Necklace", "Necklace"),
-            GearSetSlot.Wrist => Localize("Bracelet", "Bracelet"),
-            GearSetSlot.Ring1 => Localize("Ring", "Ring"),
-            GearSetSlot.Ring2 => Localize("Ring", "Ring"),
-            GearSetSlot.SoulCrystal => Localize("Soul Crystal", "Soul Crystal"),
-            _ => Localize("undefined", "undefined")
-
-        };
+        public static string FriendlyName(this GearSetSlot slot) => 
+            GearSetSlotNameLookup.ContainsKey(slot) ? GearSetSlotNameLookup[slot]: Localize("undefined", "undefined");
         public static string FriendlyName(this GearSource source) => source switch
         {
             GearSource.Raid => Localize("Raid", "Raid"),

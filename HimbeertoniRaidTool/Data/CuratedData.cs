@@ -21,14 +21,13 @@ namespace HimbeertoniRaidTool.Data
     internal static class CuratedData
     {
         public static RaidTier CurrentRaidSavage => AbyssosSavage;
-        public static RaidTier CurrentRaidNormal => AbyssosNormal;
-        public static RaidTier AbyssosNormal => new(6, 2, EncounterDifficulty.Normal, 620, 610, "Abyssos");
-        public static RaidTier AbyssosSavage => new(6, 2, EncounterDifficulty.Savage, 635, 630, "Abyssos " + Localize("Savage", "Savage"));
-        public static RaidTier AsphodelosNormal => new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
-        public static RaidTier AsphodelosSavage => new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos " + Localize("Savage", "Savage"));
-        public static RaidTier DragonsongRepriseUltimate => new(6, 1, EncounterDifficulty.Ultimate, 605, 0, $"{Localize("Dragonsong Reprise", "Dragonsong Reprise")} {Localize("Ultimate", "Ultimate")}");
+        public static RaidTier AbyssosNormal = new(6, 2, EncounterDifficulty.Normal, 620, 610, "Abyssos");
+        public static RaidTier AbyssosSavage = new(6, 2, EncounterDifficulty.Savage, 635, 630, "Abyssos " + Localize("Savage", "Savage"));
+        public static RaidTier AsphodelosNormal = new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
+        public static RaidTier AsphodelosSavage = new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos " + Localize("Savage", "Savage"));
+        public static RaidTier DragonsongRepriseUltimate = new(6, 1, EncounterDifficulty.Ultimate, 605, 0, $"{Localize("Dragonsong Reprise", "Dragonsong Reprise")} {Localize("Ultimate", "Ultimate")}");
 
-        public static RaidTier[] RaidTiers => new RaidTier[]
+        public static RaidTier[] RaidTiers = new RaidTier[]
         {
             AsphodelosSavage,
             AbyssosSavage

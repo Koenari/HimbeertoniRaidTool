@@ -113,7 +113,7 @@ namespace HimbeertoniRaidTool.Data
     public class HrtMateria : HrtItem
     {
         [JsonProperty("Category")]
-        public readonly MateriaCategory Category;
+        private readonly MateriaCategory Category;
         [JsonProperty("MateriaLevel")]
         public readonly byte MateriaLevel;
         [JsonIgnore]
