@@ -112,35 +112,32 @@ namespace HimbeertoniRaidTool.Data
         /// <param name="totalStat">total value of stat</param>
         /// <param name="level">level of the job to evaluate for</param>
         /// <param name="job">current job</param>
-        /// <param name="alternative">a way to use alternative formulas for stats that have multiple effects (0 is default furmula)</param>
+        /// <param name="alternative">a way to use alternative formulas for stats that have multiple effects (0 is default furmula)</param
+        /// <param name="additionalStats">pass any additional stats that are necessary to calculate given vlaue</param>
         /// <returns>Evaluated value including unit</returns>
-        public static string EvaluateStatToDisplay(StatType type, int totalStat, int level, Job? job, int alternative = 0)
+        public static string EvaluateStatToDisplay(StatType type, int totalStat, int level, Job? job, int alternative = 0, params (StatType type, int totalStat)[] additionalStats)
         {
             string notAvail = "n.A.";
-            float evaluatedValue = EvaluateStat(type, totalStat, level, job, alternative);
+            float evaluatedValue = EvaluateStat(type, totalStat, level, job, alternative, additionalStats);
             if (float.IsNaN(evaluatedValue))
                 return notAvail;
             if (type == StatType.CriticalHit && alternative == 1)
                 type = StatType.CriticalHitPower;
-            return type switch
+            return (type, alternative) switch
             {
-                StatType.CriticalHit => $"{evaluatedValue * 100:N1} %%",
-                StatType.CriticalHitPower => $"{evaluatedValue * 100:N1} %%",
-                StatType.DirectHitRate => $"{evaluatedValue * 100:N1} %%",
-                StatType.Determination => $"{100 + evaluatedValue * 100:N1} %%",
-                StatType.Tenacity => $"{evaluatedValue * 100:N1} %%",
-                StatType.Piety => $"+{evaluatedValue:N0} MP/s",
-                StatType.SkillSpeed or StatType.SpellSpeed =>
-                     alternative switch
-                     {
-                         //GCD
-                         0 => $"{evaluatedValue:N2} s",
-                         //AA/DoT Multiplier
-                         1 => $"{evaluatedValue * 100:N1} %%",
-                         _ => notAvail
-                     },
-                StatType.Defense or StatType.MagicDefense => $"{evaluatedValue * 100:N1} %%",
-                StatType.Vitality => $"{evaluatedValue:N0} HP",
+                (StatType.CriticalHit, _) => $"{evaluatedValue * 100:N1} %%",
+                (StatType.CriticalHitPower, _) => $"{evaluatedValue * 100:N1} %%",
+                (StatType.DirectHitRate, _) => $"{evaluatedValue * 100:N1} %%",
+                (StatType.Determination, _) => $"{100 + evaluatedValue * 100:N1} %%",
+                (StatType.Tenacity, _) => $"{evaluatedValue * 100:N1} %%",
+                (StatType.Piety, _) => $"+{evaluatedValue:N0} MP/s",
+                //GCD
+                (StatType.SkillSpeed, 1) or (StatType.SpellSpeed, 1) => $"{evaluatedValue:N2} s",
+                //AA/DoT Multiplier
+                (StatType.SkillSpeed, _) or (StatType.SpellSpeed, _) => $"{evaluatedValue * 100:N1} %%",
+                (StatType.Defense, _) or (StatType.MagicDefense, _) => $"{evaluatedValue * 100:N1} %%",
+                (StatType.Vitality, _) => $"{evaluatedValue:N0} HP",
+                (StatType.MagicalDamage, _) or (StatType.PhysicalDamage, _) => $"{evaluatedValue:N2} Dmg/100",
                 _ => notAvail
             };
         }
@@ -152,43 +149,66 @@ namespace HimbeertoniRaidTool.Data
         /// <param name="totalStat">total value of stat</param>
         /// <param name="level">level of the job to evaluate for</param>
         /// <param name="job">current job</param>
-        /// <param name="alternative">a way to use alternative formulas for stats that have multiple effects (0 is default furmula)</param>
+        /// <param name="alternative">a way to use alternative formulas for stats that have multiple effects (0 is default formula)</param>
+        /// /// <param name="additionalStats">pass any additional stats that are necessary to calculate given vlaue</param>
         /// <returns>Evaluated value (percentage values are in mathematical correct value, means 100% = 1.0)</returns>
-        public static float EvaluateStat(StatType type, int totalStat, int level, Job? job, int alternative = 0)
+        public static float EvaluateStat(StatType type, int totalStat, int level, Job? job, int alternative = 0, params (StatType t, int sum)[] additionalStats)
         {
             if (type == StatType.CriticalHit && alternative == 1)
                 type = StatType.CriticalHitPower;
-            return type switch
+            return (type, alternative) switch
             {
-                StatType.CriticalHit => MathF.Floor(200 * (totalStat - LevelTable[level].SUB / LevelTable[level].DIV + 50)) / 1000f,
-                StatType.CriticalHitPower => MathF.Floor(200 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV + 1400) / 1000f,
-                StatType.DirectHitRate => MathF.Floor(550 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV) / 1000f,
-                StatType.Determination => MathF.Floor(140 * (totalStat - LevelTable[level].MAIN) / LevelTable[level].DIV) / 1000f,
-                StatType.Tenacity =>
-                    alternative switch
-                    {
-                        //Inc Dmg Mitigation
-                        0 => (1000f - MathF.Floor(100 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV)) / 1000f,
-                        //Out DMG%Heal
-                        1 => (1000f + MathF.Floor(100 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV)) / 1000f,
-                        _ => float.NaN,
-                    },
-                StatType.Piety => MathF.Floor(150 * (totalStat - LevelTable[level].MAIN) / LevelTable[level].DIV) + 200f,
-                StatType.SkillSpeed or StatType.SpellSpeed =>
-                     alternative switch
-                     {
-                         //GCD
-                         0 => MathF.Floor(2500f * (1000 + MathF.Ceiling(130 * (LevelTable[level].SUB - totalStat) / LevelTable[level].DIV)) / 10000f) / 100f,
-                         //AA/DoT Multiplier
-                         1 => (1000f + MathF.Ceiling(130f * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV)) / 1000f,
-                         _ => float.NaN
-                     },
-                StatType.Defense or StatType.MagicDefense => MathF.Floor(15 * totalStat / LevelTable[level].DIV) / 100f,
+
+                (StatType.CriticalHitPower, _) or (StatType.CriticalHit, 1) => MathF.Floor(200 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV + 1400) / 1000f,
+                (StatType.CriticalHit, _) => MathF.Floor(200 * (totalStat - LevelTable[level].SUB / LevelTable[level].DIV + 50)) / 1000f,
+                (StatType.DirectHitRate, _) => MathF.Floor(550 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV) / 1000f,
+                (StatType.Determination, _) => MathF.Floor(140 * (totalStat - LevelTable[level].MAIN) / LevelTable[level].DIV) / 1000f,
+                (StatType.Tenacity, 1) => (1000f + MathF.Floor(100 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV)) / 1000f,
+                (StatType.Tenacity, _) => (1000f - MathF.Floor(100 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV)) / 1000f,
+                (StatType.Piety, _) => MathF.Floor(150 * (totalStat - LevelTable[level].MAIN) / LevelTable[level].DIV) + 200f,
+                //AA/DoT Multiplier
+                (StatType.SkillSpeed, 1) or (StatType.SpellSpeed, 1) => (1000f + MathF.Ceiling(130f * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV)) / 1000f,
+                //GCD
+                (StatType.SkillSpeed, _) or (StatType.SpellSpeed, _) => MathF.Floor(2500f * (1000 + MathF.Ceiling(130 * (LevelTable[level].SUB - totalStat) / LevelTable[level].DIV)) / 10000f) / 100f,
+                (StatType.Defense, _) or (StatType.MagicDefense, _) => MathF.Floor(15 * totalStat / LevelTable[level].DIV) / 100f,
                 //ToDO: Still rounding issues
-                StatType.Vitality => MathF.Floor(LevelTable[level].HP * GetJobModifier(StatType.HP, job.GetClassJob()))
+                (StatType.Vitality, _) => MathF.Floor(LevelTable[level].HP * GetJobModifier(StatType.HP, job.GetClassJob()))
                     + MathF.Floor((totalStat - LevelTable[level].MAIN) * GetHPMultiplier(level, job)),
+                (StatType.MagicalDamage, _) or (StatType.PhysicalDamage, _) => CalcBaseDamageMultiplier(type, totalStat, level, job, additionalStats),
                 _ => float.NaN
             };
+        }
+        private static float CalcBaseDamageMultiplier(StatType type, int totalStat, int level, Job? job, (StatType t, int sum)[] additionalStats)
+        {
+            int mainStat = type switch
+            {
+                StatType.MagicalDamage => additionalStats.Where(x => x.t == StatType.AttackMagicPotency).SingleOrDefault((StatType.None, -1)).Item2,
+                StatType.PhysicalDamage => additionalStats.Where(x => x.t == StatType.AttackPower).SingleOrDefault((StatType.None, -1)).Item2,
+                _ => -1
+            };
+            int m = (job.GetRole(), level) switch
+            {
+                (Role.Tank, 90) => 156,
+                (Role.Tank, 80) => 115,
+                (Role.Tank, 70) => 105,
+                (_, 90) => 195,
+                (_, 80) => 165,
+                (_, 70) => 125,
+                _ => 0
+            };
+            float trait = job.GetRole() switch
+            {
+                Role.Caster or Role.Healer => 1.3f,
+                Role.Ranged => 1.2f,
+                _ => 1f
+            };
+            if (m == 0 || mainStat < 0)
+                return float.NaN;
+            float baseDmg = (totalStat + MathF.Floor(LevelTable[level].MAIN * GetJobModifier(job.MainStat(), job.GetClassJob()) / 1000f)) * (100 + MathF.Floor((mainStat - LevelTable[level].MAIN) * m / LevelTable[level].MAIN)) / 100f;
+            float tenacityMultiplier = 1f;
+            float determinationMultiplier = 1f;
+
+            return baseDmg * determinationMultiplier * tenacityMultiplier * trait / 100f;
         }
         private static float GetHPMultiplier(int level, Job? job) => (job.GetRole(), level) switch
         {
@@ -200,7 +220,7 @@ namespace HimbeertoniRaidTool.Data
             (_, 70) => 34.6f,
             _ => float.NaN
         };
-        public static int GetStatWithModifiers(StatType type, int fromGear, int level, Job? job, Tribe tribe)
+        public static int GetStatWithModifiers(StatType type, int fromGear, int level, Job? job, Tribe? tribe)
         {
             return fromGear + (int)MathF.Round(GetBaseStat(type, level) * GetJobModifier(type, job.GetClassJob())) + GetRacialModifier(type, tribe);
         }
@@ -218,7 +238,12 @@ namespace HimbeertoniRaidTool.Data
             };
         }
 
-
+        /// <summary>
+        /// Calculates a multiplicative modifier based on the Job/class
+        /// </summary>
+        /// <param name="statType">Which stat is being queried</param>
+        /// <param name="job">Current job to evaluate for</param>
+        /// <returns>Multiplicative modifier to apply to stat</returns>
         public static float GetJobModifier(StatType statType, ClassJob? job)
         {
             if (job is null)
@@ -236,6 +261,12 @@ namespace HimbeertoniRaidTool.Data
                 _ => 100
             } / 100f;
         }
+        /// <summary>
+        /// Calculates a additive modifier based on the race and Tribe (clan)
+        /// </summary>
+        /// <param name="type">Which stat is being queried</param>
+        /// <param name="t">The tribe (clan) to query</param>
+        /// <returns>Additive modifier to apply to sta</returns>
         public static int GetRacialModifier(StatType type, Tribe? t)
         {
             if (t is null)
@@ -249,11 +280,6 @@ namespace HimbeertoniRaidTool.Data
                 StatType.Mind => t.MND,
                 _ => 0
             };
-        }
-        private static bool IsMainStat(StatType statType)
-        {
-            StatType[] mainStats = new StatType[] { StatType.Strength, StatType.Dexterity, StatType.Mind, StatType.Intelligence };
-            return mainStats.Contains(statType);
         }
     }
 }
