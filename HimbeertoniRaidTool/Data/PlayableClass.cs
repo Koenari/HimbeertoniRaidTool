@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using static HimbeertoniRaidTool.DataManagement.DataManager;
@@ -15,7 +16,7 @@ namespace HimbeertoniRaidTool.Data
         public Job Job;
         [JsonIgnore]
         public ClassJob ClassJob => Services.DataManager.GetExcelSheet<ClassJob>()!.GetRow((uint)Job)!;
-        private Character? _parent;
+        public Character? Parent { get; private set; }
         [JsonProperty("Level")]
         public int Level = 1;
         [JsonProperty("Gear")]
@@ -41,19 +42,24 @@ namespace HimbeertoniRaidTool.Data
             BIS = new(GearSetManager.HRT, c, Job, "BIS");
             GetManagedGearSet(ref BIS);
         }
-        public int GetCurrentStat(StatType type)
+        public int GetCurrentStat(StatType type) => GetStat(type, Gear);
+        public int GetBiSStat(StatType type) => GetStat(type, BIS);
+        private int GetStat(StatType type, GearSet set)
         {
-            return AllaganLibrary.GetStatWithModifiers(type, Gear.GetStat(type), Level, Job, _parent?.Tribe);
-        }
-        public int GetBiSStat(StatType type)
-        {
-            return AllaganLibrary.GetStatWithModifiers(type, BIS.GetStat(type), Level, Job, _parent?.Tribe);
+            type = type switch
+            {
+                StatType.AttackMagicPotency => Job.MainStat(),
+                StatType.HealingMagicPotency => StatType.Mind,
+                StatType.AttackPower => Job.MainStat(),
+                _ => type,
+            };
+            return AllaganLibrary.GetStatWithModifiers(type, set.GetStat(type), Level, Job, Parent?.Tribe);
         }
         internal void SetParent(Character c)
         {
             string testString = string.Format("{0:X}-{1:X}", c.HomeWorldID, c.Name.ConsistentHash());
             if (Gear.HrtID.StartsWith(testString))
-                _parent = c;
+                Parent = c;
         }
         public bool IsEmpty => Level == 0 && Gear.IsEmpty && BIS.IsEmpty;
         public void ManageGear()
