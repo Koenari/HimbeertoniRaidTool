@@ -137,7 +137,7 @@ namespace HimbeertoniRaidTool.Data
                 (StatType.SkillSpeed, _) or (StatType.SpellSpeed, _) => $"{evaluatedValue * 100:N1} %%",
                 (StatType.Defense, _) or (StatType.MagicDefense, _) => $"{evaluatedValue * 100:N1} %%",
                 (StatType.Vitality, _) => $"{evaluatedValue:N0} HP",
-                (StatType.MagicalDamage, _) or (StatType.PhysicalDamage, _) => $"{evaluatedValue:N2} Dmg/100",
+                (StatType.MagicalDamage, _) or (StatType.PhysicalDamage, _) => $"{evaluatedValue * 100:N2} Dmg/100",
                 _ => notAvail
             };
         }
@@ -205,9 +205,10 @@ namespace HimbeertoniRaidTool.Data
             if (m == 0 || mainStat < 0)
                 return float.NaN;
             float baseDmg = (totalStat + MathF.Floor(LevelTable[level].MAIN * GetJobModifier(job.MainStat(), job.GetClassJob()) / 1000f)) * (100 + MathF.Floor((mainStat - LevelTable[level].MAIN) * m / LevelTable[level].MAIN)) / 100f;
-            float tenacityMultiplier = 1f;
-            float determinationMultiplier = 1f;
-
+            float determinationMultiplier = additionalStats.Any(x => x.t == StatType.Determination) ?
+                EvaluateStat(StatType.Determination, additionalStats.Where(x => x.t == StatType.Determination).Single().sum, level, job) : 1f;
+            float tenacityMultiplier = additionalStats.Any(x => x.t == StatType.Tenacity) ?
+                EvaluateStat(StatType.Determination, additionalStats.Where(x => x.t == StatType.Tenacity).Single().sum, level, job, 1) : 1f;
             return baseDmg * determinationMultiplier * tenacityMultiplier * trait / 100f;
         }
         private static float GetHPMultiplier(int level, Job? job) => (job.GetRole(), level) switch
