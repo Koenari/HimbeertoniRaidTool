@@ -17,5 +17,5 @@
     "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png"
   ],
   "IsHide": "False",
-  "Changelog" : "Fixed Examine\nReworked edit player interface\nPolished Ui\nFix HP calc\nBetter group creation"
+  "Changelog" : "Massive performance improvement\nAdded Dmg per (100)Potency calculation"
 }
