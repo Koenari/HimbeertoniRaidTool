@@ -170,12 +170,16 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
                         ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, false, i));
+                    if (type == weaponStat && ImGui.IsItemHovered())
+                        ImGui.SetTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
                     //BiS
                     ImGui.TableNextColumn();
                     ImGui.Text(curClass.GetBiSStat(type).ToString());
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
                         ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, true, i));
+                    if (type == weaponStat && ImGui.IsItemHovered())
+                        ImGui.SetTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
                 }
             }
             /**
