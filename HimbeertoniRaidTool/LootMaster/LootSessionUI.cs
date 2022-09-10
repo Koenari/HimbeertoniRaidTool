@@ -45,11 +45,8 @@ namespace HimbeertoniRaidTool.LootMaster
                 {
                     for (int i = 0; i < _session.Loot.Length; i++)
                     {
-                        if (_session.Loot[i].Item1.Valid)
-                        {
-                            ImGui.Text(_session.Loot[i].Item1.Item.Name);
-                            ImGui.InputInt($"##Input{i}", ref _session.Loot[i].Item2);
-                        }
+                        ImGui.Text(_session.Loot[i].Item1.Name);
+                        ImGui.InputInt($"##Input{i}", ref _session.Loot[i].Item2);
                     }
                     ImGui.EndChild();
                 }

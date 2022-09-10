@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using HimbeertoniRaidTool.Data;
-using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.DataManagement
@@ -24,6 +23,10 @@ namespace HimbeertoniRaidTool.DataManagement
                 reset ? "" : CharDBJsonFile.OpenText().ReadToEnd(),
                 DataManager.JsonSerializerSettings) ?? new();
             DataManager.JsonSerializerSettings.Converters.Remove(conv);
+            foreach (var entry1 in CharDB)
+                foreach (var entry2 in entry1.Value)
+                    foreach (var entry3 in entry2.Value.Classes)
+                        entry3.SetParent(entry2.Value);
         }
         internal List<uint> GetUsedWorlds()
         {

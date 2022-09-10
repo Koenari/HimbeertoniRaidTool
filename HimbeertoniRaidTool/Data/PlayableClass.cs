@@ -15,18 +15,13 @@ namespace HimbeertoniRaidTool.Data
         public Job Job;
         [JsonIgnore]
         public ClassJob ClassJob => Services.DataManager.GetExcelSheet<ClassJob>()!.GetRow((uint)Job)!;
+        private Character? _parent;
         [JsonProperty("Level")]
         public int Level = 1;
         [JsonProperty("Gear")]
         public GearSet Gear;
         [JsonProperty("BIS")]
         public GearSet BIS;
-        public PlayableClass(Job classType)
-        {
-            Job = classType;
-            Gear = new();
-            BIS = new();
-        }
         [JsonConstructor]
         [Obsolete]
         private PlayableClass(AvailableClasses? classType)
@@ -45,6 +40,20 @@ namespace HimbeertoniRaidTool.Data
             GetManagedGearSet(ref Gear);
             BIS = new(GearSetManager.HRT, c, Job, "BIS");
             GetManagedGearSet(ref BIS);
+        }
+        public int GetCurrentStat(StatType type)
+        {
+            return AllaganLibrary.GetStatWithModifiers(type, Gear.GetStat(type), Level, Job, _parent?.Tribe);
+        }
+        public int GetBiSStat(StatType type)
+        {
+            return AllaganLibrary.GetStatWithModifiers(type, BIS.GetStat(type), Level, Job, _parent?.Tribe);
+        }
+        internal void SetParent(Character c)
+        {
+            string testString = string.Format("{0:X}-{1:X}", c.HomeWorldID, c.Name.ConsistentHash());
+            if (Gear.HrtID.StartsWith(testString))
+                _parent = c;
         }
         public bool IsEmpty => Level == 0 && Gear.IsEmpty && BIS.IsEmpty;
         public void ManageGear()

@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using ImGuiScene;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
@@ -16,16 +15,17 @@ namespace HimbeertoniRaidTool.Data
         public bool IsHq = false;
         private static KeyContainsDictionary<GearSource> SourceDic => CuratedData.GearSourceDictionary;
         [JsonIgnore]
-        public GearSetSlot Slot => Item.EquipSlotCategory.Value?.ToSlot() ?? GearSetSlot.None;
+        public GearSetSlot Slot => Item?.EquipSlotCategory.Value?.ToSlot() ?? GearSetSlot.None;
         [JsonIgnore]
         public GearSource Source => SourceDic.GetValueOrDefault(Name, GearSource.undefined);
         [JsonProperty("Materia")]
         public List<HrtMateria> Materia = new();
         [JsonIgnore]
-        public uint ItemLevel => (Item.LevelItem is null) ? 0 : Item.LevelItem.Row;
+        public uint ItemLevel => Item?.LevelItem.Row ?? 0;
+        public bool Filled => ID > 0;
         public int GetStat(StatType type, bool includeMateria = true)
         {
-            if (!Valid) return 0;
+            if (Item is null) return 0;
             int result = 0;
             switch (type)
             {
@@ -47,9 +47,7 @@ namespace HimbeertoniRaidTool.Data
                     result += materia.GetStat();
             return result;
         }
-        public GearItem() : base() { }
-        [JsonConstructor]
-        public GearItem(uint id) : base(id) { }
+        public GearItem(uint ID = 0) : base(ID) { }
         public bool Equals(GearItem other)
         {
             if (ReferenceEquals(this, other)) return true;
@@ -79,14 +77,12 @@ namespace HimbeertoniRaidTool.Data
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class HrtItem
     {
-        [JsonProperty("ID")]
-        protected readonly uint _ID;
+        [JsonProperty("ID", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        protected readonly uint _ID = 0;
         public virtual uint ID => _ID;
-        public Item Item => Sheet?.GetRow(ID) ?? new Item();
-        public string Name => Item.Name.RawString;
-        public bool Valid => ID > 0;
-
-        public bool IsGear => Item.EquipSlotCategory.Value is not null;
+        public Item? Item => Sheet.GetRow(ID);
+        public string Name => Item?.Name.RawString ?? "";
+        public bool IsGear => Item?.EquipSlotCategory.Value is not null;
         /// <summary>
         /// Is done this way since HrtMateria cannot be created from ItemID alone 
         /// and always will be of type HrtMateria
@@ -95,11 +91,9 @@ namespace HimbeertoniRaidTool.Data
         public bool IsExhangableItem => CuratedData.ExchangedFor.ContainsKey(ID);
         public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
         [JsonIgnore]
-        protected readonly static ExcelSheet<Item>? Sheet = Services.DataManager.Excel.GetSheet<Item>();
+        protected readonly static ExcelSheet<Item> Sheet = Services.DataManager.Excel.GetSheet<Item>()!;
 
-        public HrtItem() : this(0) { }
-        [JsonConstructor]
-        public HrtItem(uint idArg) => _ID = idArg;
+        public HrtItem(uint ID) => _ID = ID;
 
         public override bool Equals(object? obj)
         {
@@ -113,7 +107,7 @@ namespace HimbeertoniRaidTool.Data
     public class HrtMateria : HrtItem
     {
         [JsonProperty("Category")]
-        public readonly MateriaCategory Category;
+        private readonly MateriaCategory Category;
         [JsonProperty("MateriaLevel")]
         public readonly byte MateriaLevel;
         [JsonIgnore]
@@ -125,7 +119,7 @@ namespace HimbeertoniRaidTool.Data
         public HrtMateria() : this(0, 0) { }
         public HrtMateria((MateriaCategory cat, byte lvl) mat) : this(mat.cat, mat.lvl) { }
         [JsonConstructor]
-        public HrtMateria(MateriaCategory cat, byte lvl) => (Category, MateriaLevel) = (cat, lvl);
+        public HrtMateria(MateriaCategory cat, byte lvl) : base(0) => (Category, MateriaLevel) = (cat, lvl);
 
 
         public int GetStat() => Materia?.Value[MateriaLevel] ?? 0;

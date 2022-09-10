@@ -55,7 +55,7 @@ namespace HimbeertoniRaidTool.Data
                         itemLevel += Items[i].ItemLevel;
                     }
                 }
-                return (int)((float)itemLevel / (OffHand.Valid ? NumSlots : (NumSlots - 1)));
+                return (int)((float)itemLevel / (OffHand.ID > 0 ? NumSlots : (NumSlots - 1)));
 
             }
         }
