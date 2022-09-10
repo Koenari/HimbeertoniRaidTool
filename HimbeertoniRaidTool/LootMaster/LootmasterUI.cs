@@ -57,6 +57,7 @@ namespace HimbeertoniRaidTool.LootMaster
         }
         private void DrawDetailedPlayer(Player p)
         {
+            var curClass = p.MainChar.MainClass;
             ImGui.BeginChild("SoloView");
             ImGui.Columns(3);
             /**
@@ -106,12 +107,13 @@ namespace HimbeertoniRaidTool.LootMaster
              * Stat Table
              */
             ImGui.NextColumn();
-            if (p.MainChar.MainClass is not null && p.MainChar.MainJob is not null)
+            if (curClass is not null)
             {
-                var playerRole = p.MainChar.MainClass.Job.GetRole();
-                var mainStat = p.MainChar.MainClass.Job.MainStat();
-                var weaponStat = (p.MainChar.MainJob.GetRole() == Role.Healer || p.MainChar.MainJob.GetRole() == Role.Caster) ?
-                    StatType.MagicalDamage : StatType.PhysicalDamage;
+                var curJob = curClass.Job;
+                var curRole = curJob.GetRole();
+                var mainStat = curJob.MainStat();
+                var weaponStat = (curRole == Role.Healer || curRole == Role.Caster) ? StatType.MagicalDamage : StatType.PhysicalDamage;
+                var potencyStat = (curRole == Role.Healer || curRole == Role.Caster) ? StatType.AttackMagicPotency : StatType.AttackPower;
                 ImGui.TextColored(Vec4(ColorName.RedCrayola.ToRgb()),
                     Localize("StatsUnfinished", "Stats are under development and only work corrrectly for level 90 jobs"));
 
@@ -139,10 +141,10 @@ namespace HimbeertoniRaidTool.LootMaster
                 DrawStatRow(StatType.CriticalHit);
                 DrawStatRow(StatType.Determination);
                 DrawStatRow(StatType.DirectHitRate);
-                if (playerRole == Role.Healer || playerRole == Role.Caster)
+                if (curRole == Role.Healer || curRole == Role.Caster)
                 {
                     DrawStatRow(StatType.SpellSpeed);
-                    if (playerRole == Role.Healer)
+                    if (curRole == Role.Healer)
                         DrawStatRow(StatType.Piety);
                     //These two are Magic to me -> Need Allagan Studies
                     //DrawStatRow(p.Gear, StatType.AttackMagicPotency);
@@ -154,7 +156,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     DrawStatRow(StatType.SkillSpeed);
                     //See AMP and HMP
                     //DrawStatRow(p.Gear, StatType.AttackPower);
-                    if (playerRole == Role.Tank)
+                    if (curRole == Role.Tank)
                         DrawStatRow(StatType.Tenacity);
                 }
                 ImGui.EndTable();
@@ -162,7 +164,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 void DrawStatRow(StatType type)
                 {
                     int numEvals = 1;
-                    if (type == StatType.CriticalHit || type == StatType.Tenacity)
+                    if (type == StatType.CriticalHit || type == StatType.Tenacity || type == StatType.SpellSpeed || type == StatType.SkillSpeed)
                         numEvals++;
                     ImGui.TableNextColumn();
                     ImGui.Text(type.FriendlyName());
@@ -170,17 +172,16 @@ namespace HimbeertoniRaidTool.LootMaster
                         ImGui.Text("Critical Damage");
                     //Current
                     ImGui.TableNextColumn();
-                    ImGui.Text(Stat(p.Gear).ToString());
+                    ImGui.Text(curClass.GetCurrentStat(type).ToString());
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
-                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, Stat(p.Gear), p.MainChar.MainClass.Level, p.MainChar.MainJob, i));
+                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass.GetCurrentStat(type), curClass.Level, curJob, i));
                     //BiS
                     ImGui.TableNextColumn();
-                    ImGui.Text(Stat(p.BIS).ToString());
+                    ImGui.Text(curClass.GetBiSStat(type).ToString());
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
-                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, Stat(p.BIS), p.MainChar.MainClass.Level, p.MainChar.MainJob, i));
-                    int Stat(GearSet gear) => AllaganLibrary.GetStatWithModifiers(type, gear.GetStat(type), p.MainChar.MainClass.Level, p.MainChar.MainJob, p.MainChar.Tribe);
+                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass.GetBiSStat(type), curClass.Level, curJob, i));
                 }
             }
             /**

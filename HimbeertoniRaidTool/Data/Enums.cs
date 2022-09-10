@@ -385,6 +385,7 @@ namespace HimbeertoniRaidTool.Data
                 .GetCustomAttributes<T>(false)
                 .SingleOrDefault();
         }
+        public static StatType MainStat(this Job? c) => c.HasValue ? MainStat(c) : StatType.None;
         public static StatType MainStat(this Job c) =>
             c.GetAttribute<StatAttribute>()?.StatType
             ?? c.GetAttribute<RoleAttribute>()?.Role.GetAttribute<StatAttribute>()?.StatType
