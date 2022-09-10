@@ -504,7 +504,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private static void DrawSlot(GearItem item, GearItem bis, bool extended = false)
         {
             ImGui.TableNextColumn();
-            if (item.Valid && bis.Valid && item.Equals(bis))
+            if (item.Filled && bis.Filled && item.Equals(bis))
             {
                 ImGui.NewLine();
                 DrawItem(item, extended);
@@ -518,7 +518,7 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             static void DrawItem(GearItem item, bool extended)
             {
-                if (item.Valid)
+                if (item.Filled)
                 {
                     ImGui.BeginGroup();
                     ImGui.TextColored(
