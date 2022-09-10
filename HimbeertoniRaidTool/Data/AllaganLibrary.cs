@@ -115,29 +115,26 @@ namespace HimbeertoniRaidTool.Data
         /// <param name="alternative">a way to use alternative formulas for stats that have multiple effects (0 is default furmula)</param
         /// <param name="additionalStats">pass any additional stats that are necessary to calculate given vlaue</param>
         /// <returns>Evaluated value including unit</returns>
-        public static string EvaluateStatToDisplay(StatType type, int totalStat, int level, Job? job, int alternative = 0, params (StatType type, int totalStat)[] additionalStats)
+        public static string EvaluateStatToDisplay(StatType type, PlayableClass curClass, bool bis, int alternative = 0)
         {
             string notAvail = "n.A.";
-            float evaluatedValue = EvaluateStat(type, totalStat, level, job, alternative, additionalStats);
+            float evaluatedValue = EvaluateStat(type, curClass, bis, alternative);
             if (float.IsNaN(evaluatedValue))
                 return notAvail;
-            if (type == StatType.CriticalHit && alternative == 1)
-                type = StatType.CriticalHitPower;
             return (type, alternative) switch
             {
                 (StatType.CriticalHit, _) => $"{evaluatedValue * 100:N1} %%",
-                (StatType.CriticalHitPower, _) => $"{evaluatedValue * 100:N1} %%",
                 (StatType.DirectHitRate, _) => $"{evaluatedValue * 100:N1} %%",
-                (StatType.Determination, _) => $"{100 + evaluatedValue * 100:N1} %%",
+                (StatType.Determination, _) => $"{evaluatedValue * 100:N1} %%",
                 (StatType.Tenacity, _) => $"{evaluatedValue * 100:N1} %%",
                 (StatType.Piety, _) => $"+{evaluatedValue:N0} MP/s",
-                //GCD
-                (StatType.SkillSpeed, 1) or (StatType.SpellSpeed, 1) => $"{evaluatedValue:N2} s",
                 //AA/DoT Multiplier
-                (StatType.SkillSpeed, _) or (StatType.SpellSpeed, _) => $"{evaluatedValue * 100:N1} %%",
+                (StatType.SkillSpeed, 1) or (StatType.SpellSpeed, 1) => $"{evaluatedValue * 100:N2} %%",
+                //GCD
+                (StatType.SkillSpeed, _) or (StatType.SpellSpeed, _) => $"{evaluatedValue:N2} s",
                 (StatType.Defense, _) or (StatType.MagicDefense, _) => $"{evaluatedValue * 100:N1} %%",
                 (StatType.Vitality, _) => $"{evaluatedValue:N0} HP",
-                (StatType.MagicalDamage, _) or (StatType.PhysicalDamage, _) => $"{evaluatedValue * 100:N2} Dmg/100",
+                (StatType.MagicalDamage, _) or (StatType.PhysicalDamage, _) => $"{evaluatedValue * 100:N0} Dmg/100",
                 _ => notAvail
             };
         }
@@ -152,18 +149,20 @@ namespace HimbeertoniRaidTool.Data
         /// <param name="alternative">a way to use alternative formulas for stats that have multiple effects (0 is default formula)</param>
         /// /// <param name="additionalStats">pass any additional stats that are necessary to calculate given vlaue</param>
         /// <returns>Evaluated value (percentage values are in mathematical correct value, means 100% = 1.0)</returns>
-        public static float EvaluateStat(StatType type, int totalStat, int level, Job? job, int alternative = 0, params (StatType t, int sum)[] additionalStats)
+        public static float EvaluateStat(StatType type, PlayableClass curClass, bool bis, int alternative = 0)
         {
-            if (type == StatType.CriticalHit && alternative == 1)
-                type = StatType.CriticalHitPower;
+            int totalStat = bis ? curClass.GetBiSStat(type) : curClass.GetCurrentStat(type);
+            int level = curClass.Level;
+            var job = curClass.Job;
             return (type, alternative) switch
             {
-
-                (StatType.CriticalHitPower, _) or (StatType.CriticalHit, 1) => MathF.Floor(200 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV + 1400) / 1000f,
-                (StatType.CriticalHit, _) => MathF.Floor(200 * (totalStat - LevelTable[level].SUB / LevelTable[level].DIV + 50)) / 1000f,
+                (StatType.CriticalHit, 1) => MathF.Floor(200 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV + 1400) / 1000f,
+                (StatType.CriticalHit, _) => MathF.Floor(200 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV + 50) / 1000f,
                 (StatType.DirectHitRate, _) => MathF.Floor(550 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV) / 1000f,
-                (StatType.Determination, _) => MathF.Floor(140 * (totalStat - LevelTable[level].MAIN) / LevelTable[level].DIV) / 1000f,
+                (StatType.Determination, _) => MathF.Floor(1000 + 140 * (totalStat - LevelTable[level].MAIN) / LevelTable[level].DIV) / 1000f,
+                //Outgoing DMG
                 (StatType.Tenacity, 1) => (1000f + MathF.Floor(100 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV)) / 1000f,
+                //Incoming DMG
                 (StatType.Tenacity, _) => (1000f - MathF.Floor(100 * (totalStat - LevelTable[level].SUB) / LevelTable[level].DIV)) / 1000f,
                 (StatType.Piety, _) => MathF.Floor(150 * (totalStat - LevelTable[level].MAIN) / LevelTable[level].DIV) + 200f,
                 //AA/DoT Multiplier
@@ -172,21 +171,35 @@ namespace HimbeertoniRaidTool.Data
                 (StatType.SkillSpeed, _) or (StatType.SpellSpeed, _) => MathF.Floor(2500f * (1000 + MathF.Ceiling(130 * (LevelTable[level].SUB - totalStat) / LevelTable[level].DIV)) / 10000f) / 100f,
                 (StatType.Defense, _) or (StatType.MagicDefense, _) => MathF.Floor(15 * totalStat / LevelTable[level].DIV) / 100f,
                 //ToDO: Still rounding issues
-                (StatType.Vitality, _) => MathF.Floor(LevelTable[level].HP * GetJobModifier(StatType.HP, job.GetClassJob()))
+                (StatType.Vitality, _) => MathF.Floor(LevelTable[level].HP * GetJobModifier(StatType.HP, curClass.ClassJob))
                     + MathF.Floor((totalStat - LevelTable[level].MAIN) * GetHPMultiplier(level, job)),
-                (StatType.MagicalDamage, _) or (StatType.PhysicalDamage, _) => CalcBaseDamageMultiplier(type, totalStat, level, job, additionalStats),
+                (StatType.MagicalDamage, _) or (StatType.PhysicalDamage, _) => CalcExpDamage(),
                 _ => float.NaN
             };
-        }
-        private static float CalcBaseDamageMultiplier(StatType type, int totalStat, int level, Job? job, (StatType t, int sum)[] additionalStats)
-        {
-            int mainStat = type switch
+            float CalcExpDamage()
             {
-                StatType.MagicalDamage => additionalStats.Where(x => x.t == StatType.AttackMagicPotency).SingleOrDefault((StatType.None, -1)).Item2,
-                StatType.PhysicalDamage => additionalStats.Where(x => x.t == StatType.AttackPower).SingleOrDefault((StatType.None, -1)).Item2,
-                _ => -1
+                float baseDmg = CalcBaseDamageMultiplier(curClass, bis);
+                float critRate = EvaluateStat(StatType.CriticalHit, curClass, bis);
+                float DHRate = EvaluateStat(StatType.DirectHitRate, curClass, bis);
+                float critDmgMod = EvaluateStat(StatType.CriticalHit, curClass, bis, 1);
+                float dHDmgMod = 1.25f;
+                float critDHRate = critRate * DHRate;
+                float normalHitRate = 1 - critRate - DHRate + critDHRate;
+                return baseDmg * (normalHitRate + dHDmgMod * critDmgMod * critDHRate + critDmgMod * (critRate - critDHRate) + dHDmgMod * DHRate);
+            }
+        }
+        private static float CalcBaseDamageMultiplier(PlayableClass curClass, bool bis)
+        {
+            int weaponDamage;
+            int mainStat;
+            (weaponDamage, mainStat) = (curClass.Job.GetRole(), bis) switch
+            {
+                (Role.Caster, false) or (Role.Healer, false) => (curClass.GetCurrentStat(StatType.MagicalDamage), curClass.GetCurrentStat(StatType.AttackMagicPotency)),
+                (Role.Caster, true) or (Role.Healer, true) => (curClass.GetBiSStat(StatType.MagicalDamage), curClass.GetBiSStat(StatType.AttackMagicPotency)),
+                (_, false) => (curClass.GetCurrentStat(StatType.PhysicalDamage), curClass.GetCurrentStat(StatType.AttackPower)),
+                (_, true) => (curClass.GetBiSStat(StatType.PhysicalDamage), curClass.GetBiSStat(StatType.AttackPower)),
             };
-            int m = (job.GetRole(), level) switch
+            int m = (curClass.Job.GetRole(), curClass.Level) switch
             {
                 (Role.Tank, 90) => 156,
                 (Role.Tank, 80) => 115,
@@ -196,7 +209,7 @@ namespace HimbeertoniRaidTool.Data
                 (_, 70) => 125,
                 _ => 0
             };
-            float trait = job.GetRole() switch
+            float trait = curClass.Job.GetRole() switch
             {
                 Role.Caster or Role.Healer => 1.3f,
                 Role.Ranged => 1.2f,
@@ -204,11 +217,10 @@ namespace HimbeertoniRaidTool.Data
             };
             if (m == 0 || mainStat < 0)
                 return float.NaN;
-            float baseDmg = (totalStat + MathF.Floor(LevelTable[level].MAIN * GetJobModifier(job.MainStat(), job.GetClassJob()) / 1000f)) * (100 + MathF.Floor((mainStat - LevelTable[level].MAIN) * m / LevelTable[level].MAIN)) / 100f;
-            float determinationMultiplier = additionalStats.Any(x => x.t == StatType.Determination) ?
-                EvaluateStat(StatType.Determination, additionalStats.Where(x => x.t == StatType.Determination).Single().sum, level, job) : 1f;
-            float tenacityMultiplier = additionalStats.Any(x => x.t == StatType.Tenacity) ?
-                EvaluateStat(StatType.Determination, additionalStats.Where(x => x.t == StatType.Tenacity).Single().sum, level, job, 1) : 1f;
+            float baseDmg = MathF.Floor((weaponDamage + MathF.Floor(LevelTable[curClass.Level].MAIN * GetJobModifier(curClass.Job.MainStat(), curClass.ClassJob) / 10f))
+                * (100 + ((mainStat - LevelTable[curClass.Level].MAIN) * m / LevelTable[curClass.Level].MAIN))) / 100f;
+            float determinationMultiplier = EvaluateStat(StatType.Determination, curClass, bis);
+            float tenacityMultiplier = EvaluateStat(StatType.Tenacity, curClass, bis, 1);
             return baseDmg * determinationMultiplier * tenacityMultiplier * trait / 100f;
         }
         private static float GetHPMultiplier(int level, Job? job) => (job.GetRole(), level) switch
@@ -216,9 +228,9 @@ namespace HimbeertoniRaidTool.Data
             (Role.Tank, 90) => 34.6f,
             (Role.Tank, 80) => 26.6f,
             (Role.Tank, 70) => 18.8f,
-            (_, 90) => 34.6f,
-            (_, 80) => 34.6f,
-            (_, 70) => 34.6f,
+            (_, 90) => 24.3f,
+            (_, 80) => 18.8f,
+            (_, 70) => 14f,
             _ => float.NaN
         };
         public static int GetStatWithModifiers(StatType type, int fromGear, int level, Job? job, Tribe? tribe)

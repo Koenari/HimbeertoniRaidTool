@@ -146,16 +146,10 @@ namespace HimbeertoniRaidTool.LootMaster
                     DrawStatRow(StatType.SpellSpeed);
                     if (curRole == Role.Healer)
                         DrawStatRow(StatType.Piety);
-                    //These two are Magic to me -> Need Allagan Studies
-                    //DrawStatRow(p.Gear, StatType.AttackMagicPotency);
-                    //if (playerRole == Role.Healer)
-                    //    DrawStatRow(p.Gear, StatType.HealingMagicPotency);
                 }
                 else
                 {
                     DrawStatRow(StatType.SkillSpeed);
-                    //See AMP and HMP
-                    //DrawStatRow(p.Gear, StatType.AttackPower);
                     if (curRole == Role.Tank)
                         DrawStatRow(StatType.Tenacity);
                 }
@@ -175,13 +169,13 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.Text(curClass.GetCurrentStat(type).ToString());
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
-                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass.GetCurrentStat(type), curClass.Level, curJob, i));
+                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, false, i));
                     //BiS
                     ImGui.TableNextColumn();
                     ImGui.Text(curClass.GetBiSStat(type).ToString());
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
-                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass.GetBiSStat(type), curClass.Level, curJob, i));
+                        ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, true, i));
                 }
             }
             /**
