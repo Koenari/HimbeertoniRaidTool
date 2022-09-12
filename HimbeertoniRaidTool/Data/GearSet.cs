@@ -133,9 +133,10 @@ namespace HimbeertoniRaidTool.Data
         }
     }
 }
-namespace Lumina.Excel.GeneratedSheets
+namespace Lumina.Excel.Extensions
 {
     using HimbeertoniRaidTool.Data;
+    using Lumina.Excel.GeneratedSheets;
 
     public static class EquipSlotCategoryExtensions
     {

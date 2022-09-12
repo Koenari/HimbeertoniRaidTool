@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Lumina.Excel;
+using Lumina.Excel.Extensions;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 
