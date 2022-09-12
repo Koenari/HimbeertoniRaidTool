@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Dalamud.Game;
 using ImGuiNET;
@@ -58,12 +59,14 @@ namespace HimbeertoniRaidTool.UI
             Children.ForEach(x => x.Update(fw));
             Children.RemoveAll(x => x._disposed);
         }
-        protected bool AddChild(HrtUI child)
+        protected bool AddChild(HrtUI child, bool showOnAdd = false)
         {
             if (!ChildExists(child))
             {
                 child.SetUpAsChild();
                 Children.Add(child);
+                if (showOnAdd)
+                    child.Show();
                 return true;
             }
             else
@@ -73,7 +76,7 @@ namespace HimbeertoniRaidTool.UI
             }
 
         }
-        protected bool ChildExists<T>(T c) => Children.Exists(x => c?.Equals(x) ?? false);
+        protected bool ChildExists<T>([DisallowNull] T c) => Children.Exists(x => c.Equals(x));
         protected void ClearChildren() => Children.ForEach(x => x.Dispose());
         private void SetUpAsChild()
         {

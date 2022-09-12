@@ -40,7 +40,7 @@ namespace HimbeertoniRaidTool.UI
             for (int i = 0; i < WorldList.Count; i++)
                 (WorldIDs[i + 1], Worlds[i + 1]) = WorldList[i];
         }
-        internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, bool openHidden = false) : base()
+        internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos) : base()
         {
             RaidGroup = group;
             callBack = CallBack = new();
@@ -53,13 +53,13 @@ namespace HimbeertoniRaidTool.UI
                 PlayerCopy.MainChar.Name = target.Name.TextValue;
                 PlayerCopy.MainChar.HomeWorldID = target.HomeWorld.Id;
                 PlayerCopy.MainChar.MainJob = target.GetJob();
+                //Ensure Main class is created if applicable
+                var c = PlayerCopy.MainChar.MainClass;
             }
             else if (Player.Filled)
             {
                 PlayerCopy = Player.Clone();
             }
-            if (!openHidden)
-                Show();
         }
 
         protected override void Draw()

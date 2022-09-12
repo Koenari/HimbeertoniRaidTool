@@ -70,7 +70,7 @@ namespace HimbeertoniRaidTool.LootMaster
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Solo", Localize("Edit", "Edit")))
             {
-                var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1, true);
+                var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1);
                 if (AddChild(window))
                 {
                     Tasks.Add(callBack);
@@ -221,7 +221,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     {
                         if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
                         {
-                            var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1, true);
+                            var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1);
                             if (AddChild(window))
                             {
                                 Tasks.Add(callBack);
@@ -430,7 +430,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, player.Pos.ToString(),
                         string.Format(Localize("Edit {0}", "Edit {0}"), player.NickName)))
                     {
-                        EditPlayerWindow editWindow = new(out AsyncTaskWithUiResult result, CurrentGroup, player.Pos, true);
+                        EditPlayerWindow editWindow = new(out AsyncTaskWithUiResult result, CurrentGroup, player.Pos);
                         if (AddChild(editWindow))
                         {
                             Tasks.Add(result);
@@ -476,24 +476,14 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.Text(player.Pos.ToString());
                 ImGui.Text(Localize("No Player", "No Player"));
                 for (int i = 0; i < 12; i++)
-                {
                     ImGui.TableNextColumn();
-                }
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Plus, player.Pos.ToString(), Localize("Add", "Add")))
-                {
-                    EditPlayerWindow editWindow = new(out AsyncTaskWithUiResult result, CurrentGroup, player.Pos, true);
-                    if (AddChild(editWindow))
-                    {
+                    if (AddChild(new EditPlayerWindow(out AsyncTaskWithUiResult result, CurrentGroup, player.Pos), true))
                         Tasks.Add(result);
-                        editWindow.Show();
-                    }
-                }
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(), Localize("Add from DB", "Add from DB")))
-                {
-                    AddChild(new GetCharacterFromDBWindow(ref player));
-                }
+                    AddChild(new GetCharacterFromDBWindow(ref player), true);
             }
         }
         private static void DrawSlot(GearItem item, GearItem bis, bool extended = false)
@@ -620,7 +610,6 @@ namespace HimbeertoniRaidTool.LootMaster
             _p = p;
             Worlds = DataManager.GetWorldsWithCharacters().ToArray();
             WorldNames = Array.ConvertAll(Worlds, x => Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name.RawString ?? "");
-            Show();
         }
         protected override void Draw()
         {
