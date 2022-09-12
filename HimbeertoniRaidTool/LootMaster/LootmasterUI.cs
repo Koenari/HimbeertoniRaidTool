@@ -79,13 +79,28 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             foreach (PlayableClass playableClass in p.MainChar.Classes)
             {
-                if (ImGuiHelper.Button(playableClass.Job.ToString() + (p.MainChar.MainJob == playableClass.Job ? " *" : ""), null))
-                    p.MainChar.MainJob = playableClass.Job;
+                bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
+                if (isMainJob)
+                    ImGui.PushStyleColor(ImGuiCol.Button, Vec4(ColorName.Redwood.ToHsv().Value(0.6f)));
+                if (ImGuiHelper.Button(playableClass.Job.ToString(), null, true, new Vector2(38f, 0f)))
+                    p.MainChar.MainJob = playableClass.Job;
+                if (isMainJob)
+                    ImGui.PopStyleColor();
                 ImGui.SameLine();
                 ImGui.Text("Level: " + playableClass.Level);
+                //Current Gear
                 ImGui.SameLine();
-                ImGui.Text(Localize("iLvl", "iLvL: ") + playableClass.Gear.ItemLevel);
+                ImGui.Text($"{Localize("Current", "Current")} {Localize("iLvl", "iLvL: ")}{playableClass.Gear.ItemLevel:D3}");
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.Job}"))
+                    AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job == Job.PLD), true);
+                //BiS
+                ImGui.SameLine();
+                ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvL: ")}{playableClass.BIS.ItemLevel:D3}");
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.BIS.Name}"))
+                    AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job == Job.PLD), true);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
                     string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))

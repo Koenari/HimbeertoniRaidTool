@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using ColorHelper;
@@ -7,6 +8,7 @@ using Dalamud.Interface;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using ImGuiNET;
+using Lumina.Excel.Extensions;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
@@ -290,6 +292,209 @@ namespace HimbeertoniRaidTool.UI
                 }
                 ImGui.End();
             }
+        }
+    }
+    internal class EditGearSetWindow : HrtUI
+    {
+        private readonly GearSet _gearSet;
+        private readonly GearSet _gearSetCopy;
+        private readonly bool _canHaveShield;
+
+        internal EditGearSetWindow(GearSet original, bool canHaveShield) : base()
+        {
+            _canHaveShield = canHaveShield;
+            _gearSet = original;
+            _gearSetCopy = original.Clone();
+        }
+
+        protected override void Draw()
+        {
+            if (ImGui.Begin($"{Localize("Edit", "Edit")} {(_gearSet.ManagedBy == GearSetManager.HRT ? _gearSet.HrtID : _gearSet.EtroID)}", ref Visible, ImGuiWindowFlags.AlwaysAutoResize))
+            {
+                if (ImGuiHelper.SaveButton())
+                    Save();
+                ImGui.SameLine();
+                if (ImGuiHelper.CancelButton())
+                    Hide();
+                ImGui.BeginTable("SoloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
+                ImGui.TableSetupColumn("Gear");
+                ImGui.TableSetupColumn("Gear");
+                ImGui.TableHeadersRow();
+                DrawSlot(_gearSetCopy.MainHand);
+                if (_canHaveShield)
+                    DrawSlot(_gearSetCopy.OffHand);
+                else
+                    ImGui.TableNextColumn();
+                DrawSlot(_gearSetCopy.Head);
+                DrawSlot(_gearSetCopy.Ear);
+                DrawSlot(_gearSetCopy.Body);
+                DrawSlot(_gearSetCopy.Neck);
+                DrawSlot(_gearSetCopy.Hands);
+                DrawSlot(_gearSetCopy.Wrist);
+                DrawSlot(_gearSetCopy.Legs);
+                DrawSlot(_gearSetCopy.Ring1);
+                DrawSlot(_gearSetCopy.Feet);
+                DrawSlot(_gearSetCopy.Ring2);
+                ImGui.EndTable();
+
+                ImGui.End();
+            }
+        }
+        private void DrawSlot(GearItem item)
+        {
+            ImGui.TableNextColumn();
+            if (item.Filled && item.Item is not null)
+            {
+                ImGui.BeginGroup();
+                ImGui.Text(item.Item.Name.RawString);
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{item.Slot}changeitem", null))
+                    AddChild(new GetGearWindow(item.Slot, x => { _gearSetCopy[item.Slot] = x; }, (x) => { }));
+                for (int i = 0; i < item.Materia.Count; i++)
+                {
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{item.Slot}mat{i}", Localize("Remove this materia", "Remove this materia"), i == item.Materia.Count - 1))
+                    {
+                        item.Materia.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
+                    ImGui.SameLine();
+                    ImGui.Text(item.Materia[i].Item?.Name.RawString);
+                }
+                if (item.Materia.Count < (item.Item.IsAdvancedMeldingPermitted ? 5 : item.Item.MateriaSlotCount))
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{item.Slot}addmat", null))
+                        AddChild(new GetMateriaWindow(x => item.Materia.Add(x), (x) => { }));
+
+                ImGui.EndGroup();
+            }
+            else
+                ImGuiHelper.Button(FontAwesomeIcon.Plus, $"Add{item.Slot}", null);
+
+
+        }
+        private void Save()
+        {
+            _gearSetCopy.TimeStamp = DateTime.Now;
+            _gearSet.CopyFrom(_gearSetCopy);
+            Hide();
+        }
+    }
+    internal abstract class GetItemWindow<T> : HrtUI where T : HrtItem
+    {
+        private Guid _Guid = Guid.NewGuid();
+        protected T? Item = null;
+        private readonly Action<T> OnSave;
+        private readonly Action<T?> OnCancel;
+        protected string Title = "";
+        protected virtual bool CanSave { get; set; } = true;
+        internal GetItemWindow(Action<T> onSave, Action<T?> onCancel)
+        {
+            (OnSave, OnCancel) = (onSave, onCancel);
+        }
+
+
+        protected override void Draw()
+        {
+            if (ImGui.Begin($"{Title}##{_Guid}", ImGuiWindowFlags.AlwaysAutoResize))
+            {
+                if (ImGuiHelper.SaveButton(null, CanSave))
+                {
+                    if (Item != null)
+                        OnSave(Item);
+                    else
+                        OnCancel(Item);
+                    Hide();
+                }
+                ImGui.SameLine();
+                if (ImGuiHelper.CancelButton())
+                {
+                    OnCancel(Item);
+                    Hide();
+                }
+                DrawItemSelection();
+                ImGui.End();
+            }
+        }
+
+        protected abstract void DrawItemSelection();
+    }
+    internal class GetGearWindow : GetItemWindow<GearItem>
+    {
+        private static readonly Lumina.Excel.ExcelSheet<Lumina.Excel.GeneratedSheets.Item> Sheet = Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.Item>()!;
+        private readonly GearSetSlot Slot;
+        private uint minILvl;
+        private uint maxILvl;
+        private IEnumerable<Lumina.Excel.GeneratedSheets.Item> _items;
+        public GetGearWindow(GearSetSlot slot, Action<GearItem> onSave, Action<GearItem?> onCancel) : base(onSave, onCancel)
+        {
+            Slot = slot;
+            Title = $"{Localize("Get", "Get")} {Slot} {Localize("item", "item")}";
+            maxILvl = Slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? HRTPlugin.Configuration.SelectedRaidTier.WeaponItemLevel : HRTPlugin.Configuration.SelectedRaidTier.ArmorItemLevel;
+            minILvl = maxILvl - 20;
+            _items = reevaluateItems();
+        }
+
+        protected override void DrawItemSelection()
+        {
+            ImGui.Text($"{Localize("Current Item", "Current Item")}:{Item?.Name ?? Localize("Empty", "Empty")}");
+            int min = (int)minILvl;
+            if (ImGui.InputInt("Min", ref min))
+            {
+                minILvl = (uint)min;
+                reevaluateItems();
+            }
+            ImGui.SameLine();
+            int max = (int)maxILvl;
+            if (ImGui.InputInt("Max", ref max))
+            {
+                maxILvl = (uint)max;
+                reevaluateItems();
+            }
+            foreach (var item in _items)
+            {
+                if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{item.RowId}", null))
+                    Item = new(item.RowId);
+                ImGui.SameLine();
+                ImGui.Text(item.Name.RawString);
+            }
+        }
+        private IEnumerable<Lumina.Excel.GeneratedSheets.Item> reevaluateItems()
+        {
+            return _items = Sheet.Where(x => x.EquipSlotCategory.Value?.ToSlot() == Slot && x.LevelItem.Row <= maxILvl && x.LevelItem.Row >= minILvl);
+        }
+    }
+    internal class GetMateriaWindow : GetItemWindow<HrtMateria>
+    {
+        private MateriaCategory Cat;
+        private byte MateriaLevel;
+        private int numMatLEvels;
+        protected override bool CanSave => Cat != MateriaCategory.None;
+        public GetMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel) : base(onSave, onCancel)
+        {
+            Cat = MateriaCategory.None;
+            MateriaLevel = HRTPlugin.Configuration.SelectedRaidTier.MaxMateriaLevel;
+            numMatLEvels = MateriaLevel + 1;
+            Title = Localize("", "");
+        }
+
+        protected override void DrawItemSelection()
+        {
+            int catSlot = Array.IndexOf(Enum.GetValues<MateriaCategory>(), Cat);
+            if (ImGui.Combo($"{Localize("Type", "Type")}##Category", ref catSlot, Enum.GetNames<MateriaCategory>(), Enum.GetValues<MateriaCategory>().Length))
+            {
+                Cat = Enum.GetValues<MateriaCategory>()[catSlot];
+                if (Cat != MateriaCategory.None)
+                    Item = new(Cat, MateriaLevel);
+            }
+
+            int level = MateriaLevel;
+            if (ImGui.Combo($"{Localize("Tier", "Tier")}##Level", ref level, Array.ConvertAll(Enumerable.Range(1, numMatLEvels).ToArray(), x => x.ToString()), numMatLEvels))
+            {
+                MateriaLevel = (byte)level;
+                if (Cat != MateriaCategory.None)
+                    Item = new(Cat, MateriaLevel);
+            }
+
         }
     }
 }
