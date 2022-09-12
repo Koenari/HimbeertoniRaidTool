@@ -29,8 +29,9 @@ namespace HimbeertoniRaidTool.Data
         public readonly uint WeaponItemLevel;
         public readonly uint ArmorItemLevel;
         public readonly string Name;
+        public readonly byte MaxMateriaLevel;
 
-        public RaidTier(GameExpansion expansion, byte raidNumber, EncounterDifficulty difficulty, uint weaponItemLevel, uint armorItemLevel, string name, ContentType type = ContentType.Raid)
+        public RaidTier(GameExpansion expansion, byte raidNumber, EncounterDifficulty difficulty, uint weaponItemLevel, uint armorItemLevel, string name, byte maxMatLevel, ContentType type = ContentType.Raid)
         {
             Expansion = expansion;
             Type = type;
@@ -39,6 +40,7 @@ namespace HimbeertoniRaidTool.Data
             WeaponItemLevel = weaponItemLevel;
             ArmorItemLevel = armorItemLevel;
             Name = name;
+            MaxMateriaLevel = maxMatLevel;
         }
 
         public uint ItemLevel(GearSetSlot slot) => slot == GearSetSlot.MainHand ? WeaponItemLevel : ArmorItemLevel;

@@ -10,7 +10,7 @@ namespace HimbeertoniRaidTool.Data
     /// It is intended to be servicable by someone not familiar with programming.
     /// First there are entries for each RaidTier. To make a new one make it in the following way:
     /// 'public static RaidTier' DescriptiveName(no spaces) ' => 
-    ///     new('Expansion number, Raid number (1-3), EncounterDifficulty, ILvl of Weapons, iLvl of other Gear, "A descriptive name");
+    ///     new('Expansion number, Raid number (1-3), EncounterDifficulty, ILvl of Weapons, iLvl of other Gear, "A descriptive name", the current max materia tier);
     /// Then there is a list which links loot  to boss encounter
     ///     Just add entries as a new line of format:
     ///     { ItemID(S), (RaidTier (Named like above), Encounter Number(1-4)) },
@@ -21,11 +21,11 @@ namespace HimbeertoniRaidTool.Data
     internal static class CuratedData
     {
         public static RaidTier CurrentRaidSavage => AbyssosSavage;
-        public static RaidTier AbyssosNormal = new(6, 2, EncounterDifficulty.Normal, 620, 610, "Abyssos");
-        public static RaidTier AbyssosSavage = new(6, 2, EncounterDifficulty.Savage, 635, 630, "Abyssos " + Localize("Savage", "Savage"));
-        public static RaidTier AsphodelosNormal = new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
-        public static RaidTier AsphodelosSavage = new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos " + Localize("Savage", "Savage"));
-        public static RaidTier DragonsongRepriseUltimate = new(6, 1, EncounterDifficulty.Ultimate, 605, 0, $"{Localize("Dragonsong Reprise", "Dragonsong Reprise")} {Localize("Ultimate", "Ultimate")}");
+        public static RaidTier AbyssosNormal = new(6, 2, EncounterDifficulty.Normal, 620, 610, "Abyssos", 10);
+        public static RaidTier AbyssosSavage = new(6, 2, EncounterDifficulty.Savage, 635, 630, "Abyssos " + Localize("Savage", "Savage"), 10);
+        public static RaidTier AsphodelosNormal = new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos", 10);
+        public static RaidTier AsphodelosSavage = new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos " + Localize("Savage", "Savage"), 10);
+        public static RaidTier DragonsongRepriseUltimate = new(6, 1, EncounterDifficulty.Ultimate, 605, 0, $"{Localize("Dragonsong Reprise", "Dragonsong Reprise")} {Localize("Ultimate", "Ultimate")}", 10);
 
         public static RaidTier[] RaidTiers = new RaidTier[]
         {
