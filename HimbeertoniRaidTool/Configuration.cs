@@ -160,10 +160,13 @@ namespace HimbeertoniRaidTool
         public class ConfigUI : HrtUI
         {
             private UiSortableList<LootRule> LootList;
-            public ConfigUI() : base(false)
+            public ConfigUI() : base(false, "HimbeerToni Raid Tool Configuration")
             {
                 Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
                 LootList = new(LootRuling.PossibleRules, HRTPlugin.Configuration.LootRuling.RuleSet.Cast<LootRule>());
+                (Size, SizingCondition) = (new Vector2(450, 500), ImGuiCond.Always);
+                WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
+                Title = Localize("ConfigWindowTitle", "HimbeerToni Raid Tool Configuration");
             }
             protected override void BeforeDispose()
             {
@@ -175,74 +178,66 @@ namespace HimbeertoniRaidTool
             }
             protected override void Draw()
             {
-                ImGui.SetNextWindowSize(new Vector2(450, 500), ImGuiCond.Always);
-                if (ImGui.Begin("HimbeerToni Raid Tool Configuration", ref Visible,
-                    ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))
+                ImGui.BeginTabBar("Menu");
+                if (ImGui.BeginTabItem(Localize("General", "General")))
                 {
-                    ImGui.BeginTabBar("Menu");
-                    if (ImGui.BeginTabItem(Localize("General", "General")))
+                    ImGui.Checkbox(Localize("Open group overview on startup", "Open group overview on startup"),
+                        ref HRTPlugin.Configuration.OpenLootMasterOnStartup);
+                    ImGui.Checkbox(Localize("Hide windows in combat", "Hide windows in combat"),
+                        ref HRTPlugin.Configuration.LootMasterHideInBattle);
+                    ImGui.EndTabItem();
+                }
+                if (ImGui.BeginTabItem("BiS"))
+                {
+                    if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
                     {
-                        ImGui.Checkbox(Localize("Open group overview on startup", "Open group overview on startup"),
-                            ref HRTPlugin.Configuration.OpenLootMasterOnStartup);
-                        ImGui.Checkbox(Localize("Hide windows in combat", "Hide windows in combat"),
-                            ref HRTPlugin.Configuration.LootMasterHideInBattle);
-                        ImGui.EndTabItem();
-                    }
-                    if (ImGui.BeginTabItem("BiS"))
-                    {
-                        if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
+                        foreach (var c in Enum.GetValues<Job>())
                         {
-                            foreach (var c in Enum.GetValues<Job>())
+                            bool isOverriden = HRTPlugin.Configuration.BISUserOverride.ContainsKey(c);
+                            string value = HRTPlugin.Configuration.GetDefaultBiS(c);
+                            if (ImGui.InputText(c.ToString(), ref value, 100))
                             {
-                                bool isOverriden = HRTPlugin.Configuration.BISUserOverride.ContainsKey(c);
-                                string value = HRTPlugin.Configuration.GetDefaultBiS(c);
-                                if (ImGui.InputText(c.ToString(), ref value, 100))
+                                if (value != CuratedData.DefaultBIS[c])
                                 {
-                                    if (value != CuratedData.DefaultBIS[c])
-                                    {
-                                        if (isOverriden)
-                                            HRTPlugin.Configuration.BISUserOverride[c] = value;
-                                        else
-                                            HRTPlugin.Configuration.BISUserOverride.Add(c, value);
-                                    }
+                                    if (isOverriden)
+                                        HRTPlugin.Configuration.BISUserOverride[c] = value;
                                     else
-                                    {
-                                        if (isOverriden)
-                                            HRTPlugin.Configuration.BISUserOverride.Remove(c);
-                                    }
-
+                                        HRTPlugin.Configuration.BISUserOverride.Add(c, value);
                                 }
-                                if (isOverriden)
+                                else
                                 {
-                                    ImGui.SameLine();
-                                    if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Undo,
-                                        $"Reset{c}", Localize("Reset to default", "Reset to default")))
+                                    if (isOverriden)
                                         HRTPlugin.Configuration.BISUserOverride.Remove(c);
                                 }
+
                             }
-                            ImGui.EndChildFrame();
+                            if (isOverriden)
+                            {
+                                ImGui.SameLine();
+                                if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Undo,
+                                    $"Reset{c}", Localize("Reset to default", "Reset to default")))
+                                    HRTPlugin.Configuration.BISUserOverride.Remove(c);
+                            }
                         }
-                        ImGui.EndTabItem();
+                        ImGui.EndChildFrame();
                     }
-                    if (ImGui.BeginTabItem("Loot"))
-                    {
-                        ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref HRTPlugin.Configuration.LootRuling.StrictRooling);
-                        LootList.Draw();
-                        ImGui.EndTabItem();
-                    }
-                    ImGui.EndTabBar();
-                    if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Save, "SaveConfig", $"{Localize("Save configuration", "Save configuration")}##Config"))
-                    {
-                        HRTPlugin.Configuration.LootRuling.RuleSet = LootList.List;
-                        HRTPlugin.Configuration.Save();
-                        Hide();
-                        HRTPlugin.Configuration.ConfigurationChanged?.Invoke();
-                    }
+                    ImGui.EndTabItem();
                 }
-                ImGui.End();
+                if (ImGui.BeginTabItem("Loot"))
+                {
+                    ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref HRTPlugin.Configuration.LootRuling.StrictRooling);
+                    LootList.Draw();
+                    ImGui.EndTabItem();
+                }
+                ImGui.EndTabBar();
+                if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Save, "SaveConfig", $"{Localize("Save configuration", "Save configuration")}##Config"))
+                {
+                    HRTPlugin.Configuration.LootRuling.RuleSet = LootList.List;
+                    HRTPlugin.Configuration.Save();
+                    Hide();
+                    HRTPlugin.Configuration.ConfigurationChanged?.Invoke();
+                }
             }
-
-
         }
     }
 }

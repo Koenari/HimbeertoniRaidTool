@@ -10,18 +10,26 @@ namespace HimbeertoniRaidTool.UI
 {
     // It is good to have this be disposable in general, in case you ever need it
     // to do any cleanup
-    public abstract class HrtUI : IDisposable
+    public abstract class HrtUI : IDisposable, IEquatable<HrtUI>
     {
         private bool _disposed = false;
         private bool _volatile;
         private bool _isChild = false;
         protected bool HideInBattle = false;
         protected bool Visible = false;
+        private readonly string _id;
+        protected string Title;
+        protected Vector2? Size;
+        protected ImGuiCond SizingCondition = ImGuiCond.Appearing;
+        protected ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.None;
         private readonly List<HrtUI> Children = new();
 
-        public HrtUI(bool @volatile = true)
+
+        public HrtUI(bool @volatile = true, string? id = null)
         {
             RegisterActions();
+            _id = id ?? Guid.NewGuid().ToString();
+            Title = "";
             _volatile = @volatile;
         }
         private void RegisterActions()
@@ -50,6 +58,7 @@ namespace HimbeertoniRaidTool.UI
             OnHide();
         }
         protected virtual void OnHide() { }
+        protected virtual void OnUpdate() { }
         private void Update(Framework fw)
         {
             if (!Visible)
@@ -58,6 +67,7 @@ namespace HimbeertoniRaidTool.UI
                 Dispose();
             Children.ForEach(x => x.Update(fw));
             Children.RemoveAll(x => x._disposed);
+            OnUpdate();
         }
         protected bool AddChild(HrtUI child, bool showOnAdd = false)
         {
@@ -106,9 +116,20 @@ namespace HimbeertoniRaidTool.UI
                 && (Services.ClientState.LocalPlayer?.StatusFlags.HasFlag(Dalamud.Game.ClientState.Objects.Enums.StatusFlags.InCombat) ?? false))
                 return;
             Children.ForEach(_ => _.InternalDraw());
-            Draw();
+            if (Size.HasValue)
+                ImGui.SetNextWindowSize(Size.Value, SizingCondition);
+            if (ImGui.Begin($"{Title}##{_id}", ref Visible, WindowFlags))
+            {
+                Draw();
+                ImGui.End();
+            }
+
         }
         protected abstract void Draw();
+        public override bool Equals(object? obj) => (obj?.GetType().IsAssignableTo(GetType()) ?? false) && Equals((HrtUI)obj);
+        public bool Equals(HrtUI? other) => _id.Equals(other?._id);
+
+        public override int GetHashCode() => _id.GetHashCode();
     }
     public class ConfimationDialog : HrtUI
     {

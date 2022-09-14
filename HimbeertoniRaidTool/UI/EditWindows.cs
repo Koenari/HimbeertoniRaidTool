@@ -62,15 +62,13 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy = Player.Clone();
             }
+            (Size, SizingCondition) = (new Vector2(480, 210 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Always);
+            Title = $"{Localize("Edit Player ", "Edit Player ")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}";
+            WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
         }
 
         protected override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(480, 210 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Always);
-            if (ImGui.Begin($"{Localize("Edit Player ", "Edit Player ")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}",
-                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
-                | ImGuiWindowFlags.NoScrollWithMouse))
-            {
                 //Player Data
                 ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
                 //Character Data
@@ -150,8 +148,6 @@ namespace HimbeertoniRaidTool.UI
                 if (ImGuiHelper.CancelButton())
                     Hide();
             }
-            ImGui.End();
-        }
         private void SavePlayer()
         {
             List<(Job, Func<bool>)> bisUpdates = new();
@@ -262,15 +258,13 @@ namespace HimbeertoniRaidTool.UI
             OnCancel = onCancel ?? (() => { });
             GroupCopy = Group.Clone();
             Show();
+            (Size, SizingCondition) = (new Vector2(500, 250), ImGuiCond.Always);
+            Title = Localize("Edit Group ", "Edit Group ") + Group.Name;
+            WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
         }
 
         protected override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(500, 250), ImGuiCond.Always);
-            if (ImGui.Begin(Localize("Edit Group ", "Edit Group ") + Group.Name,
-                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar
-                | ImGuiWindowFlags.NoScrollWithMouse))
-            {
                 ImGui.InputText(Localize("Group Name", "Group Name"), ref GroupCopy.Name, 100);
                 int groupType = (int)GroupCopy.Type;
                 if (ImGui.Combo(Localize("Group Type", "Group Type"), ref groupType, Enum.GetNames(typeof(GroupType)), Enum.GetNames(typeof(GroupType)).Length))
@@ -290,10 +284,8 @@ namespace HimbeertoniRaidTool.UI
                     OnCancel();
                     Hide();
                 }
-                ImGui.End();
             }
         }
-    }
     internal class EditGearSetWindow : HrtUI
     {
         private readonly GearSet _gearSet;
@@ -305,12 +297,12 @@ namespace HimbeertoniRaidTool.UI
             _canHaveShield = canHaveShield;
             _gearSet = original;
             _gearSetCopy = original.Clone();
+            Title = $"{Localize("Edit", "Edit")} {(_gearSet.ManagedBy == GearSetManager.HRT ? _gearSet.HrtID : _gearSet.EtroID)}";
+            WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
         }
 
         protected override void Draw()
         {
-            if (ImGui.Begin($"{Localize("Edit", "Edit")} {(_gearSet.ManagedBy == GearSetManager.HRT ? _gearSet.HrtID : _gearSet.EtroID)}", ref Visible, ImGuiWindowFlags.AlwaysAutoResize))
-            {
                 if (ImGuiHelper.SaveButton())
                     Save();
                 ImGui.SameLine();
@@ -336,10 +328,8 @@ namespace HimbeertoniRaidTool.UI
                 DrawSlot(_gearSetCopy.Feet);
                 DrawSlot(_gearSetCopy.Ring2);
                 ImGui.EndTable();
-
                 ImGui.End();
             }
-        }
         private void DrawSlot(GearItem item)
         {
             ImGui.TableNextColumn();
@@ -381,22 +371,19 @@ namespace HimbeertoniRaidTool.UI
     }
     internal abstract class GetItemWindow<T> : HrtUI where T : HrtItem
     {
-        private Guid _Guid = Guid.NewGuid();
         protected T? Item = null;
         private readonly Action<T> OnSave;
         private readonly Action<T?> OnCancel;
-        protected string Title = "";
         protected virtual bool CanSave { get; set; } = true;
         internal GetItemWindow(Action<T> onSave, Action<T?> onCancel)
         {
             (OnSave, OnCancel) = (onSave, onCancel);
+            WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
         }
 
 
         protected override void Draw()
         {
-            if (ImGui.Begin($"{Title}##{_Guid}", ImGuiWindowFlags.AlwaysAutoResize))
-            {
                 if (ImGuiHelper.SaveButton(null, CanSave))
                 {
                     if (Item != null)
@@ -413,7 +400,7 @@ namespace HimbeertoniRaidTool.UI
                 }
                 DrawItemSelection();
                 ImGui.End();
-            }
+
         }
 
         protected abstract void DrawItemSelection();
