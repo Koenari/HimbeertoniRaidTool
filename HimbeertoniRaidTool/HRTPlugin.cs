@@ -11,6 +11,7 @@ using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
+using HimbeertoniRaidTool.HrtServices;
 using HimbeertoniRaidTool.UI;
 using static Dalamud.Localization;
 
@@ -31,7 +32,13 @@ namespace HimbeertoniRaidTool
         [PluginService] public static Framework Framework { get; private set; }
         [PluginService] public static ObjectTable ObjectTable { get; private set; }
         [PluginService] public static PartyList PartyList { get; private set; }
+        public static IconCache IconCache { get; private set; }
 
+        internal static void Init()
+        {
+            if (IconCache == null)
+                IconCache = new IconCache(PluginInterface, DataManager);
+        }
 
     }
 #pragma warning restore CS8618
@@ -60,6 +67,7 @@ namespace HimbeertoniRaidTool
             //Init all services and public staic references
             _Plugin = this;
             pluginInterface.Create<Services>();
+            Services.Init();
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
             //Init Localization
             Loc = new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale");
