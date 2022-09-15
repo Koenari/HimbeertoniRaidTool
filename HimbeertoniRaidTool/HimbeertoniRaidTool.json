@@ -17,5 +17,5 @@
     "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png"
   ],
   "IsHide": "False",
-  "Changelog" : "Massive performance improvement\nAdded Dmg per (100)Potency calculation"
+  "Changelog" : "You can now edit gear manually"
 }
