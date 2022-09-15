@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Data;
@@ -14,7 +16,7 @@ namespace HimbeertoniRaidTool.UI
         => Button(FontAwesomeIcon.Save, "Save", tooltip ?? Localize("Save", "Save"), enabled, size ?? new Vector2(50f, 25f));
         public static bool CancelButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
         => Button(FontAwesomeIcon.WindowClose, "Cancel", tooltip ?? Localize("Cancel", "Cancel"), enabled, size ?? new Vector2(50f, 25f));
-        public static bool Button(string label, string? tooltip, bool enabled = true, Vector2 size = default(Vector2))
+        public static bool Button(string label, string? tooltip, bool enabled = true, Vector2 size = default)
         {
             if (!enabled)
                 ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.5f);
@@ -30,7 +32,7 @@ namespace HimbeertoniRaidTool.UI
 
             return result && enabled;
         }
-        public static bool Button(FontAwesomeIcon icon, string id, string? tooltip, bool enabled = true, Vector2 size = default(Vector2))
+        public static bool Button(FontAwesomeIcon icon, string id, string? tooltip, bool enabled = true, Vector2 size = default)
         {
             ImGui.PushFont(UiBuilder.IconFont);
             if (!enabled)
@@ -64,6 +66,24 @@ namespace HimbeertoniRaidTool.UI
                 GearRefresherOnExamine.RefreshGearInfos(playerChar);
             }
             return pressed;
+        }
+        public static bool Combo<T>(string label, ref T value) where T : struct
+        {
+            T? value2 = value;
+            bool result = Combo(label, ref value2);
+            if (result && value2.HasValue)
+                value = value2.Value;
+            return result;
+        }
+
+
+        public static bool Combo<T>(string label, ref T? value) where T : struct
+        {
+            int id = value.HasValue ? Array.IndexOf(Enum.GetValues(typeof(T)), value) : 0;
+            bool result = ImGui.Combo(label, ref id, Enum.GetNames(typeof(T)).ToArray(), Enum.GetNames(typeof(T)).Length);
+            if (result)
+                value = (T?)Enum.GetValues(typeof(T)).GetValue(id);
+            return result;
         }
     }
 }
