@@ -70,7 +70,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
             ImGuiHelper.GearUpdateButton(p);
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}{p.Pos}", Localize("Edit", "Edit")))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}{p.Pos}", $"{Localize("Edit player", "Edit player")} {p.NickName}"))
             {
                 var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, p.Pos);
                 if (AddChild(window))
@@ -95,7 +95,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.SameLine();
                 ImGui.Text($"{Localize("Current", "Current")} {Localize("iLvl", "iLvL: ")}{playableClass.Gear.ItemLevel:D3}");
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.Job}"))
+                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.Job} {Localize("gear", "gear")}"))
                     AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job), true);
                 //BiS
                 ImGui.SameLine();

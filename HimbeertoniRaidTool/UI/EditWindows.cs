@@ -368,7 +368,7 @@ namespace HimbeertoniRaidTool.UI
                     ImGui.SameLine();
                     ImGui.Text(_gearSetCopy[slot].Materia[i].Item?.Name.RawString);
                 }
-                if (_gearSetCopy[slot].Materia.Count < (_gearSetCopy[slot].Item.IsAdvancedMeldingPermitted ? 5 : _gearSetCopy[slot].Item.MateriaSlotCount))
+                if (_gearSetCopy[slot].Materia.Count < (_gearSetCopy[slot].Item?.IsAdvancedMeldingPermitted ?? false ? 5 : _gearSetCopy[slot].Item?.MateriaSlotCount))
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}addmat", Localize("Select materia", "Select materia")))
                         AddChild(new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }));
 
@@ -398,7 +398,7 @@ namespace HimbeertoniRaidTool.UI
 
         protected override void Draw()
         {
-            if (ImGuiHelper.SaveButton(null, CanSave))
+            if (CanSave && ImGuiHelper.SaveButton())
                 Save();
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
@@ -431,6 +431,7 @@ namespace HimbeertoniRaidTool.UI
         private uint minILvl;
         private uint maxILvl;
         private List<Item> _items;
+        protected override bool CanSave => false;
         public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? curentItem = null, GearSetSlot? slot = null, Job? job = null) : base(onSave, onCancel)
         {
             Item = curentItem;
@@ -444,23 +445,26 @@ namespace HimbeertoniRaidTool.UI
 
         protected override void DrawItemSelection()
         {
-            //Currently selected Item
-            ImGui.Text($"{Localize("Current Item", "Current Item")}:{Item?.Name ?? Localize("Empty", "Empty")}");
             //Draw selection bar
+            ImGui.SetNextItemWidth(65f);
             if (ImGuiHelper.Combo("##job", ref Job))
                 reevaluateItems();
             ImGui.SameLine();
+            ImGui.SetNextItemWidth(125f);
             if (ImGuiHelper.Combo("##slot", ref Slot))
                 reevaluateItems();
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(100f);
             int min = (int)minILvl;
-            if (ImGui.InputInt("Min", ref min))
+            if (ImGui.InputInt("-##min", ref min, 5))
             {
                 minILvl = (uint)min;
                 reevaluateItems();
             }
             ImGui.SameLine();
             int max = (int)maxILvl;
-            if (ImGui.InputInt("Max", ref max))
+            ImGui.SetNextItemWidth(100f);
+            if (ImGui.InputInt("iLvL##Max", ref max, 5))
             {
                 maxILvl = (uint)max;
                 reevaluateItems();
