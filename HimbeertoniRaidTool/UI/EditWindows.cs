@@ -9,6 +9,7 @@ using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using ImGuiNET;
 using Lumina.Excel.Extensions;
+using Lumina.Excel.GeneratedSheets;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
@@ -29,9 +30,9 @@ namespace HimbeertoniRaidTool.UI
         static EditPlayerWindow()
         {
             List<(uint, string)> WorldList = new();
-            for (uint i = 21; i < (Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.RowCount ?? 0); i++)
+            for (uint i = 21; i < (Services.DataManager.GetExcelSheet<World>()?.RowCount ?? 0); i++)
             {
-                string? worldName = Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(i)?.Name ?? "";
+                string? worldName = Services.DataManager.GetExcelSheet<World>()?.GetRow(i)?.Name ?? "";
                 if (!worldName.Equals("") && !worldName.Contains('-') && !worldName.Contains('_') && !worldName.Contains("contents"))
                     WorldList.Add((i, worldName));
             }
@@ -248,10 +249,10 @@ namespace HimbeertoniRaidTool.UI
     {
         private readonly RaidGroup Group;
         private readonly RaidGroup GroupCopy;
-        private readonly Action OnSave;
-        private readonly Action OnCancel;
+        private readonly System.Action OnSave;
+        private readonly System.Action OnCancel;
 
-        internal EditGroupWindow(RaidGroup group, Action? onSave = null, Action? onCancel = null)
+        internal EditGroupWindow(RaidGroup group, System.Action? onSave = null, System.Action? onCancel = null)
         {
             Group = group;
             OnSave = onSave ?? (() => { });
@@ -290,11 +291,12 @@ namespace HimbeertoniRaidTool.UI
     {
         private readonly GearSet _gearSet;
         private readonly GearSet _gearSetCopy;
-        private readonly bool _canHaveShield;
+        private readonly Job _job;
+        private bool CanHaveShield => _job is Job.PLD or Job.THM or Job.GLA;
 
-        internal EditGearSetWindow(GearSet original, bool canHaveShield) : base()
+        internal EditGearSetWindow(GearSet original, Job job) : base()
         {
-            _canHaveShield = canHaveShield;
+            _job = job;
             _gearSet = original;
             _gearSetCopy = original.Clone();
             Title = $"{Localize("Edit", "Edit")} {(_gearSet.ManagedBy == GearSetManager.HRT ? _gearSet.HrtID : _gearSet.EtroID)}";
@@ -312,55 +314,65 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.TableSetupColumn("Gear");
                 ImGui.TableSetupColumn("Gear");
                 ImGui.TableHeadersRow();
-                DrawSlot(_gearSetCopy.MainHand);
-                if (_canHaveShield)
-                    DrawSlot(_gearSetCopy.OffHand);
+            DrawSlot(GearSetSlot.MainHand);
+            if (CanHaveShield)
+                DrawSlot(GearSetSlot.OffHand);
                 else
                     ImGui.TableNextColumn();
-                DrawSlot(_gearSetCopy.Head);
-                DrawSlot(_gearSetCopy.Ear);
-                DrawSlot(_gearSetCopy.Body);
-                DrawSlot(_gearSetCopy.Neck);
-                DrawSlot(_gearSetCopy.Hands);
-                DrawSlot(_gearSetCopy.Wrist);
-                DrawSlot(_gearSetCopy.Legs);
-                DrawSlot(_gearSetCopy.Ring1);
-                DrawSlot(_gearSetCopy.Feet);
-                DrawSlot(_gearSetCopy.Ring2);
+            DrawSlot(GearSetSlot.Head);
+            DrawSlot(GearSetSlot.Ear);
+            DrawSlot(GearSetSlot.Body);
+            DrawSlot(GearSetSlot.Neck);
+            DrawSlot(GearSetSlot.Hands);
+            DrawSlot(GearSetSlot.Wrist);
+            DrawSlot(GearSetSlot.Legs);
+            DrawSlot(GearSetSlot.Ring1);
+            DrawSlot(GearSetSlot.Feet);
+            DrawSlot(GearSetSlot.Ring2);
                 ImGui.EndTable();
                 ImGui.End();
             }
-        private void DrawSlot(GearItem item)
+        private void DrawSlot(GearSetSlot slot)
         {
             ImGui.TableNextColumn();
-            if (item.Filled && item.Item is not null)
+            if (!_gearSetCopy[slot].Filled)
+            {
+                if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}changeitem", null))
+                    AddChild(new GetGearWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, slot, _job));
+            }
+            else
             {
                 ImGui.BeginGroup();
-                ImGui.Text(item.Item.Name.RawString);
-                ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{item.Slot}changeitem", null))
-                    AddChild(new GetGearWindow(item.Slot, x => { _gearSetCopy[item.Slot] = x; }, (x) => { }));
-                for (int i = 0; i < item.Materia.Count; i++)
+                ImGui.Text(_gearSetCopy[slot].Item?.Name.RawString);
+                if (ImGui.IsItemHovered())
                 {
-                    if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{item.Slot}mat{i}", Localize("Remove this materia", "Remove this materia"), i == item.Materia.Count - 1))
+                    ImGui.BeginTooltip();
+                    _gearSetCopy[slot].Draw();
+                    ImGui.EndTooltip();
+                }
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{_gearSetCopy[slot].Slot}changeitem", null))
+                    AddChild(new GetGearWindow(x => { _gearSetCopy[_gearSetCopy[slot].Slot] = x; }, (x) => { }, _gearSetCopy[slot].Slot, _job));
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, $"delete{_gearSetCopy[slot].Slot}", Localize("Delete", "Delete")))
+                    _gearSetCopy[_gearSetCopy[slot].Slot] = new();
+                for (int i = 0; i < _gearSetCopy[slot].Materia.Count; i++)
+                {
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{_gearSetCopy[slot].Slot}mat{i}", Localize("Remove this materia", "Remove this materia"), i == _gearSetCopy[slot].Materia.Count - 1))
                     {
-                        item.Materia.RemoveAt(i);
+                        _gearSetCopy[slot].Materia.RemoveAt(i);
                         i--;
                         continue;
                     }
                     ImGui.SameLine();
-                    ImGui.Text(item.Materia[i].Item?.Name.RawString);
+                    ImGui.Text(_gearSetCopy[slot].Materia[i].Item?.Name.RawString);
                 }
-                if (item.Materia.Count < (item.Item.IsAdvancedMeldingPermitted ? 5 : item.Item.MateriaSlotCount))
-                    if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{item.Slot}addmat", null))
-                        AddChild(new GetMateriaWindow(x => item.Materia.Add(x), (x) => { }));
+                if (_gearSetCopy[slot].Materia.Count < (_gearSetCopy[slot].Item.IsAdvancedMeldingPermitted ? 5 : _gearSetCopy[slot].Item.MateriaSlotCount))
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}addmat", null))
+                        AddChild(new GetMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }));
 
                 ImGui.EndGroup();
             }
-            else
-                ImGuiHelper.Button(FontAwesomeIcon.Plus, $"Add{item.Slot}", null);
-
-
         }
         private void Save()
         {
@@ -407,14 +419,16 @@ namespace HimbeertoniRaidTool.UI
     }
     internal class GetGearWindow : GetItemWindow<GearItem>
     {
-        private static readonly Lumina.Excel.ExcelSheet<Lumina.Excel.GeneratedSheets.Item> Sheet = Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.Item>()!;
-        private readonly GearSetSlot Slot;
+        private static readonly Lumina.Excel.ExcelSheet<Item> Sheet = Services.DataManager.GetExcelSheet<Item>()!;
+        private GearSetSlot? Slot;
+        private Job? Job;
         private uint minILvl;
         private uint maxILvl;
-        private IEnumerable<Lumina.Excel.GeneratedSheets.Item> _items;
-        public GetGearWindow(GearSetSlot slot, Action<GearItem> onSave, Action<GearItem?> onCancel) : base(onSave, onCancel)
+        private List<Item> _items;
+        public GetGearWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearSetSlot? slot = null, Job? job = null) : base(onSave, onCancel)
         {
             Slot = slot;
+            Job = job;
             Title = $"{Localize("Get", "Get")} {Slot} {Localize("item", "item")}";
             maxILvl = Slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? HRTPlugin.Configuration.SelectedRaidTier.WeaponItemLevel : HRTPlugin.Configuration.SelectedRaidTier.ArmorItemLevel;
             minILvl = maxILvl - 20;
@@ -423,7 +437,16 @@ namespace HimbeertoniRaidTool.UI
 
         protected override void DrawItemSelection()
         {
+            //Currently selected Item
             ImGui.Text($"{Localize("Current Item", "Current Item")}:{Item?.Name ?? Localize("Empty", "Empty")}");
+            //Draw selection bar
+            int jobID = Array.IndexOf(Enum.GetValues<Job>(), Job);
+            if (ImGui.Combo("##job", ref jobID, Enum.GetNames<Job>().ToArray(), Enum.GetNames<Job>().Length))
+            {
+                Job = Enum.GetValues<Job>()[jobID];
+                reevaluateItems();
+            }
+
             int min = (int)minILvl;
             if (ImGui.InputInt("Min", ref min))
             {
@@ -437,17 +460,31 @@ namespace HimbeertoniRaidTool.UI
                 maxILvl = (uint)max;
                 reevaluateItems();
             }
+            //Draw item list
             foreach (var item in _items)
             {
-                if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{item.RowId}", null))
+                if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", null))
                     Item = new(item.RowId);
                 ImGui.SameLine();
-                ImGui.Text(item.Name.RawString);
+                ImGui.Text($"{item.Name.RawString} (IL {item.LevelItem.Row})");
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    item.Draw();
+                    ImGui.EndTooltip();
             }
         }
-        private IEnumerable<Lumina.Excel.GeneratedSheets.Item> reevaluateItems()
+        }
+        private List<Item> reevaluateItems()
         {
-            return _items = Sheet.Where(x => x.EquipSlotCategory.Value?.ToSlot() == Slot && x.LevelItem.Row <= maxILvl && x.LevelItem.Row >= minILvl);
+            _items = Sheet.Where(x =>
+                   (Slot == null || x.EquipSlotCategory.Value?.ToSlot() == Slot)
+                && x.LevelItem.Row <= maxILvl
+                && x.LevelItem.Row >= minILvl
+                && (Job == null || x.ClassJobCategory.Value.Contains(Job))
+                ).ToList();
+            _items.Sort((x, y) => (int)y.LevelItem.Row - (int)x.LevelItem.Row);
+            return _items;
         }
     }
     internal class GetMateriaWindow : GetItemWindow<HrtMateria>

@@ -96,13 +96,13 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.Text($"{Localize("Current", "Current")} {Localize("iLvl", "iLvL: ")}{playableClass.Gear.ItemLevel:D3}");
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.Job}"))
-                    AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job == Job.PLD), true);
+                    AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job), true);
                 //BiS
                 ImGui.SameLine();
                 ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvL: ")}{playableClass.BIS.ItemLevel:D3}");
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.BIS.Name}"))
-                    AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job == Job.PLD), true);
+                    AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job), true);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
                     string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
