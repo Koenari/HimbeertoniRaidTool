@@ -370,12 +370,12 @@ namespace HimbeertoniRaidTool.Data
 
         }
         public static string FriendlyName(this StatType t) => StatTypeNameLookup.ContainsKey(t) ? StatTypeNameLookup[t] : t.ToString();
-        public static string Abbrev(this StatType t) => StatTypeAbbrevLookup.ContainsKey(t)? StatTypeAbbrevLookup[t] : "XXX";
+        public static string Abbrev(this StatType t) => StatTypeAbbrevLookup.ContainsKey(t) ? StatTypeAbbrevLookup[t] : "XXX";
         public static Role GetRole(this Job? c) => c.HasValue ? GetRole(c.Value) : Role.None;
         public static Role GetRole(this Job c) =>
             c.GetAttribute<RoleAttribute>()?.Role ?? Role.None;
         public static ClassJob? GetClassJob(this Job? c) =>
-            Services.DataManager.GetExcelSheet<ClassJob>()?.GetRow((uint)(c ?? 0));
+            c.HasValue ? Services.DataManager.GetExcelSheet<ClassJob>()?.GetRow((uint)c.Value) : null;
         public static T? GetAttribute<T>(this Enum field) where T : Attribute
         {
             return
@@ -412,8 +412,8 @@ namespace HimbeertoniRaidTool.Data
             _ => Localize("undefined", "undefined")
 
         };
-        public static string FriendlyName(this GearSetSlot slot) => 
-            GearSetSlotNameLookup.ContainsKey(slot) ? GearSetSlotNameLookup[slot]: Localize("undefined", "undefined");
+        public static string FriendlyName(this GearSetSlot slot) =>
+            GearSetSlotNameLookup.ContainsKey(slot) ? GearSetSlotNameLookup[slot] : Localize("undefined", "undefined");
         public static string FriendlyName(this GearSource source) => source switch
         {
             GearSource.Raid => Localize("Raid", "Raid"),
