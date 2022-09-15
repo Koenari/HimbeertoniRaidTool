@@ -70,9 +70,9 @@ namespace HimbeertoniRaidTool.LootMaster
 
             ImGuiHelper.GearUpdateButton(p);
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Solo", Localize("Edit", "Edit")))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}{p.Pos}", Localize("Edit", "Edit")))
             {
-                var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1);
+                var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, p.Pos);
                 if (AddChild(window))
                 {
                     Tasks.Add(callBack);
@@ -187,12 +187,16 @@ namespace HimbeertoniRaidTool.LootMaster
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
                         ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, false, i));
+                    if (type == weaponStat && ImGui.IsItemHovered())
+                        ImGui.SetTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
                     //BiS
                     ImGui.TableNextColumn();
                     ImGui.Text(curClass.GetBiSStat(type).ToString());
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
                         ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, true, i));
+                    if (type == weaponStat && ImGui.IsItemHovered())
+                        ImGui.SetTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
                 }
             }
             /**
