@@ -133,44 +133,4 @@ namespace HimbeertoniRaidTool.Data
         }
     }
 }
-namespace Lumina.Excel.GeneratedSheets
-{
-    using HimbeertoniRaidTool.Data;
 
-    public static class EquipSlotCategoryExtensions
-    {
-        public static bool Contains(this EquipSlotCategory self, GearSetSlot slot)
-        {
-            switch (slot)
-            {
-                case GearSetSlot.MainHand: return self.MainHand != 0;
-                case GearSetSlot.Head: return self.Head != 0;
-                case GearSetSlot.Body: return self.Body != 0;
-                case GearSetSlot.Hands: return self.Gloves != 0;
-                case GearSetSlot.Waist: return self.Waist != 0;
-                case GearSetSlot.Legs: return self.Legs != 0;
-                case GearSetSlot.Feet: return self.Feet != 0;
-                case GearSetSlot.OffHand: return self.OffHand != 0;
-                case GearSetSlot.Ear: return self.Ears != 0;
-                case GearSetSlot.Neck: return self.Neck != 0;
-                case GearSetSlot.Wrist: return self.Wrists != 0;
-                case GearSetSlot.Ring1: return self.FingerR != 0;
-                case GearSetSlot.Ring2: return self.FingerL != 0;
-                case GearSetSlot.SoulCrystal: return self.SoulCrystal != 0;
-            }
-
-            return false;
-        }
-        public static GearSetSlot ToSlot(this EquipSlotCategory self)
-        {
-            for (int i = 0; i < (int)GearSetSlot.SoulCrystal; i++)
-            {
-                if (self.Contains((GearSetSlot)i))
-                {
-                    return (GearSetSlot)i;
-                }
-            }
-            return GearSetSlot.None;
-        }
-    }
-}

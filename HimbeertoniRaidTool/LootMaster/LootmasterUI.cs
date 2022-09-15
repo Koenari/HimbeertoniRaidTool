@@ -20,12 +20,14 @@ namespace HimbeertoniRaidTool.LootMaster
         private int _CurrenGroupIndex;
         private RaidGroup CurrentGroup => LootMaster.RaidGroups[_CurrenGroupIndex];
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
-        public LootmasterUI() : base(false)
+        public LootmasterUI() : base(false, "LootMaster")
         {
             _CurrenGroupIndex = HRTPlugin.Configuration.LootmasterUiLastIndex;
             OnConfigChange();
             HRTPlugin.Configuration.ConfigurationChanged += OnConfigChange;
-
+            Size = new Vector2(1600, 670);
+            Title = Localize("LootMasterWindowTitle", "Loot Master");
+            WindowFlags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize;
         }
         public void OnConfigChange()
         {
@@ -70,7 +72,7 @@ namespace HimbeertoniRaidTool.LootMaster
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}{p.Pos}", Localize("Edit", "Edit")))
             {
-                var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, p.Pos, true);
+                var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, p.Pos);
                 if (AddChild(window))
                 {
                     Tasks.Add(callBack);
@@ -79,13 +81,28 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             foreach (PlayableClass playableClass in p.MainChar.Classes)
             {
-                if (ImGuiHelper.Button(playableClass.Job.ToString() + (p.MainChar.MainJob == playableClass.Job ? " *" : ""), null))
-                    p.MainChar.MainJob = playableClass.Job;
+                bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
+                if (isMainJob)
+                    ImGui.PushStyleColor(ImGuiCol.Button, Vec4(ColorName.Redwood.ToHsv().Value(0.6f)));
+                if (ImGuiHelper.Button(playableClass.Job.ToString(), null, true, new Vector2(38f, 0f)))
+                    p.MainChar.MainJob = playableClass.Job;
+                if (isMainJob)
+                    ImGui.PopStyleColor();
                 ImGui.SameLine();
                 ImGui.Text("Level: " + playableClass.Level);
+                //Current Gear
                 ImGui.SameLine();
-                ImGui.Text(Localize("iLvl", "iLvL: ") + playableClass.Gear.ItemLevel);
+                ImGui.Text($"{Localize("Current", "Current")} {Localize("iLvl", "iLvL: ")}{playableClass.Gear.ItemLevel:D3}");
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.Job}"))
+                    AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job), true);
+                //BiS
+                ImGui.SameLine();
+                ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvL: ")}{playableClass.BIS.ItemLevel:D3}");
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.BIS.Name}"))
+                    AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job), true);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
                     string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
@@ -210,62 +227,56 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             if (_CurrenGroupIndex > LootMaster.RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
                 _CurrenGroupIndex = 0;
-            ImGui.SetNextWindowSize(new Vector2(1600, 670), ImGuiCond.Appearing);
-            if (ImGui.Begin(Localize("LootMasterWindowTitle", "Loot Master"), ref Visible,
-                ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize))
+            HandleAsync();
+            DrawLootHandlerButtons();
+            DrawRaidGroupSwitchBar();
+            if (CurrentGroup.Type == GroupType.Solo)
             {
-                HandleAsync();
-                DrawLootHandlerButtons();
-                DrawRaidGroupSwitchBar();
-                if (CurrentGroup.Type == GroupType.Solo)
-                {
-                    if (CurrentGroup.Tank1.MainChar.Filled)
-                        DrawDetailedPlayer(CurrentGroup.Tank1);
-                    else
-                    {
-                        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
-                        {
-                            var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1, true);
-                            if (AddChild(window))
-                            {
-                                Tasks.Add(callBack);
-                                window.Show();
-                            }
-
-                        }
-                    }
-                }
-                else if (CurrentGroup.Type == GroupType.Raid || CurrentGroup.Type == GroupType.Group)
-                {
-                    if (ImGui.BeginTable("RaidGroup", 14,
-                    ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp))
-                    {
-                        ImGui.TableSetupColumn(Localize("Player", "Player"));
-                        ImGui.TableSetupColumn(Localize("itemLevelShort", "iLvl"));
-                        ImGui.TableSetupColumn(Localize("Weapon", "Weapon"));
-                        ImGui.TableSetupColumn(Localize("HeadGear", "Head"));
-                        ImGui.TableSetupColumn(Localize("ChestGear", "Chest"));
-                        ImGui.TableSetupColumn(Localize("Gloves", "Gloves"));
-                        ImGui.TableSetupColumn(Localize("LegGear", "Legs"));
-                        ImGui.TableSetupColumn(Localize("FeetGear", "Feet"));
-                        ImGui.TableSetupColumn(Localize("Earrings", "Earrings"));
-                        ImGui.TableSetupColumn(Localize("NeckGear", "Necklace"));
-                        ImGui.TableSetupColumn(Localize("WristGear", "Bracelet"));
-                        ImGui.TableSetupColumn(Localize("LeftRing", "Ring L"));
-                        ImGui.TableSetupColumn(Localize("RightRing", "Ring R"));
-                        ImGui.TableSetupColumn(Localize("Options", "Options"));
-                        ImGui.TableHeadersRow();
-                        foreach (Player player in CurrentGroup.Players)
-                            DrawPlayer(player);
-                        ImGui.EndTable();
-                    }
-                }
+                if (CurrentGroup.Tank1.MainChar.Filled)
+                    DrawDetailedPlayer(CurrentGroup.Tank1);
                 else
                 {
-                    ImGui.TextColored(Vec4(ColorName.Red.ToRgb()), $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
+                    {
+                        var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1);
+                        if (AddChild(window))
+                        {
+                            Tasks.Add(callBack);
+                            window.Show();
+                        }
+
+                    }
                 }
             }
-            ImGui.End();
+            else if (CurrentGroup.Type == GroupType.Raid || CurrentGroup.Type == GroupType.Group)
+            {
+                if (ImGui.BeginTable("RaidGroup", 14,
+                ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp))
+                {
+                    ImGui.TableSetupColumn(Localize("Player", "Player"));
+                    ImGui.TableSetupColumn(Localize("itemLevelShort", "iLvl"));
+                    ImGui.TableSetupColumn(Localize("Weapon", "Weapon"));
+                    ImGui.TableSetupColumn(Localize("HeadGear", "Head"));
+                    ImGui.TableSetupColumn(Localize("ChestGear", "Chest"));
+                    ImGui.TableSetupColumn(Localize("Gloves", "Gloves"));
+                    ImGui.TableSetupColumn(Localize("LegGear", "Legs"));
+                    ImGui.TableSetupColumn(Localize("FeetGear", "Feet"));
+                    ImGui.TableSetupColumn(Localize("Earrings", "Earrings"));
+                    ImGui.TableSetupColumn(Localize("NeckGear", "Necklace"));
+                    ImGui.TableSetupColumn(Localize("WristGear", "Bracelet"));
+                    ImGui.TableSetupColumn(Localize("LeftRing", "Ring L"));
+                    ImGui.TableSetupColumn(Localize("RightRing", "Ring R"));
+                    ImGui.TableSetupColumn(Localize("Options", "Options"));
+                    ImGui.TableHeadersRow();
+                    foreach (Player player in CurrentGroup.Players)
+                        DrawPlayer(player);
+                    ImGui.EndTable();
+                }
+            }
+            else
+            {
+                ImGui.TextColored(Vec4(ColorName.Red.ToRgb()), $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
+            }
         }
 
         private void DrawRaidGroupSwitchBar()
@@ -434,7 +445,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, player.Pos.ToString(),
                         string.Format(Localize("Edit {0}", "Edit {0}"), player.NickName)))
                     {
-                        EditPlayerWindow editWindow = new(out AsyncTaskWithUiResult result, CurrentGroup, player.Pos, true);
+                        EditPlayerWindow editWindow = new(out AsyncTaskWithUiResult result, CurrentGroup, player.Pos);
                         if (AddChild(editWindow))
                         {
                             Tasks.Add(result);
@@ -480,24 +491,14 @@ namespace HimbeertoniRaidTool.LootMaster
                 ImGui.Text(player.Pos.ToString());
                 ImGui.Text(Localize("No Player", "No Player"));
                 for (int i = 0; i < 12; i++)
-                {
                     ImGui.TableNextColumn();
-                }
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Plus, player.Pos.ToString(), Localize("Add", "Add")))
-                {
-                    EditPlayerWindow editWindow = new(out AsyncTaskWithUiResult result, CurrentGroup, player.Pos, true);
-                    if (AddChild(editWindow))
-                    {
+                    if (AddChild(new EditPlayerWindow(out AsyncTaskWithUiResult result, CurrentGroup, player.Pos), true))
                         Tasks.Add(result);
-                        editWindow.Show();
-                    }
-                }
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(), Localize("Add from DB", "Add from DB")))
-                {
-                    AddChild(new GetCharacterFromDBWindow(ref player));
-                }
+                    AddChild(new GetCharacterFromDBWindow(ref player), true);
             }
         }
         private static void DrawSlot(GearItem item, GearItem bis, bool extended = false)
@@ -577,36 +578,17 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             private readonly LootmasterUI Parent;
             private readonly Player P;
-            public PlayerdetailWindow(LootmasterUI lmui, Player p)
+            public PlayerdetailWindow(LootmasterUI lmui, Player p) : base(true, $"PlayerdetailWindow{p.NickName}")
             {
                 Parent = lmui;
                 P = p;
                 Show();
+                Title = Localize("PlayerDetailsTitle", "Player Details") + P.NickName;
+                (Size, SizingCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
             }
             protected override void Draw()
             {
-                ImGui.SetNextWindowSize(new Vector2(1600, 600), ImGuiCond.Appearing);
-                if (ImGui.Begin(Localize("PlayerDetailsTitle", "Player Details") + P.NickName, ref Visible,
-                    ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize))
-                {
-                    Parent.DrawDetailedPlayer(P);
-                    ImGui.End();
-                }
-
-            }
-            public override bool Equals(object? obj)
-            {
-                if (!(obj?.GetType().IsAssignableTo(GetType()) ?? false))
-                    return false;
-                return Equals((PlayerdetailWindow)obj);
-            }
-            public bool Equals(PlayerdetailWindow obj)
-            {
-                return P.Equals(obj.P);
-            }
-            public override int GetHashCode()
-            {
-                return P.GetHashCode();
+                Parent.DrawDetailedPlayer(P);
             }
         }
     }
@@ -619,57 +601,39 @@ namespace HimbeertoniRaidTool.LootMaster
         private string[] CharacterNames = Array.Empty<string>();
         private int CharacterNameIndex = 0;
         private string NickName = " ";
-        internal GetCharacterFromDBWindow(ref Player p)
+        internal GetCharacterFromDBWindow(ref Player p) : base(true, $"GetCharacterFromDBWindow{p.NickName}")
         {
             _p = p;
             Worlds = DataManager.GetWorldsWithCharacters().ToArray();
             WorldNames = Array.ConvertAll(Worlds, x => Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name.RawString ?? "");
-            Show();
+            Title = Localize("GetCharacterTitle", "Get character from DB") + _p.Pos;
+            Size = new Vector2(350, 420);
+            WindowFlags = ImGuiWindowFlags.NoScrollbar;
         }
         protected override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(350, 420), ImGuiCond.Appearing);
-            if (ImGui.Begin(Localize("GetCharacterTitle", "Get character from DB") + _p.Pos, ref Visible,
-                ImGuiWindowFlags.NoScrollbar))
+            ImGui.InputText(Localize("Player Name", "Player Name"), ref NickName, 50);
+            if (ImGui.ListBox("World", ref worldSelectIndex, WorldNames, WorldNames.Length))
             {
-                ImGui.InputText(Localize("Player Name", "Player Name"), ref NickName, 50);
-                if (ImGui.ListBox("World", ref worldSelectIndex, WorldNames, WorldNames.Length))
-                {
-                    List<string> list = DataManager.GetCharacters(Worlds[worldSelectIndex]);
-                    list.Sort();
-                    CharacterNames = list.ToArray();
-                }
-                ImGui.ListBox("Name", ref CharacterNameIndex, CharacterNames, CharacterNames.Length);
-                if (ImGuiHelper.Button(FontAwesomeIcon.Save, "save", Localize("Save", "Save")))
-                {
-
-                    _p.NickName = NickName;
-                    Character c = _p.MainChar;
-                    c.Name = CharacterNames[CharacterNameIndex];
-                    c.HomeWorldID = Worlds[worldSelectIndex];
-                    DataManager.GetManagedCharacter(ref c);
-                    _p.MainChar = c;
-                    Hide();
-                }
-                ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, "cancel", Localize("Cancel", "Cancel")))
-                    Hide();
-                ImGui.End();
+                List<string> list = DataManager.GetCharacters(Worlds[worldSelectIndex]);
+                list.Sort();
+                CharacterNames = list.ToArray();
             }
-        }
-        public override bool Equals(object? obj)
-        {
-            if (!(obj?.GetType().IsAssignableTo(GetType()) ?? false))
-                return false;
-            return Equals((GetCharacterFromDBWindow)obj);
-        }
-        public bool Equals(GetCharacterFromDBWindow obj)
-        {
-            return _p.Equals(obj._p);
-        }
-        public override int GetHashCode()
-        {
-            return _p.GetHashCode();
+            ImGui.ListBox("Name", ref CharacterNameIndex, CharacterNames, CharacterNames.Length);
+            if (ImGuiHelper.Button(FontAwesomeIcon.Save, "save", Localize("Save", "Save")))
+            {
+
+                _p.NickName = NickName;
+                Character c = _p.MainChar;
+                c.Name = CharacterNames[CharacterNameIndex];
+                c.HomeWorldID = Worlds[worldSelectIndex];
+                DataManager.GetManagedCharacter(ref c);
+                _p.MainChar = c;
+                Hide();
+            }
+            ImGui.SameLine();
+            if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, "cancel", Localize("Cancel", "Cancel")))
+                Hide();
         }
     }
     internal class SwapPositionWindow : HrtUI
@@ -679,7 +643,7 @@ namespace HimbeertoniRaidTool.LootMaster
         private int _newPos;
         private readonly PositionInRaidGroup[] possiblePositions;
         private readonly string[] possiblePositionNames;
-        internal SwapPositionWindow(PositionInRaidGroup pos, RaidGroup g) : base()
+        internal SwapPositionWindow(PositionInRaidGroup pos, RaidGroup g) : base(true, $"SwapPositionWindow{g.GetHashCode()}{pos}")
         {
             _group = g;
             _oldPos = pos;
@@ -689,48 +653,29 @@ namespace HimbeertoniRaidTool.LootMaster
             positions.RemoveAll(x => x == _oldPos);
             possiblePositions = positions.ToArray();
             possiblePositionNames = positions.ConvertAll(position => $"{_group[position].NickName} ({position})").ToArray();
-            Show();
+            Size = new Vector2(170f, _group.Type == GroupType.Raid ? 230f : 150f);
+            Title = $"{Localize("Swap Position of", "Swap Position of")} {_group[_oldPos].NickName}";
+            WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
         }
         protected override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(170f, _group.Type == GroupType.Raid ? 230f : 150f));
-            if (ImGui.Begin("Swap Position of " + _group[_oldPos].NickName, ref Visible,
-                ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))
+            if (ImGuiHelper.SaveButton(Localize("Swap players positions", "Swap players positions")))
             {
-                ImGui.ListBox("", ref _newPos, possiblePositionNames, possiblePositions.Length);
-                if (ImGuiHelper.Button(Localize("Swap", "Swap"), Localize("Swap players positions", "Swap players positions")))
+                PositionInRaidGroup newPos = possiblePositions[_newPos];
+                if (newPos != _oldPos)
                 {
-                    PositionInRaidGroup newPos = possiblePositions[_newPos];
                     (_group[_oldPos], _group[newPos]) = (_group[newPos], _group[_oldPos]);
                     _group[_oldPos].Pos = _oldPos;
                     _group[newPos].Pos = newPos;
-                    Hide();
                 }
-                ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, "cancel", Localize("Cancel", "Cancel")))
-                    Hide();
-                ImGui.End();
+                Hide();
             }
-        }
-        public override bool Equals(object? obj)
-        {
-            if (!(obj?.GetType().IsAssignableTo(GetType()) ?? false))
-                return false;
-            return Equals((SwapPositionWindow)obj);
-        }
-        public bool Equals(SwapPositionWindow other)
-        {
-            if (!_group.Equals(other._group))
-                return false;
-            if (_oldPos != other._oldPos)
-                return false;
+            ImGui.SameLine();
+            if (ImGuiHelper.CancelButton())
+                Hide();
+            ImGui.ListBox("", ref _newPos, possiblePositionNames, possiblePositions.Length);
 
-            return true;
-        }
-        public override int GetHashCode()
-        {
-            return _group.GetHashCode() << 3 + (int)_oldPos;
-        }
 
+        }
     }
 }

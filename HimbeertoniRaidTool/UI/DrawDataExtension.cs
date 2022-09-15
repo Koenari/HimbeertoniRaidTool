@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using ColorHelper;
 using HimbeertoniRaidTool.Data;
 using ImGuiNET;
+using Lumina.Excel.GeneratedSheets;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
     public static class DrawDataExtension
     {
+        public static void Draw(this Item item) => Draw(new GearItem(item.RowId));
         public static void Draw(this GearItem item)
         {
             bool isWeapon = item.Slot == GearSetSlot.MainHand;
@@ -37,23 +39,24 @@ namespace HimbeertoniRaidTool.UI
                 foreach (var stat in item.Item.UnkData59)
                     if ((StatType)stat.BaseParam != StatType.None)
                         DrawRow(((StatType)stat.BaseParam).FriendlyName(), item.GetStat((StatType)stat.BaseParam, false).ToString());
-                ImGui.TableNextColumn();
-                ImGui.Text("Materia");
-                ImGui.TableNextColumn();
-                foreach (var mat in item.Materia)
-                    ImGui.BulletText($"{mat.Name} ({mat.StatType.FriendlyName()} +{mat.GetStat()})");
+                if (item.Materia.Count > 0)
+                {
+                    ImGui.TableNextColumn();
+                    ImGui.Text("Materia");
+                    ImGui.TableNextColumn();
+                    foreach (var mat in item.Materia)
+                        ImGui.BulletText($"{mat.Name} ({mat.StatType.FriendlyName()} +{mat.GetStat()})");
+                }
                 ImGui.EndTable();
             }
         }
-        static void DrawRow(string label, string value)
+        private static void DrawRow(string label, string value)
         {
 
             ImGui.TableNextColumn();
             ImGui.Text(label);
-            ImGui.PushStyleColor(ImGuiCol.TableRowBg, HRTColorConversions.Vec4(ColorName.White, 0.5f));
             ImGui.TableNextColumn();
             ImGui.Text(value);
-            ImGui.PopStyleColor();
         }
     }
 }
