@@ -68,9 +68,9 @@ namespace HimbeertoniRaidTool.LootMaster
 
             ImGuiHelper.GearUpdateButton(p);
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Solo", Localize("Edit", "Edit")))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}{p.Pos}", Localize("Edit", "Edit")))
             {
-                var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, PositionInRaidGroup.Tank1, true);
+                var window = new EditPlayerWindow(out AsyncTaskWithUiResult callBack, CurrentGroup, p.Pos, true);
                 if (AddChild(window))
                 {
                     Tasks.Add(callBack);
