@@ -1,17 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.DataManagement;
+using HimbeertoniRaidTool.UI;
+using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
-    public static class LootMaster
+    internal sealed class LootMaster : IHrtModule
     {
-        internal static readonly LootmasterUI Ui = new();
-        internal static List<RaidGroup> RaidGroups => DataManagement.DataManager.Groups;
-        internal static void Init()
+        //Singleton
+        private static readonly Lazy<LootMaster> _Instance = new(() => new LootMaster());
+        internal static LootMaster Instance { get { return _Instance.Value; } }
+        //Interface Properties
+        public string Name => "Loot Master";
+        public string Description => throw new NotImplementedException();
+        public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
+        {
+            new()
+            {
+                Command = "/lootmaster",
+                Description = Localize("/lootmaster", "Opens LootMaster Window"),
+                ShowInHelp = false,
+                OnCommand = OnCommand,
+            },
+            new()
+            {
+                Command = "/lm",
+                Description = Localize("/lootmaster", "Opens LootMaster Window"),
+                ShowInHelp = false,
+                OnCommand = OnCommand,
+            }
+        };
+        //Properties
+        internal List<RaidGroup> RaidGroups => DataManager.Groups;
+
+        internal readonly LootmasterUI Ui;
+
+
+        private LootMaster()
         {
             bool fillSolo = false;
             if (RaidGroups.Count == 0)
@@ -27,6 +58,14 @@ namespace HimbeertoniRaidTool.LootMaster
             if (fillSolo)
                 FillSoloChar(RaidGroups[0].Tank1, true);
             GearRefresherOnExamine.Enable();
+            Ui = new(this);
+            if (HRTPlugin.Configuration.OpenLootMasterOnStartup)
+                Ui.Show();
+        }
+
+        public void Update(Framework fw)
+        {
+
         }
         private static void FillSoloChar(Player p, bool useSelf = false)
         {
@@ -44,7 +83,7 @@ namespace HimbeertoniRaidTool.LootMaster
             if (c.MainClass != null)
                 c.MainClass.Level = character.Level;
         }
-        internal static void AddGroup(RaidGroup group, bool getGroupInfos)
+        internal void AddGroup(RaidGroup group, bool getGroupInfos)
         {
             RaidGroups.Add(group);
             if (!getGroupInfos)
@@ -170,7 +209,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
             }
         }
-        public static void OnCommand(string args)
+        public void OnCommand(string args)
         {
             switch (args)
             {
@@ -179,10 +218,15 @@ namespace HimbeertoniRaidTool.LootMaster
                     break;
             }
         }
-        public static void Dispose()
+        public void Dispose()
         {
             GearRefresherOnExamine.Dispose();
             Ui.Dispose();
+        }
+
+        public void HandleMessage(HrtUiMessage message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

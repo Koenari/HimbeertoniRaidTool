@@ -15,12 +15,13 @@ using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
-    public class LootmasterUI : HrtUI
+    internal class LootmasterUI : HrtUI
     {
+        private readonly LootMaster LootMaster;
         private int _CurrenGroupIndex;
         private RaidGroup CurrentGroup => LootMaster.RaidGroups[_CurrenGroupIndex];
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
-        public LootmasterUI() : base(false, "LootMaster")
+        internal LootmasterUI(LootMaster lootMaster) : base(false, "LootMaster")
         {
             _CurrenGroupIndex = HRTPlugin.Configuration.LootmasterUiLastIndex;
             OnConfigChange();
@@ -28,6 +29,7 @@ namespace HimbeertoniRaidTool.LootMaster
             Size = new Vector2(1600, 670);
             Title = Localize("LootMasterWindowTitle", "Loot Master");
             WindowFlags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize;
+            LootMaster = lootMaster;
         }
         public void OnConfigChange()
         {
