@@ -12,7 +12,7 @@ using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.HrtServices;
-using HimbeertoniRaidTool.UI;
+using HimbeertoniRaidTool.Modules.WelcomeWindow;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool
@@ -36,8 +36,7 @@ namespace HimbeertoniRaidTool
 
         internal static void Init()
         {
-            if (IconCache == null)
-                IconCache = new IconCache(PluginInterface, DataManager);
+            IconCache ??= new IconCache(PluginInterface, DataManager);
         }
 
     }
@@ -45,27 +44,21 @@ namespace HimbeertoniRaidTool
     public sealed class HRTPlugin : IDalamudPlugin
     {
         private readonly Dalamud.Localization Loc;
-        private static HRTPlugin? _Plugin;
-        private static HRTPlugin Plugin => _Plugin ?? throw new NullReferenceException();
+        internal static HRTPlugin Plugin { get; private set; } = null!;
+
         private readonly Configuration _Configuration;
         public static Configuration Configuration => Plugin._Configuration;
-        public static Configuration.ConfigUI ConfigUi => Plugin.OptionsUi;
         public string Name => "Himbeertoni Raid Tool";
 
-        private readonly List<(string, Func<string>, bool)> Commands = new()
-        {
-            ("/hrt", () => Localize("/hrt", "Open Welcome Window with explanations"), true),
-            ("/lootmaster", () => Localize("/lootmaster", "Opens LootMaster Window"), false),
-            ("/lm", () => Localize("/lm", "Opens LootMaster Window (short version)"), true),
+        private readonly List<string> RegisteredCommands = new();
+        private readonly List<IHrtModule> Modules = new();
 
-        };
-
-        private Configuration.ConfigUI OptionsUi { get; init; }
+        internal Configuration.ConfigUI ConfigUi { get; private set; }
 
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
-            //Init all services and public staic references
-            _Plugin = this;
+            //Init all services and public static references
+            Plugin = this;
             pluginInterface.Create<Services>();
             Services.Init();
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
@@ -73,71 +66,72 @@ namespace HimbeertoniRaidTool
             Loc = new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale");
             Loc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
             Services.PluginInterface.LanguageChanged += OnLanguageChanged;
-            InitCommands();
+            Services.Framework.Update += Update;
             DataManagement.DataManager.Init();
             //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
-            LootMaster.LootMaster.Init();
-            OptionsUi = new();
-            if (Configuration.ShowWelcomeWindow)
+            ConfigUi = new();
+            AddCommand(new HrtCommand()
             {
-                WelcomeWindow wcw = new();
-                wcw.Show();
-            }
-            if (Configuration.OpenLootMasterOnStartup)
-                LootMaster.LootMaster.Ui.Show();
+                Command = "/hrt",
+                Description = Localize("/hrt", "Open Welcome Window with explanations"),
+                ShowInHelp = true,
+                OnCommand = OnCommand
+            });
+            //TODO: Some more elegant way to load modules
+            AddModule(LootMaster.LootMaster.Instance);
+            AddModule(WelcomeWindowModule.Instance);
+
+        }
+        public T? GetModule<T>() where T : IHrtModule =>
+           (T?)Modules.Find(x => x.GetType() == typeof(T));
+
+        private void AddModule(IHrtModule module)
+        {
+            Modules.Add(module);
+            foreach (var command in module.Commands)
+                AddCommand(command);
+        }
+        private void Update(Framework fw)
+        {
+            foreach (var module in Modules)
+                module.Update(fw);
         }
         private void OnLanguageChanged(string langCode)
         {
             Loc.SetupWithLangCode(langCode);
-            Commands.ForEach(c => Services.CommandManager.RemoveHandler(c.Item1));
-            InitCommands();
         }
-        private void InitCommands()
+        private void AddCommand(HrtCommand command)
         {
-            foreach (var command in Commands)
-            {
-                Services.CommandManager.AddHandler(command.Item1, new CommandInfo(OnCommand)
+            if (
+                Services.CommandManager.AddHandler($"/{command.Command}",
+                new CommandInfo((x, y) => OnCommand(y))
                 {
-                    HelpMessage = command.Item2.Invoke(),
-                    ShowInHelp = command.Item3
-                });
-            }
+                    HelpMessage = command.Description,
+                    ShowInHelp = command.ShowInHelp
+                })
+                )
+                RegisteredCommands.Add(command.Command);
         }
         public void Dispose()
         {
-            OptionsUi.Dispose();
-            Commands.ForEach(command => Services.CommandManager.RemoveHandler(command.Item1));
+            ConfigUi.Dispose();
+            RegisteredCommands.ForEach(command => Services.CommandManager.RemoveHandler(command));
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
-            LootMaster.LootMaster.Dispose();
+            foreach (var module in Modules)
+                module.Dispose();
             DataManagement.DataManager.Save();
         }
-        private void OnCommand(string command, string args)
+        private void OnCommand(string args)
         {
-            switch (command)
+            switch (args)
             {
-                case "/hrt":
-                    if (args.Contains("option") || args.Contains("config"))
-                        OptionsUi.Show();
-                    else if (args.Contains("exportlocale"))
-                    {
-                        Loc.ExportLocalizable();
-                    }
-                    else if (args.IsNullOrEmpty())
-                    {
-                        WelcomeWindow wcw = new();
-                        wcw.Show();
-                    }
-                    else
-                        PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
-                    break;
-                case "/lm":
-                case "/lootmaster":
-                    LootMaster.LootMaster.OnCommand(args);
-                    break;
+                case string a when a.Contains("option") || a.Contains("config"): ConfigUi.Show(); break;
+                case string b when b.Contains("exportlocale"): Loc.ExportLocalizable(); break;
+                case string when args.IsNullOrEmpty(): GetModule<WelcomeWindowModule>()?.Show(); break;
                 default:
-                    PluginLog.LogError($"Command \"{command}\" not found");
+                    PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
                     break;
             }
         }
