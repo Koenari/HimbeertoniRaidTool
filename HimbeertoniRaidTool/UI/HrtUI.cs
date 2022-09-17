@@ -167,4 +167,17 @@ namespace HimbeertoniRaidTool.UI
             }
         }
     }
+    public struct HrtUiMessage
+    {
+        public HrtUiMessageType MessageType;
+        public string Message;
+    }
+    public enum HrtUiMessageType
+    {
+        Info,
+        Success,
+        Failure,
+        Error,
+        Important
+    }
 }
