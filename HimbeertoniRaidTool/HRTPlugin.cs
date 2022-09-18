@@ -12,6 +12,7 @@ using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.HrtServices;
+using HimbeertoniRaidTool.LootMaster;
 using HimbeertoniRaidTool.Modules.WelcomeWindow;
 using static Dalamud.Localization;
 
@@ -44,21 +45,16 @@ namespace HimbeertoniRaidTool
     public sealed class HRTPlugin : IDalamudPlugin
     {
         private readonly Dalamud.Localization Loc;
-        internal static HRTPlugin Plugin { get; private set; } = null!;
 
         private readonly Configuration _Configuration;
-        public static Configuration Configuration => Plugin._Configuration;
         public string Name => "Himbeertoni Raid Tool";
 
         private readonly List<string> RegisteredCommands = new();
-        private readonly List<IHrtModule> Modules = new();
-
-        internal Configuration.ConfigUI ConfigUi { get; private set; }
+        private readonly Dictionary<Type, dynamic> RegisteredModules = new();
 
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
-            //Init all services and public static references
-            Plugin = this;
+            //Init all services
             pluginInterface.Create<Services>();
             Services.Init();
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
@@ -66,12 +62,10 @@ namespace HimbeertoniRaidTool
             Loc = new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale");
             Loc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
             Services.PluginInterface.LanguageChanged += OnLanguageChanged;
-            Services.Framework.Update += Update;
             DataManagement.DataManager.Init();
             //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
-            ConfigUi = new();
             AddCommand(new HrtCommand()
             {
                 Command = "/hrt",
@@ -80,23 +74,23 @@ namespace HimbeertoniRaidTool
                 OnCommand = OnCommand
             });
             //TODO: Some more elegant way to load modules
-            AddModule(LootMaster.LootMaster.Instance);
-            AddModule(WelcomeWindowModule.Instance);
+            AddModule<LootMaster.LootMaster, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>(LootMaster.LootMaster.Instance);
+            AddModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>(WelcomeWindowModule.Instance);
 
         }
-        public T? GetModule<T>() where T : IHrtModule =>
-           (T?)Modules.Find(x => x.GetType() == typeof(T));
-
-        private void AddModule(IHrtModule module)
+        public T? GetModule<T, S, Q>() where T : IHrtModule<S, Q> where S : new() where Q : IHrtConfigUi
         {
-            Modules.Add(module);
-            foreach (var command in module.Commands)
+            RegisteredModules.TryGetValue(typeof(T), out dynamic? value);
+            return (T?)value;
+        }
+        private void AddModule<T, S, Q>(T module) where T : IHrtModule<S, Q> where S : new() where Q : IHrtConfigUi
+        {
+            RegisteredModules.Add(typeof(T), module);
+            foreach (HrtCommand command in module.Commands)
                 AddCommand(command);
-        }
-        private void Update(Framework fw)
-        {
-            foreach (var module in Modules)
-                module.Update(fw);
+            if (!_Configuration.RegisterConfig(module.Configuration))
+                PluginLog.Error($"Confugiration load error:{module.Name}");
+            module.AfterFullyLoaded();
         }
         private void OnLanguageChanged(string langCode)
         {
@@ -105,8 +99,8 @@ namespace HimbeertoniRaidTool
         private void AddCommand(HrtCommand command)
         {
             if (
-                Services.CommandManager.AddHandler($"/{command.Command}",
-                new CommandInfo((x, y) => OnCommand(y))
+                Services.CommandManager.AddHandler(command.Command,
+                new CommandInfo((x, y) => command.OnCommand(y))
                 {
                     HelpMessage = command.Description,
                     ShowInHelp = command.ShowInHelp
@@ -116,20 +110,29 @@ namespace HimbeertoniRaidTool
         }
         public void Dispose()
         {
-            ConfigUi.Dispose();
+            _Configuration.Ui.Dispose();
             RegisteredCommands.ForEach(command => Services.CommandManager.RemoveHandler(command));
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
-            foreach (var module in Modules)
-                module.Dispose();
+            foreach (var moduleEntry in RegisteredModules)
+            {
+                try
+                {
+                    moduleEntry.Value.Dispose();
+                }
+                catch (Exception e)
+                {
+                    PluginLog.Fatal($"Unable to Dispose module \"{moduleEntry.Key}\"");
+                }
+            }
             DataManagement.DataManager.Save();
         }
         private void OnCommand(string args)
         {
             switch (args)
             {
-                case string a when a.Contains("option") || a.Contains("config"): ConfigUi.Show(); break;
+                case string a when a.Contains("option") || a.Contains("config"): _Configuration.Ui.Show(); break;
                 case string b when b.Contains("exportlocale"): Loc.ExportLocalizable(); break;
-                case string when args.IsNullOrEmpty(): GetModule<WelcomeWindowModule>()?.Show(); break;
+                case string when args.IsNullOrEmpty(): GetModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>()?.Show(); break;
                 default:
                     PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
                     break;
