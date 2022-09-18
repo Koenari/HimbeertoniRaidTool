@@ -21,19 +21,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private static readonly IntPtr InventoryManagerAddress;
         private static readonly IntPtr getInventoryContainerPtr;
         private static readonly IntPtr getContainerSlotPtr;
-        private static readonly IntPtr RequestCharacterInfoPtr;
 
         private delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
         private delegate InventoryContainer* GetInventoryContainer(IntPtr inventoryManager, InventoryType inventoryType);
         private delegate InventoryItem* GetContainerSlot(InventoryContainer* inventoryContainer, int slotId);
-        private delegate long RequestCharInfoDelegate(IntPtr ptr);
 
         private static readonly GetInventoryContainer? _getInventoryContainer;
         private static readonly GetContainerSlot? _getContainerSlot;
-        private static readonly RequestCharInfoDelegate? _requestCharacterInfo;
-        private static PlayerCharacter? TargetOverrride = null;
         private static readonly XivCommonBase? XivCommonBase;
-        private static readonly bool useXivCommon = true;
         static GearRefresherOnExamine()
         {
             try
@@ -55,69 +50,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 Dalamud.Logging.PluginLog.LogError(e.StackTrace ?? "");
                 HookLoadSuccessful = false;
             }
-            if (useXivCommon)
-            {
-                XivCommonBase = new XivCommonBase();
-                CanOpenExamine = true;
-            }
-            else
-            {
-                try
-                {
-                    RequestCharacterInfoPtr = Services.SigScanner.ScanText("40 53 48 83 EC 40 48 8B D9 48 8B 49 10 48 8B 01 FF 90 ?? ?? ?? ?? BA");
-                    _requestCharacterInfo = Marshal.GetDelegateForFunctionPointer<RequestCharInfoDelegate>(RequestCharacterInfoPtr);
-                    if (_requestCharacterInfo == null)
-                    {
-                        Dalamud.Logging.PluginLog.LogError("Could not find signature for Examine function");
-                        CanOpenExamine = false;
-                    }
-                    else
-                    {
-                        //Todo Match to GameVeriosn for automatic disabling on updates
-                        CanOpenExamine = true;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Dalamud.Logging.PluginLog.LogError("Failed to load examine function");
-                    Dalamud.Logging.PluginLog.LogError(e.Message);
-                    Dalamud.Logging.PluginLog.LogError(e.StackTrace ?? "");
-                    CanOpenExamine = false;
-                }
-            }
+            XivCommonBase = new XivCommonBase();
+            CanOpenExamine = true;
         }
         internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
         {
-            if (!CanOpenExamine)
+            if (!CanOpenExamine || @object is null || XivCommonBase is null)
                 return;
-            if (@object == null)
-                return;
-            if (useXivCommon)
-            {
-                if (XivCommonBase is null)
-                    return;
-                XivCommonBase.Functions.Examine.OpenExamineWindow(@object);
-            }
-            else
-            {
-                if (_requestCharacterInfo == null)
-                    return;
-                uint objectId = @object.ObjectId;
-                /*
-                 * Not needed anymore given XivCommon works fine again
-                 */
-                TargetOverrride = @object;
-                var agentModule = (IntPtr)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule();
-                var rciData = agentModule + 0x1A8;
-                uint* rawRci = (uint*)rciData;
-                rawRci[10] = objectId;
-                rawRci[11] = objectId;
-                rawRci[12] = objectId;
-                rawRci[13] = 0xE0000000;
-                rawRci[301] = 0u;
-                _requestCharacterInfo(rciData);
-            }
-
+            XivCommonBase.Functions.Examine.OpenExamineWindow(@object);
         }
         internal static void Enable()
         {
@@ -158,65 +98,56 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 return;
             }
             //Make sure examine window correspods to intended character and character info is fetchable
-            PlayerCharacter? target = null;
-            if (TargetOverrride is not null)
+            PlayerCharacter? target = Helper.TryGetChar(charNameFromExamine, worldFromExamine);
+            if (target is null)
             {
-                if (TargetOverrride.Name.Equals(charNameFromExamine) || TargetOverrride.Name.Equals(charNameFromExamine2))
-                    if (TargetOverrride.HomeWorld.GameData == worldFromExamine)
-                        target = TargetOverrride;
-                TargetOverrride = null;
+                target = Helper.TryGetChar(charNameFromExamine2, worldFromExamine);
+                charNameFromExamine = charNameFromExamine2;
             }
-            else
+            if (target is null)
+                return;
+            if (target.GetJob() is null)
+                return;
+            var intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
+            var objID = target.ObjectId;
+            uint* ptr = (uint*)(void*)intPtr;
+            //Do not execute on characters not part of any managed raid group
+            if (!DataManagement.DataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
+                return;
+            Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
+
+            DataManagement.DataManager.GetManagedCharacter(ref targetChar);
+            if (targetChar is null)
+                return;
+            var targetClass = (Job)target.GetJob()!;
+            var container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
+            if (container == null)
+                return;
+
+            //Getting level does not work in level synced content
+            if (target.Level > targetChar.GetClass(targetClass).Level)
+                targetChar.GetClass(targetClass).Level = target.Level;
+            var setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
+            DataManagement.DataManager.GetManagedGearSet(ref setToFill);
+
+            setToFill.Clear();
+            setToFill.TimeStamp = DateTime.UtcNow;
+            for (int i = 0; i < 13; i++)
             {
-                target = Helper.TryGetChar(charNameFromExamine, worldFromExamine);
-                if (target is null)
+                if (i == (int)GearSetSlot.Waist)
+                    continue;
+                var slot = _getContainerSlot(container, i);
+                if (slot->ItemID == 0)
+                    continue;
+                setToFill[(GearSetSlot)i] = new(slot->ItemID)
                 {
-                    target = Helper.TryGetChar(charNameFromExamine2, worldFromExamine);
-                    charNameFromExamine = charNameFromExamine2;
-                }
-                if (target is null)
-                    return;
-                if (target.GetJob() is null)
-                    return;
-                var intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
-                var objID = target.ObjectId;
-                uint* ptr = (uint*)(void*)intPtr;
-                //Do not execute on characters not part of any managed raid group
-                if (!DataManagement.DataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
-                    return;
-                Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
-
-                DataManagement.DataManager.GetManagedCharacter(ref targetChar);
-                if (targetChar is null)
-                    return;
-                var targetClass = (Job)target.GetJob()!;
-                var container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
-                if (container == null)
-                    return;
-
-                //Getting level does not work in level synced content
-                if (target.Level > targetChar.GetClass(targetClass).Level)
-                    targetChar.GetClass(targetClass).Level = target.Level;
-                var setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
-                DataManagement.DataManager.GetManagedGearSet(ref setToFill);
-
-                setToFill.Clear();
-                setToFill.TimeStamp = DateTime.UtcNow;
-                for (int i = 0; i < 13; i++)
+                    IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ)
+                };
+                for (int j = 0; j < 5; j++)
                 {
-                    if (i == (int)GearSetSlot.Waist)
-                        continue;
-                    var slot = _getContainerSlot(container, i);
-                    if (slot->ItemID == 0)
-                        continue;
-                    setToFill[(GearSetSlot)i] = new(slot->ItemID);
-                    setToFill[(GearSetSlot)i].IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ);
-                    for (int j = 0; j < 5; j++)
-                    {
-                        if (slot->Materia[j] == 0)
-                            break;
-                        setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
-                    }
+                    if (slot->Materia[j] == 0)
+                        break;
+                    setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
                 }
             }
         }
