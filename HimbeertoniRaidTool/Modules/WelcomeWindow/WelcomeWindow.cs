@@ -9,11 +9,12 @@ using Dalamud.Game;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
+using Newtonsoft.Json;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.Modules.WelcomeWindow
 {
-    internal class WelcomeWindowModule : IHrtModule
+    internal class WelcomeWindowModule : IHrtModule<WelcomeWindowConfig.ConfigData, IHrtConfigUi>
     {
         //Singleton
         private static readonly Lazy<WelcomeWindowModule> _Instance = new(() => new WelcomeWindowModule());
@@ -22,12 +23,17 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
         public string Name => "Welcome Window";
         public string Description => "Shows a welcome window with information on how to use";
         public IEnumerable<HrtCommand> Commands => Array.Empty<HrtCommand>();
+
+        public string InternalName => "WelcomeWindow";
+
+        public HRTConfiguration<WelcomeWindowConfig.ConfigData, IHrtConfigUi> Configuration => _config;
+
         private readonly WelcomeWindowui _ui;
+        private readonly WelcomeWindowConfig _config;
         public WelcomeWindowModule()
         {
-            _ui = new();
-            if (HRTPlugin.Configuration.ShowWelcomeWindow)
-                _ui.Show();
+            _ui = new(this);
+            _config = new WelcomeWindowConfig(this);
         }
         public void Update(Framework fw) { }
         public void Dispose()
@@ -42,15 +48,22 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
             _ui.Show();
         }
 
+        public void AfterFullyLoaded()
+        {
+            if (_config.Data.ShowWelcomeWindow)
+                _ui.Show();
+        }
+
         private class WelcomeWindowui : HrtUI
         {
             private const string WikiURL = "https://github.com/Koenari/HimbeertoniRaidTool/wiki";
-
-            public WelcomeWindowui()
+            private readonly WelcomeWindowModule _parent;
+            public WelcomeWindowui(WelcomeWindowModule parent) : base(false)
             {
                 (Size, SizingCondition) = (new Vector2(520, 345), ImGuiCond.Always);
                 Title = Localize("Welcome to HRT", "Welcome to Himbeertoni Raid Tool");
                 WindowFlags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize;
+                _parent = parent;
             }
             protected override void Draw()
             {
@@ -65,15 +78,16 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
                 ImGui.NewLine();
                 //Buttons
                 if (ImGuiHelper.Button(Localize("Open LootMaster", "Open LootMaster"),
-                    Localize("Open LootMaster main window", "Open LootMaster main window")))
+                    Localize("Open LootMaster main window (/lm)", "Open LootMaster main window (/lm)")))
                 {
-                    HRTPlugin.Plugin.GetModule<LootMaster.LootMaster>()?.Ui.Show();
+                    Services.CommandManager.ProcessCommand("/lm");
                 }
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(Localize("Open Options", "Open Options"),
-                     Localize("Show configuration options", "Show configuration options")))
+                     Localize("Show configuration options (/hrt config)", "Show configuration options (/hrt config)")))
                 {
-                    HRTPlugin.Plugin.ConfigUi.Show();
+                    Services.CommandManager.ProcessCommand("/hrt config");
+
                 }
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(Localize("Open Wiki", "Open Wiki"),
@@ -92,9 +106,26 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
             }
             protected override void OnHide()
             {
-                HRTPlugin.Configuration.ShowWelcomeWindow = false;
+                _parent.Configuration.Data.ShowWelcomeWindow = false;
+                _parent.Configuration.Save();
             }
         }
     }
 
+    internal sealed class WelcomeWindowConfig : HRTConfiguration<WelcomeWindowConfig.ConfigData, IHrtConfigUi>
+    {
+        public override IHrtConfigUi? Ui => null;
+
+        public WelcomeWindowConfig(WelcomeWindowModule hrtModule) : base(hrtModule.InternalName, hrtModule.Name)
+        {
+        }
+        public override void AfterLoad() { }
+
+        internal sealed class ConfigData
+        {
+            [JsonProperty]
+            internal bool ShowWelcomeWindow = true;
+            public ConfigData() { }
+        }
+    }
 }
