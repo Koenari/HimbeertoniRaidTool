@@ -22,8 +22,8 @@ namespace UnitTestsData
         [Fact]
         public void LootSourceEqualsTest()
         {
-            RaidTier T1 = new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos");
-            RaidTier T2 = new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
+            RaidTier T1 = new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos", 9);
+            RaidTier T2 = new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos", 9);
             Assert.Equal(new LootSource((T1, 1)), new LootSource((T1, 1)));
             Assert.NotEqual(new LootSource((T1, 1)), new LootSource((T1, 2)));
             Assert.NotEqual(new LootSource((T2, 1)), new LootSource((T1, 1)));

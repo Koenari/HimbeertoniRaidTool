@@ -6,7 +6,7 @@ namespace UnitTestsData
     public class EnumsWithFunctionality
     {
         //Does not work because of Localize
-        public void AllCasesHandledForLootRuleEnum()
+        internal void AllCasesHandledForLootRuleEnum()
         {
             foreach (LootRuleEnum lre in Enum.GetValues(typeof(LootRuleEnum)))
             {
