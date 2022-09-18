@@ -92,7 +92,7 @@ namespace HimbeertoniRaidTool.Data
         public bool IsExhangableItem => CuratedData.ExchangedFor.ContainsKey(ID);
         public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
         [JsonIgnore]
-        protected readonly static ExcelSheet<Item> Sheet = Services.DataManager.Excel.GetSheet<Item>()!;
+        protected static readonly ExcelSheet<Item> Sheet = Services.DataManager.Excel.GetSheet<Item>()!;
 
         public HrtItem(uint ID) => _ID = ID;
 
@@ -112,7 +112,7 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty("MateriaLevel")]
         public readonly byte MateriaLevel;
         [JsonIgnore]
-        private readonly static ExcelSheet<Materia> MateriaSheet = Services.DataManager.Excel.GetSheet<Materia>()!;
+        private static readonly ExcelSheet<Materia> MateriaSheet = Services.DataManager.Excel.GetSheet<Materia>()!;
         [JsonIgnore]
         public override uint ID => Materia?.Item[MateriaLevel].Row ?? 0;
         public Materia? Materia => MateriaSheet.GetRow((ushort)Category);
@@ -212,7 +212,7 @@ namespace HimbeertoniRaidTool.Data
     public class ItemIDList : ItemIDCollection
     {
         private readonly ReadOnlyCollection<uint> _IDs;
-        public static implicit operator ItemIDList(uint[] ids) => new ItemIDList(ids);
+        public static implicit operator ItemIDList(uint[] ids) => new(ids);
         public List<uint> AsList => _IDs.ToList();
         public bool Contains(uint id) => _IDs.Contains(id);
         public ItemIDList(params uint[] ids)

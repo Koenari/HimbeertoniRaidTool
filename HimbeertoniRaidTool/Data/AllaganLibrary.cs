@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Lumina.Excel.GeneratedSheets;
 
 namespace HimbeertoniRaidTool.Data
 {
     public static class AllaganLibrary
     {
-        private readonly static Dictionary<int, (int MP, int MAIN, int SUB, int DIV, int HP, int ELMT, int THREAT)> LevelTable;
+        private static readonly Dictionary<int, (int MP, int MAIN, int SUB, int DIV, int HP, int ELMT, int THREAT)> LevelTable;
         static AllaganLibrary()
         {
             LevelTable = new();

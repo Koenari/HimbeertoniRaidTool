@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Hooking;

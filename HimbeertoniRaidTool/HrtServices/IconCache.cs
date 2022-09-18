@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Dalamud.Data;
 using Dalamud.Plugin;
 using Dalamud.Utility;
 using ImGuiScene;
-using Lumina.Data.Files;
 
 namespace HimbeertoniRaidTool.HrtServices
 {
@@ -38,11 +34,6 @@ namespace HimbeertoniRaidTool.HrtServices
             ret = _pi.UiBuilder.LoadImageRaw(iconData, icon.Header.Width, icon.Header.Height, 4);
             _icons[id] = ret;
             return ret;
-        }
-        private TexFile? LoadIconHq(uint id)
-        {
-            var path = $"ui/icon/{id / 1000 * 1000:000000}/{id:000000}_hr1.tex";
-            return _gameData.GetFile<TexFile>(path);
         }
         public void Dispose()
         {

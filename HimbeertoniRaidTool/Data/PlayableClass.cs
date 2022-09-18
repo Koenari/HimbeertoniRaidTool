@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using static HimbeertoniRaidTool.DataManagement.DataManager;

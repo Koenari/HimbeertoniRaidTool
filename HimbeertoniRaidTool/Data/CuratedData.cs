@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using static Dalamud.Localization;
 using static HimbeertoniRaidTool.Data.Job;
 

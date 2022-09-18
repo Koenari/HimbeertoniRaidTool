@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HimbeertoniRaidTool.Data;
 using static Dalamud.Localization;
 
@@ -11,7 +9,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     public class LootSession
     {
-        private Random Random = new Random(Guid.NewGuid().GetHashCode());
+        private readonly Random Random = new(Guid.NewGuid().GetHashCode());
         public Dictionary<Player, int> Rolls;
         public LootRuling RulingOptions { get; private set; }
         internal readonly (HrtItem, int)[] Loot;

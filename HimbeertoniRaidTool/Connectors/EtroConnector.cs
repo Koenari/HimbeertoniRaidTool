@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 
@@ -82,49 +78,49 @@ namespace HimbeertoniRaidTool.Connectors
                             set[slot].Materia.Add(new(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, byte)>(matId.Value, (0, 0))));
             }
         }
-    }
-    class EtroGearSet
-    {
+        private class EtroGearSet
+        {
 
-        public string? id { get; set; }
-        public string? jobAbbrev { get; set; }
-        public string? name { get; set; }
-        public DateTime lastUpdate { get; set; }
-        public Dictionary<string, Dictionary<uint, uint?>>? materia { get; set; }
-        public uint weapon { get; set; }
-        public uint head { get; set; }
-        public uint body { get; set; }
-        public uint hands { get; set; }
-        public uint legs { get; set; }
-        public uint feet { get; set; }
-        public uint offHand { get; set; }
-        public uint ears { get; set; }
-        public uint neck { get; set; }
-        public uint wrists { get; set; }
-        public uint fingerL { get; set; }
-        public uint fingerR { get; set; }
-    }
-    public class EtroMateriaTier
-    {
-        public ushort id;
-    }
-
+            public string? id { get; set; }
+            public string? jobAbbrev { get; set; }
+            public string? name { get; set; }
+            public DateTime lastUpdate { get; set; }
+            public Dictionary<string, Dictionary<uint, uint?>>? materia { get; set; }
+            public uint weapon { get; set; }
+            public uint head { get; set; }
+            public uint body { get; set; }
+            public uint hands { get; set; }
+            public uint legs { get; set; }
+            public uint feet { get; set; }
+            public uint offHand { get; set; }
+            public uint ears { get; set; }
+            public uint neck { get; set; }
+            public uint wrists { get; set; }
+            public uint fingerL { get; set; }
+            public uint fingerR { get; set; }
+        }
+        private class EtroMateriaTier
+        {
+            public ushort id;
+        }
 
 
-    public class EtroMateria
-    {
-        public uint id;
-        public EtroMateriaTier tier1 { get => tiers[0]; set => tiers[0] = value; }
-        public EtroMateriaTier tier2 { get => tiers[1]; set => tiers[1] = value; }
-        public EtroMateriaTier tier3 { get => tiers[2]; set => tiers[2] = value; }
-        public EtroMateriaTier tier4 { get => tiers[3]; set => tiers[3] = value; }
-        public EtroMateriaTier tier5 { get => tiers[4]; set => tiers[4] = value; }
-        public EtroMateriaTier tier6 { get => tiers[5]; set => tiers[5] = value; }
-        public EtroMateriaTier tier7 { get => tiers[6]; set => tiers[6] = value; }
-        public EtroMateriaTier tier8 { get => tiers[7]; set => tiers[7] = value; }
-        public EtroMateriaTier tier9 { get => tiers[8]; set => tiers[8] = value; }
-        public EtroMateriaTier tier10 { get => tiers[9]; set => tiers[9] = value; }
-        [JsonIgnore]
-        public EtroMateriaTier[] tiers = new EtroMateriaTier[10];
+
+        private class EtroMateria
+        {
+            public uint id;
+            public EtroMateriaTier tier1 { get => tiers[0]; set => tiers[0] = value; }
+            public EtroMateriaTier tier2 { get => tiers[1]; set => tiers[1] = value; }
+            public EtroMateriaTier tier3 { get => tiers[2]; set => tiers[2] = value; }
+            public EtroMateriaTier tier4 { get => tiers[3]; set => tiers[3] = value; }
+            public EtroMateriaTier tier5 { get => tiers[4]; set => tiers[4] = value; }
+            public EtroMateriaTier tier6 { get => tiers[5]; set => tiers[5] = value; }
+            public EtroMateriaTier tier7 { get => tiers[6]; set => tiers[6] = value; }
+            public EtroMateriaTier tier8 { get => tiers[7]; set => tiers[7] = value; }
+            public EtroMateriaTier tier9 { get => tiers[8]; set => tiers[8] = value; }
+            public EtroMateriaTier tier10 { get => tiers[9]; set => tiers[9] = value; }
+            [JsonIgnore]
+            public EtroMateriaTier[] tiers = new EtroMateriaTier[10];
+        }
     }
 }

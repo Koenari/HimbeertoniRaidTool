@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HimbeertoniRaidTool.Data;
+﻿using HimbeertoniRaidTool.Data;
 using Lumina.Excel.GeneratedSheets;
 namespace Lumina.Excel.Extensions
 {
@@ -11,25 +6,24 @@ namespace Lumina.Excel.Extensions
     {
         public static bool Contains(this EquipSlotCategory self, GearSetSlot slot)
         {
-            switch (slot)
+            return slot switch
             {
-                case GearSetSlot.MainHand: return self.MainHand != 0;
-                case GearSetSlot.Head: return self.Head != 0;
-                case GearSetSlot.Body: return self.Body != 0;
-                case GearSetSlot.Hands: return self.Gloves != 0;
-                case GearSetSlot.Waist: return self.Waist != 0;
-                case GearSetSlot.Legs: return self.Legs != 0;
-                case GearSetSlot.Feet: return self.Feet != 0;
-                case GearSetSlot.OffHand: return self.OffHand != 0;
-                case GearSetSlot.Ear: return self.Ears != 0;
-                case GearSetSlot.Neck: return self.Neck != 0;
-                case GearSetSlot.Wrist: return self.Wrists != 0;
-                case GearSetSlot.Ring1: return self.FingerR != 0;
-                case GearSetSlot.Ring2: return self.FingerL != 0;
-                case GearSetSlot.SoulCrystal: return self.SoulCrystal != 0;
-            }
-
-            return false;
+                GearSetSlot.MainHand => self.MainHand != 0,
+                GearSetSlot.Head => self.Head != 0,
+                GearSetSlot.Body => self.Body != 0,
+                GearSetSlot.Hands => self.Gloves != 0,
+                GearSetSlot.Waist => self.Waist != 0,
+                GearSetSlot.Legs => self.Legs != 0,
+                GearSetSlot.Feet => self.Feet != 0,
+                GearSetSlot.OffHand => self.OffHand != 0,
+                GearSetSlot.Ear => self.Ears != 0,
+                GearSetSlot.Neck => self.Neck != 0,
+                GearSetSlot.Wrist => self.Wrists != 0,
+                GearSetSlot.Ring1 => self.FingerR != 0,
+                GearSetSlot.Ring2 => self.FingerL != 0,
+                GearSetSlot.SoulCrystal => self.SoulCrystal != 0,
+                _ => false,
+            };
         }
         public static GearSetSlot ToSlot(this EquipSlotCategory self)
         {
@@ -45,7 +39,7 @@ namespace Lumina.Excel.Extensions
     }
     public static class ClassJobCategoryExtensions
     {
-        public static bool Contains(this ClassJobCategory? cat, Job? job) => cat is null ? false : job switch
+        public static bool Contains(this ClassJobCategory? cat, Job? job) => cat is not null && job switch
         {
             Job.ADV => cat.ADV,
             Job.AST => cat.AST,

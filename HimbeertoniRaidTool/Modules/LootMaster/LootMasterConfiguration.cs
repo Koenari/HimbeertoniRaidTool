@@ -136,7 +136,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             public int Version { get; set; } = 1;
             [JsonProperty("UserBiS")]
-            public Dictionary<Job, string> BISUserOverride = new Dictionary<Job, string>();
+            public Dictionary<Job, string> BISUserOverride = new();
             [JsonProperty]
             public LootRuling LootRuling = new();
             [JsonProperty]
