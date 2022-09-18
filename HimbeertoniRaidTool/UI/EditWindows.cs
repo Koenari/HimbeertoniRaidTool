@@ -293,10 +293,12 @@ namespace HimbeertoniRaidTool.UI
         private readonly GearSet _gearSet;
         private readonly GearSet _gearSetCopy;
         private readonly Job _job;
+        private readonly RaidTier? _currentRaidTier;
         private bool CanHaveShield => _job is Job.PLD or Job.THM or Job.GLA;
 
-        internal EditGearSetWindow(GearSet original, Job job) : base()
+        internal EditGearSetWindow(GearSet original, Job job, RaidTier? raidTier = null) : base()
         {
+            _currentRaidTier = raidTier;
             _job = job;
             _gearSet = original;
             _gearSetCopy = original.Clone();
@@ -339,7 +341,8 @@ namespace HimbeertoniRaidTool.UI
             if (!_gearSetCopy[slot].Filled)
             {
                 if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}changeitem", Localize("Select item", "Select item")))
-                    AddChild(new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], slot, _job));
+                    AddChild(new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], slot, _job,
+                        slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? _currentRaidTier?.WeaponItemLevel ?? 0 : _currentRaidTier?.ArmorItemLevel ?? 0));
             }
             else
             {
@@ -353,7 +356,8 @@ namespace HimbeertoniRaidTool.UI
                 }
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{_gearSetCopy[slot].Slot}changeitem", Localize("Select item", "Select item")))
-                    AddChild(new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], _gearSetCopy[slot].Slot, _job));
+                    AddChild(new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], _gearSetCopy[slot].Slot, _job,
+                        slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? _currentRaidTier?.WeaponItemLevel ?? 0 : _currentRaidTier?.ArmorItemLevel ?? 0));
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, $"delete{_gearSetCopy[slot].Slot}", Localize("Delete", "Delete")))
                     _gearSetCopy[_gearSetCopy[slot].Slot] = new();
@@ -370,7 +374,7 @@ namespace HimbeertoniRaidTool.UI
                 }
                 if (_gearSetCopy[slot].Materia.Count < (_gearSetCopy[slot].Item?.IsAdvancedMeldingPermitted ?? false ? 5 : _gearSetCopy[slot].Item?.MateriaSlotCount))
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}addmat", Localize("Select materia", "Select materia")))
-                        AddChild(new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }));
+                        AddChild(new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }, _currentRaidTier?.MaxMateriaLevel ?? 0));
 
                 ImGui.EndGroup();
             }
@@ -439,7 +443,7 @@ namespace HimbeertoniRaidTool.UI
             Job = job;
             Title = $"{Localize("Get item for", "Get item for")} {Slot}";
             maxILvl = maxItemLevel;
-            minILvl = maxILvl > 30 ? 0 : maxILvl - 30;
+            minILvl = maxILvl > 30 ? maxILvl - 30 : 0;
             _items = reevaluateItems();
         }
 
