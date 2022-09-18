@@ -134,7 +134,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             public void OnShow()
             {
                 _dataCopy = _config.Data.Clone();
-                LootList = new(LootRuling.PossibleRules, _dataCopy.LootRuling.RuleSet.Cast<LootRule>());
+                LootList = new(LootRuling.PossibleRules, _dataCopy.LootRuling.RuleSet);
             }
 
             public void Save()
@@ -149,7 +149,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             public int Version { get; set; } = 1;
             [JsonProperty("UserBiS")]
             public Dictionary<Job, string> BISUserOverride = new();
-            [JsonProperty]
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
             public LootRuling LootRuling = new()
             {
                 RuleSet = new List<LootRule>()
