@@ -133,7 +133,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 var weaponStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.MagicalDamage : StatType.PhysicalDamage;
                 var potencyStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.AttackMagicPotency : StatType.AttackPower;
                 ImGui.TextColored(Vec4(ColorName.RedCrayola.ToRgb()),
-                    Localize("StatsUnfinished", "Stats are under development and only work corrrectly for level 90 jobs"));
+                    Localize("StatsUnfinished", "Stats are under development and only work corrrectly for level 70/80/90 jobs"));
 
                 ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
                 ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
