@@ -6,7 +6,7 @@ using System.Numerics;
 using Dalamud.Configuration;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
-using HimbeertoniRaidTool.LootMaster;
+using HimbeertoniRaidTool.Modules.LootMaster;
 using HimbeertoniRaidTool.Modules.WelcomeWindow;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
@@ -56,7 +56,7 @@ namespace HimbeertoniRaidTool
                 }
                 if (!Configurations.ContainsKey(typeof(HRTConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>)))
                 {
-                    LootMasterConfiguration lmc = (LootMasterConfiguration)LootMaster.LootMaster.Instance.Configuration;
+                    LootMasterConfiguration lmc = (LootMasterConfiguration)LootMasterModule.Instance.Configuration;
                     if (lmc != null)
                     {
                         lmc.FillFromLegacy(legacyConfig);

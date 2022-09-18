@@ -5,7 +5,7 @@ using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using static Dalamud.Localization;
 
-namespace HimbeertoniRaidTool.LootMaster
+namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal class LootSessionUI : HrtUI
     {
@@ -16,7 +16,7 @@ namespace HimbeertoniRaidTool.LootMaster
         {
             _lootSource = lootSource;
             _session = new(group,
-                LootMaster.Instance.Configuration.Data.LootRuling,
+                LootMasterModule.Instance.Configuration.Data.LootRuling,
                 LootDB.GetPossibleLoot(_lootSource).ConvertAll(x => (x, 0)).ToArray());
             _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
             Size = new Vector2(550, 370);
@@ -55,8 +55,8 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (ImGuiHelper.Button(Localize("Reset to default", "Reset to default"),
                     Localize("Overrides these settings with defaults from configuration", "Overrides these settings with defaults from configuration")))
                 {
-                    _ruleListUi = new(LootRuling.PossibleRules, LootMaster.Instance.Configuration.Data.LootRuling.RuleSet);
-                    _session.RulingOptions.StrictRooling = LootMaster.Instance.Configuration.Data.LootRuling.StrictRooling;
+                    _ruleListUi = new(LootRuling.PossibleRules, LootMasterModule.Instance.Configuration.Data.LootRuling.RuleSet);
+                    _session.RulingOptions.StrictRooling = LootMasterModule.Instance.Configuration.Data.LootRuling.StrictRooling;
                 }
                 ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref _session.RulingOptions.StrictRooling);
                 _ruleListUi.Draw();

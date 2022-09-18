@@ -7,7 +7,7 @@ using HimbeertoniRaidTool.Data;
 using static Dalamud.Localization;
 
 
-namespace HimbeertoniRaidTool.LootMaster
+namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     public class LootSession
     {
@@ -54,11 +54,11 @@ namespace HimbeertoniRaidTool.LootMaster
             excluded.AddRange(excludeAddition);
             List<Player> need = new();
             List<Player> greed = new();
-            foreach (Player p in _group.Players)
+            foreach (var p in _group.Players)
             {
                 if (excluded.Contains(p))
                     continue;
-                foreach (GearItem item in possibleItems)
+                foreach (var item in possibleItems)
                     if (p.Gear[item.Slot].ID != p.BIS[item.Slot].ID && !possibleItems.Any(x => x.ID == p.Gear[item.Slot].ID))
                     {
                         need.Add(p);
@@ -67,7 +67,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 if (!need.Contains(p))
                     greed.Add(p);
             }
-            LootRulingComparer comparer = GetComparer(possibleItems);
+            var comparer = GetComparer(possibleItems);
             need.Sort(comparer);
             List<(Player, string)> result = new();
             for (int i = 0; i < need.Count - 1; i++)
@@ -77,7 +77,7 @@ namespace HimbeertoniRaidTool.LootMaster
             }
             if (need.Count > 0)
                 result.Add((need[^1], Localize("Need > Greed", "Need > Greed")));
-            foreach (Player p in greed)
+            foreach (var p in greed)
             {
                 result.Add((p, Localize("Greed", "Greed")));
             }
@@ -98,7 +98,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     return 0;
                 if (RulingReason.ContainsKey((x, y)))
                     return RulingReason[(x, y)].Compare(x, y, _session, _possibleItems);
-                foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                foreach (var rule in _session.RulingOptions.RuleSet)
                 {
                     int result = rule.Compare(x, y, _session, _possibleItems);
                     if (result != 0)

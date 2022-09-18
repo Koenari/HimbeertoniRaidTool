@@ -12,7 +12,7 @@ using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.HrtServices;
-using HimbeertoniRaidTool.LootMaster;
+using HimbeertoniRaidTool.Modules.LootMaster;
 using HimbeertoniRaidTool.Modules.WelcomeWindow;
 using static Dalamud.Localization;
 
@@ -74,7 +74,7 @@ namespace HimbeertoniRaidTool
                 OnCommand = OnCommand
             });
             //TODO: Some more elegant way to load modules
-            AddModule<LootMaster.LootMaster, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>(LootMaster.LootMaster.Instance);
+            AddModule<LootMasterModule, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>(Modules.LootMaster.LootMasterModule.Instance);
             AddModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>(WelcomeWindowModule.Instance);
 
         }

@@ -8,7 +8,7 @@ using ImGuiNET;
 using Newtonsoft.Json;
 using static Dalamud.Localization;
 
-namespace HimbeertoniRaidTool.LootMaster
+namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
     {
@@ -20,7 +20,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
         private readonly ConfigUi _ui;
 
-        public LootMasterConfiguration(LootMaster hrtModule) : base(hrtModule.InternalName, hrtModule.Name)
+        public LootMasterConfiguration(LootMasterModule hrtModule) : base(hrtModule.InternalName, hrtModule.Name)
         {
             _ui = new(this);
         }
@@ -149,7 +149,7 @@ namespace HimbeertoniRaidTool.LootMaster
             public RaidTier? RaidTierOverride = null;
             [JsonIgnore]
             public RaidTier SelectedRaidTier => RaidTierOverride ?? CuratedData.CurrentRaidSavage;
-            public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : (CuratedData.DefaultBIS.ContainsKey(c) ? CuratedData.DefaultBIS[c] : "");
+            public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : CuratedData.DefaultBIS.ContainsKey(c) ? CuratedData.DefaultBIS[c] : "";
         }
     }
 

@@ -120,7 +120,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.BIS.EtroID, 50);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"{Localize("Default", "Default")}##BIS#{c.Job}", Localize("DefaultBiSTooltip", "Fetch default BiS from configuration")))
-                    c.BIS.EtroID = LootMaster.LootMaster.Instance.Configuration.Data.GetDefaultBiS(c.Job);
+                    c.BIS.EtroID = Modules.LootMaster.LootMasterModule.Instance.Configuration.Data.GetDefaultBiS(c.Job);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"{Localize("Reset", "Reset")}##BIS#{c.Job}", Localize("ResetBisTooltip", "Empty out BiS gear")))
                     c.BIS.EtroID = "";
