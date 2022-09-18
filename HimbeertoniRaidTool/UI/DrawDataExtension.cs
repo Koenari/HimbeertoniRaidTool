@@ -16,6 +16,8 @@ namespace HimbeertoniRaidTool.UI
         public static void Draw(this Item item) => Draw(new GearItem(item.RowId));
         public static void Draw(this GearItem item)
         {
+            if (item.Item is null)
+                return;
             bool isWeapon = item.Slot == GearSetSlot.MainHand;
             if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
             {

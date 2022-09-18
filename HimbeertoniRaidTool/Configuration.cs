@@ -164,12 +164,10 @@ namespace HimbeertoniRaidTool
         }
     }
 
-    [Obsolete]
+    [Obsolete("Only remains to migrate to new configuration")]
     [Serializable]
     public class LegacyConfiguration : IPluginConfiguration
     {
-        public delegate void ConfigurationChangedDelegate();
-        public event ConfigurationChangedDelegate? ConfigurationChanged;
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
         [JsonProperty]
@@ -180,7 +178,7 @@ namespace HimbeertoniRaidTool
         [Obsolete]
         [JsonIgnore]
         private readonly ReadOnlyDictionary<Job, string> OldDefaultBIS =
-            new ReadOnlyDictionary<Job, string>(
+            new(
             new Dictionary<Job, string>
         {
             { AST, "88647808-8a28-477b-b285-687bdcbff2d4" },

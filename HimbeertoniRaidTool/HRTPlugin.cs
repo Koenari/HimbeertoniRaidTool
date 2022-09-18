@@ -74,23 +74,36 @@ namespace HimbeertoniRaidTool
                 OnCommand = OnCommand
             });
             //TODO: Some more elegant way to load modules
-            AddModule<LootMasterModule, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>(Modules.LootMaster.LootMasterModule.Instance);
+            AddModule<LootMasterModule, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>(LootMasterModule.Instance);
             AddModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>(WelcomeWindowModule.Instance);
-
         }
-        public T? GetModule<T, S, Q>() where T : IHrtModule<S, Q> where S : new() where Q : IHrtConfigUi
+        private T? GetModule<T, S, Q>() where T : IHrtModule<S, Q> where S : new() where Q : IHrtConfigUi
         {
             RegisteredModules.TryGetValue(typeof(T), out dynamic? value);
             return (T?)value;
         }
         private void AddModule<T, S, Q>(T module) where T : IHrtModule<S, Q> where S : new() where Q : IHrtConfigUi
         {
-            RegisteredModules.Add(typeof(T), module);
-            foreach (HrtCommand command in module.Commands)
-                AddCommand(command);
-            if (!_Configuration.RegisterConfig(module.Configuration))
-                PluginLog.Error($"Confugiration load error:{module.Name}");
-            module.AfterFullyLoaded();
+            if (RegisteredModules.ContainsKey(typeof(T)))
+            {
+                PluginLog.Error($"Tried to register module \"{module.Name}\" twice");
+                return;
+            }
+            try
+            {
+                RegisteredModules.Add(typeof(T), module);
+                foreach (HrtCommand command in module.Commands)
+                    AddCommand(command);
+                if (!_Configuration.RegisterConfig(module.Configuration))
+                    PluginLog.Error($"Configuration load error:{module.Name}");
+                module.AfterFullyLoaded();
+            }
+            catch (Exception e)
+            {
+                if (RegisteredModules.ContainsKey(typeof(T)))
+                    RegisteredModules.Remove(typeof(T));
+                PluginLog.Error("Error loading module: {0}\n {1}", module?.Name ?? string.Empty, e.ToString());
+            }
         }
         private void OnLanguageChanged(string langCode)
         {
@@ -98,15 +111,13 @@ namespace HimbeertoniRaidTool
         }
         private void AddCommand(HrtCommand command)
         {
-            if (
-                Services.CommandManager.AddHandler(command.Command,
+            if (Services.CommandManager.AddHandler(command.Command,
                 new CommandInfo((x, y) => command.OnCommand(y))
                 {
                     HelpMessage = command.Description,
                     ShowInHelp = command.ShowInHelp
-                })
-                )
-                RegisteredCommands.Add(command.Command);
+                }))
+            { RegisteredCommands.Add(command.Command); }
         }
         public void Dispose()
         {
@@ -119,7 +130,7 @@ namespace HimbeertoniRaidTool
                 {
                     moduleEntry.Value.Dispose();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     PluginLog.Fatal($"Unable to Dispose module \"{moduleEntry.Key}\"");
                 }
