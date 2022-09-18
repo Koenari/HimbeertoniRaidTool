@@ -54,14 +54,13 @@ namespace HimbeertoniRaidTool
             Enum.TryParse(target.ClassJob.GameData?.Abbreviation.RawString, true, out Job result) ? result : null;
 
         public static PlayerCharacter? Self => Services.ClientState.LocalPlayer;
-        public static HSV ILevelColor(GearItem item, uint maxItemLevel = 0)
+        public static HSV ILevelColor(GearItem item, uint maxItemLevel)
         {
-            uint currentMaxILevel = maxItemLevel > 0 ? maxItemLevel : HRTPlugin.Configuration.SelectedRaidTier.ArmorItemLevel;
-            if (item.ItemLevel >= currentMaxILevel)
+            if (item.ItemLevel >= maxItemLevel)
                 return ColorName.Green.ToHsv();
-            else if (item.ItemLevel >= currentMaxILevel - 10)
+            else if (item.ItemLevel >= maxItemLevel - 10)
                 return ColorName.Aquamarine.ToHsv();
-            else if (item.ItemLevel >= currentMaxILevel - 20)
+            else if (item.ItemLevel >= maxItemLevel - 20)
                 return ColorName.Yellow.ToHsv();
             else
                 return ColorName.Red.ToHsv();
