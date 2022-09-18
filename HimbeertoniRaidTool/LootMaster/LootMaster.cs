@@ -11,14 +11,16 @@ using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.LootMaster
 {
-    internal sealed class LootMaster : IHrtModule
+    internal sealed class LootMaster : IHrtModule<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
     {
         //Singleton
         private static readonly Lazy<LootMaster> _Instance = new(() => new LootMaster());
         internal static LootMaster Instance { get { return _Instance.Value; } }
         //Interface Properties
         public string Name => "Loot Master";
-        public string Description => throw new NotImplementedException();
+        public string InternalName => "LootMaster";
+        public HRTConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi> Configuration => _config;
+        public string Description => "";
         public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
         {
             new()
@@ -32,7 +34,7 @@ namespace HimbeertoniRaidTool.LootMaster
             {
                 Command = "/lm",
                 Description = Localize("/lootmaster", "Opens LootMaster Window"),
-                ShowInHelp = false,
+                ShowInHelp = true,
                 OnCommand = OnCommand,
             }
         };
@@ -40,8 +42,7 @@ namespace HimbeertoniRaidTool.LootMaster
         internal List<RaidGroup> RaidGroups => DataManager.Groups;
 
         internal readonly LootmasterUI Ui;
-
-
+        private LootMasterConfiguration _config;
         private LootMaster()
         {
             bool fillSolo = false;
@@ -58,8 +59,14 @@ namespace HimbeertoniRaidTool.LootMaster
             if (fillSolo)
                 FillSoloChar(RaidGroups[0].Tank1, true);
             GearRefresherOnExamine.Enable();
+            _config = new(this);
             Ui = new(this);
-            if (HRTPlugin.Configuration.OpenLootMasterOnStartup)
+
+
+        }
+        public void AfterFullyLoaded()
+        {
+            if (_config.Data.OpenOnStartup)
                 Ui.Show();
         }
 
@@ -200,7 +207,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         GearSet BIS = new()
                         {
                             ManagedBy = GearSetManager.Etro,
-                            EtroID = HRTPlugin.Configuration.GetDefaultBiS(c)
+                            EtroID = _config.Data.GetDefaultBiS(c)
                         };
                         DataManager.GetManagedGearSet(ref BIS);
                         p.MainChar.MainClass.BIS = BIS;

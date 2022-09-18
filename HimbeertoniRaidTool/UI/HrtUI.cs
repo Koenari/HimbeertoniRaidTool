@@ -15,7 +15,7 @@ namespace HimbeertoniRaidTool.UI
         private bool _disposed = false;
         private bool _volatile;
         private bool _isChild = false;
-        protected bool HideInBattle = false;
+        protected virtual bool HideInBattle { get; } = false;
         protected bool Visible = false;
         private readonly string _id;
         protected string Title;
