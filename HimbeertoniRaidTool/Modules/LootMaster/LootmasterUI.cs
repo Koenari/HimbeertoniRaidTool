@@ -17,14 +17,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal class LootmasterUI : HrtUI
     {
-        private readonly LootMasterModule LootMaster;
+        private readonly LootMasterModule _lootMaster;
         private int _CurrenGroupIndex;
-        protected override bool HideInBattle => LootMaster.Configuration.Data.HideInBattle;
-        private RaidGroup CurrentGroup => LootMaster.RaidGroups[_CurrenGroupIndex];
+        protected override bool HideInBattle => _lootMaster.Configuration.Data.HideInBattle;
+        private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
+        private static List<RaidGroup> RaidGroups => DataManager.Groups;
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
         internal LootmasterUI(LootMasterModule lootMaster) : base(false, "LootMaster")
         {
-            LootMaster = lootMaster;
+            _lootMaster = lootMaster;
             _CurrenGroupIndex = 0;
             Size = new Vector2(1600, 670);
             Title = Localize("LootMasterWindowTitle", "Loot Master");
@@ -33,15 +34,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         protected override void BeforeDispose()
         {
-            LootMaster.Configuration.Data.LastGroupIndex = _CurrenGroupIndex;
-            LootMaster.Configuration.Save();
+            _lootMaster.Configuration.Data.LastGroupIndex = _CurrenGroupIndex;
+            _lootMaster.Configuration.Save();
             foreach (var t in Tasks)
                 t.Dispose();
             Tasks.Clear();
         }
         protected override void OnShow()
         {
-            _CurrenGroupIndex = LootMaster.Configuration.Data.LastGroupIndex;
+            _CurrenGroupIndex = _lootMaster.Configuration.Data.LastGroupIndex;
         }
         protected override void Draw()
         {
@@ -226,7 +227,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private void DrawMainWindow()
         {
-            if (_CurrenGroupIndex > LootMaster.RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
+            if (_CurrenGroupIndex > RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
                 _CurrenGroupIndex = 0;
             HandleAsync();
             DrawLootHandlerButtons();
@@ -284,10 +285,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             ImGui.BeginTabBar("RaidGroupSwichtBar");
 
-            for (int tabBarIdx = 0; tabBarIdx < LootMaster.RaidGroups.Count; tabBarIdx++)
+            for (int tabBarIdx = 0; tabBarIdx < RaidGroups.Count; tabBarIdx++)
             {
                 bool colorPushed = false;
-                var g = LootMaster.RaidGroups[tabBarIdx];
+                RaidGroup g = RaidGroups[tabBarIdx];
                 if (tabBarIdx == _CurrenGroupIndex)
                 {
                     ImGui.PushStyleColor(ImGuiCol.Tab, Vec4(ColorName.Redwood.ToHsv().Value(0.6f)));
@@ -309,7 +310,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "DeleteGroup", Localize("Delete group", "Delete group")))
                         {
                             AddChild(new ConfimationDialog(
-                                () => LootMaster.RaidGroups.Remove(g),
+                                () => RaidGroups.Remove(g),
                                 $"{Localize("DeleteRaidGroup", "Do you really want to delete following group:")} {g.Name}"));
                             ImGui.CloseCurrentPopup();
                         }
@@ -331,13 +332,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     RaidGroup group = new();
                     group.Name = "AutoCreated";
-                    LootMaster.AddGroup(group, true);
+                    _lootMaster.AddGroup(group, true);
                     ImGui.CloseCurrentPopup();
                 }
                 if (ImGuiHelper.Button(Localize("From scratch", "From scratch"), Localize("Add emtpy group", "Add emtpy group")))
                 {
                     RaidGroup group = new();
-                    var groupWindow = new EditGroupWindow(group, () => LootMaster.AddGroup(group, false), () => { });
+                    var groupWindow = new EditGroupWindow(group, () => _lootMaster.AddGroup(group, false), () => { });
                 }
                 ImGui.EndPopup();
             }
@@ -523,7 +524,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     ImGui.BeginGroup();
                     ImGui.TextColored(
-                        Vec4(Helper.ILevelColor(item, LootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel).Saturation(0.8f).Value(0.85f), 1f),
+                        Vec4(Helper.ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel).Saturation(0.8f).Value(0.85f), 1f),
                         $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
                     if (extended)
                     {
@@ -549,26 +550,26 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private void DrawLootHandlerButtons()
         {
             var currentLootSources = new LootSource[4];
-            int selectedTier = Array.IndexOf(CuratedData.RaidTiers, LootMaster.Configuration.Data.SelectedRaidTier);
+            int selectedTier = Array.IndexOf(CuratedData.RaidTiers, _lootMaster.Configuration.Data.SelectedRaidTier);
             ImGui.SetNextItemWidth(150);
             if (ImGui.Combo("##Raid Tier", ref selectedTier, Array.ConvertAll(CuratedData.RaidTiers, x => x.Name), CuratedData.RaidTiers.Length))
             {
                 if (selectedTier != Array.IndexOf(CuratedData.RaidTiers, CuratedData.CurrentRaidSavage))
-                    LootMaster.Configuration.Data.RaidTierOverride = CuratedData.RaidTiers[selectedTier];
+                    _lootMaster.Configuration.Data.RaidTierOverride = CuratedData.RaidTiers[selectedTier];
                 else
-                    LootMaster.Configuration.Data.RaidTierOverride = null;
+                    _lootMaster.Configuration.Data.RaidTierOverride = null;
             }
             ImGui.SameLine();
             ImGui.Text(Localize("Distribute loot for:", "Distribute loot for:"));
             ImGui.SameLine();
             for (int i = 0; i < currentLootSources.Length; i++)
-                currentLootSources[i] = new(LootMaster.Configuration.Data.SelectedRaidTier, i + 1);
+                currentLootSources[i] = new(_lootMaster.Configuration.Data.SelectedRaidTier, i + 1);
 
             foreach (var lootSource in currentLootSources)
             {
                 if (ImGuiHelper.Button(lootSource.ToString(), null))
                 {
-                    LootSessionUI lui = new(lootSource, CurrentGroup);
+                    LootSessionUI lui = new(lootSource, CurrentGroup, _lootMaster.Configuration.Data.LootRuling);
                     lui.Show();
                 }
                 ImGui.SameLine();

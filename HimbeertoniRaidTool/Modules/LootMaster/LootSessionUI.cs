@@ -11,11 +11,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private readonly LootSource _lootSource;
         private readonly LootSession _session;
         private UiSortableList<LootRule> _ruleListUi;
-        internal LootSessionUI(LootSource lootSource, RaidGroup group) : base()
+        private LootRuling _lootRuling;
+        internal LootSessionUI(LootSource lootSource, RaidGroup group, LootRuling lootRuling) : base()
         {
+            _lootRuling = lootRuling;
             _lootSource = lootSource;
-            _session = new(group,
-                LootMasterModule.Instance.Configuration.Data.LootRuling,
+            _session = new(group, _lootRuling,
                 LootDB.GetPossibleLoot(_lootSource).ConvertAll(x => (x, 0)).ToArray());
             _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
             Size = new Vector2(550, 370);
@@ -54,8 +55,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 if (ImGuiHelper.Button(Localize("Reset to default", "Reset to default"),
                     Localize("Overrides these settings with defaults from configuration", "Overrides these settings with defaults from configuration")))
                 {
-                    _ruleListUi = new(LootRuling.PossibleRules, LootMasterModule.Instance.Configuration.Data.LootRuling.RuleSet);
-                    _session.RulingOptions.StrictRooling = LootMasterModule.Instance.Configuration.Data.LootRuling.StrictRooling;
+                    _ruleListUi = new(LootRuling.PossibleRules, _lootRuling.RuleSet);
+                    _session.RulingOptions.StrictRooling = _lootRuling.StrictRooling;
                 }
                 ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref _session.RulingOptions.StrictRooling);
                 _ruleListUi.Draw();

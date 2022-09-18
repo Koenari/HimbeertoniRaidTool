@@ -12,24 +12,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
     {
-        public bool FullyLoaded { get; private set; } = false;
-
         public override ConfigUi? Ui => _ui;
-
-        private readonly int TargetVersion = 1;
-
         private readonly ConfigUi _ui;
-
         public LootMasterConfiguration(LootMasterModule hrtModule) : base(hrtModule.InternalName, hrtModule.Name)
         {
             _ui = new(this);
         }
-        public override void AfterLoad()
-        {
-            if (Data.Version < TargetVersion)
-                Upgrade();
-            FullyLoaded = true;
-        }
+        public override void AfterLoad() { }
         [Obsolete]
         public void FillFromLegacy(LegacyConfiguration leg)
         {
@@ -40,9 +29,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             Data.LastGroupIndex = leg.LootmasterUiLastIndex;
             Data.RaidTierOverride = leg.RaidTierOverride;
         }
-        private void Upgrade() { }
-
-
         internal sealed class ConfigUi : IHrtConfigUi
         {
             private readonly LootMasterConfiguration _config;

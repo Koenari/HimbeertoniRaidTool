@@ -38,10 +38,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
         };
         //Properties
-        internal List<RaidGroup> RaidGroups => DataManager.Groups;
-
-        internal readonly LootmasterUI Ui;
-        private LootMasterConfiguration _config;
+        private static List<RaidGroup> RaidGroups => DataManager.Groups;
+        private readonly LootmasterUI Ui;
+        private readonly LootMasterConfiguration _config;
         private LootMasterModule()
         {
             bool fillSolo = false;
@@ -60,8 +59,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             GearRefresherOnExamine.Enable();
             _config = new(this);
             Ui = new(this);
-
-
         }
         public void AfterFullyLoaded()
         {
