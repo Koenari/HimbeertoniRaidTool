@@ -6,6 +6,8 @@ using System.Numerics;
 using Dalamud.Configuration;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Modules.LootMaster;
+using HimbeertoniRaidTool.Modules.WelcomeWindow;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
@@ -16,6 +18,155 @@ namespace HimbeertoniRaidTool
 {
     [Serializable]
     public class Configuration : IPluginConfiguration
+    {
+        [JsonIgnore]
+        public bool FullyLoaded { get; private set; } = false;
+        [JsonIgnore]
+        private readonly int TargetVersion = 5;
+        public int Version { get; set; } = 5;
+
+        [JsonIgnore]
+        private readonly Dictionary<Type, dynamic> Configurations = new();
+        [JsonIgnore]
+        public ConfigUI Ui;
+        public Configuration()
+        {
+            Ui = new ConfigUI(this);
+        }
+        internal void AfterLoad()
+        {
+            if (FullyLoaded)
+                return;
+            if (Version < 5)
+                MigrateLegacyConfig();
+            FullyLoaded = true;
+        }
+        [Obsolete]
+        private void MigrateLegacyConfig()
+        {
+            var legacyConfig = JsonConvert.DeserializeObject<LegacyConfiguration>(Services.PluginInterface.ConfigFile.OpenText().ReadToEnd());
+            if (legacyConfig != null)
+            {
+                if (!Configurations.ContainsKey(typeof(HRTConfiguration<WelcomeWindowConfig.ConfigData, IHrtConfigUi>)))
+                {
+                    HRTConfiguration<WelcomeWindowConfig.ConfigData, IHrtConfigUi> wcwc = WelcomeWindowModule.Instance.Configuration;
+                    wcwc.Data.ShowWelcomeWindow = legacyConfig.ShowWelcomeWindow;
+                    wcwc.Save();
+
+                }
+                if (!Configurations.ContainsKey(typeof(HRTConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>)))
+                {
+                    LootMasterConfiguration lmc = (LootMasterConfiguration)LootMasterModule.Instance.Configuration;
+                    if (lmc != null)
+                    {
+                        lmc.FillFromLegacy(legacyConfig);
+                        Configurations.Add(lmc.GetType(), lmc);
+                        lmc.Save();
+                    }
+                }
+            }
+            Version = 5;
+        }
+        internal bool RegisterConfig<T, S>(HRTConfiguration<T, S> config) where T : new() where S : IHrtConfigUi
+        {
+            if (Configurations.ContainsKey(config.GetType()))
+                return false;
+            Configurations.Add(config.GetType(), config);
+            return DataManagement.ModuleConfigurationManager.LoadConfiguration(config.ParentInternalName, ref config.Data);
+        }
+        internal void Save()
+        {
+            if (Version == TargetVersion)
+            {
+                Services.PluginInterface.SavePluginConfig(this);
+                foreach (var config in Configurations.Values)
+                    config.Save();
+            }
+            else
+                PluginLog.LogError("Configuration Version mismatch. Did not Save!");
+        }
+        public class ConfigUI : HrtUI
+        {
+            private readonly Configuration _configuration;
+            public ConfigUI(Configuration configuration) : base(false, "HimbeerToni Raid Tool Configuration")
+            {
+                _configuration = configuration;
+                Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
+
+                (Size, SizingCondition) = (new Vector2(450, 500), ImGuiCond.Always);
+                WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
+                Title = Localize("ConfigWindowTitle", "HimbeerToni Raid Tool Configuration");
+            }
+            protected override void BeforeDispose()
+            {
+                Services.PluginInterface.UiBuilder.OpenConfigUi -= Show;
+            }
+            protected override void OnShow()
+            {
+                foreach (dynamic config in _configuration.Configurations.Values)
+                    try
+                    {
+                        if (config.Ui != null)
+                            config.Ui.OnShow();
+                    }
+                    catch (Exception) { }
+            }
+            protected override void OnHide()
+            {
+                foreach (dynamic config in _configuration.Configurations.Values)
+                    try
+                    {
+                        if (config.Ui != null)
+                            config.Ui.OnHide();
+                    }
+                    catch (Exception) { }
+            }
+            protected override void Draw()
+            {
+                if (ImGuiHelper.SaveButton())
+                    Save();
+                ImGui.SameLine();
+                if (ImGuiHelper.CancelButton())
+                    Cancel();
+                ImGui.BeginTabBar("Modules");
+                foreach (dynamic c in _configuration.Configurations)
+                {
+                    try
+                    {
+                        if (c.Value.Ui == null)
+                            continue;
+                        if (ImGui.BeginTabItem(c.Value.ParentName))
+                        {
+                            c.Value.Ui.Draw();
+                            ImGui.EndTabItem();
+                        }
+                    }
+                    catch (Exception) { }
+
+                }
+                ImGui.EndTabBar();
+            }
+            private void Save()
+            {
+                foreach (dynamic c in _configuration.Configurations.Values)
+                    if (c.Ui != null)
+                        c.Ui.Save();
+                _configuration.Save();
+                Hide();
+            }
+            private void Cancel()
+            {
+                foreach (dynamic c in _configuration.Configurations.Values)
+                    if (c.Ui != null)
+                        c.Ui.Cancel();
+                Hide();
+            }
+        }
+    }
+
+    [Obsolete]
+    [Serializable]
+    public class LegacyConfiguration : IPluginConfiguration
     {
         public delegate void ConfigurationChangedDelegate();
         public event ConfigurationChangedDelegate? ConfigurationChanged;
@@ -54,7 +205,7 @@ namespace HimbeertoniRaidTool
             { WHM, "e78a29e3-1dcf-4e53-bbcf-234f33b2c831" },
         });
         [JsonProperty("DefaultBIS")]
-        private Dictionary<Job, string> BISUserOverride { get; set; } = new Dictionary<Job, string>();
+        public Dictionary<Job, string> BISUserOverride { get; set; } = new Dictionary<Job, string>();
         public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : (CuratedData.DefaultBIS.ContainsKey(c) ? CuratedData.DefaultBIS[c] : "");
         public LootRuling LootRuling { get; set; } = new();
         [Obsolete]
@@ -157,87 +308,32 @@ namespace HimbeertoniRaidTool
             FullyLoaded = true;
         }
 
-        public class ConfigUI : HrtUI
-        {
-            private UiSortableList<LootRule> LootList;
-            public ConfigUI() : base(false, "HimbeerToni Raid Tool Configuration")
-            {
-                Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
-                LootList = new(LootRuling.PossibleRules, HRTPlugin.Configuration.LootRuling.RuleSet.Cast<LootRule>());
-                (Size, SizingCondition) = (new Vector2(450, 500), ImGuiCond.Always);
-                WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
-                Title = Localize("ConfigWindowTitle", "HimbeerToni Raid Tool Configuration");
-            }
-            protected override void BeforeDispose()
-            {
-                Services.PluginInterface.UiBuilder.OpenConfigUi -= Show;
-            }
-            protected override void OnShow()
-            {
-                LootList = new(LootRuling.PossibleRules, HRTPlugin.Configuration.LootRuling.RuleSet);
-            }
-            protected override void Draw()
-            {
-                ImGui.BeginTabBar("Menu");
-                if (ImGui.BeginTabItem(Localize("General", "General")))
-                {
-                    ImGui.Checkbox(Localize("Open group overview on startup", "Open group overview on startup"),
-                        ref HRTPlugin.Configuration.OpenLootMasterOnStartup);
-                    ImGui.Checkbox(Localize("Hide windows in combat", "Hide windows in combat"),
-                        ref HRTPlugin.Configuration.LootMasterHideInBattle);
-                    ImGui.EndTabItem();
-                }
-                if (ImGui.BeginTabItem("BiS"))
-                {
-                    if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
-                    {
-                        foreach (var c in Enum.GetValues<Job>())
-                        {
-                            bool isOverriden = HRTPlugin.Configuration.BISUserOverride.ContainsKey(c);
-                            string value = HRTPlugin.Configuration.GetDefaultBiS(c);
-                            if (ImGui.InputText(c.ToString(), ref value, 100))
-                            {
-                                if (value != CuratedData.DefaultBIS[c])
-                                {
-                                    if (isOverriden)
-                                        HRTPlugin.Configuration.BISUserOverride[c] = value;
-                                    else
-                                        HRTPlugin.Configuration.BISUserOverride.Add(c, value);
-                                }
-                                else
-                                {
-                                    if (isOverriden)
-                                        HRTPlugin.Configuration.BISUserOverride.Remove(c);
-                                }
 
-                            }
-                            if (isOverriden)
-                            {
-                                ImGui.SameLine();
-                                if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Undo,
-                                    $"Reset{c}", Localize("Reset to default", "Reset to default")))
-                                    HRTPlugin.Configuration.BISUserOverride.Remove(c);
-                            }
-                        }
-                        ImGui.EndChildFrame();
-                    }
-                    ImGui.EndTabItem();
-                }
-                if (ImGui.BeginTabItem("Loot"))
-                {
-                    ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref HRTPlugin.Configuration.LootRuling.StrictRooling);
-                    LootList.Draw();
-                    ImGui.EndTabItem();
-                }
-                ImGui.EndTabBar();
-                if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Save, "SaveConfig", $"{Localize("Save configuration", "Save configuration")}##Config"))
-                {
-                    HRTPlugin.Configuration.LootRuling.RuleSet = LootList.List;
-                    HRTPlugin.Configuration.Save();
-                    Hide();
-                    HRTPlugin.Configuration.ConfigurationChanged?.Invoke();
-                }
-            }
+    }
+    public abstract class HRTConfiguration<T, S> where T : new() where S : IHrtConfigUi
+    {
+        public readonly string ParentInternalName;
+        public readonly string ParentName;
+        public T Data = new();
+        public abstract S? Ui { get; }
+
+        public HRTConfiguration(string parentInternalName, string parentName)
+        {
+            ParentInternalName = parentInternalName;
+            ParentName = parentName;
         }
+        internal void Save()
+        {
+            DataManagement.ModuleConfigurationManager.SaveConfiguration(ParentInternalName, Data);
+        }
+        public abstract void AfterLoad();
+    }
+    public interface IHrtConfigUi
+    {
+        public void OnShow();
+        public void Draw();
+        public void OnHide();
+        public void Save();
+        public void Cancel();
     }
 }

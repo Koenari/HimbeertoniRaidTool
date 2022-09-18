@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Data;
-using HimbeertoniRaidTool.LootMaster;
+using HimbeertoniRaidTool.Modules.LootMaster;
 using ImGuiNET;
 using static Dalamud.Localization;
 

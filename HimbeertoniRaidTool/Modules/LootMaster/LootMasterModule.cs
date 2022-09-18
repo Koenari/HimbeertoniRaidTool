@@ -1,17 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.DataManagement;
+using HimbeertoniRaidTool.UI;
+using static Dalamud.Localization;
 
-namespace HimbeertoniRaidTool.LootMaster
+namespace HimbeertoniRaidTool.Modules.LootMaster
 {
-    public static class LootMaster
+    internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
     {
-        internal static readonly LootmasterUI Ui = new();
-        internal static List<RaidGroup> RaidGroups => DataManagement.DataManager.Groups;
-        internal static void Init()
+        //Singleton
+        private static readonly Lazy<LootMasterModule> _Instance = new(() => new LootMasterModule());
+        internal static LootMasterModule Instance { get { return _Instance.Value; } }
+        //Interface Properties
+        public string Name => "Loot Master";
+        public string InternalName => "LootMaster";
+        public HRTConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi> Configuration => _config;
+        public string Description => "";
+        public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
+        {
+            new()
+            {
+                Command = "/lootmaster",
+                Description = Localize("/lootmaster", "Opens LootMaster Window"),
+                ShowInHelp = false,
+                OnCommand = OnCommand,
+            },
+            new()
+            {
+                Command = "/lm",
+                Description = Localize("/lootmaster", "Opens LootMaster Window"),
+                ShowInHelp = true,
+                OnCommand = OnCommand,
+            }
+        };
+        //Properties
+        internal List<RaidGroup> RaidGroups => DataManager.Groups;
+
+        internal readonly LootmasterUI Ui;
+        private LootMasterConfiguration _config;
+        private LootMasterModule()
         {
             bool fillSolo = false;
             if (RaidGroups.Count == 0)
@@ -27,6 +59,20 @@ namespace HimbeertoniRaidTool.LootMaster
             if (fillSolo)
                 FillSoloChar(RaidGroups[0].Tank1, true);
             GearRefresherOnExamine.Enable();
+            _config = new(this);
+            Ui = new(this);
+
+
+        }
+        public void AfterFullyLoaded()
+        {
+            if (_config.Data.OpenOnStartup)
+                Ui.Show();
+        }
+
+        public void Update(Framework fw)
+        {
+
         }
         private static void FillSoloChar(Player p, bool useSelf = false)
         {
@@ -37,14 +83,14 @@ namespace HimbeertoniRaidTool.LootMaster
                 character = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
             if (character == null)
                 return;
-            Character c = new Character(character.Name.TextValue, character.HomeWorld.Id);
+            var c = new Character(character.Name.TextValue, character.HomeWorld.Id);
             DataManager.GetManagedCharacter(ref c);
             p.MainChar = c;
-            c.MainJob ??= Helper.GetJob(character);
+            c.MainJob ??= character.GetJob();
             if (c.MainClass != null)
                 c.MainClass.Level = character.Level;
         }
-        internal static void AddGroup(RaidGroup group, bool getGroupInfos)
+        internal void AddGroup(RaidGroup group, bool getGroupInfos)
         {
             RaidGroups.Add(group);
             if (!getGroupInfos)
@@ -75,18 +121,18 @@ namespace HimbeertoniRaidTool.LootMaster
             List<PartyMember> fill = new();
             for (int i = 0; i < Services.PartyList.Length; i++)
             {
-                PartyMember? p = Services.PartyList[i];
+                var p = Services.PartyList[i];
                 if (p != null)
                     players.Add(p);
             }
-            foreach (PartyMember p in players)
+            foreach (var p in players)
             {
                 if (!Enum.TryParse(p.ClassJob.GameData?.Abbreviation.RawString, out Job c))
                 {
                     fill.Add(p);
                     continue;
                 }
-                Role r = c.GetRole();
+                var r = c.GetRole();
                 switch (r)
                 {
                     case Role.Tank:
@@ -130,7 +176,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         break;
                 }
             }
-            foreach (PartyMember pm in fill)
+            foreach (var pm in fill)
             {
                 Dalamud.Logging.PluginLog.Debug($"To fill: {pm.Name}");
                 int pos = 0;
@@ -141,10 +187,10 @@ namespace HimbeertoniRaidTool.LootMaster
             void FillPosition(PositionInRaidGroup pos, PartyMember pm)
             {
                 Dalamud.Logging.PluginLog.Debug($"In fill: {pm.Name}");
-                Player p = group[pos];
+                var p = group[pos];
                 p.Pos = pos;
                 p.NickName = pm.Name.TextValue.Split(' ')[0];
-                Character character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
+                var character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
                 bool characterExisted = DataManager.CharacterExists(character.HomeWorldID, character.Name);
                 DataManager.GetManagedCharacter(ref character);
                 p.MainChar = character;
@@ -153,7 +199,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     p.MainChar.Classes.Clear();
                     bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
 
-                    PlayerCharacter? pc = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
+                    var pc = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
                     if (pc != null && canParseJob && c != Job.ADV)
                     {
                         p.MainChar.MainJob = c;
@@ -161,7 +207,7 @@ namespace HimbeertoniRaidTool.LootMaster
                         GearSet BIS = new()
                         {
                             ManagedBy = GearSetManager.Etro,
-                            EtroID = HRTPlugin.Configuration.GetDefaultBiS(c)
+                            EtroID = _config.Data.GetDefaultBiS(c)
                         };
                         DataManager.GetManagedGearSet(ref BIS);
                         p.MainChar.MainClass.BIS = BIS;
@@ -170,7 +216,7 @@ namespace HimbeertoniRaidTool.LootMaster
 
             }
         }
-        public static void OnCommand(string args)
+        public void OnCommand(string args)
         {
             switch (args)
             {
@@ -179,10 +225,15 @@ namespace HimbeertoniRaidTool.LootMaster
                     break;
             }
         }
-        public static void Dispose()
+        public void Dispose()
         {
             GearRefresherOnExamine.Dispose();
             Ui.Dispose();
+        }
+
+        public void HandleMessage(HrtUiMessage message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

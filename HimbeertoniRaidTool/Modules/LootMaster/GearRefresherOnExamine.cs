@@ -9,7 +9,7 @@ using HimbeertoniRaidTool.Data;
 using Lumina.Excel.GeneratedSheets;
 using XivCommon;
 
-namespace HimbeertoniRaidTool.LootMaster
+namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     //Credit and apologies for taking and butchering their code goes to Caraxi https://github.com/Caraxi
     //https://github.com/Caraxi/SimpleTweaksPlugin/blob/main/Tweaks/UiAdjustment/ExamineItemLevel.cs
@@ -108,8 +108,8 @@ namespace HimbeertoniRaidTool.LootMaster
                  * Not needed anymore given XivCommon works fine again
                  */
                 TargetOverrride = @object;
-                IntPtr agentModule = (IntPtr)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule();
-                IntPtr rciData = agentModule + 0x1A8;
+                var agentModule = (IntPtr)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule();
+                var rciData = agentModule + 0x1A8;
                 uint* rawRci = (uint*)rciData;
                 rawRci[10] = objectId;
                 rawRci[11] = objectId;
@@ -179,7 +179,7 @@ namespace HimbeertoniRaidTool.LootMaster
                     return;
                 if (target.GetJob() is null)
                     return;
-                IntPtr intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
+                var intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
                 var objID = target.ObjectId;
                 uint* ptr = (uint*)(void*)intPtr;
                 //Do not execute on characters not part of any managed raid group
@@ -190,15 +190,15 @@ namespace HimbeertoniRaidTool.LootMaster
                 DataManagement.DataManager.GetManagedCharacter(ref targetChar);
                 if (targetChar is null)
                     return;
-                Job targetClass = (Job)target.GetJob()!;
-                InventoryContainer* container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
+                var targetClass = (Job)target.GetJob()!;
+                var container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
                 if (container == null)
                     return;
 
                 //Getting level does not work in level synced content
                 if (target.Level > targetChar.GetClass(targetClass).Level)
                     targetChar.GetClass(targetClass).Level = target.Level;
-                GearSet setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
+                var setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
                 DataManagement.DataManager.GetManagedGearSet(ref setToFill);
 
                 setToFill.Clear();
@@ -207,7 +207,7 @@ namespace HimbeertoniRaidTool.LootMaster
                 {
                     if (i == (int)GearSetSlot.Waist)
                         continue;
-                    InventoryItem* slot = _getContainerSlot(container, i);
+                    var slot = _getContainerSlot(container, i);
                     if (slot->ItemID == 0)
                         continue;
                     setToFill[(GearSetSlot)i] = new(slot->ItemID);

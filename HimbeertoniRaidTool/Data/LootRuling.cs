@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using HimbeertoniRaidTool.LootMaster;
+using HimbeertoniRaidTool.Modules.LootMaster;
 using Newtonsoft.Json;
 using static Dalamud.Localization;
 

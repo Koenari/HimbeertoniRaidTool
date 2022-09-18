@@ -120,7 +120,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.BIS.EtroID, 50);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"{Localize("Default", "Default")}##BIS#{c.Job}", Localize("DefaultBiSTooltip", "Fetch default BiS from configuration")))
-                    c.BIS.EtroID = HRTPlugin.Configuration.GetDefaultBiS(c.Job);
+                    c.BIS.EtroID = Modules.LootMaster.LootMasterModule.Instance.Configuration.Data.GetDefaultBiS(c.Job);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"{Localize("Reset", "Reset")}##BIS#{c.Job}", Localize("ResetBisTooltip", "Empty out BiS gear")))
                     c.BIS.EtroID = "";
@@ -432,14 +432,14 @@ namespace HimbeertoniRaidTool.UI
         private uint maxILvl;
         private List<Item> _items;
         protected override bool CanSave => false;
-        public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? curentItem = null, GearSetSlot? slot = null, Job? job = null) : base(onSave, onCancel)
+        public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? curentItem = null, GearSetSlot? slot = null, Job? job = null, uint maxItemLevel = 0) : base(onSave, onCancel)
         {
             Item = curentItem;
             Slot = slot;
             Job = job;
             Title = $"{Localize("Get item for", "Get item for")} {Slot}";
-            maxILvl = Slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? HRTPlugin.Configuration.SelectedRaidTier.WeaponItemLevel : HRTPlugin.Configuration.SelectedRaidTier.ArmorItemLevel;
-            minILvl = maxILvl - 30;
+            maxILvl = maxItemLevel;
+            minILvl = maxILvl > 30 ? 0 : maxILvl - 30;
             _items = reevaluateItems();
         }
 
@@ -501,7 +501,7 @@ namespace HimbeertoniRaidTool.UI
         {
             _items = Sheet.Where(x =>
                    (Slot == null || x.EquipSlotCategory.Value?.ToSlot() == Slot)
-                && x.LevelItem.Row <= maxILvl
+                && (maxILvl == 0 || x.LevelItem.Row <= maxILvl)
                 && x.LevelItem.Row >= minILvl
                 && x.ClassJobCategory.Value.Contains(Job)
                 ).ToList();
@@ -515,10 +515,10 @@ namespace HimbeertoniRaidTool.UI
         private byte MateriaLevel;
         private readonly int _numMatLevels;
         protected override bool CanSave => Cat != MateriaCategory.None;
-        public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel) : base(onSave, onCancel)
+        public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, byte matLevel = 0) : base(onSave, onCancel)
         {
             Cat = MateriaCategory.None;
-            MateriaLevel = HRTPlugin.Configuration.SelectedRaidTier.MaxMateriaLevel;
+            MateriaLevel = matLevel;
             _numMatLevels = MateriaLevel + 1;
             Title = Localize("Select Materia", "Select Materia");
         }
