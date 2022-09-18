@@ -73,13 +73,14 @@ namespace HimbeertoniRaidTool
             Configurations.Add(config.GetType(), config);
             return Services.HrtDataManager.ModuleConfigurationManager.LoadConfiguration(config.ParentInternalName, ref config.Data);
         }
-        internal void Save()
+        internal void Save(bool saveAll = true)
         {
             if (Version == TargetVersion)
             {
                 Services.PluginInterface.SavePluginConfig(this);
-                foreach (var config in Configurations.Values)
-                    config.Save();
+                if (saveAll)
+                    foreach (var config in Configurations.Values)
+                        config.Save();
             }
             else
                 PluginLog.LogError("Configuration Version mismatch. Did not Save!");
