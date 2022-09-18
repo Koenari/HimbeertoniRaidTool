@@ -1,20 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Dalamud.Logging;
+using Dalamud.Plugin;
 using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.DataManagement
 {
-    public static class DataManager
+    public class HrtDataManager
     {
-        private static bool Initialized;
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        internal static GearDB GearDB;
-        internal static CharacterDB CharacterDB;
-        private static List<RaidGroup> _Groups;
-        private static FileInfo RaidGRoupJsonFile;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public static List<RaidGroup> Groups => _Groups;
+        public bool Initialized { get; private set; }
+        private GearDB? GearDB;
+        private CharacterDB? CharacterDB;
+        private List<RaidGroup>? _Groups;
+        private readonly FileInfo RaidGRoupJsonFile;
+        public List<RaidGroup> Groups => _Groups ?? new();
+        internal ModuleConfigurationManager ModuleConfigurationManager { get; private set; }
         internal static JsonSerializerSettings JsonSerializerSettings = new()
         {
             Formatting = Formatting.Indented,
@@ -23,52 +25,61 @@ namespace HimbeertoniRaidTool.DataManagement
             NullValueHandling = NullValueHandling.Ignore,
         };
 
-        public static void Init(bool reset = false)
+        public HrtDataManager(DalamudPluginInterface pluginInterface)
         {
-            var dir = Services.PluginInterface.ConfigDirectory;
-            if (!dir.Exists)
-                dir.Create();
-
-            GearDB = new(dir, reset);
-            CharacterDB = new(dir, reset);
+            var dir = pluginInterface.ConfigDirectory;
             RaidGRoupJsonFile = new FileInfo(dir.FullName + "\\RaidGroups.json");
-            if (!RaidGRoupJsonFile.Exists)
-                RaidGRoupJsonFile.Create().Close();
-            var crc = new CharacterReferenceConverter();
-            JsonSerializerSettings.Converters.Add(crc);
-            _Groups = JsonConvert.DeserializeObject<List<RaidGroup>>(
-                reset ? "" : RaidGRoupJsonFile.OpenText().ReadToEnd(),
-                JsonSerializerSettings) ?? new();
-            JsonSerializerSettings.Converters.Remove(crc);
-            Initialized = true;
+            ModuleConfigurationManager = new();
+            try
+            {
+                if (!dir.Exists)
+                    dir.Create();
+                GearDB = new(dir);
+                CharacterDB = new(dir, GearDB);
+
+                if (!RaidGRoupJsonFile.Exists)
+                    RaidGRoupJsonFile.Create().Close();
+                var crc = new CharacterReferenceConverter(CharacterDB);
+                JsonSerializerSettings.Converters.Add(crc);
+                _Groups = JsonConvert.DeserializeObject<List<RaidGroup>>(
+                    RaidGRoupJsonFile.OpenText().ReadToEnd(),
+                    JsonSerializerSettings) ?? new();
+                JsonSerializerSettings.Converters.Remove(crc);
+                Initialized = true;
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error("Could not load data files\n{0}", e);
+                Initialized = false;
+            }
         }
-        public static List<uint> GetWorldsWithCharacters()
+        public List<uint> GetWorldsWithCharacters()
         {
-            if (Initialized)
+            if (Initialized && CharacterDB is not null)
                 return CharacterDB.GetUsedWorlds();
             return new();
         }
-        public static List<string> GetCharacters(uint worldID)
+        public List<string> GetCharacters(uint worldID)
         {
-            if (Initialized)
+            if (Initialized && CharacterDB is not null)
                 return CharacterDB.GetCharactersList(worldID);
             return new();
         }
-        public static bool CharacterExists(uint worldID, string name) =>
-            CharacterDB.Exists(worldID, name);
-        public static void GetManagedGearSet(ref GearSet gs)
+        public bool CharacterExists(uint worldID, string name) =>
+            CharacterDB?.Exists(worldID, name) ?? false;
+        public void GetManagedGearSet(ref GearSet gs)
         {
             if (Initialized)
-                GearDB.AddOrGetSet(ref gs);
+                GearDB?.AddOrGetSet(ref gs);
         }
-        public static void GetManagedCharacter(ref Character c)
+        public void GetManagedCharacter(ref Character c)
         {
             if (Initialized)
-                CharacterDB.AddOrGetCharacter(ref c);
+                CharacterDB?.AddOrGetCharacter(ref c);
         }
-        public static void RearrangeCharacter(uint oldWorld, string oldName, ref Character c)
+        public void RearrangeCharacter(uint oldWorld, string oldName, ref Character c)
         {
-            if (!Initialized)
+            if (!Initialized || CharacterDB is null)
                 return;
             CharacterDB.UpdateIndex(oldWorld, oldName, ref c);
             for (int i = 0; i < c.Classes.Count; i++)
@@ -78,13 +89,13 @@ namespace HimbeertoniRaidTool.DataManagement
                 RearrangeGearSet(oldID, ref c.Classes[i].Gear);
             }
         }
-        public static void RearrangeGearSet(string oldID, ref GearSet gs)
+        public void RearrangeGearSet(string oldID, ref GearSet gs)
         {
-            GearDB.UpdateIndex(oldID, ref gs);
+            GearDB?.UpdateIndex(oldID, ref gs);
         }
-        public static void Fill(List<RaidGroup> rg)
+        [Obsolete("Only used to convert from legacy config")]
+        public void Fill(List<RaidGroup> rg)
         {
-            Init(true);
             _Groups = rg;
             for (int i = 0; i < _Groups.Count; i++)
             {
@@ -107,17 +118,30 @@ namespace HimbeertoniRaidTool.DataManagement
                 }
             }
         }
-        public static void Save()
+        public void Save()
         {
             if (!Initialized)
                 return;
-            GearDB.Save();
-            CharacterDB.Save();
-            //TODO: RaidGroups
-            var crc = new CharacterReferenceConverter();
+            GearDB?.Save();
+            CharacterDB?.Save(GearDB!);
+            var crc = new CharacterReferenceConverter(CharacterDB!);
             JsonSerializerSettings.Converters.Add(crc);
-            File.WriteAllText(RaidGRoupJsonFile.FullName,
-                JsonConvert.SerializeObject(_Groups, JsonSerializerSettings));
+            StreamWriter? writer = null;
+            try
+            {
+                writer = RaidGRoupJsonFile.CreateText();
+                var serializer = JsonSerializer.Create(JsonSerializerSettings);
+                serializer.Serialize(writer, _Groups);
+            }
+            catch (Exception e)
+            {
+
+                PluginLog.Error("Could not write gear data\n{0}", e);
+            }
+            finally
+            {
+                writer?.Dispose();
+            }
             JsonSerializerSettings.Converters.Remove(crc);
 
         }

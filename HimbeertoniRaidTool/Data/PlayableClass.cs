@@ -1,7 +1,6 @@
 ﻿using System;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
-using static HimbeertoniRaidTool.DataManagement.DataManager;
 
 namespace HimbeertoniRaidTool.Data
 {
@@ -37,9 +36,9 @@ namespace HimbeertoniRaidTool.Data
         {
             Job = ClassNameArg;
             Gear = new(GearSetManager.HRT, c, Job);
-            GetManagedGearSet(ref Gear);
+            Services.HrtDataManager.GetManagedGearSet(ref Gear);
             BIS = new(GearSetManager.HRT, c, Job, "BIS");
-            GetManagedGearSet(ref BIS);
+            Services.HrtDataManager.GetManagedGearSet(ref BIS);
         }
         public int GetCurrentStat(StatType type) => GetStat(type, Gear);
         public int GetBiSStat(StatType type) => GetStat(type, BIS);
@@ -63,8 +62,8 @@ namespace HimbeertoniRaidTool.Data
         public bool IsEmpty => Level == 0 && Gear.IsEmpty && BIS.IsEmpty;
         public void ManageGear()
         {
-            GetManagedGearSet(ref Gear);
-            GetManagedGearSet(ref BIS);
+            Services.HrtDataManager.GetManagedGearSet(ref Gear);
+            Services.HrtDataManager.GetManagedGearSet(ref BIS);
         }
         public bool Equals(PlayableClass? other)
         {

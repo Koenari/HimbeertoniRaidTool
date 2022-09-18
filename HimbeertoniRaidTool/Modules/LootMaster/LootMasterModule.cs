@@ -38,7 +38,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
         };
         //Properties
-        private static List<RaidGroup> RaidGroups => DataManager.Groups;
+        private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
         private readonly LootmasterUI Ui;
         private readonly LootMasterConfiguration _config;
         private LootMasterModule()
@@ -80,7 +80,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (character == null)
                 return;
             var c = new Character(character.Name.TextValue, character.HomeWorld.Id);
-            DataManager.GetManagedCharacter(ref c);
+            Services.HrtDataManager.GetManagedCharacter(ref c);
             p.MainChar = c;
             c.MainJob ??= character.GetJob();
             if (c.MainClass != null)
@@ -187,8 +187,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 p.Pos = pos;
                 p.NickName = pm.Name.TextValue.Split(' ')[0];
                 var character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
-                bool characterExisted = DataManager.CharacterExists(character.HomeWorldID, character.Name);
-                DataManager.GetManagedCharacter(ref character);
+                bool characterExisted = Services.HrtDataManager.CharacterExists(character.HomeWorldID, character.Name);
+                Services.HrtDataManager.GetManagedCharacter(ref character);
                 p.MainChar = character;
                 if (!characterExisted)
                 {
@@ -205,7 +205,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             ManagedBy = GearSetManager.Etro,
                             EtroID = _config.Data.GetDefaultBiS(c)
                         };
-                        DataManager.GetManagedGearSet(ref BIS);
+                        Services.HrtDataManager.GetManagedGearSet(ref BIS);
                         p.MainChar.MainClass.BIS = BIS;
                     }
                 }

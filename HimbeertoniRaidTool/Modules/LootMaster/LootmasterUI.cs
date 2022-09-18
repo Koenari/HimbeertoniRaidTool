@@ -7,7 +7,6 @@ using ColorHelper;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
-using HimbeertoniRaidTool.DataManagement;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using static ColorHelper.HRTColorConversions;
@@ -21,7 +20,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private int _CurrenGroupIndex;
         protected override bool HideInBattle => _lootMaster.Configuration.Data.HideInBattle;
         private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
-        private static List<RaidGroup> RaidGroups => DataManager.Groups;
+        private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
         private readonly List<AsyncTaskWithUiResult> Tasks = new();
         internal LootmasterUI(LootMasterModule lootMaster) : base(false, "LootMaster")
         {
@@ -428,11 +427,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     if (c.HomeWorldID == 0 && playerChar is null)
                     {
                         playerChar = Helper.TryGetChar(player.MainChar.Name);
-                        if (playerChar is not null && !DataManager.CharacterExists(playerChar.HomeWorld.Id, player.MainChar.Name))
+                        if (playerChar is not null && !Services.HrtDataManager.CharacterExists(playerChar.HomeWorld.Id, player.MainChar.Name))
                         {
                             uint worldID = player.MainChar.HomeWorldID;
                             player.MainChar.HomeWorldID = playerChar.HomeWorld.Id;
-                            DataManager.RearrangeCharacter(worldID, player.MainChar.Name, ref c);
+                            Services.HrtDataManager.RearrangeCharacter(worldID, player.MainChar.Name, ref c);
                         }
                     }
                     ImGuiHelper.GearUpdateButton(player);
@@ -606,7 +605,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         internal GetCharacterFromDBWindow(ref Player p) : base(true, $"GetCharacterFromDBWindow{p.NickName}")
         {
             _p = p;
-            Worlds = DataManager.GetWorldsWithCharacters().ToArray();
+            Worlds = Services.HrtDataManager.GetWorldsWithCharacters().ToArray();
             WorldNames = Array.ConvertAll(Worlds, x => Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name.RawString ?? "");
             Title = Localize("GetCharacterTitle", "Get character from DB") + _p.Pos;
             Size = new Vector2(350, 420);
@@ -617,7 +616,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.InputText(Localize("Player Name", "Player Name"), ref NickName, 50);
             if (ImGui.ListBox("World", ref worldSelectIndex, WorldNames, WorldNames.Length))
             {
-                var list = DataManager.GetCharacters(Worlds[worldSelectIndex]);
+                var list = Services.HrtDataManager.GetCharacters(Worlds[worldSelectIndex]);
                 list.Sort();
                 CharacterNames = list.ToArray();
             }
@@ -629,7 +628,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 var c = _p.MainChar;
                 c.Name = CharacterNames[CharacterNameIndex];
                 c.HomeWorldID = Worlds[worldSelectIndex];
-                DataManager.GetManagedCharacter(ref c);
+                Services.HrtDataManager.GetManagedCharacter(ref c);
                 _p.MainChar = c;
                 Hide();
             }

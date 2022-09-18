@@ -7,6 +7,12 @@ namespace HimbeertoniRaidTool.DataManagement
 {
     internal class CharacterReferenceConverter : JsonConverter<Character>
     {
+        private readonly CharacterDB _charDB;
+        public CharacterReferenceConverter(CharacterDB charDB)
+        {
+            _charDB = charDB;
+        }
+
         public override void WriteJson(JsonWriter writer, Character? value, JsonSerializer serializer)
         {
             if (value == null)
@@ -31,7 +37,7 @@ namespace HimbeertoniRaidTool.DataManagement
             if (cRef == null)
                 return null;
             Character result = new(cRef.Name, cRef.HomeWorldID);
-            DataManager.CharacterDB.AddOrGetCharacter(ref result);
+            _charDB.AddOrGetCharacter(ref result);
             return result;
         }
     }

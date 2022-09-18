@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 
@@ -10,18 +12,18 @@ namespace HimbeertoniRaidTool.DataManagement
         private readonly Dictionary<uint, Dictionary<string, Character>> CharDB;
         private readonly FileInfo CharDBJsonFile;
 
-        internal CharacterDB(DirectoryInfo loadDir, bool reset)
+        internal CharacterDB(DirectoryInfo loadDir, GearDB gearDB)
         {
-            var conv = new GearSetReferenceConverter();
-            DataManager.JsonSerializerSettings.Converters.Add(conv);
+            var conv = new GearSetReferenceConverter(gearDB);
+            HrtDataManager.JsonSerializerSettings.Converters.Add(conv);
 
             CharDBJsonFile = new FileInfo(loadDir.FullName + "\\CharacterDB.json");
             if (!CharDBJsonFile.Exists)
                 CharDBJsonFile.Create().Close();
             CharDB = JsonConvert.DeserializeObject<Dictionary<uint, Dictionary<string, Character>>>(
-                reset ? "" : CharDBJsonFile.OpenText().ReadToEnd(),
-                DataManager.JsonSerializerSettings) ?? new();
-            DataManager.JsonSerializerSettings.Converters.Remove(conv);
+                CharDBJsonFile.OpenText().ReadToEnd(),
+                HrtDataManager.JsonSerializerSettings) ?? new();
+            HrtDataManager.JsonSerializerSettings.Converters.Remove(conv);
             foreach (var entry1 in CharDB)
                 foreach (var entry2 in entry1.Value)
                     foreach (var entry3 in entry2.Value.Classes)
@@ -56,14 +58,28 @@ namespace HimbeertoniRaidTool.DataManagement
                 CharDB[oldWorld].Remove(oldName);
             AddOrGetCharacter(ref c);
         }
-        internal void Save()
+        internal void Save(GearDB gearDB)
         {
-            var conv = new GearSetReferenceConverter();
+            var conv = new GearSetReferenceConverter(gearDB);
 
-            DataManager.JsonSerializerSettings.Converters.Add(conv);
-            File.WriteAllText(CharDBJsonFile.FullName,
-                JsonConvert.SerializeObject(CharDB, DataManager.JsonSerializerSettings));
-            DataManager.JsonSerializerSettings.Converters.Remove(conv);
+            HrtDataManager.JsonSerializerSettings.Converters.Add(conv);
+            StreamWriter? writer = null;
+            try
+            {
+                writer = CharDBJsonFile.CreateText();
+                var serializer = JsonSerializer.Create(HrtDataManager.JsonSerializerSettings);
+                serializer.Serialize(writer, CharDB);
+            }
+            catch (Exception e)
+            {
+
+                PluginLog.Error("Could not write character data\n{0}", e);
+            }
+            finally
+            {
+                writer?.Dispose();
+            }
+            HrtDataManager.JsonSerializerSettings.Converters.Remove(conv);
         }
 
     }

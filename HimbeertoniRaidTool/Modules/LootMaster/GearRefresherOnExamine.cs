@@ -112,11 +112,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             var objID = target.ObjectId;
             uint* ptr = (uint*)(void*)intPtr;
             //Do not execute on characters not part of any managed raid group
-            if (!DataManagement.DataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
+            if (!Services.HrtDataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
                 return;
             Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
 
-            DataManagement.DataManager.GetManagedCharacter(ref targetChar);
+            Services.HrtDataManager.GetManagedCharacter(ref targetChar);
             if (targetChar is null)
                 return;
             var targetClass = (Job)target.GetJob()!;
@@ -128,7 +128,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (target.Level > targetChar.GetClass(targetClass).Level)
                 targetChar.GetClass(targetClass).Level = target.Level;
             var setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
-            DataManagement.DataManager.GetManagedGearSet(ref setToFill);
+            Services.HrtDataManager.GetManagedGearSet(ref setToFill);
 
             setToFill.Clear();
             setToFill.TimeStamp = DateTime.UtcNow;

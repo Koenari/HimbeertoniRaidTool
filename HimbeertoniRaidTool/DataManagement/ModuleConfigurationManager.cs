@@ -1,11 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using Dalamud.Logging;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.DataManagement
 {
-    internal static class ModuleConfigurationManager
+    internal class ModuleConfigurationManager
     {
-        private static readonly DirectoryInfo ModuleConfigDir = new(Services.PluginInterface.ConfigDirectory.FullName + "\\moduleConfigs\\");
+        private readonly DirectoryInfo ModuleConfigDir = new(Services.PluginInterface.ConfigDirectory.FullName + "\\moduleConfigs\\");
         private static readonly JsonSerializerSettings JsonSerializerSettings = new()
         {
             Formatting = Formatting.Indented,
@@ -14,34 +16,42 @@ namespace HimbeertoniRaidTool.DataManagement
             NullValueHandling = NullValueHandling.Ignore,
 
         };
-        static ModuleConfigurationManager()
+        internal ModuleConfigurationManager()
         {
             if (!ModuleConfigDir.Exists)
                 ModuleConfigDir.Create();
         }
 
-        internal static void SaveConfiguration<T>(string internalName, T configData) where T : new()
+        internal void SaveConfiguration<T>(string internalName, T configData) where T : new()
         {
             var file = new FileInfo(ModuleConfigDir.FullName + internalName + ".json");
-            var json = JsonConvert.SerializeObject(configData, JsonSerializerSettings);
+            string json = JsonConvert.SerializeObject(configData, JsonSerializerSettings);
             File.WriteAllText(file.FullName, json);
         }
-        internal static bool LoadConfiguration<T>(string internalName, ref T configData) where T : new()
+        internal bool LoadConfiguration<T>(string internalName, ref T configData) where T : new()
         {
             var file = new FileInfo(ModuleConfigDir.FullName + internalName + ".json");
             if (file.Exists)
             {
-                T? fromJson = JsonConvert.DeserializeObject<T>(file.OpenText().ReadToEnd(), JsonSerializerSettings);
-                if (fromJson != null)
+                try
                 {
-                    configData = fromJson;
-                    return true;
+                    T? fromJson = JsonConvert.DeserializeObject<T>(file.OpenText().ReadToEnd(), JsonSerializerSettings);
+                    if (fromJson != null)
+                    {
+                        configData = fromJson;
+                        return true;
+                    }
+                    else
+                        return false;
                 }
-                else
+                catch (Exception e)
+                {
+                    PluginLog.Error("Could not load module config \n {0}", e);
                     return false;
+                }
+
             }
-            else
-                return false;
+            return true;
         }
     }
 }

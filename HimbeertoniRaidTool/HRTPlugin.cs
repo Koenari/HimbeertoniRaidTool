@@ -11,6 +11,7 @@ using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
+using HimbeertoniRaidTool.DataManagement;
 using HimbeertoniRaidTool.HrtServices;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using HimbeertoniRaidTool.Modules.WelcomeWindow;
@@ -34,10 +35,13 @@ namespace HimbeertoniRaidTool
         [PluginService] public static ObjectTable ObjectTable { get; private set; }
         [PluginService] public static PartyList PartyList { get; private set; }
         public static IconCache IconCache { get; private set; }
+        public static HrtDataManager HrtDataManager { get; private set; }
 
-        internal static void Init()
+        internal static bool Init()
         {
             IconCache ??= new IconCache(PluginInterface, DataManager);
+            HrtDataManager ??= new(PluginInterface);
+            return HrtDataManager.Initialized;
         }
 
     }
@@ -62,7 +66,7 @@ namespace HimbeertoniRaidTool
             Loc = new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale");
             Loc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
             Services.PluginInterface.LanguageChanged += OnLanguageChanged;
-            DataManagement.DataManager.Init();
+            _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             //Load and update/correct configuration + ConfigUi
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             _Configuration.AfterLoad();
@@ -121,6 +125,7 @@ namespace HimbeertoniRaidTool
         }
         public void Dispose()
         {
+                Services.HrtDataManager.Save();
             _Configuration.Ui.Dispose();
             RegisteredCommands.ForEach(command => Services.CommandManager.RemoveHandler(command));
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
@@ -135,7 +140,6 @@ namespace HimbeertoniRaidTool
                     PluginLog.Fatal($"Unable to Dispose module \"{moduleEntry.Key}\"");
                 }
             }
-            DataManagement.DataManager.Save();
         }
         private void OnCommand(string args)
         {

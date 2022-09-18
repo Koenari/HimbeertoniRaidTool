@@ -132,7 +132,7 @@ namespace HimbeertoniRaidTool.UI
 
             var jobsNotUsed = new List<Job>(Enum.GetValues<Job>());
             jobsNotUsed.RemoveAll(x => PlayerCopy.MainChar.Classes.Exists(y => y.Job == x));
-            var newJobs = jobsNotUsed.ConvertAll(x => x.ToString()).ToArray();
+            string[] newJobs = jobsNotUsed.ConvertAll(x => x.ToString()).ToArray();
             ImGui.Combo(Localize("Add Job", "Add Job"), ref newJob, newJobs, newJobs.Length);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
@@ -157,7 +157,7 @@ namespace HimbeertoniRaidTool.UI
             if (IsNew)
             {
                 Character c = new Character(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
-                DataManagement.DataManager.GetManagedCharacter(ref c);
+                Services.HrtDataManager.GetManagedCharacter(ref c);
                 Player.MainChar = c;
                 if (c.Classes.Count > 0)
                     return;
@@ -169,7 +169,7 @@ namespace HimbeertoniRaidTool.UI
                 Player.MainChar.Name = PlayerCopy.MainChar.Name;
                 Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
                 Character c = Player.MainChar;
-                DataManagement.DataManager.RearrangeCharacter(oldWorld, oldName, ref c);
+                Services.HrtDataManager.RearrangeCharacter(oldWorld, oldName, ref c);
                 Player.MainChar = c;
             }
             Player.MainChar.MainJob = PlayerCopy.MainChar.MainJob;
@@ -194,7 +194,7 @@ namespace HimbeertoniRaidTool.UI
                 };
                 if (!set.EtroID.Equals(""))
                 {
-                    DataManagement.DataManager.GearDB.AddOrGetSet(ref set);
+                    Services.HrtDataManager.GetManagedGearSet(ref set);
                     bisUpdates.Add((target.Job, () => EtroConnector.GetGearSet(target.BIS)));
                 }
                 target.BIS = set;

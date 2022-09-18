@@ -6,8 +6,13 @@ using Newtonsoft.Json.Linq;
 namespace HimbeertoniRaidTool.DataManagement
 {
     internal class GearSetReferenceConverter : JsonConverter<GearSet>
-
     {
+        private readonly GearDB _gearDB;
+
+        internal GearSetReferenceConverter(GearDB gearDB)
+        {
+            _gearDB = gearDB;
+        }
         public override void WriteJson(JsonWriter writer, GearSet? value, JsonSerializer serializer)
         {
             if (value == null)
@@ -34,7 +39,7 @@ namespace HimbeertoniRaidTool.DataManagement
                 HrtID = gsRef.ManagedBy == GearSetManager.HRT ? gsRef.ID : "",
                 EtroID = gsRef.ManagedBy == GearSetManager.Etro ? gsRef.ID : "",
             };
-            DataManager.GearDB.AddOrGetSet(ref result);
+            _gearDB.AddOrGetSet(ref result);
             return result;
         }
     }
