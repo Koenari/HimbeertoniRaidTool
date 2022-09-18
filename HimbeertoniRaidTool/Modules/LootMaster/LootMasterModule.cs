@@ -4,7 +4,6 @@ using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using HimbeertoniRaidTool.Data;
-using HimbeertoniRaidTool.DataManagement;
 using HimbeertoniRaidTool.UI;
 using static Dalamud.Localization;
 
@@ -41,27 +40,30 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
         private readonly LootmasterUI Ui;
         private readonly LootMasterConfiguration _config;
+        private readonly bool _fillSolo;
         private LootMasterModule()
         {
-            bool fillSolo = false;
+
             if (RaidGroups.Count == 0)
             {
                 RaidGroups.Add(new("Solo", GroupType.Solo));
-                fillSolo = true;
+                _fillSolo = true;
             }
             if (RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
             {
                 RaidGroups.Insert(0, new("Solo", GroupType.Solo));
-                fillSolo = true;
+                _fillSolo = true;
             }
-            if (fillSolo)
-                FillSoloChar(RaidGroups[0].Tank1, true);
-            GearRefresherOnExamine.Enable();
+
             _config = new(this);
             Ui = new(this);
         }
         public void AfterFullyLoaded()
         {
+
+            if (_fillSolo)
+                FillSoloChar(RaidGroups[0].Tank1, true);
+            GearRefresherOnExamine.Enable();
             if (_config.Data.OpenOnStartup)
                 Ui.Show();
         }
@@ -70,7 +72,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
 
         }
-        private static void FillSoloChar(Player p, bool useSelf = false)
+        private void FillSoloChar(Player p, bool useSelf = false)
         {
             PlayerCharacter? character = null;
             if (useSelf)
@@ -81,10 +83,20 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 return;
             var c = new Character(character.Name.TextValue, character.HomeWorld.Id);
             Services.HrtDataManager.GetManagedCharacter(ref c);
+            p.NickName = c.Name.Split(' ')[0];
             p.MainChar = c;
             c.MainJob ??= character.GetJob();
             if (c.MainClass != null)
+            {
                 c.MainClass.Level = character.Level;
+                GearSet bis = new(GearSetManager.Etro, c, c.MainClass.Job)
+                {
+                    EtroID = _config.Data.GetDefaultBiS(c.MainClass.Job)
+                };
+                Services.HrtDataManager.GetManagedGearSet(ref bis);
+                c.MainClass.BIS = bis;
+            }
+
         }
         internal void AddGroup(RaidGroup group, bool getGroupInfos)
         {
@@ -229,7 +241,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         public void HandleMessage(HrtUiMessage message)
         {
-            throw new NotImplementedException();
+            Ui.HandleMessage(message);
         }
     }
 }

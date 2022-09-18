@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
@@ -14,11 +15,36 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
     {
         public override ConfigUi? Ui => _ui;
         private readonly ConfigUi _ui;
+        private bool FullyLoaded = false;
+        private const int TargetVersion = 1;
         public LootMasterConfiguration(LootMasterModule hrtModule) : base(hrtModule.InternalName, hrtModule.Name)
         {
             _ui = new(this);
         }
-        public override void AfterLoad() { }
+        public override void AfterLoad()
+        {
+            if (FullyLoaded)
+                return;
+            if (Data.Version > TargetVersion)
+            {
+                string msg = "Tried loading a configuration from a newer version of the plugin." +
+                    "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
+                PluginLog.LogFatal(msg);
+                Services.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+                throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
+            }
+            if (Data.Version != TargetVersion)
+                Upgrade();
+            try
+            {
+                if (Data.RaidTierOverride is not null)
+                    Data.RaidTierOverride = CuratedData.RaidTiers[Array.IndexOf(CuratedData.RaidTiers, Data.RaidTierOverride)];
+            }
+            catch (Exception) { };
+            FullyLoaded = true;
+        }
+        //Still first version no upgrade possible
+        private void Upgrade() { }
         [Obsolete]
         public void FillFromLegacy(LegacyConfiguration leg)
         {
@@ -117,14 +143,25 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 _config.Data = _dataCopy;
             }
         }
-        [JsonObject(MemberSerialization.OptIn)]
+        [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
         internal sealed class ConfigData
         {
             public int Version { get; set; } = 1;
             [JsonProperty("UserBiS")]
             public Dictionary<Job, string> BISUserOverride = new();
             [JsonProperty]
-            public LootRuling LootRuling = new();
+            public LootRuling LootRuling = new()
+            {
+                RuleSet = new List<LootRule>()
+                        {
+                            new(LootRuleEnum.BISOverUpgrade),
+                            new(LootRuleEnum.ByPosition),
+                            new(LootRuleEnum.HighesItemLevelGain),
+                            new(LootRuleEnum.LowestItemLevel),
+                            new(LootRuleEnum.Random)
+                        },
+                StrictRooling = true
+            };
             [JsonProperty]
             public bool OpenOnStartup = false;
             [JsonProperty]

@@ -575,6 +575,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             ImGui.NewLine();
         }
+
+        internal void HandleMessage(HrtUiMessage message)
+        {
+            throw new NotImplementedException();
+        }
+
         private class PlayerdetailWindow : HrtUI
         {
             private readonly LootmasterUI Parent;
