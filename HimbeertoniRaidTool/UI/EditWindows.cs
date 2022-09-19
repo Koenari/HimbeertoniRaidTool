@@ -349,6 +349,10 @@ namespace HimbeertoniRaidTool.UI
             {
                 ImGui.BeginGroup();
                 ImGui.Text(_gearSetCopy[slot].Item?.Name.RawString);
+                ImGui.SameLine();
+                if (_gearSetCopy[slot].Item?.CanBeHq ?? false)
+                    ImGui.Checkbox($"{Localize("HQ", "HQ")}##{slot}", ref _gearSetCopy[slot].IsHq);
+                ImGui.EndGroup();
                 if (ImGui.IsItemHovered())
                 {
                     ImGui.BeginTooltip();
@@ -375,9 +379,15 @@ namespace HimbeertoniRaidTool.UI
                 }
                 if (_gearSetCopy[slot].Materia.Count < (_gearSetCopy[slot].Item?.IsAdvancedMeldingPermitted ?? false ? 5 : _gearSetCopy[slot].Item?.MateriaSlotCount))
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}addmat", Localize("Select materia", "Select materia")))
-                        AddChild(new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }, _currentRaidTier?.MaxMateriaLevel ?? 0));
+                    {
+                        byte maxMatLevel = _currentRaidTier?.MaxMateriaLevel ?? 0;
+                        if (_gearSetCopy[slot].Materia.Count > _gearSetCopy[slot].Item?.MateriaSlotCount)
+                            maxMatLevel--;
+                        AddChild(new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }, maxMatLevel));
+                    }
 
-                ImGui.EndGroup();
+
+
             }
         }
         private void Save()
@@ -431,7 +441,9 @@ namespace HimbeertoniRaidTool.UI
     }
     internal class SelectGearItemWindow : SelectItemWindow<GearItem>
     {
+        private readonly bool _lockSlot = false;
         private GearSetSlot? Slot;
+        private readonly bool _lockJob = false;
         private Job? Job;
         private uint minILvl;
         private uint maxILvl;
@@ -440,8 +452,18 @@ namespace HimbeertoniRaidTool.UI
         public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? curentItem = null, GearSetSlot? slot = null, Job? job = null, uint maxItemLevel = 0) : base(onSave, onCancel)
         {
             Item = curentItem;
-            Slot = slot;
+            if (slot.HasValue)
+            {
+                _lockSlot = true;
+                Slot = slot.Value;
+            }
+            else
+            {
+                Slot = Item?.Slot;
+            }
+            _lockJob = job.HasValue;
             Job = job;
+            Slot = slot;
             Title = $"{Localize("Get item for", "Get item for")} {Slot}";
             maxILvl = maxItemLevel;
             minILvl = maxILvl > 30 ? maxILvl - 30 : 0;
@@ -452,13 +474,17 @@ namespace HimbeertoniRaidTool.UI
         {
             //Draw selection bar
             ImGui.SetNextItemWidth(65f);
+            ImGui.BeginDisabled(_lockJob);
             if (ImGuiHelper.Combo("##job", ref Job))
                 reevaluateItems();
+            ImGui.EndDisabled();
             ImGui.SameLine();
             ImGui.SetNextItemWidth(125f);
+            ImGui.BeginDisabled(_lockSlot);
             if (ImGuiHelper.Combo("##slot", ref Slot))
                 reevaluateItems();
             ImGui.SameLine();
+            ImGui.EndDisabled();
             ImGui.SetNextItemWidth(100f);
             int min = (int)minILvl;
             if (ImGui.InputInt("-##min", ref min, 5))
@@ -475,29 +501,30 @@ namespace HimbeertoniRaidTool.UI
                 reevaluateItems();
             }
             //Draw item list
-            foreach (var item in _items)
+            foreach (Item item in _items)
             {
                 bool isCurrentItem = item.RowId == Item?.ID;
                 if (isCurrentItem)
                     ImGui.PushStyleColor(ImGuiCol.Button, Vec4(ColorName.Redwood.ToHsv().Value(0.75f)));
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", Localize("Use this item", "Use this item"), true, new Vector2(32f, 32f)))
+                {
                     if (isCurrentItem)
                         Cancel();
                     else
-                        Save(new(item.RowId));
+                        Save(new(item.RowId) { IsHq = item.CanBeHq });
+                }
                 if (isCurrentItem)
                     ImGui.PopStyleColor();
                 ImGui.SameLine();
                 ImGui.BeginGroup();
-                if (item?.Icon != null)
-                    ImGui.Image(Services.IconCache[item.Icon].ImGuiHandle, new Vector2(32f, 32f));
+                ImGui.Image(Services.IconCache.LoadIcon(item.Icon, item.CanBeHq).ImGuiHandle, new Vector2(32f, 32f));
                 ImGui.SameLine();
-                ImGui.Text($"{item?.Name.RawString} (IL {item?.LevelItem.Row})");
+                ImGui.Text($"{item.Name.RawString} (IL {item.LevelItem.Row})");
                 ImGui.EndGroup();
                 if (ImGui.IsItemHovered())
                 {
                     ImGui.BeginTooltip();
-                    item?.Draw();
+                    item.Draw();
                     ImGui.EndTooltip();
                 }
             }
@@ -508,7 +535,7 @@ namespace HimbeertoniRaidTool.UI
                    (Slot == null || (x.EquipSlotCategory.Value?.Contains(Slot) ?? false))
                 && (maxILvl == 0 || x.LevelItem.Row <= maxILvl)
                 && x.LevelItem.Row >= minILvl
-                && x.ClassJobCategory.Value.Contains(Job)
+                && (Job == 0 || x.ClassJobCategory.Value.Contains(Job))
                 ).ToList();
             _items.Sort((x, y) => (int)y.LevelItem.Row - (int)x.LevelItem.Row);
             return _items;
@@ -520,11 +547,11 @@ namespace HimbeertoniRaidTool.UI
         private byte MateriaLevel;
         private readonly int _numMatLevels;
         protected override bool CanSave => Cat != MateriaCategory.None;
-        public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, byte matLevel = 0) : base(onSave, onCancel)
+        public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, byte maxMatLvl, byte? matLevel = null) : base(onSave, onCancel)
         {
             Cat = MateriaCategory.None;
-            MateriaLevel = matLevel;
-            _numMatLevels = MateriaLevel + 1;
+            MateriaLevel = matLevel ?? maxMatLvl;
+            _numMatLevels = maxMatLvl + 1;
             Title = Localize("Select Materia", "Select Materia");
         }
 
