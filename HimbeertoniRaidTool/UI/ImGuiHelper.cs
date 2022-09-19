@@ -17,32 +17,24 @@ namespace HimbeertoniRaidTool.UI
         => Button(FontAwesomeIcon.WindowClose, "Cancel", tooltip ?? Localize("Cancel", "Cancel"), enabled, size ?? new Vector2(50f, 25f));
         public static bool Button(string label, string? tooltip, bool enabled = true, Vector2 size = default)
         {
-            if (!enabled)
-                ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.5f);
+            ImGui.BeginDisabled(!enabled);
             bool result = ImGui.Button(label, size);
-            if (!enabled)
-                ImGui.PopStyleVar();
-            if (tooltip is not null && ImGui.IsItemHovered())
-            {
-                ImGui.PushFont(UiBuilder.DefaultFont);
+            ImGui.EndDisabled();
+            if (tooltip is not null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip(tooltip);
-                ImGui.PopFont();
-            }
-
-            return result && enabled;
+            ImGui.EndDisabled();
+            return result;
         }
         public static bool Button(FontAwesomeIcon icon, string id, string? tooltip, bool enabled = true, Vector2 size = default)
         {
             ImGui.PushFont(UiBuilder.IconFont);
-            if (!enabled)
-                ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.5f);
+            ImGui.BeginDisabled(!enabled);
             bool result = ImGui.Button($"{icon.ToIconString()}##{id}", size);
-            if (!enabled)
-                ImGui.PopStyleVar();
+            ImGui.EndDisabled();
             ImGui.PopFont();
-            if (tooltip is not null && ImGui.IsItemHovered())
+            if (tooltip is not null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip(tooltip);
-            return result && enabled;
+            return result;
         }
         public static bool GearUpdateButton(Player p)
         {
