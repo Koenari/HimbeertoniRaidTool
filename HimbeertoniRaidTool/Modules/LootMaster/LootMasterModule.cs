@@ -24,15 +24,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             new()
             {
                 Command = "/lootmaster",
-                Description = Localize("/lootmaster", "Opens LootMaster Window"),
-                ShowInHelp = false,
+                Description = Localize("/lootmaster", "Opens LootMaster Window (or /lm as short variant)"),
+                ShowInHelp = true,
                 OnCommand = OnCommand,
             },
             new()
             {
                 Command = "/lm",
                 Description = Localize("/lootmaster", "Opens LootMaster Window"),
-                ShowInHelp = true,
+                ShowInHelp = false,
                 OnCommand = OnCommand,
             }
         };
