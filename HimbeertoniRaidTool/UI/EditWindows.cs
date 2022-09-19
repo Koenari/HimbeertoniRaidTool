@@ -356,8 +356,8 @@ namespace HimbeertoniRaidTool.UI
                     ImGui.EndTooltip();
                 }
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{_gearSetCopy[slot].Slot}changeitem", Localize("Select item", "Select item")))
-                    AddChild(new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], _gearSetCopy[slot].Slot, _job,
+                if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}changeitem", Localize("Select item", "Select item")))
+                    AddChild(new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], slot, _job,
                         slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? _currentRaidTier?.WeaponItemLevel ?? 0 : _currentRaidTier?.ArmorItemLevel ?? 0));
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, $"delete{_gearSetCopy[slot].Slot}", Localize("Delete", "Delete")))
@@ -505,7 +505,7 @@ namespace HimbeertoniRaidTool.UI
         private List<Item> reevaluateItems()
         {
             _items = Sheet.Where(x =>
-                   (Slot == null || x.EquipSlotCategory.Value?.ToSlot() == Slot)
+                   (Slot == null || (x.EquipSlotCategory.Value?.Contains(Slot) ?? false))
                 && (maxILvl == 0 || x.LevelItem.Row <= maxILvl)
                 && x.LevelItem.Row >= minILvl
                 && x.ClassJobCategory.Value.Contains(Job)

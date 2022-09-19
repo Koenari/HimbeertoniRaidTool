@@ -4,7 +4,7 @@ namespace Lumina.Excel.Extensions
 {
     public static class EquipSlotCategoryExtensions
     {
-        public static bool Contains(this EquipSlotCategory self, GearSetSlot slot)
+        public static bool Contains(this EquipSlotCategory self, GearSetSlot? slot)
         {
             return slot switch
             {
