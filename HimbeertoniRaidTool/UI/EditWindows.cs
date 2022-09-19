@@ -149,6 +149,7 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
                 Hide();
+            Size = new Vector2(480, 210 + (27 * PlayerCopy.MainChar.Classes.Count));
         }
         private void SavePlayer()
         {
