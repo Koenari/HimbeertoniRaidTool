@@ -22,7 +22,6 @@ namespace HimbeertoniRaidTool.UI
             ImGui.EndDisabled();
             if (tooltip is not null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip(tooltip);
-            ImGui.EndDisabled();
             return result;
         }
         public static bool Button(FontAwesomeIcon icon, string id, string? tooltip, bool enabled = true, Vector2 size = default)
