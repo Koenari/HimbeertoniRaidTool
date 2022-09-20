@@ -22,30 +22,13 @@ namespace HimbeertoniRaidTool.UI
         private readonly Player PlayerCopy;
         private readonly AsyncTaskWithUiResult CallBack;
         private readonly bool IsNew;
-        private static readonly string[] Worlds;
-        private static readonly uint[] WorldIDs;
         private int newJob = 0;
+        private readonly Func<Job, string> GetBisID;
 
         internal PositionInRaidGroup Pos => Player.Pos;
-
-        static EditPlayerWindow()
+        internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, Func<Job, string> getBisID) : base()
         {
-            List<(uint, string)> WorldList = new();
-            for (uint i = 21; i < (Services.DataManager.GetExcelSheet<World>()?.RowCount ?? 0); i++)
-            {
-                string? worldName = Services.DataManager.GetExcelSheet<World>()?.GetRow(i)?.Name ?? "";
-                if (!worldName.Equals("") && !worldName.Contains('-') && !worldName.Contains('_') && !worldName.Contains("contents"))
-                    WorldList.Add((i, worldName));
-            }
-            Worlds = new string[WorldList.Count + 1];
-            WorldIDs = new uint[WorldList.Count + 1];
-            Worlds[0] = "";
-            WorldIDs[0] = 0;
-            for (int i = 0; i < WorldList.Count; i++)
-                (WorldIDs[i + 1], Worlds[i + 1]) = WorldList[i];
-        }
-        internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos) : base()
-        {
+            GetBisID = getBisID;
             RaidGroup = group;
             callBack = CallBack = new();
             Player = group[pos];
@@ -64,28 +47,26 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy = Player.Clone();
             }
-            (Size, SizingCondition) = (new Vector2(480, 210 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Always);
-            Title = $"{Localize("Edit Player ", "Edit Player ")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}";
-            WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
+            (Size, SizingCondition) = (new Vector2(480, 200 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Always);
+            Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}";
+            WindowFlags = ImGuiWindowFlags.NoResize;
         }
-
         protected override void Draw()
         {
             //Player Data
             ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
             //Character Data
-            if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50))
-                PlayerCopy.MainChar.HomeWorldID = 0;
-            int worldID = Array.IndexOf(WorldIDs, PlayerCopy.MainChar.HomeWorldID);
-            if (worldID < 0 || worldID >= WorldIDs.Length)
-                worldID = 0;
-            if (ImGui.Combo(Localize("HomeWorld", "Home World"), ref worldID, Worlds, Worlds.Length))
-                PlayerCopy.MainChar.HomeWorldID = WorldIDs[worldID] < 0 ? 0 : WorldIDs[worldID];
-            if (Helper.TryGetChar(PlayerCopy.MainChar.Name) is not null)
+            if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50)
+                 && Helper.TryGetChar(PlayerCopy.MainChar.Name) is not null)
             {
-                ImGui.SameLine();
-                if (ImGuiHelper.Button(Localize("Get", "Get"), Localize("FetchHomeworldTooltip", "Fetch home world information based on character name (from local players)")))
-                    PlayerCopy.MainChar.HomeWorld = Helper.TryGetChar(PlayerCopy.MainChar.Name)?.HomeWorld.GameData;
+                PlayerCopy.MainChar.HomeWorld ??= Helper.TryGetChar(PlayerCopy.MainChar.Name)?.HomeWorld.GameData;
+            }
+            if (ImGuiHelper.ExcelSheetCombo(Localize("Home World", "Home World") + "##" + Title, out World? w,
+                x => PlayerCopy.MainChar.HomeWorld?.Name.RawString ?? "", ImGuiComboFlags.None,
+                 (x, y) => x.Name.RawString.Contains(y, StringComparison.CurrentCultureIgnoreCase),
+                 x => x.Name.RawString, x => x.IsPublic))
+            {
+                PlayerCopy.MainChar.HomeWorld = w;
             }
             //Class Data
             if (PlayerCopy.MainChar.Classes.Count > 0)
@@ -118,26 +99,31 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.NextColumn();
                 ImGui.SetNextItemWidth(250f);
                 ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.BIS.EtroID, 50);
-                ImGui.SameLine();
-                if (ImGuiHelper.Button($"{Localize("Default", "Default")}##BIS#{c.Job}", Localize("DefaultBiSTooltip", "Fetch default BiS from configuration")))
-                    c.BIS.EtroID = Modules.LootMaster.LootMasterModule.Instance.Configuration.Data.GetDefaultBiS(c.Job);
-                ImGui.SameLine();
-                if (ImGuiHelper.Button($"{Localize("Reset", "Reset")}##BIS#{c.Job}", Localize("ResetBisTooltip", "Empty out BiS gear")))
-                    c.BIS.EtroID = "";
+                if (!c.BIS.EtroID.Equals(GetBisID(c.Job)))
+                {
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button($"{Localize("Set to default", "Set to default")}##BIS#{c.Job}",
+                        Localize("DefaultBiSTooltip", "Fetch default BiS from configuration")))
+                        c.BIS.EtroID = GetBisID(c.Job);
+                }
                 ImGui.NextColumn();
             }
             if (toDelete is not null)
+            {
                 PlayerCopy.MainChar.Classes.RemoveAll(x => x.Job == toDelete);
+                Size.Y -= 27;
+            }
+
             ImGui.Columns(1);
 
-            var jobsNotUsed = new List<Job>(Enum.GetValues<Job>());
-            jobsNotUsed.RemoveAll(x => PlayerCopy.MainChar.Classes.Exists(y => y.Job == x));
+            var jobsNotUsed = new List<Job>(Enum.GetValues<Job>().Where(x => !PlayerCopy.MainChar.Classes.Exists(y => y.Job == x)));
             string[] newJobs = jobsNotUsed.ConvertAll(x => x.ToString()).ToArray();
             ImGui.Combo(Localize("Add Job", "Add Job"), ref newJob, newJobs, newJobs.Length);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
             {
                 PlayerCopy.MainChar.Classes.Add(new PlayableClass(jobsNotUsed[newJob], PlayerCopy.MainChar));
+                Size.Y += 27;
             }
 
             //Buttons
@@ -149,7 +135,6 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
                 Hide();
-            Size = new Vector2(480, 210 + (27 * PlayerCopy.MainChar.Classes.Count));
         }
         private void SavePlayer()
         {

@@ -73,7 +73,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}{p.Pos}", $"{Localize("Edit player", "Edit player")} {p.NickName}"))
             {
-                var window = new EditPlayerWindow(out var callBack, CurrentGroup, p.Pos);
+                var window = new EditPlayerWindow(out var callBack, CurrentGroup, p.Pos, _lootMaster.Configuration.Data.GetDefaultBiS);
                 if (AddChild(window))
                 {
                     Tasks.Add(callBack);
@@ -239,7 +239,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
                     {
-                        var window = new EditPlayerWindow(out var callBack, CurrentGroup, PositionInRaidGroup.Tank1);
+                        var window = new EditPlayerWindow(out var callBack, CurrentGroup, PositionInRaidGroup.Tank1, _lootMaster.Configuration.Data.GetDefaultBiS);
                         if (AddChild(window))
                         {
                             Tasks.Add(callBack);
@@ -446,7 +446,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, player.Pos.ToString(),
                         string.Format(Localize("Edit {0}", "Edit {0}"), player.NickName)))
                     {
-                        EditPlayerWindow editWindow = new(out var result, CurrentGroup, player.Pos);
+                        EditPlayerWindow editWindow = new(out var result, CurrentGroup, player.Pos, _lootMaster.Configuration.Data.GetDefaultBiS);
                         if (AddChild(editWindow))
                         {
                             Tasks.Add(result);
@@ -495,7 +495,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.TableNextColumn();
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Plus, player.Pos.ToString(), Localize("Add", "Add")))
-                    if (AddChild(new EditPlayerWindow(out var result, CurrentGroup, player.Pos), true))
+                    if (AddChild(new EditPlayerWindow(out var result, CurrentGroup, player.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true))
                         Tasks.Add(result);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(), Localize("Add from DB", "Add from DB")))

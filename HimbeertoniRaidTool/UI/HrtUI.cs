@@ -19,7 +19,7 @@ namespace HimbeertoniRaidTool.UI
         protected bool Visible = false;
         private readonly string _id;
         protected string Title;
-        protected Vector2? Size;
+        protected Vector2 Size = default;
         protected ImGuiCond SizingCondition = ImGuiCond.Appearing;
         protected ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.None;
         private readonly List<HrtUI> Children = new();
@@ -116,8 +116,7 @@ namespace HimbeertoniRaidTool.UI
                 && (Services.ClientState.LocalPlayer?.StatusFlags.HasFlag(Dalamud.Game.ClientState.Objects.Enums.StatusFlags.InCombat) ?? false))
                 return;
             Children.ForEach(_ => _.InternalDraw());
-            if (Size.HasValue)
-                ImGui.SetNextWindowSize(Size.Value, SizingCondition);
+            ImGui.SetNextWindowSize(Size, SizingCondition);
             if (ImGui.Begin($"{Title}##{_id}", ref Visible, WindowFlags))
             {
                 Draw();
