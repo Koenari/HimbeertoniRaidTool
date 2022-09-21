@@ -40,19 +40,19 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
         private readonly LootmasterUI Ui;
         private readonly LootMasterConfiguration _config;
-        private readonly bool _fillSolo;
+        private bool _fillSolOnLogin;
         private LootMasterModule()
         {
 
             if (RaidGroups.Count == 0)
             {
                 RaidGroups.Add(new("Solo", GroupType.Solo));
-                _fillSolo = true;
+                _fillSolOnLogin = true;
             }
             if (RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
             {
                 RaidGroups.Insert(0, new("Solo", GroupType.Solo));
-                _fillSolo = true;
+                _fillSolOnLogin = true;
             }
 
             _config = new(this);
@@ -62,11 +62,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public void AfterFullyLoaded()
         {
             GearRefresherOnExamine.Enable();
+            if (Services.ClientState.IsLoggedIn)
+                OnLogin(null, new());
         }
         public void OnLogin(object? sender, EventArgs e)
         {
-            if (_fillSolo)
+            if (_fillSolOnLogin)
                 FillSoloChar(RaidGroups[0].Tank1, true);
+            _fillSolOnLogin = false;
             if (_config.Data.OpenOnStartup)
                 Ui.Show();
         }
