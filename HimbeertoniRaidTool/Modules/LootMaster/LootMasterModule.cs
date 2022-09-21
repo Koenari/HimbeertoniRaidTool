@@ -57,13 +57,16 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
             _config = new(this);
             Ui = new(this);
+            Services.ClientState.Login += OnLogin;
         }
         public void AfterFullyLoaded()
         {
-
+            GearRefresherOnExamine.Enable();
+        }
+        public void OnLogin(object? sender, EventArgs e)
+        {
             if (_fillSolo)
                 FillSoloChar(RaidGroups[0].Tank1, true);
-            GearRefresherOnExamine.Enable();
             if (_config.Data.OpenOnStartup)
                 Ui.Show();
         }

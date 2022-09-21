@@ -35,6 +35,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             if (Data.Version != TargetVersion)
                 Upgrade();
+            //Make sure this is the same object as the one in CuratedData
             try
             {
                 if (Data.RaidTierOverride is not null)
@@ -76,9 +77,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             public void Draw()
             {
                 ImGui.BeginTabBar("LootMaster");
-                if (ImGui.BeginTabItem(Localize("General", "General")))
+                if (ImGui.BeginTabItem(Localize("Appearance", "Appearance")))
                 {
-                    ImGui.Checkbox(Localize("Open group overview on startup", "Open group overview on startup"),
+                    ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"),
                         ref _dataCopy.OpenOnStartup);
                     ImGui.Checkbox(Localize("Hide windows in combat", "Hide windows in combat"),
                         ref _dataCopy.HideInBattle);
