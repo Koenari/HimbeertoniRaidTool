@@ -8,20 +8,41 @@ namespace Lumina.Excel.Extensions
         {
             return slot switch
             {
-                GearSetSlot.MainHand => self.MainHand != 0,
-                GearSetSlot.Head => self.Head != 0,
-                GearSetSlot.Body => self.Body != 0,
-                GearSetSlot.Hands => self.Gloves != 0,
-                GearSetSlot.Waist => self.Waist != 0,
-                GearSetSlot.Legs => self.Legs != 0,
-                GearSetSlot.Feet => self.Feet != 0,
-                GearSetSlot.OffHand => self.OffHand != 0,
-                GearSetSlot.Ear => self.Ears != 0,
-                GearSetSlot.Neck => self.Neck != 0,
-                GearSetSlot.Wrist => self.Wrists != 0,
-                GearSetSlot.Ring1 => self.FingerR != 0,
-                GearSetSlot.Ring2 => self.FingerL != 0,
-                GearSetSlot.SoulCrystal => self.SoulCrystal != 0,
+                GearSetSlot.MainHand => self.MainHand == 1,
+                GearSetSlot.Head => self.Head == 1,
+                GearSetSlot.Body => self.Body == 1,
+                GearSetSlot.Hands => self.Gloves == 1,
+                GearSetSlot.Waist => self.Waist == 1,
+                GearSetSlot.Legs => self.Legs == 1,
+                GearSetSlot.Feet => self.Feet == 1,
+                GearSetSlot.OffHand => self.OffHand == 1,
+                GearSetSlot.Ear => self.Ears == 1,
+                GearSetSlot.Neck => self.Neck == 1,
+                GearSetSlot.Wrist => self.Wrists == 1,
+                GearSetSlot.Ring1 => self.FingerR == 1,
+                GearSetSlot.Ring2 => self.FingerL == 1,
+                GearSetSlot.SoulCrystal => self.SoulCrystal == 1,
+                _ => false,
+            };
+        }
+        public static bool Disallows(this EquipSlotCategory self, GearSetSlot? slot)
+        {
+            return slot switch
+            {
+                GearSetSlot.MainHand => self.MainHand == -1,
+                GearSetSlot.Head => self.Head == -1,
+                GearSetSlot.Body => self.Body == -1,
+                GearSetSlot.Hands => self.Gloves == -1,
+                GearSetSlot.Waist => self.Waist == -1,
+                GearSetSlot.Legs => self.Legs == -1,
+                GearSetSlot.Feet => self.Feet == -1,
+                GearSetSlot.OffHand => self.OffHand == -1,
+                GearSetSlot.Ear => self.Ears == -1,
+                GearSetSlot.Neck => self.Neck == -1,
+                GearSetSlot.Wrist => self.Wrists == -1,
+                GearSetSlot.Ring1 => self.FingerR == -1,
+                GearSetSlot.Ring2 => self.FingerL == -1,
+                GearSetSlot.SoulCrystal => self.SoulCrystal == -1,
                 _ => false,
             };
         }
