@@ -100,7 +100,7 @@ namespace HimbeertoniRaidTool.UI
             if (!comboDic.ContainsKey(id))
                 comboDic.Add(id, (false, false));
             (bool toogle, bool wasEnterClickedLastTime) = comboDic[id];
-            if (wasEnterClickedLastTime)
+            if (wasEnterClickedLastTime || ImGui.IsKeyPressed(ImGuiKey.Escape))
             {
                 toogle = !toogle;
                 search = string.Empty;
@@ -113,7 +113,7 @@ namespace HimbeertoniRaidTool.UI
                 hoveredItem--;
             if (ImGui.IsKeyPressed(ImGuiKey.DownArrow))
                 hoveredItem++;
-            hoveredItem = Math.Clamp(hoveredItem, 0, filtered?.Count ?? 0);
+            hoveredItem = Math.Clamp(hoveredItem, 0, Math.Max(filtered?.Count - 1 ?? 0, 0));
             selected = null;
             if (!ImGui.BeginCombo(id + (toogle ? "##x" : ""), preview, flags)) return false;
 
