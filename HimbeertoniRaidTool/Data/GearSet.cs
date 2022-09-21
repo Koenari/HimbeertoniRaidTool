@@ -1,4 +1,5 @@
 ﻿using System;
+using Lumina.Excel.Extensions;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
@@ -53,9 +54,11 @@ namespace HimbeertoniRaidTool.Data
                     if (Items[i] != null && Items[i].ItemLevel > 0)
                     {
                         itemLevel += Items[i].ItemLevel;
+                        if (Items[i].Item?.EquipSlotCategory.Value?.Disallows(GearSetSlot.OffHand) ?? false)
+                            itemLevel += Items[i].ItemLevel;
                     }
                 }
-                return (int)((float)itemLevel / (OffHand.ID > 0 ? NumSlots : (NumSlots - 1)));
+                return (int)((float)itemLevel / NumSlots);
 
             }
         }
