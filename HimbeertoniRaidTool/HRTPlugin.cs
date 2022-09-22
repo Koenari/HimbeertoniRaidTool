@@ -37,11 +37,13 @@ namespace HimbeertoniRaidTool
         [PluginService] public static PartyList PartyList { get; private set; }
         public static IconCache IconCache { get; private set; }
         public static HrtDataManager HrtDataManager { get; private set; }
+        internal static TaskManager TaskManager { get; private set; }
 
         internal static bool Init()
         {
             IconCache ??= new IconCache(PluginInterface, DataManager);
             HrtDataManager ??= new(PluginInterface);
+            TaskManager ??= new();
             return HrtDataManager.Initialized;
         }
 
