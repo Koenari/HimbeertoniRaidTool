@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using static Dalamud.Localization;
@@ -247,6 +248,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         public void HandleMessage(HrtUiMessage message)
         {
+            if (message.MessageType is HrtUiMessageType.Failure or HrtUiMessageType.Error)
+                PluginLog.Warning(message.Message);
+            else
+                PluginLog.Information(message.Message);
             Ui.HandleMessage(message);
         }
     }
