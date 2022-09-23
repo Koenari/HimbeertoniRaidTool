@@ -106,7 +106,7 @@ namespace HimbeertoniRaidTool.Data
             { 38386, (38006, 38024) },//Moonshine Brine
             { 38387, (38026, 38060) },//Moonshine Twine
             { 38388, (38061, 38080) },//Moonshine Shine
-            { 38389, (37856, 37874) },//Ultralight TomeStone
+            { 38389, (37931, 37949)  },//Ultralight TomeStone
         };
         public static readonly KeyContainsDictionary<GearSource> GearSourceDictionary = new()
         {
