@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
-using System.Threading.Tasks;
 using ColorHelper;
 using Dalamud.Interface;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
@@ -21,7 +21,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         protected override bool HideInBattle => _lootMaster.Configuration.Data.HideInBattle;
         private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
-        private readonly List<AsyncTaskWithUiResult> Tasks = new();
         internal LootmasterUI(LootMasterModule lootMaster) : base(false, "LootMaster")
         {
             _lootMaster = lootMaster;
@@ -35,9 +34,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             _lootMaster.Configuration.Data.LastGroupIndex = _CurrenGroupIndex;
             _lootMaster.Configuration.Save();
-            foreach (var t in Tasks)
-                t.Dispose();
-            Tasks.Clear();
         }
         protected override void OnShow()
         {
@@ -52,11 +48,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         private void HandleAsync()
         {
-            Tasks.RemoveAll(t => t.FinishedShowing);
-            foreach (var t in Tasks)
-            {
-                t.DrawResult();
-            }
         }
         private void DrawDetailedPlayer(Player p)
         {
@@ -73,12 +64,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}{p.Pos}", $"{Localize("Edit player", "Edit player")} {p.NickName}"))
             {
-                var window = new EditPlayerWindow(out var callBack, CurrentGroup, p.Pos, _lootMaster.Configuration.Data.GetDefaultBiS);
-                if (AddChild(window))
-                {
-                    Tasks.Add(callBack);
-                    window.Show();
-                }
+                AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, p.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
             foreach (var playableClass in p.MainChar.Classes)
             {
@@ -107,19 +93,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
                     string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
-                {
-                    Tasks.Add(new(
-                        (t) =>
-                        {
-                            if (((Task<bool>)t).Result)
-                                ImGui.TextColored(Vec4(ColorName.Green),
-                                        $"BIS for Character {p.MainChar.Name} ({playableClass.Job}) succesfully updated");
-                            else
-                                ImGui.TextColored(Vec4(ColorName.Red),
-                                        $"BIS for Character {p.MainChar.Name} ({playableClass.Job}) failed");
-                        },
-                        Task.Run(() => EtroConnector.GetGearSet(playableClass.BIS))));
-                }
+                    Services.TaskManager.RegisterTask(_lootMaster, () => EtroConnector.GetGearSet(playableClass.BIS)
+                        , $"BIS update for Character {p.MainChar.Name} ({playableClass.Job}) succeeded"
+                        , $"BIS update for Character {p.MainChar.Name} ({playableClass.Job}) failed");
             }
             /**
              * Stat Table
@@ -238,15 +214,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 else
                 {
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
-                    {
-                        var window = new EditPlayerWindow(out var callBack, CurrentGroup, PositionInRaidGroup.Tank1, _lootMaster.Configuration.Data.GetDefaultBiS);
-                        if (AddChild(window))
-                        {
-                            Tasks.Add(callBack);
-                            window.Show();
-                        }
-
-                    }
+                        AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, PositionInRaidGroup.Tank1, _lootMaster.Configuration.Data.GetDefaultBiS), true);
                 }
             }
             else if (CurrentGroup.Type == GroupType.Raid || CurrentGroup.Type == GroupType.Group)
@@ -446,28 +414,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, player.Pos.ToString(),
                         string.Format(Localize("Edit {0}", "Edit {0}"), player.NickName)))
                     {
-                        EditPlayerWindow editWindow = new(out var result, CurrentGroup, player.Pos, _lootMaster.Configuration.Data.GetDefaultBiS);
-                        if (AddChild(editWindow))
-                        {
-                            Tasks.Add(result);
-                            editWindow.Show();
-                        }
+                        EditPlayerWindow editWindow = new(_lootMaster.HandleMessage, CurrentGroup, player.Pos, _lootMaster.Configuration.Data.GetDefaultBiS);
+                        AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, player.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
                     }
                     if (ImGuiHelper.Button(FontAwesomeIcon.Redo, player.BIS.EtroID,
                         string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), player.BIS.Name)))
-                    {
-                        Tasks.Add(new(
-                            (t) =>
-                            {
-                                if (((Task<bool>)t).Result)
-                                    ImGui.TextColored(Vec4(ColorName.Green),
-                                            $"BIS for Character {player.MainChar.Name} ({player.MainChar.MainJob}) succesfully updated");
-                                else
-                                    ImGui.TextColored(Vec4(ColorName.Red),
-                                            $"BIS for Character {player.MainChar.Name} ({player.MainChar.MainJob}) failed");
-                            },
-                            Task.Run(() => EtroConnector.GetGearSet(player.BIS))));
-                    }
+                        Services.TaskManager.RegisterTask(_lootMaster, () => EtroConnector.GetGearSet(player.BIS)
+                        , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("successful", "successful")}"
+                        , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("failed", "failed")}");
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, player.Pos.ToString(),
                         string.Format(Localize("PlayerDetails", "Show player details for {0}"), player.NickName)))
@@ -480,14 +434,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     {
                         AddChild(new ConfimationDialog(
                             () => player.Reset(),
-                            string.Format(Localize("DeletePlayerConfirmation", "Do you really want to delete player:\"{0}\" "), player.NickName)));
+                            $"{Localize("DeletePlayerConfirmation", "Do you really want to delete following player?")} : {player.NickName}"));
                     }
 
                 }
             }
             else
             {
-
                 ImGui.TableNextColumn();
                 ImGui.Text(player.Pos.ToString());
                 ImGui.Text(Localize("No Player", "No Player"));
@@ -495,8 +448,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.TableNextColumn();
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Plus, player.Pos.ToString(), Localize("Add", "Add")))
-                    if (AddChild(new EditPlayerWindow(out var result, CurrentGroup, player.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true))
-                        Tasks.Add(result);
+                    AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, player.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(), Localize("Add from DB", "Add from DB")))
                     AddChild(new GetCharacterFromDBWindow(ref player), true);
@@ -578,7 +530,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         internal void HandleMessage(HrtUiMessage message)
         {
-            throw new NotImplementedException();
+            PluginLog.Information($"{message.MessageType}:{message.Message}");
         }
 
         private class PlayerdetailWindow : HrtUI
