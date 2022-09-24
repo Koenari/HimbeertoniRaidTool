@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Threading.Tasks;
 using ColorHelper;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Connectors;
@@ -20,17 +19,18 @@ namespace HimbeertoniRaidTool.UI
         private readonly RaidGroup RaidGroup;
         private readonly Player Player;
         private readonly Player PlayerCopy;
-        private readonly AsyncTaskWithUiResult CallBack;
+        private readonly Action<HrtUiMessage> CallBack;
         private readonly bool IsNew;
         private int newJob = 0;
         private readonly Func<Job, string> GetBisID;
 
         internal PositionInRaidGroup Pos => Player.Pos;
-        internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, Func<Job, string> getBisID) : base()
+        internal EditPlayerWindow(Action<HrtUiMessage> callBack, RaidGroup group, PositionInRaidGroup pos, Func<Job, string> getBisID)
+            : base(true, $"{group.GetHashCode()}##{pos}")
         {
             GetBisID = getBisID;
             RaidGroup = group;
-            callBack = CallBack = new();
+            CallBack = callBack;
             Player = group[pos];
             PlayerCopy = new();
             var target = Helper.TargetChar;
@@ -49,7 +49,6 @@ namespace HimbeertoniRaidTool.UI
             }
             (Size, SizingCondition) = (new Vector2(480, 200 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Always);
             Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}";
-            WindowFlags = ImGuiWindowFlags.NoResize;
         }
         protected override void Draw()
         {
@@ -122,7 +121,8 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
             {
-                PlayerCopy.MainChar.Classes.Add(new PlayableClass(jobsNotUsed[newJob], PlayerCopy.MainChar));
+                Job job = jobsNotUsed[newJob];
+                PlayerCopy.MainChar.GetClass(job).BIS.EtroID = GetBisID(job);
                 Size.Y += 27;
             }
 
@@ -181,55 +181,12 @@ namespace HimbeertoniRaidTool.UI
                 if (!set.EtroID.Equals(""))
                 {
                     Services.HrtDataManager.GetManagedGearSet(ref set);
-                    bisUpdates.Add((target.Job, () => EtroConnector.GetGearSet(target.BIS)));
+                    Services.TaskManager.RegisterTask(CallBack, () => EtroConnector.GetGearSet(target.BIS)
+                    , $"BIS update for Character {Player.MainChar.Name} ({c.Job}) succeeded"
+                    , $"BIS update for Character {Player.MainChar.Name} ({c.Job}) failed");
                 }
                 target.BIS = set;
             }
-            if (bisUpdates.Count > 0)
-            {
-                CallBack.Action =
-                    (t) =>
-                    {
-                        string success = "";
-                        string error = "";
-                        List<(Job, bool)> results = ((Task<List<(Job, bool)>>)t).Result;
-                        foreach (var result in results)
-                        {
-                            if (result.Item2)
-                                success += result.Item1 + ",";
-                            else
-                                error += result.Item1 + ",";
-                        }
-                        if (success.Length > 0)
-                            ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
-                                    $"BIS for Character {Player.MainChar.Name} on classes ({success[0..^1]}) succesfully updated");
-
-                        if (error.Length > 0)
-                            ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
-                                    $"BIS update for Character {Player.MainChar.Name} on classes ({error[0..^1]}) failed");
-                    };
-                CallBack.Task = Task.Run(() => bisUpdates.ConvertAll((x) => (x.Item1, x.Item2.Invoke())));
-
-            }
-        }
-        public override bool Equals(object? obj)
-        {
-            if (!(obj?.GetType().IsAssignableTo(GetType()) ?? false))
-                return false;
-            return Equals((EditPlayerWindow)obj);
-        }
-        public bool Equals(EditPlayerWindow other)
-        {
-            if (!RaidGroup.Equals(other.RaidGroup))
-                return false;
-            if (Pos != other.Pos)
-                return false;
-
-            return true;
-        }
-        public override int GetHashCode()
-        {
-            return RaidGroup.GetHashCode() << 3 + (int)Pos;
         }
     }
     internal class EditGroupWindow : HrtUI
