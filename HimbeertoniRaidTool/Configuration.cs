@@ -16,7 +16,7 @@ using static HimbeertoniRaidTool.Data.Job;
 namespace HimbeertoniRaidTool
 {
     [Serializable]
-    public class Configuration : IPluginConfiguration
+    public class Configuration : IPluginConfiguration, IDisposable
     {
         [JsonIgnore]
         public bool FullyLoaded { get; private set; } = false;
@@ -85,6 +85,12 @@ namespace HimbeertoniRaidTool
             else
                 PluginLog.LogError("Configuration Version mismatch. Did not Save!");
         }
+
+        public void Dispose()
+        {
+            Ui.Dispose();
+        }
+
         public class ConfigUI : HrtUI
         {
             private readonly Configuration _configuration;

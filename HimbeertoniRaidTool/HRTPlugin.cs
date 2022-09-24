@@ -46,7 +46,11 @@ namespace HimbeertoniRaidTool
             TaskManager ??= new(Framework);
             return HrtDataManager.Initialized;
         }
-
+        internal static void Dispose()
+        {
+            TaskManager.Dispose();
+            IconCache.Dispose();
+        }
     }
 #pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
@@ -138,25 +142,26 @@ namespace HimbeertoniRaidTool
         }
         public void Dispose()
         {
+            Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
+            RegisteredCommands.ForEach(command => Services.CommandManager.RemoveHandler(command));
             if (!LoadError)
             {
                 _Configuration.Save(false);
                 Services.HrtDataManager.Save();
             }
-            _Configuration.Ui.Dispose();
-            RegisteredCommands.ForEach(command => Services.CommandManager.RemoveHandler(command));
-            Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
             foreach (var moduleEntry in RegisteredModules)
             {
                 try
                 {
                     moduleEntry.Value.Dispose();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    PluginLog.Fatal($"Unable to Dispose module \"{moduleEntry.Key}\"");
+                    PluginLog.Fatal($"Unable to Dispose module \"{moduleEntry.Key}\"\n{e}");
                 }
             }
+            _Configuration.Dispose();
+            Services.Dispose();
         }
         private void OnCommand(string args)
         {
