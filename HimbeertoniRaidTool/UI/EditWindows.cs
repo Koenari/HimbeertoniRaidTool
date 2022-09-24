@@ -26,7 +26,8 @@ namespace HimbeertoniRaidTool.UI
         private readonly Func<Job, string> GetBisID;
 
         internal PositionInRaidGroup Pos => Player.Pos;
-        internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, Func<Job, string> getBisID) : base()
+        internal EditPlayerWindow(out AsyncTaskWithUiResult callBack, RaidGroup group, PositionInRaidGroup pos, Func<Job, string> getBisID)
+            : base(true, $"{group.GetHashCode()}##{pos}")
         {
             GetBisID = getBisID;
             RaidGroup = group;
@@ -201,35 +202,16 @@ namespace HimbeertoniRaidTool.UI
                                 error += result.Item1 + ",";
                         }
                         if (success.Length > 0)
-                            ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
+                            ImGui.TextColored(Vec4(ColorName.Green),
                                     $"BIS for Character {Player.MainChar.Name} on classes ({success[0..^1]}) succesfully updated");
 
                         if (error.Length > 0)
-                            ImGui.TextColored(HRTColorConversions.Vec4(ColorName.Green),
+                            ImGui.TextColored(Vec4(ColorName.Green),
                                     $"BIS update for Character {Player.MainChar.Name} on classes ({error[0..^1]}) failed");
                     };
                 CallBack.Task = Task.Run(() => bisUpdates.ConvertAll((x) => (x.Item1, x.Item2.Invoke())));
 
             }
-        }
-        public override bool Equals(object? obj)
-        {
-            if (!(obj?.GetType().IsAssignableTo(GetType()) ?? false))
-                return false;
-            return Equals((EditPlayerWindow)obj);
-        }
-        public bool Equals(EditPlayerWindow other)
-        {
-            if (!RaidGroup.Equals(other.RaidGroup))
-                return false;
-            if (Pos != other.Pos)
-                return false;
-
-            return true;
-        }
-        public override int GetHashCode()
-        {
-            return RaidGroup.GetHashCode() << 3 + (int)Pos;
         }
     }
     internal class EditGroupWindow : HrtUI
