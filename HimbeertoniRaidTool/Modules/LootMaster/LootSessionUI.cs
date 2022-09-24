@@ -11,7 +11,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private readonly LootSource _lootSource;
         private readonly LootSession _session;
         private UiSortableList<LootRule> _ruleListUi;
-        private LootRuling _lootRuling;
+        private readonly LootRuling _lootRuling;
         internal LootSessionUI(LootSource lootSource, RaidGroup group, LootRuling lootRuling) : base()
         {
             _lootRuling = lootRuling;

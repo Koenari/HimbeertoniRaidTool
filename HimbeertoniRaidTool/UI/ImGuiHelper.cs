@@ -94,7 +94,7 @@ namespace HimbeertoniRaidTool.UI
         private static HashSet<ExcelRow>? filtered;
         private static int hoveredItem = 0;
         //This is a small hack since to my knowledge there is no way to close and existing combo when not clikced
-        private static Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> comboDic = new();
+        private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> comboDic = new();
         public static bool ExcelSheetCombo<T>(string id, out T? selected, string preview, ImGuiComboFlags flags, ExcelSheet<T> sheet, Func<T, string, bool> searchPredicate, Func<T, string> toName, Func<T, bool> preFilter) where T : ExcelRow
         {
             if (!comboDic.ContainsKey(id))

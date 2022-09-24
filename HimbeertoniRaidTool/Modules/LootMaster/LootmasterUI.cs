@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Numerics;
 using ColorHelper;
 using Dalamud.Interface;
-using Dalamud.Logging;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;

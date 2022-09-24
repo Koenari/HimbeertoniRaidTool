@@ -1,11 +1,15 @@
 ﻿using HimbeertoniRaidTool.Data;
 using Lumina.Excel.GeneratedSheets;
+namespace HimbeertoniRaidTool.Data
+{
+
+}
 namespace Lumina.Excel.Extensions
 {
     public static class EquipSlotCategoryExtensions
     {
-        public static bool Contains(this EquipSlotCategory self, GearSetSlot? slot) => HasValueAt(self, slot, 1);
-        public static bool Disallows(this EquipSlotCategory self, GearSetSlot? slot) => HasValueAt(self, slot, -1);
+        public static bool Contains(this EquipSlotCategory self, GearSetSlot? slot) => self.HasValueAt(slot, 1);
+        public static bool Disallows(this EquipSlotCategory self, GearSetSlot? slot) => self.HasValueAt(slot, -1);
         public static bool HasValueAt(this EquipSlotCategory self, GearSetSlot? slot, sbyte value)
         {
             return slot switch

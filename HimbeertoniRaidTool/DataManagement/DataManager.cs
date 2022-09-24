@@ -11,8 +11,8 @@ namespace HimbeertoniRaidTool.DataManagement
     public class HrtDataManager
     {
         public bool Initialized { get; private set; }
-        private GearDB? GearDB;
-        private CharacterDB? CharacterDB;
+        private readonly GearDB? GearDB;
+        private readonly CharacterDB? CharacterDB;
         private List<RaidGroup>? _Groups;
         private readonly FileInfo RaidGRoupJsonFile;
         public List<RaidGroup> Groups => _Groups ?? new();
