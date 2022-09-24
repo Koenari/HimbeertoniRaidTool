@@ -43,7 +43,7 @@ namespace HimbeertoniRaidTool
         {
             IconCache ??= new IconCache(PluginInterface, DataManager);
             HrtDataManager ??= new(PluginInterface);
-            TaskManager ??= new();
+            TaskManager ??= new(Framework);
             return HrtDataManager.Initialized;
         }
 
