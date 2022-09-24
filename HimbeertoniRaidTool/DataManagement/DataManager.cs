@@ -24,12 +24,11 @@ namespace HimbeertoniRaidTool.DataManagement
             TypeNameHandling = TypeNameHandling.None,
             NullValueHandling = NullValueHandling.Ignore,
         };
-
         public HrtDataManager(DalamudPluginInterface pluginInterface)
         {
             var dir = pluginInterface.ConfigDirectory;
             RaidGRoupJsonFile = new FileInfo(dir.FullName + "\\RaidGroups.json");
-            ModuleConfigurationManager = new();
+            ModuleConfigurationManager = new(pluginInterface);
             try
             {
                 if (!dir.Exists)

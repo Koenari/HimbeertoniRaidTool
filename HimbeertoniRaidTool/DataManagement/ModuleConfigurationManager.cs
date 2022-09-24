@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
 using Dalamud.Logging;
+using Dalamud.Plugin;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.DataManagement
 {
     internal class ModuleConfigurationManager
     {
-        private readonly DirectoryInfo ModuleConfigDir = new(Services.PluginInterface.ConfigDirectory.FullName + "\\moduleConfigs\\");
+        private readonly DirectoryInfo ModuleConfigDir;
         private static readonly JsonSerializerSettings JsonSerializerSettings = new()
         {
             Formatting = Formatting.Indented,
@@ -16,8 +17,9 @@ namespace HimbeertoniRaidTool.DataManagement
             NullValueHandling = NullValueHandling.Ignore,
 
         };
-        internal ModuleConfigurationManager()
+        internal ModuleConfigurationManager(DalamudPluginInterface pluginInterface)
         {
+            ModuleConfigDir = new(pluginInterface.ConfigDirectory.FullName + "\\moduleConfigs\\");
             if (!ModuleConfigDir.Exists)
                 ModuleConfigDir.Create();
         }
