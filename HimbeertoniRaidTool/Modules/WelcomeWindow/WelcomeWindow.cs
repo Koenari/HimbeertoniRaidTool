@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Numerics;
 using Dalamud.Game;
 using Dalamud.Interface;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
@@ -38,7 +39,13 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
             _ui.Dispose();
         }
 
-        public void HandleMessage(HrtUiMessage message) { }
+        public void HandleMessage(HrtUiMessage message)
+        {
+            if (message.MessageType is HrtUiMessageType.Failure or HrtUiMessageType.Error)
+                PluginLog.Warning(message.Message);
+            else
+                PluginLog.Information(message.Message);
+        }
 
         internal void Show()
         {
