@@ -21,6 +21,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         protected override bool HideInBattle => _lootMaster.Configuration.Data.HideInBattle;
         private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
+        private readonly List<(DateTime, HrtUiMessage)> _messages = new();
         internal LootmasterUI(LootMasterModule lootMaster) : base(false, "LootMaster")
         {
             _lootMaster = lootMaster;
@@ -48,6 +49,28 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         private void HandleAsync()
         {
+            _messages.RemoveAll(m => (DateTime.Now - m.Item1).TotalSeconds > 10);
+            foreach (HrtUiMessage m in _messages.ConvertAll(i => i.Item2))
+            {
+                switch (m.MessageType)
+                {
+                    case HrtUiMessageType.Error or HrtUiMessageType.Failure:
+                        ImGui.TextColored(Vec4(ColorName.RedCrayola), m.Message);
+                        break;
+                    case HrtUiMessageType.Success:
+                        ImGui.TextColored(Vec4(ColorName.Green), m.Message);
+                        break;
+                    case HrtUiMessageType.Warning:
+                        ImGui.TextColored(Vec4(ColorName.Yellow), m.Message);
+                        break;
+                    case HrtUiMessageType.Important:
+                        ImGui.TextColored(Vec4(ColorName.MiddleRed), m.Message);
+                        break;
+                    default:
+                        ImGui.Text(m.Message);
+                        break;
+                }
+            }
         }
         private void DrawDetailedPlayer(Player p)
         {
@@ -530,7 +553,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         internal void HandleMessage(HrtUiMessage message)
         {
-            PluginLog.Information($"{message.MessageType}:{message.Message}");
+            _messages.Add((DateTime.Now, message));
         }
 
         private class PlayerdetailWindow : HrtUI

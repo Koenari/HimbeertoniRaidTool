@@ -177,6 +177,7 @@ namespace HimbeertoniRaidTool.UI
         Success,
         Failure,
         Error,
-        Important
+        Important,
+        Warning
     }
 }
