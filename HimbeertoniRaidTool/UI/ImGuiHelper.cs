@@ -60,6 +60,19 @@ namespace HimbeertoniRaidTool.UI
             }
             return pressed;
         }
+
+        public static bool GearUpdateByLodeStoneButton(Player p)
+        {
+            bool active = true;
+            string inspectTooltip = Localize("Lodestone Button", "Update Gear from Lodestone");
+            bool pressed = Button(FontAwesomeIcon.Cloud, p.Pos.ToString(), inspectTooltip, active);
+            if (pressed)
+            {
+                Dalamud.Logging.PluginLog.Log("Clicked Lodestone Button.");
+            }
+            return pressed;
+        }
+
         public static bool Combo<T>(string label, ref T value) where T : struct
         {
             T? value2 = value;

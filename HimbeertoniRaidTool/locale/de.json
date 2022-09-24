@@ -53,7 +53,7 @@
   },
   "PhysicalDamage": {
     "message": "Physischer Schaden",
-    "description": "DrawDataExtension.Draw"                  
+    "description": "DrawDataExtension.Draw"
   },
   "Edit Player ": {
     "message": "Spieler editieren",
@@ -129,6 +129,10 @@
   },
   "Inspect": {
     "message": "Ausrüstung aktualisieren",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "Lodestone Button": {
+    "message": "Ausrüstung von Lodestone aktualisieren",
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "Edit": {
@@ -261,7 +265,7 @@
   },
   "No Player": {
     "message": "Kein Spieler",
-   "description": "LootmasterUI.DrawPlayer"
+    "description": "LootmasterUI.DrawPlayer"
   },
   "Add": {
     "message": "Hinzufügen",

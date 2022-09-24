@@ -81,6 +81,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, p.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
+            ImGui.SameLine();
+            ImGuiHelper.GearUpdateByLodeStoneButton(p);
             foreach (var playableClass in p.MainChar.Classes)
             {
                 bool isMainJob = p.MainChar.MainJob == playableClass.Job;
@@ -412,7 +414,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         AddChild(new SwapPositionWindow(player.Pos, CurrentGroup));
                     }
                     ImGui.SameLine();
-
+                        
 
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, player.Pos.ToString(),
                         string.Format(Localize("Edit {0}", "Edit {0}"), player.NickName)))
