@@ -12,6 +12,7 @@ using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
+using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.DataManagement;
 using HimbeertoniRaidTool.HrtServices;
 using HimbeertoniRaidTool.Modules.LootMaster;
@@ -38,12 +39,14 @@ namespace HimbeertoniRaidTool
         public static IconCache IconCache { get; private set; }
         public static HrtDataManager HrtDataManager { get; private set; }
         internal static TaskManager TaskManager { get; private set; }
+        internal static ConnectorPool ConnectorPool { get; private set; }
 
         internal static bool Init()
         {
             IconCache ??= new IconCache(PluginInterface, DataManager);
             HrtDataManager ??= new(PluginInterface);
             TaskManager ??= new(Framework);
+            ConnectorPool ??= new(Framework);
             return HrtDataManager.Initialized;
         }
         internal static void Dispose()

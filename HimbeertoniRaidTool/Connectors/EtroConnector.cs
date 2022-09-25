@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Connectors
 {
-    internal static class EtroConnector
+    internal class EtroConnector : BaseConnector
     {
         public static string ApiBaseUrl => "https://etro.gg/api/";
         public static string WebBaseUrl => "https://etro.gg/";
@@ -26,25 +26,26 @@ namespace HimbeertoniRaidTool.Connectors
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 
         };
-        static EtroConnector()
+        internal EtroConnector() : base(new(4, new(0, 0, 30)), new(0, 5, 0))
         {
-            string? jsonResponse = BaseConnector.MakeWebRequest(MateriaApiBaseUrl);
-            EtroMateria[]? matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
-            if (matList != null)
-                foreach (var mat in matList)
-                    for (byte i = 0; i < mat.tiers.Length; i++)
-                        MateriaCache.Add(mat.tiers[i].id, ((MateriaCategory)mat.id, i));
-
-
+            if (MateriaCache.Count == 0)
+            {
+                string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
+                EtroMateria[]? matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
+                if (matList != null)
+                    foreach (var mat in matList)
+                        for (byte i = 0; i < mat.tiers.Length; i++)
+                            MateriaCache.Add(mat.tiers[i].id, ((MateriaCategory)mat.id, i));
+            }
         }
 
 
-        public static bool GetGearSet(GearSet set)
+        public bool GetGearSet(GearSet set)
         {
             if (set.EtroID.Equals(""))
                 return false;
             EtroGearSet? etroSet;
-            string? jsonResponse = BaseConnector.MakeWebRequest(GearsetApiBaseUrl + set.EtroID);
+            string? jsonResponse = MakeWebRequest(GearsetApiBaseUrl + set.EtroID);
             if (jsonResponse == null)
                 return false;
             etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);

@@ -27,7 +27,7 @@ namespace HimbeertoniRaidTool.Connectors
         };
         public static int GetLodestoneID(string name, World w)
         {
-            string? jsonResponse = BaseConnector.MakeWebRequest(CharacterSearchApiBaseURL + $"?name={name}&server={w.Name.RawString}");
+            string? jsonResponse = "";// BaseConnector.MakeWebRequest(CharacterSearchApiBaseURL + $"?name={name}&server={w.Name.RawString}");
             ChnaracterSearchResult? response = JsonConvert.DeserializeObject<ChnaracterSearchResponse>(jsonResponse ?? "", JsonSettings)?.Results?[0];
             return response?.ID ?? 0;
         }
@@ -42,7 +42,7 @@ namespace HimbeertoniRaidTool.Connectors
             }
             if (c.LodestoneID == 0)
                 return false;
-            string? jsonResponse = BaseConnector.MakeWebRequest(CharacterApiBaseURL + $"/{c.LodestoneID}");
+            string? jsonResponse = "";// BaseConnector.MakeWebRequest(CharacterApiBaseURL + $"/{c.LodestoneID}");
             LodestoneCharacter? lsc = JsonConvert.DeserializeObject<ChnaracterResponse>(jsonResponse ?? "")?.Character;
             if (lsc is null)
                 return false;

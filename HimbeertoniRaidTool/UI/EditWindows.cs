@@ -4,7 +4,6 @@ using System.Linq;
 using System.Numerics;
 using ColorHelper;
 using Dalamud.Interface;
-using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using ImGuiNET;
 using Lumina.Excel.Extensions;
@@ -181,7 +180,7 @@ namespace HimbeertoniRaidTool.UI
                 if (!set.EtroID.Equals(""))
                 {
                     Services.HrtDataManager.GetManagedGearSet(ref set);
-                    Services.TaskManager.RegisterTask(CallBack, () => EtroConnector.GetGearSet(target.BIS)
+                    Services.TaskManager.RegisterTask(CallBack, () => Services.ConnectorPool.EtroConnector.GetGearSet(target.BIS)
                     , $"BIS update for Character {Player.MainChar.Name} ({c.Job}) succeeded"
                     , $"BIS update for Character {Player.MainChar.Name} ({c.Job}) failed");
                 }

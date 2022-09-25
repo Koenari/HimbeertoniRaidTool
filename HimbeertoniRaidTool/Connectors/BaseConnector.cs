@@ -5,15 +5,17 @@ using Dalamud.Logging;
 
 namespace HimbeertoniRaidTool.Connectors
 {
-    internal static class BaseConnector
+    internal abstract class BaseConnector
     {
-        internal static string? MakeWebRequest(string URL)
+        private readonly RateLimit _rateLimit;
         {
+        }
+        internal string? MakeWebRequest(string URL)
             var requestTask = MakeAsyncWebRequest(URL);
             requestTask.Wait();
             return requestTask.Result;
         }
-        internal static async Task<string?> MakeAsyncWebRequest(string URL)
+        internal async Task<string?> MakeAsyncWebRequest(string URL)
         {
             HttpClient client = new();
             try

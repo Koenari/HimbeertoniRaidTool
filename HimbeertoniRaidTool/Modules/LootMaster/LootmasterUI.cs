@@ -115,7 +115,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
                     string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
-                    Services.TaskManager.RegisterTask(_lootMaster, () => EtroConnector.GetGearSet(playableClass.BIS)
+                    Services.TaskManager.RegisterTask(_lootMaster, () => Services.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS)
                         , $"BIS update for Character {p.MainChar.Name} ({playableClass.Job}) succeeded"
                         , $"BIS update for Character {p.MainChar.Name} ({playableClass.Job}) failed");
             }
@@ -441,7 +441,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     }
                     if (ImGuiHelper.Button(FontAwesomeIcon.Redo, player.BIS.EtroID,
                         string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), player.BIS.Name)))
-                        Services.TaskManager.RegisterTask(_lootMaster, () => EtroConnector.GetGearSet(player.BIS)
+                        Services.TaskManager.RegisterTask(_lootMaster, () => Services.ConnectorPool.EtroConnector.GetGearSet(player.BIS)
                         , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("successful", "successful")}"
                         , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("failed", "failed")}");
                     ImGui.SameLine();
