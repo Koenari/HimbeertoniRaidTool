@@ -87,6 +87,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 if (ImGui.BeginTabItem("BiS"))
                 {
+                    ImGui.Checkbox(Localize("UpdateBisONStartUp", "Update sets from etro.gg periodically"), ref _dataCopy.UpdateEtroBisOnStartup);
+                    if (ImGui.InputInt(Localize("BisUpdateInterval", "Update interval (days)"), ref _dataCopy.EtroUpdateIntervalDays))
+                        if (_dataCopy.EtroUpdateIntervalDays < 1)
+                            _dataCopy.EtroUpdateIntervalDays = 1;
+
                     if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
                     {
                         foreach (var c in Enum.GetValues<Job>())
@@ -150,6 +155,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             public int Version { get; set; } = 1;
             [JsonProperty("UserBiS")]
             public Dictionary<Job, string> BISUserOverride = new();
+            [JsonProperty]
+            public bool UpdateEtroBisOnStartup = false;
+            [JsonProperty]
+            public int EtroUpdateIntervalDays = 14;
             [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
             public LootRuling LootRuling = new()
             {
