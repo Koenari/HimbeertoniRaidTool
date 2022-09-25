@@ -79,18 +79,5 @@ namespace HimbeertoniRaidTool.Connectors
             public int MaxRequests { get; set; } = 1;
             public TimeSpan Time { get; set; } = new(0, 0, 5);
         }
-
-        internal static string? MakeNetstoneRequest(LodestoneClient lodestoneClient)
-        {
-            var requestedNetstoneTask = MakeAsyncNetstoneRequest(lodestoneClient);
-            requestedNetstoneTask.Wait();
-            return requestedNetstoneTask.Result;
-        }
-
-        internal static async Task<string?> MakeAsyncNetstoneRequest(LodestoneClient lodestoneClient)
-        {
-            lodestoneClient ??= await LodestoneClient.GetClientAsync();
-            return lodestoneClient.GetType().Name;
-        }
     }
 }

@@ -13,11 +13,24 @@ namespace HimbeertoniRaidTool.Connectors
 
         public static bool DebugConnector()
         {
-            string? response = BaseConnector.MakeNetstoneRequest(lodestoneClient);
+            string? response = MakeNetstoneRequest();
             if (response == null)
                 return false;
             Dalamud.Logging.PluginLog.Log(response);
             return true;
+        }
+
+        internal static string? MakeNetstoneRequest()
+        {
+            var requestedNetstoneTask = MakeAsyncNetstoneRequest();
+            requestedNetstoneTask.Wait();
+            return requestedNetstoneTask.Result;
+        }
+
+        internal static async Task<string?> MakeAsyncNetstoneRequest()
+        {
+            lodestoneClient ??= await LodestoneClient.GetClientAsync();
+            return lodestoneClient.GetType().Name;
         }
     }
 }

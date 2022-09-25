@@ -85,7 +85,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.SameLine();
             //ImGuiHelper.GearUpdateByLodeStoneButton(p);
             if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, p.Pos.ToString()
-                , Localize("Lodestone Button", "Download Gear from Lodestone"), true))
+                , Localize("Lodestone Button", "Download Gear from Lodestone"), true))  
             {
                 Services.TaskManager.RegisterTask(_lootMaster, () => NetStoneConnector.DebugConnector(),
                     $"Pulling Gear from Lodestone for Character {p.MainChar.Name} succeeded",
