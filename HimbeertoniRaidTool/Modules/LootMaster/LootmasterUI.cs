@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using System.Threading.Tasks;
 using ColorHelper;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Connectors;
@@ -67,7 +68,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private void DrawDetailedPlayer(Player p)
         {
             var curClass = p.MainChar.MainClass;
-            ImGui.BeginChild("SoloView");
+            ImGui.BeginChild("SoloView");   
             ImGui.Columns(3);
             /**
              * Job Selection
@@ -82,7 +83,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, p.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
             ImGui.SameLine();
-            ImGuiHelper.GearUpdateByLodeStoneButton(p);
+            //ImGuiHelper.GearUpdateByLodeStoneButton(p);
+            if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, p.Pos.ToString()
+                , Localize("Lodestone Button", "Download Gear from Lodestone"), true))
+            {
+                Services.TaskManager.RegisterTask(_lootMaster, () => NetStoneConnector.DebugConnector(),
+                    $"Pulling Gear from Lodestone for Character {p.MainChar.Name} succeeded",
+                    $"Pulling Gear from Lodestone for Character {p.MainChar.Name} failed.");
+            }
+
             foreach (var playableClass in p.MainChar.Classes)
             {
                 bool isMainJob = p.MainChar.MainJob == playableClass.Job;
