@@ -53,6 +53,7 @@ namespace HimbeertoniRaidTool.Connectors
                 return false;
             set.Name = etroSet.name ?? "";
             set.TimeStamp = etroSet.lastUpdate;
+            set.EtroFetchDate = DateTime.UtcNow;
             FillItem(etroSet.weapon, GearSetSlot.MainHand);
             FillItem(etroSet.head, GearSetSlot.Head);
             FillItem(etroSet.body, GearSetSlot.Body);
