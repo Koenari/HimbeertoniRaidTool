@@ -32,11 +32,7 @@ namespace HimbeertoniRaidTool.Connectors
         internal string? MakeWebRequest(string URL)
         {
             if (_cachedRequests.TryGetValue(URL, out var result))
-            {
-                PluginLog.Debug($"Cache Hit: {URL}");
                 return result.response;
-            }
-            PluginLog.Debug($"Cache Miss: {URL}");
             var requestTask = MakeAsyncWebRequest(URL);
             requestTask.Wait();
             return requestTask.Result;
@@ -44,16 +40,12 @@ namespace HimbeertoniRaidTool.Connectors
         internal async Task<string?> MakeAsyncWebRequest(string URL)
         {
             while (RateLimitHit() || _currentRequests.ContainsKey(URL))
-            {
-                PluginLog.Debug($"Waiting: {URL}");
                 Thread.Sleep(1000);
-            }
             if (_cachedRequests.TryGetValue(URL, out var cached))
                 return cached.response;
             _currentRequests.TryAdd(URL, DateTime.Now);
             try
             {
-                PluginLog.Debug($"Send request: {URL}");
                 HttpClient client = new();
                 var response = await client.GetAsync(URL);
                 response.EnsureSuccessStatusCode();
