@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Connectors
 {
-    internal class EtroConnector : BaseConnector
+    internal class EtroConnector : WebConnector
     {
         public static string ApiBaseUrl => "https://etro.gg/api/";
         public static string WebBaseUrl => "https://etro.gg/";

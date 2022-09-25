@@ -8,14 +8,14 @@ using Dalamud.Logging;
 
 namespace HimbeertoniRaidTool.Connectors
 {
-    internal abstract class BaseConnector
+    internal abstract class WebConnector
     {
         private readonly RateLimit _rateLimit;
         private readonly TimeSpan _cacheTime;
         private readonly ConcurrentDictionary<string, (DateTime time, string response)> _cachedRequests;
         private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
 
-        internal BaseConnector(RateLimit rateLimit, TimeSpan cacheTime)
+        internal WebConnector(RateLimit rateLimit, TimeSpan cacheTime)
         {
             _rateLimit = rateLimit;
             _cachedRequests = new();
