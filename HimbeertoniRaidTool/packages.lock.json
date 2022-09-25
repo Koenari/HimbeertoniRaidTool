@@ -14,11 +14,47 @@
         "resolved": "2.1.8",
         "contentHash": "YqagNXs9InxmqkXzq7kLveImxnodkBEicAhydMXVp7dFjC7xb76U6zGgAax4/BWIWfZeWzr5DJyQSev31kj81A=="
       },
+      "NetStone": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "C4gr1fcC/xMCXX77SbtouP30y3DaopMHq8wDCX+gSGnOCM3AWP5Vrw1UmzwI1J/cXP0c7KO2GoALna+P9PZUCA==",
+        "dependencies": {
+          "HtmlAgilityPack": "1.11.36",
+          "HtmlAgilityPack.CssSelectors": "1.0.2",
+          "JetBrains.Annotations": "2020.3.0",
+          "Newtonsoft.Json": "12.0.3"
+        }
+      },
+      "Newtonsoft.Json": {
+        "type": "Direct",
+        "requested": "[12.0.3, )",
+        "resolved": "12.0.3",
+        "contentHash": "6mgjfnRB4jKMlzHSl+VD+oUc1IebOZabkbyWj2RiTgWwYPPuaK1H97G1sHqGwPlS5npiF5Q0OrxN1wni2n5QWg=="
+      },
       "XivCommon": {
         "type": "Direct",
         "requested": "[6.0.2, )",
         "resolved": "6.0.2",
         "contentHash": "C/GnQ61iO0yEpf8LPixU3tCThar1MWUiBkO8gdZHNtVskg8AvFeuIxk7Zmkf2yeAJ0drR/KOTdSS7GpbsgmoaQ=="
+      },
+      "HtmlAgilityPack": {
+        "type": "Transitive",
+        "resolved": "1.11.36",
+        "contentHash": "dCuPhd6Mcdz0oyaSidPqZZiaKcVaBnIqCQlvgJx7Qr5PJAjSatSIVPmuOwpMjbtR8mqoXyUbWVKxuairGGauJg=="
+      },
+      "HtmlAgilityPack.CssSelectors": {
+        "type": "Transitive",
+        "resolved": "1.0.2",
+        "contentHash": "bB4FeVvcNROENPWQfFSmPQ6q99jGk8ru5QoBB3qnEeaP451fjnqQ0uPuMgmWHAOZIXUAoOQozv/5fEEVSDyIzA==",
+        "dependencies": {
+          "HtmlAgilityPack": "1.4.9"
+        }
+      },
+      "JetBrains.Annotations": {
+        "type": "Transitive",
+        "resolved": "2020.3.0",
+        "contentHash": "FnX06vtxuoZnhZdR6UHt5kJ7HUC/syODfGLnhPDn1x5sXvvepNyCl4jMtPUzJfsPWh7q0Jo+AIYz5xaVbbyikA=="
       }
     }
   }
