@@ -45,6 +45,18 @@ namespace Lumina.Excel.Extensions
     }
     public static class ClassJobCategoryExtensions
     {
+        public static Job ToJob(this ClassJobCategory self)
+        {
+            for (int i = 0; i < (int)Job.SGE; i++)
+            {
+                if (self.Contains((Job)i))
+                {
+                    return (Job)i;
+                }
+            }
+            return Job.ADV;
+        }
+
         public static bool Contains(this ClassJobCategory? cat, Job? job) => cat is not null && job switch
         {
             Job.ADV => cat.ADV,
