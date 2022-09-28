@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using ColorHelper;
 using Dalamud.Interface;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
@@ -83,13 +84,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, p.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
             ImGui.SameLine();
-            //ImGuiHelper.GearUpdateByLodeStoneButton(p);
             if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, p.Pos.ToString()
-                , Localize("Lodestone Button", "Download Gear from Lodestone"), true))  
+                , Localize("Lodestone Button", "Download Gear from Lodestone"), true))
             {
-                Services.TaskManager.RegisterTask(_lootMaster, () => NetStoneConnector.DebugConnector(),
+                // Netstoneconnector.GetCurrentGearFromLodeStone(p) can be made async, has to return HrtUiMessage then
+                /*Services.TaskManager.RegisterTask(_lootMaster, () => NetStoneConnector.GetCurrentGearFromLodestone(p),
                     $"Pulling Gear from Lodestone for Character {p.MainChar.Name} succeeded",
-                    $"Pulling Gear from Lodestone for Character {p.MainChar.Name} failed.");
+                    $"Pulling Gear from Lodestone for Character {p.MainChar.Name} failed.");*/
+                Services.TaskManager.RegisterTask(_lootMaster, NetStoneConnector.Debug());
             }
 
             foreach (var playableClass in p.MainChar.Classes)
