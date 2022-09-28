@@ -1,5 +1,7 @@
 ﻿using HimbeertoniRaidTool.Data;
 using Lumina.Excel.GeneratedSheets;
+using System.Collections.Generic;
+
 namespace HimbeertoniRaidTool.Data
 {
 
@@ -45,16 +47,17 @@ namespace Lumina.Excel.Extensions
     }
     public static class ClassJobCategoryExtensions
     {
-        public static Job ToJob(this ClassJobCategory self)
+        public static List<Job> ToJob(this ClassJobCategory self)
         {
+            List<Job> jobs = new List<Job>();
             for (int i = 0; i < (int)Job.SGE; i++)
             {
                 if (self.Contains((Job)i))
                 {
-                    return (Job)i;
+                    jobs.Add((Job)i);
                 }
             }
-            return Job.ADV;
+            return jobs;
         }
 
         public static bool Contains(this ClassJobCategory? cat, Job? job) => cat is not null && job switch
