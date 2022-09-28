@@ -175,6 +175,11 @@ namespace HimbeertoniRaidTool.UI
     {
         public HrtUiMessageType MessageType;
         public string Message;
+        public HrtUiMessage(string msg, HrtUiMessageType msgType)
+        {
+            MessageType = msgType;
+            Message = msg;
+        }
     }
     public enum HrtUiMessageType
     {
