@@ -8,12 +8,7 @@ namespace HimbeertoniRaidTool.Connectors
 
         internal ConnectorPool(Framework fw)
         {
-            EtroConnector = new();
-            fw.Update += Update;
-        }
-        private void Update(Framework fw)
-        {
-            EtroConnector.Update();
+            EtroConnector = new(fw);
         }
     }
 }

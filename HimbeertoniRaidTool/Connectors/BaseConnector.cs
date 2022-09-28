@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Dalamud.Game;
 using Dalamud.Logging;
 
 namespace HimbeertoniRaidTool.Connectors
@@ -14,22 +15,22 @@ namespace HimbeertoniRaidTool.Connectors
         private readonly TimeSpan _cacheTime;
         private readonly ConcurrentDictionary<string, (DateTime time, string response)> _cachedRequests;
         private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
-
-        internal WebConnector(RateLimit rateLimit, TimeSpan cacheTime)
+        internal WebConnector(Framework fw, RateLimit rateLimit = default, TimeSpan? cacheTime = null)
         {
             _rateLimit = rateLimit;
             _cachedRequests = new();
             _currentRequests = new();
-            _cacheTime = cacheTime;
+            _cacheTime = cacheTime ?? new(0, 15, 0);
+            fw.Update += Update;
         }
-        internal void Update()
+        private void Update(Framework fw)
         {
             foreach (var req in _cachedRequests.Where(e => e.Value.time + _cacheTime < DateTime.Now))
             {
                 _cachedRequests.TryRemove(req.Key, out _);
             }
         }
-        internal string? MakeWebRequest(string URL)
+        protected string? MakeWebRequest(string URL)
         {
             if (_cachedRequests.TryGetValue(URL, out var result))
                 return result.response;
@@ -37,7 +38,7 @@ namespace HimbeertoniRaidTool.Connectors
             requestTask.Wait();
             return requestTask.Result;
         }
-        internal async Task<string?> MakeAsyncWebRequest(string URL)
+        private async Task<string?> MakeAsyncWebRequest(string URL)
         {
             while (RateLimitHit() || _currentRequests.ContainsKey(URL))
                 Thread.Sleep(1000);
@@ -74,8 +75,8 @@ namespace HimbeertoniRaidTool.Connectors
                 MaxRequests = requests;
                 Time = time;
             }
-            public int MaxRequests { get; set; }
-            public TimeSpan Time { get; set; }
+            public int MaxRequests { get; set; } = 1;
+            public TimeSpan Time { get; set; } = new(0, 0, 5);
         }
     }
 }

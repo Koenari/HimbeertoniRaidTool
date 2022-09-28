@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Dalamud.Game;
 using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 
@@ -26,7 +27,7 @@ namespace HimbeertoniRaidTool.Connectors
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 
         };
-        internal EtroConnector() : base(new(4, new(0, 0, 30)), new(0, 5, 0))
+        internal EtroConnector(Framework fw) : base(fw, new(4, new(0, 0, 30)))
         {
             if (MateriaCache.Count == 0)
             {
