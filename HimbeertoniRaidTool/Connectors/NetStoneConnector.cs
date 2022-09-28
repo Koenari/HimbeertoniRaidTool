@@ -1,15 +1,10 @@
-﻿using Dalamud.Data;
-using Dalamud.Logging;
-using Dalamud.Utility;
-using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
+﻿using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using Lumina.Excel.GeneratedSheets;
-using Microsoft.VisualBasic;
 using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Search.Character;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,28 +13,74 @@ namespace HimbeertoniRaidTool.Connectors
     internal static class NetStoneConnector
     {
         private static LodestoneClient? lodestoneClient = null;
-        // Get Lumina Sheet over HRTPLUGIN.DataManger
         private static Lumina.Excel.ExcelSheet<Item>? itemSheet;
         
-        public static Task<HrtUiMessage> Debug()
+        public static async Task<HrtUiMessage> Debug(Player p)
         {
-            HrtUiMessage msg = new HrtUiMessage();
-            string itemName = "Engraved Goatskin Grimoire";
-
             itemSheet ??= Services.DataManager.GetExcelSheet<Item>()!;
-            List<Item> items = itemSheet.Where(item => item.Name.ToString().Equals(
-                itemName, System.StringComparison.InvariantCultureIgnoreCase)).ToList();
-            if (items.Count <= 0)
+            lodestoneClient ??= await LodestoneClient.GetClientAsync();
+            string itemName = "Engraved Goatskin Grimoire";
+            string jobstone = "Soul of the Summoner";
+
+            try
             {
-                msg.Message = $"Items with the name {itemName} do not exist.";
-                msg.MessageType = HrtUiMessageType.Failure;
-                return Task.FromResult(msg);
+                // Lookup player lodestone id - if not found, search by name and add id
+                LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
+                if (lodestoneCharacter == null)
+                    return new HrtUiMessage("Character not found on Lodestone.", HrtUiMessageType.Failure);
+
+
+                Item? foundMainHand = GetItemByName(itemName);
+                Item? foundJobstone = GetItemByName(jobstone);
+                
+                if (foundMainHand == null || foundJobstone == null)
+                    return new HrtUiMessage("Lumina did not find an item by that name.", HrtUiMessageType.Failure);
+                GearItem mainHand = new GearItem(foundMainHand!.RowId);
+                GearItem jobStone = new GearItem(foundJobstone!.RowId);
+                // If jobstone found -> Job is whatever jobstone says: If no jobstone found -> job is determined by main hand
+                
+                return new HrtUiMessage($"Done.", HrtUiMessageType.Success);
             }
-            msg.Message = $"Found item: {items[0].Name} can be used by {items[0].ClassJobUse.Value?.Abbreviation}.";
-            msg.MessageType = HrtUiMessageType.Success;
-            return Task.FromResult(msg);
+            catch
+            {
+                return new HrtUiMessage("Could not successfully update gear from Lodestone.", HrtUiMessageType.Error);
+            }
         }
 
+        private static Item? GetItemByName(string name)
+        {
+            return itemSheet!.FirstOrDefault(item => item.Name.RawString.Equals(
+                name, System.StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        private static async Task<LodestoneCharacter?> FetchCharacterFromLodestone(Character c)
+        {
+            World? homeWorld = c.HomeWorld;
+            LodestoneCharacter? foundCharacter;
+
+            if (c.LodestoneID == 0)
+            {
+                if (c.HomeWorldID == 0 || homeWorld == null)
+                    return null;
+                PluginLog.Log("Using name and homeworld to search...");
+                var netstoneResponse = await lodestoneClient!.SearchCharacter(new CharacterSearchQuery()
+                {
+                    CharacterName = c.Name,
+                    World = homeWorld.Name.RawString
+                });
+                var characterEntry = netstoneResponse.Results.FirstOrDefault(
+                    (res) => res.Name == c.Name);
+                if (!int.TryParse(characterEntry?.Id, out c.LodestoneID))
+                    PluginLog.Warning("Tried parsing LodestoneID but failed.");
+                foundCharacter = characterEntry?.GetCharacter().Result;
+            }
+            else
+            {
+                PluginLog.Log("Using ID to search...");
+                foundCharacter = await lodestoneClient!.GetCharacter(c.LodestoneID.ToString());
+            }
+            return foundCharacter;
+        }
 
         public static bool GetCurrentGearFromLodestone(Player p)
         {
@@ -48,7 +89,7 @@ namespace HimbeertoniRaidTool.Connectors
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(world))
                 return false;
 
-            var requestedChar = MakeCharacterSearchRequest(name, world);
+            //var requestedChar = MakeCharacterSearchRequest(name, world);
             requestedChar.Wait();
             LodestoneCharacter? response = requestedChar.Result;
             // TODO: Add Lodestone ID to character if not already there,
@@ -57,9 +98,8 @@ namespace HimbeertoniRaidTool.Connectors
                 return false;
             // TODO: Netstone does not expose the current active class in the LodestoneCharacter class, even though
             // it's technically there. Either fork and add that functionality, or write a short translator from
-            // jobstone -> job
-            PluginLog.Log($"Found {response.Name} on Lodestone.");
-            itemSheet ??= Services.DataManager.GetExcelSheet<Item>()!;
+            // main hand -> job
+            
             
 
 
@@ -71,29 +111,7 @@ namespace HimbeertoniRaidTool.Connectors
             return true;
         }
 
-        internal static async Task<LodestoneCharacter?> MakeCharacterSearchRequest(string name, string world)
-        {
-            lodestoneClient ??= await LodestoneClient.GetClientAsync();
-            if (lodestoneClient == null)
-                return null;
 
-            PluginLog.Log($"Got client with id {lodestoneClient.GetType().Name}");
-
-            try
-            {
-                var netstoneResponse = await lodestoneClient.SearchCharacter(new CharacterSearchQuery()
-                {
-                    CharacterName = name,
-                    World = world,
-                });
-                return netstoneResponse.Results.FirstOrDefault(res => res.Name == name)?.GetCharacter().Result;
-            }
-            catch
-            {
-                PluginLog.Error("Something went wrong while fetching data from Lodestone.");
-                return null;
-            }
-        }
 
 
     }
