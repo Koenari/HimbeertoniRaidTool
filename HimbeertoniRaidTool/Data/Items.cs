@@ -19,6 +19,7 @@ namespace HimbeertoniRaidTool.Data
         public GearSetSlot Slot => Item?.EquipSlotCategory.Value?.ToSlot() ?? GearSetSlot.None;
         [JsonIgnore]
         private GearSource? SourceCache = null;
+        public List<Job> Jobs => Item?.ClassJobCategory.Value?.ToJob() ?? new List<Job>();
         [JsonIgnore]
         public GearSource Source => SourceCache ??= SourceDic.GetValueOrDefault(Name, GearSource.undefined);
         public Job Job => Item?.ClassJobCategory.Value?.ToJob() ?? Job.ADV;
