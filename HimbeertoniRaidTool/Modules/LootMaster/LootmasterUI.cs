@@ -91,7 +91,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 /*Services.TaskManager.RegisterTask(_lootMaster, () => NetStoneConnector.GetCurrentGearFromLodestone(p),
                     $"Pulling Gear from Lodestone for Character {p.MainChar.Name} succeeded",
                     $"Pulling Gear from Lodestone for Character {p.MainChar.Name} failed.");*/
-                Services.TaskManager.RegisterTask(_lootMaster, NetStoneConnector.Debug());
+                Services.TaskManager.RegisterTask(_lootMaster, NetStoneConnector.Debug(p));
             }
 
             foreach (var playableClass in p.MainChar.Classes)
