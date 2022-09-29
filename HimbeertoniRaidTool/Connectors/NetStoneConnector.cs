@@ -4,6 +4,7 @@ using HimbeertoniRaidTool.UI;
 using Lumina.Excel.GeneratedSheets;
 using NetStone;
 using NetStone.Model.Parseables.Character;
+using NetStone.Model.Parseables.Character.Gear;
 using NetStone.Search.Character;
 using System;
 using System.Linq;
@@ -22,12 +23,11 @@ namespace HimbeertoniRaidTool.Connectors
             lodestoneClient ??= await LodestoneClient.GetClientAsync();
             Job? foundJob;
 
-            string itemName = "Engraved Goatskin Grimoire";
-
             try
             {
                 // Lookup player lodestone id - if not found, search by name and add id
-                LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
+                //LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
+                LodestoneCharacter? lodestoneCharacter = await FetchDebugCharacter("Pip Pipperino", "Odin");
                 if (lodestoneCharacter == null)
                     return new HrtUiMessage("Character not found on Lodestone.", HrtUiMessageType.Failure);
                 if (lodestoneCharacter.Gear.Soulcrystal != null)
@@ -35,32 +35,32 @@ namespace HimbeertoniRaidTool.Connectors
                 else
                     foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand.ItemName)?.ClassJobUse.Row;
                 if (foundJob == null || !Enum.IsDefined(typeof(Job), foundJob))
-                    return new HrtUiMessage("Could not resolve currently used job or currently job is not supported.", HrtUiMessageType.Failure);
-
+                    return new HrtUiMessage("Could not resolve currently used job or currently displayed job on " +
+                        "Lodestone is not supported.", HrtUiMessageType.Failure);
+                PluginLog.Log($"Found Job {foundJob}");
                 PlayableClass classToChange = p.MainChar.GetClass((Job)foundJob!);
-
-                /*var j = new GearItem(iname.RowId);
-                var jo = j.Jobs;
-                foreach (Job temp in jo)
+                //classToChange.Level = lodestoneCharacter.ActiveClassJobLevel;
+                //Getting Race, Clan and Gender is not yet correctly implemented by Netstone 1.0.0
+                //classToChange.Tribe = (unit)lodestoneCharacter.RaceClanGender;
+                CharacterGear newGearset = lodestoneCharacter.Gear; 
+                // Populate GearSet with newGearset
+                
+                
+                void FillItem(GearEntry gearPiece, GearSetSlot slot)
                 {
-                    PluginLog.Log($"Weapon {j.Name} can be equiped by {temp}");
-                }*/
-
-                //PluginLog.Log($"{jo.Count}. Found Job: {j} by Mainhand.");
-
-                Item? foundMainHand = GetItemByName(itemName);
-                
-                //Item? foundJobstone = GetItemByName(jobstone);
-                
-                /*if (foundMainHand == null || foundJobstone == null)
-                    return new HrtUiMessage("Lumina did not find an item by that name.", HrtUiMessageType.Failure);*/
-                GearItem mainHand = new GearItem(foundMainHand!.RowId);
-                var jobs = mainHand.Jobs;
-                
-                //GearItem jobStone = new GearItem(foundJobstone!.RowId);
-                // If jobstone found -> Job is whatever jobstone says: If no jobstone found -> job is determined by main hand
-                
-                return new HrtUiMessage($"Done.", HrtUiMessageType.Success);
+                    if (gearPiece == null)
+                    {
+                        classToChange.Gear[slot] = new();
+                        return;
+                    }
+                    Item? itemEntry = GetItemByName(gearPiece.ItemName);
+                    
+                    if (itemEntry == null)
+                        return;
+                    uint gearId = itemEntry.RowId;
+                    classToChange.Gear[slot] = new(gearId);
+                }
+                return new HrtUiMessage($"Updated {p.MainChar.Name}'s {classToChange.Job} gear from Lodestone.", HrtUiMessageType.Success);
             }
             catch
             {
