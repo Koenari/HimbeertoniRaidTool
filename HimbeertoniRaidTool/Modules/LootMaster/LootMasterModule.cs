@@ -105,7 +105,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 Services.HrtDataManager.GetManagedGearSet(ref bis);
                 c.MainClass.BIS = bis;
             }
-
+            Services.HrtDataManager.Save();
         }
         internal void AddGroup(RaidGroup group, bool getGroupInfos)
         {
@@ -232,6 +232,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
 
             }
+            Services.HrtDataManager.Save();
         }
         public void OnCommand(string args)
         {
