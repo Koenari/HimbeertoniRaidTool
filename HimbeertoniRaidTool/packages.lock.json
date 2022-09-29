@@ -14,17 +14,43 @@
         "resolved": "2.1.8",
         "contentHash": "YqagNXs9InxmqkXzq7kLveImxnodkBEicAhydMXVp7dFjC7xb76U6zGgAax4/BWIWfZeWzr5DJyQSev31kj81A=="
       },
-      "Newtonsoft.Json": {
-        "type": "Direct",
-        "requested": "[12.0.3, )",
-        "resolved": "12.0.3",
-        "contentHash": "6mgjfnRB4jKMlzHSl+VD+oUc1IebOZabkbyWj2RiTgWwYPPuaK1H97G1sHqGwPlS5npiF5Q0OrxN1wni2n5QWg=="
-      },
       "XivCommon": {
         "type": "Direct",
         "requested": "[6.0.2, )",
         "resolved": "6.0.2",
         "contentHash": "C/GnQ61iO0yEpf8LPixU3tCThar1MWUiBkO8gdZHNtVskg8AvFeuIxk7Zmkf2yeAJ0drR/KOTdSS7GpbsgmoaQ=="
+      },
+      "HtmlAgilityPack": {
+        "type": "Transitive",
+        "resolved": "1.11.46",
+        "contentHash": "dLMn4EVfJBHWmWK4Uh0XGD76FPLHI0qr2Tm0s1m/xmgiHb1JUb9zB8AzO8HtrkBBlMN6JfCUBYddhqC0hZNR+g=="
+      },
+      "HtmlAgilityPack.CssSelectors.NetCore": {
+        "type": "Transitive",
+        "resolved": "1.2.1",
+        "contentHash": "ES2Ht+wpgaLmyyyCP9cl3AT5U2BtTOCZ2pdFL8GYa27V8IAD9U77KOcuvi61k+nDE4kpU+EjwaBJepVFqLpmGA==",
+        "dependencies": {
+          "HtmlAgilityPack": "1.6.16"
+        }
+      },
+      "JetBrains.Annotations": {
+        "type": "Transitive",
+        "resolved": "2022.1.0",
+        "contentHash": "ASfpoFJxiRsC9Xc4TWuPM41Zb/gl64xwfMOhnOZ3RnVWGYIZchjpWQV5zshJgoc/ZxVtgjaF7b577lURj7E6ig=="
+      },
+      "Newtonsoft.Json": {
+        "type": "Transitive",
+        "resolved": "13.0.1",
+        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
+      },
+      "netstone": {
+        "type": "Project",
+        "dependencies": {
+          "HtmlAgilityPack": "[1.11.46, )",
+          "HtmlAgilityPack.CssSelectors.NetCore": "[1.2.1, )",
+          "JetBrains.Annotations": "[2022.1.0, )",
+          "Newtonsoft.Json": "[13.0.1, )"
+        }
       }
     }
   }
