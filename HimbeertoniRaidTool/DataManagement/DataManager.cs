@@ -37,7 +37,6 @@ namespace HimbeertoniRaidTool.DataManagement
                     dir.Create();
                 GearDB = new(dir);
                 CharacterDB = new(dir, GearDB);
-
                 if (!RaidGRoupJsonFile.Exists)
                     RaidGRoupJsonFile.Create().Close();
                 var crc = new CharacterReferenceConverter(CharacterDB);
@@ -140,10 +139,10 @@ namespace HimbeertoniRaidTool.DataManagement
                 return false;
             Saving = true;
             bool hasError = false;
-            hasError |= GearDB.Save();
+            hasError |= !GearDB.Save();
             if (hasError)
                 return !hasError;
-            hasError |= CharacterDB.Save(GearDB!);
+            hasError |= !CharacterDB.Save(GearDB!);
             if (hasError)
                 return !hasError;
             var crc = new CharacterReferenceConverter(CharacterDB!);
