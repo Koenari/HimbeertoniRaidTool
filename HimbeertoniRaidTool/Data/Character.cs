@@ -12,9 +12,6 @@ namespace HimbeertoniRaidTool.Data
         public List<PlayableClass> Classes = new();
         [JsonProperty("Name")]
         public string Name = "";
-        [JsonProperty("MainClassType")]
-        [Obsolete]
-        public AvailableClasses? oldMainClassType = AvailableClasses.AST;
         [JsonProperty("MainJob")]
         public Job? MainJob;
         public PlayableClass? MainClass => MainJob.HasValue ? GetClass(MainJob.Value) : null;
@@ -39,18 +36,6 @@ namespace HimbeertoniRaidTool.Data
             Name = name;
             HomeWorldID = worldID;
         }
-        [JsonConstructor]
-        [Obsolete]
-        private Character(string name = "", uint worldID = 0, AvailableClasses? oldMainClassType = null)
-        {
-            Name = name;
-            HomeWorldID = worldID;
-            this.oldMainClassType = oldMainClassType;
-            if (oldMainClassType.HasValue)
-                MainJob = Enum.Parse<Job>(oldMainClassType.Value.ToString());
-            this.oldMainClassType = null;
-        }
-
         private PlayableClass AddClass(Job ClassToAdd)
         {
             PlayableClass toAdd = new(ClassToAdd, this);

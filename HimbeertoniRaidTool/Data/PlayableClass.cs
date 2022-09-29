@@ -1,5 +1,4 @@
-﻿using System;
-using Lumina.Excel.GeneratedSheets;
+﻿using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
@@ -7,9 +6,6 @@ namespace HimbeertoniRaidTool.Data
     [JsonObject(MemberSerialization.OptIn)]
     public class PlayableClass
     {
-        [JsonProperty("ClassType")]
-        [Obsolete]
-        public AvailableClasses? classType;
         [JsonProperty("Job")]
         public Job Job;
         [JsonIgnore]
@@ -22,19 +18,14 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty("BIS")]
         public GearSet BIS;
         [JsonConstructor]
-        [Obsolete]
-        private PlayableClass(AvailableClasses? classType)
+        private PlayableClass()
         {
-            this.classType = classType;
-            if (classType != null)
-                Job = Enum.Parse<Job>(classType.Value.ToString());
-            this.classType = null;
-            Gear = new();
-            BIS = new();
+            Gear = new GearSet();
+            BIS = new GearSet();
         }
-        public PlayableClass(Job ClassNameArg, Character c)
+        public PlayableClass(Job job, Character c)
         {
-            Job = ClassNameArg;
+            Job = job;
             Gear = new(GearSetManager.HRT, c, Job);
             Services.HrtDataManager.GetManagedGearSet(ref Gear);
             BIS = new(GearSetManager.HRT, c, Job, "BIS");

@@ -25,6 +25,7 @@ namespace HimbeertoniRaidTool.DataManagement
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
             TypeNameHandling = TypeNameHandling.None,
             NullValueHandling = NullValueHandling.Ignore,
+            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
         };
         public HrtDataManager(DalamudPluginInterface pluginInterface)
         {
