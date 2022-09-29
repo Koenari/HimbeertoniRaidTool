@@ -11,13 +11,17 @@ namespace HimbeertoniRaidTool.Data
         public DateTime? TimeStamp;
         [JsonProperty("EtroID")]
         public string EtroID = "";
+        [JsonProperty("LastEtroFetched")]
+        public DateTime EtroFetchDate;
         [JsonProperty("HrtID")]
         public string HrtID = "";
         [JsonProperty("Name")]
         public string Name = "";
         [JsonProperty("ManagedBy")]
         public GearSetManager ManagedBy;
+        [JsonIgnore]
         private const int NumSlots = 12;
+        [JsonIgnore]
         private readonly GearItem[] Items = new GearItem[NumSlots];
         [JsonProperty]
         public GearItem MainHand { get => Items[0]; set => Items[0] = value; }

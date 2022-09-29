@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Dalamud.Game;
 using HimbeertoniRaidTool.Data;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Connectors
 {
-    internal static class EtroConnector
+    internal class EtroConnector : WebConnector
     {
         public static string ApiBaseUrl => "https://etro.gg/api/";
         public static string WebBaseUrl => "https://etro.gg/";
@@ -26,25 +27,26 @@ namespace HimbeertoniRaidTool.Connectors
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 
         };
-        static EtroConnector()
+        internal EtroConnector(Framework fw) : base(fw, new(4, new(0, 0, 30)))
         {
-            string? jsonResponse = BaseConnector.MakeWebRequest(MateriaApiBaseUrl);
-            EtroMateria[]? matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
-            if (matList != null)
-                foreach (var mat in matList)
-                    for (byte i = 0; i < mat.tiers.Length; i++)
-                        MateriaCache.Add(mat.tiers[i].id, ((MateriaCategory)mat.id, i));
-
-
+            if (MateriaCache.Count == 0)
+            {
+                string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
+                EtroMateria[]? matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
+                if (matList != null)
+                    foreach (var mat in matList)
+                        for (byte i = 0; i < mat.tiers.Length; i++)
+                            MateriaCache.Add(mat.tiers[i].id, ((MateriaCategory)mat.id, i));
+            }
         }
 
 
-        public static bool GetGearSet(GearSet set)
+        public bool GetGearSet(GearSet set)
         {
             if (set.EtroID.Equals(""))
                 return false;
             EtroGearSet? etroSet;
-            string? jsonResponse = BaseConnector.MakeWebRequest(GearsetApiBaseUrl + set.EtroID);
+            string? jsonResponse = MakeWebRequest(GearsetApiBaseUrl + set.EtroID);
             if (jsonResponse == null)
                 return false;
             etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);
@@ -52,6 +54,7 @@ namespace HimbeertoniRaidTool.Connectors
                 return false;
             set.Name = etroSet.name ?? "";
             set.TimeStamp = etroSet.lastUpdate;
+            set.EtroFetchDate = DateTime.UtcNow;
             FillItem(etroSet.weapon, GearSetSlot.MainHand);
             FillItem(etroSet.head, GearSetSlot.Head);
             FillItem(etroSet.body, GearSetSlot.Body);

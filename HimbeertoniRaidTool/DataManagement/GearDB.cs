@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.UI;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.DataManagement
@@ -13,6 +14,7 @@ namespace HimbeertoniRaidTool.DataManagement
         private readonly Dictionary<string, GearSet> EtroGearDB;
         private readonly FileInfo HrtDBJsonFile;
         private readonly FileInfo EtroDBJsonFile;
+        private bool EtroHasUpdated = false;
         internal GearDB(DirectoryInfo loadDir)
         {
             HrtDBJsonFile = new FileInfo(loadDir.FullName + "\\HrtGearDB.json");
@@ -64,6 +66,42 @@ namespace HimbeertoniRaidTool.DataManagement
                     EtroGearDB.Remove(oldID);
                 AddOrGetSet(ref gs);
             }
+        }
+        internal void UpdateEtroSets(int maxAgeInDays)
+        {
+            if (EtroHasUpdated)
+                return;
+            EtroHasUpdated = true;
+            Services.TaskManager.RegisterTask(LogUpdates, () => UpdateEtroSetsAsync(maxAgeInDays));
+        }
+        private void LogUpdates(HrtUiMessage hrtUiMessage)
+        {
+            PluginLog.Information(hrtUiMessage.Message);
+        }
+        private HrtUiMessage UpdateEtroSetsAsync(int maxAgeInDays)
+        {
+            DateTime OldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
+            DateTime ErrorIfOlder = DateTime.UtcNow - new TimeSpan(365, 0, 0, 0);
+            int updateCount = 0;
+            foreach (GearSet gearSet in EtroGearDB.Values)
+            {
+                if (gearSet.EtroFetchDate >= OldestValid)
+                    continue;
+                //Spaces out older entries (before fetrtching was tracked) over the time period equally
+                //This should manage the amount of request to be minimal (per day)
+                if (gearSet.EtroFetchDate < ErrorIfOlder)
+                {
+                    gearSet.EtroFetchDate = DateTime.UtcNow - new TimeSpan(Random.Shared.Next(maxAgeInDays), 0, 0, 0);
+                    continue;
+                }
+                Services.ConnectorPool.EtroConnector.GetGearSet(gearSet);
+                updateCount++;
+            }
+            return new()
+            {
+                MessageType = HrtUiMessageType.Info,
+                Message = $"Finished periodic etro Updates. ({updateCount}/{EtroGearDB.Count}) updated"
+            };
         }
         internal void Save()
         {

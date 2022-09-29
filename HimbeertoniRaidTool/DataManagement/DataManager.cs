@@ -117,6 +117,7 @@ namespace HimbeertoniRaidTool.DataManagement
                 }
             }
         }
+        public void UpdateEtroSets(int maxAgeDays) => GearDB?.UpdateEtroSets(maxAgeDays);
         public void Save()
         {
             if (!Initialized)

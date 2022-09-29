@@ -65,6 +65,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             GearRefresherOnExamine.Enable();
             if (Services.ClientState.IsLoggedIn)
                 OnLogin(null, new());
+            if (Configuration.Data.UpdateEtroBisOnStartup)
+                Services.HrtDataManager.UpdateEtroSets(Configuration.Data.EtroUpdateIntervalDays);
         }
         public void OnLogin(object? sender, EventArgs e)
         {

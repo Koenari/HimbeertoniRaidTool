@@ -108,9 +108,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 return;
             if (target.GetJob() is null)
                 return;
-            var intPtr = Marshal.ReadIntPtr((IntPtr)(void*)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->GetUiModule()->GetAgentModule() + 416);
-            var objID = target.ObjectId;
-            uint* ptr = (uint*)(void*)intPtr;
             //Do not execute on characters not part of any managed raid group
             if (!Services.HrtDataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
                 return;
