@@ -20,7 +20,7 @@ namespace HimbeertoniRaidTool.UI
         private readonly Player PlayerCopy;
         private readonly Action<HrtUiMessage> CallBack;
         private readonly bool IsNew;
-        private int newJob = 0;
+        private Job newJob = Job.ADV;
         private readonly Func<Job, string> GetBisID;
 
         internal PositionInRaidGroup Pos => Player.Pos;
@@ -46,14 +46,19 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy = Player.Clone();
             }
-            (Size, SizingCondition) = (new Vector2(480, 200 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Always);
+            (Size, SizingCondition) = (new Vector2(410, 300 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Appearing);
             Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}";
         }
         protected override void Draw()
         {
+            bool resize = false;
             //Player Data
+            ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Player Data", "Player Data")).X) / 2f);
+            ImGui.Text(Localize("Player Data", "Player Data"));
             ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
             //Character Data
+            ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
+            ImGui.Text(Localize("Character Data", "Character Data"));
             if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50)
                  && Helper.TryGetChar(PlayerCopy.MainChar.Name) is not null)
             {
@@ -66,7 +71,18 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy.MainChar.HomeWorld = w;
             }
+            //ImGuiHelper.Combo(Localize("Gender", "Gender"), ref PlayerCopy.MainChar.Gender);
+            string GetGenderedTribeName(Tribe t) => PlayerCopy.MainChar.Gender == Gender.Male ? t.Masculine.RawString : t.Feminine.RawString;
+            if (ImGuiHelper.ExcelSheetCombo(Localize("Tribe", "Tribe") + "##" + Title, out Tribe? t,
+               x => GetGenderedTribeName(PlayerCopy.MainChar.Tribe), ImGuiComboFlags.None,
+                (x, y) => GetGenderedTribeName(x).Contains(y, StringComparison.CurrentCultureIgnoreCase),
+                x => GetGenderedTribeName(x)))
+            {
+                PlayerCopy.MainChar.TribeID = t?.RowId ?? 0;
+            }
             //Class Data
+            ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Job Data", "Job Data")).X) / 2f);
+            ImGui.Text(Localize("Job Data", "Job Data"));
             if (PlayerCopy.MainChar.Classes.Count > 0)
             {
                 int mainClass = PlayerCopy.MainChar.Classes.FindIndex(x => x.Job == PlayerCopy.MainChar.MainJob);
@@ -110,19 +126,22 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy.MainChar.Classes.RemoveAll(x => x.Job == toDelete);
                 Size.Y -= 27;
+                resize = true;
             }
 
             ImGui.Columns(1);
-
-            var jobsNotUsed = new List<Job>(Enum.GetValues<Job>().Where(x => !PlayerCopy.MainChar.Classes.Exists(y => y.Job == x)));
-            string[] newJobs = jobsNotUsed.ConvertAll(x => x.ToString()).ToArray();
-            ImGui.Combo(Localize("Add Job", "Add Job"), ref newJob, newJobs, newJobs.Length);
+            if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out Job job, newJob.ToString(), ImGuiComboFlags.None,
+                Enum.GetValues<Job>(), (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
+                j => j.ToString(), (t) => !PlayerCopy.MainChar.Classes.Exists(y => y.Job == t)))
+            {
+                newJob = job;
+            }
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
             {
-                Job job = jobsNotUsed[newJob];
-                PlayerCopy.MainChar.GetClass(job).BIS.EtroID = GetBisID(job);
+                PlayerCopy.MainChar.GetClass(newJob).BIS.EtroID = GetBisID(newJob);
                 Size.Y += 27;
+                resize = true;
             }
 
             //Buttons
@@ -134,6 +153,7 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
                 Hide();
+            SizingCondition = resize ? ImGuiCond.Always : ImGuiCond.Appearing;
         }
         private void SavePlayer()
         {

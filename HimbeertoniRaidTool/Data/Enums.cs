@@ -221,6 +221,13 @@ namespace HimbeertoniRaidTool.Data
         HRT,
         Etro
     }
+    //Please don't make this political this is just to "correctly" reflect game logic and made an enum in hope there will be more in the future
+    public enum Gender
+    {
+        Unknown = 0,
+        Female = 1,
+        Male = 2,
+    }
     public enum MateriaCategory : ushort
     {
         None = 0,
