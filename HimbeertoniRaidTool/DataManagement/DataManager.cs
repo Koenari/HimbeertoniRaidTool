@@ -11,6 +11,7 @@ namespace HimbeertoniRaidTool.DataManagement
     public class HrtDataManager
     {
         public bool Initialized { get; private set; }
+        private bool Saving = false;
         private readonly GearDB? GearDB;
         private readonly CharacterDB? CharacterDB;
         private List<RaidGroup>? _Groups;
@@ -118,12 +119,18 @@ namespace HimbeertoniRaidTool.DataManagement
             }
         }
         public void UpdateEtroSets(int maxAgeDays) => GearDB?.UpdateEtroSets(maxAgeDays);
-        public void Save()
+        public bool Save()
         {
-            if (!Initialized)
-                return;
-            GearDB?.Save();
-            CharacterDB?.Save(GearDB!);
+            if (!Initialized || Saving || GearDB == null || CharacterDB == null)
+                return false;
+            Saving = true;
+            bool hasError = false;
+            hasError |= GearDB.Save();
+            if (hasError)
+                return !hasError;
+            hasError |= CharacterDB.Save(GearDB!);
+            if (hasError)
+                return !hasError;
             var crc = new CharacterReferenceConverter(CharacterDB!);
             JsonSerializerSettings.Converters.Add(crc);
             StreamWriter? writer = null;
@@ -135,15 +142,16 @@ namespace HimbeertoniRaidTool.DataManagement
             }
             catch (Exception e)
             {
-
                 PluginLog.Error("Could not write gear data\n{0}", e);
+                hasError = true;
             }
             finally
             {
                 writer?.Dispose();
             }
             JsonSerializerSettings.Converters.Remove(crc);
-
+            Saving = false;
+            return !hasError;
         }
     }
 }

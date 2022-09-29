@@ -103,8 +103,9 @@ namespace HimbeertoniRaidTool.DataManagement
                 Message = $"Finished periodic etro Updates. ({updateCount}/{EtroGearDB.Count}) updated"
             };
         }
-        internal void Save()
+        internal bool Save()
         {
+            bool hasError = false;
             StreamWriter? hrtWriter = null;
             StreamWriter? etroWriter = null;
             try
@@ -118,12 +119,14 @@ namespace HimbeertoniRaidTool.DataManagement
             catch (Exception e)
             {
                 PluginLog.Error("Could not write gear data\n{0}", e);
+                hasError = true;
             }
             finally
             {
                 hrtWriter?.Dispose();
                 etroWriter?.Dispose();
             }
+            return !hasError;
         }
     }
 }

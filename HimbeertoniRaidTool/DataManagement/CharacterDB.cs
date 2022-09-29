@@ -58,8 +58,9 @@ namespace HimbeertoniRaidTool.DataManagement
                 CharDB[oldWorld].Remove(oldName);
             AddOrGetCharacter(ref c);
         }
-        internal void Save(GearDB gearDB)
+        internal bool Save(GearDB gearDB)
         {
+            bool hasError = false;
             var conv = new GearSetReferenceConverter(gearDB);
 
             HrtDataManager.JsonSerializerSettings.Converters.Add(conv);
@@ -74,12 +75,14 @@ namespace HimbeertoniRaidTool.DataManagement
             {
 
                 PluginLog.Error("Could not write character data\n{0}", e);
+                hasError = true;
             }
             finally
             {
                 writer?.Dispose();
             }
             HrtDataManager.JsonSerializerSettings.Converters.Remove(conv);
+            return !hasError;
         }
 
     }
