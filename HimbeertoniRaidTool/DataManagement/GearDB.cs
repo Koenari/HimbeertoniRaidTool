@@ -31,7 +31,7 @@ namespace HimbeertoniRaidTool.DataManagement
                 EtroDBJsonFile.OpenText().ReadToEnd(),
                 HrtDataManager.JsonSerializerSettings) ?? new();
         }
-        internal void AddOrGetSet(ref GearSet gearSet)
+        internal bool AddOrGetSet(ref GearSet gearSet)
         {
             if (gearSet.ManagedBy == GearSetManager.HRT && gearSet.HrtID.Length > 0)
             {
@@ -51,8 +51,9 @@ namespace HimbeertoniRaidTool.DataManagement
                 if (EtroGearDB.TryGetValue(gearSet.EtroID, out GearSet? result))
                     gearSet = result;
             }
+            return true;
         }
-        internal void UpdateIndex(string oldID, ref GearSet gs)
+        internal bool UpdateIndex(string oldID, ref GearSet gs)
         {
             if (gs.ManagedBy == GearSetManager.HRT)
             {
@@ -66,6 +67,7 @@ namespace HimbeertoniRaidTool.DataManagement
                     EtroGearDB.Remove(oldID);
                 AddOrGetSet(ref gs);
             }
+            return true;
         }
         internal void UpdateEtroSets(int maxAgeInDays)
         {
@@ -103,8 +105,9 @@ namespace HimbeertoniRaidTool.DataManagement
                 Message = $"Finished periodic etro Updates. ({updateCount}/{EtroGearDB.Count}) updated"
             };
         }
-        internal void Save()
+        internal bool Save()
         {
+            bool hasError = false;
             StreamWriter? hrtWriter = null;
             StreamWriter? etroWriter = null;
             try
@@ -118,12 +121,14 @@ namespace HimbeertoniRaidTool.DataManagement
             catch (Exception e)
             {
                 PluginLog.Error("Could not write gear data\n{0}", e);
+                hasError = true;
             }
             finally
             {
                 hrtWriter?.Dispose();
                 etroWriter?.Dispose();
             }
+            return !hasError;
         }
     }
 }

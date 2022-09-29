@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Data;
@@ -11,6 +12,7 @@ namespace HimbeertoniRaidTool.DataManagement
     public class HrtDataManager
     {
         public bool Initialized { get; private set; }
+        private volatile bool Saving = false;
         private readonly GearDB? GearDB;
         private readonly CharacterDB? CharacterDB;
         private List<RaidGroup>? _Groups;
@@ -35,7 +37,6 @@ namespace HimbeertoniRaidTool.DataManagement
                     dir.Create();
                 GearDB = new(dir);
                 CharacterDB = new(dir, GearDB);
-
                 if (!RaidGRoupJsonFile.Exists)
                     RaidGRoupJsonFile.Create().Close();
                 var crc = new CharacterReferenceConverter(CharacterDB);
@@ -54,43 +55,57 @@ namespace HimbeertoniRaidTool.DataManagement
         }
         public List<uint> GetWorldsWithCharacters()
         {
-            if (Initialized && CharacterDB is not null)
-                return CharacterDB.GetUsedWorlds();
-            return new();
+            if (!Initialized || CharacterDB is null)
+                return new();
+            return CharacterDB.GetUsedWorlds();
         }
         public List<string> GetCharacters(uint worldID)
         {
-            if (Initialized && CharacterDB is not null)
-                return CharacterDB.GetCharactersList(worldID);
-            return new();
+            if (!Initialized || CharacterDB is null)
+                return new();
+            return CharacterDB.GetCharactersList(worldID);
         }
         public bool CharacterExists(uint worldID, string name) =>
             CharacterDB?.Exists(worldID, name) ?? false;
-        public void GetManagedGearSet(ref GearSet gs)
+        public bool GetManagedGearSet(ref GearSet gs)
         {
-            if (Initialized)
-                GearDB?.AddOrGetSet(ref gs);
+            if (!Initialized || GearDB is null)
+                return false;
+            while (Saving)
+                Thread.Sleep(100);
+            return GearDB.AddOrGetSet(ref gs);
         }
-        public void GetManagedCharacter(ref Character c)
-        {
-            if (Initialized)
-                CharacterDB?.AddOrGetCharacter(ref c);
-        }
-        public void RearrangeCharacter(uint oldWorld, string oldName, ref Character c)
+        public bool GetManagedCharacter(ref Character c)
         {
             if (!Initialized || CharacterDB is null)
-                return;
-            CharacterDB.UpdateIndex(oldWorld, oldName, ref c);
+                return false;
+            while (Saving)
+                Thread.Sleep(100);
+            return CharacterDB.AddOrGetCharacter(ref c);
+        }
+        public bool RearrangeCharacter(uint oldWorld, string oldName, ref Character c)
+        {
+            bool hasError = false;
+            if (!Initialized || CharacterDB is null || GearDB is null)
+                return false;
+            while (Saving)
+                Thread.Sleep(100);
+            hasError |= CharacterDB.UpdateIndex(oldWorld, oldName, ref c);
             for (int i = 0; i < c.Classes.Count; i++)
             {
                 string oldID = c.Classes[i].Gear.HrtID;
                 c.Classes[i].Gear.UpdateID(c, c.Classes[i].Job);
-                RearrangeGearSet(oldID, ref c.Classes[i].Gear);
+                hasError |= GearDB.UpdateIndex(oldID, ref c.Classes[i].Gear);
             }
+            return !hasError;
         }
-        public void RearrangeGearSet(string oldID, ref GearSet gs)
+        public bool RearrangeGearSet(string oldID, ref GearSet gs)
         {
-            GearDB?.UpdateIndex(oldID, ref gs);
+            if (!Initialized || GearDB is null)
+                return false;
+            while (Saving)
+                Thread.Sleep(100);
+            return GearDB.UpdateIndex(oldID, ref gs);
         }
         [Obsolete("Only used to convert from legacy config")]
         public void Fill(List<RaidGroup> rg)
@@ -118,12 +133,18 @@ namespace HimbeertoniRaidTool.DataManagement
             }
         }
         public void UpdateEtroSets(int maxAgeDays) => GearDB?.UpdateEtroSets(maxAgeDays);
-        public void Save()
+        public bool Save()
         {
-            if (!Initialized)
-                return;
-            GearDB?.Save();
-            CharacterDB?.Save(GearDB!);
+            if (!Initialized || Saving || GearDB == null || CharacterDB == null)
+                return false;
+            Saving = true;
+            bool hasError = false;
+            hasError |= !GearDB.Save();
+            if (hasError)
+                return !hasError;
+            hasError |= !CharacterDB.Save(GearDB!);
+            if (hasError)
+                return !hasError;
             var crc = new CharacterReferenceConverter(CharacterDB!);
             JsonSerializerSettings.Converters.Add(crc);
             StreamWriter? writer = null;
@@ -135,15 +156,16 @@ namespace HimbeertoniRaidTool.DataManagement
             }
             catch (Exception e)
             {
-
                 PluginLog.Error("Could not write gear data\n{0}", e);
+                hasError = true;
             }
             finally
             {
                 writer?.Dispose();
             }
             JsonSerializerSettings.Converters.Remove(crc);
-
+            Saving = false;
+            return !hasError;
         }
     }
 }

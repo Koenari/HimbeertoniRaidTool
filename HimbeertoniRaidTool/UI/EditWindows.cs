@@ -186,6 +186,7 @@ namespace HimbeertoniRaidTool.UI
                 }
                 target.BIS = set;
             }
+            Services.HrtDataManager.Save();
         }
     }
     internal class EditGroupWindow : HrtUI
@@ -326,15 +327,13 @@ namespace HimbeertoniRaidTool.UI
                             maxMatLevel--;
                         AddChild(new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }, maxMatLevel));
                     }
-
-
-
             }
         }
         private void Save()
         {
             _gearSetCopy.TimeStamp = DateTime.Now;
             _gearSet.CopyFrom(_gearSetCopy);
+            Services.HrtDataManager.Save();
             Hide();
         }
     }

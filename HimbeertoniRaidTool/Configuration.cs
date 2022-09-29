@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Numerics;
 using Dalamud.Configuration;
+using Dalamud.Game;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.Modules.LootMaster;
@@ -19,11 +20,17 @@ namespace HimbeertoniRaidTool
     public class Configuration : IPluginConfiguration, IDisposable
     {
         [JsonIgnore]
-        public bool FullyLoaded { get; private set; } = false;
+        private bool FullyLoaded = false;
         [JsonIgnore]
         private readonly int TargetVersion = 5;
+        [JsonProperty]
         public int Version { get; set; } = 5;
-
+        [JsonProperty]
+        private ConfigData Data = new();
+        [JsonIgnore]
+        private TimeSpan _saveInterval;
+        [JsonIgnore]
+        private TimeSpan _timeSinceLastSave;
         [JsonIgnore]
         private readonly Dictionary<Type, dynamic> Configurations = new();
         [JsonIgnore]
@@ -38,7 +45,20 @@ namespace HimbeertoniRaidTool
                 return;
             if (Version < 5)
                 MigrateLegacyConfig();
+            _saveInterval = TimeSpan.FromMinutes(Data.SaveIntervalMinutes);
+            _timeSinceLastSave = TimeSpan.Zero;
+            Services.Framework.Update += Update;
             FullyLoaded = true;
+        }
+        private void Update(Framework fw)
+        {
+            _timeSinceLastSave += fw.UpdateDelta;
+            if (Data.SavePeriodically && _timeSinceLastSave > _saveInterval)
+            {
+                Services.HrtDataManager.Save();
+                _timeSinceLastSave = TimeSpan.Zero;
+            }
+
         }
         [Obsolete]
         private void MigrateLegacyConfig()
@@ -90,13 +110,21 @@ namespace HimbeertoniRaidTool
         {
             Ui.Dispose();
         }
-
+        private class ConfigData
+        {
+            [JsonProperty]
+            public bool SavePeriodically = true;
+            [JsonProperty]
+            public int SaveIntervalMinutes = 30;
+        }
         public class ConfigUI : HrtUI
         {
             private readonly Configuration _configuration;
+            private ConfigData _dataCopy;
             public ConfigUI(Configuration configuration) : base(false, "HimbeerToni Raid Tool Configuration")
             {
                 _configuration = configuration;
+                _dataCopy = _configuration.Data.Clone();
                 Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
 
                 (Size, SizingCondition) = (new Vector2(450, 500), ImGuiCond.Always);
@@ -109,6 +137,7 @@ namespace HimbeertoniRaidTool
             }
             protected override void OnShow()
             {
+                _dataCopy = _configuration.Data.Clone();
                 foreach (dynamic config in _configuration.Configurations.Values)
                     try
                     {
@@ -135,6 +164,16 @@ namespace HimbeertoniRaidTool
                 if (ImGuiHelper.CancelButton())
                     Cancel();
                 ImGui.BeginTabBar("Modules");
+                if (ImGui.BeginTabItem(Localize("General", "General")))
+                {
+                    ImGui.Checkbox(Localize("Save preiodically", "Save preiodically"), ref _dataCopy.SavePeriodically);
+                    if (ImGui.InputInt(Localize("AutoSave_interval_min", "AutoSave interval (min)"), ref _dataCopy.SaveIntervalMinutes))
+                    {
+                        if (_dataCopy.SaveIntervalMinutes < 1)
+                            _dataCopy.SaveIntervalMinutes = 1;
+                    }
+                    ImGui.EndTabItem();
+                }
                 foreach (dynamic c in _configuration.Configurations)
                 {
                     try
@@ -154,6 +193,8 @@ namespace HimbeertoniRaidTool
             }
             private void Save()
             {
+                _configuration.Data = _dataCopy;
+                _configuration._saveInterval = TimeSpan.FromMinutes(_configuration.Data.SaveIntervalMinutes);
                 foreach (dynamic c in _configuration.Configurations.Values)
                     if (c.Ui != null)
                         c.Ui.Save();
