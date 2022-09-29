@@ -46,12 +46,14 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy = Player.Clone();
             }
-            (Size, SizingCondition) = (new Vector2(480, 200 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Always);
+            (Size, SizingCondition) = (new Vector2(410, 200 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Appearing);
             Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}";
         }
         protected override void Draw()
         {
+            bool resize = false;
             //Player Data
+
             ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
             //Character Data
             if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50)
@@ -110,6 +112,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy.MainChar.Classes.RemoveAll(x => x.Job == toDelete);
                 Size.Y -= 27;
+                resize = true;
             }
 
             ImGui.Columns(1);
@@ -123,6 +126,7 @@ namespace HimbeertoniRaidTool.UI
                 Job job = jobsNotUsed[newJob];
                 PlayerCopy.MainChar.GetClass(job).BIS.EtroID = GetBisID(job);
                 Size.Y += 27;
+                resize = true;
             }
 
             //Buttons
@@ -134,6 +138,7 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
                 Hide();
+            SizingCondition = resize ? ImGuiCond.Always : ImGuiCond.Appearing;
         }
         private void SavePlayer()
         {

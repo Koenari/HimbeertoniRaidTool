@@ -119,6 +119,7 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SetNextWindowSize(Size, SizingCondition);
             if (ImGui.Begin($"{Title}##{_id}", ref Visible, WindowFlags))
             {
+                Size = ImGui.GetWindowSize();
                 Draw();
                 ImGui.End();
             }
