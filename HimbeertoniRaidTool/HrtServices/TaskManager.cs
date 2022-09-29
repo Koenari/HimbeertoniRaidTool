@@ -36,24 +36,18 @@ namespace HimbeertoniRaidTool.HrtServices
             _tasks.Add((callBack, task));
         }
         internal void RegisterTask<T, S>(IHrtModule<T, S> hrtModule, Func<bool> task, string success, string failure) where T : new() where S : IHrtConfigUi
-            => RegisterTask(hrtModule.HandleMessage, Task.Run(task), success, failure);
+            => RegisterTask(hrtModule.HandleMessage, task, success, failure);
         internal void RegisterTask<T, S>(IHrtModule<T, S> hrtModule, Task<bool> task, string success, string failure) where T : new() where S : IHrtConfigUi
             => RegisterTask(hrtModule.HandleMessage, task, success, failure);
         internal void RegisterTask(Action<HrtUiMessage> callBack, Func<bool> task, string success, string failure)
             => RegisterTask(callBack, Task.Run(task), success, failure);
         internal void RegisterTask(Action<HrtUiMessage> callBack, Task<bool> task, string success, string failure)
         {
-            RegisterTask(callBack, MapReturn(task,
-                (r) => r ? new HrtUiMessage() { MessageType = HrtUiMessageType.Success, Message = success }
+            RegisterTask(callBack, task.ContinueWith(
+                (r) => r.Result ? new HrtUiMessage() { MessageType = HrtUiMessageType.Success, Message = success }
                                 : new HrtUiMessage() { MessageType = HrtUiMessageType.Failure, Message = failure })
                 );
         }
-        private static async Task<S> MapReturn<T, S>(Task<T> input, Func<T, S> mapper)
-        {
-            T result = await input;
-            return mapper(result);
-        }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -72,8 +66,6 @@ namespace HimbeertoniRaidTool.HrtServices
                     }
                 }
                 _tasks.Clear();
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
                 disposedValue = true;
             }
         }
