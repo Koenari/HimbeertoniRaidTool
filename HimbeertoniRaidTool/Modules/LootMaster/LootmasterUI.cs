@@ -39,13 +39,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             _CurrenGroupIndex = _lootMaster.Configuration.Data.LastGroupIndex;
         }
-        protected override void Draw()
-        {
-            if (!Services.ClientState.IsLoggedIn)
-                return;
-            DrawMainWindow();
-        }
-
         private void HandleAsync()
         {
             _messages.RemoveAll(m => (DateTime.Now - m.Item1).TotalSeconds > 10);
@@ -222,7 +215,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.EndTable();
             ImGui.EndChild();
         }
-        private void DrawMainWindow()
+        protected override void Draw()
         {
             if (_CurrenGroupIndex > RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
                 _CurrenGroupIndex = 0;
