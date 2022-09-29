@@ -5,6 +5,7 @@ using Lumina.Excel.GeneratedSheets;
 using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Search.Character;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,6 +20,8 @@ namespace HimbeertoniRaidTool.Connectors
         {
             itemSheet ??= Services.DataManager.GetExcelSheet<Item>()!;
             lodestoneClient ??= await LodestoneClient.GetClientAsync();
+            Job? foundJob;
+
             string itemName = "Engraved Goatskin Grimoire";
             string jobstone = "Soul of the Summoner";
 
@@ -28,15 +31,34 @@ namespace HimbeertoniRaidTool.Connectors
                 LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
                 if (lodestoneCharacter == null)
                     return new HrtUiMessage("Character not found on Lodestone.", HrtUiMessageType.Failure);
+                if (lodestoneCharacter.Gear.Soulcrystal != null)
+                    foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Soulcrystal.ItemName)?.ClassJobUse.Row;
+                else
+                    foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand.ItemName)?.ClassJobUse.Row;
+                if (foundJob == null || !Enum.IsDefined(typeof(Job), foundJob))
+                    return new HrtUiMessage("Could not resolve currently used job or currently job is not supported.", HrtUiMessageType.Failure);
 
+                PlayableClass classToChange = p.MainChar.GetClass((Job)foundJob!);
+
+                /*var j = new GearItem(iname.RowId);
+                var jo = j.Jobs;
+                foreach (Job temp in jo)
+                {
+                    PluginLog.Log($"Weapon {j.Name} can be equiped by {temp}");
+                }*/
+
+                //PluginLog.Log($"{jo.Count}. Found Job: {j} by Mainhand.");
 
                 Item? foundMainHand = GetItemByName(itemName);
-                Item? foundJobstone = GetItemByName(jobstone);
                 
-                if (foundMainHand == null || foundJobstone == null)
-                    return new HrtUiMessage("Lumina did not find an item by that name.", HrtUiMessageType.Failure);
+                //Item? foundJobstone = GetItemByName(jobstone);
+                
+                /*if (foundMainHand == null || foundJobstone == null)
+                    return new HrtUiMessage("Lumina did not find an item by that name.", HrtUiMessageType.Failure);*/
                 GearItem mainHand = new GearItem(foundMainHand!.RowId);
-                GearItem jobStone = new GearItem(foundJobstone!.RowId);
+                var jobs = mainHand.Jobs;
+                
+                //GearItem jobStone = new GearItem(foundJobstone!.RowId);
                 // If jobstone found -> Job is whatever jobstone says: If no jobstone found -> job is determined by main hand
                 
                 return new HrtUiMessage($"Done.", HrtUiMessageType.Success);
@@ -82,6 +104,15 @@ namespace HimbeertoniRaidTool.Connectors
             return foundCharacter;
         }
 
+        private static async Task<LodestoneCharacter> FetchDebugCharacter(string name, string world)
+        {
+            return await lodestoneClient.SearchCharacter(new CharacterSearchQuery()
+            {
+                CharacterName = name,
+                World = world
+            }).Result.Results.FirstOrDefault(character => character.Name == name).GetCharacter();
+        }
+
         public static bool GetCurrentGearFromLodestone(Player p)
         {
             string name = p.MainChar.Name;
@@ -89,13 +120,13 @@ namespace HimbeertoniRaidTool.Connectors
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(world))
                 return false;
 
-            //var requestedChar = MakeCharacterSearchRequest(name, world);
+            /*var requestedChar = MakeCharacterSearchRequest(name, world);
             requestedChar.Wait();
             LodestoneCharacter? response = requestedChar.Result;
             // TODO: Add Lodestone ID to character if not already there,
             // if already there use lodestoneClient.GetCharacter() instead!
             if (response == null)
-                return false;
+                return false;*/
             // TODO: Netstone does not expose the current active class in the LodestoneCharacter class, even though
             // it's technically there. Either fork and add that functionality, or write a short translator from
             // main hand -> job
