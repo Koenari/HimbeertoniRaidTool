@@ -46,16 +46,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         //Still first version no upgrade possible
         private void Upgrade() { }
-        [Obsolete]
-        public void FillFromLegacy(LegacyConfiguration leg)
-        {
-            Data.BISUserOverride = leg.BISUserOverride;
-            Data.LootRuling = leg.LootRuling;
-            Data.OpenOnStartup = leg.OpenLootMasterOnStartup;
-            Data.HideInBattle = leg.LootMasterHideInBattle;
-            Data.LastGroupIndex = leg.LootmasterUiLastIndex;
-            Data.RaidTierOverride = leg.RaidTierOverride;
-        }
         internal sealed class ConfigUi : IHrtConfigUi
         {
             private readonly LootMasterConfiguration _config;

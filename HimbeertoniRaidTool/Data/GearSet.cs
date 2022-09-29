@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
-    [JsonObject(MemberSerialization.OptIn)]
+    [JsonObject(MemberSerialization.OptIn, MissingMemberHandling = MissingMemberHandling.Ignore)]
     public class GearSet
     {
         [JsonProperty("TimeStamp")]
@@ -66,7 +66,6 @@ namespace HimbeertoniRaidTool.Data
 
             }
         }
-        [JsonConstructor]
         public GearSet()
         {
             ManagedBy = GearSetManager.HRT;

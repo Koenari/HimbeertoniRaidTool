@@ -51,68 +51,6 @@ namespace HimbeertoniRaidTool.Data
         Savage,
         Ultimate
     }
-    [Obsolete]
-    public enum AvailableClasses
-    {
-        [Role(Role.Healer)]
-        AST,
-        [Role(Role.Caster)]
-        BLM,
-        [Role(Role.Caster)]
-        BLU,
-        [Role(Role.Ranged)]
-        BRD,
-        [Role(Role.Ranged)]
-        DNC,
-        [Role(Role.Melee)]
-        DRG,
-        [Role(Role.Tank)]
-        DRK,
-        [Role(Role.Tank)]
-        GNB,
-        [Role(Role.Ranged)]
-        MCH,
-        [Role(Role.Melee)]
-        MNK,
-        [Stat(StatType.Dexterity)]
-        [Role(Role.Melee)]
-        NIN,
-        [Role(Role.Tank)]
-        PLD,
-        [Role(Role.Caster)]
-        RDM,
-        [Role(Role.Melee)]
-        RPR,
-        [Role(Role.Melee)]
-        SAM,
-        [Role(Role.Healer)]
-        SCH,
-        [Role(Role.Healer)]
-        SGE,
-        [Role(Role.Caster)]
-        SMN,
-        [Role(Role.Tank)]
-        WAR,
-        [Role(Role.Healer)]
-        WHM,
-        [Role(Role.Tank)]
-        GLA,
-        [Role(Role.Tank)]
-        MRD,
-        [Role(Role.Melee)]
-        LNC,
-        [Role(Role.Melee)]
-        PGL,
-        [Role(Role.Ranged)]
-        ARC,
-        [Role(Role.Caster)]
-        THM,
-        [Role(Role.Caster)]
-        ACN,
-        [Role(Role.Healer)]
-        CNJ
-    }
-
     public enum Job : byte
     {
         ADV = 0,

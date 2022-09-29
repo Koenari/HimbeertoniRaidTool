@@ -25,6 +25,7 @@ namespace HimbeertoniRaidTool.DataManagement
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
             TypeNameHandling = TypeNameHandling.None,
             NullValueHandling = NullValueHandling.Ignore,
+            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
         };
         public HrtDataManager(DalamudPluginInterface pluginInterface)
         {
@@ -106,31 +107,6 @@ namespace HimbeertoniRaidTool.DataManagement
             while (Saving)
                 Thread.Sleep(100);
             return GearDB.UpdateIndex(oldID, ref gs);
-        }
-        [Obsolete("Only used to convert from legacy config")]
-        public void Fill(List<RaidGroup> rg)
-        {
-            _Groups = rg;
-            for (int i = 0; i < _Groups.Count; i++)
-            {
-                for (int j = 0; j < _Groups[i].Players.Length; j++)
-                {
-                    for (int k = 0; k < _Groups[i].Players[j].Chars.Count; k++)
-                    {
-                        Character c = _Groups[i].Players[j].Chars[k];
-                        GetManagedCharacter(ref c);
-                        _Groups[i].Players[j].Chars[k] = c;
-                        for (int l = 0; l < c.Classes.Count; l++)
-                        {
-                            PlayableClass pc = c.Classes[l];
-                            pc.Gear.Name = "HrtCurrent";
-                            pc.Gear.HrtID = GearSet.GenerateID(c, pc.Job, pc.Gear);
-                            pc.BIS.ManagedBy = GearSetManager.Etro;
-                            pc.ManageGear();
-                        }
-                    }
-                }
-            }
         }
         public void UpdateEtroSets(int maxAgeDays) => GearDB?.UpdateEtroSets(maxAgeDays);
         public bool Save()

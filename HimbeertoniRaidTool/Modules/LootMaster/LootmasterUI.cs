@@ -413,17 +413,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     //See if Cahracter is in range to inspect and interact
                     var playerChar = Helper.TryGetChar(player.MainChar.Name, player.MainChar.HomeWorld);
-                    //Code to correct characters created before homeworld was tracked (should be obsolete by now)
-                    if (c.HomeWorldID == 0 && playerChar is null)
-                    {
-                        playerChar = Helper.TryGetChar(player.MainChar.Name);
-                        if (playerChar is not null && !Services.HrtDataManager.CharacterExists(playerChar.HomeWorld.Id, player.MainChar.Name))
-                        {
-                            uint worldID = player.MainChar.HomeWorldID;
-                            player.MainChar.HomeWorldID = playerChar.HomeWorld.Id;
-                            Services.HrtDataManager.RearrangeCharacter(worldID, player.MainChar.Name, ref c);
-                        }
-                    }
                     ImGuiHelper.GearUpdateButton(player);
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange{player.Pos}", "Swap Position"))
