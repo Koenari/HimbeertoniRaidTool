@@ -43,7 +43,7 @@ namespace HimbeertoniRaidTool.DataManagement
         internal bool Exists(uint worldID, string name) =>
             CharDB.ContainsKey(worldID) && CharDB[worldID].ContainsKey(name);
 
-        internal void AddOrGetCharacter(ref Character c)
+        internal bool AddOrGetCharacter(ref Character c)
         {
             if (!CharDB.ContainsKey(c.HomeWorldID))
                 CharDB.Add(c.HomeWorldID, new Dictionary<string, Character>());
@@ -51,12 +51,14 @@ namespace HimbeertoniRaidTool.DataManagement
                 CharDB[c.HomeWorldID].Add(c.Name, c);
             if (CharDB[c.HomeWorldID].TryGetValue(c.Name, out Character? c2))
                 c = c2;
+            return true;
         }
-        internal void UpdateIndex(uint oldWorld, string oldName, ref Character c)
+        internal bool UpdateIndex(uint oldWorld, string oldName, ref Character c)
         {
             if (CharDB.ContainsKey(oldWorld))
                 CharDB[oldWorld].Remove(oldName);
             AddOrGetCharacter(ref c);
+            return true;
         }
         internal bool Save(GearDB gearDB)
         {

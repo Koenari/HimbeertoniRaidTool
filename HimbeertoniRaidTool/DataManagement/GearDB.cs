@@ -31,7 +31,7 @@ namespace HimbeertoniRaidTool.DataManagement
                 EtroDBJsonFile.OpenText().ReadToEnd(),
                 HrtDataManager.JsonSerializerSettings) ?? new();
         }
-        internal void AddOrGetSet(ref GearSet gearSet)
+        internal bool AddOrGetSet(ref GearSet gearSet)
         {
             if (gearSet.ManagedBy == GearSetManager.HRT && gearSet.HrtID.Length > 0)
             {
@@ -51,8 +51,9 @@ namespace HimbeertoniRaidTool.DataManagement
                 if (EtroGearDB.TryGetValue(gearSet.EtroID, out GearSet? result))
                     gearSet = result;
             }
+            return true;
         }
-        internal void UpdateIndex(string oldID, ref GearSet gs)
+        internal bool UpdateIndex(string oldID, ref GearSet gs)
         {
             if (gs.ManagedBy == GearSetManager.HRT)
             {
@@ -66,6 +67,7 @@ namespace HimbeertoniRaidTool.DataManagement
                     EtroGearDB.Remove(oldID);
                 AddOrGetSet(ref gs);
             }
+            return true;
         }
         internal void UpdateEtroSets(int maxAgeInDays)
         {
