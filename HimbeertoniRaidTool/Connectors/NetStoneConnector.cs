@@ -23,7 +23,6 @@ namespace HimbeertoniRaidTool.Connectors
             Job? foundJob;
 
             string itemName = "Engraved Goatskin Grimoire";
-            string jobstone = "Soul of the Summoner";
 
             try
             {
