@@ -21,11 +21,21 @@ namespace HimbeertoniRaidTool.Connectors
         private static Dictionary<char, byte> romanNumerals = new() {
             { 'I', 1 }, { 'V', 5 }, { 'X', 10 }, { 'L', 50 }
         };
-        private static bool isActive = false;
 
+        // This setup deactives the button once it's clicked, but that deactivates all instances of this button.
+        // If used multiple times, maybe a chaching approach which doesn't care how often the users fetch from lodestone
+        // is a far better approach then.
+        private static bool isActive = false;
         public static bool Active => isActive;
         
-        public static async Task<HrtUiMessage> Debug(Player p)
+        /// <summary>
+        /// Update current main char of a given player with the currently displayed information
+        /// on lodestone regarding current active job, current active job level and current active job gearset including 
+        /// materia.
+        /// </summary>
+        /// <param name="p">Player to be updated.</param>
+        /// <returns></returns>
+        public static async Task<HrtUiMessage> UpdateCharacterFromLodestone(Player p)
         {
             isActive = true;
             itemSheet ??= Services.DataManager.GetExcelSheet<Item>()!;
@@ -35,8 +45,6 @@ namespace HimbeertoniRaidTool.Connectors
 
             try
             {
-                // Lookup player lodestone id - if not found, search by name and add id
-                PluginLog.Log("Fetching Character..");
                 LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
                 if (lodestoneCharacter == null)
                     return new HrtUiMessage("Character not found on Lodestone.", HrtUiMessageType.Failure);
@@ -112,6 +120,11 @@ namespace HimbeertoniRaidTool.Connectors
             }
         }
 
+        /// <summary>
+        /// Fetch a given character from lodestone either by it's name and homeworld or by it's lodestone id.
+        /// </summary>
+        /// <param name="c">Character to be fetched.</param>
+        /// <returns></returns>
         private static async Task<LodestoneCharacter?> FetchCharacterFromLodestone(Character c)
         {
             World? homeWorld = c.HomeWorld;
@@ -167,15 +180,6 @@ namespace HimbeertoniRaidTool.Connectors
             }
             sum -= 1;
             return sum;
-        }
-
-        private static async Task<LodestoneCharacter> FetchDebugCharacter(string name, string world)
-        {
-            return await lodestoneClient.SearchCharacter(new CharacterSearchQuery()
-            {
-                CharacterName = name,
-                World = world
-            }).Result.Results.FirstOrDefault(character => character.Name == name).GetCharacter();
         }
     }
 }
