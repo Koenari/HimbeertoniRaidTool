@@ -84,15 +84,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, p.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
             ImGui.SameLine();
+            if (NetStoneConnector.Active)
+                ImGui.BeginDisabled();
             if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, p.Pos.ToString()
                 , Localize("Lodestone Button", "Download Gear from Lodestone"), true))
             {
-                // Netstoneconnector.GetCurrentGearFromLodeStone(p) can be made async, has to return HrtUiMessage then
-                /*Services.TaskManager.RegisterTask(_lootMaster, () => NetStoneConnector.GetCurrentGearFromLodestone(p),
-                    $"Pulling Gear from Lodestone for Character {p.MainChar.Name} succeeded",
-                    $"Pulling Gear from Lodestone for Character {p.MainChar.Name} failed.");*/
                 Services.TaskManager.RegisterTask(_lootMaster, NetStoneConnector.Debug(p));
             }
+            if (NetStoneConnector.Active)
+                ImGui.EndDisabled();
 
             foreach (var playableClass in p.MainChar.Classes)
             {

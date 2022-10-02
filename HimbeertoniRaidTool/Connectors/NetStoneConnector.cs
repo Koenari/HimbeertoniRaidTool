@@ -18,12 +18,16 @@ namespace HimbeertoniRaidTool.Connectors
         private static LodestoneClient? lodestoneClient = null;
         private static Lumina.Excel.ExcelSheet<Item>? itemSheet;
         private static Lumina.Excel.ExcelSheet<Materia>? materiaSheet;
-        private static Dictionary<char, byte> romanNumerals = new() { 
+        private static Dictionary<char, byte> romanNumerals = new() {
             { 'I', 1 }, { 'V', 5 }, { 'X', 10 }, { 'L', 50 }
         };
+        private static bool isActive = false;
+
+        public static bool Active => isActive;
         
         public static async Task<HrtUiMessage> Debug(Player p)
         {
+            isActive = true;
             itemSheet ??= Services.DataManager.GetExcelSheet<Item>()!;
             materiaSheet ??= Services.DataManager.GetExcelSheet<Materia>()!;
             lodestoneClient ??= await LodestoneClient.GetClientAsync();
@@ -101,6 +105,10 @@ namespace HimbeertoniRaidTool.Connectors
                 PluginLog.LogError(e.Message);
                 PluginLog.LogError(e.StackTrace ?? "");
                 return new HrtUiMessage("Could not successfully update gear from Lodestone.", HrtUiMessageType.Error);
+            }
+            finally
+            {
+                isActive = false;
             }
         }
 
