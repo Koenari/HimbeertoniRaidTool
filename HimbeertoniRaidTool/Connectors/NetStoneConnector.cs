@@ -23,7 +23,7 @@ namespace HimbeertoniRaidTool.Connectors
         };
 
         // This setup deactives the button once it's clicked, but that deactivates all instances of this button.
-        // If used multiple times, maybe a chaching approach which doesn't care how often the users fetch from lodestone
+        // If used multiple times, maybe a caching approach which doesn't care how often the users fetch from lodestone
         // is a far better approach then.
         private static bool isActive = false;
         public static bool Active => isActive;
@@ -42,6 +42,7 @@ namespace HimbeertoniRaidTool.Connectors
             materiaSheet ??= Services.DataManager.GetExcelSheet<Materia>()!;
             lodestoneClient ??= await LodestoneClient.GetClientAsync();
             Job? foundJob;
+            bool isHq;
 
             try
             {
@@ -49,9 +50,9 @@ namespace HimbeertoniRaidTool.Connectors
                 if (lodestoneCharacter == null)
                     return new HrtUiMessage("Character not found on Lodestone.", HrtUiMessageType.Failure);
                 if (lodestoneCharacter.Gear.Soulcrystal != null)
-                    foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Soulcrystal.ItemName)?.ClassJobUse.Row;
+                    foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Soulcrystal.ItemName, out isHq)?.ClassJobUse.Row;
                 else
-                    foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand.ItemName)?.ClassJobUse.Row;
+                    foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand.ItemName, out isHq)?.ClassJobUse.Row;
                 if (foundJob == null || !Enum.IsDefined(typeof(Job), foundJob))
                     return new HrtUiMessage("Could not resolve currently used job or currently displayed job on " +
                         "Lodestone is not supported.", HrtUiMessageType.Failure);
@@ -83,16 +84,17 @@ namespace HimbeertoniRaidTool.Connectors
                         classToChange.Gear[slot] = new();
                         return;
                     }
-                    Item? itemEntry = GetItemByName(gearPiece.ItemName);
+                    Item? itemEntry = GetItemByName(gearPiece.ItemName, out isHq);
                     if (itemEntry == null)
                     {
                         PluginLog.Warning($"Tried parsing the item <{gearPiece.ItemName}> but found nothing.");
                         classToChange.Gear[slot] = new();
                         return;
                     }
+
                     uint gearId = itemEntry.RowId;
                     classToChange.Gear[slot] = new(gearId);
-
+                    classToChange.Gear[slot].IsHq = isHq;
                     foreach (string materia in gearPiece.Materia)
                     {
                         if (string.IsNullOrEmpty(materia))
@@ -154,8 +156,14 @@ namespace HimbeertoniRaidTool.Connectors
             return foundCharacter;
         }
 
-        private static Item? GetItemByName(string name)
+        private static Item? GetItemByName(string name, out bool isHq)
         {
+            isHq = false;
+            if (!char.IsLetterOrDigit(name.Last()))
+            {
+                name = name.Remove(name.Length - 1, 1);
+                isHq = true;
+            }
             return itemSheet!.FirstOrDefault(item => item.Name.RawString.Equals(
                 name, System.StringComparison.InvariantCultureIgnoreCase));
         }
