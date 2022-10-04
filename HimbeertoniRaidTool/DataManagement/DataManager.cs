@@ -60,7 +60,7 @@ namespace HimbeertoniRaidTool.DataManagement
                 return new();
             return CharacterDB.GetUsedWorlds();
         }
-        public List<string> GetCharacters(uint worldID)
+        public List<string> GetCharacterNames(uint worldID)
         {
             if (!Initialized || CharacterDB is null)
                 return new();
@@ -68,26 +68,32 @@ namespace HimbeertoniRaidTool.DataManagement
         }
         public bool CharacterExists(uint worldID, string name) =>
             CharacterDB?.Exists(worldID, name) ?? false;
-        public bool GetManagedGearSet(ref GearSet gs)
+        public bool GetManagedGearSet(ref GearSet gs, bool doNotWaitOnSaving = false)
         {
             if (!Initialized || GearDB is null)
+                return false;
+            if (Saving && doNotWaitOnSaving)
                 return false;
             while (Saving)
                 Thread.Sleep(100);
             return GearDB.AddOrGetSet(ref gs);
         }
-        public bool GetManagedCharacter(ref Character c)
+        public bool GetManagedCharacter(ref Character c, bool doNotWaitOnSaving = false)
         {
             if (!Initialized || CharacterDB is null)
+                return false;
+            if (Saving && doNotWaitOnSaving)
                 return false;
             while (Saving)
                 Thread.Sleep(100);
             return CharacterDB.AddOrGetCharacter(ref c);
         }
-        public bool RearrangeCharacter(uint oldWorld, string oldName, ref Character c)
+        public bool RearrangeCharacter(uint oldWorld, string oldName, ref Character c, bool doNotWaitOnSaving = false)
         {
             bool hasError = false;
             if (!Initialized || CharacterDB is null || GearDB is null)
+                return false;
+            if (Saving && doNotWaitOnSaving)
                 return false;
             while (Saving)
                 Thread.Sleep(100);
@@ -100,9 +106,11 @@ namespace HimbeertoniRaidTool.DataManagement
             }
             return !hasError;
         }
-        public bool RearrangeGearSet(string oldID, ref GearSet gs)
+        public bool RearrangeGearSet(string oldID, ref GearSet gs, bool doNotWaitOnSaving = false)
         {
             if (!Initialized || GearDB is null)
+                return false;
+            if (Saving && doNotWaitOnSaving)
                 return false;
             while (Saving)
                 Thread.Sleep(100);

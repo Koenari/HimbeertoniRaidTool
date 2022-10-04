@@ -578,7 +578,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.InputText(Localize("Player Name", "Player Name"), ref NickName, 50);
             if (ImGui.ListBox("World", ref worldSelectIndex, WorldNames, WorldNames.Length))
             {
-                var list = Services.HrtDataManager.GetCharacters(Worlds[worldSelectIndex]);
+                var list = Services.HrtDataManager.GetCharacterNames(Worlds[worldSelectIndex]);
                 list.Sort();
                 CharacterNames = list.ToArray();
             }
