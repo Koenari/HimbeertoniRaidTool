@@ -113,7 +113,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 return;
             Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
 
-            Services.HrtDataManager.GetManagedCharacter(ref targetChar);
+            if (!Services.HrtDataManager.GetManagedCharacter(ref targetChar, true))
+                return;
             if (targetChar is null)
                 return;
             var targetClass = (Job)target.GetJob()!;
