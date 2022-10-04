@@ -20,11 +20,12 @@ namespace HimbeertoniRaidTool.UI
         private readonly string _id;
         protected string Title;
         protected Vector2 Size = default;
+        private Vector2 ScaledSize = default;
         protected ImGuiCond SizingCondition = ImGuiCond.Appearing;
         protected ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.None;
         private readonly List<HrtUI> Children = new();
-
-
+        public static float ScaleFactor { get; private set; } = 1f;
+        private static TimeSpan ScaleFactorTimeSinceLastUpdate = TimeSpan.Zero;
         public HrtUI(bool @volatile = true, string? id = null)
         {
             RegisterActions();
@@ -61,6 +62,11 @@ namespace HimbeertoniRaidTool.UI
         protected virtual void OnUpdate() { }
         private void Update(Framework fw)
         {
+            if (ScaleFactorTimeSinceLastUpdate > TimeSpan.FromSeconds(2))
+            {
+                ScaleFactorTimeSinceLastUpdate = TimeSpan.Zero;
+                ScaleFactor = Dalamud.Interface.UiBuilder.DefaultFont.FontSize / 12f;
+            }
             if (!Visible)
                 Children.ForEach(x => x.Hide());
             if (!Visible && _volatile)
@@ -116,7 +122,8 @@ namespace HimbeertoniRaidTool.UI
                 && (Services.ClientState.LocalPlayer?.StatusFlags.HasFlag(Dalamud.Game.ClientState.Objects.Enums.StatusFlags.InCombat) ?? false))
                 return;
             Children.ForEach(_ => _.InternalDraw());
-            ImGui.SetNextWindowSize(Size, SizingCondition);
+            ScaledSize = Size * ScaleFactor;
+            ImGui.SetNextWindowSize(ScaledSize, SizingCondition);
             if (ImGui.Begin($"{Title}##{_id}", ref Visible, WindowFlags))
             {
                 Size = ImGui.GetWindowSize();
