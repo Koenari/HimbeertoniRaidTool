@@ -26,8 +26,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _lootMaster = lootMaster;
             _CurrenGroupIndex = 0;
             Size = new Vector2(1600, 670);
+            SizingCondition = ImGuiCond.FirstUseEver;
             Title = Localize("LootMasterWindowTitle", "Loot Master");
-            WindowFlags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize;
 
         }
         protected override void BeforeDispose()
