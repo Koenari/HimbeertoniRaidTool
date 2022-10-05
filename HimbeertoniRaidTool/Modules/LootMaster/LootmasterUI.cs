@@ -87,7 +87,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
                 if (isMainJob)
                     ImGui.PushStyleColor(ImGuiCol.Button, Vec4(ColorName.Redwood.ToHsv().Value(0.6f)));
-                if (ImGuiHelper.Button(playableClass.Job.ToString(), null, true, new Vector2(38f, 0f)))
+                if (ImGuiHelper.Button(playableClass.Job.ToString(), null, true, new Vector2(38f * ScaleFactor, 0f)))
                     p.MainChar.MainJob = playableClass.Job;
                 if (isMainJob)
                     ImGui.PopStyleColor();
@@ -335,10 +335,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
 
                 ImGui.TableNextColumn();
-                ImGui.Text($"{player.Pos}:");
-                ImGui.SameLine();
-                ImGui.SetCursorPosX(60f);
-                ImGui.Text($"{player.NickName}");
+                ImGui.Text($"{player.Pos}:   {player.NickName}");
                 ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? "n.A."}");
                 var c = player.MainChar;
                 if (hasClasses)
@@ -355,8 +352,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         ImGui.Text(player.MainChar.MainJob.ToString());
                     }
                     ImGui.SameLine();
-                    ImGui.SetCursorPosX(110f);
-                    ImGui.Text(string.Format(Localize("LvLShort", "Lvl: {0}"), player.MainChar.MainClass?.Level ?? 1));
+                    string levelStr = $"{Localize("LvLShort", "Lvl")}: {player.MainChar.MainClass?.Level ?? 1}";
+                    float posX = ImGui.GetCursorPosX() + ImGui.GetColumnWidth() - ImGui.CalcTextSize(levelStr).X
+                        - ImGui.GetScrollX() - ImGui.GetStyle().ItemSpacing.X;
+                    if (posX > ImGui.GetCursorPosX())
+                        ImGui.SetCursorPosX(posX);
+                    ImGui.Text(levelStr);
                     var gear = player.Gear;
                     var bis = player.BIS;
                     ImGui.TableNextColumn();
@@ -408,7 +409,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     var playerChar = Helper.TryGetChar(player.MainChar.Name, player.MainChar.HomeWorld);
                     ImGuiHelper.GearUpdateButton(player);
                     ImGui.SameLine();
-                    if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange{player.Pos}", "Swap Position"))
+                    if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange{player.Pos}", "Swap Position", true, ImGui.GetItemRectSize()))
                     {
                         AddChild(new SwapPositionWindow(player.Pos, CurrentGroup));
                     }
@@ -506,7 +507,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             var currentLootSources = new LootSource[4];
             int selectedTier = Array.IndexOf(CuratedData.RaidTiers, _lootMaster.Configuration.Data.SelectedRaidTier);
-            ImGui.SetNextItemWidth(150);
+            ImGui.SetNextItemWidth(ImGui.CalcTextSize(CuratedData.RaidTiers[selectedTier].Name).X + 32f * ScaleFactor);
             if (ImGui.Combo("##Raid Tier", ref selectedTier, Array.ConvertAll(CuratedData.RaidTiers, x => x.Name), CuratedData.RaidTiers.Length))
             {
                 if (selectedTier != Array.IndexOf(CuratedData.RaidTiers, CuratedData.CurrentRaidSavage))
