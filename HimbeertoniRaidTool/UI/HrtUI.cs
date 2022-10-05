@@ -19,12 +19,13 @@ namespace HimbeertoniRaidTool.UI
         protected bool Visible = false;
         private readonly string _id;
         protected string Title;
+        private Vector2 LastSize = default;
         protected Vector2 Size = default;
+        private Vector2 ScaledSize = default;
         protected ImGuiCond SizingCondition = ImGuiCond.Appearing;
         protected ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.None;
         private readonly List<HrtUI> Children = new();
-
-
+        public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
         public HrtUI(bool @volatile = true, string? id = null)
         {
             RegisterActions();
@@ -116,10 +117,13 @@ namespace HimbeertoniRaidTool.UI
                 && (Services.ClientState.LocalPlayer?.StatusFlags.HasFlag(Dalamud.Game.ClientState.Objects.Enums.StatusFlags.InCombat) ?? false))
                 return;
             Children.ForEach(_ => _.InternalDraw());
-            ImGui.SetNextWindowSize(Size, SizingCondition);
+            ScaledSize = Size * ScaleFactor;
+            ImGui.SetNextWindowSize(ScaledSize, (LastSize != ScaledSize) ? ImGuiCond.Always : SizingCondition);
             if (ImGui.Begin($"{Title}##{_id}", ref Visible, WindowFlags))
             {
-                Size = ImGui.GetWindowSize();
+                ScaledSize = ImGui.GetWindowSize();
+                Size = ScaledSize / ScaleFactor;
+                LastSize = ScaledSize;
                 Draw();
                 ImGui.End();
             }

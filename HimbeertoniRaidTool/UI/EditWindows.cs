@@ -223,9 +223,8 @@ namespace HimbeertoniRaidTool.UI
             OnCancel = onCancel ?? (() => { });
             GroupCopy = Group.Clone();
             Show();
-            (Size, SizingCondition) = (new Vector2(500, 250), ImGuiCond.Always);
+            (Size, SizingCondition) = (new Vector2(500, 250), ImGuiCond.Appearing);
             Title = Localize("Edit Group ", "Edit Group ") + Group.Name;
-            WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
         }
 
         protected override void Draw()
@@ -266,7 +265,6 @@ namespace HimbeertoniRaidTool.UI
             _gearSet = original;
             _gearSetCopy = original.Clone();
             Title = $"{Localize("Edit", "Edit")} {(_gearSet.ManagedBy == GearSetManager.HRT ? _gearSet.HrtID : _gearSet.EtroID)}";
-            WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
         }
 
         protected override void Draw()
@@ -276,27 +274,28 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
                 Hide();
-            ImGui.BeginTable("SoloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
-            ImGui.TableSetupColumn("Gear");
-            ImGui.TableSetupColumn("Gear");
-            ImGui.TableHeadersRow();
-            DrawSlot(GearSetSlot.MainHand);
-            if (CanHaveShield)
-                DrawSlot(GearSetSlot.OffHand);
-            else
-                ImGui.TableNextColumn();
-            DrawSlot(GearSetSlot.Head);
-            DrawSlot(GearSetSlot.Ear);
-            DrawSlot(GearSetSlot.Body);
-            DrawSlot(GearSetSlot.Neck);
-            DrawSlot(GearSetSlot.Hands);
-            DrawSlot(GearSetSlot.Wrist);
-            DrawSlot(GearSetSlot.Legs);
-            DrawSlot(GearSetSlot.Ring1);
-            DrawSlot(GearSetSlot.Feet);
-            DrawSlot(GearSetSlot.Ring2);
-            ImGui.EndTable();
-            ImGui.End();
+            if (ImGui.BeginTable("SoloGear", 2, ImGuiTableFlags.Borders))
+            {
+                ImGui.TableSetupColumn("Gear");
+                ImGui.TableSetupColumn("Gear");
+                ImGui.TableHeadersRow();
+                DrawSlot(GearSetSlot.MainHand);
+                if (CanHaveShield)
+                    DrawSlot(GearSetSlot.OffHand);
+                else
+                    ImGui.TableNextColumn();
+                DrawSlot(GearSetSlot.Head);
+                DrawSlot(GearSetSlot.Ear);
+                DrawSlot(GearSetSlot.Body);
+                DrawSlot(GearSetSlot.Neck);
+                DrawSlot(GearSetSlot.Hands);
+                DrawSlot(GearSetSlot.Wrist);
+                DrawSlot(GearSetSlot.Legs);
+                DrawSlot(GearSetSlot.Ring1);
+                DrawSlot(GearSetSlot.Feet);
+                DrawSlot(GearSetSlot.Ring2);
+                ImGui.EndTable();
+            }
         }
         private void DrawSlot(GearSetSlot slot)
         {
@@ -367,7 +366,7 @@ namespace HimbeertoniRaidTool.UI
         internal SelectItemWindow(Action<T> onSave, Action<T?> onCancel)
         {
             (OnSave, OnCancel) = (onSave, onCancel);
-            WindowFlags = ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse;
+            WindowFlags = ImGuiWindowFlags.NoCollapse;
         }
 
 
@@ -433,19 +432,19 @@ namespace HimbeertoniRaidTool.UI
         protected override void DrawItemSelection()
         {
             //Draw selection bar
-            ImGui.SetNextItemWidth(65f);
+            ImGui.SetNextItemWidth(65f * ScaleFactor);
             ImGui.BeginDisabled(_lockJob);
             if (ImGuiHelper.Combo("##job", ref Job))
                 reevaluateItems();
             ImGui.EndDisabled();
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(125f);
+            ImGui.SetNextItemWidth(125f * ScaleFactor);
             ImGui.BeginDisabled(_lockSlot);
             if (ImGuiHelper.Combo("##slot", ref Slot))
                 reevaluateItems();
             ImGui.SameLine();
             ImGui.EndDisabled();
-            ImGui.SetNextItemWidth(100f);
+            ImGui.SetNextItemWidth(100f * ScaleFactor);
             int min = (int)minILvl;
             if (ImGui.InputInt("-##min", ref min, 5))
             {
@@ -454,7 +453,7 @@ namespace HimbeertoniRaidTool.UI
             }
             ImGui.SameLine();
             int max = (int)maxILvl;
-            ImGui.SetNextItemWidth(100f);
+            ImGui.SetNextItemWidth(100f * ScaleFactor);
             if (ImGui.InputInt("iLvL##Max", ref max, 5))
             {
                 maxILvl = (uint)max;
@@ -506,6 +505,7 @@ namespace HimbeertoniRaidTool.UI
         private MateriaCategory Cat;
         private byte MateriaLevel;
         private readonly int _numMatLevels;
+        private string longestName;
         protected override bool CanSave => Cat != MateriaCategory.None;
         public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, byte maxMatLvl, byte? matLevel = null) : base(onSave, onCancel)
         {
@@ -513,11 +513,14 @@ namespace HimbeertoniRaidTool.UI
             MateriaLevel = matLevel ?? maxMatLvl;
             _numMatLevels = maxMatLvl + 1;
             Title = Localize("Select Materia", "Select Materia");
+            Size = new(ImGui.CalcTextSize(longestName).X + 200f, 120f);
+            longestName = Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "";
         }
 
         protected override void DrawItemSelection()
         {
             int catSlot = Array.IndexOf(Enum.GetValues<MateriaCategory>(), Cat);
+            ImGui.SetNextItemWidth(ImGui.CalcTextSize(longestName).X + 40f * ScaleFactor);
             if (ImGui.Combo($"{Localize("Type", "Type")}##Category", ref catSlot, Enum.GetNames<MateriaCategory>(), Enum.GetValues<MateriaCategory>().Length))
             {
                 Cat = Enum.GetValues<MateriaCategory>()[catSlot];
@@ -526,6 +529,7 @@ namespace HimbeertoniRaidTool.UI
             }
 
             int level = MateriaLevel;
+            ImGui.SetNextItemWidth(ImGui.CalcTextSize(longestName).X + 40f * ScaleFactor);
             if (ImGui.Combo($"{Localize("Tier", "Tier")}##Level", ref level, Array.ConvertAll(Enumerable.Range(1, _numMatLevels).ToArray(), x => x.ToString()), _numMatLevels))
             {
                 MateriaLevel = (byte)level;
