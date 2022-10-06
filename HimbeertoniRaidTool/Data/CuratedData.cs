@@ -124,7 +124,7 @@ namespace HimbeertoniRaidTool.Data
             { "Bluefeather", GearSource.Trial },
             //6.2
             { "Purgatory", GearSource.Raid },
-            { "Abyssos", GearSource.Raid },
+            { "Abyss", GearSource.Raid },
             { "Rinascita", GearSource.Crafted },
             { "Lunar Envoy", GearSource.Tome },
             { "Windswept", GearSource.Trial },
