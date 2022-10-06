@@ -60,9 +60,9 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
             ImGui.Text(Localize("Character Data", "Character Data"));
             if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50)
-                 && Helper.TryGetChar(PlayerCopy.MainChar.Name) is not null)
+                 && Helper.TryGetChar(out var pc, PlayerCopy.MainChar.Name))
             {
-                PlayerCopy.MainChar.HomeWorld ??= Helper.TryGetChar(PlayerCopy.MainChar.Name)?.HomeWorld.GameData;
+                PlayerCopy.MainChar.HomeWorld ??= pc?.HomeWorld.GameData;
             }
             if (ImGuiHelper.ExcelSheetCombo(Localize("Home World", "Home World") + "##" + Title, out World? w,
                 x => PlayerCopy.MainChar.HomeWorld?.Name.RawString ?? "", ImGuiComboFlags.None,

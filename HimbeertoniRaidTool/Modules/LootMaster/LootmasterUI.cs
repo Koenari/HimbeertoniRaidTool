@@ -405,8 +405,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                  * Start of functional button section
                  */
                 {
-                    //See if Cahracter is in range to inspect and interact
-                    var playerChar = Helper.TryGetChar(player.MainChar.Name, player.MainChar.HomeWorld);
                     ImGuiHelper.GearUpdateButton(player);
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange{player.Pos}", "Swap Position", true, ImGui.GetItemRectSize()))

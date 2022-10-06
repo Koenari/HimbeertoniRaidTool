@@ -23,21 +23,32 @@ namespace HimbeertoniRaidTool
                     return row;
             return null;
         }
-        public static PlayerCharacter? TryGetChar(string name, World? w = null)
+        public static bool TryGetChar(out PlayerCharacter? result, string name, World? w = null)
         {
+            result = null;
             if (name == null)
-                return null;
+                return false;
             if (name.Equals(TargetChar?.Name.TextValue))
                 if (w is null || TargetChar!.HomeWorld.GameData?.RowId == w.RowId)
-                    return TargetChar;
+                {
+                    result = TargetChar;
+                    return true;
+                }
+
             if (name.Equals(Self?.Name.TextValue))
                 if (w is null || Self!.HomeWorld.GameData?.RowId == w.RowId)
-                    return Self;
+                {
+                    result = Self;
+                    return true;
+                }
             foreach (var obj in Services.ObjectTable)
                 if (obj.GetType().IsAssignableTo(typeof(PlayerCharacter)) && name.Equals(obj?.Name.TextValue))
                     if (w is null || ((PlayerCharacter)obj).HomeWorld.GameData?.RowId == w.RowId)
-                        return (PlayerCharacter)obj;
-            return null;
+                    {
+                        result = (PlayerCharacter)obj;
+                        return true;
+                    }
+            return false;
         }
         public static PlayerCharacter? TargetChar
         {

@@ -87,7 +87,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (useSelf)
                 character = Helper.Self;
             if (character == null)
-                character = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
+                Helper.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
             if (character == null)
                 return;
             var c = new Character(character.Name.TextValue, character.HomeWorld.Id);
@@ -215,12 +215,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     p.MainChar.Classes.Clear();
                     bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
-
-                    var pc = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
-                    if (pc != null && canParseJob && c != Job.ADV)
+                    ;
+                    if (Helper.TryGetChar(out var pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                     {
                         p.MainChar.MainJob = c;
-                        p.MainChar.MainClass!.Level = pc.Level;
+                        p.MainChar.MainClass!.Level = pc!.Level;
                         GearSet BIS = new()
                         {
                             ManagedBy = GearSetManager.Etro,
