@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 
@@ -8,6 +9,8 @@ namespace HimbeertoniRaidTool.Data
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class Character : IEquatable<Character>
     {
+        private static readonly ExcelSheet<World>? _worldSheet = Services.DataManager.GetExcelSheet<World>();
+        private static readonly ExcelSheet<Tribe> _tribeSheet = Services.DataManager.GetExcelSheet<Tribe>()!;
         [JsonProperty("Classes")]
         public List<PlayableClass> Classes = new();
         [JsonProperty("Name")]
@@ -22,12 +25,12 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty]
         public Gender Gender = Gender.Unknown;
         [JsonIgnore]
-        public Tribe Tribe => Services.DataManager.GetExcelSheet<Tribe>()!.GetRow(TribeID)!;
+        public Tribe Tribe => _tribeSheet.GetRow(TribeID)!;
         [JsonProperty("LodestoneID")]
         public int LodestoneID = 0;
         public World? HomeWorld
         {
-            get => HomeWorldID > 0 ? Services.DataManager.GetExcelSheet<World>()?.GetRow(HomeWorldID) : null;
+            get => HomeWorldID > 0 ? _worldSheet?.GetRow(HomeWorldID) : null;
             set => HomeWorldID = value?.RowId ?? 0;
         }
         public bool Filled => Name != "";

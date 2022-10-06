@@ -1,4 +1,5 @@
-﻿using Lumina.Excel.GeneratedSheets;
+﻿using Lumina.Excel;
+using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
@@ -6,10 +7,11 @@ namespace HimbeertoniRaidTool.Data
     [JsonObject(MemberSerialization.OptIn)]
     public class PlayableClass
     {
+        private static readonly ExcelSheet<ClassJob> _classJobSheet = Services.DataManager.GetExcelSheet<ClassJob>()!;
         [JsonProperty("Job")]
         public Job Job;
         [JsonIgnore]
-        public ClassJob ClassJob => Services.DataManager.GetExcelSheet<ClassJob>()!.GetRow((uint)Job)!;
+        public ClassJob ClassJob => _classJobSheet.GetRow((uint)Job)!;
         public Character? Parent { get; private set; }
         [JsonProperty("Level")]
         public int Level = 1;
