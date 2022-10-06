@@ -114,7 +114,11 @@ namespace HimbeertoniRaidTool.DataManagement
             if (!Initialized || GearDB is null)
                 return false;
             while (Serializing)
-                Thread.Sleep(10);
+            {
+                if (doNotWaitOnSaving)
+                    return false;
+                Thread.Sleep(1);
+            }
             return GearDB.AddOrGetSet(ref gs);
         }
         public bool GetManagedCharacter(ref Character c, bool doNotWaitOnSaving = false)
@@ -122,7 +126,11 @@ namespace HimbeertoniRaidTool.DataManagement
             if (!Initialized || CharacterDB is null)
                 return false;
             while (Serializing)
-                Thread.Sleep(10);
+            {
+                if (doNotWaitOnSaving)
+                    return false;
+                Thread.Sleep(1);
+            }
             return CharacterDB.AddOrGetCharacter(ref c);
         }
         public bool RearrangeCharacter(uint oldWorld, string oldName, ref Character c, bool doNotWaitOnSaving = false)
@@ -131,7 +139,11 @@ namespace HimbeertoniRaidTool.DataManagement
             if (!Initialized || CharacterDB is null || GearDB is null)
                 return false;
             while (Serializing)
-                Thread.Sleep(10);
+            {
+                if (doNotWaitOnSaving)
+                    return false;
+                Thread.Sleep(1);
+            }
             hasError |= CharacterDB.UpdateIndex(oldWorld, oldName, ref c);
             for (int i = 0; i < c.Classes.Count; i++)
             {
@@ -146,7 +158,11 @@ namespace HimbeertoniRaidTool.DataManagement
             if (!Initialized || GearDB is null)
                 return false;
             while (Serializing)
-                Thread.Sleep(10);
+            {
+                if (doNotWaitOnSaving)
+                    return false;
+                Thread.Sleep(1);
+            }
             return GearDB.UpdateIndex(oldID, ref gs);
         }
         public void UpdateEtroSets(int maxAgeDays) => GearDB?.UpdateEtroSets(maxAgeDays);
