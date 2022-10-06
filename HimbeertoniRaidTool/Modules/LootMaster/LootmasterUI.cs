@@ -480,7 +480,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     ImGui.BeginGroup();
                     ImGui.TextColored(
-                        Vec4(Helper.ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel).Saturation(0.8f).Value(0.85f), 1f),
+                        Helper.ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel),
                         $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
                     if (extended)
                     {

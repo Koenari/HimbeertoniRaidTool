@@ -54,17 +54,20 @@ namespace HimbeertoniRaidTool
             Enum.TryParse(target.ClassJob.GameData?.Abbreviation.RawString, true, out Job result) ? result : null;
 
         public static PlayerCharacter? Self => Services.ClientState.LocalPlayer;
-        public static HSV ILevelColor(GearItem item, uint maxItemLevel)
+        private static readonly Vector4[] ColorCache = new Vector4[4]
         {
-            if (item.ItemLevel >= maxItemLevel)
-                return ColorName.Green.ToHsv();
-            else if (item.ItemLevel >= maxItemLevel - 10)
-                return ColorName.Aquamarine.ToHsv();
-            else if (item.ItemLevel >= maxItemLevel - 20)
-                return ColorName.Yellow.ToHsv();
-            else
-                return ColorName.Red.ToHsv();
-        }
+            HRTColorConversions.Vec4(ColorName.Green.ToHsv().Saturation(0.8f).Value(0.85f)),
+            HRTColorConversions.Vec4(ColorName.Aquamarine.ToHsv().Saturation(0.8f).Value(0.85f)),
+            HRTColorConversions.Vec4(ColorName.Yellow.ToHsv().Saturation(0.8f).Value(0.85f)),
+            HRTColorConversions.Vec4(ColorName.Red.ToHsv().Saturation(0.8f).Value(0.85f)),
+        };
+        public static Vector4 ILevelColor(GearItem item, uint maxItemLevel) => (maxItemLevel - (int)item.ItemLevel) switch
+        {
+            <= 0 => ColorCache[0],
+            <= 10 => ColorCache[1],
+            <= 20 => ColorCache[2],
+            _ => ColorCache[3],
+        };
     }
     public static class HRTExtensions
     {
