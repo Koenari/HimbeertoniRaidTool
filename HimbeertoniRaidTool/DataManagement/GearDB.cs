@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
@@ -12,24 +11,13 @@ namespace HimbeertoniRaidTool.DataManagement
     {
         private readonly Dictionary<string, GearSet> HrtGearDB;
         private readonly Dictionary<string, GearSet> EtroGearDB;
-        private readonly FileInfo HrtDBJsonFile;
-        private readonly FileInfo EtroDBJsonFile;
         private bool EtroHasUpdated = false;
-        internal GearDB(DirectoryInfo loadDir)
+        internal GearDB(string hrtGearData, string etroGearData, JsonSerializerSettings settings)
         {
-            HrtDBJsonFile = new FileInfo(loadDir.FullName + "\\HrtGearDB.json");
-            if (!HrtDBJsonFile.Exists)
-                HrtDBJsonFile.Create().Close();
-            EtroDBJsonFile = new FileInfo(loadDir.FullName + "\\EtroGearDB.json");
-
-            if (!EtroDBJsonFile.Exists)
-                EtroDBJsonFile.Create().Close();
             HrtGearDB = JsonConvert.DeserializeObject<Dictionary<string, GearSet>>(
-                HrtDBJsonFile.OpenText().ReadToEnd(),
-                HrtDataManager.JsonSerializerSettings) ?? new();
+                hrtGearData, settings) ?? new();
             EtroGearDB = JsonConvert.DeserializeObject<Dictionary<string, GearSet>>(
-                EtroDBJsonFile.OpenText().ReadToEnd(),
-                HrtDataManager.JsonSerializerSettings) ?? new();
+                etroGearData, settings) ?? new();
         }
         internal bool AddOrGetSet(ref GearSet gearSet)
         {
@@ -105,30 +93,11 @@ namespace HimbeertoniRaidTool.DataManagement
                 Message = $"Finished periodic etro Updates. ({updateCount}/{EtroGearDB.Count}) updated"
             };
         }
-        internal bool Save()
+        internal (string hrt, string etro) Serialize(JsonSerializerSettings settings)
         {
-            bool hasError = false;
-            StreamWriter? hrtWriter = null;
-            StreamWriter? etroWriter = null;
-            try
-            {
-                hrtWriter = HrtDBJsonFile.CreateText();
-                etroWriter = EtroDBJsonFile.CreateText();
-                var serializer = JsonSerializer.Create(HrtDataManager.JsonSerializerSettings);
-                serializer.Serialize(hrtWriter, HrtGearDB);
-                serializer.Serialize(etroWriter, EtroGearDB);
-            }
-            catch (Exception e)
-            {
-                PluginLog.Error("Could not write gear data\n{0}", e);
-                hasError = true;
-            }
-            finally
-            {
-                hrtWriter?.Dispose();
-                etroWriter?.Dispose();
-            }
-            return !hasError;
+            string hrtData = JsonConvert.SerializeObject(HrtGearDB, settings);
+            string etroData = JsonConvert.SerializeObject(EtroGearDB, settings);
+            return (hrtData, etroData);
         }
     }
 }
