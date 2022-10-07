@@ -9,12 +9,12 @@ namespace HimbeertoniRaidTool.DataManagement
         private readonly Dictionary<uint, Dictionary<string, Character>> CharDB;
 
 
-        internal CharacterDB(string serializedData, GearSetReferenceConverter conv)
+        internal CharacterDB(string serializedData, GearSetReferenceConverter conv, JsonSerializerSettings settings)
         {
-            HrtDataManager.JsonSettings.Converters.Add(conv);
+            settings.Converters.Add(conv);
             CharDB = JsonConvert.DeserializeObject<Dictionary<uint, Dictionary<string, Character>>>(
-                serializedData, HrtDataManager.JsonSettings) ?? new();
-            HrtDataManager.JsonSettings.Converters.Remove(conv);
+                serializedData, settings) ?? new();
+            settings.Converters.Remove(conv);
             foreach (var entry1 in CharDB)
                 foreach (var entry2 in entry1.Value)
                     foreach (var entry3 in entry2.Value.Classes)

@@ -32,7 +32,7 @@ namespace HimbeertoniRaidTool.DataManagement
         private readonly CharacterReferenceConverter CharRefConv;
         public List<RaidGroup> Groups => _Groups ?? new();
         internal ModuleConfigurationManager ModuleConfigurationManager { get; private set; }
-        internal static JsonSerializerSettings JsonSettings = new()
+        private static readonly JsonSerializerSettings JsonSettings = new()
         {
             Formatting = Formatting.Indented,
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
@@ -78,7 +78,7 @@ namespace HimbeertoniRaidTool.DataManagement
                 etroGearReader.Close();
                 GearSetRefConv = new GearSetReferenceConverter(GearDB);
                 var charDBReader = CharDBJsonFile.OpenText();
-                CharacterDB = new(charDBReader.ReadToEnd(), GearSetRefConv);
+                CharacterDB = new(charDBReader.ReadToEnd(), GearSetRefConv, JsonSettings);
                 charDBReader.Close();
                 CharRefConv = new CharacterReferenceConverter(CharacterDB);
                 JsonSettings.Converters.Add(CharRefConv);
