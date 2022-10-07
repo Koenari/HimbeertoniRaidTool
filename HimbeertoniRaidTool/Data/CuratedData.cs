@@ -19,6 +19,7 @@ namespace HimbeertoniRaidTool.Data
     /// </summary>
     internal static class CuratedData
     {
+        public static readonly int MaxLevel = 90;
         public static RaidTier CurrentRaidSavage => AbyssosSavage;
         public static RaidTier AbyssosNormal = new(6, 2, EncounterDifficulty.Normal, 620, 610, "Abyssos", 10);
         public static RaidTier AbyssosSavage = new(6, 2, EncounterDifficulty.Savage, 635, 630, "Abyssos " + Localize("Savage", "Savage"), 10);

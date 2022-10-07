@@ -22,7 +22,7 @@ namespace HimbeertoniRaidTool.UI
         private readonly bool IsNew;
         private Job newJob = Job.ADV;
         private readonly Func<Job, string> GetBisID;
-
+        private const int ClassHeight = 27 * 2 + 4;
         internal PositionInRaidGroup Pos => Player.Pos;
         internal EditPlayerWindow(Action<HrtUiMessage> callBack, RaidGroup group, PositionInRaidGroup pos, Func<Job, string> getBisID)
             : base(true, $"{group.GetHashCode()}##{pos}")
@@ -40,13 +40,13 @@ namespace HimbeertoniRaidTool.UI
                 PlayerCopy.MainChar.HomeWorldID = target.HomeWorld.Id;
                 PlayerCopy.MainChar.MainJob = target.GetJob();
                 //Ensure Main class is created if applicable
-                var c = PlayerCopy.MainChar.MainClass;
+                var _ = PlayerCopy.MainChar.MainClass;
             }
             else if (Player.Filled)
             {
                 PlayerCopy = Player.Clone();
             }
-            (Size, SizingCondition) = (new Vector2(410, 300 + (27 * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Appearing);
+            (Size, SizingCondition) = (new Vector2(450, 300 + (ClassHeight * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Appearing);
             Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}";
         }
         protected override void Draw()
@@ -101,8 +101,9 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.Text(Localize("NoClasses", "Character does not have any classes created"));
             }
             ImGui.Columns(2, "Classes", false);
-            ImGui.SetColumnWidth(0, 70f);
-            ImGui.SetColumnWidth(1, 400f);
+            ImGui.SetColumnWidth(0, 70f * ScaleFactor);
+            ImGui.SetColumnWidth(1, 400f * ScaleFactor);
+            ImGui.Separator();
             Job? toDelete = null;
             foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
             {
@@ -111,7 +112,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.SameLine();
                 ImGui.Text($"{c.Job}  ");
                 ImGui.NextColumn();
-                ImGui.SetNextItemWidth(250f);
+                ImGui.SetNextItemWidth(250f * ScaleFactor);
                 ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.BIS.EtroID, 50);
                 if (!c.BIS.EtroID.Equals(GetBisID(c.Job)))
                 {
@@ -121,11 +122,20 @@ namespace HimbeertoniRaidTool.UI
                         c.BIS.EtroID = GetBisID(c.Job);
                 }
                 ImGui.NextColumn();
+                ImGui.NextColumn();
+                ImGui.SetNextItemWidth(150f * ScaleFactor);
+                if (ImGui.InputInt($"{Localize("Level", "Level")}##{c.Job}", ref c.Level))
+                {
+                    c.Level = Math.Clamp(c.Level, 1, CuratedData.MaxLevel);
+                }
+
+                ImGui.Separator();
+                ImGui.NextColumn();
             }
             if (toDelete is not null)
             {
                 PlayerCopy.MainChar.Classes.RemoveAll(x => x.Job == toDelete);
-                Size.Y -= 27;
+                Size.Y -= ClassHeight;
                 resize = true;
             }
 
@@ -140,7 +150,7 @@ namespace HimbeertoniRaidTool.UI
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
             {
                 PlayerCopy.MainChar.GetClass(newJob).BIS.EtroID = GetBisID(newJob);
-                Size.Y += 27;
+                Size.Y += ClassHeight;
                 resize = true;
             }
 
@@ -190,6 +200,7 @@ namespace HimbeertoniRaidTool.UI
             foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
             {
                 PlayableClass target = Player.MainChar.GetClass(c.Job);
+                target.Level = c.Level;
                 if (target.BIS.EtroID.Equals(c.BIS.EtroID))
                     continue;
                 GearSet set = new()
