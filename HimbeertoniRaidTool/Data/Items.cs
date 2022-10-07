@@ -118,8 +118,9 @@ namespace HimbeertoniRaidTool.Data
         public readonly byte MateriaLevel;
         [JsonIgnore]
         private static readonly ExcelSheet<Materia> _materiaSheet = Services.DataManager.Excel.GetSheet<Materia>()!;
+        private uint? IDCache = null;
         [JsonIgnore]
-        public override uint ID => Materia?.Item[MateriaLevel].Row ?? 0;
+        public override uint ID => IDCache ??= Materia?.Item[MateriaLevel].Row ?? 0;
         public Materia? Materia => _materiaSheet.GetRow((ushort)Category);
         public StatType StatType => (StatType)(Materia?.BaseParam.Row ?? 0);
         public HrtMateria() : this(0, 0) { }
