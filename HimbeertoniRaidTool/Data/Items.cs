@@ -18,11 +18,15 @@ namespace HimbeertoniRaidTool.Data
         [JsonIgnore]
         public GearSetSlot Slot => Item?.EquipSlotCategory.Value?.ToSlot() ?? GearSetSlot.None;
         [JsonIgnore]
-        public GearSource Source => SourceDic.GetValueOrDefault(Name, GearSource.undefined);
+        private GearSource? SourceCache = null;
+        [JsonIgnore]
+        public GearSource Source => SourceCache ??= SourceDic.GetValueOrDefault(Name, GearSource.undefined);
         [JsonProperty("Materia")]
         public List<HrtMateria> Materia = new();
         [JsonIgnore]
-        public uint ItemLevel => Item?.LevelItem.Row ?? 0;
+        public uint? ILevelCache = null;
+        [JsonIgnore]
+        public uint ItemLevel => ILevelCache ??= Item?.LevelItem.Row ?? 0;
         public bool Filled => ID > 0;
         public int GetStat(StatType type, bool includeMateria = true)
         {
@@ -81,7 +85,8 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty("ID", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         protected readonly uint _ID = 0;
         public virtual uint ID => _ID;
-        public Item? Item => _itemSheet.GetRow(ID);
+        private Item? ItemCache = null;
+        public Item? Item => ItemCache ??= _itemSheet.GetRow(ID);
         public string Name => Item?.Name.RawString ?? "";
         public bool IsGear => Item?.EquipSlotCategory.Value is not null;
         /// <summary>
