@@ -405,8 +405,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                  * Start of functional button section
                  */
                 {
-                    //See if Cahracter is in range to inspect and interact
-                    var playerChar = Helper.TryGetChar(player.MainChar.Name, player.MainChar.HomeWorld);
                     ImGuiHelper.GearUpdateButton(player);
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange{player.Pos}", "Swap Position", true, ImGui.GetItemRectSize()))
@@ -480,7 +478,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     ImGui.BeginGroup();
                     ImGui.TextColored(
-                        Vec4(Helper.ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel).Saturation(0.8f).Value(0.85f), 1f),
+                        Helper.ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel),
                         $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
                     if (extended)
                     {

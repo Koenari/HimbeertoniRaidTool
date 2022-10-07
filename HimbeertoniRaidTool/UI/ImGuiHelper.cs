@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.Modules.LootMaster;
@@ -39,7 +40,7 @@ namespace HimbeertoniRaidTool.UI
         }
         public static bool GearUpdateButton(Player p)
         {
-            var playerChar = Helper.TryGetChar(p.MainChar.Name, p.MainChar.HomeWorld);
+            PlayerCharacter? playerChar = null;
             string inspectTooltip = Localize("Inspect", "Update Gear");
             bool inspectActive = true;
             if (!GearRefresherOnExamine.CanOpenExamine)
@@ -47,7 +48,7 @@ namespace HimbeertoniRaidTool.UI
                 inspectActive = false;
                 inspectTooltip = Localize("InspectUnavail", "Functionality unavailable due to incompatibility with game version");
             }
-            else if (playerChar is null)
+            else if (!Helper.TryGetChar(out playerChar, p.MainChar.Name, p.MainChar.HomeWorld))
             {
                 inspectActive = false;
                 inspectTooltip = Localize("CharacterNotInReach", "Character is not in reach to examine");

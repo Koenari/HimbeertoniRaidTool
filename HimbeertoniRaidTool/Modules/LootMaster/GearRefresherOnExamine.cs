@@ -98,11 +98,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 return;
             }
             //Make sure examine window correspods to intended character and character info is fetchable
-            PlayerCharacter? target = Helper.TryGetChar(charNameFromExamine, worldFromExamine);
-            if (target is null)
+            if (!Helper.TryGetChar(out PlayerCharacter? target, charNameFromExamine, worldFromExamine))
             {
-                target = Helper.TryGetChar(charNameFromExamine2, worldFromExamine);
-                charNameFromExamine = charNameFromExamine2;
+                if (Helper.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
+                    charNameFromExamine = charNameFromExamine2;
+                else
+                    return;
             }
             if (target is null)
                 return;

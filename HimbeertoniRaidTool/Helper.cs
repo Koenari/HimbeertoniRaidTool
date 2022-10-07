@@ -5,6 +5,7 @@ using System.Text;
 using ColorHelper;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using HimbeertoniRaidTool.Data;
+using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 
@@ -12,31 +13,42 @@ namespace HimbeertoniRaidTool
 {
     public static class Helper
     {
+        private static readonly ExcelSheet<World>? WorldSheet = Services.DataManager.GetExcelSheet<World>();
         public static World? TryGetWorldByName(string name)
         {
-            var sheet = Services.DataManager.GetExcelSheet<World>();
-            if (sheet == null)
+            if (WorldSheet == null)
                 return null;
-            foreach (var row in sheet)
+            foreach (var row in WorldSheet)
                 if (row.Name == name)
                     return row;
             return null;
         }
-        public static PlayerCharacter? TryGetChar(string name, Lumina.Excel.GeneratedSheets.World? w = null)
+        public static bool TryGetChar(out PlayerCharacter? result, string name, World? w = null)
         {
+            result = null;
             if (name == null)
-                return null;
+                return false;
             if (name.Equals(TargetChar?.Name.TextValue))
                 if (w is null || TargetChar!.HomeWorld.GameData?.RowId == w.RowId)
-                    return TargetChar;
+                {
+                    result = TargetChar;
+                    return true;
+                }
+
             if (name.Equals(Self?.Name.TextValue))
                 if (w is null || Self!.HomeWorld.GameData?.RowId == w.RowId)
-                    return Self;
+                {
+                    result = Self;
+                    return true;
+                }
             foreach (var obj in Services.ObjectTable)
                 if (obj.GetType().IsAssignableTo(typeof(PlayerCharacter)) && name.Equals(obj?.Name.TextValue))
                     if (w is null || ((PlayerCharacter)obj).HomeWorld.GameData?.RowId == w.RowId)
-                        return (PlayerCharacter)obj;
-            return null;
+                    {
+                        result = (PlayerCharacter)obj;
+                        return true;
+                    }
+            return false;
         }
         public static PlayerCharacter? TargetChar
         {
@@ -54,17 +66,20 @@ namespace HimbeertoniRaidTool
             Enum.TryParse(target.ClassJob.GameData?.Abbreviation.RawString, true, out Job result) ? result : null;
 
         public static PlayerCharacter? Self => Services.ClientState.LocalPlayer;
-        public static HSV ILevelColor(GearItem item, uint maxItemLevel)
+        private static readonly Vector4[] ColorCache = new Vector4[4]
         {
-            if (item.ItemLevel >= maxItemLevel)
-                return ColorName.Green.ToHsv();
-            else if (item.ItemLevel >= maxItemLevel - 10)
-                return ColorName.Aquamarine.ToHsv();
-            else if (item.ItemLevel >= maxItemLevel - 20)
-                return ColorName.Yellow.ToHsv();
-            else
-                return ColorName.Red.ToHsv();
-        }
+            HRTColorConversions.Vec4(ColorName.Green.ToHsv().Saturation(0.8f).Value(0.85f)),
+            HRTColorConversions.Vec4(ColorName.Aquamarine.ToHsv().Saturation(0.8f).Value(0.85f)),
+            HRTColorConversions.Vec4(ColorName.Yellow.ToHsv().Saturation(0.8f).Value(0.85f)),
+            HRTColorConversions.Vec4(ColorName.Red.ToHsv().Saturation(0.8f).Value(0.85f)),
+        };
+        public static Vector4 ILevelColor(GearItem item, uint maxItemLevel) => (maxItemLevel - (int)item.ItemLevel) switch
+        {
+            <= 0 => ColorCache[0],
+            <= 10 => ColorCache[1],
+            <= 20 => ColorCache[2],
+            _ => ColorCache[3],
+        };
     }
     public static class HRTExtensions
     {

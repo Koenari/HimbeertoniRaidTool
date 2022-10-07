@@ -18,11 +18,15 @@ namespace HimbeertoniRaidTool.Data
         [JsonIgnore]
         public GearSetSlot Slot => Item?.EquipSlotCategory.Value?.ToSlot() ?? GearSetSlot.None;
         [JsonIgnore]
-        public GearSource Source => SourceDic.GetValueOrDefault(Name, GearSource.undefined);
+        private GearSource? SourceCache = null;
+        [JsonIgnore]
+        public GearSource Source => SourceCache ??= SourceDic.GetValueOrDefault(Name, GearSource.undefined);
         [JsonProperty("Materia")]
         public List<HrtMateria> Materia = new();
         [JsonIgnore]
-        public uint ItemLevel => Item?.LevelItem.Row ?? 0;
+        public uint? ILevelCache = null;
+        [JsonIgnore]
+        public uint ItemLevel => ILevelCache ??= Item?.LevelItem.Row ?? 0;
         public bool Filled => ID > 0;
         public int GetStat(StatType type, bool includeMateria = true)
         {
@@ -81,7 +85,8 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty("ID", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         protected readonly uint _ID = 0;
         public virtual uint ID => _ID;
-        public Item? Item => Sheet.GetRow(ID);
+        private Item? ItemCache = null;
+        public Item? Item => ItemCache ??= _itemSheet.GetRow(ID);
         public string Name => Item?.Name.RawString ?? "";
         public bool IsGear => Item?.EquipSlotCategory.Value is not null;
         /// <summary>
@@ -92,7 +97,7 @@ namespace HimbeertoniRaidTool.Data
         public bool IsExhangableItem => CuratedData.ExchangedFor.ContainsKey(ID);
         public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
         [JsonIgnore]
-        protected static readonly ExcelSheet<Item> Sheet = Services.DataManager.Excel.GetSheet<Item>()!;
+        protected static readonly ExcelSheet<Item> _itemSheet = Services.DataManager.Excel.GetSheet<Item>()!;
 
         public HrtItem(uint ID) => _ID = ID;
 
@@ -112,10 +117,11 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty("MateriaLevel")]
         public readonly byte MateriaLevel;
         [JsonIgnore]
-        private static readonly ExcelSheet<Materia> MateriaSheet = Services.DataManager.Excel.GetSheet<Materia>()!;
+        private static readonly ExcelSheet<Materia> _materiaSheet = Services.DataManager.Excel.GetSheet<Materia>()!;
+        private uint? IDCache = null;
         [JsonIgnore]
-        public override uint ID => Materia?.Item[MateriaLevel].Row ?? 0;
-        public Materia? Materia => MateriaSheet.GetRow((ushort)Category);
+        public override uint ID => IDCache ??= Materia?.Item[MateriaLevel].Row ?? 0;
+        public Materia? Materia => _materiaSheet.GetRow((ushort)Category);
         public StatType StatType => (StatType)(Materia?.BaseParam.Row ?? 0);
         public HrtMateria() : this(0, 0) { }
         public HrtMateria((MateriaCategory cat, byte lvl) mat) : this(mat.cat, mat.lvl) { }
