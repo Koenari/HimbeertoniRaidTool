@@ -234,7 +234,7 @@ namespace HimbeertoniRaidTool.UI
             OnCancel = onCancel ?? (() => { });
             GroupCopy = Group.Clone();
             Show();
-            (Size, SizingCondition) = (new Vector2(500, 250), ImGuiCond.Appearing);
+            (Size, SizingCondition) = (new Vector2(500, 150 + (group.RolePriority != null ? 180 : 0)), ImGuiCond.Appearing);
             Title = Localize("Edit Group ", "Edit Group ") + Group.Name;
         }
 
@@ -246,10 +246,24 @@ namespace HimbeertoniRaidTool.UI
             {
                 GroupCopy.Type = (GroupType)groupType;
             }
+            bool overrrideRolePriority = GroupCopy.RolePriority != null;
+            if (ImGui.Checkbox(Localize("Overrride role priority", "Overrride role priority"), ref overrrideRolePriority))
+            {
+                GroupCopy.RolePriority = overrrideRolePriority ? new RolePriority() : null;
+                Size.Y += (overrrideRolePriority ? 1 : -1) * 180f;
+            }
+            if (overrrideRolePriority)
+            {
+                ImGui.Text(Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
+                ImGui.Text($"{Localize("Current priority", "Current priority")}: {GroupCopy.RolePriority}");
+                GroupCopy.RolePriority!.DrawEdit();
+            }
+
             if (ImGuiHelper.SaveButton())
             {
                 Group.Name = GroupCopy.Name;
                 Group.Type = GroupCopy.Type;
+                Group.RolePriority = GroupCopy.RolePriority;
                 OnSave();
                 Hide();
             }

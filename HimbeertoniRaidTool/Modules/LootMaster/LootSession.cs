@@ -16,12 +16,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         internal readonly RaidGroup _group;
         public Dictionary<(HrtItem, int), List<(Player, string)>> Results;
         public List<Player> Excluded = new();
+        public readonly RolePriority RolePriority;
         private int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
-        public LootSession(RaidGroup group, LootRuling rulingOptions, (HrtItem, int)[] items)
+        public LootSession(RaidGroup group, LootRuling rulingOptions, RolePriority rolePriority, (HrtItem, int)[] items)
         {
             RulingOptions = rulingOptions.Clone();
             Loot = items;
             _group = group;
+            RolePriority = rolePriority;
             Rolls = new();
             foreach (var p in _group.Players)
                 Rolls.Add(p, Random.Next(0, 101));

@@ -13,6 +13,8 @@ namespace HimbeertoniRaidTool.Data
         private readonly Player[] _Players;
         [JsonProperty("Type")]
         public GroupType Type;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public RolePriority? RolePriority = null;
         [JsonProperty]
         public Player Tank1 { get => _Players[0]; set => _Players[0] = value; }
         [JsonProperty]
