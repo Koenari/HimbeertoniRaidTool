@@ -56,9 +56,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     Localize("Overrides these settings with defaults from configuration", "Overrides these settings with defaults from configuration")))
                 {
                     _ruleListUi = new(LootRuling.PossibleRules, _lootRuling.RuleSet);
-                    _session.RulingOptions.StrictRooling = _lootRuling.StrictRooling;
                 }
-                ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref _session.RulingOptions.StrictRooling);
                 _ruleListUi.Draw();
                 ImGui.NewLine();
 

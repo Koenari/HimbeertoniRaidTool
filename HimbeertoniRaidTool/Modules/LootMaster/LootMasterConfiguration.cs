@@ -118,7 +118,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 if (ImGui.BeginTabItem("Loot"))
                 {
-                    ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref _dataCopy.LootRuling.StrictRooling);
                     LootList.Draw();
                     ImGui.EndTabItem();
                 }
@@ -159,8 +158,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             new(LootRuleEnum.HighesItemLevelGain),
                             new(LootRuleEnum.LowestItemLevel),
                             new(LootRuleEnum.Random)
-                        },
-                StrictRooling = true
+                        }
+            };
             };
             [JsonProperty]
             public bool OpenOnStartup = false;

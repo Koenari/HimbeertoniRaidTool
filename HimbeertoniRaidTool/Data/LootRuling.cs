@@ -17,14 +17,19 @@ namespace HimbeertoniRaidTool.Data
             {
                 List<LootRule> result = new();
                 foreach (LootRuleEnum rule in Enum.GetValues(typeof(LootRuleEnum)))
+                {
+                    if (rule == LootRuleEnum.None)
+                        continue;
+                    //Not yet functional
+                    if (rule == LootRuleEnum.Custom)
+                        continue;
                     result.Add(new(rule));
+                }
                 return result;
             }
         }
         [JsonProperty("RuleSet")]
         public List<LootRule> RuleSet = new();
-        [JsonProperty("StrictRooling")]
-        public bool StrictRooling = false;
     }
 
 
@@ -50,7 +55,7 @@ namespace HimbeertoniRaidTool.Data
             LootRuleEnum.LowestItemLevel => DuplicateToString(x.ItemLevel()),
             LootRuleEnum.HighesItemLevelGain => DuplicateToString(x.ItemLevelGain(x.ApplicableItem(currentPossibleLoot))),
             LootRuleEnum.BISOverUpgrade => x.IsBiS(currentPossibleLoot) ? (1, "y") : (-1, "n"),
-            LootRuleEnum.ByPosition => (x.RolePriority(session._group, session.RulingOptions.StrictRooling), x.MainChar.MainJob.GetRole().ToString()),
+            LootRuleEnum.ByPosition => (x.RolePriority(session._group), x.MainChar.MainJob.GetRole().ToString()),
             _ => (0, "none")
         };
         private static (int, string) DuplicateToString(int val) => (val, $"{val}");
@@ -103,13 +108,13 @@ namespace HimbeertoniRaidTool.Data
                 return null;
             return possibleItems.First(i => i.Item?.ClassJobCategory.Value.Contains(p.MainChar.MainJob) ?? false);
         }
-        public static int RolePriority(this Player p, RaidGroup g, bool strict) => p.MainChar.MainJob.GetRole() switch
+        public static int RolePriority(this Player p, RaidGroup g) => p.MainChar.MainJob.GetRole() switch
         {
-            Role.Melee => strict ? 0 : 0,
-            Role.Caster => strict ? 2 : 2,
-            Role.Ranged => strict ? 3 : 2,
-            Role.Tank => strict ? 4 : 4,
-            Role.Healer => strict ? 6 : 6,
+            Role.Melee => 0,
+            Role.Caster => 2,
+            Role.Ranged => 2,
+            Role.Tank => 4,
+            Role.Healer => 6,
             _ => 8
         };
     }
