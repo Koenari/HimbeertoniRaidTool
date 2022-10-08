@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Lumina.Excel.Extensions;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
     [JsonObject(MemberSerialization.OptIn, MissingMemberHandling = MissingMemberHandling.Ignore)]
-    public class GearSet
+    public class GearSet : IEnumerable<GearItem>
     {
         [JsonProperty("TimeStamp")]
         public DateTime? TimeStamp;
@@ -136,6 +138,16 @@ namespace HimbeertoniRaidTool.Data
 
             return result;
 
+        }
+
+        public IEnumerator<GearItem> GetEnumerator()
+        {
+            return ((IEnumerable<GearItem>)Items).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Items.GetEnumerator();
         }
     }
 }
