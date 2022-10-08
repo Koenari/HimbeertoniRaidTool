@@ -12,11 +12,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private readonly Random Random = new(Guid.NewGuid().GetHashCode());
         public Dictionary<Player, int> Rolls;
         public LootRuling RulingOptions { get; private set; }
-        internal readonly (HrtItem, int)[] Loot;
+        internal readonly (HrtItem item, int count)[] Loot;
         internal readonly RaidGroup _group;
         public Dictionary<(HrtItem, int), List<(Player, string)>> Results;
         public List<Player> Excluded = new();
-        private int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.Item2);
+        private int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
         public LootSession(RaidGroup group, LootRuling rulingOptions, (HrtItem, int)[] items)
         {
             RulingOptions = rulingOptions.Clone();
@@ -32,17 +32,17 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (Results.Count == NumLootItems && !reevaluate)
                 return;
             Results.Clear();
-            foreach ((HrtItem item, int count) singleLoot in Loot)
-                for (int i = 0; i < singleLoot.count; i++)
+            foreach ((HrtItem item, int count) in Loot)
+                for (int i = 0; i < count; i++)
                 {
-                    if (singleLoot.item.IsExhangableItem)
-                        Results.Add((singleLoot.item, i), Evaluate(new ExchangableItem(singleLoot.item.ID).PossiblePurchases, Excluded));
-                    else if (singleLoot.item.IsContainerItem)
-                        Results.Add((singleLoot.item, i), Evaluate(new ContainerItem(singleLoot.item.ID).PossiblePurchases, Excluded));
-                    else if (singleLoot.item.IsGear)
-                        Results.Add((singleLoot.item, i), Evaluate(new List<GearItem> { new(singleLoot.item.ID) }, Excluded));
+                    if (item.IsExhangableItem)
+                        Results.Add((item, i), Evaluate(new ExchangableItem(item.ID).PossiblePurchases, Excluded));
+                    else if (item.IsContainerItem)
+                        Results.Add((item, i), Evaluate(new ContainerItem(item.ID).PossiblePurchases, Excluded));
+                    else if (item.IsGear)
+                        Results.Add((item, i), Evaluate(new List<GearItem> { new(item.ID) }, Excluded));
                     else
-                        Results.Add((singleLoot.item, i), new());
+                        Results.Add((item, i), new());
                 }
         }
         private List<(Player, string)> Evaluate(List<GearItem> possibleItems, List<Player> excludeAddition)
