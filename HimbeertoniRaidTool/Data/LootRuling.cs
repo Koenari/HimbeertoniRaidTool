@@ -49,11 +49,11 @@ namespace HimbeertoniRaidTool.Data
             LootRuleEnum.Random => DuplicateToString(x.Roll(session)),
             LootRuleEnum.LowestItemLevel => DuplicateToString(x.ItemLevel()),
             LootRuleEnum.HighesItemLevelGain => DuplicateToString(x.ItemLevelGain(x.ApplicableItem(currentPossibleLoot))),
-            LootRuleEnum.BISOverUpgrade => x.IsBiS(x.ApplicableItem(currentPossibleLoot)) ? (1, "y") : (-1, "n"),
+            LootRuleEnum.BISOverUpgrade => x.IsBiS(currentPossibleLoot) ? (1, "y") : (-1, "n"),
             LootRuleEnum.ByPosition => (x.RolePriority(session._group, session.RulingOptions.StrictRooling), x.MainChar.MainJob.GetRole().ToString()),
             _ => (0, "none")
         };
-        private (int, string) DuplicateToString(int val) => (val, $"{val}");
+        private static (int, string) DuplicateToString(int val) => (val, $"{val}");
         public override string ToString() => Name;
         private string GetName() => Rule switch
         {
@@ -96,7 +96,7 @@ namespace HimbeertoniRaidTool.Data
         public static int Roll(this Player p, LootSession session) => session.Rolls[p];
         public static int ItemLevel(this Player p) => p.Gear.ItemLevel;
         public static int ItemLevelGain(this Player p, GearItem? newItem) => newItem == null ? 0 : (int)newItem.ItemLevel - (int)p.Gear[newItem.Slot].ItemLevel;
-        public static bool IsBiS(this Player p, GearItem? newItem) => newItem != null && p.BIS.Contains(newItem);
+        public static bool IsBiS(this Player p, List<GearItem> items) => p.BIS.Any(bisItem => items.Any(i => i.ID == bisItem.ID));
         public static GearItem? ApplicableItem(this Player p, List<GearItem> possibleItems)
         {
             if (!possibleItems.Any(i => i.Item?.ClassJobCategory.Value.Contains(p.MainChar.MainJob) ?? false))
