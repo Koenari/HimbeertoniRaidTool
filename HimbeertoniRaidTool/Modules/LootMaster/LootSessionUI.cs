@@ -90,13 +90,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     if (ImGui.BeginTabItem($"{result.Key.Item1.Name} # {result.Key.Item2 + 1}"))
                     {
                         ImGui.Text(string.Format(Localize("LootRuleHeader", "Loot Results for {0}: "), result.Key.Item1.Name));
-                        if (ImGui.BeginTable($"LootTable##{result.Key.Item1.Name} # {result.Key.Item2 + 1}", 4,
+                        if (ImGui.BeginTable($"LootTable##{result.Key.Item1.Name} # {result.Key.Item2 + 1}", 3,
                             ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp))
                         {
                             ImGui.TableSetupColumn(Localize("Pos", "Pos"));
                             ImGui.TableSetupColumn(Localize("Player", "Player"));
                             ImGui.TableSetupColumn(Localize("Rule", "Rule"));
-                            ImGui.TableSetupColumn(Localize("Roll", "Roll"));
                             ImGui.TableHeadersRow();
 
                             int place = 1;
@@ -108,8 +107,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                 ImGui.Text($"{looter.Player.NickName} ({looter.Player.MainChar.MainJob})");
                                 ImGui.TableNextColumn();
                                 ImGui.Text(looter.Reason);
-                                ImGui.TableNextColumn();
-                                ImGui.Text(_session.Rolls[looter.Player].ToString());
 
                                 //ImGui.Text($"{place}: {looter.Player.NickName} Rule: { looter.Reason} Roll: {_session.Rolls[looter.Player]}");
                                 place++;
