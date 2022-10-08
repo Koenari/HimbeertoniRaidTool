@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using Dalamud.Game;
-using Dalamud.Interface;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
@@ -72,8 +71,8 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
             protected override void Draw()
             {
                 ImGui.TextWrapped(Localize("WelcomeWindowLine1", "Welcome to Himbeertoni Raid Tool. Your companion in mangaing your raid group."));
-                ImGui.TextWrapped(Localize("WelcomeWindowLine2", "Start your journey by opening LootMaster by typing \"/lm\" in chat (or the button below). There we already added your character for you."));
-                ImGui.TextWrapped(Localize("WelcomeWindowLine3", $"Next you can get your current gear either by using the {FontAwesomeIcon.Search} Button or by examining your character via right clicking."));
+                ImGui.TextWrapped(Localize("WelcomeWindowLine2", "Start your journey by opening LootMaster by typing \"/lootmaster\" (or \"/lm\") in chat (or the button below). There we already added your character for you."));
+                ImGui.TextWrapped(Localize("WelcomeWindowLine3", $"Next you can get your current gear either by using the \"magnifying glass\" button or by examining your character via right clicking."));
                 ImGui.TextWrapped(Localize("WelcomeWindowLine4", "The plugin will always update the gear for characters that were added to a group or solo tab when examining the character in-game."));
                 ImGui.TextWrapped(Localize("WelcomeWindowLine5", "To really start using this you'd need to add your group via the \"+ button\" right to the Solo tab. For this you have two possibilities." +
                     " \"From scratch\" let's you input everything yourself like a noob. Or you can gather your group into a party (or wait for the next gathering) and let the plugin do most of the work by" +
@@ -82,9 +81,9 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
                 ImGui.NewLine();
                 //Buttons
                 if (ImGuiHelper.Button(Localize("Open LootMaster", "Open LootMaster"),
-                    Localize("Open LootMaster main window (/lm)", "Open LootMaster main window (/lm)")))
+                    Localize("Open LootMaster main window (/lootmaster)", "Open LootMaster main window (/lootmaster)")))
                 {
-                    Services.CommandManager.ProcessCommand("/lm");
+                    Services.CommandManager.ProcessCommand("/lootmaster");
                 }
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(Localize("Open Options", "Open Options"),
