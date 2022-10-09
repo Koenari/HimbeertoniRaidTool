@@ -53,10 +53,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
             if (ImGui.BeginChild("Rules", new Vector2(270, 270), false))
             {
-                ImGui.TextWrapped($"Role priority:\n{_session.RolePriority}");
+                ImGui.TextWrapped($"{Localize("Role priority", "Role priority")}:\n{_session.RolePriority}");
                 _ruleListUi.Draw();
                 if (ImGuiHelper.Button(Localize("Reset to default", "Reset to default"),
-                    Localize("Overrides these settings with defaults from configuration", "Overrides these settings with defaults from configuration")))
+                    Localize("OverrideWithDefaults", "Overrides these settings with defaults from configuration")))
                 {
                     _ruleListUi = new(LootRuling.PossibleRules, _lootRuling.RuleSet);
                 }
@@ -75,16 +75,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 _session = session;
                 Size = new Vector2(450, 310);
                 Title = Localize("LootResultTitle", "Loot Results");
-                WindowFlags = ImGuiWindowFlags.NoResize;
+                WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
             }
             protected override void Draw()
             {
-                ImGui.BeginTabBar("Items", ImGuiTabBarFlags.FittingPolicyScroll);
                 foreach (((HrtItem item, int nr), List<(Player player, string reason)> ruling) in _session.Results)
                 {
-                    if (ImGui.BeginTabItem($"{item.Name} # {nr + 1}"))
+                    if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}\n {ruling[0].player.NickName} won" +
+                        $"{(ruling.Count > 1 ? $" over {ruling[1].player.NickName} ({ruling[0].reason})" : "")}"))
                     {
-                        ImGui.Text(string.Format(Localize("LootRuleHeader", "Loot Results for {0}: "), item.Name));
                         if (ImGui.BeginTable($"LootTable##{item.Name} # {nr + 1}", 3,
                             ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp))
                         {
@@ -106,10 +105,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             }
                             ImGui.EndTable();
                         }
-                        ImGui.EndTabItem();
                     }
                 }
-                ImGui.EndTabBar();
             }
         }
     }
