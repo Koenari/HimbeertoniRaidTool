@@ -523,7 +523,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 if (ImGuiHelper.Button(lootSource.ToString(), null))
                 {
-                    LootSessionUI lui = new(lootSource, CurrentGroup, _lootMaster.Configuration.Data.LootRuling);
+                    LootSessionUI lui = new(lootSource, CurrentGroup, _lootMaster.Configuration.Data.LootRuling, _lootMaster.Configuration.Data.RolePriority);
                     lui.Show();
                 }
                 ImGui.SameLine();

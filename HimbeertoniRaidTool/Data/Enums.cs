@@ -37,11 +37,14 @@ namespace HimbeertoniRaidTool.Data
     }
     public enum LootRuleEnum
     {
+        None = 0,
         BISOverUpgrade = 1,
         LowestItemLevel = 2,
         HighesItemLevelGain = 3,
-        ByPosition = 4,
-        Random = 5
+        RolePrio = 4,
+        Random = 5,
+        DPS = 6,
+        Custom = 999,
     }
     public enum EncounterDifficulty
     {

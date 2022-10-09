@@ -11,6 +11,8 @@ namespace HimbeertoniRaidTool.Data
         public string NickName = "";
         [JsonProperty("Pos")]
         public PositionInRaidGroup Pos;
+        [JsonProperty("AdditionalData", ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        public readonly AdditionalPlayerData AdditionalData = new();
         [JsonProperty("Chars")]
         public List<Character> Chars { get; set; } = new();
         public bool Filled => NickName != "";
@@ -46,5 +48,22 @@ namespace HimbeertoniRaidTool.Data
         }
 
 
+    }
+    [JsonObject(MemberSerialization.OptIn)]
+    public class AdditionalPlayerData
+    {
+        private const string ManualDPSKey = "ManualDPS";
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        public Dictionary<string, int> IntData = new();
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        public Dictionary<string, float> FloatData = new();
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        public Dictionary<string, string> StringData = new();
+
+        public int ManualDPS
+        {
+            get { return IntData.GetValueOrDefault(ManualDPSKey, 0); }
+            set { IntData[ManualDPSKey] = value; }
+        }
     }
 }

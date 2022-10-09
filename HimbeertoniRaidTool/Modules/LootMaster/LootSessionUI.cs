@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
@@ -12,11 +13,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private readonly LootSession _session;
         private UiSortableList<LootRule> _ruleListUi;
         private readonly LootRuling _lootRuling;
-        internal LootSessionUI(LootSource lootSource, RaidGroup group, LootRuling lootRuling) : base()
+        internal LootSessionUI(LootSource lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
         {
             _lootRuling = lootRuling;
             _lootSource = lootSource;
-            _session = new(group, _lootRuling,
+            _session = new(group, _lootRuling, group.RolePriority ?? defaultRolePriority,
                 LootDB.GetPossibleLoot(_lootSource).ConvertAll(x => (x, 0)).ToArray());
             _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
             Size = new Vector2(550, 370);
@@ -43,23 +44,22 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 for (int i = 0; i < _session.Loot.Length; i++)
                 {
-                    ImGui.Text(_session.Loot[i].Item1.Name);
+                    ImGui.Text(_session.Loot[i].item.Name);
                     ImGui.InputInt($"##Input{i}", ref _session.Loot[i].Item2);
                 }
                 ImGui.EndChild();
             }
             ImGui.SameLine();
 
-            if (ImGui.BeginChild("Rules", new Vector2(250, 250), false))
+            if (ImGui.BeginChild("Rules", new Vector2(270, 270), false))
             {
+                ImGui.TextWrapped($"{Localize("Role priority", "Role priority")}:\n{_session.RolePriority}");
+                _ruleListUi.Draw();
                 if (ImGuiHelper.Button(Localize("Reset to default", "Reset to default"),
-                    Localize("Overrides these settings with defaults from configuration", "Overrides these settings with defaults from configuration")))
+                    Localize("OverrideWithDefaults", "Overrides these settings with defaults from configuration")))
                 {
                     _ruleListUi = new(LootRuling.PossibleRules, _lootRuling.RuleSet);
-                    _session.RulingOptions.StrictRooling = _lootRuling.StrictRooling;
                 }
-                ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref _session.RulingOptions.StrictRooling);
-                _ruleListUi.Draw();
                 ImGui.NewLine();
 
                 ImGui.TextWrapped(Localize("ChangesOnlyForThisLootSesseion",
@@ -75,61 +75,37 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 _session = session;
                 Size = new Vector2(450, 310);
                 Title = Localize("LootResultTitle", "Loot Results");
-                WindowFlags = ImGuiWindowFlags.NoResize;
+                WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
             }
             protected override void Draw()
             {
-                /*
-                ImGui.Text(Localize("Following rules were used:", "Following rules were used:"));
-                foreach (LootRule rule in _session.RulingOptions.RuleSet)
-                    ImGui.BulletText(rule.ToString());
-                */
-                ImGui.BeginTabBar("Items", ImGuiTabBarFlags.FittingPolicyScroll);
-                foreach (var result in _session.Results)
+                foreach (((HrtItem item, int nr), List<(Player player, string reason)> ruling) in _session.Results)
                 {
-                    if (ImGui.BeginTabItem($"{result.Key.Item1.Name} # {result.Key.Item2 + 1}"))
+                    if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}\n {ruling[0].player.NickName} won" +
+                        $"{(ruling.Count > 1 ? $" over {ruling[1].player.NickName} ({ruling[0].reason})" : "")}"))
                     {
-                        ImGui.Text(string.Format(Localize("LootRuleHeader", "Loot Results for {0}: "), result.Key.Item1.Name));
-                        if (ImGui.BeginTable($"LootTable##{result.Key.Item1.Name} # {result.Key.Item2 + 1}", 4,
+                        if (ImGui.BeginTable($"LootTable##{item.Name} # {nr + 1}", 3,
                             ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp))
                         {
                             ImGui.TableSetupColumn(Localize("Pos", "Pos"));
                             ImGui.TableSetupColumn(Localize("Player", "Player"));
                             ImGui.TableSetupColumn(Localize("Rule", "Rule"));
-                            ImGui.TableSetupColumn(Localize("Roll", "Roll"));
                             ImGui.TableHeadersRow();
 
                             int place = 1;
-                            foreach ((Player Player, string Reason) looter in result.Value)
+                            foreach ((Player player, string reason) in ruling)
                             {
                                 ImGui.TableNextColumn();
                                 ImGui.Text(place.ToString());
                                 ImGui.TableNextColumn();
-                                ImGui.Text($"{looter.Player.NickName} ({looter.Player.MainChar.MainJob})");
+                                ImGui.Text($"{player.NickName} ({player.MainChar.MainJob})");
                                 ImGui.TableNextColumn();
-                                ImGui.Text(looter.Reason);
-                                ImGui.TableNextColumn();
-                                ImGui.Text(_session.Rolls[looter.Player].ToString());
-
-                                //ImGui.Text($"{place}: {looter.Player.NickName} Rule: { looter.Reason} Roll: {_session.Rolls[looter.Player]}");
+                                ImGui.Text(reason);
                                 place++;
                             }
                             ImGui.EndTable();
                         }
-                        ImGui.EndTabItem();
                     }
-                }
-                ImGui.EndTabBar();
-                if (ImGuiHelper.Button(Localize("Copy Chat Message", "Copy Chat Message"),
-                    Localize("CopyLootMessageTooltip", "Copies the results to clipboard. Unfortunately only the first line is sent when pasting to FFXIV chat")))
-                {
-                    string message = "";
-                    foreach (var result in _session.Results)
-                    {
-                        message += $"Result for {result.Key.Item1.Name} # {result.Key.Item2 + 1}\n";
-                        message += $"{result.Value[0].Item1.NickName} won by rule: {result.Value[0].Item2}\n";
-                    }
-                    ImGui.SetClipboardText(message);
                 }
             }
         }

@@ -46,7 +46,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy = Player.Clone();
             }
-            (Size, SizingCondition) = (new Vector2(450, 300 + (ClassHeight * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Appearing);
+            (Size, SizingCondition) = (new Vector2(450, 330 + (ClassHeight * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Appearing);
             Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}";
         }
         protected override void Draw()
@@ -56,6 +56,9 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Player Data", "Player Data")).X) / 2f);
             ImGui.Text(Localize("Player Data", "Player Data"));
             ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
+            int dps = PlayerCopy.AdditionalData.ManualDPS;
+            if (ImGui.InputInt(Localize("manuallySetDPS", "Predicted DPS"), ref dps, 100, 1000))
+                PlayerCopy.AdditionalData.ManualDPS = dps;
             //Character Data
             ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
             ImGui.Text(Localize("Character Data", "Character Data"));
@@ -169,6 +172,7 @@ namespace HimbeertoniRaidTool.UI
         {
             List<(Job, Func<bool>)> bisUpdates = new();
             Player.NickName = PlayerCopy.NickName;
+            Player.AdditionalData.ManualDPS = PlayerCopy.AdditionalData.ManualDPS;
             if (IsNew)
             {
                 Character c = new Character(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
@@ -234,7 +238,7 @@ namespace HimbeertoniRaidTool.UI
             OnCancel = onCancel ?? (() => { });
             GroupCopy = Group.Clone();
             Show();
-            (Size, SizingCondition) = (new Vector2(500, 250), ImGuiCond.Appearing);
+            (Size, SizingCondition) = (new Vector2(500, 150 + (group.RolePriority != null ? 180 : 0)), ImGuiCond.Appearing);
             Title = Localize("Edit Group ", "Edit Group ") + Group.Name;
         }
 
@@ -246,10 +250,24 @@ namespace HimbeertoniRaidTool.UI
             {
                 GroupCopy.Type = (GroupType)groupType;
             }
+            bool overrrideRolePriority = GroupCopy.RolePriority != null;
+            if (ImGui.Checkbox(Localize("Overrride role priority", "Overrride role priority"), ref overrrideRolePriority))
+            {
+                GroupCopy.RolePriority = overrrideRolePriority ? new RolePriority() : null;
+                Size.Y += (overrrideRolePriority ? 1 : -1) * 180f;
+            }
+            if (overrrideRolePriority)
+            {
+                ImGui.Text(Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
+                ImGui.Text($"{Localize("Current priority", "Current priority")}: {GroupCopy.RolePriority}");
+                GroupCopy.RolePriority!.DrawEdit();
+            }
+
             if (ImGuiHelper.SaveButton())
             {
                 Group.Name = GroupCopy.Name;
                 Group.Type = GroupCopy.Type;
+                Group.RolePriority = GroupCopy.RolePriority;
                 OnSave();
                 Hide();
             }

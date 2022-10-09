@@ -118,8 +118,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 if (ImGui.BeginTabItem("Loot"))
                 {
-                    ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref _dataCopy.LootRuling.StrictRooling);
+                    ImGui.Text(Localize("LootRuleOrder", "Order in which loot rules should be applied"));
                     LootList.Draw();
+                    ImGui.Separator();
+                    ImGui.Text(Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
+                    ImGui.Text($"{Localize("Current priority", "Current priority")}: {_dataCopy.RolePriority}");
+                    _dataCopy.RolePriority.DrawEdit();
                     ImGui.EndTabItem();
                 }
                 ImGui.EndTabBar();
@@ -155,12 +159,20 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 RuleSet = new List<LootRule>()
                         {
                             new(LootRuleEnum.BISOverUpgrade),
-                            new(LootRuleEnum.ByPosition),
+                            new(LootRuleEnum.RolePrio),
                             new(LootRuleEnum.HighesItemLevelGain),
                             new(LootRuleEnum.LowestItemLevel),
                             new(LootRuleEnum.Random)
-                        },
-                StrictRooling = true
+                        }
+            };
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public RolePriority RolePriority = new()
+            {
+                { Role.Melee,   0 },
+                { Role.Caster,  1 },
+                { Role.Ranged,  1 },
+                { Role.Tank,    3 },
+                { Role.Healer,  4 },
             };
             [JsonProperty]
             public bool OpenOnStartup = false;
