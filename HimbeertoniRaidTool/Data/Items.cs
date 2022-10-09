@@ -22,8 +22,6 @@ namespace HimbeertoniRaidTool.Data
         public List<Job> Jobs => Item?.ClassJobCategory.Value?.ToJob() ?? new List<Job>();
         [JsonIgnore]
         public GearSource Source => SourceCache ??= SourceDic.GetValueOrDefault(Name, GearSource.undefined);
-        public Job Job => Item?.ClassJobCategory.Value?.ToJob() ?? Job.ADV;
-
         [JsonProperty("Materia")]
         public List<HrtMateria> Materia = new();
         [JsonIgnore]
