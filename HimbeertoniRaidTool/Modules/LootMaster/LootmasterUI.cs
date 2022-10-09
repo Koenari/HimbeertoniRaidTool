@@ -84,15 +84,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, p.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
             ImGui.SameLine();
-            if (NetStoneConnector.Active)
-                ImGui.BeginDisabled();
             if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, p.Pos.ToString()
                 , Localize("Lodestone Button", "Download Gear from Lodestone"), true))
             {
-                Services.TaskManager.RegisterTask(_lootMaster, NetStoneConnector.UpdateCharacterFromLodestone(p));
+                //Services.TaskManager.RegisterTask(_lootMaster, NetStoneConnector.UpdateCharacterFromLodestone(p));
+                Services.TaskManager.RegisterTask(_lootMaster, 
+                    Services.ConnectorPool.LodestoneConnector.UpdateCharacter(p));
             }
-            if (NetStoneConnector.Active)
-                ImGui.EndDisabled();
 
             foreach (var playableClass in p.MainChar.Classes)
             {
@@ -452,16 +450,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             () => player.Reset(),
                             $"{Localize("DeletePlayerConfirmation", "Do you really want to delete following player?")} : {player.NickName}"));
                     }
-                    // LODESTONE BUTTON
-                    if (NetStoneConnector.Active)
-                        ImGui.BeginDisabled();
                     if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, player.Pos.ToString()
                         , Localize("Lodestone Button", "Download Gear from Lodestone"), true))
                     {
-                        Services.TaskManager.RegisterTask(_lootMaster, NetStoneConnector.UpdateCharacterFromLodestone(player));
+                        Services.TaskManager.RegisterTask(_lootMaster, 
+                            Services.ConnectorPool.LodestoneConnector.UpdateCharacter(player));
                     }
-                    if (NetStoneConnector.Active)
-                        ImGui.EndDisabled();
                 }
             }
             else
