@@ -23,10 +23,11 @@ namespace HimbeertoniRaidTool.UI
         private Job newJob = Job.ADV;
         private readonly Func<Job, string> GetBisID;
         private const int ClassHeight = 27 * 2 + 4;
-        internal PositionInRaidGroup Pos => Player.Pos;
+        internal PositionInRaidGroup Pos;
         internal EditPlayerWindow(Action<HrtUiMessage> callBack, RaidGroup group, PositionInRaidGroup pos, Func<Job, string> getBisID)
             : base(true, $"{group.GetHashCode()}##{pos}")
         {
+            Pos = pos;
             GetBisID = getBisID;
             RaidGroup = group;
             CallBack = callBack;
@@ -47,7 +48,7 @@ namespace HimbeertoniRaidTool.UI
                 PlayerCopy = Player.Clone();
             }
             (Size, SizingCondition) = (new Vector2(450, 330 + (ClassHeight * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Appearing);
-            Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}";
+            Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName} ({RaidGroup.Name})##{Pos}";
         }
         protected override void Draw()
         {
@@ -175,7 +176,7 @@ namespace HimbeertoniRaidTool.UI
             Player.AdditionalData.ManualDPS = PlayerCopy.AdditionalData.ManualDPS;
             if (IsNew)
             {
-                Character c = new Character(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
+                Character c = new(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
                 Services.HrtDataManager.GetManagedCharacter(ref c);
                 Player.MainChar = c;
                 if (c.Classes.Count > 0)

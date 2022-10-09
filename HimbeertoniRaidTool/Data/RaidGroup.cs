@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
@@ -38,6 +39,13 @@ namespace HimbeertoniRaidTool.Data
             GroupType.Raid => _Players,
             _ => throw new NotImplementedException(),
         };
+        public IEnumerable<PositionInRaidGroup> Positions => Type switch
+        {
+            GroupType.Solo => new[] { PositionInRaidGroup.Tank1 },
+            GroupType.Group => new[] { PositionInRaidGroup.Tank1, PositionInRaidGroup.Heal1, PositionInRaidGroup.Melee1, PositionInRaidGroup.Ranged, },
+            GroupType.Raid => Enum.GetValues<PositionInRaidGroup>(),
+            _ => throw new NotImplementedException(),
+        };
         public int Count => Type switch
         {
             GroupType.Solo => 1,
@@ -54,7 +62,7 @@ namespace HimbeertoniRaidTool.Data
             _Players = new Player[8];
             for (int i = 0; i < 8; i++)
             {
-                _Players[i] = new((PositionInRaidGroup)i);
+                _Players[i] = new();
             }
         }
         public Player this[PositionInRaidGroup pos]

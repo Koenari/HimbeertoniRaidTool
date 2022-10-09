@@ -205,7 +205,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 Dalamud.Logging.PluginLog.Debug($"In fill: {pm.Name}");
                 var p = group[pos];
-                p.Pos = pos;
                 p.NickName = pm.Name.TextValue.Split(' ')[0];
                 var character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
                 bool characterExisted = Services.HrtDataManager.CharacterExists(character.HomeWorldID, character.Name);

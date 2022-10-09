@@ -64,8 +64,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
             }
         }
-        private void DrawDetailedPlayer(Player p)
+        private void DrawDetailedPlayer(RaidGroup g, PositionInRaidGroup pos)
         {
+            Player p = g[pos];
             var curClass = p.MainChar.MainClass;
             ImGui.BeginChild("SoloView");
             ImGui.Columns(3);
@@ -77,9 +78,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
             ImGuiHelper.GearUpdateButton(p);
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}{p.Pos}", $"{Localize("Edit player", "Edit player")} {p.NickName}"))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}{pos}", $"{Localize("Edit player", "Edit player")} {p.NickName}"))
             {
-                AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, p.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
+                AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
             foreach (var playableClass in p.MainChar.Classes)
             {
@@ -225,7 +226,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (CurrentGroup.Type == GroupType.Solo)
             {
                 if (CurrentGroup.Tank1.MainChar.Filled)
-                    DrawDetailedPlayer(CurrentGroup.Tank1);
+                    DrawDetailedPlayer(CurrentGroup, PositionInRaidGroup.Tank1);
                 else
                 {
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
@@ -252,8 +253,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.TableSetupColumn(Localize("RightRing", "Ring R"));
                     ImGui.TableSetupColumn(Localize("Options", "Options"));
                     ImGui.TableHeadersRow();
-                    foreach (var player in CurrentGroup.Players)
-                        DrawPlayer(player);
+                    foreach (var position in CurrentGroup.Positions)
+                        DrawPlayer(CurrentGroup, position);
                     ImGui.EndTable();
                 }
             }
@@ -327,15 +328,16 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.EndTabBar();
         }
 
-        private void DrawPlayer(Player player)
+        private void DrawPlayer(RaidGroup g, PositionInRaidGroup pos)
         {
+            Player player = g[pos];
             bool playerExists = player.Filled && player.MainChar.Filled;
             bool hasClasses = playerExists && player.MainChar.Classes.Count > 0;
             if (playerExists)
             {
 
                 ImGui.TableNextColumn();
-                ImGui.Text($"{player.Pos}:   {player.NickName}");
+                ImGui.Text($"{pos}:   {player.NickName}");
                 ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? "n.A."}");
                 var c = player.MainChar;
                 if (hasClasses)
@@ -343,7 +345,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     if (player.MainChar.Classes.Count > 1)
                     {
                         int playerClass = player.MainChar.Classes.FindIndex(x => x.Job == player.MainChar.MainJob);
-                        if (ImGui.Combo($"##Class{player.Pos}", ref playerClass, player.MainChar.Classes.ConvertAll(x => x.Job.ToString()).ToArray(),
+                        if (ImGui.Combo($"##Class{pos}", ref playerClass, player.MainChar.Classes.ConvertAll(x => x.Job.ToString()).ToArray(),
                             player.MainChar.Classes.Count))
                             player.MainChar.MainJob = player.MainChar.Classes[playerClass].Job;
                     }
@@ -407,18 +409,18 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     ImGuiHelper.GearUpdateButton(player);
                     ImGui.SameLine();
-                    if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange{player.Pos}", "Swap Position", true, ImGui.GetItemRectSize()))
+                    if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange{pos}", "Swap Position", true, ImGui.GetItemRectSize()))
                     {
-                        AddChild(new SwapPositionWindow(player.Pos, CurrentGroup));
+                        AddChild(new SwapPositionWindow(pos, CurrentGroup));
                     }
                     ImGui.SameLine();
 
 
-                    if (ImGuiHelper.Button(FontAwesomeIcon.Edit, player.Pos.ToString(),
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Edit, pos.ToString(),
                         string.Format(Localize("Edit {0}", "Edit {0}"), player.NickName)))
                     {
-                        EditPlayerWindow editWindow = new(_lootMaster.HandleMessage, CurrentGroup, player.Pos, _lootMaster.Configuration.Data.GetDefaultBiS);
-                        AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, player.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
+                        EditPlayerWindow editWindow = new(_lootMaster.HandleMessage, CurrentGroup, pos, _lootMaster.Configuration.Data.GetDefaultBiS);
+                        AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
                     }
                     if (ImGuiHelper.Button(FontAwesomeIcon.Redo, player.BIS.EtroID,
                         string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), player.BIS.Name)))
@@ -426,13 +428,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("successful", "successful")}"
                         , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("failed", "failed")}");
                     ImGui.SameLine();
-                    if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, player.Pos.ToString(),
+                    if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, pos.ToString(),
                         string.Format(Localize("PlayerDetails", "Show player details for {0}"), player.NickName)))
                     {
-                        AddChild(new PlayerdetailWindow(this, player));
+                        AddChild(new PlayerdetailWindow(this, g, pos));
                     }
                     ImGui.SameLine();
-                    if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, player.Pos.ToString(),
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, pos.ToString(),
                         string.Format(Localize("Delete {0}", "Delete {0}"), player.NickName)))
                     {
                         AddChild(new ConfimationDialog(
@@ -445,15 +447,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             else
             {
                 ImGui.TableNextColumn();
-                ImGui.Text(player.Pos.ToString());
+                ImGui.Text(pos.ToString());
                 ImGui.Text(Localize("No Player", "No Player"));
                 for (int i = 0; i < 12; i++)
                     ImGui.TableNextColumn();
                 ImGui.TableNextColumn();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Plus, player.Pos.ToString(), Localize("Add", "Add")))
-                    AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, player.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
+                if (ImGuiHelper.Button(FontAwesomeIcon.Plus, pos.ToString(), Localize("Add", "Add")))
+                    AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Search, player.Pos.ToString(), Localize("Add from DB", "Add from DB")))
+                if (ImGuiHelper.Button(FontAwesomeIcon.Search, pos.ToString(), Localize("Add from DB", "Add from DB")))
                     AddChild(new GetCharacterFromDBWindow(ref player), true);
             }
         }
@@ -539,18 +541,20 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private class PlayerdetailWindow : HrtUI
         {
             private readonly LootmasterUI Parent;
-            private readonly Player P;
-            public PlayerdetailWindow(LootmasterUI lmui, Player p) : base(true, $"PlayerdetailWindow{p.NickName}")
+            private readonly RaidGroup Group;
+            private readonly PositionInRaidGroup Pos;
+            public PlayerdetailWindow(LootmasterUI lmui, RaidGroup g, PositionInRaidGroup pos) : base(true, $"PlayerdetailWindow{g[pos].NickName}")
             {
                 Parent = lmui;
-                P = p;
+                Pos = pos;
+                Group = g;
                 Show();
-                Title = Localize("PlayerDetailsTitle", "Player Details") + P.NickName;
+                Title = $"{Localize("PlayerDetailsTitle", "Player Details")} {g[pos].NickName}";
                 (Size, SizingCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
             }
             protected override void Draw()
             {
-                Parent.DrawDetailedPlayer(P);
+                Parent.DrawDetailedPlayer(Group, Pos);
             }
         }
     }
@@ -568,7 +572,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _p = p;
             Worlds = Services.HrtDataManager.GetWorldsWithCharacters().ToArray();
             WorldNames = Array.ConvertAll(Worlds, x => Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name.RawString ?? "");
-            Title = Localize("GetCharacterTitle", "Get character from DB") + _p.Pos;
+            Title = Localize("GetCharacterTitle", "Get character from DB");
             Size = new Vector2(350, 420);
             WindowFlags = ImGuiWindowFlags.NoScrollbar;
         }
@@ -627,8 +631,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 if (newPos != _oldPos)
                 {
                     (_group[_oldPos], _group[newPos]) = (_group[newPos], _group[_oldPos]);
-                    _group[_oldPos].Pos = _oldPos;
-                    _group[newPos].Pos = newPos;
                 }
                 Hide();
             }
