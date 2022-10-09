@@ -27,20 +27,15 @@ namespace HimbeertoniRaidTool.Connectors
         private readonly Lumina.Excel.ExcelSheet<Materia>? _materiaSheet;
         private readonly Dictionary<char, byte> _romanNumerals;
 
-        internal LodestoneConnector(Framework fw) : base(fw, new(4, new(0, 0, 30)))
+        private const int NoOfAllowedLodestoneRequests = 8;
+
+        internal LodestoneConnector(Framework fw) : base(fw, new(NoOfAllowedLodestoneRequests, new(0, 0, 30)))
         {
             this._itemSheet = Services.DataManager.GetExcelSheet<Item>();
             this._materiaSheet = Services.DataManager.GetExcelSheet<Materia>();
             this._romanNumerals = new() {
                 { 'I', 1 }, { 'V', 5 }, { 'X', 10 }, { 'L', 50 }
             };
-        }
-
-        public async Task<HrtUiMessage> Debug(Player p)
-        {
-            LodestoneCharacter c = await FetchCharacterFromLodestone(p.MainChar);
-            PluginLog.Log(c.Name);
-            return new HrtUiMessage("Debug", HrtUiMessageType.Info);
         }
 
         public async Task<HrtUiMessage> UpdateCharacter(Player p)
