@@ -41,9 +41,10 @@ namespace HimbeertoniRaidTool.Data
         BISOverUpgrade = 1,
         LowestItemLevel = 2,
         HighesItemLevelGain = 3,
-        ByPosition = 4,
+        RolePrio = 4,
         Random = 5,
-        Custom = 6,
+        DPS = 6,
+        Custom = 999,
     }
     public enum EncounterDifficulty
     {

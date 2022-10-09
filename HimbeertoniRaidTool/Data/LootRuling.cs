@@ -89,32 +89,33 @@ namespace HimbeertoniRaidTool.Data
         public readonly LootRuleEnum Rule;
         [JsonProperty("Name")]
         public readonly string Name;
-        [JsonProperty("Expression")]
+        [JsonIgnore]
         public string Expression;
         public (int, string, string) Compare(Player x, Player y, LootSession session, List<GearItem> currentPossibleLoot)
         {
-            (int lVal, string lReason) = Eval(x, session, currentPossibleLoot);
-            (int rVal, string rReason) = Eval(y, session, currentPossibleLoot);
-            return ((this.FavorsLowValue() ? -1 : 1) * (rVal - lVal), lReason, rReason);
+            (int lVal, string? lReason) = Eval(x, session, currentPossibleLoot);
+            (int rVal, string? rReason) = Eval(y, session, currentPossibleLoot);
+            return ((this.FavorsLowValue() ? -1 : 1) * (rVal - lVal), lReason ?? lVal.ToString(), rReason ?? rVal.ToString());
         }
-        private (int, string) Eval(Player x, LootSession session, List<GearItem> currentPossibleLoot) => Rule switch
+        private (int, string?) Eval(Player x, LootSession session, List<GearItem> currentPossibleLoot) => Rule switch
         {
-            LootRuleEnum.Random => DuplicateToString(x.Roll(session)),
-            LootRuleEnum.LowestItemLevel => DuplicateToString(x.ItemLevel()),
-            LootRuleEnum.HighesItemLevelGain => DuplicateToString(x.ItemLevelGain(x.ApplicableItem(currentPossibleLoot))),
+            LootRuleEnum.Random => (x.Roll(session), null),
+            LootRuleEnum.LowestItemLevel => (x.ItemLevel(), null),
+            LootRuleEnum.HighesItemLevelGain => (x.ItemLevelGain(x.ApplicableItem(currentPossibleLoot)), null),
             LootRuleEnum.BISOverUpgrade => x.IsBiS(currentPossibleLoot) ? (1, "y") : (-1, "n"),
-            LootRuleEnum.ByPosition => (session.RolePriority.GetPriority(x.MainChar.MainJob.GetRole()), x.MainChar.MainJob.GetRole().ToString()),
-            _ => (0, "none")
+            LootRuleEnum.RolePrio => (session.RolePriority.GetPriority(x.MainChar.MainJob.GetRole()), x.MainChar.MainJob.GetRole().ToString()),
+            LootRuleEnum.DPS => (x.AdditionalData.ManualDPS, null),
+            _ => (0, "none"),
         };
-        private static (int, string) DuplicateToString(int val) => (val, $"{val}");
         public override string ToString() => Name;
         private string GetName() => Rule switch
         {
             LootRuleEnum.BISOverUpgrade => Localize("BISOverUpgrade", "BIS > Upgrade"),
             LootRuleEnum.LowestItemLevel => Localize("LowestItemLevel", "Lowest overall ItemLevel"),
             LootRuleEnum.HighesItemLevelGain => Localize("HighesItemLevelGain", "Highest ItemLevel Gain"),
-            LootRuleEnum.ByPosition => Localize("ByRole", "Prioritise by role"),
+            LootRuleEnum.RolePrio => Localize("ByRole", "Prioritise by role"),
             LootRuleEnum.Random => Localize("Rolling", "Rolling"),
+            LootRuleEnum.DPS => Localize("DPS", "DPS"),
             LootRuleEnum.None => Localize("None", "None"),
             _ => Localize("Not defined", "Not defined"),
         };
@@ -143,7 +144,7 @@ namespace HimbeertoniRaidTool.Data
         public static bool FavorsLowValue(this LootRule rule) => rule.Rule switch
         {
             LootRuleEnum.LowestItemLevel => true,
-            LootRuleEnum.ByPosition => true,
+            LootRuleEnum.RolePrio => true,
             _ => false,
         };
         public static int Roll(this Player p, LootSession session) => session.Rolls[p];

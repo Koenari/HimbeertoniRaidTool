@@ -159,7 +159,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 RuleSet = new List<LootRule>()
                         {
                             new(LootRuleEnum.BISOverUpgrade),
-                            new(LootRuleEnum.ByPosition),
+                            new(LootRuleEnum.RolePrio),
                             new(LootRuleEnum.HighesItemLevelGain),
                             new(LootRuleEnum.LowestItemLevel),
                             new(LootRuleEnum.Random)
