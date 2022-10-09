@@ -1,23 +1,18 @@
-﻿using HimbeertoniRaidTool.Data;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dalamud.Game;
+﻿using Dalamud.Game;
+using Dalamud.Logging;
+using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.UI;
+using Lumina.Excel.GeneratedSheets;
 using NetStone;
 using NetStone.Model.Parseables.Character;
-using HimbeertoniRaidTool.UI;
-using Dalamud.Plugin;
-using Dalamud.Logging;
-using Lumina.Excel.GeneratedSheets;
-using NetStone.Search.Character;
-using System.Runtime.CompilerServices;
 using NetStone.Model.Parseables.Character.Gear;
+using NetStone.Search.Character;
+using System;
 using System.Collections.Concurrent;
-using static HimbeertoniRaidTool.Connectors.WebConnector;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Connectors
 {
