@@ -452,7 +452,16 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             () => player.Reset(),
                             $"{Localize("DeletePlayerConfirmation", "Do you really want to delete following player?")} : {player.NickName}"));
                     }
-
+                    // LODESTONE BUTTON
+                    if (NetStoneConnector.Active)
+                        ImGui.BeginDisabled();
+                    if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, player.Pos.ToString()
+                        , Localize("Lodestone Button", "Download Gear from Lodestone"), true))
+                    {
+                        Services.TaskManager.RegisterTask(_lootMaster, NetStoneConnector.UpdateCharacterFromLodestone(player));
+                    }
+                    if (NetStoneConnector.Active)
+                        ImGui.EndDisabled();
                 }
             }
             else
