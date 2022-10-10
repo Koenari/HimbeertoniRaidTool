@@ -15,7 +15,6 @@ namespace HimbeertoniRaidTool.UI
 {
     internal class EditPlayerWindow : HrtUI
     {
-        private readonly RaidGroup RaidGroup;
         private readonly Player Player;
         private readonly Player PlayerCopy;
         private readonly Action<HrtUiMessage> CallBack;
@@ -23,15 +22,12 @@ namespace HimbeertoniRaidTool.UI
         private Job newJob = Job.ADV;
         private readonly Func<Job, string> GetBisID;
         private const int ClassHeight = 27 * 2 + 4;
-        internal PositionInRaidGroup Pos;
-        internal EditPlayerWindow(Action<HrtUiMessage> callBack, RaidGroup group, PositionInRaidGroup pos, Func<Job, string> getBisID)
-            : base(true, $"{group.GetHashCode()}##{pos}")
+        internal EditPlayerWindow(Action<HrtUiMessage> callBack, Player p, Func<Job, string> getBisID)
+            : base()
         {
-            Pos = pos;
             GetBisID = getBisID;
-            RaidGroup = group;
             CallBack = callBack;
-            Player = group[pos];
+            Player = p;
             PlayerCopy = new();
             var target = Helper.TargetChar;
             IsNew = !Player.Filled;
@@ -48,7 +44,7 @@ namespace HimbeertoniRaidTool.UI
                 PlayerCopy = Player.Clone();
             }
             (Size, SizingCondition) = (new Vector2(450, 330 + (ClassHeight * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Appearing);
-            Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName} ({RaidGroup.Name})##{Pos}";
+            Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName}";
         }
         protected override void Draw()
         {

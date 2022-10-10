@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
@@ -6,6 +7,8 @@ namespace HimbeertoniRaidTool.Data
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class Player
     {
+        [JsonIgnore]
+        public readonly string RuntimeUniqueID = Guid.NewGuid().ToString();
         [JsonProperty("NickName")]
         public string NickName = "";
         [JsonProperty("AdditionalData", ObjectCreationHandling = ObjectCreationHandling.Replace)]
