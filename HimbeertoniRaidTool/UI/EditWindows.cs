@@ -229,18 +229,17 @@ namespace HimbeertoniRaidTool.UI
     {
         private readonly RaidGroup Group;
         private readonly RaidGroup GroupCopy;
-        private readonly System.Action OnSave;
-        private readonly System.Action OnCancel;
+        private readonly Action<RaidGroup> OnSave;
+        private readonly Action<RaidGroup> OnCancel;
 
-        internal EditGroupWindow(RaidGroup group, System.Action? onSave = null, System.Action? onCancel = null)
+        internal EditGroupWindow(RaidGroup group, Action<RaidGroup>? onSave = null, Action<RaidGroup>? onCancel = null)
         {
             Group = group;
-            OnSave = onSave ?? (() => { });
-            OnCancel = onCancel ?? (() => { });
+            OnSave = onSave ?? ((g) => { });
+            OnCancel = onCancel ?? ((g) => { });
             GroupCopy = Group.Clone();
-            Show();
             (Size, SizingCondition) = (new Vector2(500, 150 + (group.RolePriority != null ? 180 : 0)), ImGuiCond.Appearing);
-            Title = Localize("Edit Group ", "Edit Group ") + Group.Name;
+            Title = $"{Localize("Edit Group", "Edit Group")} {Group.Name}";
         }
 
         protected override void Draw()
@@ -269,13 +268,13 @@ namespace HimbeertoniRaidTool.UI
                 Group.Name = GroupCopy.Name;
                 Group.Type = GroupCopy.Type;
                 Group.RolePriority = GroupCopy.RolePriority;
-                OnSave();
+                OnSave(Group);
                 Hide();
             }
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
             {
-                OnCancel();
+                OnCancel(Group);
                 Hide();
             }
         }

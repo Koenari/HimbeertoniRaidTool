@@ -313,15 +313,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 if (ImGuiHelper.Button(Localize("From current Group", "From current Group"), null))
                 {
-                    RaidGroup group = new();
-                    group.Name = "AutoCreated";
-                    _lootMaster.AddGroup(group, true);
+                    _lootMaster.AddGroup(new("AutoCreated"), true);
                     ImGui.CloseCurrentPopup();
                 }
                 if (ImGuiHelper.Button(Localize("From scratch", "From scratch"), Localize("Add emtpy group", "Add emtpy group")))
                 {
-                    RaidGroup group = new();
-                    var groupWindow = new EditGroupWindow(group, () => _lootMaster.AddGroup(group, false), () => { });
+                    AddChild(new EditGroupWindow(new RaidGroup(), group => _lootMaster.AddGroup(group, false)), true);
                 }
                 ImGui.EndPopup();
             }
