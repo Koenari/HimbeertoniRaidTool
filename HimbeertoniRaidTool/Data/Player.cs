@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public class Player : IComparable<Player>
+    public class Player
     {
         [JsonProperty("NickName")]
         public string NickName = "";
-        [JsonProperty("Pos")]
-        public PositionInRaidGroup Pos;
         [JsonProperty("AdditionalData", ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public readonly AdditionalPlayerData AdditionalData = new();
         [JsonProperty("Chars")]
@@ -32,22 +29,13 @@ namespace HimbeertoniRaidTool.Data
         }
         public GearSet Gear => MainChar.MainClass?.Gear ?? new();
         public GearSet BIS => MainChar.MainClass?.BIS ?? new();
-        public Player() { }
         [JsonConstructor]
-        public Player(PositionInRaidGroup pos) => Pos = pos;
+        public Player() { }
         internal void Reset()
         {
             NickName = "";
             Chars.Clear();
         }
-        public int CompareTo(Player? other)
-        {
-            if (other == null)
-                return int.MaxValue;
-            return Pos - other.Pos;
-        }
-
-
     }
     [JsonObject(MemberSerialization.OptIn)]
     public class AdditionalPlayerData

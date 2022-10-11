@@ -53,7 +53,7 @@ namespace HimbeertoniRaidTool.UI
                 inspectActive = false;
                 inspectTooltip = Localize("CharacterNotInReach", "Character is not in reach to examine");
             }
-            bool pressed = Button(FontAwesomeIcon.Search, p.Pos.ToString(), inspectTooltip, inspectActive);
+            bool pressed = Button(FontAwesomeIcon.Search, p.NickName + p.MainChar.Name, inspectTooltip, inspectActive);
             if (pressed)
             {
                 GearRefresherOnExamine.RefreshGearInfos(playerChar);

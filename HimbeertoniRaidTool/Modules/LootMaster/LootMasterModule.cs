@@ -41,19 +41,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
         private readonly LootmasterUI Ui;
         private readonly LootMasterConfiguration _config;
-        private bool _fillSolOnLogin;
+        private bool _fillSoloOnLogin = false;
         private LootMasterModule()
         {
-
-            if (RaidGroups.Count == 0)
-            {
-                RaidGroups.Add(new("Solo", GroupType.Solo));
-                _fillSolOnLogin = true;
-            }
-            if (RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
+            if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
             {
                 RaidGroups.Insert(0, new("Solo", GroupType.Solo));
-                _fillSolOnLogin = true;
+                _fillSoloOnLogin = true;
             }
 
             _config = new(this);
@@ -70,9 +64,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         public void OnLogin(object? sender, EventArgs e)
         {
-            if (_fillSolOnLogin)
+            if (_fillSoloOnLogin)
                 FillSoloChar(RaidGroups[0].Tank1, true);
-            _fillSolOnLogin = false;
+            _fillSoloOnLogin = false;
             if (_config.Data.OpenOnStartup)
                 Ui.Show();
         }
@@ -195,7 +189,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             foreach (var pm in fill)
             {
-                Dalamud.Logging.PluginLog.Debug($"To fill: {pm.Name}");
                 int pos = 0;
                 while (group[(PositionInRaidGroup)pos].Filled) { pos++; }
                 if (pos > 7) break;
@@ -203,19 +196,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             void FillPosition(PositionInRaidGroup pos, PartyMember pm)
             {
-                Dalamud.Logging.PluginLog.Debug($"In fill: {pm.Name}");
                 var p = group[pos];
-                p.Pos = pos;
                 p.NickName = pm.Name.TextValue.Split(' ')[0];
-                var character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
+                Character character = new(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
                 bool characterExisted = Services.HrtDataManager.CharacterExists(character.HomeWorldID, character.Name);
                 Services.HrtDataManager.GetManagedCharacter(ref character);
                 p.MainChar = character;
                 if (!characterExisted)
                 {
-                    p.MainChar.Classes.Clear();
                     bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
-                    ;
                     if (Helper.TryGetChar(out var pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                     {
                         p.MainChar.MainJob = c;

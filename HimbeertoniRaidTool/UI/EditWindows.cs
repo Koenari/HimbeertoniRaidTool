@@ -15,7 +15,6 @@ namespace HimbeertoniRaidTool.UI
 {
     internal class EditPlayerWindow : HrtUI
     {
-        private readonly RaidGroup RaidGroup;
         private readonly Player Player;
         private readonly Player PlayerCopy;
         private readonly Action<HrtUiMessage> CallBack;
@@ -23,14 +22,12 @@ namespace HimbeertoniRaidTool.UI
         private Job newJob = Job.ADV;
         private readonly Func<Job, string> GetBisID;
         private const int ClassHeight = 27 * 2 + 4;
-        internal PositionInRaidGroup Pos => Player.Pos;
-        internal EditPlayerWindow(Action<HrtUiMessage> callBack, RaidGroup group, PositionInRaidGroup pos, Func<Job, string> getBisID)
-            : base(true, $"{group.GetHashCode()}##{pos}")
+        internal EditPlayerWindow(Action<HrtUiMessage> callBack, Player p, Func<Job, string> getBisID)
+            : base()
         {
             GetBisID = getBisID;
-            RaidGroup = group;
             CallBack = callBack;
-            Player = group[pos];
+            Player = p;
             PlayerCopy = new();
             var target = Helper.TargetChar;
             IsNew = !Player.Filled;
@@ -47,7 +44,7 @@ namespace HimbeertoniRaidTool.UI
                 PlayerCopy = Player.Clone();
             }
             (Size, SizingCondition) = (new Vector2(450, 330 + (ClassHeight * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Appearing);
-            Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName} ({RaidGroup.Name})##{Player.Pos}";
+            Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName}";
         }
         protected override void Draw()
         {
@@ -175,7 +172,7 @@ namespace HimbeertoniRaidTool.UI
             Player.AdditionalData.ManualDPS = PlayerCopy.AdditionalData.ManualDPS;
             if (IsNew)
             {
-                Character c = new Character(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
+                Character c = new(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
                 Services.HrtDataManager.GetManagedCharacter(ref c);
                 Player.MainChar = c;
                 if (c.Classes.Count > 0)
@@ -228,18 +225,17 @@ namespace HimbeertoniRaidTool.UI
     {
         private readonly RaidGroup Group;
         private readonly RaidGroup GroupCopy;
-        private readonly System.Action OnSave;
-        private readonly System.Action OnCancel;
+        private readonly Action<RaidGroup> OnSave;
+        private readonly Action<RaidGroup> OnCancel;
 
-        internal EditGroupWindow(RaidGroup group, System.Action? onSave = null, System.Action? onCancel = null)
+        internal EditGroupWindow(RaidGroup group, Action<RaidGroup>? onSave = null, Action<RaidGroup>? onCancel = null)
         {
             Group = group;
-            OnSave = onSave ?? (() => { });
-            OnCancel = onCancel ?? (() => { });
+            OnSave = onSave ?? ((g) => { });
+            OnCancel = onCancel ?? ((g) => { });
             GroupCopy = Group.Clone();
-            Show();
             (Size, SizingCondition) = (new Vector2(500, 150 + (group.RolePriority != null ? 180 : 0)), ImGuiCond.Appearing);
-            Title = Localize("Edit Group ", "Edit Group ") + Group.Name;
+            Title = $"{Localize("Edit Group", "Edit Group")} {Group.Name}";
         }
 
         protected override void Draw()
@@ -268,13 +264,13 @@ namespace HimbeertoniRaidTool.UI
                 Group.Name = GroupCopy.Name;
                 Group.Type = GroupCopy.Type;
                 Group.RolePriority = GroupCopy.RolePriority;
-                OnSave();
+                OnSave(Group);
                 Hide();
             }
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
             {
-                OnCancel();
+                OnCancel(Group);
                 Hide();
             }
         }
