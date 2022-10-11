@@ -10,30 +10,42 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
     public class LootSession
     {
         private readonly Random Random = new(Guid.NewGuid().GetHashCode());
-        public Dictionary<Player, int> Rolls;
+        public Dictionary<Player, int> Rolls = new();
         public LootRuling RulingOptions { get; private set; }
         internal readonly (HrtItem item, int count)[] Loot;
-        internal readonly RaidGroup _group;
-        public Dictionary<(HrtItem, int), List<(Player, string)>> Results;
+        private RaidGroup _group;
+        internal RaidGroup Group
+        {
+            get => _group;
+            set
+            {
+                _group = value;
+                ReRoll();
+                Results.Clear();
+            }
+        }
+        public Dictionary<(HrtItem, int), List<(Player, string)>> Results = new();
         public List<Player> Excluded = new();
         public readonly RolePriority RolePriority;
-        private int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
+        internal int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
         public LootSession(RaidGroup group, LootRuling rulingOptions, RolePriority rolePriority, (HrtItem, int)[] items)
         {
             RulingOptions = rulingOptions.Clone();
             Loot = items;
-            _group = group;
+            _group = Group = group;
             RolePriority = rolePriority;
-            Rolls = new();
-            foreach (var p in _group.Players)
+        }
+        private void ReRoll()
+        {
+            foreach (var p in Group.Players)
                 Rolls.Add(p, Random.Next(0, 101));
-            Results = new();
         }
         public void EvaluateAll(bool reevaluate = false)
         {
             if (Results.Count == NumLootItems && !reevaluate)
                 return;
             Results.Clear();
+            ReRoll();
             foreach ((HrtItem item, int count) in Loot)
                 for (int i = 0; i < count; i++)
                 {
@@ -54,7 +66,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             excluded.AddRange(excludeAddition);
             List<Player> need = new();
             List<Player> greed = new();
-            foreach (var p in _group.Players)
+            foreach (var p in Group.Players)
             {
                 if (excluded.Contains(p))
                     continue;

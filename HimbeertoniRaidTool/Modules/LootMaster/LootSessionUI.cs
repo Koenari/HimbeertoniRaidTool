@@ -29,29 +29,51 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _session.RulingOptions.RuleSet = _ruleListUi.List;
             _session.EvaluateAll(true);
             ClearChildren();
-            AddChild(new LootResultWindow(_session));
+            if (_session.Results.Count > 0)
+                AddChild(new LootResultWindow(_session));
         }
         protected override void Draw()
         {
+            ImGui.Text($"{Localize("Group", "Group")}: ");
+            ImGui.SameLine();
+            if (ImGui.BeginCombo("##RaidGroup", _session.Group.Name))
+            {
+                foreach (RaidGroup group in Services.HrtDataManager.Groups)
+                    if (ImGui.Selectable(group.Name) && group != _session.Group)
+                    {
+                        ClearChildren();
+                        _session.Group = group;
+                    }
+                ImGui.EndCombo();
+            }
+            ImGui.SameLine();
             if (ImGuiHelper.Button(Localize("Distribute", "Distribute"),
-                Localize("OpenLootResultTooltip", "Opens a window with results of loot distribution according to these rules and current equipment of players")))
+                Localize("OpenLootResultTooltip", "Opens a window with results of loot distribution according to these rules and current equipment of players"),
+                _session.NumLootItems > 0))
                 StartLootDistribution();
             ImGui.SameLine();
             if (ImGuiHelper.Button(Localize("Close", "Close"), null))
                 Hide();
+            if (_session.Group.Type == GroupType.Solo)
+                ImGui.TextColored(new Vector4(.9f, 0f, 0f, 1f), Localize("DistributeForSolo", "You have selected a group with only one player!"));
+            else if (_session.NumLootItems == 0)
+                ImGui.TextColored(new Vector4(.9f, 0f, 0f, 1f), Localize("NoLootSelected", "You have not selected any loot!"));
+            else
+                ImGui.NewLine();
             //
-            if (ImGui.BeginChild("Loot", new Vector2(250, 300), false))
+            if (ImGui.BeginChild("Loot", new Vector2(250 * ScaleFactor, 300 * ScaleFactor), false))
             {
                 for (int i = 0; i < _session.Loot.Length; i++)
                 {
                     ImGui.Text(_session.Loot[i].item.Name);
-                    ImGui.InputInt($"##Input{i}", ref _session.Loot[i].Item2);
+                    if (ImGui.InputInt($"##Input{i}", ref _session.Loot[i].count) && _session.Loot[i].count < 0)
+                        _session.Loot[i].count = 0;
                 }
                 ImGui.EndChild();
             }
             ImGui.SameLine();
 
-            if (ImGui.BeginChild("Rules", new Vector2(270, 270), false))
+            if (ImGui.BeginChild("Rules", new Vector2(270 * ScaleFactor, 270 * ScaleFactor), false))
             {
                 ImGui.TextWrapped($"{Localize("Role priority", "Role priority")}:\n{_session.RolePriority}");
                 _ruleListUi.Draw();
@@ -79,6 +101,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             protected override void Draw()
             {
+                if (_session.Results.Count == 0)
+                    ImGui.Text(Localize("No loot", "No loot"));
                 foreach (((HrtItem item, int nr), List<(Player player, string reason)> ruling) in _session.Results)
                 {
                     if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}\n {ruling[0].player.NickName} won" +
