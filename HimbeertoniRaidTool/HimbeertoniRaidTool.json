@@ -17,5 +17,5 @@
     "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png"
   ],
   "IsHide": "False",
-  "Changelog": "fixed: unable to save right after loading\nfixed: potential short freeze of FFXIV\nnew: you can manually edit levels\nsome performance improvements"
+  "Changelog": "new: improved deatils for loot results\nnew: you can now edit role priority\nnew: supports non standard group compositions"
 }
