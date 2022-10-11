@@ -78,7 +78,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
             ImGuiHelper.GearUpdateButton(p);
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.RuntimeUniqueID}", $"{Localize("Edit player", "Edit player")} {p.NickName}"))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}", $"{Localize("Edit player", "Edit player")} {p.NickName}"))
             {
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, p, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
@@ -541,7 +541,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             private readonly LootmasterUI Parent;
             private readonly Player Player;
-            public PlayerdetailWindow(LootmasterUI lmui, Player p) : base(true, $"PlayerdetailWindow{p.RuntimeUniqueID}")
+            public PlayerdetailWindow(LootmasterUI lmui, Player p) : base()
             {
                 Parent = lmui;
                 Player = p;
