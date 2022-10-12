@@ -37,6 +37,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private void ReRoll()
         {
+            Rolls.Clear();
             foreach (var p in Group.Players)
                 Rolls.Add(p, Random.Next(0, 101));
         }
