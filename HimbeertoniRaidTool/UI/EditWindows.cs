@@ -246,13 +246,13 @@ namespace HimbeertoniRaidTool.UI
             {
                 GroupCopy.Type = (GroupType)groupType;
             }
-            bool overrrideRolePriority = GroupCopy.RolePriority != null;
-            if (ImGui.Checkbox(Localize("Overrride role priority", "Overrride role priority"), ref overrrideRolePriority))
+            bool overrideRolePriority = GroupCopy.RolePriority != null;
+            if (ImGui.Checkbox(Localize("Override role priority", "Override role priority"), ref overrideRolePriority))
             {
-                GroupCopy.RolePriority = overrrideRolePriority ? new RolePriority() : null;
-                Size.Y += (overrrideRolePriority ? 1 : -1) * 180f;
+                GroupCopy.RolePriority = overrideRolePriority ? new RolePriority() : null;
+                Size.Y += (overrideRolePriority ? 1 : -1) * 180f;
             }
-            if (overrrideRolePriority)
+            if (overrideRolePriority)
             {
                 ImGui.Text(Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
                 ImGui.Text($"{Localize("Current priority", "Current priority")}: {GroupCopy.RolePriority}");

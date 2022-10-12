@@ -70,7 +70,7 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
             }
             protected override void Draw()
             {
-                ImGui.TextWrapped(Localize("WelcomeWindowLine1", "Welcome to Himbeertoni Raid Tool. Your companion in mangaing your raid group."));
+                ImGui.TextWrapped(Localize("WelcomeWindowLine1", "Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group."));
                 ImGui.TextWrapped(Localize("WelcomeWindowLine2", "Start your journey by opening LootMaster by typing \"/lootmaster\" (or \"/lm\") in chat (or the button below). There we already added your character for you."));
                 ImGui.TextWrapped(Localize("WelcomeWindowLine3", $"Next you can get your current gear either by using the \"magnifying glass\" button or by examining your character via right clicking."));
                 ImGui.TextWrapped(Localize("WelcomeWindowLine4", "The plugin will always update the gear for characters that were added to a group or solo tab when examining the character in-game."));

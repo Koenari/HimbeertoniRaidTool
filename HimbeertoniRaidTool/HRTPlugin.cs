@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
@@ -75,7 +76,8 @@ namespace HimbeertoniRaidTool
             LoadError = !Services.Init();
             FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
             //Init Localization
-            Loc = new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale");
+            string localePath = Path.Combine(Services.PluginInterface.AssemblyLocation.DirectoryName!, @"locale");
+            Loc = new(localePath, "HimbeertoniRaidTool_");
             Loc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
             Services.PluginInterface.LanguageChanged += OnLanguageChanged;
             _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
@@ -131,6 +133,7 @@ namespace HimbeertoniRaidTool
         }
         private void OnLanguageChanged(string langCode)
         {
+            PluginLog.Information($"LOading localization for {langCode}");
             Loc.SetupWithLangCode(langCode);
         }
         private void AddCommand(HrtCommand command)
