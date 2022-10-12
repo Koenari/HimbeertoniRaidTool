@@ -135,8 +135,8 @@
     "message": "Group Type",
     "description": "EditGroupWindow.Draw"
   },
-  "Overrride role priority": {
-    "message": "Overrride role priority",
+  "Override role priority": {
+    "message": "Override role priority",
     "description": "EditGroupWindow.Draw"
   },
   "ConfigRolePriority": {
@@ -236,7 +236,7 @@
     "description": "WelcomeWindowui..ctor"
   },
   "WelcomeWindowLine1": {
-    "message": "Welcome to Himbeertoni Raid Tool. Your companion in mangaing your raid group.",
+    "message": "Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group.",
     "description": "WelcomeWindowui.Draw"
   },
   "WelcomeWindowLine2": {
@@ -352,7 +352,7 @@
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "StatsUnfinished": {
-    "message": "Stats are under development and only work corrrectly for level 70/80/90 jobs",
+    "message": "Stats are under development and only work correctly for level 70/80/90 jobs",
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "MainStats": {
@@ -443,8 +443,8 @@
     "message": "From scratch",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
-  "Add emtpy group": {
-    "message": "Add emtpy group",
+  "Add empty group": {
+    "message": "Add empty group",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "LvLShort": {

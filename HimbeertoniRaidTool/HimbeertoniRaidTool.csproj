@@ -100,13 +100,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="locale\" />
+    <Content Include="..\Localization\**" Link="locale\%(RecursiveDir)\%(Filename)%(Extension)" CopyToOutputDirectory="Always" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Update="locale\de.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
