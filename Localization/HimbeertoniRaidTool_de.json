@@ -4,7 +4,7 @@
     "description": "ConfigUI..ctor"
   },
   "General": {
-    "message": "General",
+    "message": "Allgemein",
     "description": "ConfigUI.Draw"
   },
   "Save preiodically": {
@@ -24,7 +24,7 @@
     "description": "DrawDataExtension.Draw"
   },
   "Value": {
-    "message": "Value",
+    "message": "Wert",
     "description": "DrawDataExtension.Draw"
   },
   "Name": {
