@@ -1,0 +1,3 @@
+files:
+  - source: /Localization/HimbeertoniRaidTool_Localizable.json
+    translation: /Localization/HimbeertoniRaidTool_%two_letters_code%.json
