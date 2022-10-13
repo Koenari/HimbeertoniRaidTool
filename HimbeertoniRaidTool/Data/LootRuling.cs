@@ -149,7 +149,7 @@ namespace HimbeertoniRaidTool.Data
         };
         public static int Roll(this Player p, LootSession session) => session.Rolls[p];
         public static int ItemLevel(this Player p) => p.Gear.ItemLevel;
-        public static int ItemLevelGain(this Player p, GearItem? newItem) => newItem == null ? 0 : (int)newItem.ItemLevel - (int)p.Gear[newItem.Slot].ItemLevel;
+        public static int ItemLevelGain(this Player p, GearItem? newItem) => newItem == null ? 0 : (int)newItem.ItemLevel - (int)(p.Gear.Where(i => i.Slots.Intersect(newItem.Slots).Any()).MinBy(i => i.ItemLevel)?.ItemLevel ?? newItem.ItemLevel);
         public static bool IsBiS(this Player p, IEnumerable<GearItem> items) => p.BIS.Any(bisItem => items.Any(i => i.ID == bisItem.ID));
         public static GearItem? ApplicableItem(this Player p, IEnumerable<GearItem> possibleItems)
         {
