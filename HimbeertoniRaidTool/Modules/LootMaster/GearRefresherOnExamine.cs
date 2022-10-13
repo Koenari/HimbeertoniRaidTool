@@ -107,7 +107,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             if (target is null)
                 return;
-            if (target.GetJob() is null)
+            if (!target.TryGetJob(out Job targetClass))
                 return;
             //Do not execute on characters not part of any managed raid group
             if (!Services.HrtDataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
@@ -118,7 +118,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 return;
             if (targetChar is null)
                 return;
-            var targetClass = (Job)target.GetJob()!;
             var container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
             if (container == null)
                 return;
@@ -126,7 +125,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             //Getting level does not work in level synced content
             if (target.Level > targetChar.GetClass(targetClass).Level)
                 targetChar.GetClass(targetClass).Level = target.Level;
-            var setToFill = new GearSet(GearSetManager.HRT, targetChar, targetClass);
+            GearSet setToFill = new(GearSetManager.HRT, targetChar, targetClass);
             Services.HrtDataManager.GetManagedGearSet(ref setToFill);
 
             setToFill.Clear();

@@ -29,7 +29,7 @@ namespace HimbeertoniRaidTool
             if (name == null)
                 return false;
             if (name.Equals(TargetChar?.Name.TextValue))
-                if (w is null || TargetChar!.HomeWorld.GameData?.RowId == w.RowId)
+                if (w is null || TargetChar?.HomeWorld.GameData?.RowId == w.RowId)
                 {
                     result = TargetChar;
                     return true;
@@ -62,8 +62,8 @@ namespace HimbeertoniRaidTool
                 return (PlayerCharacter)_targetCopy;
             }
         }
-        public static Job? GetJob(this PlayerCharacter target) =>
-            Enum.TryParse(target.ClassJob.GameData?.Abbreviation.RawString, true, out Job result) ? result : null;
+        public static bool TryGetJob(this PlayerCharacter target, out Job result) =>
+            Enum.TryParse(target.ClassJob.GameData?.Abbreviation.RawString, true, out result);
 
         public static PlayerCharacter? Self => Services.ClientState.LocalPlayer;
         private static readonly Vector4[] ColorCache = new Vector4[4]
@@ -84,14 +84,11 @@ namespace HimbeertoniRaidTool
     public static class HRTExtensions
     {
         public static T Clone<T>(this T source)
-        {
-            var serialized = JsonConvert.SerializeObject(source);
-            return JsonConvert.DeserializeObject<T>(serialized)!;
-        }
+            => JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(source))!;
         public static int ConsistentHash(this string obj)
         {
-            var alg = SHA512.Create();
-            var sha = alg.ComputeHash(Encoding.UTF8.GetBytes(obj));
+            SHA512 alg = SHA512.Create();
+            byte[] sha = alg.ComputeHash(Encoding.UTF8.GetBytes(obj));
             return sha[0] + 256 * sha[1] + 256 * 256 * sha[2] + 256 * 256 * 256 * sha[2];
         }
     }
