@@ -135,7 +135,7 @@ namespace HimbeertoniRaidTool
                 ImGui.BeginTabBar("Modules");
                 if (ImGui.BeginTabItem(Localize("General", "General")))
                 {
-                    ImGui.Checkbox(Localize("Save preiodically", "Save preiodically"), ref _dataCopy.SavePeriodically);
+                    ImGui.Checkbox(Localize("Save periodically", "Save periodically"), ref _dataCopy.SavePeriodically);
                     if (ImGui.InputInt(Localize("AutoSave_interval_min", "AutoSave interval (min)"), ref _dataCopy.SaveIntervalMinutes))
                     {
                         if (_dataCopy.SaveIntervalMinutes < 1)
