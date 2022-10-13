@@ -1,4 +1,5 @@
-﻿using HimbeertoniRaidTool.Data;
+﻿using System.Linq;
+using HimbeertoniRaidTool.Data;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using static Dalamud.Localization;
@@ -12,7 +13,7 @@ namespace HimbeertoniRaidTool.UI
         {
             if (item.Item is null)
                 return;
-            bool isWeapon = item.Slot == GearSetSlot.MainHand;
+            bool isWeapon = item.Slots.Contains(GearSetSlot.MainHand);
             if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
             {
                 ImGui.TableSetupColumn(Localize("ItemTableHeader", "Header"));

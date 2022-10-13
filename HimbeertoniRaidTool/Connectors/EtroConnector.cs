@@ -104,14 +104,14 @@ namespace HimbeertoniRaidTool.Connectors
         }
         private class EtroMateriaTier
         {
-            public ushort id;
+            public ushort id { get; set; }
         }
 
 
 
         private class EtroMateria
         {
-            public uint id;
+            public uint id { get; set; }
             public EtroMateriaTier tier1 { get => tiers[0]; set => tiers[0] = value; }
             public EtroMateriaTier tier2 { get => tiers[1]; set => tiers[1] = value; }
             public EtroMateriaTier tier3 { get => tiers[2]; set => tiers[2] = value; }

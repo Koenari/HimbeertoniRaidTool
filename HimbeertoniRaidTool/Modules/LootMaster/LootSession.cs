@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HimbeertoniRaidTool.Data;
+using Lumina.Excel.Extensions;
 using static Dalamud.Localization;
 
 
@@ -50,29 +51,45 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             foreach ((HrtItem item, int count) in Loot)
                 for (int i = 0; i < count; i++)
                 {
-                    if (item.IsExhangableItem)
-                        Results.Add((item, i), Evaluate(new ExchangableItem(item.ID).PossiblePurchases, Excluded));
-                    else if (item.IsContainerItem)
-                        Results.Add((item, i), Evaluate(new ContainerItem(item.ID).PossiblePurchases, Excluded));
-                    else if (item.IsGear)
-                        Results.Add((item, i), Evaluate(new List<GearItem> { new(item.ID) }, Excluded));
-                    else
-                        Results.Add((item, i), new());
+                    Results.Add((item, i), Evaluate(item, Excluded));
                 }
         }
-        private List<(Player, string)> Evaluate(List<GearItem> possibleItems, List<Player> excludeAddition)
+        private List<(Player, string)> Evaluate(HrtItem droppedItem, IEnumerable<Player> excludeAddition)
         {
             List<Player> excluded = new();
             excluded.AddRange(Excluded);
             excluded.AddRange(excludeAddition);
+            IEnumerable<GearItem> possibleItems;
+            if (droppedItem.IsGear)
+                possibleItems = new List<GearItem> { new(droppedItem.ID) };
+            else if (droppedItem.IsContainerItem)
+                possibleItems = new ContainerItem(droppedItem.ID).PossiblePurchases;
+            else if (droppedItem.IsExhangableItem)
+                possibleItems = new ExchangableItem(droppedItem.ID).PossiblePurchases;
+            else
+                return new() { (new(), Localize("invalid item", "invalid item")) };
             List<Player> need = new();
             List<Player> greed = new();
             foreach (var p in Group.Players)
             {
                 if (excluded.Contains(p))
                     continue;
-                foreach (var item in possibleItems)
-                    if (p.Gear[item.Slot].ID != p.BIS[item.Slot].ID && !possibleItems.Any(x => x.ID == p.Gear[item.Slot].ID))
+                //Pre filter items by job
+                var applicableItems = possibleItems.Where(i => (i.Item?.ClassJobCategory.Value).Contains(p.MainChar.MainJob));
+                //Calculate need for each item
+                foreach (var item in applicableItems)
+
+                    if (
+                        //Always need if Bis and not aquired
+                        (p.BIS.Contains(item) && !p.Gear.Contains(item))
+                        //No need if any of following are true
+                        || !(
+                            //Player already has this unique item
+                            ((item.Item?.IsUnique ?? true) && p.Gear.Contains(item))
+                            //Player has Bis or higher/same iLvl for all aplicable slots
+                            || (p.MainChar.MainClass?.HaveBisOrHigherItemLevel(item.Slots, item) ?? false)
+                        )
+                    )
                     {
                         need.Add(p);
                         break;
@@ -96,13 +113,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             return result;
         }
-        private LootRulingComparer GetComparer(List<GearItem> possibleItems) => new(this, possibleItems);
+        private LootRulingComparer GetComparer(IEnumerable<GearItem> possibleItems) => new(this, possibleItems);
         private class LootRulingComparer : IComparer<Player>
         {
             private readonly LootSession _session;
-            private readonly List<GearItem> _possibleItems;
+            private readonly IEnumerable<GearItem> _possibleItems;
             public Dictionary<(Player, Player), (LootRule rule, int result, string valueL, string valueR)> RulingReason = new();
-            public LootRulingComparer(LootSession session, List<GearItem> possibleItems)
+            public LootRulingComparer(LootSession session, IEnumerable<GearItem> possibleItems)
                 => (_session, _possibleItems) = (session, possibleItems);
 
             public int Compare(Player? x, Player? y)

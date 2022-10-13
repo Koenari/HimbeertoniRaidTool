@@ -12,7 +12,7 @@ namespace HimbeertoniRaidTool.Data
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class LootRuling
     {
-        public static List<LootRule> PossibleRules
+        public static IEnumerable<LootRule> PossibleRules
         {
             get
             {
@@ -91,13 +91,13 @@ namespace HimbeertoniRaidTool.Data
         public readonly string Name;
         [JsonIgnore]
         public string Expression;
-        public (int, string, string) Compare(Player x, Player y, LootSession session, List<GearItem> currentPossibleLoot)
+        public (int, string, string) Compare(Player x, Player y, LootSession session, IEnumerable<GearItem> currentPossibleLoot)
         {
             (int lVal, string? lReason) = Eval(x, session, currentPossibleLoot);
             (int rVal, string? rReason) = Eval(y, session, currentPossibleLoot);
             return ((this.FavorsLowValue() ? -1 : 1) * (rVal - lVal), lReason ?? lVal.ToString(), rReason ?? rVal.ToString());
         }
-        private (int, string?) Eval(Player x, LootSession session, List<GearItem> currentPossibleLoot) => Rule switch
+        private (int, string?) Eval(Player x, LootSession session, IEnumerable<GearItem> currentPossibleLoot) => Rule switch
         {
             LootRuleEnum.Random => (x.Roll(session), null),
             LootRuleEnum.LowestItemLevel => (x.ItemLevel(), null),
@@ -149,9 +149,9 @@ namespace HimbeertoniRaidTool.Data
         };
         public static int Roll(this Player p, LootSession session) => session.Rolls[p];
         public static int ItemLevel(this Player p) => p.Gear.ItemLevel;
-        public static int ItemLevelGain(this Player p, GearItem? newItem) => newItem == null ? 0 : (int)newItem.ItemLevel - (int)p.Gear[newItem.Slot].ItemLevel;
-        public static bool IsBiS(this Player p, List<GearItem> items) => p.BIS.Any(bisItem => items.Any(i => i.ID == bisItem.ID));
-        public static GearItem? ApplicableItem(this Player p, List<GearItem> possibleItems)
+        public static int ItemLevelGain(this Player p, GearItem? newItem) => newItem == null ? 0 : (int)newItem.ItemLevel - (int)(p.Gear.Where(i => i.Slots.Intersect(newItem.Slots).Any()).MinBy(i => i.ItemLevel)?.ItemLevel ?? newItem.ItemLevel);
+        public static bool IsBiS(this Player p, IEnumerable<GearItem> items) => p.BIS.Any(bisItem => items.Any(i => i.ID == bisItem.ID));
+        public static GearItem? ApplicableItem(this Player p, IEnumerable<GearItem> possibleItems)
         {
             if (!possibleItems.Any(i => i.Item?.ClassJobCategory.Value.Contains(p.MainChar.MainJob) ?? false))
                 return null;
