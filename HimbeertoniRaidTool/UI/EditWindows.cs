@@ -350,11 +350,11 @@ namespace HimbeertoniRaidTool.UI
                     AddChild(new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], slot, _job,
                         slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? _currentRaidTier?.WeaponItemLevel ?? 0 : _currentRaidTier?.ArmorItemLevel ?? 0));
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, $"delete{_gearSetCopy[slot].Slot}", Localize("Delete", "Delete")))
-                    _gearSetCopy[_gearSetCopy[slot].Slot] = new();
+                if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, $"delete{slot}", Localize("Delete", "Delete")))
+                    _gearSetCopy[slot] = new();
                 for (int i = 0; i < _gearSetCopy[slot].Materia.Count; i++)
                 {
-                    if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{_gearSetCopy[slot].Slot}mat{i}", Localize("Remove this materia", "Remove this materia"), i == _gearSetCopy[slot].Materia.Count - 1))
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{slot}mat{i}", Localize("Remove this materia", "Remove this materia"), i == _gearSetCopy[slot].Materia.Count - 1))
                     {
                         _gearSetCopy[slot].Materia.RemoveAt(i);
                         i--;
@@ -426,7 +426,7 @@ namespace HimbeertoniRaidTool.UI
     internal class SelectGearItemWindow : SelectItemWindow<GearItem>
     {
         private readonly bool _lockSlot = false;
-        private GearSetSlot? Slot;
+        private IEnumerable<GearSetSlot> Slots;
         private readonly bool _lockJob = false;
         private Job? Job;
         private uint minILvl;
@@ -439,16 +439,15 @@ namespace HimbeertoniRaidTool.UI
             if (slot.HasValue)
             {
                 _lockSlot = true;
-                Slot = slot.Value;
+                Slots = new[] { slot.Value };
             }
             else
             {
-                Slot = Item?.Slot;
+                Slots = Item?.Slots ?? Array.Empty<GearSetSlot>();
             }
             _lockJob = job.HasValue;
             Job = job;
-            Slot = slot;
-            Title = $"{Localize("Get item for", "Get item for")} {Slot}";
+            Title = $"{Localize("Get item for", "Get item for")} {Slots.Aggregate("", (string res, GearSetSlot slot) => res += "," + slot.FriendlyName())[1..]}";
             maxILvl = maxItemLevel;
             minILvl = maxILvl > 30 ? maxILvl - 30 : 0;
             _items = reevaluateItems();
@@ -465,8 +464,12 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SameLine();
             ImGui.SetNextItemWidth(125f * ScaleFactor);
             ImGui.BeginDisabled(_lockSlot);
-            if (ImGuiHelper.Combo("##slot", ref Slot))
+            var slot = Slots.FirstOrDefault(GearSetSlot.None);
+            if (ImGuiHelper.Combo("##slot", ref slot))
+            {
+                Slots = new[] { slot };
                 reevaluateItems();
+            }
             ImGui.SameLine();
             ImGui.EndDisabled();
             ImGui.SetNextItemWidth(100f * ScaleFactor);
@@ -515,8 +518,7 @@ namespace HimbeertoniRaidTool.UI
         }
         private List<Item> reevaluateItems()
         {
-            _items = Sheet.Where(x =>
-                   (Slot == null || (x.EquipSlotCategory.Value?.Contains(Slot) ?? false))
+            _items = Sheet.Where(x => Slots.Any(slot => x.EquipSlotCategory.Value.Contains(slot))
                 && (maxILvl == 0 || x.LevelItem.Row <= maxILvl)
                 && x.LevelItem.Row >= minILvl
                 && (Job == 0 || x.ClassJobCategory.Value.Contains(Job))

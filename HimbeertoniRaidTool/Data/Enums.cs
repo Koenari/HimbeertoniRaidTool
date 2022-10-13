@@ -361,7 +361,7 @@ namespace HimbeertoniRaidTool.Data
 
         };
         public static string FriendlyName(this GearSetSlot slot) =>
-            GearSetSlotNameLookup.ContainsKey(slot) ? GearSetSlotNameLookup[slot] : Localize("undefined", "undefined");
+            GearSetSlotNameLookup.TryGetValue(slot, out string? fromDic) ? fromDic : Localize("undefined", "undefined");
         public static string FriendlyName(this GearSource source) => source switch
         {
             GearSource.Raid => Localize("Raid", "Raid"),

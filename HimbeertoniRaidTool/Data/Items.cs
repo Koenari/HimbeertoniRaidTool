@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -16,7 +17,10 @@ namespace HimbeertoniRaidTool.Data
         public bool IsHq = false;
         private static KeyContainsDictionary<GearSource> SourceDic => CuratedData.GearSourceDictionary;
         [JsonIgnore]
-        public GearSetSlot Slot => Item?.EquipSlotCategory.Value?.ToSlot() ?? GearSetSlot.None;
+        [Obsolete("Evaluate for all availbale slots")]
+        public GearSetSlot Slot => (Item?.EquipSlotCategory.Value).ToSlot();
+        [JsonIgnore]
+        public IEnumerable<GearSetSlot> Slots => (Item?.EquipSlotCategory.Value).AvailableSlots();
         [JsonIgnore]
         private GearSource? SourceCache = null;
         [JsonIgnore]
@@ -88,7 +92,7 @@ namespace HimbeertoniRaidTool.Data
         private Item? ItemCache = null;
         public Item? Item => ItemCache ??= _itemSheet.GetRow(ID);
         public string Name => Item?.Name.RawString ?? "";
-        public bool IsGear => Item?.EquipSlotCategory.Value is not null;
+        public bool IsGear => (Item?.ClassJobCategory.Row ?? 0) != 0;
         /// <summary>
         /// Is done this way since HrtMateria cannot be created from ItemID alone 
         /// and always will be of type HrtMateria

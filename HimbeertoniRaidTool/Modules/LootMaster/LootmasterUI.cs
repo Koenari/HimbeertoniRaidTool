@@ -480,7 +480,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.BeginGroup();
                     ImGui.TextColored(
                         Helper.ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel),
-                        $"{item.ItemLevel} {item.Source} {item.Slot.FriendlyName()}");
+                        $"{item.ItemLevel} {item.Source} {item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName()}");
                     if (extended)
                     {
                         string materria = "";
