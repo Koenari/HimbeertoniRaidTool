@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
@@ -105,8 +106,16 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.Text(Localize("No loot", "No loot"));
                 foreach (((HrtItem item, int nr), List<(Player player, string reason)> ruling) in _session.Results)
                 {
-                    if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}\n {ruling[0].player.NickName} won" +
-                        $"{(ruling.Count > 1 ? $" over {ruling[1].player.NickName} ({ruling[0].reason})" : "")}"))
+                    if (ruling.Count == 0 || ruling.First().reason == Localize("Greed", "Greed"))
+                    {
+                        ImGui.BeginDisabled();
+                        ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n{Localize("Greed only", "Greed only")}");
+                        ImGui.EndDisabled();
+                        continue;
+                    }
+                    if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n " +
+                        $"{ruling[0].player.NickName} won" +
+                        $"{(ruling.Count > 1 ? $" over {ruling[1].player.NickName} ({ruling[0].reason})" : "")}  "))
                     {
                         if (ImGui.BeginTable($"LootTable##{item.Name} # {nr + 1}", 3,
                             ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp))
