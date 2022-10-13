@@ -96,13 +96,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             return result;
         }
-        private LootRulingComparer GetComparer(List<GearItem> possibleItems) => new(this, possibleItems);
+        private LootRulingComparer GetComparer(IEnumerable<GearItem> possibleItems) => new(this, possibleItems);
         private class LootRulingComparer : IComparer<Player>
         {
             private readonly LootSession _session;
-            private readonly List<GearItem> _possibleItems;
+            private readonly IEnumerable<GearItem> _possibleItems;
             public Dictionary<(Player, Player), (LootRule rule, int result, string valueL, string valueR)> RulingReason = new();
-            public LootRulingComparer(LootSession session, List<GearItem> possibleItems)
+            public LootRulingComparer(LootSession session, IEnumerable<GearItem> possibleItems)
                 => (_session, _possibleItems) = (session, possibleItems);
 
             public int Compare(Player? x, Player? y)
