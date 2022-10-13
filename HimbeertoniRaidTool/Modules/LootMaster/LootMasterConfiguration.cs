@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Logging;
+using Dalamud.Utility;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
@@ -51,6 +52,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             private readonly LootMasterConfiguration _config;
             private ConfigData _dataCopy;
             private UiSortableList<LootRule> LootList;
+            private static float ScaleFactor => HrtUI.ScaleFactor;
 
             internal ConfigUi(LootMasterConfiguration config)
             {
@@ -78,13 +80,26 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 if (ImGui.BeginTabItem("BiS"))
                 {
                     ImGui.Checkbox(Localize("UpdateBisONStartUp", "Update sets from etro.gg periodically"), ref _dataCopy.UpdateEtroBisOnStartup);
+                    ImGui.SetNextItemWidth(150f * ScaleFactor);
                     if (ImGui.InputInt(Localize("BisUpdateInterval", "Update interval (days)"), ref _dataCopy.EtroUpdateIntervalDays))
                         if (_dataCopy.EtroUpdateIntervalDays < 1)
                             _dataCopy.EtroUpdateIntervalDays = 1;
 
                     if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
                     {
-                        foreach (var c in Enum.GetValues<Job>())
+                        var jobs = Enum.GetValues<Job>();
+                        Array.Sort(jobs, (a, b) =>
+                        {
+                            bool aFilled = !_dataCopy.GetDefaultBiS(a).IsNullOrEmpty();
+                            bool bFilled = !_dataCopy.GetDefaultBiS(b).IsNullOrEmpty();
+                            if (aFilled && !bFilled)
+                                return -1;
+                            if (!aFilled && bFilled)
+                                return 1;
+                            return a.ToString().CompareTo(b.ToString());
+
+                        });
+                        foreach (Job c in jobs)
                         {
                             bool isOverriden = _dataCopy.BISUserOverride.ContainsKey(c);
                             string value = _dataCopy.GetDefaultBiS(c);
@@ -110,6 +125,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                 if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Undo,
                                     $"Reset{c}", Localize("Reset to default", "Reset to default")))
                                     _dataCopy.BISUserOverride.Remove(c);
+                            }
+                            else
+                            {
+                                ImGui.SameLine();
+                                ImGui.TextDisabled($"({Localize("default", "default")})");
                             }
                         }
                         ImGui.EndChildFrame();
