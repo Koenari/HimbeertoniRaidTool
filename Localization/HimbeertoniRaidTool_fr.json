@@ -1,38 +1,38 @@
 {
   "ConfigWindowTitle": {
-    "message": "HimbeerToni Raid Tool Configuration",
+    "message": "Configuration de HimbeerToni Raid Tool",
     "description": "ConfigUI..ctor"
   },
   "General": {
-    "message": "General",
+    "message": "Général",
     "description": "ConfigUI.Draw"
   },
-  "Save preiodically": {
-    "message": "Save preiodically",
+  "Save periodically": {
+    "message": "Sauvegarder régulièrement",
     "description": "ConfigUI.Draw"
   },
   "AutoSave_interval_min": {
-    "message": "AutoSave interval (min)",
+    "message": "Intervalle de sauvegarde automatique (min)",
     "description": "ConfigUI.Draw"
   },
   "/hrt": {
-    "message": "Open Welcome Window with explanations",
+    "message": "Ouvrir la Fenêtre de Bienvenue incluant les explications",
     "description": "HRTPlugin..ctor"
   },
   "ItemTableHeader": {
-    "message": "Header",
+    "message": "En-tête",
     "description": "DrawDataExtension.Draw"
   },
   "Value": {
-    "message": "Value",
+    "message": "Valeur",
     "description": "DrawDataExtension.Draw"
   },
   "Name": {
-    "message": "Name",
+    "message": "Nom",
     "description": "DrawDataExtension.Draw"
   },
   "itemLevelLong": {
-    "message": "Item Level",
+    "message": "Niveau d'objet",
     "description": "DrawDataExtension.Draw"
   },
   "itemSource": {
@@ -40,19 +40,19 @@
     "description": "DrawDataExtension.Draw"
   },
   "MagicDamage": {
-    "message": "Magic Damage",
+    "message": "Dégâts magiques",
     "description": "DrawDataExtension.Draw"
   },
   "PhysicalDamage": {
-    "message": "Physical Damage",
+    "message": "Dégâts physiques",
     "description": "DrawDataExtension.Draw"
   },
   "PhysicalDefense": {
-    "message": "Defense",
+    "message": "Défense",
     "description": "DrawDataExtension.Draw"
   },
   "MagicalDefense": {
-    "message": "Magical Defense",
+    "message": "Défense magique",
     "description": "DrawDataExtension.Draw"
   },
   "Edit Player": {
