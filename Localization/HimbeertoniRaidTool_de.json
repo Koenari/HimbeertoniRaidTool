@@ -7,8 +7,36 @@
     "message": "Allgemein",
     "description": "ConfigUI.Draw"
   },
+  "Ui": {
+    "message": "User Interface",
+    "description": "ConfigUI.Draw"
+  },
+  "HideInCombat": {
+    "message": "Hide in combat",
+    "description": "ConfigUI.Draw"
+  },
+  "HideInCombatTooltip": {
+    "message": "Hides all windows while character is in combat",
+    "description": "ConfigUI.Draw"
+  },
+  "HideOnZoneChange": {
+    "message": "Hide in loading screenst",
+    "description": "ConfigUI.Draw"
+  },
+  "HideOnZoneChangeTooltip": {
+    "message": "Hides all windows while in a loading screen",
+    "description": "ConfigUI.Draw"
+  },
+  "Auto Save": {
+    "message": "Auto Save",
+    "description": "ConfigUI.Draw"
+  },
   "Save periodically": {
     "message": "Save periodically",
+    "description": "ConfigUI.Draw"
+  },
+  "SavePeriodicallyTooltip": {
+    "message": "Saves all data of this plugin periodically. (Helps prevent losing data if your game crashes)",
     "description": "ConfigUI.Draw"
   },
   "AutoSave_interval_min": {
@@ -299,10 +327,6 @@
     "message": "Open group overview on login",
     "description": "ConfigUi.Draw"
   },
-  "Hide windows in combat": {
-    "message": "Hide windows in combat",
-    "description": "ConfigUi.Draw"
-  },
   "UpdateBisONStartUp": {
     "message": "Update sets from etro.gg periodically",
     "description": "ConfigUi.Draw"
@@ -313,6 +337,10 @@
   },
   "Reset to default": {
     "message": "Reset to default",
+    "description": "ConfigUi.Draw"
+  },
+  "default": {
+    "message": "default",
     "description": "ConfigUi.Draw"
   },
   "LootRuleOrder": {
@@ -493,11 +521,11 @@
   },
   "Dmgper100Tooltip": {
     "message": "Average Dmg with a 100 potency skill",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|13_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|11_1"
   },
   "Empty": {
     "message": "Empty",
-    "description": "LootmasterUI.<DrawSlot>g__DrawItem|17_0"
+    "description": "LootmasterUI.<DrawSlot>g__DrawItem|15_0"
   },
   "PlayerDetailsTitle": {
     "message": "Player Details",
@@ -514,6 +542,10 @@
   "Swap players positions": {
     "message": "Swap players positions",
     "description": "SwapPositionWindow.Draw"
+  },
+  "invalid item": {
+    "message": "invalid item",
+    "description": "LootSession.Evaluate"
   },
   "Need > Greed": {
     "message": "Need > Greed",
@@ -565,6 +597,10 @@
   },
   "No loot": {
     "message": "No loot",
+    "description": "LootResultWindow.Draw"
+  },
+  "Greed only": {
+    "message": "Greed only",
     "description": "LootResultWindow.Draw"
   },
   "Pos": {
