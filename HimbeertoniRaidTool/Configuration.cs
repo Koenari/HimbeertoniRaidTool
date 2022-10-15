@@ -86,7 +86,7 @@ namespace HimbeertoniRaidTool
             [JsonProperty]
             public int SaveIntervalMinutes = 30;
         }
-        public class ConfigUI : HrtUI
+        public class ConfigUI : Window
         {
             private readonly Configuration _configuration;
             private ConfigData _dataCopy;

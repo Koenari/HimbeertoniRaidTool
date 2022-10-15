@@ -52,7 +52,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             private readonly LootMasterConfiguration _config;
             private ConfigData _dataCopy;
             private UiSortableList<LootRule> LootList;
-            private static float ScaleFactor => HrtUI.ScaleFactor;
+            private static float ScaleFactor => Window.ScaleFactor;
 
             internal ConfigUi(LootMasterConfiguration config)
             {

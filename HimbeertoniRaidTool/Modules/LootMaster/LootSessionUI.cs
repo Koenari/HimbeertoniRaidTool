@@ -8,7 +8,7 @@ using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
 {
-    internal class LootSessionUI : HrtUI
+    internal class LootSessionUI : Window
     {
         private readonly LootSource _lootSource;
         private readonly LootSession _session;
@@ -90,7 +90,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.EndChild();
             }
         }
-        private class LootResultWindow : HrtUI
+        private class LootResultWindow : Window
         {
             private readonly LootSession _session;
             public LootResultWindow(LootSession session) : base()

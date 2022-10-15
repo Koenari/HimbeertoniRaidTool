@@ -14,7 +14,7 @@ using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
 {
-    internal class LootmasterUI : HrtUI
+    internal class LootmasterUI : Window
     {
         private readonly LootMasterModule _lootMaster;
         private int _CurrenGroupIndex;
@@ -537,25 +537,22 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _messages.Add((DateTime.Now, message));
         }
 
-        private class PlayerdetailWindow : HrtUI
+        private class PlayerdetailWindow : Window
         {
-            private readonly LootmasterUI Parent;
+            private readonly Action<Player> DrawPlayer;
             private readonly Player Player;
             public PlayerdetailWindow(LootmasterUI lmui, Player p) : base()
             {
-                Parent = lmui;
+                DrawPlayer = lmui.DrawDetailedPlayer;
                 Player = p;
                 Show();
                 Title = $"{Localize("PlayerDetailsTitle", "Player Details")} {Player.NickName}";
                 (Size, SizingCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
             }
-            protected override void Draw()
-            {
-                Parent.DrawDetailedPlayer(Player);
-            }
+            protected override void Draw() => DrawPlayer(Player);
         }
     }
-    internal class GetCharacterFromDBWindow : HrtUI
+    internal class GetCharacterFromDBWindow : Window
     {
         private readonly Player _p;
         private readonly uint[] Worlds;
@@ -599,7 +596,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 Hide();
         }
     }
-    internal class SwapPositionWindow : HrtUI
+    internal class SwapPositionWindow : Window
     {
         private readonly RaidGroup _group;
         private readonly PositionInRaidGroup _oldPos;

@@ -10,28 +10,29 @@ namespace HimbeertoniRaidTool.UI
 {
     // It is good to have this be disposable in general, in case you ever need it
     // to do any cleanup
-    public abstract class HrtUI : IDisposable, IEquatable<HrtUI>
+    public abstract class Window : IDisposable, IEquatable<Window>
     {
         private bool _disposed = false;
         private bool _volatile;
-        private bool _isChild = false;
+        private bool IsChild => Parent != null;
         protected virtual bool HideInBattle { get; } = false;
         protected bool Visible = false;
         private readonly string _id;
+        protected Window? Parent { get; private set; }
         protected string Title;
         private Vector2 LastSize = default;
         protected Vector2 Size = default;
         private Vector2 ScaledSize = default;
         protected ImGuiCond SizingCondition = ImGuiCond.Appearing;
         protected ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.None;
-        private readonly List<HrtUI> Children = new();
+        private readonly List<Window> Children = new();
         public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
-        public HrtUI(bool @volatile = true, string? id = null)
+        public Window(bool @volatile = true, string? id = null)
         {
-            RegisterActions();
             _id = id ?? Guid.NewGuid().ToString();
             Title = "";
             _volatile = @volatile;
+            RegisterActions();
         }
         private void RegisterActions()
         {
@@ -70,11 +71,11 @@ namespace HimbeertoniRaidTool.UI
             Children.RemoveAll(x => x._disposed);
             OnUpdate();
         }
-        protected bool AddChild(HrtUI child, bool showOnAdd = false)
+        protected bool AddChild(Window child, bool showOnAdd = false)
         {
             if (!ChildExists(child))
             {
-                child.SetUpAsChild();
+                child.SetUpAsChild(this);
                 Children.Add(child);
                 if (showOnAdd)
                     child.Show();
@@ -89,10 +90,10 @@ namespace HimbeertoniRaidTool.UI
         }
         protected bool ChildExists<T>([DisallowNull] T c) => Children.Exists(x => c.Equals(x));
         protected void ClearChildren() => Children.ForEach(x => x.Dispose());
-        private void SetUpAsChild()
+        private void SetUpAsChild(Window parent)
         {
             _volatile = true;
-            _isChild = true;
+            Parent = parent;
             UnRegisterActions();
             Show();
         }
@@ -105,7 +106,7 @@ namespace HimbeertoniRaidTool.UI
             BeforeDispose();
             Children.ForEach(c => c.Dispose());
             Children.Clear();
-            if (!_isChild)
+            if (!IsChild)
                 UnRegisterActions();
             _disposed = true;
         }
@@ -130,12 +131,12 @@ namespace HimbeertoniRaidTool.UI
 
         }
         protected abstract void Draw();
-        public override bool Equals(object? obj) => (obj?.GetType().IsAssignableTo(GetType()) ?? false) && Equals((HrtUI)obj);
-        public bool Equals(HrtUI? other) => _id.Equals(other?._id);
+        public override bool Equals(object? obj) => (obj?.GetType().IsAssignableTo(GetType()) ?? false) && Equals((Window)obj);
+        public bool Equals(Window? other) => _id.Equals(other?._id);
 
         public override int GetHashCode() => _id.GetHashCode();
     }
-    public class ConfimationDialog : HrtUI
+    public class ConfimationDialog : Window
     {
         private readonly Action _Action;
         private readonly string _Title;

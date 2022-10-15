@@ -13,7 +13,7 @@ using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
-    internal class EditPlayerWindow : HrtUI
+    internal class EditPlayerWindow : Window
     {
         private readonly Player Player;
         private readonly Player PlayerCopy;
@@ -221,7 +221,7 @@ namespace HimbeertoniRaidTool.UI
             Services.HrtDataManager.Save();
         }
     }
-    internal class EditGroupWindow : HrtUI
+    internal class EditGroupWindow : Window
     {
         private readonly RaidGroup Group;
         private readonly RaidGroup GroupCopy;
@@ -275,7 +275,7 @@ namespace HimbeertoniRaidTool.UI
             }
         }
     }
-    internal class EditGearSetWindow : HrtUI
+    internal class EditGearSetWindow : Window
     {
         private readonly GearSet _gearSet;
         private readonly GearSet _gearSetCopy;
@@ -381,7 +381,7 @@ namespace HimbeertoniRaidTool.UI
             Hide();
         }
     }
-    internal abstract class SelectItemWindow<T> : HrtUI where T : HrtItem
+    internal abstract class SelectItemWindow<T> : Window where T : HrtItem
     {
         protected static readonly Lumina.Excel.ExcelSheet<Item> Sheet = Services.DataManager.GetExcelSheet<Item>()!;
         protected T? Item = null;

@@ -57,7 +57,7 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
                 _ui.Show();
         }
 
-        private class WelcomeWindowui : HrtUI
+        private class WelcomeWindowui : Window
         {
             private const string WikiURL = "https://github.com/Koenari/HimbeertoniRaidTool/wiki";
             private readonly WelcomeWindowModule _parent;
