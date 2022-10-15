@@ -145,13 +145,16 @@ namespace HimbeertoniRaidTool
                 {
                     ImGui.Text(Localize("Ui", "User Interface"));
                     ImGui.Checkbox(Localize("HideInCombat", "Hide in combat"), ref _dataCopy.HideInCombat);
-                    ImGui.SetTooltip(Localize("HideInCombatTooltip", "Hides all windows while character is in combat"));
+                    if (ImGui.IsItemHovered())
+                        ImGui.SetTooltip(Localize("HideInCombatTooltip", "Hides all windows while character is in combat"));
                     ImGui.Checkbox(Localize("HideOnZoneChange", "Hide in loading screenst"), ref _dataCopy.HideOnZoneChange);
-                    ImGui.SetTooltip(Localize("HideOnZoneChangeTooltip", "Hides all windows while in a loading screen"));
+                    if (ImGui.IsItemHovered())
+                        ImGui.SetTooltip(Localize("HideOnZoneChangeTooltip", "Hides all windows while in a loading screen"));
                     ImGui.Separator();
                     ImGui.Text(Localize("Auto Save", "Auto Save"));
                     ImGui.Checkbox(Localize("Save periodically", "Save periodically"), ref _dataCopy.SavePeriodically);
-                    ImGui.SetTooltip(Localize("SavePeriodicallyTooltip", "Saves all data of this plugin periodically. (Helps prevent losing data if your game crashes)"));
+                    if (ImGui.IsItemHovered())
+                        ImGui.SetTooltip(Localize("SavePeriodicallyTooltip", "Saves all data of this plugin periodically. (Helps prevent losing data if your game crashes)"));
                     ImGui.TextWrapped($"{Localize("AutoSave_interval_min", "AutoSave interval (min)")}:");
                     ImGui.SetNextItemWidth(150 * ScaleFactor);
                     if (ImGui.InputInt("##AutoSave_interval_min", ref _dataCopy.SaveIntervalMinutes))
