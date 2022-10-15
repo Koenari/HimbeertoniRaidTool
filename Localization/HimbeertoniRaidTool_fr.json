@@ -7,8 +7,36 @@
     "message": "Général",
     "description": "ConfigUI.Draw"
   },
+  "Ui": {
+    "message": "User Interface",
+    "description": "ConfigUI.Draw"
+  },
+  "HideInCombat": {
+    "message": "Hide in combat",
+    "description": "ConfigUI.Draw"
+  },
+  "HideInCombatTooltip": {
+    "message": "Hides all windows while character is in combat",
+    "description": "ConfigUI.Draw"
+  },
+  "HideOnZoneChange": {
+    "message": "Hide in loading screenst",
+    "description": "ConfigUI.Draw"
+  },
+  "HideOnZoneChangeTooltip": {
+    "message": "Hides all windows while in a loading screen",
+    "description": "ConfigUI.Draw"
+  },
+  "Auto Save": {
+    "message": "Auto Save",
+    "description": "ConfigUI.Draw"
+  },
   "Save periodically": {
     "message": "Sauvegarder régulièrement",
+    "description": "ConfigUI.Draw"
+  },
+  "SavePeriodicallyTooltip": {
+    "message": "Saves all data of this plugin periodically. (Helps prevent losing data if your game crashes)",
     "description": "ConfigUI.Draw"
   },
   "AutoSave_interval_min": {
@@ -299,10 +327,6 @@
     "message": "Ouvrir la vue d'ensemble du groupe au moment de la connexion",
     "description": "ConfigUi.Draw"
   },
-  "Hide windows in combat": {
-    "message": "Masquer les fenêtres en combat",
-    "description": "ConfigUi.Draw"
-  },
   "UpdateBisONStartUp": {
     "message": "Mettre à jour régulièrement les sets depuis etro.gg",
     "description": "ConfigUi.Draw"
@@ -313,6 +337,10 @@
   },
   "Reset to default": {
     "message": "Réinitialiser aux valeurs par défaut",
+    "description": "ConfigUi.Draw"
+  },
+  "default": {
+    "message": "default",
     "description": "ConfigUi.Draw"
   },
   "LootRuleOrder": {
@@ -493,11 +521,11 @@
   },
   "Dmgper100Tooltip": {
     "message": "Dégâts médians avec une attaque de 100 de Puissance",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|13_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|11_1"
   },
   "Empty": {
     "message": "Vide",
-    "description": "LootmasterUI.<DrawSlot>g__DrawItem|17_0"
+    "description": "LootmasterUI.<DrawSlot>g__DrawItem|15_0"
   },
   "PlayerDetailsTitle": {
     "message": "Détail du·de la joueur·se",
@@ -514,6 +542,10 @@
   "Swap players positions": {
     "message": "Permuter les positions des joueur·se·s",
     "description": "SwapPositionWindow.Draw"
+  },
+  "invalid item": {
+    "message": "invalid item",
+    "description": "LootSession.Evaluate"
   },
   "Need > Greed": {
     "message": "Besoin > Cupidité",
@@ -565,6 +597,10 @@
   },
   "No loot": {
     "message": "Aucun butin",
+    "description": "LootResultWindow.Draw"
+  },
+  "Greed only": {
+    "message": "Greed only",
     "description": "LootResultWindow.Draw"
   },
   "Pos": {
