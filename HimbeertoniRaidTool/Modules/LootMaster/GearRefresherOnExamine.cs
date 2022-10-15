@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Hooking;
+using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Data;
@@ -10,7 +10,7 @@ using XivCommon;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
 {
-    //Credit and apologies for taking and butchering their code goes to Caraxi https://github.com/Caraxi
+    //Inspired by aka Copied from
     //https://github.com/Caraxi/SimpleTweaksPlugin/blob/main/Tweaks/UiAdjustment/ExamineItemLevel.cs
     internal static unsafe class GearRefresherOnExamine
     {
@@ -18,36 +18,20 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         internal static readonly bool CanOpenExamine;
         private static readonly Hook<CharacterInspectOnRefresh>? Hook;
         private static readonly IntPtr HookAddress;
-        private static readonly IntPtr InventoryManagerAddress;
-        private static readonly IntPtr getInventoryContainerPtr;
-        private static readonly IntPtr getContainerSlotPtr;
 
         private delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
-        private delegate InventoryContainer* GetInventoryContainer(IntPtr inventoryManager, InventoryType inventoryType);
-        private delegate InventoryItem* GetContainerSlot(InventoryContainer* inventoryContainer, int slotId);
-
-        private static readonly GetInventoryContainer? _getInventoryContainer;
-        private static readonly GetContainerSlot? _getContainerSlot;
         private static readonly XivCommonBase? XivCommonBase;
         static GearRefresherOnExamine()
         {
             try
             {
                 HookAddress = Services.SigScanner.ScanText("48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2");
-                InventoryManagerAddress = Services.SigScanner.GetStaticAddressFromSig("BA ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B F8 48 85 C0");
-                getInventoryContainerPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 55 AB");
-                getContainerSlotPtr = Services.SigScanner.ScanText("E8 ?? ?? ?? ?? 8B 5B 0C");
-
                 Hook = Hook<CharacterInspectOnRefresh>.FromAddress(HookAddress, OnExamineRefresh);
-                _getContainerSlot = Marshal.GetDelegateForFunctionPointer<GetContainerSlot>(getContainerSlotPtr);
-                _getInventoryContainer = Marshal.GetDelegateForFunctionPointer<GetInventoryContainer>(getInventoryContainerPtr);
                 HookLoadSuccessful = true;
             }
             catch (Exception e)
             {
-                Dalamud.Logging.PluginLog.LogError("Failed to hook into examine window");
-                Dalamud.Logging.PluginLog.LogError(e.Message);
-                Dalamud.Logging.PluginLog.LogError(e.StackTrace ?? "");
+                PluginLog.LogError(e, "Failed to hook into examine window");
                 HookLoadSuccessful = false;
             }
             XivCommonBase = new XivCommonBase();
@@ -79,7 +63,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private static void GetItemInfos(AtkUnitBase* examineWindow)
         {
-            if (!HookLoadSuccessful || _getInventoryContainer is null || _getContainerSlot is null)
+            if (!HookLoadSuccessful)
                 return;
             //Get Chracter Information from examine window
             //There are two possible fields for name/title depending on their order
@@ -116,37 +100,39 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
             if (!Services.HrtDataManager.GetManagedCharacter(ref targetChar, false))
                 return;
-            if (targetChar is null)
-                return;
-            var container = _getInventoryContainer(InventoryManagerAddress, InventoryType.Examine);
-            if (container == null)
-                return;
-
-            //Getting level does not work in level synced content
-            if (target.Level > targetChar.GetClass(targetClass).Level)
-                targetChar.GetClass(targetClass).Level = target.Level;
-            GearSet setToFill = new(GearSetManager.HRT, targetChar, targetClass);
-            Services.HrtDataManager.GetManagedGearSet(ref setToFill);
-
-            setToFill.Clear();
-            setToFill.TimeStamp = DateTime.UtcNow;
-            for (int i = 0; i < 13; i++)
+            //Start getting Infos from Game
+            try
             {
-                if (i == (int)GearSetSlot.Waist)
-                    continue;
-                var slot = _getContainerSlot(container, i);
-                if (slot->ItemID == 0)
-                    continue;
-                setToFill[(GearSetSlot)i] = new(slot->ItemID)
+                InventoryContainer* container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
+
+                //Getting level does not work in level synced content
+                if (target.Level > targetChar.GetClass(targetClass).Level)
+                    targetChar.GetClass(targetClass).Level = target.Level;
+                GearSet setToFill = new(GearSetManager.HRT, targetChar, targetClass);
+                Services.HrtDataManager.GetManagedGearSet(ref setToFill);
+                for (int i = 0; i < 13; i++)
                 {
-                    IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ)
-                };
-                for (int j = 0; j < 5; j++)
-                {
-                    if (slot->Materia[j] == 0)
-                        break;
-                    setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
+                    if (i == (int)GearSetSlot.Waist)
+                        continue;
+                    InventoryItem* slot = container->GetInventorySlot(i);
+                    if (slot->ItemID == 0)
+                        continue;
+                    setToFill[(GearSetSlot)i] = new(slot->ItemID)
+                    {
+                        IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ)
+                    };
+                    for (int j = 0; j < 5; j++)
+                    {
+                        if (slot->Materia[j] == 0)
+                            break;
+                        setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
+                    }
                 }
+                setToFill.TimeStamp = DateTime.UtcNow;
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error(e, $"Something went wrong getting gear for:{targetChar.Name}");
             }
         }
         public static void Dispose()

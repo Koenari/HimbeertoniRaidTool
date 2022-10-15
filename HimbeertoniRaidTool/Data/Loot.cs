@@ -58,7 +58,7 @@ namespace HimbeertoniRaidTool.Data
         {
             if (!source.IsList)
                 return GetPossibleLoot(source.Sources.First());
-            List<HrtItem> result = new List<HrtItem>();
+            List<HrtItem> result = new();
             foreach (var entry in source.Sources)
                 if (LootSourceDB.TryGetValue(entry, out List<HrtItem>? loot))
                     result.AddRange(loot);

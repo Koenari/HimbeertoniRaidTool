@@ -532,7 +532,7 @@ namespace HimbeertoniRaidTool.UI
         private MateriaCategory Cat;
         private byte MateriaLevel;
         private readonly int _numMatLevels;
-        private string longestName;
+        private readonly string longestName;
         protected override bool CanSave => Cat != MateriaCategory.None;
         public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, byte maxMatLvl, byte? matLevel = null) : base(onSave, onCancel)
         {
@@ -540,8 +540,8 @@ namespace HimbeertoniRaidTool.UI
             MateriaLevel = matLevel ?? maxMatLvl;
             _numMatLevels = maxMatLvl + 1;
             Title = Localize("Select Materia", "Select Materia");
-            Size = new(ImGui.CalcTextSize(longestName).X + 200f, 120f);
             longestName = Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "";
+            Size = new(ImGui.CalcTextSize(longestName).X + 200f, 120f);
         }
 
         protected override void DrawItemSelection()

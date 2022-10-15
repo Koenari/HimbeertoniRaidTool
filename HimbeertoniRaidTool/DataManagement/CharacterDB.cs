@@ -26,7 +26,7 @@ namespace HimbeertoniRaidTool.DataManagement
         }
         internal List<string> GetCharactersList(uint worldID)
         {
-            List<string> result = new List<string>();
+            List<string> result = new();
             foreach (var character in CharDB[worldID].Values)
                 result.Add(character.Name);
             return result;
