@@ -4,6 +4,7 @@ using System.IO;
 using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Command;
@@ -24,7 +25,7 @@ namespace HimbeertoniRaidTool
 {
 
 #pragma warning disable CS8618
-    public class Services
+    internal class Services
     {
         [PluginService] public static SigScanner SigScanner { get; private set; }
         [PluginService] public static CommandManager CommandManager { get; private set; }
@@ -37,11 +38,12 @@ namespace HimbeertoniRaidTool
         [PluginService] public static Framework Framework { get; private set; }
         [PluginService] public static ObjectTable ObjectTable { get; private set; }
         [PluginService] public static PartyList PartyList { get; private set; }
+        [PluginService] public static Condition Condition { get; private set; }
         public static IconCache IconCache { get; private set; }
         public static HrtDataManager HrtDataManager { get; private set; }
         internal static TaskManager TaskManager { get; private set; }
         internal static ConnectorPool ConnectorPool { get; private set; }
-
+        internal static Configuration Config { get; set; }
         internal static bool Init()
         {
             IconCache ??= new IconCache(PluginInterface, DataManager);
@@ -80,7 +82,7 @@ namespace HimbeertoniRaidTool
             Loc = new(localePath, "HimbeertoniRaidTool_");
             Loc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
             Services.PluginInterface.LanguageChanged += OnLanguageChanged;
-            _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+            Services.Config = _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             if (!LoadError)
             {
                 //Load and update/correct configuration + ConfigUi

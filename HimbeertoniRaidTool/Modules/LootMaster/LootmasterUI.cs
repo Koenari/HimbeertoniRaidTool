@@ -18,7 +18,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
     {
         private readonly LootMasterModule _lootMaster;
         private int _CurrenGroupIndex;
-        protected override bool HideInBattle => _lootMaster.Configuration.Data.HideInBattle;
         private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
         private readonly List<(DateTime, HrtUiMessage)> _messages = new();

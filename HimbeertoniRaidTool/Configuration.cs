@@ -27,9 +27,13 @@ namespace HimbeertoniRaidTool
         [JsonIgnore]
         private TimeSpan _timeSinceLastSave;
         [JsonIgnore]
+        public bool HideOnZoneChange => Data.HideOnZoneChange;
+        [JsonIgnore]
+        public bool HideInBattle => Data.HideInCombat;
+        [JsonIgnore]
         private readonly Dictionary<Type, dynamic> Configurations = new();
         [JsonIgnore]
-        public ConfigUI Ui;
+        public readonly ConfigUI Ui;
         public Configuration()
         {
             Ui = new ConfigUI(this);
@@ -85,6 +89,10 @@ namespace HimbeertoniRaidTool
             public bool SavePeriodically = true;
             [JsonProperty]
             public int SaveIntervalMinutes = 30;
+            [JsonProperty]
+            public bool HideOnZoneChange = true;
+            [JsonProperty]
+            public bool HideInCombat = true;
         }
         public class ConfigUI : Window
         {
@@ -135,7 +143,15 @@ namespace HimbeertoniRaidTool
                 ImGui.BeginTabBar("Modules");
                 if (ImGui.BeginTabItem(Localize("General", "General")))
                 {
+                    ImGui.Text(Localize("Ui", "User Interface"));
+                    ImGui.Checkbox(Localize("HideInCombat", "Hide in combat"), ref _dataCopy.HideInCombat);
+                    ImGui.SetTooltip(Localize("HideInCombatTooltip", "Hides all windows while character is in combat"));
+                    ImGui.Checkbox(Localize("HideOnZoneChange", "Hide in loading screenst"), ref _dataCopy.HideOnZoneChange);
+                    ImGui.SetTooltip(Localize("HideOnZoneChangeTooltip", "Hides all windows while in a loading screen"));
+                    ImGui.Separator();
+                    ImGui.Text(Localize("Auto Save", "Auto Save"));
                     ImGui.Checkbox(Localize("Save periodically", "Save periodically"), ref _dataCopy.SavePeriodically);
+                    ImGui.SetTooltip(Localize("SavePeriodicallyTooltip", "Saves all data of this plugin periodically. (Helps prevent losing data if your game crashes)"));
                     ImGui.TextWrapped($"{Localize("AutoSave_interval_min", "AutoSave interval (min)")}:");
                     ImGui.SetNextItemWidth(150 * ScaleFactor);
                     if (ImGui.InputInt("##AutoSave_interval_min", ref _dataCopy.SaveIntervalMinutes))
@@ -145,15 +161,15 @@ namespace HimbeertoniRaidTool
                     }
                     ImGui.EndTabItem();
                 }
-                foreach (dynamic c in _configuration.Configurations)
+                foreach (dynamic c in _configuration.Configurations.Values)
                 {
                     try
                     {
-                        if (c.Value.Ui == null)
+                        if (c.Ui == null)
                             continue;
-                        if (ImGui.BeginTabItem(c.Value.ParentName))
+                        if (ImGui.BeginTabItem(c.ParentName))
                         {
-                            c.Value.Ui.Draw();
+                            c.Ui.Draw();
                             ImGui.EndTabItem();
                         }
                     }

@@ -73,8 +73,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"),
                         ref _dataCopy.OpenOnStartup);
-                    ImGui.Checkbox(Localize("Hide windows in combat", "Hide windows in combat"),
-                        ref _dataCopy.HideInBattle);
                     ImGui.EndTabItem();
                 }
                 if (ImGui.BeginTabItem("BiS"))
@@ -196,8 +194,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             };
             [JsonProperty]
             public bool OpenOnStartup = false;
-            [JsonProperty]
-            public bool HideInBattle = true;
             [JsonProperty]
             public int LastGroupIndex = 0;
             [JsonProperty("RaidTier")]

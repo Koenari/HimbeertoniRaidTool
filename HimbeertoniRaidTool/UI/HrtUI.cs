@@ -8,8 +8,6 @@ using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
-    // It is good to have this be disposable in general, in case you ever need it
-    // to do any cleanup
     public abstract class Window : IDisposable, IEquatable<Window>
     {
         private bool _disposed = false;
@@ -112,10 +110,11 @@ namespace HimbeertoniRaidTool.UI
         }
         private void InternalDraw()
         {
-            if (!Visible || _disposed)
-                return;
-            if (HideInBattle
-                && (Services.ClientState.LocalPlayer?.StatusFlags.HasFlag(Dalamud.Game.ClientState.Objects.Enums.StatusFlags.InCombat) ?? false))
+            if (!Visible
+                || _disposed
+                || (Services.Config.HideInBattle && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
+                || (Services.Config.HideOnZoneChange && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas])
+                )
                 return;
             Children.ForEach(_ => _.InternalDraw());
             ScaledSize = Size * ScaleFactor;
