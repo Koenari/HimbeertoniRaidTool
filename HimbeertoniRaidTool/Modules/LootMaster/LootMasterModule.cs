@@ -12,9 +12,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
     {
-        //Singleton
-        private static readonly Lazy<LootMasterModule> _Instance = new(() => new LootMasterModule());
-        internal static LootMasterModule Instance { get { return _Instance.Value; } }
         //Interface Properties
         public string Name => "Loot Master";
         public string InternalName => "LootMaster";
@@ -42,7 +39,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private readonly LootmasterUI Ui;
         private readonly LootMasterConfiguration _config;
         private bool _fillSoloOnLogin = false;
-        private LootMasterModule()
+        public LootMasterModule()
         {
             if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
             {

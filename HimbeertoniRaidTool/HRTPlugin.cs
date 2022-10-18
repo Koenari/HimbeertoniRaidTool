@@ -96,8 +96,8 @@ namespace HimbeertoniRaidTool
                 });
                 //TODO: Some more elegant way to load modules
 
-                AddModule<LootMasterModule, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>(LootMasterModule.Instance);
-                AddModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>(WelcomeWindowModule.Instance);
+                AddModule<LootMasterModule, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>(new());
+                AddModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>(new());
             }
             else
             {
