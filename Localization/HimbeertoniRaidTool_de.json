@@ -1,6 +1,6 @@
 {
   "ConfigWindowTitle": {
-    "message": "HimbeerToni Raid Tool Configuration",
+    "message": "HimbeerToni Raid Tool Konfiguration",
     "description": "ConfigUI..ctor"
   },
   "General": {
@@ -8,47 +8,47 @@
     "description": "ConfigUI.Draw"
   },
   "Ui": {
-    "message": "User Interface",
+    "message": "Benutzeroberfläche",
     "description": "ConfigUI.Draw"
   },
   "HideInCombat": {
-    "message": "Hide in combat",
+    "message": "Im Kampf ausblenden",
     "description": "ConfigUI.Draw"
   },
   "HideInCombatTooltip": {
-    "message": "Hides all windows while character is in combat",
+    "message": "Blendet alle Fenster aus, wenn der Charakter sich im Kampf befindet",
     "description": "ConfigUI.Draw"
   },
   "HideOnZoneChange": {
-    "message": "Hide in loading screenst",
+    "message": "Im Ladebildschirm ausblenden",
     "description": "ConfigUI.Draw"
   },
   "HideOnZoneChangeTooltip": {
-    "message": "Hides all windows while in a loading screen",
+    "message": "Blendet alle Fenster während Ladebildschirmen aus",
     "description": "ConfigUI.Draw"
   },
   "Auto Save": {
-    "message": "Auto Save",
+    "message": "Automatisches Speichern",
     "description": "ConfigUI.Draw"
   },
   "Save periodically": {
-    "message": "Save periodically",
+    "message": "Regelmäßig speichern",
     "description": "ConfigUI.Draw"
   },
   "SavePeriodicallyTooltip": {
-    "message": "Saves all data of this plugin periodically. (Helps prevent losing data if your game crashes)",
+    "message": "Speichert alle Daten dieses Plugins regelmäßig. (Hilft den Datenverlust bei einem Absturz deines Spiels zu verhindern)",
     "description": "ConfigUI.Draw"
   },
   "AutoSave_interval_min": {
-    "message": "AutoSave interval (min)",
+    "message": "Autospeicher-Intervall (min)",
     "description": "ConfigUI.Draw"
   },
   "/hrt": {
-    "message": "Open Welcome Window with explanations",
+    "message": "Begrüßungsfenster mit Erklärungen öffnen",
     "description": "HRTPlugin..ctor"
   },
   "ItemTableHeader": {
-    "message": "Header",
+    "message": "Kopfzeile",
     "description": "DrawDataExtension.Draw"
   },
   "Value": {
@@ -60,127 +60,127 @@
     "description": "DrawDataExtension.Draw"
   },
   "itemLevelLong": {
-    "message": "Item Level",
+    "message": "Gegenstandsstufe",
     "description": "DrawDataExtension.Draw"
   },
   "itemSource": {
-    "message": "Source",
+    "message": "Ursprung",
     "description": "DrawDataExtension.Draw"
   },
   "MagicDamage": {
-    "message": "Magic Damage",
+    "message": "Magischer Schaden",
     "description": "DrawDataExtension.Draw"
   },
   "PhysicalDamage": {
-    "message": "Physical Damage",
+    "message": "Physischer Schaden",
     "description": "DrawDataExtension.Draw"
   },
   "PhysicalDefense": {
-    "message": "Defense",
+    "message": "Verteidigung",
     "description": "DrawDataExtension.Draw"
   },
   "MagicalDefense": {
-    "message": "Magical Defense",
+    "message": "Magische Verteidigung",
     "description": "DrawDataExtension.Draw"
   },
   "Edit Player": {
-    "message": "Edit Player",
+    "message": "Spieler bearbeiten",
     "description": "EditPlayerWindow..ctor"
   },
   "Player Data": {
-    "message": "Player Data",
+    "message": "Spielerdaten",
     "description": "EditPlayerWindow.Draw"
   },
   "Player Name": {
-    "message": "Player Name",
+    "message": "Spielername",
     "description": "EditPlayerWindow.Draw"
   },
   "manuallySetDPS": {
-    "message": "Predicted DPS",
+    "message": "Voraussichtliche DPS",
     "description": "EditPlayerWindow.Draw"
   },
   "Character Data": {
-    "message": "Character Data",
+    "message": "Charakterdaten",
     "description": "EditPlayerWindow.Draw"
   },
   "Character Name": {
-    "message": "Character Name",
+    "message": "Charaktername",
     "description": "EditPlayerWindow.Draw"
   },
   "Home World": {
-    "message": "Home World",
+    "message": "Heimatwelt",
     "description": "EditPlayerWindow.Draw"
   },
   "Tribe": {
-    "message": "Tribe",
+    "message": "Stamm",
     "description": "EditPlayerWindow.Draw"
   },
   "Job Data": {
-    "message": "Job Data",
+    "message": "Job Daten",
     "description": "EditPlayerWindow.Draw"
   },
   "Main Job": {
-    "message": "Main Job",
+    "message": "Hauptjob",
     "description": "EditPlayerWindow.Draw"
   },
   "NoClasses": {
-    "message": "Character does not have any classes created",
+    "message": "Charakter hat keine Klassen angelegt",
     "description": "EditPlayerWindow.Draw"
   },
   "BIS": {
-    "message": "BIS",
+    "message": "BiS",
     "description": "EditPlayerWindow.Draw"
   },
   "Set to default": {
-    "message": "Set to default",
+    "message": "Auf Standard zurücksetzen",
     "description": "EditPlayerWindow.Draw"
   },
   "DefaultBiSTooltip": {
-    "message": "Fetch default BiS from configuration",
+    "message": "Standard-BiS aus der Konfiguration laden",
     "description": "EditPlayerWindow.Draw"
   },
   "Level": {
-    "message": "Level",
+    "message": "Stufe",
     "description": "EditPlayerWindow.Draw"
   },
   "Add Job": {
-    "message": "Add Job",
+    "message": "Job hinzufügen",
     "description": "EditPlayerWindow.Draw"
   },
   "Save Player": {
-    "message": "Save Player",
+    "message": "Spieler speichern",
     "description": "EditPlayerWindow.Draw"
   },
   "Edit Group": {
-    "message": "Edit Group",
+    "message": "Gruppe bearbeiten",
     "description": "EditGroupWindow..ctor"
   },
   "Group Name": {
-    "message": "Group Name",
+    "message": "Gruppenname",
     "description": "EditGroupWindow.Draw"
   },
   "Group Type": {
-    "message": "Group Type",
+    "message": "Gruppenart",
     "description": "EditGroupWindow.Draw"
   },
   "Override role priority": {
-    "message": "Override role priority",
+    "message": "Priorität der Rolle überschreiben",
     "description": "EditGroupWindow.Draw"
   },
   "ConfigRolePriority": {
-    "message": "Priority to loot for each role (smaller is higher priority)",
+    "message": "Priorität für jede Rolle (Kleinere Zahl entspricht höherer Priorität)",
     "description": "EditGroupWindow.Draw"
   },
   "Current priority": {
-    "message": "Current priority",
+    "message": "Aktuelle Priorität",
     "description": "EditGroupWindow.Draw"
   },
   "Edit": {
-    "message": "Edit",
+    "message": "Bearbeiten",
     "description": "EditGearSetWindow..ctor"
   },
   "Select item": {
-    "message": "Select item",
+    "message": "Item auswählen",
     "description": "EditGearSetWindow.DrawSlot"
   },
   "HQ": {
@@ -188,27 +188,27 @@
     "description": "EditGearSetWindow.DrawSlot"
   },
   "Delete": {
-    "message": "Delete",
+    "message": "Löschen",
     "description": "EditGearSetWindow.DrawSlot"
   },
   "Remove this materia": {
-    "message": "Remove this materia",
+    "message": "Diese Materia entfernen",
     "description": "EditGearSetWindow.DrawSlot"
   },
   "Select materia": {
-    "message": "Select materia",
+    "message": "Materia auswählen",
     "description": "EditGearSetWindow.DrawSlot"
   },
   "Get item for": {
-    "message": "Get item for",
+    "message": "Gegenstand holen für",
     "description": "SelectGearItemWindow..ctor"
   },
   "Use this item": {
-    "message": "Use this item",
+    "message": "Diesen Gegenstand benutzen",
     "description": "SelectGearItemWindow.DrawItemSelection"
   },
   "Select Materia": {
-    "message": "Select Materia",
+    "message": "Materia auswählen",
     "description": "SelectMateriaWindow..ctor"
   },
   "Type": {
