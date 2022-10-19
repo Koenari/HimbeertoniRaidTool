@@ -41,7 +41,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             if (!CanOpenExamine || @object is null || XivCommonBase is null)
                 return;
-            XivCommonBase.Functions.Examine.OpenExamineWindow(@object);
+            try
+            {
+                XivCommonBase.Functions.Examine.OpenExamineWindow(@object);
+            }
+            catch(Exception e)
+            {
+                PluginLog.Error(e, "Could not inspect character");
+            }
         }
         internal static void Enable()
         {
@@ -77,37 +84,43 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 worldFromExamine = Helper.TryGetWorldByName(examineWindow->UldManager.NodeList[57]->GetAsAtkTextNode()->NodeText.ToString());
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                PluginLog.Debug(e, "Exception while reading name / world from examine window");
                 return;
             }
             //Make sure examine window correspods to intended character and character info is fetchable
-            if (!Helper.TryGetChar(out PlayerCharacter? target, charNameFromExamine, worldFromExamine))
+            if (!Helper.TryGetChar(out PlayerCharacter? target, charNameFromExamine, worldFromExamine)
+                && !Helper.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
             {
-                if (Helper.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
-                    charNameFromExamine = charNameFromExamine2;
-                else
-                    return;
+                PluginLog.Debug($"Name + World from examine window didn't match any character in the area: " +
+                    $"name1 {charNameFromExamine}, name 2 {charNameFromExamine2}, wolrd {worldFromExamine?.Name}");
+                return;
             }
-            if (target is null)
-                return;
             if (!target.TryGetJob(out Job targetClass))
+            {
+                PluginLog.Debug($"Could not determine curretn job for: {target.Name}");
                 return;
+            }
             //Do not execute on characters not part of any managed raid group
             if (!Services.HrtDataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
                 return;
             Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
 
             if (!Services.HrtDataManager.GetManagedCharacter(ref targetChar, false))
+            {
+                PluginLog.Error($"Internal database error. Did not update gear for:{targetChar.Name}@{targetChar.HomeWorld?.Name}");
                 return;
+            }
+
             //Start getting Infos from Game
+
+            //Getting level does not work in level synced content
+            if (target.Level > targetChar.GetClass(targetClass).Level)
+                targetChar.GetClass(targetClass).Level = target.Level;
             try
             {
                 InventoryContainer* container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
-
-                //Getting level does not work in level synced content
-                if (target.Level > targetChar.GetClass(targetClass).Level)
-                    targetChar.GetClass(targetClass).Level = target.Level;
                 GearSet setToFill = new(GearSetManager.HRT, targetChar, targetClass);
                 Services.HrtDataManager.GetManagedGearSet(ref setToFill);
                 for (int i = 0; i < 13; i++)

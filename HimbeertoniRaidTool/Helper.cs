@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
@@ -23,7 +24,7 @@ namespace HimbeertoniRaidTool
                     return row;
             return null;
         }
-        public static bool TryGetChar(out PlayerCharacter? result, string name, World? w = null)
+        public static bool TryGetChar([NotNullWhen(returnValue:true)] out PlayerCharacter? result, string name, World? w = null)
         {
             result = null;
             if (name == null)
