@@ -82,8 +82,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     if (ImGui.InputInt(Localize("BisUpdateInterval", "Update interval (days)"), ref _dataCopy.EtroUpdateIntervalDays))
                         if (_dataCopy.EtroUpdateIntervalDays < 1)
                             _dataCopy.EtroUpdateIntervalDays = 1;
-
-                    if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
+                    ImGui.Text(Localize("DefaultBiSHeading", "Default BiS sets (as etro.gg ID)"));
+                    ImGui.TextWrapped(Localize("DefaultBiSDisclaimer",
+                        "These sets are used when creating a new characer or adding a new job. These do not affect already created characters and jobs."));
+                    if (ImGui.BeginChildFrame(1, new Vector2(400 + ScaleFactor, 400+ScaleFactor), ImGuiWindowFlags.NoResize))
                     {
                         var jobs = Enum.GetValues<Job>();
                         Array.Sort(jobs, (a, b) =>
