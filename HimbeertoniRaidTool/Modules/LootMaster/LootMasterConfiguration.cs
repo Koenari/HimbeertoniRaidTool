@@ -85,7 +85,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.Text(Localize("DefaultBiSHeading", "Default BiS sets (as etro.gg ID)"));
                     ImGui.TextWrapped(Localize("DefaultBiSDisclaimer",
                         "These sets are used when creating a new characer or adding a new job. These do not affect already created characters and jobs."));
-                    if (ImGui.BeginChildFrame(1, new Vector2(400 + ScaleFactor, 400+ScaleFactor), ImGuiWindowFlags.NoResize))
+                    if (ImGui.BeginChildFrame(1, new Vector2(400 * ScaleFactor, 400 * ScaleFactor), ImGuiWindowFlags.NoResize))
                     {
                         var jobs = Enum.GetValues<Job>();
                         Array.Sort(jobs, (a, b) =>
