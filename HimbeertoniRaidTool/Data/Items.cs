@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Lumina.Excel;
 using Lumina.Excel.Extensions;
@@ -16,16 +15,13 @@ namespace HimbeertoniRaidTool.Data
     {
         [JsonProperty]
         public bool IsHq = false;
-        private static KeyContainsDictionary<GearSource> SourceDic => CuratedData.GearSourceDictionary;
         [JsonIgnore]
         [Obsolete("Evaluate for all availbale slots")]
         public GearSetSlot Slot => (Item?.EquipSlotCategory.Value).ToSlot();
         [JsonIgnore]
         public IEnumerable<GearSetSlot> Slots => (Item?.EquipSlotCategory.Value).AvailableSlots();
         [JsonIgnore]
-        private GearSource? SourceCache = null;
-        [JsonIgnore]
-        public GearSource Source => SourceCache ??= SourceDic.GetValueOrDefault(Name, GearSource.undefined);
+        public GearSource Source => CuratedData.GearSourceDB.GetValueOrDefault(ID, GearSource.undefined);
         [JsonProperty("Materia")]
         public List<HrtMateria> Materia = new();
         [JsonIgnore]
@@ -157,46 +153,6 @@ namespace HimbeertoniRaidTool.Data
             ?? new();
 
         public ContainerItem(uint id) : base(id) { }
-    }
-
-    public class KeyContainsDictionary<TValue> : Dictionary<string, TValue>
-    {
-        public KeyContainsDictionary() : base(new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IDictionary<string, TValue> dictionary)
-            : base(dictionary, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IEnumerable<KeyValuePair<string, TValue>> collection)
-            : base(collection, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IEqualityComparer<string>? _)
-            : base(new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(int capacity)
-            : base(capacity, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IDictionary<string, TValue> dictionary, IEqualityComparer<string>? _)
-            : base(dictionary, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IEnumerable<KeyValuePair<string, TValue>> collection, IEqualityComparer<string>? _)
-            : base(collection, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(int capacity, IEqualityComparer<string>? _)
-            : base(capacity, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-
-        private class ContainsEqualityComparer : IEqualityComparer<string>
-        {
-            internal Dictionary<string, TValue>? parent;
-            public bool Equals(string? x, string? y)
-            {
-                if (x is null || y is null)
-                    return false;
-                return x.Contains(y, StringComparison.CurrentCultureIgnoreCase) || y.Contains(x, StringComparison.CurrentCultureIgnoreCase);
-            }
-
-            public int GetHashCode([DisallowNull] string obj)
-            {
-                foreach (string key in parent!.Keys)
-                {
-                    if (obj.Contains(key, StringComparison.CurrentCultureIgnoreCase))
-                        return key.GetHashCode();
-                }
-                return obj.GetHashCode();
-            }
-        }
     }
     public class ItemIDRange : ItemIDCollection
     {

@@ -69,7 +69,7 @@ namespace HimbeertoniRaidTool.Data
 
 
         };
-        public static readonly Dictionary<ItemIDRange, ItemIDCollection> ItemContainerDB = new()
+        public static readonly Dictionary<uint, ItemIDCollection> ItemContainerDB = new()
         {
             //6.0
             { 35734, new ItemIDRange(35245, 35264) },//Asphodelos weapon coffer
@@ -109,31 +109,42 @@ namespace HimbeertoniRaidTool.Data
             { 38388, (38061, 38080) },//Moonshine Shine
             { 38389, (37931, 37949)  },//Ultralight TomeStone
         };
-        public static readonly KeyContainsDictionary<GearSource> GearSourceDictionary = new()
+        public static readonly Dictionary<uint, GearSource> GearSourceDB = new Dictionary<ItemIDCollection, GearSource>()
         {
-            //6.0x
-            { "Asphodelos", GearSource.Raid },
-            { "Radiant", GearSource.Tome },
-            { "Classical", GearSource.Crafted },
-            { "Limbo", GearSource.Raid },
-            { "Last", GearSource.Dungeon },
-            { "Eternal Dark", GearSource.Trial },
-            { "Moonward", GearSource.Tome },
-            { "Divine Light", GearSource.Trial },
-            //6.1
-            { "Panthean", GearSource.AllianceRaid },
-            { "Bluefeather", GearSource.Trial },
-            //6.2
-            { "Purgatory", GearSource.Raid },
-            { "Abyss", GearSource.Raid },
-            { "Rinascita", GearSource.Crafted },
-            { "Lunar Envoy", GearSource.Tome },
-            { "Windswept", GearSource.Trial },
-            { "Troian", GearSource.Dungeon },
-            //6.25
-            { "Manderville", GearSource.Relic }
+            { new ItemIDRange(34810,34829), GearSource.Dungeon }, //Etheirys  (The Aitiascope)
+            { new ItemIDRange(34830,34849), GearSource.Dungeon }, //The last (Dead Ends)
+            { new ItemIDRange(34850,34924), GearSource.Tome }, //Moonward Tomestone
+            { new ItemIDRange(34925,34944), GearSource.Trial }, //Divine Light
+            { new ItemIDRange(34945,34964), GearSource.Trial }, //Eternal Dark
+            { new ItemIDRange(34965,35019), GearSource.Raid }, //Asphodelos
+            { new ItemIDRange(35020,35094), GearSource.Crafted }, //Classical
+            { new ItemIDRange(35095,35169), GearSource.Tome }, //Radiant Tomestone
+            { new ItemIDRange(35170,35244), GearSource.Tome }, //Aug Radiant Tomestone
+            { new ItemIDRange(35245,35319), GearSource.Raid }, //Asphodelos Savage
+            { new ItemIDRange(35320,35340), GearSource.undefined }, //High Durium
+            { new ItemIDRange(35341,35361), GearSource.undefined }, //Bismuth
+            { new ItemIDRange(35362,35382), GearSource.undefined }, //Mangaganese
+            { new ItemIDRange(35383,35403), GearSource.undefined }, //Chondrite
+            //missing items
+            { new ItemIDRange(36718,36792), GearSource.Crafted }, //Augm Classical
+            //missing items
+            { new ItemIDRange(36923,36942), GearSource.Trial }, //Bluefeather
+            //missing items
+            { new ItemIDRange(37131,37165), GearSource.AllianceRaid }, //Panthean
+            { new ItemIDRange(37166,37227), GearSource.Dungeon }, //Darbar (alzadaals Legacy)
+            //missing items
+            { new ItemIDRange(37742,37816), GearSource.Crafted }, //Rinascita
+            //missing items
+            { new ItemIDRange(37856,37875), GearSource.Trial }, //Windswept
+            { new ItemIDRange(37876,37930), GearSource.Raid }, //Abyssos
+            { new ItemIDRange(37931,38005), GearSource.Tome }, //Lunar Envoy Tomestone
+            { new ItemIDRange(38006,38080), GearSource.Tome }, //Aug Lunar Envoy Tomestone
+            { new ItemIDRange(38081,38155), GearSource.Raid }, //Abyssos savage
+            { new ItemIDRange(38156,38210), GearSource.Dungeon }, //Troian
+            //missing items
+            { new ItemIDRange(38400,38419), GearSource.Relic }, //Manderville
 
-        };
+        }.ExplodeIDCollection();
         /// <summary>
         /// Holds a list of Etro IDs to use as BiS sets if users did not enter a preferred BiS
         /// </summary>
@@ -162,5 +173,13 @@ namespace HimbeertoniRaidTool.Data
     }
     public static class CuratedDataExtension
     {
+        public static Dictionary<uint, T> ExplodeIDCollection<T>(this Dictionary<ItemIDCollection, T> source)
+        {
+            Dictionary<uint, T> result = new();
+            foreach ((ItemIDCollection ids, T val) in source)
+                foreach (uint id in ids)
+                    result.Add(id, val);
+            return result;
+        }
     }
 }
