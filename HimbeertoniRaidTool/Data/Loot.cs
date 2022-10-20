@@ -47,7 +47,7 @@ namespace HimbeertoniRaidTool.Data
                 {
                     if (!LootSourceDB.ContainsKey(source))
                         LootSourceDB.Add(source, new());
-                    foreach (uint id in entry.Key.AsList)
+                    foreach (uint id in entry.Key)
                         LootSourceDB[source].Add(new(id));
 
 
