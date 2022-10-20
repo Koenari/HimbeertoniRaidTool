@@ -130,6 +130,8 @@ namespace HimbeertoniRaidTool.Data
             { "Lunar Envoy", GearSource.Tome },
             { "Windswept", GearSource.Trial },
             { "Troian", GearSource.Dungeon },
+            //6.25
+            { "Manderville", GearSource.Relic }
 
         };
         /// <summary>

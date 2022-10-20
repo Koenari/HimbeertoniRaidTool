@@ -185,14 +185,14 @@ namespace HimbeertoniRaidTool.Data
             {
                 if (x is null || y is null)
                     return false;
-                return x.Contains(y) || y.Contains(x);
+                return x.Contains(y, StringComparison.CurrentCultureIgnoreCase) || y.Contains(x, StringComparison.CurrentCultureIgnoreCase);
             }
 
             public int GetHashCode([DisallowNull] string obj)
             {
                 foreach (string key in parent!.Keys)
                 {
-                    if (obj.Contains(key))
+                    if (obj.Contains(key, StringComparison.CurrentCultureIgnoreCase))
                         return key.GetHashCode();
                 }
                 return obj.GetHashCode();

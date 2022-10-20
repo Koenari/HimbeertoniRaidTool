@@ -16,6 +16,8 @@ namespace HimbeertoniRaidTool.Data
         Crafted,
         undefined,
         AllianceRaid,
+        Quest,
+        Relic
     }
     public enum GearSetSlot : short
     {
@@ -370,7 +372,9 @@ namespace HimbeertoniRaidTool.Data
             GearSource.Tome => Localize("Tome", "Tome"),
             GearSource.Crafted => Localize("Crafted", "Crafted"),
             GearSource.AllianceRaid => Localize("Alliance", "Alliance"),
-            _ => Localize("undefined", "undefined")
+            GearSource.Quest => Localize("Quest", "Quest"),
+            GearSource.Relic => Localize("Relic", "Relic"),
+            _ => Localize("undefined", "undefined"),
         };
 
         public static bool IsPartOf(this PositionInRaidGroup pos, GroupType type) => pos switch
