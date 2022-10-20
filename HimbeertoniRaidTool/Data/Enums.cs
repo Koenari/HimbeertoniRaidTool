@@ -272,6 +272,7 @@ namespace HimbeertoniRaidTool.Data
         private static readonly Dictionary<StatType, string> StatTypeNameLookup;
         private static readonly Dictionary<StatType, string> StatTypeAbbrevLookup;
         private static readonly Dictionary<GearSetSlot, string> GearSetSlotNameLookup;
+        private static readonly Dictionary<GearSource, string> GearSourceNameLookup;
         static EnumExtensions()
         {
             StatTypeNameLookup = new()
@@ -316,6 +317,17 @@ namespace HimbeertoniRaidTool.Data
                 [GearSetSlot.Ring1] = Localize("Ring", "Ring"),
                 [GearSetSlot.Ring2] = Localize("Ring", "Ring"),
                 [GearSetSlot.SoulCrystal] = Localize("Soul Crystal", "Soul Crystal"),
+            };
+            GearSourceNameLookup = new()
+            {
+                [GearSource.Raid] = Localize("Raid", "Raid"),
+                [GearSource.Dungeon] = Localize("Dungeon", "Dungeon"),
+                [GearSource.Trial] = Localize("Trial", "Trial"),
+                [GearSource.Tome] = Localize("Tome", "Tome"),
+                [GearSource.Crafted] = Localize("Crafted", "Crafted"),
+                [GearSource.AllianceRaid] = Localize("Alliance", "Alliance"),
+                [GearSource.Quest] = Localize("Quest", "Quest"),
+                [GearSource.Relic] = Localize("Relic", "Relic")
             };
 
         }
@@ -364,18 +376,8 @@ namespace HimbeertoniRaidTool.Data
         };
         public static string FriendlyName(this GearSetSlot slot) =>
             GearSetSlotNameLookup.TryGetValue(slot, out string? fromDic) ? fromDic : Localize("undefined", "undefined");
-        public static string FriendlyName(this GearSource source) => source switch
-        {
-            GearSource.Raid => Localize("Raid", "Raid"),
-            GearSource.Dungeon => Localize("Dungeon", "Dungeon"),
-            GearSource.Trial => Localize("Trial", "Trial"),
-            GearSource.Tome => Localize("Tome", "Tome"),
-            GearSource.Crafted => Localize("Crafted", "Crafted"),
-            GearSource.AllianceRaid => Localize("Alliance", "Alliance"),
-            GearSource.Quest => Localize("Quest", "Quest"),
-            GearSource.Relic => Localize("Relic", "Relic"),
-            _ => Localize("undefined", "undefined"),
-        };
+        public static string FriendlyName(this GearSource source) =>
+            GearSourceNameLookup.TryGetValue(source, out string? fromDic) ? fromDic : Localize("undefined", "undefined");
 
         public static bool IsPartOf(this PositionInRaidGroup pos, GroupType type) => pos switch
         {
