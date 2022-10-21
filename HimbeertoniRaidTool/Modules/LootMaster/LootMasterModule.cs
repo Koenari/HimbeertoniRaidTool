@@ -76,12 +76,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             PlayerCharacter? character = null;
             if (useSelf)
-                character = Helper.Self;
+                character = Services.TargetManager.Target as PlayerCharacter;
             if (character == null)
-                Helper.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
+                Services.CharacterInfoService.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
             if (character == null)
                 return;
-            var c = new Character(character.Name.TextValue, character.HomeWorld.Id);
+            Character c = new(character.Name.TextValue, character.HomeWorld.Id);
             Services.HrtDataManager.GetManagedCharacter(ref c);
             p.NickName = c.Name.Split(' ')[0];
             p.MainChar = c;
@@ -113,7 +113,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             //Get Infos
             if (group.Type == GroupType.Solo)
             {
-                var target = Helper.TargetChar;
+                PlayerCharacter? target = Services.TargetManager.Target as PlayerCharacter;
                 if (target is not null)
                 {
                     group.Tank1.NickName = target.Name.TextValue;
@@ -202,7 +202,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 if (!characterExisted)
                 {
                     bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
-                    if (Helper.TryGetChar(out var pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
+                    if (Services.CharacterInfoService.TryGetChar(out var pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                     {
                         p.MainChar.MainJob = c;
                         p.MainChar.MainClass!.Level = pc!.Level;

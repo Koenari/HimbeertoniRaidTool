@@ -48,7 +48,7 @@ namespace HimbeertoniRaidTool.UI
                 inspectActive = false;
                 inspectTooltip = Localize("InspectUnavail", "Functionality unavailable due to incompatibility with game version");
             }
-            else if (!Helper.TryGetChar(out playerChar, p.MainChar.Name, p.MainChar.HomeWorld))
+            else if (!Services.CharacterInfoService.TryGetChar(out playerChar, p.MainChar.Name, p.MainChar.HomeWorld))
             {
                 inspectActive = false;
                 inspectTooltip = Localize("CharacterNotInReach", "Character is not in reach to examine");

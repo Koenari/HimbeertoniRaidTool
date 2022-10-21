@@ -16,6 +16,20 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal class LootmasterUI : Window
     {
+        private static readonly Vector4[] ColorCache = new Vector4[4]
+        {
+            Vec4(ColorName.Green.ToHsv().Saturation(0.8f).Value(0.85f)),
+            Vec4(ColorName.Aquamarine.ToHsv().Saturation(0.8f).Value(0.85f)),
+            Vec4(ColorName.Yellow.ToHsv().Saturation(0.8f).Value(0.85f)),
+            Vec4(ColorName.Red.ToHsv().Saturation(0.8f).Value(0.85f)),
+        };
+        public static Vector4 ILevelColor(GearItem item, uint maxItemLevel) => (maxItemLevel - (int)item.ItemLevel) switch
+        {
+            <= 0 => ColorCache[0],
+            <= 10 => ColorCache[1],
+            <= 20 => ColorCache[2],
+            _ => ColorCache[3],
+        };
         private readonly LootMasterModule _lootMaster;
         private int _CurrenGroupIndex;
         private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
@@ -478,7 +492,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     ImGui.BeginGroup();
                     ImGui.TextColored(
-                        Helper.ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel),
+                        ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel),
                         $"{item.ItemLevel} {item.Source} {item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName()}");
                     if (extended)
                     {

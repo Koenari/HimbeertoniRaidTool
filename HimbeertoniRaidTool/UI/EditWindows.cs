@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using ColorHelper;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Data;
 using ImGuiNET;
 using Lumina.Excel.Extensions;
 using Lumina.Excel.GeneratedSheets;
-using static ColorHelper.HRTColorConversions;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.UI
@@ -29,7 +29,7 @@ namespace HimbeertoniRaidTool.UI
             CallBack = callBack;
             Player = p;
             PlayerCopy = new();
-            var target = Helper.TargetChar;
+            PlayerCharacter? target = Services.TargetManager.Target as PlayerCharacter;
             IsNew = !Player.Filled;
             if (IsNew && target is not null)
             {
@@ -60,7 +60,7 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
             ImGui.Text(Localize("Character Data", "Character Data"));
             if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50)
-                 && Helper.TryGetChar(out var pc, PlayerCopy.MainChar.Name))
+                 && Services.CharacterInfoService.TryGetChar(out var pc, PlayerCopy.MainChar.Name))
             {
                 PlayerCopy.MainChar.HomeWorld ??= pc?.HomeWorld.GameData;
             }
@@ -492,7 +492,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 bool isCurrentItem = item.RowId == Item?.ID;
                 if (isCurrentItem)
-                    ImGui.PushStyleColor(ImGuiCol.Button, Vec4(ColorName.Redwood.ToHsv().Value(0.75f)));
+                    ImGui.PushStyleColor(ImGuiCol.Button, HRTColorConversions.Vec4(ColorName.Redwood.ToHsv().Value(0.75f)));
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", Localize("Use this item", "Use this item"), true, new Vector2(32f, 32f)))
                 {
                     if (isCurrentItem)

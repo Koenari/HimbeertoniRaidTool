@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Dalamud.Game;
 using HimbeertoniRaidTool.UI;
 
-namespace HimbeertoniRaidTool
+namespace HimbeertoniRaidTool.Modules
 {
     public interface IHrtModule<T, S> where T : new() where S : IHrtConfigUi
     {

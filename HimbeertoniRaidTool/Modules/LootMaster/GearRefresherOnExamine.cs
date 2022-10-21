@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Hooking;
 using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Data;
+using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using XivCommon;
 
@@ -18,6 +20,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         internal static readonly bool CanOpenExamine;
         private static readonly Hook<CharacterInspectOnRefresh>? Hook;
         private static readonly IntPtr HookAddress;
+        private static readonly ExcelSheet<World>? WorldSheet;
 
         private delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
         private static readonly XivCommonBase? XivCommonBase;
@@ -36,6 +39,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             XivCommonBase = new XivCommonBase();
             CanOpenExamine = true;
+            WorldSheet = Services.DataManager.GetExcelSheet<World>();
         }
         internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
         {
@@ -45,7 +49,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 XivCommonBase.Functions.Examine.OpenExamineWindow(@object);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 PluginLog.Error(e, "Could not inspect character");
             }
@@ -81,17 +85,19 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 charNameFromExamine = examineWindow->UldManager.NodeList[60]->GetAsAtkTextNode()->NodeText.ToString();
                 charNameFromExamine2 = examineWindow->UldManager.NodeList[59]->GetAsAtkTextNode()->NodeText.ToString();
-                worldFromExamine = Helper.TryGetWorldByName(examineWindow->UldManager.NodeList[57]->GetAsAtkTextNode()->NodeText.ToString());
-
+                string worldString = examineWindow->UldManager.NodeList[57]->GetAsAtkTextNode()->NodeText.ToString();
+                worldFromExamine = WorldSheet?.FirstOrDefault(x => x?.Name.RawString == worldString, null);
             }
             catch (Exception e)
             {
                 PluginLog.Debug(e, "Exception while reading name / world from examine window");
                 return;
             }
+            if (worldFromExamine is null)
+                return;
             //Make sure examine window correspods to intended character and character info is fetchable
-            if (!Helper.TryGetChar(out PlayerCharacter? target, charNameFromExamine, worldFromExamine)
-                && !Helper.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
+            if (!Services.CharacterInfoService.TryGetChar(out PlayerCharacter? target, charNameFromExamine, worldFromExamine)
+                && !Services.CharacterInfoService.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
             {
                 PluginLog.Debug($"Name + World from examine window didn't match any character in the area: " +
                     $"name1 {charNameFromExamine}, name 2 {charNameFromExamine2}, wolrd {worldFromExamine?.Name}");

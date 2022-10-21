@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Lumina.Excel.GeneratedSheets;
 using static Dalamud.Localization;
 
@@ -391,8 +392,8 @@ namespace HimbeertoniRaidTool.Data
             PositionInRaidGroup.Caster => type == GroupType.Raid,
             _ => false,
         };
-
-
+        public static bool TryGetJob(this PlayerCharacter target, out Job result) =>
+            Enum.TryParse(target.ClassJob.GameData?.Abbreviation.RawString, true, out result);
     }
     [AttributeUsage(AttributeTargets.Field)]
     class StatAttribute : Attribute

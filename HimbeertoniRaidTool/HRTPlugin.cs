@@ -1,64 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Dalamud.Data;
-using Dalamud.Game;
-using Dalamud.Game.ClientState;
-using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState.Objects;
-using Dalamud.Game.ClientState.Party;
+using System.Security.Cryptography;
+using System.Text;
 using Dalamud.Game.Command;
-using Dalamud.Game.Gui;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
-using HimbeertoniRaidTool.Connectors;
-using HimbeertoniRaidTool.DataManagement;
-using HimbeertoniRaidTool.HrtServices;
+using HimbeertoniRaidTool.Modules;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using HimbeertoniRaidTool.Modules.WelcomeWindow;
+using Newtonsoft.Json;
 using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool
 {
-
-#pragma warning disable CS8618
-    internal class Services
-    {
-        [PluginService] public static SigScanner SigScanner { get; private set; }
-        [PluginService] public static CommandManager CommandManager { get; private set; }
-        [PluginService] public static ChatGui ChatGui { get; private set; }
-        [PluginService] public static DataManager DataManager { get; private set; }
-        [PluginService] public static GameGui GameGui { get; private set; }
-        [PluginService] public static TargetManager TargetManager { get; private set; }
-        [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
-        [PluginService] public static ClientState ClientState { get; private set; }
-        [PluginService] public static Framework Framework { get; private set; }
-        [PluginService] public static ObjectTable ObjectTable { get; private set; }
-        [PluginService] public static PartyList PartyList { get; private set; }
-        [PluginService] public static Condition Condition { get; private set; }
-        public static IconCache IconCache { get; private set; }
-        public static HrtDataManager HrtDataManager { get; private set; }
-        internal static TaskManager TaskManager { get; private set; }
-        internal static ConnectorPool ConnectorPool { get; private set; }
-        internal static Configuration Config { get; set; }
-        internal static bool Init()
-        {
-            IconCache ??= new IconCache(PluginInterface, DataManager);
-            HrtDataManager ??= new(PluginInterface);
-            TaskManager ??= new(Framework);
-            ConnectorPool ??= new(Framework);
-            return HrtDataManager.Initialized;
-        }
-        internal static void Dispose()
-        {
-            TaskManager.Dispose();
-            IconCache.Dispose();
-        }
-    }
-#pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
     {
         private readonly Dalamud.Localization Loc;
@@ -74,9 +32,7 @@ namespace HimbeertoniRaidTool
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
             //Init all services
-            pluginInterface.Create<Services>();
-            LoadError = !Services.Init();
-            FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
+            LoadError = !Services.Init(pluginInterface);
             //Init Localization
             string localePath = Path.Combine(Services.PluginInterface.AssemblyLocation.DirectoryName!, @"locale");
             Loc = new(localePath, "HimbeertoniRaidTool_");
@@ -182,6 +138,17 @@ namespace HimbeertoniRaidTool
                     PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
                     break;
             }
+        }
+    }
+    public static class HRTExtensions
+    {
+        public static T Clone<T>(this T source)
+            => JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(source))!;
+        public static int ConsistentHash(this string obj)
+        {
+            SHA512 alg = SHA512.Create();
+            byte[] sha = alg.ComputeHash(Encoding.UTF8.GetBytes(obj));
+            return sha[0] + 256 * sha[1] + 256 * 256 * sha[2] + 256 * 256 * 256 * sha[2];
         }
     }
 }
