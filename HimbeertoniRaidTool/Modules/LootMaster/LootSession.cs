@@ -62,10 +62,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             IEnumerable<GearItem> possibleItems;
             if (droppedItem.IsGear)
                 possibleItems = new List<GearItem> { new(droppedItem.ID) };
-            else if (droppedItem.IsContainerItem)
-                possibleItems = new ContainerItem(droppedItem.ID).PossiblePurchases;
-            else if (droppedItem.IsExhangableItem)
-                possibleItems = new ExchangableItem(droppedItem.ID).PossiblePurchases;
+            else if (droppedItem.IsContainerItem || droppedItem.IsExhangableItem)
+                possibleItems = droppedItem.PossiblePurchases;
             else
                 return new();
             LootResult result = new();
