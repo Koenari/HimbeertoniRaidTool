@@ -1,4 +1,7 @@
-﻿namespace HimbeertoniRaidTool.Data
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Lumina.Excel.GeneratedSheets;
+using static HimbeertoniRaidTool.HrtServices.Localization;
+namespace HimbeertoniRaidTool.Data
 {
     public enum GearSource
     {
