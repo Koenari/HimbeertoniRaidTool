@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HimbeertoniRaidTool.Data;
 using Lumina.Excel.Extensions;
-using static Dalamud.Localization;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 
 
 namespace HimbeertoniRaidTool.Modules.LootMaster

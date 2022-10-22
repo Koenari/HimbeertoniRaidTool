@@ -5,7 +5,7 @@ using HimbeertoniRaidTool.Modules.LootMaster;
 using ImGuiNET;
 using Lumina.Excel.Extensions;
 using Newtonsoft.Json;
-using static Dalamud.Localization;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Data
 {

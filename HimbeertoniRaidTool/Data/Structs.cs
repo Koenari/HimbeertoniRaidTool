@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using static Dalamud.Localization;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 namespace HimbeertoniRaidTool.Data
 {
     public readonly struct GameExpansion

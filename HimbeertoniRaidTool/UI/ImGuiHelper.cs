@@ -8,7 +8,7 @@ using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using ImGuiNET;
 using Lumina.Excel;
-using static Dalamud.Localization;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
