@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using ImGuiNET;
@@ -12,6 +13,7 @@ namespace HimbeertoniRaidTool.Data
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class LootRuling
     {
+        public static readonly LootRule Default = new(LootRuleEnum.None);
         public static IEnumerable<LootRule> PossibleRules
         {
             get
@@ -19,10 +21,10 @@ namespace HimbeertoniRaidTool.Data
                 List<LootRule> result = new();
                 foreach (LootRuleEnum rule in Enum.GetValues(typeof(LootRuleEnum)))
                 {
-                    if (rule == LootRuleEnum.None)
+                    if (rule is LootRuleEnum.None)
                         continue;
-                    //Not yet functional
-                    if (rule == LootRuleEnum.Custom)
+                    //Special Rules only used internally
+                    if ((int)rule > 900)
                         continue;
                     result.Add(new(rule));
                 }
@@ -117,6 +119,8 @@ namespace HimbeertoniRaidTool.Data
             LootRuleEnum.Random => Localize("Rolling", "Rolling"),
             LootRuleEnum.DPS => Localize("DPS", "DPS"),
             LootRuleEnum.None => Localize("None", "None"),
+            LootRuleEnum.Greed => Localize("Greed","Greed"),
+            LootRuleEnum.NeedGreed => Localize("Need over Greed", "Need over Greed"),
             _ => Localize("Not defined", "Not defined"),
         };
 
