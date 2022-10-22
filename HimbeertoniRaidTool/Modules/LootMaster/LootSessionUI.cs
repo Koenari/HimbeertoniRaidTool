@@ -96,17 +96,17 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             public LootResultWindow(LootSession session) : base()
             {
                 _session = session;
-                Size = new Vector2(450, 310);
+                Size = new Vector2(900, 450);
                 Title = Localize("LootResultTitle", "Loot Results");
-                WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
+                //WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
             }
             protected override void Draw()
             {
                 if (_session.Results.Count == 0)
                     ImGui.Text(Localize("No loot", "No loot"));
-                foreach (((HrtItem item, int nr), List<(Player player, string reason)> ruling) in _session.Results)
+                foreach (((HrtItem item, int nr), LootSession.LootResult result) in _session.Results)
                 {
-                    if (ruling.Count == 0 || ruling.First().reason == Localize("Greed", "Greed"))
+                    if (result.Needer.Count == 0)
                     {
                         ImGui.BeginDisabled();
                         ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n{Localize("Greed only", "Greed only")}");
@@ -114,26 +114,56 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         continue;
                     }
                     if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n " +
-                        $"{ruling[0].player.NickName} won" +
-                        $"{(ruling.Count > 1 ? $" over {ruling[1].player.NickName} ({ruling[0].reason})" : "")}  "))
+                        $"{result.Needer[0].NickName} won" +
+                        $"{(result.Needer.Count > 1 ? $" over {result.Needer[1].NickName} ({result.DecidingFactors[result.Needer[0]]})" : "")}  "))
                     {
-                        if (ImGui.BeginTable($"LootTable##{item.Name} # {nr + 1}", 3,
+                        if (ImGui.BeginTable($"LootTable##{item.Name} # {nr + 1}", 4 + _session.RulingOptions.RuleSet.Count,
                             ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp))
                         {
                             ImGui.TableSetupColumn(Localize("Pos", "Pos"));
                             ImGui.TableSetupColumn(Localize("Player", "Player"));
+                            ImGui.TableSetupColumn(Localize("Applicable items", "Applicable items"));
                             ImGui.TableSetupColumn(Localize("Rule", "Rule"));
+                            foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                                ImGui.TableSetupColumn(rule.Name);
                             ImGui.TableHeadersRow();
 
                             int place = 1;
-                            foreach ((Player player, string reason) in ruling)
+                            LootRule last = LootRuling.Default;
+                            foreach (Player player in result)
                             {
+                                LootRule decision = result.DecidingFactors[player];
                                 ImGui.TableNextColumn();
                                 ImGui.Text(place.ToString());
                                 ImGui.TableNextColumn();
                                 ImGui.Text($"{player.NickName} ({player.MainChar.MainJob})");
                                 ImGui.TableNextColumn();
-                                ImGui.Text(reason);
+                                foreach (var possibleItem in result.ApplicableItems[player])
+                                {
+                                    ImGui.Text(possibleItem.Name);
+                                    if(ImGui.IsItemHovered())
+                                    {
+                                        ImGui.BeginTooltip();
+                                        possibleItem.Draw();
+                                        ImGui.EndTooltip();
+                                    }
+                                }
+                                ImGui.TableNextColumn();
+                                ImGui.Text(decision.Name);
+                                foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                                {
+                                    ImGui.TableNextColumn();
+                                    string toPrint = result.EvaluatedRules[player].TryGetValue(rule, out string? val) ? val : "";
+                                    if (rule == decision && rule == last)
+                                        ImGui.TextColored(ColorHelper.HRTColorConversions.Vec4(ColorHelper.ColorName.Yellow), toPrint);
+                                    else if (rule == decision)
+                                        ImGui.TextColored(ColorHelper.HRTColorConversions.Vec4(ColorHelper.ColorName.Green),toPrint);
+                                    else if(rule == last)
+                                        ImGui.TextColored(ColorHelper.HRTColorConversions.Vec4(ColorHelper.ColorName.Red), toPrint);
+                                    else
+                                        ImGui.Text(toPrint);
+                                }
+                                last = decision;
                                 place++;
                             }
                             ImGui.EndTable();

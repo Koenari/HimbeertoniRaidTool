@@ -85,7 +85,7 @@ namespace HimbeertoniRaidTool.Data
     }
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class LootRule
+    public class LootRule : IEquatable<LootRule>
     {
         [JsonProperty("Rule")]
         public readonly LootRuleEnum Rule;
@@ -93,13 +93,12 @@ namespace HimbeertoniRaidTool.Data
         public readonly string Name;
         [JsonIgnore]
         public string Expression;
-        public (int, string, string) Compare(Player x, Player y, LootSession session, IEnumerable<GearItem> currentPossibleLoot)
+        public (int, string) Eval(Player x, LootSession session, IEnumerable<GearItem> currentPossibleLoot)
         {
-            (int lVal, string? lReason) = Eval(x, session, currentPossibleLoot);
-            (int rVal, string? rReason) = Eval(y, session, currentPossibleLoot);
-            return ((this.FavorsLowValue() ? -1 : 1) * (rVal - lVal), lReason ?? lVal.ToString(), rReason ?? rVal.ToString());
+            (int val, string? reason) = InternalEval(x, session, currentPossibleLoot);
+            return (val, reason ?? val.ToString());
         }
-        private (int, string?) Eval(Player x, LootSession session, IEnumerable<GearItem> currentPossibleLoot) => Rule switch
+        private (int, string?) InternalEval(Player x, LootSession session, IEnumerable<GearItem> currentPossibleLoot) => Rule switch
         {
             LootRuleEnum.Random => (x.Roll(session), null),
             LootRuleEnum.LowestItemLevel => (x.ItemLevel(), null),
@@ -123,14 +122,6 @@ namespace HimbeertoniRaidTool.Data
             LootRuleEnum.NeedGreed => Localize("Need over Greed", "Need over Greed"),
             _ => Localize("Not defined", "Not defined"),
         };
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is null || !obj.GetType().Equals(typeof(LootRule)))
-                return false;
-            return ((LootRule)obj).Rule == Rule;
-        }
-
         [JsonConstructor]
         public LootRule(LootRuleEnum rule, string? name = null)
         {
@@ -141,6 +132,11 @@ namespace HimbeertoniRaidTool.Data
         }
 
         public override int GetHashCode() => Rule.GetHashCode();
+        public override bool Equals(object? obj) => Equals(obj as LootRule);
+        public bool Equals(LootRule? obj) => obj?.Rule == Rule;
+        public static bool operator ==(LootRule l, LootRule r) => l.Equals(r);
+        public static bool operator !=(LootRule l, LootRule r) => !l.Equals(r);
+
     }
 
     public static class LootRulesExtension
