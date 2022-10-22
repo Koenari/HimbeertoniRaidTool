@@ -301,6 +301,7 @@ namespace HimbeertoniRaidTool.Data
         {
             Job.DRK or Job.GNB or Job.PLD or Job.WAR or Job.GLA or Job.MRD => Role.Tank,
             Job.AST or Job.SCH or Job.SGE or Job.WHM or Job.CNJ => Role.Healer,
+            Job.DRG or Job.MNK or Job.NIN or Job.RPR or Job.SAM or Job.LNC or Job.PGL or Job.ROG => Role.Melee,
             Job.BLM or Job.BLU or Job.RDM or Job.SMN or Job.THM or Job.ACN => Role.Caster,
             Job.BRD or Job.DNC or Job.MCH or Job.ARC => Role.Ranged,
             _ => Role.None,
