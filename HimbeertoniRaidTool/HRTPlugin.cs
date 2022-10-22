@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using Dalamud.Game.Command;
@@ -9,18 +8,16 @@ using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
+using HimbeertoniRaidTool.HrtServices;
 using HimbeertoniRaidTool.Modules;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using HimbeertoniRaidTool.Modules.WelcomeWindow;
 using Newtonsoft.Json;
-using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool
 {
     public sealed class HRTPlugin : IDalamudPlugin
     {
-        private readonly Dalamud.Localization Loc;
-
         private readonly Configuration _Configuration;
         public string Name => "Himbeertoni Raid Tool";
 
@@ -34,10 +31,7 @@ namespace HimbeertoniRaidTool
             //Init all services
             LoadError = !Services.Init(pluginInterface);
             //Init Localization
-            string localePath = Path.Combine(Services.PluginInterface.AssemblyLocation.DirectoryName!, @"locale");
-            Loc = new(localePath, "HimbeertoniRaidTool_");
-            Loc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
-            Services.PluginInterface.LanguageChanged += OnLanguageChanged;
+            Localization.Init(pluginInterface);
             Services.Config = _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             if (!LoadError)
             {
@@ -46,7 +40,7 @@ namespace HimbeertoniRaidTool
                 AddCommand(new HrtCommand()
                 {
                     Command = "/hrt",
-                    Description = Localize("/hrt", "Open Welcome Window with explanations"),
+                    Description = Localization.Localize("/hrt", "Open Welcome Window with explanations"),
                     ShowInHelp = true,
                     OnCommand = OnCommand
                 });
@@ -89,11 +83,7 @@ namespace HimbeertoniRaidTool
                 PluginLog.Error("Error loading module: {0}\n {1}", module?.Name ?? string.Empty, e.ToString());
             }
         }
-        private void OnLanguageChanged(string langCode)
-        {
-            PluginLog.Information($"LOading localization for {langCode}");
-            Loc.SetupWithLangCode(langCode);
-        }
+
         private void AddCommand(HrtCommand command)
         {
             if (Services.CommandManager.AddHandler(command.Command,
@@ -106,7 +96,6 @@ namespace HimbeertoniRaidTool
         }
         public void Dispose()
         {
-            Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
             RegisteredCommands.ForEach(command => Services.CommandManager.RemoveHandler(command));
             if (!LoadError)
             {
@@ -124,6 +113,7 @@ namespace HimbeertoniRaidTool
                     PluginLog.Fatal($"Unable to Dispose module \"{moduleEntry.Key}\"\n{e}");
                 }
             }
+            Localization.Dispose();
             _Configuration.Dispose();
             Services.Dispose();
         }
@@ -132,7 +122,7 @@ namespace HimbeertoniRaidTool
             switch (args)
             {
                 case string a when a.Contains("option") || a.Contains("config"): _Configuration.Ui.Show(); break;
-                case string b when b.Contains("exportlocale"): Loc.ExportLocalizable(); break;
+                case string b when b.Contains("exportlocale"): Localization.ExportLocalizable(); break;
                 case string when args.IsNullOrEmpty(): GetModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>()?.Show(); break;
                 default:
                     PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
