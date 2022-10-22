@@ -15,15 +15,19 @@ namespace HimbeertoniRaidTool.HrtServices
         private readonly Dictionary<string, uint> Cache = new();
         private readonly HashSet<string> NotFound = new();
         private TimeSpan TimeSinceLastPrune;
-        private static readonly TimeSpan CacheTime = TimeSpan.FromSeconds(10);
+        private static readonly TimeSpan PruneInterval = TimeSpan.FromSeconds(10);
+        private static readonly TimeSpan MaxCacheTime = TimeSpan.FromSeconds(30);
+        private DateTime LastAccess;
         internal CharacterInfoService(ObjectTable gameObjects, Framework fw)
         {
             GameObjects = gameObjects;
             TimeSinceLastPrune = TimeSpan.Zero;
             fw.Update += Update;
+            LastAccess = DateTime.Now;
         }
         public bool TryGetChar([NotNullWhen(returnValue: true)] out PlayerCharacter? result, string name, World? w = null)
         {
+            LastAccess = DateTime.Now;
             if (Cache.TryGetValue(name, out uint id))
             {
                 result = GameObjects.SearchById(id) as PlayerCharacter;
@@ -62,10 +66,19 @@ namespace HimbeertoniRaidTool.HrtServices
         private void Update(Framework fw)
         {
             TimeSinceLastPrune += fw.UpdateDelta;
-            if (TimeSinceLastPrune > CacheTime)
+            if (TimeSinceLastPrune > PruneInterval)
             {
                 TimeSinceLastPrune = TimeSpan.Zero;
-                NotFound.Clear();
+                if (NotFound.Any() && LastAccess + MaxCacheTime < DateTime.Now)
+                {
+                    NotFound.Clear();
+                    return;
+                }
+                foreach (PlayerCharacter p in Services.ObjectTable.Where(p => p is PlayerCharacter))
+                {
+                    if (NotFound.Contains(p.Name.TextValue))
+                        NotFound.Remove(p.Name.TextValue);
+                }
             }
 
         }
