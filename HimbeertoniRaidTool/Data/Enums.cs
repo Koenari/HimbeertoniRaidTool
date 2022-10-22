@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Lumina.Excel.GeneratedSheets;
 using static Dalamud.Localization;
@@ -60,80 +58,44 @@ namespace HimbeertoniRaidTool.Data
     public enum Job : byte
     {
         ADV = 0,
-        [Role(Role.Healer)]
         AST = 33,
-        [Role(Role.Caster)]
         BLM = 25,
-        [Role(Role.Caster)]
         BLU = 36,
-        [Role(Role.Ranged)]
         BRD = 23,
-        [Role(Role.Ranged)]
         DNC = 38,
-        [Role(Role.Melee)]
         DRG = 22,
-        [Role(Role.Tank)]
         DRK = 32,
-        [Role(Role.Tank)]
         GNB = 37,
-        [Role(Role.Ranged)]
         MCH = 31,
-        [Role(Role.Melee)]
         MNK = 20,
-        [Stat(StatType.Dexterity)]
-        [Role(Role.Melee)]
         NIN = 30,
-        [Role(Role.Tank)]
         PLD = 19,
-        [Role(Role.Caster)]
         RDM = 35,
-        [Role(Role.Melee)]
         RPR = 39,
-        [Role(Role.Melee)]
         SAM = 34,
-        [Role(Role.Healer)]
         SCH = 28,
-        [Role(Role.Healer)]
         SGE = 40,
-        [Role(Role.Caster)]
         SMN = 27,
-        [Role(Role.Tank)]
         WAR = 21,
-        [Role(Role.Healer)]
         WHM = 24,
-        [Role(Role.Tank)]
         GLA = 1,
-        [Role(Role.Tank)]
         MRD = 3,
-        [Role(Role.Melee)]
         LNC = 4,
-        [Role(Role.Melee)]
         PGL = 2,
-        [Role(Role.Ranged)]
         ARC = 5,
-        [Role(Role.Caster)]
         THM = 7,
-        [Role(Role.Caster)]
         ACN = 26,
-        [Role(Role.Healer)]
         CNJ = 6,
-        [Role(Role.Melee)]
         ROG = 29,
     }
 
     public enum Role : byte
     {
-        [Stat(StatType.None)]
         None = 0,
-        [Stat(StatType.Strength)]
         Tank = 1,
-        [Stat(StatType.Mind)]
         Healer = 4,
-        [Stat(StatType.Strength)]
         Melee = 2,
-        [Stat(StatType.Dexterity)]
         Ranged = 3,
-        [Stat(StatType.Intelligence)]
         Caster = 5,
     }
     public enum PositionInRaidGroup : byte
@@ -335,24 +297,29 @@ namespace HimbeertoniRaidTool.Data
         public static string FriendlyName(this StatType t) => StatTypeNameLookup.ContainsKey(t) ? StatTypeNameLookup[t] : t.ToString();
         public static string Abbrev(this StatType t) => StatTypeAbbrevLookup.ContainsKey(t) ? StatTypeAbbrevLookup[t] : "XXX";
         public static Role GetRole(this Job? c) => c.HasValue ? GetRole(c.Value) : Role.None;
-        public static Role GetRole(this Job c) =>
-            c.GetAttribute<RoleAttribute>()?.Role ?? Role.None;
+        public static Role GetRole(this Job c) => c switch
+        {
+            Job.DRK or Job.GNB or Job.PLD or Job.WAR or Job.GLA or Job.MRD => Role.Tank,
+            Job.AST or Job.SCH or Job.SGE or Job.WHM or Job.CNJ => Role.Healer,
+            Job.BLM or Job.BLU or Job.RDM or Job.SMN or Job.THM or Job.ACN => Role.Caster,
+            Job.BRD or Job.DNC or Job.MCH or Job.ARC => Role.Ranged,
+            _ => Role.None,
+        };
         public static ClassJob? GetClassJob(this Job? c) =>
             c.HasValue ? Services.DataManager.GetExcelSheet<ClassJob>()?.GetRow((uint)c.Value) : null;
-        public static T? GetAttribute<T>(this Enum field) where T : Attribute
+        public static StatType MainStat(this Job job) => job switch
         {
-            return
-                field.GetType().GetMember(field.ToString())
-                .Where(member => member.MemberType == MemberTypes.Field)
-                .FirstOrDefault()?
-                .GetCustomAttributes<T>(false)
-                .SingleOrDefault();
-        }
-        public static StatType MainStat(this Job? c) => c.HasValue ? MainStat(c) : StatType.None;
-        public static StatType MainStat(this Job c) =>
-            c.GetAttribute<StatAttribute>()?.StatType
-            ?? c.GetAttribute<RoleAttribute>()?.Role.GetAttribute<StatAttribute>()?.StatType
-            ?? StatType.None;
+            Job.NIN => StatType.Dexterity,
+            _ => job.GetRole().MainStat(),
+        };
+        public static StatType MainStat(this Role role) => role switch
+        {
+            Role.Tank or Role.Melee => StatType.Strength,
+            Role.Healer => StatType.Mind,
+            Role.Caster => StatType.Intelligence,
+            Role.Ranged => StatType.Dexterity,
+            _ => StatType.None,
+        };
 
         public static string FriendlyName(this GearSetManager manager) => manager switch
         {
