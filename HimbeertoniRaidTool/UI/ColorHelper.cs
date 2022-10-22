@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+namespace HimbeertoniRaidTool.UI { }
 namespace ColorHelper
 {
     public static class HRTColorConversions

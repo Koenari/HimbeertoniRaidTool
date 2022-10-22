@@ -90,11 +90,6 @@ namespace HimbeertoniRaidTool.Data
         public Item? Item => ItemCache ??= _itemSheet.GetRow(ID);
         public string Name => Item?.Name.RawString ?? "";
         public bool IsGear => (Item?.ClassJobCategory.Row ?? 0) != 0;
-        /// <summary>
-        /// Is done this way since HrtMateria cannot be created from ItemID alone 
-        /// and always will be of type HrtMateria
-        /// </summary>
-        public bool IsMateria => GetType().IsAssignableTo(typeof(HrtMateria));
         public bool IsExhangableItem => CuratedData.ExchangedFor.ContainsKey(ID);
         public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
         [JsonIgnore]

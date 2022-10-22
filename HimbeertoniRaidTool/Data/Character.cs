@@ -45,8 +45,6 @@ namespace HimbeertoniRaidTool.Data
             Classes.Add(toAdd);
             return toAdd;
         }
-        internal void CleanUpClasses() => Classes.RemoveAll(x => x.IsEmpty);
-
         public PlayableClass GetClass(Job type)
         {
             return Classes.Find(x => x.Job == type) ?? AddClass(type);

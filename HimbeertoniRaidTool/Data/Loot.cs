@@ -11,11 +11,8 @@ namespace HimbeertoniRaidTool.Data
         public LootSource(params (RaidTier, int)[] data) { Sources = new(data); }
         public bool IsList => Sources.Count > 1;
         public override bool Equals(object? obj)
-        {
-            if (obj is null || !obj.GetType().IsAssignableTo(GetType()))
-                return false;
-            return Equals((LootSource)obj);
-        }
+            => (obj is LootSource lootSource) && Equals(lootSource);
+
         public bool Equals(LootSource obj) => Sources.Contains(obj.Sources[0]);
 
         public override int GetHashCode() => Sources.GetHashCode();

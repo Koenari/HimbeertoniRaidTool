@@ -130,7 +130,7 @@ namespace HimbeertoniRaidTool.UI
 
         }
         protected abstract void Draw();
-        public override bool Equals(object? obj) => (obj?.GetType().IsAssignableTo(GetType()) ?? false) && Equals((Window)obj);
+        public override bool Equals(object? obj) => (obj is Window w) && Equals(w);
         public bool Equals(Window? other) => _id.Equals(other?._id);
 
         public override int GetHashCode() => _id.GetHashCode();
