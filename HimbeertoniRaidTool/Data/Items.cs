@@ -97,9 +97,9 @@ namespace HimbeertoniRaidTool.Data
         private Item? ItemCache = null;
         public Item? Item => ItemCache ??= _itemSheet.GetRow(ID);
         public string Name => Item?.Name.RawString ?? "";
-        public bool IsGear => (Item?.ClassJobCategory.Row ?? 0) != 0;
-        public bool IsExhangableItem => CuratedData.ExchangedFor.ContainsKey(ID);
-        public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
+        public bool IsGear => this is GearItem || (Item?.ClassJobCategory.Row ?? 0) != 0;
+        public bool IsExhangableItem => this is ExchangableItem || CuratedData.ExchangedFor.ContainsKey(ID);
+        public bool IsContainerItem => this is ContainerItem || CuratedData.ItemContainerDB.ContainsKey(ID);
         [JsonIgnore]
         protected static readonly ExcelSheet<Item> _itemSheet = Services.DataManager.Excel.GetSheet<Item>()!;
 
