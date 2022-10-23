@@ -238,12 +238,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             DrawRaidGroupSwitchBar();
             if (CurrentGroup.Type == GroupType.Solo)
             {
-                if (CurrentGroup.Tank1.MainChar.Filled)
-                    DrawDetailedPlayer(CurrentGroup.Tank1);
+                if (CurrentGroup[0].MainChar.Filled)
+                    DrawDetailedPlayer(CurrentGroup[0]);
                 else
                 {
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
-                        AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup.Tank1, _lootMaster.Configuration.Data.GetDefaultBiS), true);
+                        AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup[0], _lootMaster.Configuration.Data.GetDefaultBiS), true);
                 }
             }
             else if (CurrentGroup.Type == GroupType.Raid || CurrentGroup.Type == GroupType.Group)
@@ -266,7 +266,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.TableSetupColumn(Localize("RightRing", "Ring R"));
                     ImGui.TableSetupColumn(Localize("Options", "Options"));
                     ImGui.TableHeadersRow();
-                    foreach (var position in CurrentGroup.Positions)
+                    for (int position = 0; position < CurrentGroup.Count; position++)
                     {
                         ImGui.PushID(position.ToString());
                         DrawPlayer(CurrentGroup[position], position);
@@ -343,7 +343,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.EndTabBar();
         }
 
-        private void DrawPlayer(Player player, PositionInRaidGroup pos)
+        private void DrawPlayer(Player player, int pos)
         {
             bool playerExists = player.Filled && player.MainChar.Filled;
             bool hasClasses = playerExists && player.MainChar.Classes.Count > 0;
@@ -612,19 +612,19 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
     internal class SwapPositionWindow : Window
     {
         private readonly RaidGroup _group;
-        private readonly PositionInRaidGroup _oldPos;
+        private readonly int _oldPos;
         private int _newPos;
-        private readonly PositionInRaidGroup[] possiblePositions;
+        private readonly int[] possiblePositions;
         private readonly string[] possiblePositionNames;
-        internal SwapPositionWindow(PositionInRaidGroup pos, RaidGroup g) : base(true, $"SwapPositionWindow{g.GetHashCode()}{pos}")
+        internal SwapPositionWindow(int pos, RaidGroup g) : base(true, $"SwapPositionWindow{g.GetHashCode()}{pos}")
         {
             _group = g;
             _oldPos = pos;
             _newPos = 0;
-            List<PositionInRaidGroup> positions = _group.Positions.ToList();
+            List<int> positions = Enumerable.Range(0, g.Count).ToList();
             positions.Remove(_oldPos);
             possiblePositions = positions.ToArray();
-            possiblePositionNames = positions.ConvertAll(position => $"{_group[position].NickName} ({position})").ToArray();
+            possiblePositionNames = positions.ConvertAll(position => $"{_group[position].NickName} (#{position + 1})").ToArray();
             Size = new Vector2(170f, _group.Type == GroupType.Raid ? 230f : 150f);
             Title = $"{Localize("Swap Position of", "Swap Position of")} {_group[_oldPos].NickName}";
             WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
@@ -633,7 +633,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             if (ImGuiHelper.SaveButton(Localize("Swap players positions", "Swap players positions")))
             {
-                var newPos = possiblePositions[_newPos];
+                int newPos = possiblePositions[_newPos];
                 if (newPos != _oldPos)
                 {
                     (_group[_oldPos], _group[newPos]) = (_group[newPos], _group[_oldPos]);

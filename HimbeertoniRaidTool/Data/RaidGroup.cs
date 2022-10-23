@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class RaidGroup
+    public class RaidGroup : IEnumerable<Player>
     {
         [JsonProperty("TimeStamp")]
         public DateTime TimeStamp;
@@ -17,35 +18,35 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public RolePriority? RolePriority = null;
         [JsonProperty]
-        public Player Tank1 { get => _Players[0]; set => _Players[0] = value; }
+        private Player Tank1 { get => _Players[0]; set => _Players[0] = value; }
         [JsonProperty]
-        public Player Tank2 { get => _Players[1]; set => _Players[1] = value; }
+        private Player Tank2 { get => _Players[1]; set => _Players[1] = value; }
         [JsonProperty]
-        public Player Heal1 { get => _Players[2]; set => _Players[2] = value; }
+        private Player Heal1 { get => _Players[2]; set => _Players[2] = value; }
         [JsonProperty]
-        public Player Heal2 { get => _Players[3]; set => _Players[3] = value; }
+        private Player Heal2 { get => _Players[3]; set => _Players[3] = value; }
         [JsonProperty]
-        public Player Melee1 { get => _Players[4]; set => _Players[4] = value; }
+        private Player Melee1 { get => _Players[4]; set => _Players[4] = value; }
         [JsonProperty]
-        public Player Melee2 { get => _Players[5]; set => _Players[5] = value; }
+        private Player Melee2 { get => _Players[5]; set => _Players[5] = value; }
         [JsonProperty]
-        public Player Ranged { get => _Players[6]; set => _Players[6] = value; }
+        private Player Ranged { get => _Players[6]; set => _Players[6] = value; }
         [JsonProperty]
-        public Player Caster { get => _Players[7]; set => _Players[7] = value; }
-        public Player[] Players => Type switch
+        private Player Caster { get => _Players[7]; set => _Players[7] = value; }
+        private IEnumerable<Player> Players
         {
-            GroupType.Solo => new[] { _Players[0] },
-            GroupType.Group => new[] { _Players[0], _Players[2], _Players[4], _Players[6], },
-            GroupType.Raid => _Players,
-            _ => throw new NotImplementedException(),
-        };
-        public IEnumerable<PositionInRaidGroup> Positions => Type switch
-        {
-            GroupType.Solo => new[] { PositionInRaidGroup.Tank1 },
-            GroupType.Group => new[] { PositionInRaidGroup.Tank1, PositionInRaidGroup.Heal1, PositionInRaidGroup.Melee1, PositionInRaidGroup.Ranged, },
-            GroupType.Raid => Enum.GetValues<PositionInRaidGroup>(),
-            _ => throw new NotImplementedException(),
-        };
+            get
+            {
+                for (int i = 0; i < Count; i++)
+                {
+                    int idx = i;
+                    if (Type == GroupType.Group)
+                        idx *= 2;
+                    yield return _Players[idx];
+                }
+            }
+
+        }
         public int Count => Type switch
         {
             GroupType.Solo => 1,
@@ -65,12 +66,25 @@ namespace HimbeertoniRaidTool.Data
                 _Players[i] = new();
             }
         }
-        public Player this[PositionInRaidGroup pos]
+        public Player this[int idx]
         {
-            get => _Players[(int)pos];
-            set => _Players[(int)pos] = value;
+            get
+            {
+                if (idx >= Count)
+                    throw new IndexOutOfRangeException($"Raidgroup of type {Type} has no member at index {idx}");
+                if (Type == GroupType.Group)
+                    idx *= 2;
+                return _Players[idx];
+            }
+            set
+            {
+                if (idx >= Count)
+                    throw new IndexOutOfRangeException($"Raidgroup of type {Type} has no member at index {idx}");
+                if (Type == GroupType.Group)
+                    idx *= 2;
+                _Players[idx] = value;
+            }
         }
-
         internal Character? GetCharacter(string name)
         {
             foreach (Player p in _Players)
@@ -83,6 +97,10 @@ namespace HimbeertoniRaidTool.Data
             }
             return null;
         }
+
+        public IEnumerator<Player> GetEnumerator() => Players.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => Players.GetEnumerator();
     }
     [JsonObject(MemberSerialization.OptIn)]
     public class Alliance
