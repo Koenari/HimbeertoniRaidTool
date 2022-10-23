@@ -196,7 +196,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.TableNextColumn();
                     ImGui.Text(type.FriendlyName());
                     if (type == StatType.CriticalHit)
-                        ImGui.Text("Critical Damage");
+                        ImGui.Text(Localize("Critical Damage", "Critical Damage"));
+                    if (type is StatType.SkillSpeed or StatType.SpellSpeed)
+                        ImGui.Text(Localize("SpeedMultiplierName", "AA / DoT multiplier"));
                     //Current
                     ImGui.TableNextColumn();
                     ImGui.Text(curClass.GetCurrentStat(type).ToString());
@@ -220,8 +222,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
              */
             ImGui.NextColumn();
             ImGui.BeginTable("SoloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
-            ImGui.TableSetupColumn("Gear");
-            ImGui.TableSetupColumn("Gear");
+            ImGui.TableSetupColumn(Localize("Gear", "Gear"));
+            ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
             bool ringsSwapped = p.Gear.Ring1.ID == p.BIS.Ring2.ID || p.Gear.Ring2.ID == p.BIS.Ring1.ID;
             DrawSlot(p.Gear.MainHand, p.BIS.MainHand, true);
@@ -288,7 +290,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             else
             {
-                ImGui.TextColored(Vec4(ColorName.Red.ToRgb()), $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
+                ImGui.TextColored(Vec4(ColorName.Red), $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
             }
         }
 
@@ -307,6 +309,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 if (ImGui.TabItemButton($"{g.Name}##{tabBarIdx}"))
                     _CurrenGroupIndex = tabBarIdx;
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip(Localize("GroupTabTooltip", "Right click for more options"));
                 //0 is reserved for Solo on current Character (non editable)
                 if (tabBarIdx > 0)
                 {
@@ -341,7 +345,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 if (ImGuiHelper.Button(Localize("From current Group", "From current Group"), null))
                 {
-                    _lootMaster.AddGroup(new("AutoCreated"), true);
+                    _lootMaster.AddGroup(new(Localize("AutoCreatedGroupName", "Auto Created")), true);
                     ImGui.CloseCurrentPopup();
                 }
                 if (ImGuiHelper.Button(Localize("From scratch", "From scratch"), Localize("Add empty group", "Add empty group")))
@@ -362,7 +366,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
                 ImGui.TableNextColumn();
                 ImGui.Text($"{player.MainChar.MainJob.GetRole().FriendlyName()}:   {player.NickName}");
-                ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? "n.A."}");
+                ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? Localize("n.A.", "n.A.")}");
                 var c = player.MainChar;
                 if (hasClasses)
                 {
