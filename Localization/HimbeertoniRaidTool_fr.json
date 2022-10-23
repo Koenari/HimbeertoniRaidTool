@@ -8,27 +8,27 @@
     "description": "ConfigUI.Draw"
   },
   "Ui": {
-    "message": "User Interface",
+    "message": "Interface utilisateur",
     "description": "ConfigUI.Draw"
   },
   "HideInCombat": {
-    "message": "Hide in combat",
+    "message": "Cacher pendant le combat",
     "description": "ConfigUI.Draw"
   },
   "HideInCombatTooltip": {
-    "message": "Hides all windows while character is in combat",
+    "message": "Cacher toutes les fenêtres pendant que le personnage est en combat",
     "description": "ConfigUI.Draw"
   },
   "HideOnZoneChange": {
-    "message": "Hide in loading screenst",
+    "message": "Cacher pendant les fenêtres de chargement",
     "description": "ConfigUI.Draw"
   },
   "HideOnZoneChangeTooltip": {
-    "message": "Hides all windows while in a loading screen",
+    "message": "Cacher toutes les fenêtres pendant les écrans de chargement",
     "description": "ConfigUI.Draw"
   },
   "Auto Save": {
-    "message": "Auto Save",
+    "message": "Sauvegarde automatique",
     "description": "ConfigUI.Draw"
   },
   "Save periodically": {
@@ -36,7 +36,7 @@
     "description": "ConfigUI.Draw"
   },
   "SavePeriodicallyTooltip": {
-    "message": "Saves all data of this plugin periodically. (Helps prevent losing data if your game crashes)",
+    "message": "Sauvegarde toutes les données de ce plugin (Aide à empêcher la perte de données si votre jeu plante)",
     "description": "ConfigUI.Draw"
   },
   "AutoSave_interval_min": {
@@ -340,7 +340,7 @@
     "description": "ConfigUi.Draw"
   },
   "default": {
-    "message": "default",
+    "message": "par défaut",
     "description": "ConfigUi.Draw"
   },
   "LootRuleOrder": {
@@ -544,7 +544,7 @@
     "description": "SwapPositionWindow.Draw"
   },
   "invalid item": {
-    "message": "invalid item",
+    "message": "article invalide",
     "description": "LootSession.Evaluate"
   },
   "Need > Greed": {
@@ -600,7 +600,7 @@
     "description": "LootResultWindow.Draw"
   },
   "Greed only": {
-    "message": "Greed only",
+    "message": "Avidité seulement",
     "description": "LootResultWindow.Draw"
   },
   "Pos": {
