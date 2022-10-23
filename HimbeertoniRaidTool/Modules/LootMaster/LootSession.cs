@@ -77,6 +77,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     continue;
                 //Pre filter items by job
                 result.ApplicableItems[p] = possibleItems.Where(i => (i.Item?.ClassJobCategory.Value).Contains(p.MainChar.MainJob));
+                result.NeededItems[p] = new List<GearItem>();
                 //Calculate need for each item
                 foreach (var item in result.ApplicableItems[p])
 
@@ -92,10 +93,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         )
                     )
                     {
-                        result.Needer.Add(p);
-                        break;
+                        result.NeededItems[p].Add(item);
                     }
-                if (!result.Needer.Contains(p))
+                if(result.NeededItems[p].Count > 0)
+                    result.Needer.Add(p);
+                else
                     result.Greeder.Add(p);
             }
             var comparer = GetComparer(possibleItems);
@@ -110,6 +112,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             public Dictionary<Player, LootRule> DecidingFactors = new();
             public Dictionary<Player, Dictionary<LootRule, string>> EvaluatedRules = new();
             public Dictionary<Player, IEnumerable<GearItem>> ApplicableItems = new();
+            public Dictionary<Player, List<GearItem>> NeededItems = new();
             internal void Fill(LootRulingComparer comparer)
             {
                 foreach (Player p in this)

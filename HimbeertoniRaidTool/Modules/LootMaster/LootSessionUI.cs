@@ -115,14 +115,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     }
                     if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n " +
                         $"{result.Needer[0].NickName} won" +
-                        $"{(result.Needer.Count > 1 ? $" over {result.Needer[1].NickName} ({result.DecidingFactors[result.Needer[0]]})" : "")}  "))
+                        $"{(result.Needer.Count > 1 ? $" over {result.Needer[1].NickName} " : "")}({result.DecidingFactors[result.Needer[0]]})  "))
                     {
                         if (ImGui.BeginTable($"LootTable##{item.Name} # {nr + 1}", 4 + _session.RulingOptions.RuleSet.Count,
-                            ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp))
+                            ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg))
                         {
                             ImGui.TableSetupColumn(Localize("Pos", "Pos"));
                             ImGui.TableSetupColumn(Localize("Player", "Player"));
-                            ImGui.TableSetupColumn(Localize("Applicable items", "Applicable items"));
+                            ImGui.TableSetupColumn(Localize("Needed items", "Needed items"));
                             ImGui.TableSetupColumn(Localize("Rule", "Rule"));
                             foreach (LootRule rule in _session.RulingOptions.RuleSet)
                                 ImGui.TableSetupColumn(rule.Name);
@@ -138,13 +138,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                 ImGui.TableNextColumn();
                                 ImGui.Text($"{player.NickName} ({player.MainChar.MainJob})");
                                 ImGui.TableNextColumn();
-                                foreach (var possibleItem in result.ApplicableItems[player])
+                                foreach (var neededItem in result.NeededItems[player])
                                 {
-                                    ImGui.Text(possibleItem.Name);
+                                    ImGui.Text(neededItem.Name);
                                     if(ImGui.IsItemHovered())
                                     {
                                         ImGui.BeginTooltip();
-                                        possibleItem.Draw();
+                                        neededItem.Draw();
                                         ImGui.EndTooltip();
                                     }
                                 }
