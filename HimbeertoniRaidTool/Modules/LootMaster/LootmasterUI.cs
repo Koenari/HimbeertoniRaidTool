@@ -100,8 +100,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, p, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
+            ImGui.BeginChild("JobList");
             foreach (var playableClass in p.MainChar.Classes)
             {
+                ImGui.Separator();
+                ImGui.Spacing();
                 bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
                 if (isMainJob)
@@ -130,7 +133,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     Services.TaskManager.RegisterTask(_lootMaster, () => Services.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS)
                         , $"BIS update for Character {p.MainChar.Name} ({playableClass.Job}) succeeded"
                         , $"BIS update for Character {p.MainChar.Name} ({playableClass.Job}) failed");
+                ImGui.Spacing();
             }
+            ImGui.EndChild();
             /**
              * Stat Table
              */
@@ -145,7 +150,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.TextColored(Vec4(ColorName.RedCrayola.ToRgb()),
                     Localize("StatsUnfinished", "Stats are under development and only work correctly for level 70/80/90 jobs"));
 
-                ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
+                ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
                 ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
                 ImGui.TableSetupColumn(Localize("Current", "Current"));
                 ImGui.TableSetupColumn("");
@@ -159,7 +164,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 DrawStatRow(StatType.MagicDefense);
                 ImGui.EndTable();
                 ImGui.NewLine();
-                ImGui.BeginTable("SecondaryStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
+                ImGui.BeginTable("SecondaryStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
                 ImGui.TableSetupColumn(Localize("SecondaryStats", "Secondary Stats"));
                 ImGui.TableSetupColumn(Localize("Current", "Current"));
                 ImGui.TableSetupColumn("");
@@ -254,7 +259,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             else if (CurrentGroup.Type == GroupType.Raid || CurrentGroup.Type == GroupType.Group)
             {
                 if (ImGui.BeginTable("RaidGroup", 14,
-                ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp))
+                ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg))
                 {
                     ImGui.TableSetupColumn(Localize("Player", "Player"));
                     ImGui.TableSetupColumn(Localize("itemLevelShort", "iLvl"));
@@ -481,9 +486,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.TableNextColumn();
             if (item.Filled && bis.Filled && item.Equals(bis))
             {
-                ImGui.NewLine();
-                DrawItem(item, extended);
-                ImGui.NewLine();
+                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / (extended ? 2 : 1));
+                DrawItem(item, extended, true);
             }
             else
             {
@@ -491,7 +495,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.NewLine();
                 DrawItem(bis, extended);
             }
-            void DrawItem(GearItem item, bool extended)
+            void DrawItem(GearItem item, bool extended, bool multiLine = false)
             {
                 if (item.Filled)
                 {
@@ -501,11 +505,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         $"{item.ItemLevel} {item.Source.FriendlyName()} {item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName()}");
                     if (extended)
                     {
-                        string materria = "";
+                        List<string> materia = new();
                         foreach (var mat in item.Materia)
-                            materria += $"{mat.StatType.Abbrev()} +{mat.GetStat()}  ";
-                        ImGui.SameLine();
-                        ImGui.Text($"(  {materria})");
+                            materia.Add($"{mat.StatType.Abbrev()} +{mat.GetStat()}");
+                        if (!multiLine)
+                            ImGui.SameLine();
+                        ImGui.Text($"( {string.Join(" | ", materia)} )");
                     }
                     ImGui.EndGroup();
                     if (ImGui.IsItemHovered())
