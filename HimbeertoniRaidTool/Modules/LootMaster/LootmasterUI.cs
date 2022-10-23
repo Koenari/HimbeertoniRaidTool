@@ -34,7 +34,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private int _CurrenGroupIndex;
         private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
-        private readonly List<(DateTime, HrtUiMessage)> _messages = new();
+        private readonly Queue<HrtUiMessage> _messageQueue = new();
+        private (HrtUiMessage message, DateTime time)? _currentMessage;
+        private static readonly TimeSpan _messageTime = TimeSpan.FromSeconds(10);
         internal LootmasterUI(LootMasterModule lootMaster) : base(false, "LootMaster")
         {
             _lootMaster = lootMaster;
@@ -53,27 +55,30 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             _CurrenGroupIndex = _lootMaster.Configuration.Data.LastGroupIndex;
         }
-        private void HandleAsync()
+        private void DrawUiMessages()
         {
-            _messages.RemoveAll(m => (DateTime.Now - m.Item1).TotalSeconds > 10);
-            foreach (HrtUiMessage m in _messages.ConvertAll(i => i.Item2))
+            if (_currentMessage.HasValue && _currentMessage.Value.time + _messageTime < DateTime.Now)
+                _currentMessage = null;
+            if (!_currentMessage.HasValue && _messageQueue.TryDequeue(out HrtUiMessage message))
+                _currentMessage = (message, DateTime.Now);
+            if (_currentMessage.HasValue)
             {
-                switch (m.MessageType)
+                switch (_currentMessage.Value.message.MessageType)
                 {
                     case HrtUiMessageType.Error or HrtUiMessageType.Failure:
-                        ImGui.TextColored(Vec4(ColorName.RedCrayola), m.Message);
+                        ImGui.TextColored(Vec4(ColorName.RedCrayola), _currentMessage.Value.message.Message);
                         break;
                     case HrtUiMessageType.Success:
-                        ImGui.TextColored(Vec4(ColorName.Green), m.Message);
+                        ImGui.TextColored(Vec4(ColorName.Green), _currentMessage.Value.message.Message);
                         break;
                     case HrtUiMessageType.Warning:
-                        ImGui.TextColored(Vec4(ColorName.Yellow), m.Message);
+                        ImGui.TextColored(Vec4(ColorName.Yellow), _currentMessage.Value.message.Message);
                         break;
                     case HrtUiMessageType.Important:
-                        ImGui.TextColored(Vec4(ColorName.MiddleRed), m.Message);
+                        ImGui.TextColored(Vec4(ColorName.MiddleRed), _currentMessage.Value.message.Message);
                         break;
                     default:
-                        ImGui.Text(m.Message);
+                        ImGui.Text(_currentMessage.Value.message.Message);
                         break;
                 }
             }
@@ -233,7 +238,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             if (_CurrenGroupIndex > RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
                 _CurrenGroupIndex = 0;
-            HandleAsync();
+            DrawUiMessages();
             DrawLootHandlerButtons();
             DrawRaidGroupSwitchBar();
             if (CurrentGroup.Type == GroupType.Solo)
@@ -517,7 +522,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private void DrawLootHandlerButtons()
         {
-            var currentLootSources = new LootSource[4];
+            LootSource[] currentLootSources = new LootSource[4];
             int selectedTier = Array.IndexOf(CuratedData.RaidTiers, _lootMaster.Configuration.Data.SelectedRaidTier);
             ImGui.SetNextItemWidth(ImGui.CalcTextSize(CuratedData.RaidTiers[selectedTier].Name).X + 32f * ScaleFactor);
             if (ImGui.Combo("##Raid Tier", ref selectedTier, Array.ConvertAll(CuratedData.RaidTiers, x => x.Name), CuratedData.RaidTiers.Length))
@@ -547,7 +552,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         internal void HandleMessage(HrtUiMessage message)
         {
-            _messages.Add((DateTime.Now, message));
+            _messageQueue.Enqueue(message);
         }
 
         private class PlayerdetailWindow : Window
