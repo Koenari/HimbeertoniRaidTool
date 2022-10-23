@@ -163,7 +163,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 EvaluatedRules.Add(p, result);
                 return result;
             }
-            private int Compare(Player x, Player y,LootRule r) => (r.FavorsLowValue() ? -1 : 1)* (EvaluatedRules[y][r].val - EvaluatedRules[x][r].val);
+            private int Compare(Player x, Player y,LootRule r) => EvaluatedRules[y][r].val - EvaluatedRules[x][r].val;
             public int Compare(Player? x, Player? y)
             {
                 if (x is null || y is null)
