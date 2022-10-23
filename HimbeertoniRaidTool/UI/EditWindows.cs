@@ -35,7 +35,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy.MainChar.Name = target.Name.TextValue;
                 PlayerCopy.MainChar.HomeWorldID = target.HomeWorld.Id;
-                PlayerCopy.MainChar.MainJob = target.TryGetJob(out Job job) ? job : null;
+                PlayerCopy.MainChar.MainJob = target.GetJob();
                 //Ensure Main class is created if applicable
                 var _ = PlayerCopy.MainChar.MainClass;
             }

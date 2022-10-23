@@ -59,7 +59,7 @@ namespace HimbeertoniRaidTool.Data
             if (ReferenceEquals(this, other)) return true;
             if (ID != other.ID) return false;
             if (Materia.Count != other.Materia.Count) return false;
-            var cnt = new Dictionary<HrtMateria, int>();
+            Dictionary<HrtMateria, int> cnt = new();
             foreach (HrtMateria s in Materia)
             {
                 if (cnt.ContainsKey(s))
@@ -118,7 +118,7 @@ namespace HimbeertoniRaidTool.Data
         [JsonIgnore]
         public override uint ID => IDCache ??= Materia?.Item[MateriaLevel].Row ?? 0;
         public Materia? Materia => _materiaSheet.GetRow((ushort)Category);
-        public StatType StatType => (StatType)(Materia?.BaseParam.Row ?? 0);
+        public StatType StatType => Category.GetStatType();
         public HrtMateria() : this(0, 0) { }
         public HrtMateria((MateriaCategory cat, byte lvl) mat) : this(mat.cat, mat.lvl) { }
         [JsonConstructor]

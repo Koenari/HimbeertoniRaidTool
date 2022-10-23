@@ -85,7 +85,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             Services.HrtDataManager.GetManagedCharacter(ref c);
             p.NickName = c.Name.Split(' ')[0];
             p.MainChar = c;
-            c.MainJob ??= character.TryGetJob(out Job job) ? job : null;
+            c.MainJob ??= character.GetJob();
             if (c.MainClass != null)
             {
                 c.MainClass.Level = character.Level;

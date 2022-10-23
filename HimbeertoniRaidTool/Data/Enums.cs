@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Lumina.Excel.GeneratedSheets;
 using static Dalamud.Localization;
@@ -360,19 +359,24 @@ namespace HimbeertoniRaidTool.Data
             PositionInRaidGroup.Caster => type == GroupType.Raid,
             _ => false,
         };
-        public static bool TryGetJob(this PlayerCharacter target, out Job result) =>
-            Enum.TryParse(target.ClassJob.GameData?.Abbreviation.RawString, true, out result);
-    }
-    [AttributeUsage(AttributeTargets.Field)]
-    class StatAttribute : Attribute
-    {
-        public StatType StatType;
-        public StatAttribute(StatType t) => StatType = t;
-    }
-    [AttributeUsage(AttributeTargets.Field)]
-    class RoleAttribute : Attribute
-    {
-        public Role Role;
-        public RoleAttribute(Role r) => Role = r;
+        public static Job GetJob(this PlayerCharacter target) => (Job)target.ClassJob.Id;
+
+        public static StatType GetStatType(this MateriaCategory materiaCategory) => materiaCategory switch
+        {
+            MateriaCategory.Piety => StatType.Piety,
+            MateriaCategory.DirectHit => StatType.DirectHitRate,
+            MateriaCategory.CriticalHit => StatType.CriticalHit,
+            MateriaCategory.Determination => StatType.Determination,
+            MateriaCategory.Tenacity => StatType.Tenacity,
+            MateriaCategory.Gathering => StatType.Gathering,
+            MateriaCategory.Perception => StatType.Perception,
+            MateriaCategory.GP => StatType.GP,
+            MateriaCategory.Craftsmanship => StatType.Craftsmanship,
+            MateriaCategory.CP => StatType.CP,
+            MateriaCategory.Control => StatType.Control,
+            MateriaCategory.SkillSpeed => StatType.SkillSpeed,
+            MateriaCategory.SpellSpeed => StatType.SpellSpeed,
+            _ => StatType.None,
+        };
     }
 }

@@ -103,11 +103,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     $"name1 {charNameFromExamine}, name 2 {charNameFromExamine2}, wolrd {worldFromExamine?.Name}");
                 return;
             }
-            if (!target.TryGetJob(out Job targetClass))
-            {
-                PluginLog.Debug($"Could not determine curretn job for: {target.Name}");
-                return;
-            }
             //Do not execute on characters not part of any managed raid group
             if (!Services.HrtDataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
                 return;
@@ -120,7 +115,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
 
             //Start getting Infos from Game
-
+            Job targetClass = target.GetJob();
             //Getting level does not work in level synced content
             if (target.Level > targetChar.GetClass(targetClass).Level)
                 targetChar.GetClass(targetClass).Level = target.Level;
