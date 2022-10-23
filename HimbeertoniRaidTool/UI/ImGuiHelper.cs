@@ -31,7 +31,7 @@ namespace HimbeertoniRaidTool.UI
         {
             ImGui.PushFont(UiBuilder.IconFont);
             ImGui.BeginDisabled(!enabled);
-            bool result = ImGui.Button($"{icon.ToIconString()}##{id}", size);
+            bool result = ImGui.Button($"{icon.ToIconChar()}##{id}", size);
             ImGui.EndDisabled();
             ImGui.PopFont();
             if (tooltip is not null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
