@@ -97,17 +97,6 @@ namespace HimbeertoniRaidTool.Data
         Ranged = 3,
         Caster = 5,
     }
-    public enum PositionInRaidGroup : byte
-    {
-        Tank1 = 0,
-        Tank2 = 1,
-        Heal1 = 2,
-        Heal2 = 3,
-        Melee1 = 4,
-        Melee2 = 5,
-        Ranged = 6,
-        Caster = 7
-    }
     public enum ContentType
     {
         Raid,
@@ -346,19 +335,6 @@ namespace HimbeertoniRaidTool.Data
             GearSetSlotNameLookup.TryGetValue(slot, out string? fromDic) ? fromDic : Localize("undefined", "undefined");
         public static string FriendlyName(this GearSource source) =>
             GearSourceNameLookup.TryGetValue(source, out string? fromDic) ? fromDic : Localize("undefined", "undefined");
-
-        public static bool IsPartOf(this PositionInRaidGroup pos, GroupType type) => pos switch
-        {
-            PositionInRaidGroup.Tank1 => true,
-            PositionInRaidGroup.Tank2 => type == GroupType.Raid,
-            PositionInRaidGroup.Heal1 => type == GroupType.Group || type == GroupType.Raid,
-            PositionInRaidGroup.Heal2 => type == GroupType.Raid,
-            PositionInRaidGroup.Melee1 => type == GroupType.Group || type == GroupType.Raid,
-            PositionInRaidGroup.Melee2 => type == GroupType.Raid,
-            PositionInRaidGroup.Ranged => type == GroupType.Group || type == GroupType.Raid,
-            PositionInRaidGroup.Caster => type == GroupType.Raid,
-            _ => false,
-        };
         public static Job GetJob(this PlayerCharacter target) => (Job)target.ClassJob.Id;
 
         public static StatType GetStatType(this MateriaCategory materiaCategory) => materiaCategory switch

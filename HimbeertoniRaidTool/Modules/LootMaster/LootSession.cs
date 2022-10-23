@@ -39,7 +39,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private void ReRoll()
         {
             Rolls.Clear();
-            foreach (var p in Group.Players)
+            foreach (var p in Group)
                 Rolls.Add(p, Random.Next(0, 101));
         }
         public void EvaluateAll(bool reevaluate = false)
@@ -70,7 +70,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 return new() { (new(), Localize("invalid item", "invalid item")) };
             List<Player> need = new();
             List<Player> greed = new();
-            foreach (var p in Group.Players)
+            foreach (Player p in Group)
             {
                 if (excluded.Contains(p))
                     continue;

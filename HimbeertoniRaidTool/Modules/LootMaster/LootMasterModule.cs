@@ -62,7 +62,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public void OnLogin(object? sender, EventArgs e)
         {
             if (_fillSoloOnLogin)
-                FillSoloChar(RaidGroups[0].Tank1, true);
+                FillSoloChar(RaidGroups[0][0], true);
             _fillSoloOnLogin = false;
             if (_config.Data.OpenOnStartup)
                 Ui.Show();
@@ -116,13 +116,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 PlayerCharacter? target = Services.TargetManager.Target as PlayerCharacter;
                 if (target is not null)
                 {
-                    group.Tank1.NickName = target.Name.TextValue;
-                    group.Tank1.MainChar.Name = target.Name.TextValue;
-                    group.Tank1.MainChar.HomeWorld = target.HomeWorld.GameData;
-                    FillSoloChar(group.Tank1);
+                    group[0].NickName = target.Name.TextValue;
+                    group[0].MainChar.Name = target.Name.TextValue;
+                    group[0].MainChar.HomeWorld = target.HomeWorld.GameData;
+                    FillSoloChar(group[0]);
                 }
                 else
-                    FillSoloChar(group.Tank1, true);
+                    FillSoloChar(group[0], true);
                 return;
             }
             List<PartyMember> players = new();
@@ -144,38 +144,38 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 switch (r)
                 {
                     case Role.Tank:
-                        if (!group[PositionInRaidGroup.Tank1].Filled)
-                            FillPosition(PositionInRaidGroup.Tank1, p);
-                        else if (!group[PositionInRaidGroup.Tank2].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Tank2, p);
+                        if (!group[0].Filled)
+                            FillPosition(0, p);
+                        else if (!group[1].Filled && group.Type == GroupType.Raid)
+                            FillPosition(1, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Healer:
-                        if (!group[PositionInRaidGroup.Heal1].Filled)
-                            FillPosition(PositionInRaidGroup.Heal1, p);
-                        else if (!group[PositionInRaidGroup.Heal2].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Heal2, p);
+                        if (!group[2].Filled)
+                            FillPosition(2, p);
+                        else if (!group[3].Filled && group.Type == GroupType.Raid)
+                            FillPosition(3, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Melee:
-                        if (!group[PositionInRaidGroup.Melee1].Filled)
-                            FillPosition(PositionInRaidGroup.Melee1, p);
-                        else if (!group[PositionInRaidGroup.Melee2].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Melee2, p);
+                        if (!group[4].Filled)
+                            FillPosition(4, p);
+                        else if (!group[5].Filled && group.Type == GroupType.Raid)
+                            FillPosition(5, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Caster:
-                        if (!group[PositionInRaidGroup.Caster].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Caster, p);
+                        if (!group[6].Filled && group.Type == GroupType.Raid)
+                            FillPosition(6, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Ranged:
-                        if (!group[PositionInRaidGroup.Ranged].Filled)
-                            FillPosition(PositionInRaidGroup.Ranged, p);
+                        if (!group[7].Filled)
+                            FillPosition(7, p);
                         else
                             fill.Add(p);
                         break;
@@ -187,11 +187,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             foreach (var pm in fill)
             {
                 int pos = 0;
-                while (group[(PositionInRaidGroup)pos].Filled) { pos++; }
+                while (group[pos].Filled) { pos++; }
                 if (pos > 7) break;
-                FillPosition((PositionInRaidGroup)pos, pm);
+                FillPosition(pos, pm);
             }
-            void FillPosition(PositionInRaidGroup pos, PartyMember pm)
+            void FillPosition(int pos, PartyMember pm)
             {
                 var p = group[pos];
                 p.NickName = pm.Name.TextValue.Split(' ')[0];
