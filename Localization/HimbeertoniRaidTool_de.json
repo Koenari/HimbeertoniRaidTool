@@ -412,31 +412,31 @@
     "description": "LootmasterUI.Draw"
   },
   "ChestGear": {
-    "message": "Chest",
+    "message": "Rumpf",
     "description": "LootmasterUI.Draw"
   },
   "Gloves": {
-    "message": "Gloves",
+    "message": "Hände",
     "description": "LootmasterUI.Draw"
   },
   "LegGear": {
-    "message": "Legs",
+    "message": "Beine",
     "description": "LootmasterUI.Draw"
   },
   "FeetGear": {
-    "message": "Feet",
+    "message": "Füße",
     "description": "LootmasterUI.Draw"
   },
   "Earrings": {
-    "message": "Earrings",
+    "message": "Ohrring",
     "description": "LootmasterUI.Draw"
   },
   "NeckGear": {
-    "message": "Necklace",
+    "message": "Halskette",
     "description": "LootmasterUI.Draw"
   },
   "WristGear": {
-    "message": "Bracelet",
+    "message": "Armreif",
     "description": "LootmasterUI.Draw"
   },
   "LeftRing": {
@@ -448,31 +448,31 @@
     "description": "LootmasterUI.Draw"
   },
   "Options": {
-    "message": "Options",
+    "message": "Einstellungen",
     "description": "LootmasterUI.Draw"
   },
   "Edit group": {
-    "message": "Edit group",
+    "message": "Gruppe bearbeiten",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "Delete group": {
-    "message": "Delete group",
+    "message": "Gruppe löschen",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "DeleteRaidGroup": {
-    "message": "Do you really want to delete following group:",
+    "message": "Möchten Sie die folgende Gruppe wirklich löschen:",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "From current Group": {
-    "message": "From current Group",
+    "message": "Von der aktuellen Gruppe",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "From scratch": {
-    "message": "From scratch",
+    "message": "Von Grund auf",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "Add empty group": {
-    "message": "Add empty group",
+    "message": "Leere Gruppe hinzufügen",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "LvLShort": {
@@ -480,71 +480,71 @@
     "description": "LootmasterUI.DrawPlayer"
   },
   "to BIS": {
-    "message": "to BIS",
+    "message": "zum BiS",
     "description": "LootmasterUI.DrawPlayer"
   },
   "BisUpdateResult": {
-    "message": "BIS update for character",
+    "message": "BIS-Update für Charakter",
     "description": "LootmasterUI.DrawPlayer"
   },
   "successful": {
-    "message": "successful",
+    "message": "Erfolgreich",
     "description": "LootmasterUI.DrawPlayer"
   },
   "failed": {
-    "message": "failed",
+    "message": "Fehlgeschlagen",
     "description": "LootmasterUI.DrawPlayer"
   },
   "PlayerDetails": {
-    "message": "Show player details for",
+    "message": "Spielerdetails anzeigen für",
     "description": "LootmasterUI.DrawPlayer"
   },
   "DeletePlayerConfirmation": {
-    "message": "Do you really want to delete following player?",
+    "message": "Möchten Sie den folgenden Spieler wirklich löschen?",
     "description": "LootmasterUI.DrawPlayer"
   },
   "No Player": {
-    "message": "No Player",
+    "message": "Kein Spieler",
     "description": "LootmasterUI.DrawPlayer"
   },
   "Add": {
-    "message": "Add",
+    "message": "Hinzufügen",
     "description": "LootmasterUI.DrawPlayer"
   },
   "Add from DB": {
-    "message": "Add from DB",
+    "message": "Aus Datenbank hinzufügen",
     "description": "LootmasterUI.DrawPlayer"
   },
   "Distribute loot for:": {
-    "message": "Distribute loot for:",
+    "message": "Beute verteilen für:",
     "description": "LootmasterUI.DrawLootHandlerButtons"
   },
   "Dmgper100Tooltip": {
-    "message": "Average Dmg with a 100 potency skill",
+    "message": "Durchschnittlicher Schaden mit einer 100 Potenz Fähigkeit",
     "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|11_1"
   },
   "Empty": {
-    "message": "Empty",
+    "message": "Leer",
     "description": "LootmasterUI.<DrawSlot>g__DrawItem|15_0"
   },
   "PlayerDetailsTitle": {
-    "message": "Player Details",
+    "message": "Spieler Details",
     "description": "PlayerdetailWindow..ctor"
   },
   "GetCharacterTitle": {
-    "message": "Get character from DB",
+    "message": "Charakter von Datenbank abrufen",
     "description": "GetCharacterFromDBWindow..ctor"
   },
   "Swap Position of": {
-    "message": "Swap Position of",
+    "message": "Tausche Position von",
     "description": "SwapPositionWindow..ctor"
   },
   "Swap players positions": {
-    "message": "Swap players positions",
+    "message": "Spielerpositionen tauschen",
     "description": "SwapPositionWindow.Draw"
   },
   "invalid item": {
-    "message": "invalid item",
+    "message": "Ungültiger Gegenstand",
     "description": "LootSession.Evaluate"
   },
   "Need > Greed": {
