@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using ImGuiNET;
-using Lumina.Excel.Extensions;
 using Newtonsoft.Json;
 using static Dalamud.Localization;
 
@@ -18,7 +17,6 @@ namespace HimbeertoniRaidTool.Data
         {
             get
             {
-                List<LootRule> result = new();
                 foreach (LootRuleEnum rule in Enum.GetValues(typeof(LootRuleEnum)))
                 {
                     if (rule is LootRuleEnum.None)
@@ -26,9 +24,8 @@ namespace HimbeertoniRaidTool.Data
                     //Special Rules only used internally
                     if ((int)rule > 900)
                         continue;
-                    result.Add(new(rule));
+                    yield return new(rule);
                 }
-                return result;
             }
         }
         [JsonProperty("RuleSet")]
@@ -125,7 +122,7 @@ namespace HimbeertoniRaidTool.Data
             LootRuleEnum.Random => Localize("Rolling", "Rolling"),
             LootRuleEnum.DPS => Localize("DPS", "DPS"),
             LootRuleEnum.None => Localize("None", "None"),
-            LootRuleEnum.Greed => Localize("Greed","Greed"),
+            LootRuleEnum.Greed => Localize("Greed", "Greed"),
             LootRuleEnum.NeedGreed => Localize("Need over Greed", "Need over Greed"),
             _ => Localize("Not defined", "Not defined"),
         };
@@ -148,17 +145,17 @@ namespace HimbeertoniRaidTool.Data
 
     public static class LootRulesExtension
     {
-        
+
         public static int Roll(this Player p, LootSession session) => session.Rolls[p];
         public static int ItemLevel(this Player p) => p.Gear.ItemLevel;
         public static int ItemLevelGain(this Player p, IEnumerable<GearItem> newItems)
         {
             int result = 0;
-            foreach(GearItem item in newItems)
+            foreach (GearItem item in newItems)
             {
                 result = Math.Max(result, (int)item.ItemLevel - (int)(p.Gear.Where(i => i.Slots.Intersect(item.Slots).Any()).MinBy(i => i.ItemLevel)?.ItemLevel ?? item.ItemLevel));
             }
-            
+
             return result;
         }
         public static bool IsBiS(this Player p, IEnumerable<GearItem> items) => p.BIS.Any(bisItem => items.Any(i => i.ID == bisItem.ID));
