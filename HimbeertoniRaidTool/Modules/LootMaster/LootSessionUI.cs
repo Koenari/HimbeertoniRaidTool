@@ -24,6 +24,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             Size = new Vector2(550, 370);
             Title = $"{Localize("Loot session for", "Loot session for")} {_lootSource}";
             WindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar;
+            OpenCentered = true;
         }
         private void StartLootDistribution()
         {
@@ -98,7 +99,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 _session = session;
                 Size = new Vector2(900, 450);
                 Title = Localize("LootResultTitle", "Loot Results");
-                //WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
+                WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
+                OpenCentered = true;
             }
             protected override void Draw()
             {
@@ -118,7 +120,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         $"{(result.Needer.Count > 1 ? $" over {result.Needer[1].NickName} " : "")}({result.DecidingFactors[result.Needer[0]]})  "))
                     {
                         if (ImGui.BeginTable($"LootTable##{item.Name} # {nr + 1}", 4 + _session.RulingOptions.RuleSet.Count,
-                            ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg))
+                            ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg))
                         {
                             ImGui.TableSetupColumn(Localize("Pos", "Pos"));
                             ImGui.TableSetupColumn(Localize("Player", "Player"));
