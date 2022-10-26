@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
@@ -32,7 +30,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _session.EvaluateAll(true);
             ClearChildren();
             if (_session.Results.Count > 0)
-                AddChild(new LootResultWindow(_session));
+                AddChild(new LootResultWindow(_session), true);
         }
         protected override void Draw()
         {
@@ -108,16 +106,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.Text(Localize("No loot", "No loot"));
                 foreach (((HrtItem item, int nr), LootSession.LootResult result) in _session.Results)
                 {
-                    if (result.Needer.Count == 0)
-                    {
-                        ImGui.BeginDisabled();
-                        ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n{Localize("Greed only", "Greed only")}");
-                        ImGui.EndDisabled();
-                        continue;
-                    }
                     if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n " +
-                        $"{result.Needer[0].NickName} won" +
-                        $"{(result.Needer.Count > 1 ? $" over {result.Needer[1].NickName} " : "")}({result.DecidingFactors[result.Needer[0]]})  "))
+                        ((result.Needer.Count > 0) ? $"{result.Needer[0].NickName} won" +
+                        $"{(result.Needer.Count > 1 ? $" over {result.Needer[1].NickName} " : "")}({result.DecidingFactors[result.Needer[0]]})  "
+                        : $"{Localize("Greed only", "Greed only")}")
+                        ))
                     {
                         if (ImGui.BeginTable($"LootTable##{item.Name} # {nr + 1}", 4 + _session.RulingOptions.RuleSet.Count,
                             ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg))
@@ -143,7 +136,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                 foreach (var neededItem in result.NeededItems[player])
                                 {
                                     ImGui.Text(neededItem.Name);
-                                    if(ImGui.IsItemHovered())
+                                    if (ImGui.IsItemHovered())
                                     {
                                         ImGui.BeginTooltip();
                                         neededItem.Draw();
@@ -159,8 +152,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                     if (rule == decision && rule == last)
                                         ImGui.TextColored(ColorHelper.HRTColorConversions.Vec4(ColorHelper.ColorName.Yellow), toPrint);
                                     else if (rule == decision)
-                                        ImGui.TextColored(ColorHelper.HRTColorConversions.Vec4(ColorHelper.ColorName.Green),toPrint);
-                                    else if(rule == last)
+                                        ImGui.TextColored(ColorHelper.HRTColorConversions.Vec4(ColorHelper.ColorName.Green), toPrint);
+                                    else if (rule == last)
                                         ImGui.TextColored(ColorHelper.HRTColorConversions.Vec4(ColorHelper.ColorName.Red), toPrint);
                                     else
                                         ImGui.Text(toPrint);

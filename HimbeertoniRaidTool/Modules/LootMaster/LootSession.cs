@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using HimbeertoniRaidTool.Data;
 using Lumina.Excel.Extensions;
-using static Dalamud.Localization;
 
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
@@ -95,7 +94,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     {
                         result.NeededItems[p].Add(item);
                     }
-                if(result.NeededItems[p].Count > 0)
+                if (result.NeededItems[p].Count > 0)
                     result.Needer.Add(p);
                 else
                     result.Greeder.Add(p);
@@ -118,16 +117,17 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 foreach (Player p in this)
                 {
                     EvaluatedRules[p] = new();
-                    if (!comparer.EvaluatedRules.TryGetValue(p, out var evals))                        
+                    if (!comparer.EvaluatedRules.TryGetValue(p, out var evals))
                         evals = comparer.EvaluatePlayer(p);
                     foreach ((LootRule rule, (_, string reason)) in evals)
                         EvaluatedRules[p].Add(rule, reason);
                     EvaluatedRules[p].Add(new(LootRuleEnum.Greed), "");
                 }
                 for (int i = 0; i < Needer.Count - 1; i++)
-                    DecidingFactors[Needer[i]] = comparer.DecidingRule[(Needer[i], Needer[i+1])];
-                DecidingFactors[Needer.Last()] = new(LootRuleEnum.NeedGreed);
-                foreach(var p in Greeder)
+                    DecidingFactors[Needer[i]] = comparer.DecidingRule[(Needer[i], Needer[i + 1])];
+                if (Needer.Count > 0)
+                    DecidingFactors[Needer.Last()] = new(LootRuleEnum.NeedGreed);
+                foreach (var p in Greeder)
                     DecidingFactors[p] = new(LootRuleEnum.Greed);
             }
             private IEnumerable<Player> GetPlayers()
@@ -153,7 +153,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 (_session, _possibleItems) = (session, possibleItems);
             }
-                
+
             internal Dictionary<LootRule, (int val, string reason)> EvaluatePlayer(Player p)
             {
                 if (EvaluatedRules.TryGetValue(p, out var result))
@@ -166,7 +166,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 EvaluatedRules.Add(p, result);
                 return result;
             }
-            private int Compare(Player x, Player y,LootRule r) => EvaluatedRules[y][r].val - EvaluatedRules[x][r].val;
+            private int Compare(Player x, Player y, LootRule r) => EvaluatedRules[y][r].val - EvaluatedRules[x][r].val;
             public int Compare(Player? x, Player? y)
             {
                 if (x is null || y is null)
@@ -175,7 +175,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 EvaluatePlayer(y);
                 if (DecidingRule.TryGetValue((x, y), out LootRule? cachedRule))
                 {
-                    return Compare(x, y,cachedRule);
+                    return Compare(x, y, cachedRule);
                 }
                 foreach (var rule in _session.RulingOptions.RuleSet)
                 {
