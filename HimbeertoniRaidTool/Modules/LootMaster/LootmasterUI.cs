@@ -491,19 +491,38 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (item.Filled && bis.Filled && item.Equals(bis))
             {
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / (extended ? 2 : 1));
+                ImGui.BeginGroup();
                 DrawItem(item, extended, true);
+                ImGui.EndGroup();
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    item.Draw();
+                    ImGui.EndTooltip();
+                }
             }
             else
             {
+                ImGui.BeginGroup();
                 DrawItem(item, extended);
                 ImGui.NewLine();
                 DrawItem(bis, extended);
+                ImGui.EndGroup();
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.Columns(2);
+                    item.Draw();
+                    ImGui.NextColumn();
+                    bis.Draw();
+                    ImGui.Columns();
+                    ImGui.EndTooltip();
+                }
             }
             void DrawItem(GearItem item, bool extended, bool multiLine = false)
             {
                 if (item.Filled)
                 {
-                    ImGui.BeginGroup();
                     ImGui.TextColored(
                         ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel),
                         $"{item.ItemLevel} {item.Source.FriendlyName()} {item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName()}");
@@ -515,13 +534,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         if (!multiLine)
                             ImGui.SameLine();
                         ImGui.Text($"( {string.Join(" | ", materia)} )");
-                    }
-                    ImGui.EndGroup();
-                    if (ImGui.IsItemHovered())
-                    {
-                        ImGui.BeginTooltip();
-                        item.Draw();
-                        ImGui.EndTooltip();
                     }
                 }
                 else
