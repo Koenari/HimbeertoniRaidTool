@@ -49,7 +49,7 @@ namespace HimbeertoniRaidTool.HrtServices
 #if DEBUG
         internal static void ExportLocalizable()
         {
-            var assembly = Assembly.GetCallingAssembly();
+            var assembly = Assembly.GetExecutingAssembly();
             var debugOutput = string.Empty;
             var outList = new Dictionary<string, LocEntry>();
 

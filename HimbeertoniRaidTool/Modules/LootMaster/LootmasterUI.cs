@@ -351,7 +351,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
 
                 ImGui.TableNextColumn();
-                ImGui.Text($"{player.MainChar.MainJob.GetRole()}:   {player.NickName}");
+                ImGui.Text($"{player.MainChar.MainJob.GetRole().FriendlyName()}:   {player.NickName}");
                 ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? "n.A."}");
                 var c = player.MainChar;
                 if (hasClasses)
@@ -493,7 +493,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.BeginGroup();
                     ImGui.TextColored(
                         ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel),
-                        $"{item.ItemLevel} {item.Source} {item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName()}");
+                        $"{item.ItemLevel} {item.Source.FriendlyName()} {item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName()}");
                     if (extended)
                     {
                         string materria = "";

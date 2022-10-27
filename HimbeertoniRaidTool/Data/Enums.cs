@@ -222,13 +222,28 @@ namespace HimbeertoniRaidTool.Data
     {
         public static string FriendlyName(this StatType t) => t switch
         {
+            StatType.Strength => Localize("Strength", "Strength"),
+            StatType.Dexterity => Localize("Dexterity", "Dexterity"),
+            StatType.Vitality => Localize("Vitality", "Vitality"),
+            StatType.Intelligence => Localize("Intelligence", "Intelligence"),
+            StatType.Mind => Localize("Mind", "Mind"),
+            StatType.Piety => Localize("Piety", "Piety"),
+            StatType.HP => Localize("HP", "HP"),
+            StatType.MP => Localize("MP", "MP"),
             StatType.PhysicalDamage => Localize("Physical Damage", "Physical Damage"),
             StatType.MagicalDamage => Localize("Magical Damage", "Magical Damage"),
-            StatType.CriticalHit => Localize("Critical Hit", "Critical Hit"),
+            StatType.Tenacity => Localize("Tenacity", "Tenacity"),
+            StatType.AttackPower => Localize("AttackPower", "AttackPower"),
+            StatType.Defense => Localize("Defense", "Defense"),
             StatType.DirectHitRate => Localize("Direct Hit", "Direct Hit"),
+            StatType.MagicDefense => Localize("Magic Defense", "Magic Defense"),
+            StatType.CriticalHitPower => Localize("Critical Hit Power", "Critical Hit Power"),
+            StatType.CriticalHit => Localize("Critical Hit", "Critical Hit"),
+            StatType.AttackMagicPotency => Localize("AttackMagicPotency", "Attack Magic Potency"),
+            StatType.HealingMagicPotency => Localize("HealingMagicPotency", "Healing Magic Potency"),
+            StatType.Determination => Localize("Determination", "Determination"),
             StatType.SkillSpeed => Localize("Skill Speed", "Skill Speed"),
             StatType.SpellSpeed => Localize("Spell Speed", "Spell Speed"),
-            StatType.MagicDefense => Localize("Magic Defense", "Magic Defense"),
             _ => t.ToString(),
         };
         public static string Abbrev(this StatType t) => t switch
@@ -325,7 +340,15 @@ namespace HimbeertoniRaidTool.Data
             GearSource.Relic => Localize("Relic", "Relic"),
             _ => Localize("undefined", "undefined"),
         };
-
+        public static string FriendlyName(this Role role) => role switch
+        {
+            Role.Tank => Localize("Tank", "Tank"),
+            Role.Healer => Localize("Healer", "Healer"),
+            Role.Melee => Localize("Melee", "Melee"),
+            Role.Ranged => Localize("Ranged", "Ranged"),
+            Role.Caster => Localize("Caster", "Caster"),
+            _ => Localize("undefined", "undefined"),
+        };
         public static Job GetJob(this PlayerCharacter target) => (Job)target.ClassJob.Id;
 
         public static StatType GetStatType(this MateriaCategory materiaCategory) => materiaCategory switch
