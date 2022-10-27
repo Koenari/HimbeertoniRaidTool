@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using Dalamud.Logging;
 using Dalamud.Plugin;
+#if DEBUG
+using System;
+using System.Linq;
+using System.Reflection;
 using Mono.Cecil;
 using Newtonsoft.Json;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
-
+#endif
 namespace HimbeertoniRaidTool.HrtServices
 {
     internal static class Localization
@@ -45,7 +46,7 @@ namespace HimbeertoniRaidTool.HrtServices
         {
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
         }
-
+#if DEBUG
         internal static void ExportLocalizable()
         {
             var assembly = Assembly.GetCallingAssembly();
@@ -136,5 +137,6 @@ namespace HimbeertoniRaidTool.HrtServices
             [JsonProperty("description")]
             public string Description { get; set; }
         }
+#endif
     }
 }

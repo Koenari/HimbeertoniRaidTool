@@ -122,7 +122,9 @@ namespace HimbeertoniRaidTool
             switch (args)
             {
                 case string a when a.Contains("option") || a.Contains("config"): _Configuration.Ui.Show(); break;
+#if DEBUG
                 case string b when b.Contains("exportlocale"): Localization.ExportLocalizable(); break;
+#endif
                 case string when args.IsNullOrEmpty(): GetModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>()?.Show(); break;
                 default:
                     PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
