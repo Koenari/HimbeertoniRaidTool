@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ImGuiNET;
-using static Dalamud.Localization;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 namespace HimbeertoniRaidTool.UI
 {
     public class UiSortableList<T>

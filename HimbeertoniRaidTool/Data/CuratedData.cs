@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using static Dalamud.Localization;
 using static HimbeertoniRaidTool.Data.Job;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Data
 {

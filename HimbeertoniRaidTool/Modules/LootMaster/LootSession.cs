@@ -6,7 +6,6 @@ using System.Linq;
 using HimbeertoniRaidTool.Data;
 using Lumina.Excel.Extensions;
 
-
 namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     public class LootSession

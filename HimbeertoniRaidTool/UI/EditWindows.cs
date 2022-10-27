@@ -9,7 +9,7 @@ using HimbeertoniRaidTool.Data;
 using ImGuiNET;
 using Lumina.Excel.Extensions;
 using Lumina.Excel.GeneratedSheets;
-using static Dalamud.Localization;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
