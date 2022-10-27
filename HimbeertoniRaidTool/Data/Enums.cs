@@ -42,6 +42,8 @@ namespace HimbeertoniRaidTool.Data
         RolePrio = 4,
         Random = 5,
         DPS = 6,
+        NeedGreed = 997,
+        Greed = 998,
         Custom = 999,
     }
     public enum EncounterDifficulty

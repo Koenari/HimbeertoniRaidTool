@@ -20,6 +20,9 @@ namespace HimbeertoniRaidTool.UI
         protected string Title;
         private Vector2 LastSize = default;
         protected Vector2 Size = default;
+        protected Vector2 MinSize = default;
+        protected Vector2 MaxSize = ImGui.GetIO().DisplaySize * 0.9f;
+        protected bool OpenCentered = false;
         private Vector2 ScaledSize = default;
         protected ImGuiCond SizingCondition = ImGuiCond.Appearing;
         protected ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.None;
@@ -118,7 +121,13 @@ namespace HimbeertoniRaidTool.UI
                 return;
             Children.ForEach(_ => _.InternalDraw());
             ScaledSize = Size * ScaleFactor;
+            ImGui.SetNextWindowSizeConstraints(MinSize, MaxSize);
             ImGui.SetNextWindowSize(ScaledSize, (LastSize != ScaledSize) ? ImGuiCond.Always : SizingCondition);
+            if(OpenCentered)
+            {
+                ImGui.SetNextWindowPos((ImGui.GetIO().DisplaySize - ScaledSize) /2);
+                OpenCentered = false;
+            }
             if (ImGui.Begin($"{Title}##{_id}", ref Visible, WindowFlags))
             {
                 ScaledSize = ImGui.GetWindowSize();
