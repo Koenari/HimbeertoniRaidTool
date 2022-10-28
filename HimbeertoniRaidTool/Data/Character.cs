@@ -13,7 +13,7 @@ namespace HimbeertoniRaidTool.Data
         private static readonly ExcelSheet<World>? _worldSheet = Services.DataManager.GetExcelSheet<World>();
         private static readonly ExcelSheet<Tribe> _tribeSheet = Services.DataManager.GetExcelSheet<Tribe>()!;
         [JsonProperty("Classes")]
-        public List<PlayableClass> _classes = new();
+        private readonly List<PlayableClass> _classes = new();
         [JsonProperty("Name")]
         public string Name = "";
         [JsonProperty("MainJob")]

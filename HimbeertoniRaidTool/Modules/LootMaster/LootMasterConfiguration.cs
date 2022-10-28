@@ -79,7 +79,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.ColorEdit4("610", ref _dataCopy.ItemLevelColors[2]);
                     ImGui.ColorEdit4("600", ref _dataCopy.ItemLevelColors[3]);
                     ImGui.Separator();
-                    ImGui.InputText("format", ref _dataCopy.UserItemFormat, 50);
+                    string copy = _dataCopy.UserItemFormat;
+                    if (ImGui.InputText("format", ref copy, 50))
+                        _dataCopy.UserItemFormat = copy;
                     ImGui.Text($"{Localize("Example", "Example")}:");
                     ImGui.Text(String.Format(_dataCopy.ItemFormatString, 630, GearSource.Raid.FriendlyName(), GearSetSlot.Body.FriendlyName()));
                     ImGui.EndTabItem();
@@ -181,12 +183,23 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
              */
             [JsonProperty]
             public bool OpenOnStartup = false;
-            [JsonProperty]
-            public string UserItemFormat = "{ilvl} {source} {slot}";
+
+            [JsonProperty("UserItemFormat")]
+            private string _userItemFormat = "{ilvl} {source} {slot}";
+            [JsonIgnore]
+            public string UserItemFormat
+            {
+                get => _userItemFormat;
+                set
+                {
+                    _userItemFormat = value;
+                    ItemFormatStringCache = null;
+                }
+            }
             [JsonIgnore]
             private string? ItemFormatStringCache;
             [JsonIgnore]
-            public string ItemFormatString => ParseItemFormatString(UserItemFormat);
+            public string ItemFormatString => ItemFormatStringCache ??= ParseItemFormatString(UserItemFormat);
             [JsonProperty]
             public bool ColoredItemNames = true;
             [JsonProperty]
