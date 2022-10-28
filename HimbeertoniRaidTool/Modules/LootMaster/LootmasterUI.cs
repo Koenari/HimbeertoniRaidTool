@@ -16,19 +16,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal class LootmasterUI : Window
     {
-        private static readonly Vector4[] ColorCache = new Vector4[4]
+        public Vector4 ILevelColor(GearItem item) => (_lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel - (int)item.ItemLevel) switch
         {
-            Vec4(ColorName.Green.ToHsv().Saturation(0.8f).Value(0.85f)),
-            Vec4(ColorName.Aquamarine.ToHsv().Saturation(0.8f).Value(0.85f)),
-            Vec4(ColorName.Yellow.ToHsv().Saturation(0.8f).Value(0.85f)),
-            Vec4(ColorName.Red.ToHsv().Saturation(0.8f).Value(0.85f)),
-        };
-        public static Vector4 ILevelColor(GearItem item, uint maxItemLevel) => (maxItemLevel - (int)item.ItemLevel) switch
-        {
-            <= 0 => ColorCache[0],
-            <= 10 => ColorCache[1],
-            <= 20 => ColorCache[2],
-            _ => ColorCache[3],
+            <= 0 => _lootMaster.Configuration.Data.ItemLevelColors[0],
+            <= 10 => _lootMaster.Configuration.Data.ItemLevelColors[1],
+            <= 20 => _lootMaster.Configuration.Data.ItemLevelColors[2],
+            _ => _lootMaster.Configuration.Data.ItemLevelColors[3],
         };
         private readonly LootMasterModule _lootMaster;
         private int _CurrenGroupIndex;
@@ -66,16 +59,16 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 switch (_currentMessage.Value.message.MessageType)
                 {
                     case HrtUiMessageType.Error or HrtUiMessageType.Failure:
-                        ImGui.TextColored(Vec4(ColorName.RedCrayola), _currentMessage.Value.message.Message);
+                        ImGui.TextColored(new Vector4(0.85f, 0.17f, 0.17f, 1f), _currentMessage.Value.message.Message);
                         break;
                     case HrtUiMessageType.Success:
-                        ImGui.TextColored(Vec4(ColorName.Green), _currentMessage.Value.message.Message);
+                        ImGui.TextColored(new Vector4(0.17f, 0.85f, 0.17f, 1f), _currentMessage.Value.message.Message);
                         break;
                     case HrtUiMessageType.Warning:
-                        ImGui.TextColored(Vec4(ColorName.Yellow), _currentMessage.Value.message.Message);
+                        ImGui.TextColored(new Vector4(0.85f, 0.85f, 0.17f, 1f), _currentMessage.Value.message.Message);
                         break;
                     case HrtUiMessageType.Important:
-                        ImGui.TextColored(Vec4(ColorName.MiddleRed), _currentMessage.Value.message.Message);
+                        ImGui.TextColored(new Vector4(0.85f, 0.27f, 0.27f, 1f), _currentMessage.Value.message.Message);
                         break;
                     default:
                         ImGui.Text(_currentMessage.Value.message.Message);
@@ -381,7 +374,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             {
                                 if (ImGui.Selectable(job.Job.ToString()))
                                     player.MainChar.MainJob = job.Job;
-                    }
+                            }
                             ImGui.EndCombo();
                         }
                     }
@@ -524,9 +517,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 if (item.Filled)
                 {
-                    ImGui.TextColored(
-                        ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel),
-                        $"{item.ItemLevel} {item.Source.FriendlyName()} {item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName()}");
+                    string toDraw = string.Format(_lootMaster.Configuration.Data.ItemFormatString,
+                        item.ItemLevel,
+                        item.Source.FriendlyName(),
+                        item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
+                    if (_lootMaster.Configuration.Data.ColoredItemNames)
+                        ImGui.TextColored(ILevelColor(item), toDraw);
+                    else
+                        ImGui.Text(toDraw);
                     if (extended)
                     {
                         List<string> materia = new();

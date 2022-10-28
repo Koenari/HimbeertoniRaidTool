@@ -73,6 +73,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"),
                         ref _dataCopy.OpenOnStartup);
+                    ImGui.Checkbox(Localize("Lootmaster:ColoredItemNames", "Color items by item level"), ref _dataCopy.ColoredItemNames);
+                    ImGui.ColorEdit4("630", ref _dataCopy.ItemLevelColors[0]);
+                    ImGui.ColorEdit4("620", ref _dataCopy.ItemLevelColors[1]);
+                    ImGui.ColorEdit4("610", ref _dataCopy.ItemLevelColors[2]);
+                    ImGui.ColorEdit4("600", ref _dataCopy.ItemLevelColors[3]);
+                    ImGui.Separator();
+                    ImGui.InputText("format", ref _dataCopy.UserItemFormat, 50);
+                    ImGui.Text($"{Localize("Example", "Example")}:");
+                    ImGui.Text(String.Format(_dataCopy.ItemFormatString, 630, GearSource.Raid.FriendlyName(), GearSetSlot.Body.FriendlyName()));
                     ImGui.EndTabItem();
                 }
                 if (ImGui.BeginTabItem("BiS"))
@@ -167,12 +176,43 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         internal sealed class ConfigData
         {
             public int Version { get; set; } = 1;
+            /*
+             * Appearance
+             */
+            [JsonProperty]
+            public bool OpenOnStartup = false;
+            [JsonProperty]
+            public string UserItemFormat = "{ilvl} {source} {slot}";
+            [JsonIgnore]
+            private string? ItemFormatStringCache;
+            [JsonIgnore]
+            public string ItemFormatString => ParseItemFormatString(UserItemFormat);
+            [JsonProperty]
+            public bool ColoredItemNames = true;
+            [JsonProperty]
+            public Vector4[] ItemLevelColors = new Vector4[4]
+            {
+                //At or above cur max iLvl
+                new Vector4(0.17f,0.85f,0.17f,1f),
+                //10 below
+                new Vector4(0.5f,0.83f,0.72f,1f),
+                //20 below
+                new Vector4(0.85f,0.85f,0.17f,1f),
+                //30 or more below
+                new Vector4(0.85f,0.17f,0.17f,1f),
+            };
+            /*
+             * BiS
+             */
             [JsonProperty("UserBiS")]
             public Dictionary<Job, string> BISUserOverride = new();
             [JsonProperty]
             public bool UpdateEtroBisOnStartup = false;
             [JsonProperty]
             public int EtroUpdateIntervalDays = 14;
+            /*
+             * Loot
+             */
             [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
             public LootRuling LootRuling = new()
             {
@@ -194,8 +234,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 { Role.Tank,    3 },
                 { Role.Healer,  4 },
             };
-            [JsonProperty]
-            public bool OpenOnStartup = false;
+            /*
+             * Internal
+             */
             [JsonProperty]
             public int LastGroupIndex = 0;
             [JsonProperty("RaidTier")]
@@ -203,6 +244,22 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             [JsonIgnore]
             public RaidTier SelectedRaidTier => RaidTierOverride ?? CuratedData.CurrentRaidSavage;
             public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : CuratedData.DefaultBIS.ContainsKey(c) ? CuratedData.DefaultBIS[c] : "";
+            private static string ParseItemFormatString(string input)
+            {
+                List<string> result = new();
+                string[] split = input.Split(' ');
+                foreach (string item in split)
+                {
+                    switch (item.ToLower())
+                    {
+                        case "{ilvl}": result.Add("{0}"); break;
+                        case "{source}": result.Add("{1}"); break;
+                        case "{slot}": result.Add("{2}"); break;
+                        default: break;
+                    }
+                }
+                return string.Join(' ', result);
+            }
         }
     }
 
