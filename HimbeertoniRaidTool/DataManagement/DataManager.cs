@@ -145,11 +145,11 @@ namespace HimbeertoniRaidTool.DataManagement
                 Thread.Sleep(1);
             }
             hasError |= CharacterDB.UpdateIndex(oldWorld, oldName, ref c);
-            for (int i = 0; i < c.Classes.Count; i++)
+            foreach (PlayableClass job in c)
             {
-                string oldID = c.Classes[i].Gear.HrtID;
-                c.Classes[i].Gear.UpdateID(c, c.Classes[i].Job);
-                hasError |= GearDB.UpdateIndex(oldID, ref c.Classes[i].Gear);
+                string oldID = job.Gear.HrtID;
+                job.Gear.UpdateID(c, job.Job);
+                hasError |= GearDB.UpdateIndex(oldID, ref job.Gear);
             }
             return !hasError;
         }

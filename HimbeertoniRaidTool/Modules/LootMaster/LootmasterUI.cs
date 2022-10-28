@@ -101,7 +101,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, p, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
             ImGui.BeginChild("JobList");
-            foreach (var playableClass in p.MainChar.Classes)
+            foreach (var playableClass in p.MainChar)
             {
                 ImGui.Separator();
                 ImGui.Spacing();
@@ -360,7 +360,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private void DrawPlayer(Player player, int pos)
         {
             bool playerExists = player.Filled && player.MainChar.Filled;
-            bool hasClasses = playerExists && player.MainChar.Classes.Count > 0;
+            bool hasClasses = playerExists && player.MainChar.Classes.Any();
             if (playerExists)
             {
 
@@ -370,24 +370,25 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 var c = player.MainChar;
                 if (hasClasses)
                 {
-                    if (player.MainChar.Classes.Count > 1)
+                    ImGui.Text($"{Localize("LvLShort", "Lvl")}: {player.MainChar.MainClass?.Level ?? 1}");
+                    ImGui.SameLine();
+                    if (player.MainChar.Classes.Count() > 1)
                     {
-                        int playerClass = player.MainChar.Classes.FindIndex(x => x.Job == player.MainChar.MainJob);
-                        if (ImGui.Combo($"##Class", ref playerClass, player.MainChar.Classes.ConvertAll(x => x.Job.ToString()).ToArray(),
-                            player.MainChar.Classes.Count))
-                            player.MainChar.MainJob = player.MainChar.Classes[playerClass].Job;
+                        ImGui.SetNextItemWidth(100 * ScaleFactor);
+                        if (ImGui.BeginCombo($"##Class", player.MainChar.MainClass?.Job.ToString()))
+                        {
+                            foreach (PlayableClass job in player.MainChar)
+                            {
+                                if (ImGui.Selectable(job.Job.ToString()))
+                                    player.MainChar.MainJob = job.Job;
+                    }
+                            ImGui.EndCombo();
+                        }
                     }
                     else
                     {
                         ImGui.Text(player.MainChar.MainJob.ToString());
                     }
-                    ImGui.SameLine();
-                    string levelStr = $"{Localize("LvLShort", "Lvl")}: {player.MainChar.MainClass?.Level ?? 1}";
-                    float posX = ImGui.GetCursorPosX() + ImGui.GetColumnWidth() - ImGui.CalcTextSize(levelStr).X
-                        - ImGui.GetScrollX() - ImGui.GetStyle().ItemSpacing.X;
-                    if (posX > ImGui.GetCursorPosX())
-                        ImGui.SetCursorPosX(posX);
-                    ImGui.Text(levelStr);
                     var gear = player.Gear;
                     var bis = player.BIS;
                     ImGui.TableNextColumn();

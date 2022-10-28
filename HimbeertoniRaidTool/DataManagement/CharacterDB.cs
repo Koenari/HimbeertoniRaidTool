@@ -15,10 +15,11 @@ namespace HimbeertoniRaidTool.DataManagement
             CharDB = JsonConvert.DeserializeObject<Dictionary<uint, Dictionary<string, Character>>>(
                 serializedData, settings) ?? new();
             settings.Converters.Remove(conv);
-            foreach (var entry1 in CharDB)
-                foreach (var entry2 in entry1.Value)
-                    foreach (var entry3 in entry2.Value.Classes)
-                        entry3.SetParent(entry2.Value);
+            //Potentially parallelize later
+            foreach (var SingleWorldDB in CharDB.Values)
+                foreach (Character c in SingleWorldDB.Values)
+                    foreach (PlayableClass job in c)
+                        job.SetParent(c);
         }
         internal List<uint> GetUsedWorlds()
         {
