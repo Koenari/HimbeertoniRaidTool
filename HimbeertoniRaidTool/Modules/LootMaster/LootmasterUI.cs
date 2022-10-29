@@ -110,13 +110,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.Text("Level: " + playableClass.Level);
                 //Current Gear
                 ImGui.SameLine();
-                ImGui.Text($"{Localize("Current", "Current")} {Localize("iLvl", "iLvL: ")}{playableClass.Gear.ItemLevel:D3}");
+                ImGui.Text($"{Localize("Current", "Current")} {Localize("iLvl", "iLvl")}: {playableClass.Gear.ItemLevel:D3}");
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.Job} {Localize("gear", "gear")}"))
                     AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job, _lootMaster.Configuration.Data.SelectedRaidTier), true);
                 //BiS
                 ImGui.SameLine();
-                ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvL: ")}{playableClass.BIS.ItemLevel:D3}");
+                ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvl")}: {playableClass.BIS.ItemLevel:D3}");
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.BIS.Name}"))
                     AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job, _lootMaster.Configuration.Data.SelectedRaidTier), true);
@@ -430,31 +430,32 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                  */
                 {
                     ImGuiHelper.GearUpdateButtons(player, _lootMaster);
+                    Vector2 buttonSize = ImGui.GetItemRectSize();
                     ImGui.SameLine();
-                    if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange", "Swap Position", true, ImGui.GetItemRectSize()))
+                    if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange", "Swap Position", true, buttonSize))
                     {
                         AddChild(new SwapPositionWindow(pos, CurrentGroup));
                     }
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Edit",
-                        $"{Localize("Edit", "Edit")} {player.NickName}"))
+                        $"{Localize("Edit", "Edit")} {player.NickName}", true, buttonSize))
                     {
                         AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player, _lootMaster.Configuration.Data.GetDefaultBiS), true);
                     }
                     if (ImGuiHelper.Button(FontAwesomeIcon.Redo, player.BIS.EtroID,
-                        string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), player.BIS.Name)))
+                        string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), player.BIS.Name), true, buttonSize))
                         Services.TaskManager.RegisterTask(_lootMaster, () => Services.ConnectorPool.EtroConnector.GetGearSet(player.BIS)
                         , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("successful", "successful")}"
                         , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("failed", "failed")}");
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, "Details",
-                        $"{Localize("PlayerDetails", "Show player details for")} {player.NickName}"))
+                        $"{Localize("PlayerDetails", "Show player details for")} {player.NickName}",true, buttonSize))
                     {
                         AddChild(new PlayerdetailWindow(this, player));
                     }
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "Delete",
-                        $"{Localize("Delete", "Delete")} {player.NickName}"))
+                        $"{Localize("Delete", "Delete")} {player.NickName}",true, buttonSize))
                     {
                         AddChild(new ConfimationDialog(
                             () => player.Reset(),

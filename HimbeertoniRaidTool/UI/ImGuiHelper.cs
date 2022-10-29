@@ -90,6 +90,8 @@ namespace HimbeertoniRaidTool.UI
                 if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, "lodestone",
                     $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}"))
                 {
+                    module.HandleMessage(new HrtUiMessage(
+                        $"{Localize("LodestonUpdateStarted", "Started gear update for")} {p.MainChar.Name}", HrtUiMessageType.Info));
                     Services.TaskManager.RegisterTask(module,
                         Services.ConnectorPool.LodestoneConnector.UpdateCharacter(p));
                     return true;
