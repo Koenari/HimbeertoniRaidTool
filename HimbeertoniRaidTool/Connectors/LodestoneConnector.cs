@@ -1,4 +1,10 @@
-﻿using Dalamud.Game;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Dalamud.Game;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
@@ -7,12 +13,6 @@ using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Model.Parseables.Character.Gear;
 using NetStone.Search.Character;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Connectors
 {
@@ -87,14 +87,18 @@ namespace HimbeertoniRaidTool.Connectors
                     }
 
                     uint gearId = itemEntry.RowId;
-                    classToChange.Gear[slot] = new(gearId);
-                    classToChange.Gear[slot].IsHq = isHq;
+                    classToChange.Gear[slot] = new(gearId)
+                    {
+                        IsHq = isHq
+                    };
                     foreach (string materia in gearPiece.Materia)
                     {
                         if (string.IsNullOrEmpty(materia))
                             return;
-                        uint? materiaCategoryId = _materiaSheet!.FirstOrDefault(el =>
-                            Array.Exists(el.Item, item => item.Value.Name == materia))?.RowId;
+                        uint? materiaCategoryId = _materiaSheet?.FirstOrDefault(el =>
+                            Array.Exists(el.Item, item => item.Value?.Name.RawString == materia))?.RowId;
+                        if (materiaCategoryId == null)
+                            continue;
                         MateriaCategory materiaCategory = (MateriaCategory)materiaCategoryId;
                         byte materiaLevel = TranslateMateriaLevel(materia.Remove(0, materia.LastIndexOf(" ")).Trim());
 
@@ -209,7 +213,7 @@ namespace HimbeertoniRaidTool.Connectors
                         CharacterName = c.Name,
                         World = homeWorld.Name.RawString
                     });
-                    var characterEntry = netstoneResponse.Results.FirstOrDefault(
+                    var characterEntry = netstoneResponse?.Results.FirstOrDefault(
                         (res) => res.Name == c.Name);
                     if (!int.TryParse(characterEntry?.Id, out c.LodestoneID))
                         PluginLog.Warning("Tried parsing LodestoneID but failed.");
@@ -224,7 +228,7 @@ namespace HimbeertoniRaidTool.Connectors
                     return null;
                 _cachedRequests.TryAdd(c.Name, (DateTime.Now, foundCharacter));
                 return foundCharacter;
-            } 
+            }
             catch (Exception e)
             {
                 PluginLog.LogError(e.Message);
@@ -241,14 +245,14 @@ namespace HimbeertoniRaidTool.Connectors
             return (_currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now)) > _rateLimit.MaxRequests;
         }
 
-        private LodestoneClient GetLodestoneClient()
+        private static LodestoneClient GetLodestoneClient()
         {
             Task<LodestoneClient> result = GetLodestoneClientAsync();
             result.Wait();
             return result.Result;
         }
 
-        private async Task<LodestoneClient> GetLodestoneClientAsync()
+        private static async Task<LodestoneClient> GetLodestoneClientAsync()
         {
             return await LodestoneClient.GetClientAsync();
         }
