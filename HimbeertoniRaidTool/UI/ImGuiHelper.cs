@@ -38,28 +38,65 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.SetTooltip(tooltip);
             return result;
         }
-        public static bool GearUpdateButton(Player p)
+        public static bool GearUpdateButtons(Player p, IHrtModule module, bool showMultiple = false)
         {
+            ImGui.PushID(p.NickName);
+            bool result = false;
             PlayerCharacter? playerChar = null;
-            string inspectTooltip = Localize("Inspect", "Update Gear");
-            bool inspectActive = true;
-            if (!GearRefresherOnExamine.CanOpenExamine)
+            string inspectTooltip = Localize("Inspect", "Update Gear by Examining");
+            bool canInspect = GearRefresherOnExamine.CanOpenExamine && Services.CharacterInfoService.TryGetChar(out playerChar, p.MainChar.Name, p.MainChar.HomeWorld);
+            if (!canInspect)
+                inspectTooltip =
+                    GearRefresherOnExamine.CanOpenExamine
+                    ? Localize("CharacterNotInReach", "Character is not in reach to examine")
+                    : Localize("InspectUnavail", "Functionality unavailable due to incompatibility with game version");
+            if (canInspect || showMultiple)
+                result |= DrawInspectButton();
+            if (!canInspect || showMultiple)
             {
-                inspectActive = false;
-                inspectTooltip = Localize("InspectUnavail", "Functionality unavailable due to incompatibility with game version");
+                if (showMultiple)
+                    ImGui.SameLine();
+                result |= DrawLodestoneButton();
             }
-            else if (!Services.CharacterInfoService.TryGetChar(out playerChar, p.MainChar.Name, p.MainChar.HomeWorld))
+            if (!showMultiple)
             {
-                inspectActive = false;
-                inspectTooltip = Localize("CharacterNotInReach", "Character is not in reach to examine");
+                if (ImGui.BeginPopupContextItem("gearUpdateContextMenu"))
+                {
+                    if (DrawInspectButton(true))
+                        ImGui.CloseCurrentPopup();
+                    ImGui.SameLine();
+                    if (DrawLodestoneButton(true))
+                        ImGui.CloseCurrentPopup();
+                    ImGui.EndPopup();
+                }
             }
-            bool pressed = Button(FontAwesomeIcon.Search, p.NickName + p.MainChar.Name, inspectTooltip, inspectActive);
-            if (pressed)
+            ImGui.PopID();
+            return result;
+            bool DrawInspectButton(bool insideContextMenu = false)
             {
-                GearRefresherOnExamine.RefreshGearInfos(playerChar);
+                if (Button(FontAwesomeIcon.Search, p.Pos.ToString(),
+                    $"{inspectTooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}",
+                    canInspect))
+                {
+                    GearRefresherOnExamine.RefreshGearInfos(playerChar);
+                    return true;
+                }
+                return false;
             }
-            return pressed;
+            bool DrawLodestoneButton(bool insideContextMenu = false)
+            {
+                string tooltip = Localize("Lodestone Button", "Download Gear from Lodestone");
+                if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, p.Pos.ToString()
+                    , $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}"))
+                {
+                    Services.TaskManager.RegisterTask(module,
+                        Services.ConnectorPool.LodestoneConnector.UpdateCharacter(p));
+                    return true;
+                }
+                return false;
+            }
         }
+
         public static bool Combo<T>(string label, ref T value) where T : struct
         {
             T? value2 = value;

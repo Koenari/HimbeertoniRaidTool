@@ -19,6 +19,8 @@ namespace HimbeertoniRaidTool.Data
         [Obsolete("Evaluate for all availbale slots")]
         public GearSetSlot Slot => (Item?.EquipSlotCategory.Value).ToSlot();
         [JsonIgnore]
+        public List<Job> Jobs => Item?.ClassJobCategory.Value?.ToJob() ?? new List<Job>();
+        [JsonIgnore]
         public IEnumerable<GearSetSlot> Slots => (Item?.EquipSlotCategory.Value).AvailableSlots();
         [JsonIgnore]
         public GearSource Source => CuratedData.GearSourceDB.GetValueOrDefault(ID, GearSource.undefined);

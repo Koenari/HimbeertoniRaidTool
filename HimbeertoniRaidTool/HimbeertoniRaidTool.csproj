@@ -102,7 +102,9 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\NetStone\NetStone\NetStone.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="..\Localization\**" Link="locale\%(RecursiveDir)\%(Filename)%(Extension)" CopyToOutputDirectory="Always" />
   </ItemGroup>

@@ -89,12 +89,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.Text($"{p.NickName} : {p.MainChar.Name} @ {p.MainChar.HomeWorld?.Name ?? "n.A"}");
             ImGui.SameLine();
 
-            ImGuiHelper.GearUpdateButton(p);
+            ImGuiHelper.GearUpdateButtons(p, _lootMaster, true);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}", $"{Localize("Edit player", "Edit player")} {p.NickName}"))
             {
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, p, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
+
             foreach (var playableClass in p.MainChar.Classes)
             {
                 bool isMainJob = p.MainChar.MainJob == playableClass.Job;
@@ -421,15 +422,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                  * Start of functional button section
                  */
                 {
-                    ImGuiHelper.GearUpdateButton(player);
+                    ImGuiHelper.GearUpdateButtons(player, _lootMaster);
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange", "Swap Position", true, ImGui.GetItemRectSize()))
                     {
                         AddChild(new SwapPositionWindow(pos, CurrentGroup));
                     }
                     ImGui.SameLine();
-
-
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Edit",
                         $"{Localize("Edit", "Edit")} {player.NickName}"))
                     {
@@ -454,7 +453,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             () => player.Reset(),
                             $"{Localize("DeletePlayerConfirmation", "Do you really want to delete following player?")} : {player.NickName}"));
                     }
-
                 }
             }
             else
