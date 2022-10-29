@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors>Koenari</Authors>
     <Company></Company>
-    <Version>1.0.1.34</Version>
+    <Version>1.0.2.36</Version>
     <Description>A collection of useful tools for RaidGroups, including loot management</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>
@@ -53,6 +53,10 @@
     <PackageReference Include="ColorHelper" Version="1.8.0" />
     <PackageReference Include="DalamudPackager" Version="2.1.8" />
     <PackageReference Include="XivCommon" Version="6.0.2" />
+    <Reference Include="Mono.Cecil">
+      <HintPath>$(DalamudLibPath)Mono.Cecil.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
       <Private>false</Private>
@@ -98,19 +102,10 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="locale\" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\NetStone\NetStone\NetStone.csproj" />
   </ItemGroup>
-	
   <ItemGroup>
-    <None Update="locale\de.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Content Include="..\Localization\**" Link="locale\%(RecursiveDir)\%(Filename)%(Extension)" CopyToOutputDirectory="Always" />
   </ItemGroup>
-
 </Project>

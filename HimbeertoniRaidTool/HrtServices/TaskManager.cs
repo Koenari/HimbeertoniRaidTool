@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dalamud.Game;
 using Dalamud.Logging;
+using HimbeertoniRaidTool.Modules;
 using HimbeertoniRaidTool.UI;
 
 namespace HimbeertoniRaidTool.HrtServices

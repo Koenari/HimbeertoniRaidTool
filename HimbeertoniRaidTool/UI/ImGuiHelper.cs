@@ -8,7 +8,7 @@ using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using ImGuiNET;
 using Lumina.Excel;
-using static Dalamud.Localization;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
@@ -44,7 +44,7 @@ namespace HimbeertoniRaidTool.UI
             bool result = false;
             PlayerCharacter? playerChar = null;
             string inspectTooltip = Localize("Inspect", "Update Gear by Examining");
-            bool canInspect = GearRefresherOnExamine.CanOpenExamine && Helper.TryGetChar(out playerChar, p.MainChar.Name, p.MainChar.HomeWorld);
+            bool canInspect = GearRefresherOnExamine.CanOpenExamine && Services.CharacterInfoService.TryGetChar(out playerChar, p.MainChar.Name, p.MainChar.HomeWorld);
             if (!canInspect)
                 inspectTooltip =
                     GearRefresherOnExamine.CanOpenExamine

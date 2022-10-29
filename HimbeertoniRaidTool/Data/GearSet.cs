@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Lumina.Excel.Extensions;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
     [JsonObject(MemberSerialization.OptIn, MissingMemberHandling = MissingMemberHandling.Ignore)]
-    public class GearSet
+    public class GearSet : IEnumerable<GearItem>
     {
         [JsonProperty("TimeStamp")]
         public DateTime? TimeStamp;
@@ -24,48 +26,54 @@ namespace HimbeertoniRaidTool.Data
         [JsonIgnore]
         private readonly GearItem[] Items = new GearItem[NumSlots];
         [JsonProperty]
-        public GearItem MainHand { get => Items[0]; set => Items[0] = value; }
+        public GearItem MainHand { get => this[0]; set => this[0] = value; }
         [JsonProperty]
-        public GearItem Head { get => Items[1]; set => Items[1] = value; }
+        public GearItem Head { get => this[1]; set => this[1] = value; }
         [JsonProperty]
-        public GearItem Body { get => Items[2]; set => Items[2] = value; }
+        public GearItem Body { get => this[2]; set => this[2] = value; }
         [JsonProperty]
-        public GearItem Hands { get => Items[3]; set => Items[3] = value; }
+        public GearItem Hands { get => this[3]; set => this[3] = value; }
         [JsonProperty]
-        public GearItem Legs { get => Items[4]; set => Items[4] = value; }
+        public GearItem Legs { get => this[4]; set => this[4] = value; }
         [JsonProperty]
-        public GearItem Feet { get => Items[5]; set => Items[5] = value; }
+        public GearItem Feet { get => this[5]; set => this[5] = value; }
         [JsonProperty]
-        public GearItem Ear { get => Items[6]; set => Items[6] = value; }
+        public GearItem Ear { get => this[6]; set => this[6] = value; }
         [JsonProperty]
-        public GearItem Neck { get => Items[7]; set => Items[7] = value; }
+        public GearItem Neck { get => this[7]; set => this[7] = value; }
         [JsonProperty]
-        public GearItem Wrist { get => Items[8]; set => Items[8] = value; }
+        public GearItem Wrist { get => this[8]; set => this[8] = value; }
         [JsonProperty]
-        public GearItem Ring1 { get => Items[9]; set => Items[9] = value; }
+        public GearItem Ring1 { get => this[9]; set => this[9] = value; }
         [JsonProperty]
-        public GearItem Ring2 { get => Items[10]; set => Items[10] = value; }
+        public GearItem Ring2 { get => this[10]; set => this[10] = value; }
         [JsonProperty]
-        public GearItem OffHand { get => Items[11]; set => Items[11] = value; }
+        public GearItem OffHand { get => this[11]; set => this[11] = value; }
         public bool IsEmpty => Array.TrueForAll(Items, x => x.ID == 0);
         public int ItemLevel
         {
             get
             {
-                uint itemLevel = 0;
-                for (int i = 0; i < NumSlots; i++)
+                return ILevelCache ??= Calc();
+                int Calc()
                 {
-                    if (Items[i] != null && Items[i].ItemLevel > 0)
+                    uint itemLevel = 0;
+                    for (int i = 0; i < NumSlots; i++)
                     {
-                        itemLevel += Items[i].ItemLevel;
-                        if (Items[i].Item?.EquipSlotCategory.Value?.Disallows(GearSetSlot.OffHand) ?? false)
+                        if (Items[i] != null && Items[i].ItemLevel > 0)
+                        {
                             itemLevel += Items[i].ItemLevel;
+                            if (Items[i].Item?.EquipSlotCategory.Value?.Disallows(GearSetSlot.OffHand) ?? false)
+                                itemLevel += Items[i].ItemLevel;
+                        }
                     }
+                    return (int)((float)itemLevel / NumSlots);
                 }
-                return (int)((float)itemLevel / NumSlots);
-
             }
         }
+        //Caches
+        [JsonIgnore]
+        private int? ILevelCache = null;
         public GearSet()
         {
             ManagedBy = GearSetManager.HRT;
@@ -83,16 +91,33 @@ namespace HimbeertoniRaidTool.Data
         {
             for (int i = 0; i < NumSlots; i++)
             {
-                Items[i] = new(0);
+                this[i] = new(0);
             }
         }
         public GearItem this[GearSetSlot slot]
         {
-            get => Items[ToIndex(slot)];
-            set => Items[ToIndex(slot)] = value;
+            get => this[ToIndex(slot)];
+            set => this[ToIndex(slot)] = value;
+        }
+        private GearItem this[int idx]
+        {
+            get => Items[idx];
+            set
+            {
+                Items[idx] = value;
+                InvalidateCaches();
+            }
+        }
+        private void InvalidateCaches()
+        {
+            ILevelCache = null;
         }
         public bool Contains(HrtItem item) => Array.Exists(Items, x => x.ID == item.ID);
         public bool ContainsExact(GearItem item) => Array.Exists(Items, x => x.Equals(item));
+        /*
+         * Caching stats is a problem since this needs to be invalidated when changing materia
+         * At the moment all mechanisms to change materia replace the item but it could lead to an invalid state in theory
+         */
         public int GetStat(StatType type)
         {
             int result = 0;
@@ -127,6 +152,7 @@ namespace HimbeertoniRaidTool.Data
             Name = gearSet.Name;
             ManagedBy = gearSet.ManagedBy;
             gearSet.Items.CopyTo(Items, 0);
+            InvalidateCaches();
         }
         public void UpdateID(Character c, Job ac) => HrtID = GenerateID(c, ac, this);
         public static string GenerateID(Character c, Job ac, GearSet g)
@@ -136,6 +162,16 @@ namespace HimbeertoniRaidTool.Data
 
             return result;
 
+        }
+
+        public IEnumerator<GearItem> GetEnumerator()
+        {
+            return ((IEnumerable<GearItem>)Items).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Items.GetEnumerator();
         }
     }
 }

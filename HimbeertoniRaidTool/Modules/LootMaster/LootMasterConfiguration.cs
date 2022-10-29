@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Logging;
+using Dalamud.Utility;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using static Dalamud.Localization;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
 {
@@ -51,6 +52,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             private readonly LootMasterConfiguration _config;
             private ConfigData _dataCopy;
             private UiSortableList<LootRule> LootList;
+            private static float ScaleFactor => Window.ScaleFactor;
 
             internal ConfigUi(LootMasterConfiguration config)
             {
@@ -71,20 +73,33 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"),
                         ref _dataCopy.OpenOnStartup);
-                    ImGui.Checkbox(Localize("Hide windows in combat", "Hide windows in combat"),
-                        ref _dataCopy.HideInBattle);
                     ImGui.EndTabItem();
                 }
                 if (ImGui.BeginTabItem("BiS"))
                 {
                     ImGui.Checkbox(Localize("UpdateBisONStartUp", "Update sets from etro.gg periodically"), ref _dataCopy.UpdateEtroBisOnStartup);
+                    ImGui.SetNextItemWidth(150f * ScaleFactor);
                     if (ImGui.InputInt(Localize("BisUpdateInterval", "Update interval (days)"), ref _dataCopy.EtroUpdateIntervalDays))
                         if (_dataCopy.EtroUpdateIntervalDays < 1)
                             _dataCopy.EtroUpdateIntervalDays = 1;
-
-                    if (ImGui.BeginChildFrame(1, new Vector2(400, 400), ImGuiWindowFlags.NoResize))
+                    ImGui.Text(Localize("DefaultBiSHeading", "Default BiS sets (as etro.gg ID)"));
+                    ImGui.TextWrapped(Localize("DefaultBiSDisclaimer",
+                        "These sets are used when creating a new characer or adding a new job. These do not affect already created characters and jobs."));
+                    if (ImGui.BeginChildFrame(1, new Vector2(400 * ScaleFactor, 400 * ScaleFactor), ImGuiWindowFlags.NoResize))
                     {
-                        foreach (var c in Enum.GetValues<Job>())
+                        var jobs = Enum.GetValues<Job>();
+                        Array.Sort(jobs, (a, b) =>
+                        {
+                            bool aFilled = !_dataCopy.GetDefaultBiS(a).IsNullOrEmpty();
+                            bool bFilled = !_dataCopy.GetDefaultBiS(b).IsNullOrEmpty();
+                            if (aFilled && !bFilled)
+                                return -1;
+                            if (!aFilled && bFilled)
+                                return 1;
+                            return a.ToString().CompareTo(b.ToString());
+
+                        });
+                        foreach (Job c in jobs)
                         {
                             bool isOverriden = _dataCopy.BISUserOverride.ContainsKey(c);
                             string value = _dataCopy.GetDefaultBiS(c);
@@ -111,6 +126,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                     $"Reset{c}", Localize("Reset to default", "Reset to default")))
                                     _dataCopy.BISUserOverride.Remove(c);
                             }
+                            else
+                            {
+                                ImGui.SameLine();
+                                ImGui.TextDisabled($"({Localize("default", "default")})");
+                            }
                         }
                         ImGui.EndChildFrame();
                     }
@@ -118,8 +138,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 if (ImGui.BeginTabItem("Loot"))
                 {
-                    ImGui.Checkbox(Localize("Strict Ruling", "Strict Ruling"), ref _dataCopy.LootRuling.StrictRooling);
+                    ImGui.Text(Localize("LootRuleOrder", "Order in which loot rules should be applied"));
                     LootList.Draw();
+                    ImGui.Separator();
+                    ImGui.Text(Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
+                    ImGui.Text($"{Localize("Current priority", "Current priority")}: {_dataCopy.RolePriority}");
+                    _dataCopy.RolePriority.DrawEdit();
                     ImGui.EndTabItem();
                 }
                 ImGui.EndTabBar();
@@ -155,17 +179,23 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 RuleSet = new List<LootRule>()
                         {
                             new(LootRuleEnum.BISOverUpgrade),
-                            new(LootRuleEnum.ByPosition),
+                            new(LootRuleEnum.RolePrio),
                             new(LootRuleEnum.HighesItemLevelGain),
                             new(LootRuleEnum.LowestItemLevel),
                             new(LootRuleEnum.Random)
-                        },
-                StrictRooling = true
+                        }
+            };
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+            public RolePriority RolePriority = new()
+            {
+                { Role.Melee,   0 },
+                { Role.Caster,  1 },
+                { Role.Ranged,  1 },
+                { Role.Tank,    3 },
+                { Role.Healer,  4 },
             };
             [JsonProperty]
             public bool OpenOnStartup = false;
-            [JsonProperty]
-            public bool HideInBattle = true;
             [JsonProperty]
             public int LastGroupIndex = 0;
             [JsonProperty("RaidTier")]

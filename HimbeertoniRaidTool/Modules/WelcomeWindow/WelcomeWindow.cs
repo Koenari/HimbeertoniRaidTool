@@ -7,16 +7,12 @@ using Dalamud.Logging;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using static Dalamud.Localization;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Modules.WelcomeWindow
 {
     internal class WelcomeWindowModule : IHrtModule<WelcomeWindowConfig.ConfigData, IHrtConfigUi>
     {
-        //Singleton
-        private static readonly Lazy<WelcomeWindowModule> _Instance = new(() => new WelcomeWindowModule());
-        internal static WelcomeWindowModule Instance { get { return _Instance.Value; } }
-
         public string Name => "Welcome Window";
         public string Description => "Shows a welcome window with information on how to use";
         public IEnumerable<HrtCommand> Commands => Array.Empty<HrtCommand>();
@@ -57,7 +53,7 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
                 _ui.Show();
         }
 
-        private class WelcomeWindowui : HrtUI
+        private class WelcomeWindowui : Window
         {
             private const string WikiURL = "https://github.com/Koenari/HimbeertoniRaidTool/wiki";
             private readonly WelcomeWindowModule _parent;
@@ -70,7 +66,7 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
             }
             protected override void Draw()
             {
-                ImGui.TextWrapped(Localize("WelcomeWindowLine1", "Welcome to Himbeertoni Raid Tool. Your companion in mangaing your raid group."));
+                ImGui.TextWrapped(Localize("WelcomeWindowLine1", "Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group."));
                 ImGui.TextWrapped(Localize("WelcomeWindowLine2", "Start your journey by opening LootMaster by typing \"/lootmaster\" (or \"/lm\") in chat (or the button below). There we already added your character for you."));
                 ImGui.TextWrapped(Localize("WelcomeWindowLine3", $"Next you can get your current gear either by using the \"magnifying glass\" button or by examining your character via right clicking."));
                 ImGui.TextWrapped(Localize("WelcomeWindowLine4", "The plugin will always update the gear for characters that were added to a group or solo tab when examining the character in-game."));

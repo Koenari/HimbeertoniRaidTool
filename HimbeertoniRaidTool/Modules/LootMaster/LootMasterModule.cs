@@ -6,15 +6,12 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
-using static Dalamud.Localization;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
     {
-        //Singleton
-        private static readonly Lazy<LootMasterModule> _Instance = new(() => new LootMasterModule());
-        internal static LootMasterModule Instance { get { return _Instance.Value; } }
         //Interface Properties
         public string Name => "Loot Master";
         public string InternalName => "LootMaster";
@@ -41,19 +38,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
         private readonly LootmasterUI Ui;
         private readonly LootMasterConfiguration _config;
-        private bool _fillSolOnLogin;
-        private LootMasterModule()
+        private bool _fillSoloOnLogin = false;
+        public LootMasterModule()
         {
-
-            if (RaidGroups.Count == 0)
-            {
-                RaidGroups.Add(new("Solo", GroupType.Solo));
-                _fillSolOnLogin = true;
-            }
-            if (RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
+            if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
             {
                 RaidGroups.Insert(0, new("Solo", GroupType.Solo));
-                _fillSolOnLogin = true;
+                _fillSoloOnLogin = true;
             }
 
             _config = new(this);
@@ -70,9 +61,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         public void OnLogin(object? sender, EventArgs e)
         {
-            if (_fillSolOnLogin)
-                FillSoloChar(RaidGroups[0].Tank1, true);
-            _fillSolOnLogin = false;
+            if (_fillSoloOnLogin)
+                FillSoloChar(RaidGroups[0][0], true);
+            _fillSoloOnLogin = false;
             if (_config.Data.OpenOnStartup)
                 Ui.Show();
         }
@@ -85,12 +76,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             PlayerCharacter? character = null;
             if (useSelf)
-                character = Helper.Self;
+                character = Services.TargetManager.Target as PlayerCharacter;
             if (character == null)
-                Helper.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
+                Services.CharacterInfoService.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
             if (character == null)
                 return;
-            var c = new Character(character.Name.TextValue, character.HomeWorld.Id);
+            Character c = new(character.Name.TextValue, character.HomeWorld.Id);
             Services.HrtDataManager.GetManagedCharacter(ref c);
             p.NickName = c.Name.Split(' ')[0];
             p.MainChar = c;
@@ -122,16 +113,16 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             //Get Infos
             if (group.Type == GroupType.Solo)
             {
-                var target = Helper.TargetChar;
+                PlayerCharacter? target = Services.TargetManager.Target as PlayerCharacter;
                 if (target is not null)
                 {
-                    group.Tank1.NickName = target.Name.TextValue;
-                    group.Tank1.MainChar.Name = target.Name.TextValue;
-                    group.Tank1.MainChar.HomeWorld = target.HomeWorld.GameData;
-                    FillSoloChar(group.Tank1);
+                    group[0].NickName = target.Name.TextValue;
+                    group[0].MainChar.Name = target.Name.TextValue;
+                    group[0].MainChar.HomeWorld = target.HomeWorld.GameData;
+                    FillSoloChar(group[0]);
                 }
                 else
-                    FillSoloChar(group.Tank1, true);
+                    FillSoloChar(group[0], true);
                 return;
             }
             List<PartyMember> players = new();
@@ -153,38 +144,38 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 switch (r)
                 {
                     case Role.Tank:
-                        if (!group[PositionInRaidGroup.Tank1].Filled)
-                            FillPosition(PositionInRaidGroup.Tank1, p);
-                        else if (!group[PositionInRaidGroup.Tank2].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Tank2, p);
+                        if (!group[0].Filled)
+                            FillPosition(0, p);
+                        else if (!group[1].Filled && group.Type == GroupType.Raid)
+                            FillPosition(1, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Healer:
-                        if (!group[PositionInRaidGroup.Heal1].Filled)
-                            FillPosition(PositionInRaidGroup.Heal1, p);
-                        else if (!group[PositionInRaidGroup.Heal2].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Heal2, p);
+                        if (!group[2].Filled)
+                            FillPosition(2, p);
+                        else if (!group[3].Filled && group.Type == GroupType.Raid)
+                            FillPosition(3, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Melee:
-                        if (!group[PositionInRaidGroup.Melee1].Filled)
-                            FillPosition(PositionInRaidGroup.Melee1, p);
-                        else if (!group[PositionInRaidGroup.Melee2].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Melee2, p);
+                        if (!group[4].Filled)
+                            FillPosition(4, p);
+                        else if (!group[5].Filled && group.Type == GroupType.Raid)
+                            FillPosition(5, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Caster:
-                        if (!group[PositionInRaidGroup.Caster].Filled && group.Type == GroupType.Raid)
-                            FillPosition(PositionInRaidGroup.Caster, p);
+                        if (!group[6].Filled && group.Type == GroupType.Raid)
+                            FillPosition(6, p);
                         else
                             fill.Add(p);
                         break;
                     case Role.Ranged:
-                        if (!group[PositionInRaidGroup.Ranged].Filled)
-                            FillPosition(PositionInRaidGroup.Ranged, p);
+                        if (!group[7].Filled)
+                            FillPosition(7, p);
                         else
                             fill.Add(p);
                         break;
@@ -195,28 +186,23 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             foreach (var pm in fill)
             {
-                Dalamud.Logging.PluginLog.Debug($"To fill: {pm.Name}");
                 int pos = 0;
-                while (group[(PositionInRaidGroup)pos].Filled) { pos++; }
+                while (group[pos].Filled) { pos++; }
                 if (pos > 7) break;
-                FillPosition((PositionInRaidGroup)pos, pm);
+                FillPosition(pos, pm);
             }
-            void FillPosition(PositionInRaidGroup pos, PartyMember pm)
+            void FillPosition(int pos, PartyMember pm)
             {
-                Dalamud.Logging.PluginLog.Debug($"In fill: {pm.Name}");
                 var p = group[pos];
-                p.Pos = pos;
                 p.NickName = pm.Name.TextValue.Split(' ')[0];
-                var character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
+                Character character = new(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
                 bool characterExisted = Services.HrtDataManager.CharacterExists(character.HomeWorldID, character.Name);
                 Services.HrtDataManager.GetManagedCharacter(ref character);
                 p.MainChar = character;
                 if (!characterExisted)
                 {
-                    p.MainChar.Classes.Clear();
                     bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
-                    ;
-                    if (Helper.TryGetChar(out var pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
+                    if (Services.CharacterInfoService.TryGetChar(out var pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                     {
                         p.MainChar.MainJob = c;
                         p.MainChar.MainClass!.Level = pc!.Level;

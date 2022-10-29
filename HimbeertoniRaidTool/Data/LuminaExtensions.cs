@@ -1,4 +1,7 @@
-﻿using HimbeertoniRaidTool.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using HimbeertoniRaidTool.Data;
 using Lumina.Excel.GeneratedSheets;
 using System.Collections.Generic;
 
@@ -10,10 +13,12 @@ namespace Lumina.Excel.Extensions
 {
     public static class EquipSlotCategoryExtensions
     {
-        public static bool Contains(this EquipSlotCategory self, GearSetSlot? slot) => self.HasValueAt(slot, 1);
-        public static bool Disallows(this EquipSlotCategory self, GearSetSlot? slot) => self.HasValueAt(slot, -1);
-        public static bool HasValueAt(this EquipSlotCategory self, GearSetSlot? slot, sbyte value)
+        public static bool Contains(this EquipSlotCategory? self, GearSetSlot? slot) => self.HasValueAt(slot, 1);
+        public static bool Disallows(this EquipSlotCategory? self, GearSetSlot? slot) => self.HasValueAt(slot, -1);
+        public static bool HasValueAt(this EquipSlotCategory? self, GearSetSlot? slot, sbyte value)
         {
+            if (self == null)
+                return false;
             return slot switch
             {
                 GearSetSlot.MainHand => self.MainHand == value,
@@ -33,17 +38,15 @@ namespace Lumina.Excel.Extensions
                 _ => false,
             };
         }
-        public static GearSetSlot ToSlot(this EquipSlotCategory self)
+        public static IEnumerable<GearSetSlot> AvailableSlots(this EquipSlotCategory? self)
         {
             for (int i = 0; i < (int)GearSetSlot.SoulCrystal; i++)
-            {
-                if (self.Contains((GearSetSlot)i))
-                {
-                    return (GearSetSlot)i;
-                }
-            }
-            return GearSetSlot.None;
+                if (self?.Contains((GearSetSlot)i) ?? false)
+                    yield return (GearSetSlot)i;
         }
+        [Obsolete("Evaluate for all available slots")]
+        public static GearSetSlot ToSlot(this EquipSlotCategory? self)
+            => self.AvailableSlots().FirstOrDefault(GearSetSlot.None);
     }
     public static class ClassJobCategoryExtensions
     {

@@ -1,0 +1,938 @@
+{
+  "ConfigWindowTitle": {
+    "message": "Configuration de HimbeerToni Raid Tool",
+    "description": "ConfigUI..ctor"
+  },
+  "General": {
+    "message": "Général",
+    "description": "ConfigUI.Draw"
+  },
+  "Ui": {
+    "message": "Interface utilisateur",
+    "description": "ConfigUI.Draw"
+  },
+  "HideInCombat": {
+    "message": "Cacher pendant le combat",
+    "description": "ConfigUI.Draw"
+  },
+  "HideInCombatTooltip": {
+    "message": "Cacher toutes les fenêtres pendant que le personnage est en combat",
+    "description": "ConfigUI.Draw"
+  },
+  "HideOnZoneChange": {
+    "message": "Cacher pendant les fenêtres de chargement",
+    "description": "ConfigUI.Draw"
+  },
+  "HideOnZoneChangeTooltip": {
+    "message": "Cacher toutes les fenêtres pendant les écrans de chargement",
+    "description": "ConfigUI.Draw"
+  },
+  "Auto Save": {
+    "message": "Sauvegarde automatique",
+    "description": "ConfigUI.Draw"
+  },
+  "Save periodically": {
+    "message": "Sauvegarder régulièrement",
+    "description": "ConfigUI.Draw"
+  },
+  "SavePeriodicallyTooltip": {
+    "message": "Sauvegarde toutes les données de ce plugin (Aide à empêcher la perte de données si votre jeu plante)",
+    "description": "ConfigUI.Draw"
+  },
+  "AutoSave_interval_min": {
+    "message": "Intervalle de sauvegarde automatique (min)",
+    "description": "ConfigUI.Draw"
+  },
+  "/hrt": {
+    "message": "Ouvrir la Fenêtre de Bienvenue incluant les explications",
+    "description": "HRTPlugin..ctor"
+  },
+  "ItemTableHeader": {
+    "message": "En-tête",
+    "description": "DrawDataExtension.Draw"
+  },
+  "Value": {
+    "message": "Valeur",
+    "description": "DrawDataExtension.Draw"
+  },
+  "Name": {
+    "message": "Nom",
+    "description": "DrawDataExtension.Draw"
+  },
+  "itemLevelLong": {
+    "message": "Niveau d'objet",
+    "description": "DrawDataExtension.Draw"
+  },
+  "itemSource": {
+    "message": "Source",
+    "description": "DrawDataExtension.Draw"
+  },
+  "MagicDamage": {
+    "message": "Dégâts magiques",
+    "description": "DrawDataExtension.Draw"
+  },
+  "PhysicalDamage": {
+    "message": "Dégâts physiques",
+    "description": "DrawDataExtension.Draw"
+  },
+  "PhysicalDefense": {
+    "message": "Défense",
+    "description": "DrawDataExtension.Draw"
+  },
+  "MagicalDefense": {
+    "message": "Défense magique",
+    "description": "DrawDataExtension.Draw"
+  },
+  "Edit Player": {
+    "message": "Édition Joueur·se",
+    "description": "EditPlayerWindow..ctor"
+  },
+  "Player Data": {
+    "message": "Données Joueur·se",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Player Name": {
+    "message": "Nom Joueur·se",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "manuallySetDPS": {
+    "message": "DPS estimé",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Character Data": {
+    "message": "Données Personnage",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Character Name": {
+    "message": "Nom Personnage",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Home World": {
+    "message": "Monde d'origine",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Tribe": {
+    "message": "Tribu",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Job Data": {
+    "message": "Données des Jobs",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Main Job": {
+    "message": "Job principal",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "NoClasses": {
+    "message": "Le personnage n'a aucun job assigné",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "BIS": {
+    "message": "BIS",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Set to default": {
+    "message": "Définir par défaut",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "DefaultBiSTooltip": {
+    "message": "Chercher le BIS par défaut défini dans la configuration",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Level": {
+    "message": "Niveau",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Add Job": {
+    "message": "Ajouter un Job",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Save Player": {
+    "message": "Sauvegarder ce·tte joueur·se",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "Edit Group": {
+    "message": "Modifier le Groupe",
+    "description": "EditGroupWindow..ctor"
+  },
+  "Group Name": {
+    "message": "Nom du Groupe",
+    "description": "EditGroupWindow.Draw"
+  },
+  "Group Type": {
+    "message": "Type du Groupe",
+    "description": "EditGroupWindow.Draw"
+  },
+  "Override role priority": {
+    "message": "Outrepasser la priorité de rôle",
+    "description": "EditGroupWindow.Draw"
+  },
+  "ConfigRolePriority": {
+    "message": "Priorité de butin pour chaque rôle (la plus petite valeur est prioritaire)",
+    "description": "EditGroupWindow.Draw"
+  },
+  "Current priority": {
+    "message": "Priorité actuelle",
+    "description": "EditGroupWindow.Draw"
+  },
+  "Edit": {
+    "message": "Modifier",
+    "description": "EditGearSetWindow..ctor"
+  },
+  "Select item": {
+    "message": "Sélectionner un objet",
+    "description": "EditGearSetWindow.DrawSlot"
+  },
+  "HQ": {
+    "message": "HQ",
+    "description": "EditGearSetWindow.DrawSlot"
+  },
+  "Delete": {
+    "message": "Supprimer",
+    "description": "EditGearSetWindow.DrawSlot"
+  },
+  "Remove this materia": {
+    "message": "Retirer cette matéria",
+    "description": "EditGearSetWindow.DrawSlot"
+  },
+  "Select materia": {
+    "message": "Sélectionner une matéria",
+    "description": "EditGearSetWindow.DrawSlot"
+  },
+  "Get item for": {
+    "message": "Sélection d'un objet pour",
+    "description": "SelectGearItemWindow..ctor"
+  },
+  "Use this item": {
+    "message": "Choisir cet objet",
+    "description": "SelectGearItemWindow.DrawItemSelection"
+  },
+  "Select Materia": {
+    "message": "Sélection de matéria",
+    "description": "SelectMateriaWindow..ctor"
+  },
+  "Type": {
+    "message": "Type",
+    "description": "SelectMateriaWindow.DrawItemSelection"
+  },
+  "Tier": {
+    "message": "Tier",
+    "description": "SelectMateriaWindow.DrawItemSelection"
+  },
+  "Confirmation": {
+    "message": "Confirmation",
+    "description": "ConfimationDialog..ctor"
+  },
+  "OK": {
+    "message": "OK",
+    "description": "ConfimationDialog.Draw"
+  },
+  "Confirm action": {
+    "message": "OK",
+    "description": "ConfimationDialog.Draw"
+  },
+  "Save": {
+    "message": "Sauvegarder",
+    "description": "ImGuiHelper.SaveButton"
+  },
+  "Cancel": {
+    "message": "Annuler",
+    "description": "ImGuiHelper.CancelButton"
+  },
+  "Inspect": {
+    "message": "Mettre à jour l'équipement",
+    "description": "ImGuiHelper.GearUpdateButton"
+  },
+  "InspectUnavail": {
+    "message": "Fonctionnalité indisponible en raison d'une incompatibilité avec la version du jeu",
+    "description": "ImGuiHelper.GearUpdateButton"
+  },
+  "CharacterNotInReach": {
+    "message": "Le personnage n'est pas suffisamment à portée pour pouvoir l'examiner",
+    "description": "ImGuiHelper.GearUpdateButton"
+  },
+  "Remove option": {
+    "message": "Supprimer l'option",
+    "description": "UiSortableList`1.Draw"
+  },
+  "Add option": {
+    "message": "Ajouter l'option",
+    "description": "UiSortableList`1.Draw"
+  },
+  "Welcome to HRT": {
+    "message": "Bienvenue dans Himbeertoni Raid Tool",
+    "description": "WelcomeWindowui..ctor"
+  },
+  "WelcomeWindowLine1": {
+    "message": "Bienvenue dans Himbeertoni Raid Tool, votre compagnon de gestion de groupe de raid.",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "WelcomeWindowLine2": {
+    "message": "Débutez votre voyage en ouvrant le LootMaster en tapant \"/lootmaster\" (ou \"/lm\") dans le chat (ou en cliquant sur le bouton ci-dessous). Nous y avons déjà ajouté votre personnage pour vous.",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "WelcomeWindowLine3": {
+    "message": "Ensuite, vous pouvez enregistrer votre équipement actuel soit en utilisant le bouton \"loupe\", soit en examinant votre personnage via un clic droit.",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "WelcomeWindowLine4": {
+    "message": "Le plugin mettra automatiquement à jour les équipements de chaque personnage qui a été ajouté à un onglet solo ou de groupe à chaque fois que vous examinez un de ces personnages en jeu.",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "WelcomeWindowLine5": {
+    "message": "Pour vraiment commencer à utiliser cet outil, vous devrez ajouter votre groupe via le \"bouton +\" à droite de l'onglet Solo. Pour ce faire, deux choix s'offrent à vous. \"À partir de zéro\" vous permet de tout configurer manuellement comme un noob. L'autre option, supérieure, est de réunir votre groupe au sein d'une équipe et de laisser le plugin saisir les données automatiquement en utilisant l'option \"À partir de l'Équipe actuellement formée\". Vous devrez toutefois assigner un nom manuellement, et éventuellement donner un surnom aux autres joueur·se·s.",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "WelcomeWindowLine6": {
+    "message": "Si vous souhaitez, par exemple, que le Loot Master s'ouvre au démarrage, je vous suggère de jeter un coup d'oeil rapide dans les options. Vous pouvez également aller sur le Wiki pour des instructions davantage détaillées :)",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "Open LootMaster": {
+    "message": "Ouvrir le LootMaster",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "Open LootMaster main window (/lootmaster)": {
+    "message": "Ouvrir la fenêtre principale de LootMaster (/lootmaster)",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "Open Options": {
+    "message": "Ouvrir les Options",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "Show configuration options (/hrt config)": {
+    "message": "Afficher les options de configuration (/hrt config)",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "Open Wiki": {
+    "message": "Ouvrir le Wiki",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "Open the wiki in your browser": {
+    "message": "Ouvre le Wiki dans votre navigateur",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "Close": {
+    "message": "Fermer",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "Close this window": {
+    "message": "Fermer cette fenêtre",
+    "description": "WelcomeWindowui.Draw"
+  },
+  "Appearance": {
+    "message": "Apparence",
+    "description": "ConfigUi.Draw"
+  },
+  "Lootmaster:OpenOnLogin": {
+    "message": "Ouvrir la vue d'ensemble du groupe au moment de la connexion",
+    "description": "ConfigUi.Draw"
+  },
+  "UpdateBisONStartUp": {
+    "message": "Mettre à jour régulièrement les sets depuis etro.gg",
+    "description": "ConfigUi.Draw"
+  },
+  "BisUpdateInterval": {
+    "message": "Intervalle de mise à jour (jours)",
+    "description": "ConfigUi.Draw"
+  },
+  "DefaultBiSHeading": {
+    "message": "Default BiS sets (as etro.gg ID)",
+    "description": "ConfigUi.Draw"
+  },
+  "DefaultBiSDisclaimer": {
+    "message": "These sets are used when creating a new characer or adding a new job. These do not affect already created characters and jobs.",
+    "description": "ConfigUi.Draw"
+  },
+  "Reset to default": {
+    "message": "Réinitialiser aux valeurs par défaut",
+    "description": "ConfigUi.Draw"
+  },
+  "default": {
+    "message": "par défaut",
+    "description": "ConfigUi.Draw"
+  },
+  "LootRuleOrder": {
+    "message": "Ordre dans lequel les règles du butin doivent être appliquées",
+    "description": "ConfigUi.Draw"
+  },
+  "/lootmaster": {
+    "message": "Ouvre la fenêtre du LootMaster (variante courte : /lm)",
+    "description": "LootMasterModule.get_Commands"
+  },
+  "LootMasterWindowTitle": {
+    "message": "Loot Master",
+    "description": "LootmasterUI..ctor"
+  },
+  "Edit player": {
+    "message": "Édition Joueur·se",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "Current": {
+    "message": "Actuel",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "iLvl": {
+    "message": "iLvL : ",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "gear": {
+    "message": "équipement",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "BiS": {
+    "message": "BiS",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "UpdateBis": {
+    "message": "Mettre à jour \"{0}\" depuis Etro.gg",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "StatsUnfinished": {
+    "message": "Les statistiques sont en cours de développement et ne fonctionnent correctement que pour les jobs de niveaux 70/80/90",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "MainStats": {
+    "message": "Stats Principales",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "SecondaryStats": {
+    "message": "Stats secondaires",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "Add Player": {
+    "message": "Ajouter un·e joueur·se",
+    "description": "LootmasterUI.Draw"
+  },
+  "Player": {
+    "message": "Joueur·se",
+    "description": "LootmasterUI.Draw"
+  },
+  "itemLevelShort": {
+    "message": "iLvl",
+    "description": "LootmasterUI.Draw"
+  },
+  "Weapon": {
+    "message": "Arme",
+    "description": "LootmasterUI.Draw"
+  },
+  "HeadGear": {
+    "message": "Tête",
+    "description": "LootmasterUI.Draw"
+  },
+  "ChestGear": {
+    "message": "Torse",
+    "description": "LootmasterUI.Draw"
+  },
+  "Gloves": {
+    "message": "Mains",
+    "description": "LootmasterUI.Draw"
+  },
+  "LegGear": {
+    "message": "Jambes",
+    "description": "LootmasterUI.Draw"
+  },
+  "FeetGear": {
+    "message": "Pieds",
+    "description": "LootmasterUI.Draw"
+  },
+  "Earrings": {
+    "message": "Boucle d'oreille",
+    "description": "LootmasterUI.Draw"
+  },
+  "NeckGear": {
+    "message": "Collier",
+    "description": "LootmasterUI.Draw"
+  },
+  "WristGear": {
+    "message": "Bracelet",
+    "description": "LootmasterUI.Draw"
+  },
+  "LeftRing": {
+    "message": "Bague G",
+    "description": "LootmasterUI.Draw"
+  },
+  "RightRing": {
+    "message": "Bague D",
+    "description": "LootmasterUI.Draw"
+  },
+  "Options": {
+    "message": "Options",
+    "description": "LootmasterUI.Draw"
+  },
+  "Edit group": {
+    "message": "Modifier le groupe",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "Delete group": {
+    "message": "Supprimer le groupe",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "DeleteRaidGroup": {
+    "message": "Voulez-vous vraiment supprimer le groupe suivant :",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "From current Group": {
+    "message": "À partir de l'Équipe actuellement formée",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "From scratch": {
+    "message": "À partir de zéro",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "Add empty group": {
+    "message": "Ajoute un groupe vide",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "LvLShort": {
+    "message": "Niv",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "to BIS": {
+    "message": "pour le BIS",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "BisUpdateResult": {
+    "message": "Mise à jour du BIS pour le personnage",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "successful": {
+    "message": "réussi",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "failed": {
+    "message": "a échoué",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "PlayerDetails": {
+    "message": "Afficher les détails du·de la joueur·se pour",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "DeletePlayerConfirmation": {
+    "message": "Voulez-vous vraiment supprimer le·la joueur·se suivant·e ?",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "No Player": {
+    "message": "Aucun·e joueur·se",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "Add": {
+    "message": "Ajouter",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "Add from DB": {
+    "message": "Ajouter depuis la BDD",
+    "description": "LootmasterUI.DrawPlayer"
+  },
+  "Distribute loot for:": {
+    "message": "Distribuer le butin pour :",
+    "description": "LootmasterUI.DrawLootHandlerButtons"
+  },
+  "Dmgper100Tooltip": {
+    "message": "Dégâts médians avec une attaque de 100 de Puissance",
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|13_1"
+  },
+  "Empty": {
+    "message": "Vide",
+    "description": "LootmasterUI.<DrawSlot>g__DrawItem|17_0"
+  },
+  "PlayerDetailsTitle": {
+    "message": "Détail du·de la joueur·se",
+    "description": "PlayerdetailWindow..ctor"
+  },
+  "GetCharacterTitle": {
+    "message": "Obtenir un personnage depuis la BDD",
+    "description": "GetCharacterFromDBWindow..ctor"
+  },
+  "Swap Position of": {
+    "message": "Permuter la position de",
+    "description": "SwapPositionWindow..ctor"
+  },
+  "Swap players positions": {
+    "message": "Permuter les positions des joueur·se·s",
+    "description": "SwapPositionWindow.Draw"
+  },
+  "Loot session for": {
+    "message": "Séance de butin pour",
+    "description": "LootSessionUI..ctor"
+  },
+  "Group": {
+    "message": "Groupe",
+    "description": "LootSessionUI.Draw"
+  },
+  "Distribute": {
+    "message": "Distribuer",
+    "description": "LootSessionUI.Draw"
+  },
+  "OpenLootResultTooltip": {
+    "message": "Ouvre une fenêtre avec les résultats de la distribution de butin selon ces règles et l'équipement actuel des joueur·se·s",
+    "description": "LootSessionUI.Draw"
+  },
+  "DistributeForSolo": {
+    "message": "Vous avez sélectionné un groupe avec un·e seul·e joueur·se !",
+    "description": "LootSessionUI.Draw"
+  },
+  "NoLootSelected": {
+    "message": "Vous n'avez sélectionné aucun butin !",
+    "description": "LootSessionUI.Draw"
+  },
+  "Role priority": {
+    "message": "Priorité de rôle",
+    "description": "LootSessionUI.Draw"
+  },
+  "OverrideWithDefaults": {
+    "message": "Substitue ces paramètres avec les valeurs par défaut de la configuration",
+    "description": "LootSessionUI.Draw"
+  },
+  "ChangesOnlyForThisLootSesseion": {
+    "message": "Les modifications apportées ici n'affectent que cette session de butin",
+    "description": "LootSessionUI.Draw"
+  },
+  "LootResultTitle": {
+    "message": "Résultats du butin",
+    "description": "LootResultWindow..ctor"
+  },
+  "No loot": {
+    "message": "Aucun butin",
+    "description": "LootResultWindow.Draw"
+  },
+  "Greed only": {
+    "message": "Avidité seulement",
+    "description": "LootResultWindow.Draw"
+  },
+  "Pos": {
+    "message": "Position",
+    "description": "LootResultWindow.Draw"
+  },
+  "Needed items": {
+    "message": "Needed items",
+    "description": "LootResultWindow.Draw"
+  },
+  "Rule": {
+    "message": "Règle",
+    "description": "LootResultWindow.Draw"
+  },
+  "Savage": {
+    "message": "Sadique",
+    "description": "CuratedData..cctor"
+  },
+  "Dragonsong Reprise": {
+    "message": "La Guerre du Chant des Dragons (DSR)",
+    "description": "CuratedData..cctor"
+  },
+  "Ultimate": {
+    "message": "Fatal",
+    "description": "CuratedData..cctor"
+  },
+  "Strength": {
+    "message": "Strength",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Dexterity": {
+    "message": "Dexterity",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Vitality": {
+    "message": "Vitality",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Intelligence": {
+    "message": "Intelligence",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Mind": {
+    "message": "Mind",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Piety": {
+    "message": "Piety",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "HP": {
+    "message": "HP",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "MP": {
+    "message": "MP",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Physical Damage": {
+    "message": "Dégâts physiques",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Magical Damage": {
+    "message": "Dégâts magiques",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Tenacity": {
+    "message": "Tenacity",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "AttackPower": {
+    "message": "AttackPower",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Defense": {
+    "message": "Defense",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Direct Hit": {
+    "message": "Coup net",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Magic Defense": {
+    "message": "Défense magique",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Critical Hit Power": {
+    "message": "Critical Hit Power",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Critical Hit": {
+    "message": "Coup critique",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "AttackMagicPotency": {
+    "message": "Attack Magic Potency",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "HealingMagicPotency": {
+    "message": "Healing Magic Potency",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Determination": {
+    "message": "Determination",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Skill Speed": {
+    "message": "Vivacité",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Spell Speed": {
+    "message": "Célérité",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "CRT": {
+    "message": "CRT",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "DH": {
+    "message": "DH",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "SKS": {
+    "message": "SKS",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "SPS": {
+    "message": "SPS",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "DET": {
+    "message": "DET",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "PIE": {
+    "message": "PIE",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "MND": {
+    "message": "ESP",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "STR": {
+    "message": "FOR",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "DEX": {
+    "message": "DEX",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "INT": {
+    "message": "INT",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "VIT": {
+    "message": "VIT",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "TEN": {
+    "message": "TEN",
+    "description": "EnumExtensions.Abbrev"
+  },
+  "HimbeerToni Raid Tool": {
+    "message": "HimbeerToni, outil de raid",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "etro.gg": {
+    "message": "etro.gg",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "undefined": {
+    "message": "non défini",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Solo": {
+    "message": "Solo",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "FullGroup": {
+    "message": "Équipe complète",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Shield": {
+    "message": "Bouclier",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Head": {
+    "message": "Tête",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Body": {
+    "message": "Torse",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "NoBelts": {
+    "message": "Y'a pu de ceintures putain d'abruti",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Trousers": {
+    "message": "Pantalon",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Shoes": {
+    "message": "Chaussures",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Necklace": {
+    "message": "Collier",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Bracelet": {
+    "message": "Bracelet",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Ring": {
+    "message": "Anneau",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Soul Crystal": {
+    "message": "Cristal d’âme",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Raid": {
+    "message": "Raid",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Dungeon": {
+    "message": "Donjon",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Trial": {
+    "message": "Défi",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Tome": {
+    "message": "Mémo",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Crafted": {
+    "message": "Crafté",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Alliance": {
+    "message": "Alliance",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Quest": {
+    "message": "Quest",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Relic": {
+    "message": "Relic",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Tank": {
+    "message": "Tank",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Healer": {
+    "message": "Healer",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Melee": {
+    "message": "Melee",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Ranged": {
+    "message": "Ranged",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Caster": {
+    "message": "Caster",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "BISOverUpgrade": {
+    "message": "BIS > Amélioration",
+    "description": "LootRule.GetName"
+  },
+  "LowestItemLevel": {
+    "message": "Niveau d'objet global le plus bas",
+    "description": "LootRule.GetName"
+  },
+  "HighesItemLevelGain": {
+    "message": "Gain de niveau d'objet le plus rentable",
+    "description": "LootRule.GetName"
+  },
+  "ByRole": {
+    "message": "Prioriser par rôle",
+    "description": "LootRule.GetName"
+  },
+  "Rolling": {
+    "message": "Lancer de dé",
+    "description": "LootRule.GetName"
+  },
+  "DPS": {
+    "message": "DPS",
+    "description": "LootRule.GetName"
+  },
+  "None": {
+    "message": "Aucune",
+    "description": "LootRule.GetName"
+  },
+  "Greed": {
+    "message": "Cupidité",
+    "description": "LootRule.GetName"
+  },
+  "Need over Greed": {
+    "message": "Need over Greed",
+    "description": "LootRule.GetName"
+  },
+  "Not defined": {
+    "message": "Non définie",
+    "description": "LootRule.GetName"
+  },
+  "EXP_2": {
+    "message": "A Realm Reborn",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_3": {
+    "message": "Heavensward",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_4": {
+    "message": "Stormblood",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_5": {
+    "message": "Shadowbringers",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_6": {
+    "message": "Endwalker",
+    "description": "GameExpansion.get_Name"
+  },
+  "Unknown": {
+    "message": "Inconnue",
+    "description": "GameExpansion.get_Name"
+  }
+}

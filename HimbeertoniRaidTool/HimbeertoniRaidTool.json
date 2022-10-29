@@ -17,5 +17,5 @@
     "https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png"
   ],
   "IsHide": "False",
-  "Changelog": "fixed: unable to save right after loading\nfixed: potential short freeze of FFXIV\nnew: you can manually edit levels\nsome performance improvements"
+  "Changelog": "fix: loot results did not show"
 }

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Lumina.Excel.GeneratedSheets;
-using static Dalamud.Localization;
-
+using static HimbeertoniRaidTool.HrtServices.Localization;
 namespace HimbeertoniRaidTool.Data
 {
     public enum GearSource
@@ -16,6 +12,8 @@ namespace HimbeertoniRaidTool.Data
         Crafted,
         undefined,
         AllianceRaid,
+        Quest,
+        Relic
     }
     public enum GearSetSlot : short
     {
@@ -37,11 +35,16 @@ namespace HimbeertoniRaidTool.Data
     }
     public enum LootRuleEnum
     {
+        None = 0,
         BISOverUpgrade = 1,
         LowestItemLevel = 2,
         HighesItemLevelGain = 3,
-        ByPosition = 4,
-        Random = 5
+        RolePrio = 4,
+        Random = 5,
+        DPS = 6,
+        NeedGreed = 997,
+        Greed = 998,
+        Custom = 999,
     }
     public enum EncounterDifficulty
     {
@@ -54,92 +57,45 @@ namespace HimbeertoniRaidTool.Data
     public enum Job : byte
     {
         ADV = 0,
-        [Role(Role.Healer)]
         AST = 33,
-        [Role(Role.Caster)]
         BLM = 25,
-        [Role(Role.Caster)]
         BLU = 36,
-        [Role(Role.Ranged)]
         BRD = 23,
-        [Role(Role.Ranged)]
         DNC = 38,
-        [Role(Role.Melee)]
         DRG = 22,
-        [Role(Role.Tank)]
         DRK = 32,
-        [Role(Role.Tank)]
         GNB = 37,
-        [Role(Role.Ranged)]
         MCH = 31,
-        [Role(Role.Melee)]
         MNK = 20,
-        [Stat(StatType.Dexterity)]
-        [Role(Role.Melee)]
         NIN = 30,
-        [Role(Role.Tank)]
         PLD = 19,
-        [Role(Role.Caster)]
         RDM = 35,
-        [Role(Role.Melee)]
         RPR = 39,
-        [Role(Role.Melee)]
         SAM = 34,
-        [Role(Role.Healer)]
         SCH = 28,
-        [Role(Role.Healer)]
         SGE = 40,
-        [Role(Role.Caster)]
         SMN = 27,
-        [Role(Role.Tank)]
         WAR = 21,
-        [Role(Role.Healer)]
         WHM = 24,
-        [Role(Role.Tank)]
         GLA = 1,
-        [Role(Role.Tank)]
         MRD = 3,
-        [Role(Role.Melee)]
         LNC = 4,
-        [Role(Role.Melee)]
         PGL = 2,
-        [Role(Role.Ranged)]
         ARC = 5,
-        [Role(Role.Caster)]
         THM = 7,
-        [Role(Role.Caster)]
         ACN = 26,
-        [Role(Role.Healer)]
         CNJ = 6,
-        [Role(Role.Melee)]
         ROG = 29,
     }
 
     public enum Role : byte
     {
-        [Stat(StatType.None)]
         None = 0,
-        [Stat(StatType.Strength)]
         Tank = 1,
-        [Stat(StatType.Mind)]
         Healer = 4,
-        [Stat(StatType.Strength)]
         Melee = 2,
-        [Stat(StatType.Dexterity)]
         Ranged = 3,
-        [Stat(StatType.Intelligence)]
         Caster = 5,
-    }
-    public enum PositionInRaidGroup : byte
-    {
-        Tank1 = 0,
-        Tank2 = 1,
-        Heal1 = 2,
-        Heal2 = 3,
-        Melee1 = 4,
-        Melee2 = 5,
-        Ranged = 6,
-        Caster = 7
     }
     public enum ContentType
     {
@@ -264,77 +220,73 @@ namespace HimbeertoniRaidTool.Data
     }
     public static class EnumExtensions
     {
-        private static readonly Dictionary<StatType, string> StatTypeNameLookup;
-        private static readonly Dictionary<StatType, string> StatTypeAbbrevLookup;
-        private static readonly Dictionary<GearSetSlot, string> GearSetSlotNameLookup;
-        static EnumExtensions()
+        public static string FriendlyName(this StatType t) => t switch
         {
-            StatTypeNameLookup = new()
-            {
-                [StatType.PhysicalDamage] = Localize("Physical Damage", "Physical Damage"),
-                [StatType.MagicalDamage] = Localize("Magical Damage", "Magical Damage"),
-                [StatType.CriticalHit] = Localize("Critical Hit", "Critical Hit"),
-                [StatType.DirectHitRate] = Localize("Direct Hit", "Direct Hit"),
-                [StatType.SkillSpeed] = Localize("Skill Speed", "Skill Speed"),
-                [StatType.SpellSpeed] = Localize("Spell Speed", "Spell Speed"),
-                [StatType.MagicDefense] = Localize("Magic Defense", "Magic Defense")
-            };
-
-            StatTypeAbbrevLookup = new()
-            {
-                [StatType.CriticalHit] = Localize("CRT", "CRT"),
-                [StatType.DirectHitRate] = Localize("DH", "DH"),
-                [StatType.SkillSpeed] = Localize("SKS", "SKS"),
-                [StatType.SpellSpeed] = Localize("SPS", "SPS"),
-                [StatType.Determination] = Localize("DET", "DET"),
-                [StatType.Piety] = Localize("PIE", "PIE"),
-                [StatType.Mind] = Localize("MND", "MND"),
-                [StatType.Strength] = Localize("STR", "STR"),
-                [StatType.Dexterity] = Localize("DEX", "DEX"),
-                [StatType.Intelligence] = Localize("INT", "INT"),
-                [StatType.Vitality] = Localize("VIT", "VIT"),
-                [StatType.Tenacity] = Localize("TEN", "TEN")
-            };
-            GearSetSlotNameLookup = new()
-            {
-                [GearSetSlot.MainHand] = Localize("Weapon", "Weapon"),
-                [GearSetSlot.OffHand] = Localize("Shield", "Shield"),
-                [GearSetSlot.Head] = Localize("Head", "Head"),
-                [GearSetSlot.Body] = Localize("Body", "Body"),
-                [GearSetSlot.Hands] = Localize("Gloves", "Gloves"),
-                [GearSetSlot.Waist] = Localize("NoBelts", "There no longer are belts you fuckwit"),
-                [GearSetSlot.Legs] = Localize("Trousers", "Trousers"),
-                [GearSetSlot.Feet] = Localize("Shoes", "Shoes"),
-                [GearSetSlot.Ear] = Localize("Earrings", "Earrings"),
-                [GearSetSlot.Neck] = Localize("Necklace", "Necklace"),
-                [GearSetSlot.Wrist] = Localize("Bracelet", "Bracelet"),
-                [GearSetSlot.Ring1] = Localize("Ring", "Ring"),
-                [GearSetSlot.Ring2] = Localize("Ring", "Ring"),
-                [GearSetSlot.SoulCrystal] = Localize("Soul Crystal", "Soul Crystal"),
-            };
-
-        }
-        public static string FriendlyName(this StatType t) => StatTypeNameLookup.ContainsKey(t) ? StatTypeNameLookup[t] : t.ToString();
-        public static string Abbrev(this StatType t) => StatTypeAbbrevLookup.ContainsKey(t) ? StatTypeAbbrevLookup[t] : "XXX";
+            StatType.Strength => Localize("Strength", "Strength"),
+            StatType.Dexterity => Localize("Dexterity", "Dexterity"),
+            StatType.Vitality => Localize("Vitality", "Vitality"),
+            StatType.Intelligence => Localize("Intelligence", "Intelligence"),
+            StatType.Mind => Localize("Mind", "Mind"),
+            StatType.Piety => Localize("Piety", "Piety"),
+            StatType.HP => Localize("HP", "HP"),
+            StatType.MP => Localize("MP", "MP"),
+            StatType.PhysicalDamage => Localize("Physical Damage", "Physical Damage"),
+            StatType.MagicalDamage => Localize("Magical Damage", "Magical Damage"),
+            StatType.Tenacity => Localize("Tenacity", "Tenacity"),
+            StatType.AttackPower => Localize("AttackPower", "AttackPower"),
+            StatType.Defense => Localize("Defense", "Defense"),
+            StatType.DirectHitRate => Localize("Direct Hit", "Direct Hit"),
+            StatType.MagicDefense => Localize("Magic Defense", "Magic Defense"),
+            StatType.CriticalHitPower => Localize("Critical Hit Power", "Critical Hit Power"),
+            StatType.CriticalHit => Localize("Critical Hit", "Critical Hit"),
+            StatType.AttackMagicPotency => Localize("AttackMagicPotency", "Attack Magic Potency"),
+            StatType.HealingMagicPotency => Localize("HealingMagicPotency", "Healing Magic Potency"),
+            StatType.Determination => Localize("Determination", "Determination"),
+            StatType.SkillSpeed => Localize("Skill Speed", "Skill Speed"),
+            StatType.SpellSpeed => Localize("Spell Speed", "Spell Speed"),
+            _ => t.ToString(),
+        };
+        public static string Abbrev(this StatType t) => t switch
+        {
+            StatType.CriticalHit => Localize("CRT", "CRT"),
+            StatType.DirectHitRate => Localize("DH", "DH"),
+            StatType.SkillSpeed => Localize("SKS", "SKS"),
+            StatType.SpellSpeed => Localize("SPS", "SPS"),
+            StatType.Determination => Localize("DET", "DET"),
+            StatType.Piety => Localize("PIE", "PIE"),
+            StatType.Mind => Localize("MND", "MND"),
+            StatType.Strength => Localize("STR", "STR"),
+            StatType.Dexterity => Localize("DEX", "DEX"),
+            StatType.Intelligence => Localize("INT", "INT"),
+            StatType.Vitality => Localize("VIT", "VIT"),
+            StatType.Tenacity => Localize("TEN", "TEN"),
+            _ => "XXX",
+        };
         public static Role GetRole(this Job? c) => c.HasValue ? GetRole(c.Value) : Role.None;
-        public static Role GetRole(this Job c) =>
-            c.GetAttribute<RoleAttribute>()?.Role ?? Role.None;
+        public static Role GetRole(this Job c) => c switch
+        {
+            Job.DRK or Job.GNB or Job.PLD or Job.WAR or Job.GLA or Job.MRD => Role.Tank,
+            Job.AST or Job.SCH or Job.SGE or Job.WHM or Job.CNJ => Role.Healer,
+            Job.DRG or Job.MNK or Job.NIN or Job.RPR or Job.SAM or Job.LNC or Job.PGL or Job.ROG => Role.Melee,
+            Job.BLM or Job.BLU or Job.RDM or Job.SMN or Job.THM or Job.ACN => Role.Caster,
+            Job.BRD or Job.DNC or Job.MCH or Job.ARC => Role.Ranged,
+            _ => Role.None,
+        };
         public static ClassJob? GetClassJob(this Job? c) =>
             c.HasValue ? Services.DataManager.GetExcelSheet<ClassJob>()?.GetRow((uint)c.Value) : null;
-        public static T? GetAttribute<T>(this Enum field) where T : Attribute
+        public static StatType MainStat(this Job job) => job switch
         {
-            return
-                field.GetType().GetMember(field.ToString())
-                .Where(member => member.MemberType == MemberTypes.Field)
-                .FirstOrDefault()?
-                .GetCustomAttributes<T>(false)
-                .SingleOrDefault();
-        }
-        public static StatType MainStat(this Job? c) => c.HasValue ? MainStat(c) : StatType.None;
-        public static StatType MainStat(this Job c) =>
-            c.GetAttribute<StatAttribute>()?.StatType
-            ?? c.GetAttribute<RoleAttribute>()?.Role.GetAttribute<StatAttribute>()?.StatType
-            ?? StatType.None;
+            Job.NIN => StatType.Dexterity,
+            _ => job.GetRole().MainStat(),
+        };
+        public static StatType MainStat(this Role role) => role switch
+        {
+            Role.Tank or Role.Melee => StatType.Strength,
+            Role.Healer => StatType.Mind,
+            Role.Caster => StatType.Intelligence,
+            Role.Ranged => StatType.Dexterity,
+            _ => StatType.None,
+        };
 
         public static string FriendlyName(this GearSetManager manager) => manager switch
         {
@@ -357,8 +309,25 @@ namespace HimbeertoniRaidTool.Data
             _ => Localize("undefined", "undefined")
 
         };
-        public static string FriendlyName(this GearSetSlot slot) =>
-            GearSetSlotNameLookup.ContainsKey(slot) ? GearSetSlotNameLookup[slot] : Localize("undefined", "undefined");
+        public static string FriendlyName(this GearSetSlot slot) => slot switch
+        {
+            GearSetSlot.MainHand => Localize("Weapon", "Weapon"),
+            GearSetSlot.OffHand => Localize("Shield", "Shield"),
+            GearSetSlot.Head => Localize("Head", "Head"),
+            GearSetSlot.Body => Localize("Body", "Body"),
+            GearSetSlot.Hands => Localize("Gloves", "Gloves"),
+            GearSetSlot.Waist => Localize("NoBelts", "There no longer are belts you fuckwit"),
+            GearSetSlot.Legs => Localize("Trousers", "Trousers"),
+            GearSetSlot.Feet => Localize("Shoes", "Shoes"),
+            GearSetSlot.Ear => Localize("Earrings", "Earrings"),
+            GearSetSlot.Neck => Localize("Necklace", "Necklace"),
+            GearSetSlot.Wrist => Localize("Bracelet", "Bracelet"),
+            GearSetSlot.Ring1 => Localize("Ring", "Ring"),
+            GearSetSlot.Ring2 => Localize("Ring", "Ring"),
+            GearSetSlot.SoulCrystal => Localize("Soul Crystal", "Soul Crystal"),
+            _ => Localize("undefined", "undefined")
+
+        };
         public static string FriendlyName(this GearSource source) => source switch
         {
             GearSource.Raid => Localize("Raid", "Raid"),
@@ -367,34 +336,37 @@ namespace HimbeertoniRaidTool.Data
             GearSource.Tome => Localize("Tome", "Tome"),
             GearSource.Crafted => Localize("Crafted", "Crafted"),
             GearSource.AllianceRaid => Localize("Alliance", "Alliance"),
-            _ => Localize("undefined", "undefined")
+            GearSource.Quest => Localize("Quest", "Quest"),
+            GearSource.Relic => Localize("Relic", "Relic"),
+            _ => Localize("undefined", "undefined"),
         };
-
-        public static bool IsPartOf(this PositionInRaidGroup pos, GroupType type) => pos switch
+        public static string FriendlyName(this Role role) => role switch
         {
-            PositionInRaidGroup.Tank1 => true,
-            PositionInRaidGroup.Tank2 => type == GroupType.Raid,
-            PositionInRaidGroup.Heal1 => type == GroupType.Group || type == GroupType.Raid,
-            PositionInRaidGroup.Heal2 => type == GroupType.Raid,
-            PositionInRaidGroup.Melee1 => type == GroupType.Group || type == GroupType.Raid,
-            PositionInRaidGroup.Melee2 => type == GroupType.Raid,
-            PositionInRaidGroup.Ranged => type == GroupType.Group || type == GroupType.Raid,
-            PositionInRaidGroup.Caster => type == GroupType.Raid,
-            _ => false,
+            Role.Tank => Localize("Tank", "Tank"),
+            Role.Healer => Localize("Healer", "Healer"),
+            Role.Melee => Localize("Melee", "Melee"),
+            Role.Ranged => Localize("Ranged", "Ranged"),
+            Role.Caster => Localize("Caster", "Caster"),
+            _ => Localize("undefined", "undefined"),
         };
+        public static Job GetJob(this PlayerCharacter target) => (Job)target.ClassJob.Id;
 
-
-    }
-    [AttributeUsage(AttributeTargets.Field)]
-    class StatAttribute : Attribute
-    {
-        public StatType StatType;
-        public StatAttribute(StatType t) => StatType = t;
-    }
-    [AttributeUsage(AttributeTargets.Field)]
-    class RoleAttribute : Attribute
-    {
-        public Role Role;
-        public RoleAttribute(Role r) => Role = r;
+        public static StatType GetStatType(this MateriaCategory materiaCategory) => materiaCategory switch
+        {
+            MateriaCategory.Piety => StatType.Piety,
+            MateriaCategory.DirectHit => StatType.DirectHitRate,
+            MateriaCategory.CriticalHit => StatType.CriticalHit,
+            MateriaCategory.Determination => StatType.Determination,
+            MateriaCategory.Tenacity => StatType.Tenacity,
+            MateriaCategory.Gathering => StatType.Gathering,
+            MateriaCategory.Perception => StatType.Perception,
+            MateriaCategory.GP => StatType.GP,
+            MateriaCategory.Craftsmanship => StatType.Craftsmanship,
+            MateriaCategory.CP => StatType.CP,
+            MateriaCategory.Control => StatType.Control,
+            MateriaCategory.SkillSpeed => StatType.SkillSpeed,
+            MateriaCategory.SpellSpeed => StatType.SpellSpeed,
+            _ => StatType.None,
+        };
     }
 }

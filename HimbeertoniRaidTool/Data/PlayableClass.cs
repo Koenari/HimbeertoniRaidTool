@@ -1,4 +1,7 @@
-﻿using Lumina.Excel;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 
@@ -33,6 +36,47 @@ namespace HimbeertoniRaidTool.Data
             BIS = new(GearSetManager.HRT, c, Job, "BIS");
             Services.HrtDataManager.GetManagedGearSet(ref BIS);
         }
+        /// <summary>
+        /// Evaluates if all of the given slots have BiS item or an item with higher or euqla item level as given item
+        /// </summary>
+        /// <param name="slots">List of slots to evaluate</param>
+        /// <param name="toCompare">Item to compare to items in slots</param>
+        /// <returns>True if all slots are BiS or better</returns>
+        public bool HaveBisOrHigherItemLevel(IEnumerable<GearSetSlot> slots, GearItem toCompare) => SwappedCompare((item, bis) => BisOrBetterComparer(item, bis, toCompare), slots);
+        /// <summary>
+        /// Evaluates if all given slots already are equipped with Best in Slot
+        /// </summary>
+        /// <param name="slots">List of slots to check</param>
+        /// <returns>True if all slots have BiS</returns>
+        public bool HaveBis(IEnumerable<GearSetSlot> slots) => SwappedCompare(BisComparer, slots);
+        private bool SwappedCompare(Func<GearItem, GearItem, bool> comparer, IEnumerable<GearSetSlot> slots)
+        {
+            if (slots.Contains(GearSetSlot.Ring1) && slots.Contains(GearSetSlot.Ring2))
+                return (
+                    (SwappedCompare(comparer, GearSetSlot.Ring1, true, false) && SwappedCompare(comparer, GearSetSlot.Ring2, true, false))
+                        || (SwappedCompare(comparer, GearSetSlot.Ring1, true, true) && SwappedCompare(comparer, GearSetSlot.Ring2, true, true)))
+                    && slots.Where(slot => !(slot is GearSetSlot.Ring1 or GearSetSlot.Ring2)).All(slot => SwappedCompare(comparer, slot));
+            return slots.All(slot => SwappedCompare(comparer, slot));
+        }
+        private bool SwappedCompare(Func<GearItem, GearItem, bool> comparer, GearSetSlot slot, bool explicitSwaps = false, bool ringsSwapped = false)
+        {
+            if (!explicitSwaps)
+                return comparer(Gear[slot], BIS[slot])
+                    || (slot == GearSetSlot.Ring1 && comparer(Gear[slot], BIS[GearSetSlot.Ring2]))
+                    || (slot == GearSetSlot.Ring2 && comparer(Gear[slot], BIS[GearSetSlot.Ring1]));
+            //Explicit swaps from here
+            if (!ringsSwapped || (slot != GearSetSlot.Ring1 && slot != GearSetSlot.Ring2))
+                return comparer(Gear[slot], BIS[slot]);
+            else if (slot == GearSetSlot.Ring1)
+                return comparer(Gear[slot], BIS[GearSetSlot.Ring2]);
+            else if (slot == GearSetSlot.Ring2)
+                return comparer(Gear[slot], BIS[GearSetSlot.Ring1]);
+            else
+                return false;
+        }
+        private static bool BisOrBetterComparer(GearItem item, GearItem bis, GearItem comp) => BisComparer(item, bis) || HigerILvlComparer(item, comp);
+        private static bool HigerILvlComparer(GearItem item, GearItem comp) => item.ItemLevel >= comp.ItemLevel;
+        private static bool BisComparer(GearItem item, GearItem bis) => item.ID == bis.ID;
         public int GetCurrentStat(StatType type) => GetStat(type, Gear);
         public int GetBiSStat(StatType type) => GetStat(type, BIS);
         private int GetStat(StatType type, GearSet set)

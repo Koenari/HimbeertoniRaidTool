@@ -11,11 +11,8 @@ namespace HimbeertoniRaidTool.Data
         public LootSource(params (RaidTier, int)[] data) { Sources = new(data); }
         public bool IsList => Sources.Count > 1;
         public override bool Equals(object? obj)
-        {
-            if (obj is null || !obj.GetType().IsAssignableTo(GetType()))
-                return false;
-            return Equals((LootSource)obj);
-        }
+            => (obj is LootSource lootSource) && Equals(lootSource);
+
         public bool Equals(LootSource obj) => Sources.Contains(obj.Sources[0]);
 
         public override int GetHashCode() => Sources.GetHashCode();
@@ -47,7 +44,7 @@ namespace HimbeertoniRaidTool.Data
                 {
                     if (!LootSourceDB.ContainsKey(source))
                         LootSourceDB.Add(source, new());
-                    foreach (uint id in entry.Key.AsList)
+                    foreach (uint id in entry.Key)
                         LootSourceDB[source].Add(new(id));
 
 
@@ -58,7 +55,7 @@ namespace HimbeertoniRaidTool.Data
         {
             if (!source.IsList)
                 return GetPossibleLoot(source.Sources.First());
-            List<HrtItem> result = new List<HrtItem>();
+            List<HrtItem> result = new();
             foreach (var entry in source.Sources)
                 if (LootSourceDB.TryGetValue(entry, out List<HrtItem>? loot))
                     result.AddRange(loot);

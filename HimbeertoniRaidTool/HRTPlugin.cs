@@ -1,65 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dalamud.Data;
-using Dalamud.Game;
-using Dalamud.Game.ClientState;
-using Dalamud.Game.ClientState.Objects;
-using Dalamud.Game.ClientState.Party;
+using System.Security.Cryptography;
+using System.Text;
 using Dalamud.Game.Command;
-using Dalamud.Game.Gui;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
-using HimbeertoniRaidTool.Connectors;
-using HimbeertoniRaidTool.DataManagement;
 using HimbeertoniRaidTool.HrtServices;
+using HimbeertoniRaidTool.Modules;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using HimbeertoniRaidTool.Modules.WelcomeWindow;
-using static Dalamud.Localization;
+using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool
 {
-
-#pragma warning disable CS8618
-    public class Services
-    {
-        [PluginService] public static SigScanner SigScanner { get; private set; }
-        [PluginService] public static CommandManager CommandManager { get; private set; }
-        [PluginService] public static ChatGui ChatGui { get; private set; }
-        [PluginService] public static DataManager DataManager { get; private set; }
-        [PluginService] public static GameGui GameGui { get; private set; }
-        [PluginService] public static TargetManager TargetManager { get; private set; }
-        [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
-        [PluginService] public static ClientState ClientState { get; private set; }
-        [PluginService] public static Framework Framework { get; private set; }
-        [PluginService] public static ObjectTable ObjectTable { get; private set; }
-        [PluginService] public static PartyList PartyList { get; private set; }
-        public static IconCache IconCache { get; private set; }
-        public static HrtDataManager HrtDataManager { get; private set; }
-        internal static TaskManager TaskManager { get; private set; }
-        internal static ConnectorPool ConnectorPool { get; private set; }
-
-        internal static bool Init()
-        {
-            IconCache ??= new IconCache(PluginInterface, DataManager);
-            HrtDataManager ??= new(PluginInterface);
-            TaskManager ??= new(Framework);
-            ConnectorPool ??= new(Framework);
-            return HrtDataManager.Initialized;
-        }
-        internal static void Dispose()
-        {
-            TaskManager.Dispose();
-            IconCache.Dispose();
-        }
-    }
-#pragma warning restore CS8618
     public sealed class HRTPlugin : IDalamudPlugin
     {
-        private readonly Dalamud.Localization Loc;
-
         private readonly Configuration _Configuration;
         public string Name => "Himbeertoni Raid Tool";
 
@@ -71,14 +29,10 @@ namespace HimbeertoniRaidTool
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
             //Init all services
-            pluginInterface.Create<Services>();
-            LoadError = !Services.Init();
-            FFXIVClientStructs.Resolver.Initialize(Services.SigScanner.SearchBase);
+            LoadError = !Services.Init(pluginInterface);
             //Init Localization
-            Loc = new(Services.PluginInterface.AssemblyLocation.Directory + "\\locale");
-            Loc.SetupWithLangCode(Services.PluginInterface.UiLanguage);
-            Services.PluginInterface.LanguageChanged += OnLanguageChanged;
-            _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+            Localization.Init(pluginInterface);
+            Services.Config = _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             if (!LoadError)
             {
                 //Load and update/correct configuration + ConfigUi
@@ -86,14 +40,14 @@ namespace HimbeertoniRaidTool
                 AddCommand(new HrtCommand()
                 {
                     Command = "/hrt",
-                    Description = Localize("/hrt", "Open Welcome Window with explanations"),
+                    Description = Localization.Localize("/hrt", "Open Welcome Window with explanations"),
                     ShowInHelp = true,
                     OnCommand = OnCommand
                 });
                 //TODO: Some more elegant way to load modules
 
-                AddModule<LootMasterModule, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>(LootMasterModule.Instance);
-                AddModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>(WelcomeWindowModule.Instance);
+                AddModule<LootMasterModule, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>(new());
+                AddModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>(new());
             }
             else
             {
@@ -129,10 +83,7 @@ namespace HimbeertoniRaidTool
                 PluginLog.Error("Error loading module: {0}\n {1}", module?.Name ?? string.Empty, e.ToString());
             }
         }
-        private void OnLanguageChanged(string langCode)
-        {
-            Loc.SetupWithLangCode(langCode);
-        }
+
         private void AddCommand(HrtCommand command)
         {
             if (Services.CommandManager.AddHandler(command.Command,
@@ -145,7 +96,6 @@ namespace HimbeertoniRaidTool
         }
         public void Dispose()
         {
-            Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
             RegisteredCommands.ForEach(command => Services.CommandManager.RemoveHandler(command));
             if (!LoadError)
             {
@@ -163,6 +113,7 @@ namespace HimbeertoniRaidTool
                     PluginLog.Fatal($"Unable to Dispose module \"{moduleEntry.Key}\"\n{e}");
                 }
             }
+            Localization.Dispose();
             _Configuration.Dispose();
             Services.Dispose();
         }
@@ -171,12 +122,25 @@ namespace HimbeertoniRaidTool
             switch (args)
             {
                 case string a when a.Contains("option") || a.Contains("config"): _Configuration.Ui.Show(); break;
-                case string b when b.Contains("exportlocale"): Loc.ExportLocalizable(); break;
+#if DEBUG
+                case string b when b.Contains("exportlocale"): Localization.ExportLocalizable(); break;
+#endif
                 case string when args.IsNullOrEmpty(): GetModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>()?.Show(); break;
                 default:
                     PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
                     break;
             }
+        }
+    }
+    public static class HRTExtensions
+    {
+        public static T Clone<T>(this T source)
+            => JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(source))!;
+        public static int ConsistentHash(this string obj)
+        {
+            SHA512 alg = SHA512.Create();
+            byte[] sha = alg.ComputeHash(Encoding.UTF8.GetBytes(obj));
+            return sha[0] + 256 * sha[1] + 256 * 256 * sha[2] + 256 * 256 * 256 * sha[2];
         }
     }
 }

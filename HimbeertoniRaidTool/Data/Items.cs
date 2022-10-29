@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Lumina.Excel;
 using Lumina.Excel.Extensions;
@@ -14,14 +15,15 @@ namespace HimbeertoniRaidTool.Data
     {
         [JsonProperty]
         public bool IsHq = false;
-        private static KeyContainsDictionary<GearSource> SourceDic => CuratedData.GearSourceDictionary;
         [JsonIgnore]
-        public GearSetSlot Slot => Item?.EquipSlotCategory.Value?.ToSlot() ?? GearSetSlot.None;
+        [Obsolete("Evaluate for all availbale slots")]
+        public GearSetSlot Slot => (Item?.EquipSlotCategory.Value).ToSlot();
         [JsonIgnore]
-        private GearSource? SourceCache = null;
         public List<Job> Jobs => Item?.ClassJobCategory.Value?.ToJob() ?? new List<Job>();
         [JsonIgnore]
-        public GearSource Source => SourceCache ??= SourceDic.GetValueOrDefault(Name, GearSource.undefined);
+        public IEnumerable<GearSetSlot> Slots => (Item?.EquipSlotCategory.Value).AvailableSlots();
+        [JsonIgnore]
+        public GearSource Source => CuratedData.GearSourceDB.GetValueOrDefault(ID, GearSource.undefined);
         [JsonProperty("Materia")]
         public List<HrtMateria> Materia = new();
         [JsonIgnore]
@@ -59,7 +61,7 @@ namespace HimbeertoniRaidTool.Data
             if (ReferenceEquals(this, other)) return true;
             if (ID != other.ID) return false;
             if (Materia.Count != other.Materia.Count) return false;
-            var cnt = new Dictionary<HrtMateria, int>();
+            Dictionary<HrtMateria, int> cnt = new();
             foreach (HrtMateria s in Materia)
             {
                 if (cnt.ContainsKey(s))
@@ -89,12 +91,7 @@ namespace HimbeertoniRaidTool.Data
         private Item? ItemCache = null;
         public Item? Item => ItemCache ??= _itemSheet.GetRow(ID);
         public string Name => Item?.Name.RawString ?? "";
-        public bool IsGear => Item?.EquipSlotCategory.Value is not null;
-        /// <summary>
-        /// Is done this way since HrtMateria cannot be created from ItemID alone 
-        /// and always will be of type HrtMateria
-        /// </summary>
-        public bool IsMateria => GetType().IsAssignableTo(typeof(HrtMateria));
+        public bool IsGear => (Item?.ClassJobCategory.Row ?? 0) != 0;
         public bool IsExhangableItem => CuratedData.ExchangedFor.ContainsKey(ID);
         public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
         [JsonIgnore]
@@ -123,7 +120,7 @@ namespace HimbeertoniRaidTool.Data
         [JsonIgnore]
         public override uint ID => IDCache ??= Materia?.Item[MateriaLevel].Row ?? 0;
         public Materia? Materia => _materiaSheet.GetRow((ushort)Category);
-        public StatType StatType => (StatType)(Materia?.BaseParam.Row ?? 0);
+        public StatType StatType => Category.GetStatType();
         public HrtMateria() : this(0, 0) { }
         public HrtMateria((MateriaCategory cat, byte lvl) mat) : this(mat.cat, mat.lvl) { }
         [JsonConstructor]
@@ -140,7 +137,7 @@ namespace HimbeertoniRaidTool.Data
     public class ExchangableItem : HrtItem
     {
         public List<GearItem> PossiblePurchases =>
-            CuratedData.ExchangedFor.GetValueOrDefault(_ID)?.AsList.ConvertAll(id => new GearItem(id))
+            CuratedData.ExchangedFor.GetValueOrDefault(_ID)?.ToList().ConvertAll(id => new GearItem(id))
             ?? new();
 
         public ExchangableItem(uint id) : base(id) { }
@@ -149,88 +146,29 @@ namespace HimbeertoniRaidTool.Data
     public class ContainerItem : HrtItem
     {
         public List<GearItem> PossiblePurchases =>
-            CuratedData.ItemContainerDB.GetValueOrDefault(_ID)?.AsList.ConvertAll(id => new GearItem(id))
+            CuratedData.ItemContainerDB.GetValueOrDefault(_ID)?.ToList().ConvertAll(id => new GearItem(id))
             ?? new();
 
         public ContainerItem(uint id) : base(id) { }
-    }
-
-
-    [SuppressMessage("Style", "IDE0060:Nicht verwendete Parameter entfernen", Justification = "Override all constructors for safety")]
-    public class KeyContainsDictionary<TValue> : Dictionary<string, TValue>
-    {
-        public KeyContainsDictionary() : base(new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IDictionary<string, TValue> dictionary)
-            : base(dictionary, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IEnumerable<KeyValuePair<string, TValue>> collection)
-            : base(collection, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IEqualityComparer<string>? comparer)
-            : base(new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(int capacity)
-            : base(capacity, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IDictionary<string, TValue> dictionary, IEqualityComparer<string>? comparer)
-            : base(dictionary, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(IEnumerable<KeyValuePair<string, TValue>> collection, IEqualityComparer<string>? comparer)
-            : base(collection, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-        public KeyContainsDictionary(int capacity, IEqualityComparer<string>? comparer)
-            : base(capacity, new ContainsEqualityComparer()) { ((ContainsEqualityComparer)Comparer).parent = this; }
-
-        private class ContainsEqualityComparer : IEqualityComparer<string>
-        {
-            internal Dictionary<string, TValue>? parent;
-            public bool Equals(string? x, string? y)
-            {
-                if (x is null || y is null)
-                    return false;
-                return x.Contains(y) || y.Contains(x);
-            }
-
-            public int GetHashCode([DisallowNull] string obj)
-            {
-                foreach (string key in parent!.Keys)
-                {
-                    if (obj.Contains(key))
-                        return key.GetHashCode();
-                }
-                return obj.GetHashCode();
-            }
-        }
     }
     public class ItemIDRange : ItemIDCollection
     {
         public static implicit operator ItemIDRange(uint id) => new(id, id);
         public static implicit operator ItemIDRange((uint, uint) id) => new(id.Item1, id.Item2);
-        private readonly uint StartID;
-        private readonly uint EndID;
-        private bool InRange(uint id) => StartID <= id && id <= EndID;
-        public List<uint> AsList => Enumerable.Range((int)StartID, (int)(EndID - StartID + 1)).ToList().ConvertAll(x => (uint)x);
-        public ItemIDRange(uint start, uint end) => (StartID, EndID) = (start, end);
-        public override bool Equals(object? obj)
-        {
-            if (!obj?.GetType().IsAssignableTo(typeof(ItemIDRange)) ?? false)
-                return false;
-            return Equals((ItemIDRange)obj!);
-        }
-        public bool Contains(uint obj) => InRange(obj);
-        public bool Equals(ItemIDRange obj) => StartID == obj.StartID && EndID == obj.EndID;
-        public override int GetHashCode() => (StartID, EndID).GetHashCode();
-
+        public ItemIDRange(uint start, uint end) : base(Enumerable.Range((int)start, Math.Max(0, (int)end - (int)start + 1)).ToList().ConvertAll(x => (uint)x)) { }
     }
     public class ItemIDList : ItemIDCollection
     {
-        private readonly ReadOnlyCollection<uint> _IDs;
         public static implicit operator ItemIDList(uint[] ids) => new(ids);
-        public List<uint> AsList => _IDs.ToList();
-        public bool Contains(uint id) => _IDs.Contains(id);
-        public ItemIDList(params uint[] ids)
-        {
-            _IDs = new ReadOnlyCollection<uint>(ids);
-        }
+
+        public ItemIDList(params uint[] ids) : base(ids) { }
     }
-    public interface ItemIDCollection
+    public abstract class ItemIDCollection : IEnumerable<uint>
     {
-        public abstract List<uint> AsList { get; }
-        public abstract bool Contains(uint id);
+        private readonly ReadOnlyCollection<uint> _IDs;
+        protected ItemIDCollection(IEnumerable<uint> ids) => _IDs = new(ids.ToList());
+        public IEnumerator<uint> GetEnumerator() => _IDs.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => _IDs.GetEnumerator();
     }
 
 }
