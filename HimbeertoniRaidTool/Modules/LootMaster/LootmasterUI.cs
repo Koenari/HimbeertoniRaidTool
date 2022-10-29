@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
-using System.Threading.Tasks;
 using ColorHelper;
 using Dalamud.Interface;
-using Dalamud.Logging;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
@@ -69,7 +67,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private void DrawDetailedPlayer(Player p)
         {
             var curClass = p.MainChar.MainClass;
-            ImGui.BeginChild("SoloView");   
+            ImGui.BeginChild("SoloView");
             ImGui.Columns(3);
             /**
              * Job Selection
@@ -77,19 +75,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.Text($"{p.NickName} : {p.MainChar.Name} @ {p.MainChar.HomeWorld?.Name ?? "n.A"}");
             ImGui.SameLine();
 
-            ImGuiHelper.GearUpdateButton(p);
+            ImGuiHelper.GearUpdateButtons(p, _lootMaster, true);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}{p.Pos}", $"{Localize("Edit player", "Edit player")} {p.NickName}"))
             {
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup, p.Pos, _lootMaster.Configuration.Data.GetDefaultBiS), true);
-            }
-            ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, p.Pos.ToString()
-                , Localize("Lodestone Button", "Download Gear from Lodestone"), true))
-            {
-                //Services.TaskManager.RegisterTask(_lootMaster, NetStoneConnector.UpdateCharacterFromLodestone(p));
-                Services.TaskManager.RegisterTask(_lootMaster, 
-                    Services.ConnectorPool.LodestoneConnector.UpdateCharacter(p));
             }
 
             foreach (var playableClass in p.MainChar.Classes)
@@ -416,15 +406,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                  * Start of functional button section
                  */
                 {
-                    ImGuiHelper.GearUpdateButton(player);
+                    ImGuiHelper.GearUpdateButtons(player, _lootMaster);
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange{player.Pos}", "Swap Position", true, ImGui.GetItemRectSize()))
                     {
                         AddChild(new SwapPositionWindow(player.Pos, CurrentGroup));
                     }
                     ImGui.SameLine();
-                        
-
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, player.Pos.ToString(),
                         string.Format(Localize("Edit {0}", "Edit {0}"), player.NickName)))
                     {
@@ -449,12 +437,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         AddChild(new ConfimationDialog(
                             () => player.Reset(),
                             $"{Localize("DeletePlayerConfirmation", "Do you really want to delete following player?")} : {player.NickName}"));
-                    }
-                    if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, player.Pos.ToString()
-                        , Localize("Lodestone Button", "Download Gear from Lodestone"), true))
-                    {
-                        Services.TaskManager.RegisterTask(_lootMaster, 
-                            Services.ConnectorPool.LodestoneConnector.UpdateCharacter(player));
                     }
                 }
             }
