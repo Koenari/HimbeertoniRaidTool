@@ -21,17 +21,16 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
 
         public HRTConfiguration<WelcomeWindowConfig.ConfigData, IHrtConfigUi> Configuration => _config;
 
-        private readonly WelcomeWindowui _ui;
+        private WelcomeWindowui? _ui;
         private readonly WelcomeWindowConfig _config;
         public WelcomeWindowModule()
         {
-            _ui = new(this);
             _config = new WelcomeWindowConfig(this);
         }
         public void Update(Framework fw) { }
         public void Dispose()
         {
-            _ui.Dispose();
+            _ui?.Dispose();
         }
 
         public void HandleMessage(HrtUiMessage message)
@@ -44,20 +43,20 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
 
         internal void Show()
         {
-            _ui.Show();
+            (_ui ??= new(this)).Show();
         }
 
         public void AfterFullyLoaded()
         {
             if (_config.Data.ShowWelcomeWindow)
-                _ui.Show();
+                Show();
         }
 
         private class WelcomeWindowui : Window
         {
             private const string WikiURL = "https://github.com/Koenari/HimbeertoniRaidTool/wiki";
             private readonly WelcomeWindowModule _parent;
-            public WelcomeWindowui(WelcomeWindowModule parent) : base(false)
+            public WelcomeWindowui(WelcomeWindowModule parent) : base()
             {
                 (Size, SizingCondition) = (new Vector2(520, 345), ImGuiCond.Always);
                 Title = Localize("Welcome to HRT", "Welcome to Himbeertoni Raid Tool");
@@ -105,6 +104,7 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
             }
             protected override void OnHide()
             {
+                _parent._ui = null;
                 _parent.Configuration.Data.ShowWelcomeWindow = false;
                 _parent.Configuration.Save();
             }

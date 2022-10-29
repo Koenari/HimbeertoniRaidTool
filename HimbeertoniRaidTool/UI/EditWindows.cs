@@ -43,7 +43,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy = Player.Clone();
             }
-            (Size, SizingCondition) = (new Vector2(450, 330 + (ClassHeight * PlayerCopy.MainChar.Classes.Count)), ImGuiCond.Appearing);
+            (Size, SizingCondition) = (new Vector2(450, 330 + (ClassHeight * PlayerCopy.MainChar.Classes.Count())), ImGuiCond.Appearing);
             Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName}";
         }
         protected override void Draw()
@@ -83,16 +83,18 @@ namespace HimbeertoniRaidTool.UI
             //Class Data
             ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Job Data", "Job Data")).X) / 2f);
             ImGui.Text(Localize("Job Data", "Job Data"));
-            if (PlayerCopy.MainChar.Classes.Count > 0)
+            if (PlayerCopy.MainChar.Classes.Any())
             {
-                int mainClass = PlayerCopy.MainChar.Classes.FindIndex(x => x.Job == PlayerCopy.MainChar.MainJob);
-                if (mainClass < 0 || mainClass >= PlayerCopy.MainChar.Classes.Count)
+                if (!PlayerCopy.MainChar.Classes.Any(x => x.Job == PlayerCopy.MainChar.MainJob))
+                    PlayerCopy.MainChar.MainJob = PlayerCopy.MainChar.Classes.First().Job;
+                if (ImGui.BeginCombo(Localize("Main Job", "Main Job"), PlayerCopy.MainChar.MainJob.ToString()))
                 {
-                    mainClass = 0;
-                    PlayerCopy.MainChar.MainJob = PlayerCopy.MainChar.Classes[mainClass].Job;
+                    foreach (PlayableClass curJob in PlayerCopy.MainChar)
+                    {
+                        if (ImGui.Selectable(curJob.Job.ToString()))
+                            PlayerCopy.MainChar.MainJob = curJob.Job;
+                    }
                 }
-                if (ImGui.Combo(Localize("Main Job", "Main Job"), ref mainClass, PlayerCopy.MainChar.Classes.ConvertAll(x => x.Job.ToString()).ToArray(), PlayerCopy.MainChar.Classes.Count))
-                    PlayerCopy.MainChar.MainJob = PlayerCopy.MainChar.Classes[mainClass].Job;
             }
             else
             {
@@ -134,7 +136,7 @@ namespace HimbeertoniRaidTool.UI
             }
             if (toDelete is not null)
             {
-                PlayerCopy.MainChar.Classes.RemoveAll(x => x.Job == toDelete);
+                PlayerCopy.MainChar.RemoveClass(toDelete.Value);
                 Size.Y -= ClassHeight;
                 resize = true;
             }
@@ -142,14 +144,14 @@ namespace HimbeertoniRaidTool.UI
             ImGui.Columns(1);
             if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out Job job, newJob.ToString(), ImGuiComboFlags.None,
                 Enum.GetValues<Job>(), (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
-                j => j.ToString(), (t) => !PlayerCopy.MainChar.Classes.Exists(y => y.Job == t)))
+                j => j.ToString(), (t) => !PlayerCopy.MainChar.Classes.Any(y => y.Job == t)))
             {
                 newJob = job;
             }
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
             {
-                PlayerCopy.MainChar.GetClass(newJob).BIS.EtroID = GetBisID(newJob);
+                PlayerCopy.MainChar[newJob].BIS.EtroID = GetBisID(newJob);
                 Size.Y += ClassHeight;
                 resize = true;
             }
@@ -175,7 +177,7 @@ namespace HimbeertoniRaidTool.UI
                 Character c = new(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
                 Services.HrtDataManager.GetManagedCharacter(ref c);
                 Player.MainChar = c;
-                if (c.Classes.Count > 0)
+                if (c.Classes.Any())
                     return;
             }
             if (Player.MainChar.Name != PlayerCopy.MainChar.Name || Player.MainChar.HomeWorldID != PlayerCopy.MainChar.HomeWorldID)
@@ -189,18 +191,18 @@ namespace HimbeertoniRaidTool.UI
                 Player.MainChar = c;
             }
             Player.MainChar.MainJob = PlayerCopy.MainChar.MainJob;
-            for (int i = 0; i < Player.MainChar.Classes.Count; i++)
+            for (int i = 0; i < Player.MainChar.Classes.Count(); i++)
             {
-                PlayableClass c = Player.MainChar.Classes[i];
-                if (!PlayerCopy.MainChar.Classes.Exists(x => x.Job == c.Job))
+                PlayableClass c = Player.MainChar.Classes.ElementAt(i);
+                if (!PlayerCopy.MainChar.Classes.Any(x => x.Job == c.Job))
                 {
-                    Player.MainChar.Classes.Remove(c);
+                    Player.MainChar.RemoveClass(c.Job);
                     i--;
                 }
             }
             foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
             {
-                PlayableClass target = Player.MainChar.GetClass(c.Job);
+                PlayableClass target = Player.MainChar[c.Job];
                 target.Level = c.Level;
                 if (target.BIS.EtroID.Equals(c.BIS.EtroID))
                     continue;

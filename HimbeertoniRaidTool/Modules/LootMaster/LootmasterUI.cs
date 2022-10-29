@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,25 +16,20 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal class LootmasterUI : Window
     {
-        private static readonly Vector4[] ColorCache = new Vector4[4]
+        public Vector4 ILevelColor(GearItem item) => (_lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel - (int)item.ItemLevel) switch
         {
-            Vec4(ColorName.Green.ToHsv().Saturation(0.8f).Value(0.85f)),
-            Vec4(ColorName.Aquamarine.ToHsv().Saturation(0.8f).Value(0.85f)),
-            Vec4(ColorName.Yellow.ToHsv().Saturation(0.8f).Value(0.85f)),
-            Vec4(ColorName.Red.ToHsv().Saturation(0.8f).Value(0.85f)),
-        };
-        public static Vector4 ILevelColor(GearItem item, uint maxItemLevel) => (maxItemLevel - (int)item.ItemLevel) switch
-        {
-            <= 0 => ColorCache[0],
-            <= 10 => ColorCache[1],
-            <= 20 => ColorCache[2],
-            _ => ColorCache[3],
+            <= 0 => _lootMaster.Configuration.Data.ItemLevelColors[0],
+            <= 10 => _lootMaster.Configuration.Data.ItemLevelColors[1],
+            <= 20 => _lootMaster.Configuration.Data.ItemLevelColors[2],
+            _ => _lootMaster.Configuration.Data.ItemLevelColors[3],
         };
         private readonly LootMasterModule _lootMaster;
         private int _CurrenGroupIndex;
         private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
-        private readonly List<(DateTime, HrtUiMessage)> _messages = new();
+        private readonly Queue<HrtUiMessage> _messageQueue = new();
+        private (HrtUiMessage message, DateTime time)? _currentMessage;
+        private static readonly TimeSpan _messageTime = TimeSpan.FromSeconds(10);
         internal LootmasterUI(LootMasterModule lootMaster) : base(false, "LootMaster")
         {
             _lootMaster = lootMaster;
@@ -53,27 +48,30 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             _CurrenGroupIndex = _lootMaster.Configuration.Data.LastGroupIndex;
         }
-        private void HandleAsync()
+        private void DrawUiMessages()
         {
-            _messages.RemoveAll(m => (DateTime.Now - m.Item1).TotalSeconds > 10);
-            foreach (HrtUiMessage m in _messages.ConvertAll(i => i.Item2))
+            if (_currentMessage.HasValue && _currentMessage.Value.time + _messageTime < DateTime.Now)
+                _currentMessage = null;
+            if (!_currentMessage.HasValue && _messageQueue.TryDequeue(out HrtUiMessage message))
+                _currentMessage = (message, DateTime.Now);
+            if (_currentMessage.HasValue)
             {
-                switch (m.MessageType)
+                switch (_currentMessage.Value.message.MessageType)
                 {
                     case HrtUiMessageType.Error or HrtUiMessageType.Failure:
-                        ImGui.TextColored(Vec4(ColorName.RedCrayola), m.Message);
+                        ImGui.TextColored(new Vector4(0.85f, 0.17f, 0.17f, 1f), _currentMessage.Value.message.Message);
                         break;
                     case HrtUiMessageType.Success:
-                        ImGui.TextColored(Vec4(ColorName.Green), m.Message);
+                        ImGui.TextColored(new Vector4(0.17f, 0.85f, 0.17f, 1f), _currentMessage.Value.message.Message);
                         break;
                     case HrtUiMessageType.Warning:
-                        ImGui.TextColored(Vec4(ColorName.Yellow), m.Message);
+                        ImGui.TextColored(new Vector4(0.85f, 0.85f, 0.17f, 1f), _currentMessage.Value.message.Message);
                         break;
                     case HrtUiMessageType.Important:
-                        ImGui.TextColored(Vec4(ColorName.MiddleRed), m.Message);
+                        ImGui.TextColored(new Vector4(0.85f, 0.27f, 0.27f, 1f), _currentMessage.Value.message.Message);
                         break;
                     default:
-                        ImGui.Text(m.Message);
+                        ImGui.Text(_currentMessage.Value.message.Message);
                         break;
                 }
             }
@@ -95,9 +93,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, p, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
-
             foreach (var playableClass in p.MainChar.Classes)
             {
+                ImGui.Separator();
+                ImGui.Spacing();
                 bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
                 if (isMainJob)
@@ -126,7 +125,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     Services.TaskManager.RegisterTask(_lootMaster, () => Services.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS)
                         , $"BIS update for Character {p.MainChar.Name} ({playableClass.Job}) succeeded"
                         , $"BIS update for Character {p.MainChar.Name} ({playableClass.Job}) failed");
+                ImGui.Spacing();
             }
+            ImGui.EndChild();
             /**
              * Stat Table
              */
@@ -141,7 +142,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.TextColored(Vec4(ColorName.RedCrayola.ToRgb()),
                     Localize("StatsUnfinished", "Stats are under development and only work correctly for level 70/80/90 jobs"));
 
-                ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
+                ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
                 ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
                 ImGui.TableSetupColumn(Localize("Current", "Current"));
                 ImGui.TableSetupColumn("");
@@ -155,7 +156,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 DrawStatRow(StatType.MagicDefense);
                 ImGui.EndTable();
                 ImGui.NewLine();
-                ImGui.BeginTable("SecondaryStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV);
+                ImGui.BeginTable("SecondaryStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
                 ImGui.TableSetupColumn(Localize("SecondaryStats", "Secondary Stats"));
                 ImGui.TableSetupColumn(Localize("Current", "Current"));
                 ImGui.TableSetupColumn("");
@@ -187,7 +188,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.TableNextColumn();
                     ImGui.Text(type.FriendlyName());
                     if (type == StatType.CriticalHit)
-                        ImGui.Text("Critical Damage");
+                        ImGui.Text(Localize("Critical Damage", "Critical Damage"));
+                    if (type is StatType.SkillSpeed or StatType.SpellSpeed)
+                        ImGui.Text(Localize("SpeedMultiplierName", "AA / DoT multiplier"));
                     //Current
                     ImGui.TableNextColumn();
                     ImGui.Text(curClass.GetCurrentStat(type).ToString());
@@ -211,8 +214,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
              */
             ImGui.NextColumn();
             ImGui.BeginTable("SoloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
-            ImGui.TableSetupColumn("Gear");
-            ImGui.TableSetupColumn("Gear");
+            ImGui.TableSetupColumn(Localize("Gear", "Gear"));
+            ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
             bool ringsSwapped = p.Gear.Ring1.ID == p.BIS.Ring2.ID || p.Gear.Ring2.ID == p.BIS.Ring1.ID;
             DrawSlot(p.Gear.MainHand, p.BIS.MainHand, true);
@@ -234,7 +237,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             if (_CurrenGroupIndex > RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
                 _CurrenGroupIndex = 0;
-            HandleAsync();
+            DrawUiMessages();
             DrawLootHandlerButtons();
             DrawRaidGroupSwitchBar();
             if (CurrentGroup.Type == GroupType.Solo)
@@ -250,7 +253,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             else if (CurrentGroup.Type == GroupType.Raid || CurrentGroup.Type == GroupType.Group)
             {
                 if (ImGui.BeginTable("RaidGroup", 14,
-                ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp))
+                ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg))
                 {
                     ImGui.TableSetupColumn(Localize("Player", "Player"));
                     ImGui.TableSetupColumn(Localize("itemLevelShort", "iLvl"));
@@ -279,7 +282,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             else
             {
-                ImGui.TextColored(Vec4(ColorName.Red.ToRgb()), $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
+                ImGui.TextColored(Vec4(ColorName.Red), $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
             }
         }
 
@@ -298,6 +301,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 if (ImGui.TabItemButton($"{g.Name}##{tabBarIdx}"))
                     _CurrenGroupIndex = tabBarIdx;
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip(Localize("GroupTabTooltip", "Right click for more options"));
                 //0 is reserved for Solo on current Character (non editable)
                 if (tabBarIdx > 0)
                 {
@@ -332,7 +337,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 if (ImGuiHelper.Button(Localize("From current Group", "From current Group"), null))
                 {
-                    _lootMaster.AddGroup(new("AutoCreated"), true);
+                    _lootMaster.AddGroup(new(Localize("AutoCreatedGroupName", "Auto Created")), true);
                     ImGui.CloseCurrentPopup();
                 }
                 if (ImGuiHelper.Button(Localize("From scratch", "From scratch"), Localize("Add empty group", "Add empty group")))
@@ -347,34 +352,35 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private void DrawPlayer(Player player, int pos)
         {
             bool playerExists = player.Filled && player.MainChar.Filled;
-            bool hasClasses = playerExists && player.MainChar.Classes.Count > 0;
+            bool hasClasses = playerExists && player.MainChar.Classes.Any();
             if (playerExists)
             {
 
                 ImGui.TableNextColumn();
                 ImGui.Text($"{player.MainChar.MainJob.GetRole().FriendlyName()}:   {player.NickName}");
-                ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? "n.A."}");
+                ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? Localize("n.A.", "n.A.")}");
                 var c = player.MainChar;
                 if (hasClasses)
                 {
-                    if (player.MainChar.Classes.Count > 1)
+                    ImGui.Text($"{Localize("LvLShort", "Lvl")}: {player.MainChar.MainClass?.Level ?? 1}");
+                    ImGui.SameLine();
+                    if (player.MainChar.Classes.Count() > 1)
                     {
-                        int playerClass = player.MainChar.Classes.FindIndex(x => x.Job == player.MainChar.MainJob);
-                        if (ImGui.Combo($"##Class", ref playerClass, player.MainChar.Classes.ConvertAll(x => x.Job.ToString()).ToArray(),
-                            player.MainChar.Classes.Count))
-                            player.MainChar.MainJob = player.MainChar.Classes[playerClass].Job;
+                        ImGui.SetNextItemWidth(100 * ScaleFactor);
+                        if (ImGui.BeginCombo($"##Class", player.MainChar.MainClass?.Job.ToString()))
+                        {
+                            foreach (PlayableClass job in player.MainChar)
+                            {
+                                if (ImGui.Selectable(job.Job.ToString()))
+                                    player.MainChar.MainJob = job.Job;
+                            }
+                            ImGui.EndCombo();
+                        }
                     }
                     else
                     {
                         ImGui.Text(player.MainChar.MainJob.ToString());
                     }
-                    ImGui.SameLine();
-                    string levelStr = $"{Localize("LvLShort", "Lvl")}: {player.MainChar.MainClass?.Level ?? 1}";
-                    float posX = ImGui.GetCursorPosX() + ImGui.GetColumnWidth() - ImGui.CalcTextSize(levelStr).X
-                        - ImGui.GetScrollX() - ImGui.GetStyle().ItemSpacing.X;
-                    if (posX > ImGui.GetCursorPosX())
-                        ImGui.SetCursorPosX(posX);
-                    ImGui.Text(levelStr);
                     var gear = player.Gear;
                     var bis = player.BIS;
                     ImGui.TableNextColumn();
@@ -474,38 +480,55 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.TableNextColumn();
             if (item.Filled && bis.Filled && item.Equals(bis))
             {
-                ImGui.NewLine();
-                DrawItem(item, extended);
-                ImGui.NewLine();
+                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / (extended ? 2 : 1));
+                ImGui.BeginGroup();
+                DrawItem(item, extended, true);
+                ImGui.EndGroup();
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    item.Draw();
+                    ImGui.EndTooltip();
+                }
             }
             else
             {
+                ImGui.BeginGroup();
                 DrawItem(item, extended);
                 ImGui.NewLine();
                 DrawItem(bis, extended);
+                ImGui.EndGroup();
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.Columns(2);
+                    item.Draw();
+                    ImGui.NextColumn();
+                    bis.Draw();
+                    ImGui.Columns();
+                    ImGui.EndTooltip();
+                }
             }
-            void DrawItem(GearItem item, bool extended)
+            void DrawItem(GearItem item, bool extended, bool multiLine = false)
             {
                 if (item.Filled)
                 {
-                    ImGui.BeginGroup();
-                    ImGui.TextColored(
-                        ILevelColor(item, _lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel),
-                        $"{item.ItemLevel} {item.Source.FriendlyName()} {item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName()}");
+                    string toDraw = string.Format(_lootMaster.Configuration.Data.ItemFormatString,
+                        item.ItemLevel,
+                        item.Source.FriendlyName(),
+                        item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
+                    if (_lootMaster.Configuration.Data.ColoredItemNames)
+                        ImGui.TextColored(ILevelColor(item), toDraw);
+                    else
+                        ImGui.Text(toDraw);
                     if (extended)
                     {
-                        string materria = "";
+                        List<string> materia = new();
                         foreach (var mat in item.Materia)
-                            materria += $"{mat.StatType.Abbrev()} +{mat.GetStat()}  ";
-                        ImGui.SameLine();
-                        ImGui.Text($"(  {materria})");
-                    }
-                    ImGui.EndGroup();
-                    if (ImGui.IsItemHovered())
-                    {
-                        ImGui.BeginTooltip();
-                        item.Draw();
-                        ImGui.EndTooltip();
+                            materia.Add($"{mat.StatType.Abbrev()} +{mat.GetStat()}");
+                        if (!multiLine)
+                            ImGui.SameLine();
+                        ImGui.Text($"( {string.Join(" | ", materia)} )");
                     }
                 }
                 else
@@ -515,7 +538,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private void DrawLootHandlerButtons()
         {
-            var currentLootSources = new LootSource[4];
+            LootSource[] currentLootSources = new LootSource[4];
             int selectedTier = Array.IndexOf(CuratedData.RaidTiers, _lootMaster.Configuration.Data.SelectedRaidTier);
             ImGui.SetNextItemWidth(ImGui.CalcTextSize(CuratedData.RaidTiers[selectedTier].Name).X + 32f * ScaleFactor);
             if (ImGui.Combo("##Raid Tier", ref selectedTier, Array.ConvertAll(CuratedData.RaidTiers, x => x.Name), CuratedData.RaidTiers.Length))
@@ -545,7 +568,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         internal void HandleMessage(HrtUiMessage message)
         {
-            _messages.Add((DateTime.Now, message));
+            _messageQueue.Enqueue(message);
         }
 
         private class PlayerdetailWindow : Window

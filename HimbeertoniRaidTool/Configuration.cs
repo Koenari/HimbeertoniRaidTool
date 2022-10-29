@@ -104,8 +104,8 @@ namespace HimbeertoniRaidTool
                 _dataCopy = _configuration.Data.Clone();
                 Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
 
-                (Size, SizingCondition) = (new Vector2(450, 500), ImGuiCond.Always);
-                WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
+                (Size, SizingCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);
+                WindowFlags = ImGuiWindowFlags.NoCollapse;
                 Title = Localize("ConfigWindowTitle", "HimbeerToni Raid Tool Configuration");
             }
             protected override void BeforeDispose()

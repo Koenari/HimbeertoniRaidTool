@@ -117,8 +117,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             //Start getting Infos from Game
             Job targetClass = target.GetJob();
             //Getting level does not work in level synced content
-            if (target.Level > targetChar.GetClass(targetClass).Level)
-                targetChar.GetClass(targetClass).Level = target.Level;
+            if (target.Level > targetChar[targetClass].Level)
+                targetChar[targetClass].Level = target.Level;
             try
             {
                 InventoryContainer* container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);

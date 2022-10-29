@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
@@ -7,17 +8,17 @@ using Newtonsoft.Json;
 namespace HimbeertoniRaidTool.Data
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public class Character : IEquatable<Character>
+    public class Character : IEquatable<Character>, IEnumerable<PlayableClass>
     {
         private static readonly ExcelSheet<World>? _worldSheet = Services.DataManager.GetExcelSheet<World>();
         private static readonly ExcelSheet<Tribe> _tribeSheet = Services.DataManager.GetExcelSheet<Tribe>()!;
         [JsonProperty("Classes")]
-        public List<PlayableClass> Classes = new();
+        private readonly List<PlayableClass> _classes = new();
         [JsonProperty("Name")]
         public string Name = "";
         [JsonProperty("MainJob")]
         public Job? MainJob;
-        public PlayableClass? MainClass => MainJob.HasValue ? GetClass(MainJob.Value) : null;
+        public PlayableClass? MainClass => MainJob.HasValue ? this[MainJob.Value] : null;
         [JsonProperty("WorldID")]
         public uint HomeWorldID;
         [JsonProperty("Tribe")]
@@ -39,17 +40,26 @@ namespace HimbeertoniRaidTool.Data
             Name = name;
             HomeWorldID = worldID;
         }
+        public IEnumerable<PlayableClass> Classes => _classes;
         private PlayableClass AddClass(Job ClassToAdd)
         {
             PlayableClass toAdd = new(ClassToAdd, this);
-            Classes.Add(toAdd);
+            _classes.Add(toAdd);
             return toAdd;
         }
+        public PlayableClass this[Job type]
+        {
+            get => _classes.Find(x => x.Job == type) ?? AddClass(type);
+        }
+        [Obsolete("Use [type]")]
         public PlayableClass GetClass(Job type)
         {
-            return Classes.Find(x => x.Job == type) ?? AddClass(type);
+            return this[type];
         }
-
+        public bool RemoveClass(Job type)
+        {
+            return _classes.RemoveAll(job => job.Job == type) > 0;
+        }
         public bool Equals(Character? other)
         {
             if (other == null)
@@ -58,5 +68,9 @@ namespace HimbeertoniRaidTool.Data
         }
         public override bool Equals(object? obj) => obj is Character objS && Equals(objS);
         public override int GetHashCode() => Name.GetHashCode();
+
+        public IEnumerator<PlayableClass> GetEnumerator() => Classes.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => Classes.GetEnumerator();
+
     }
 }
