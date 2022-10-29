@@ -13,6 +13,7 @@ using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Model.Parseables.Character.Gear;
 using NetStone.Search.Character;
+using static Dalamud.Localization;
 
 namespace HimbeertoniRaidTool.Connectors
 {
@@ -42,14 +43,15 @@ namespace HimbeertoniRaidTool.Connectors
             {
                 LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
                 if (lodestoneCharacter == null)
-                    return new HrtUiMessage("Character not found on Lodestone.", HrtUiMessageType.Failure);
+                    return new HrtUiMessage(Localize("LodestoneConnector:CharNotFound", "Character not found on Lodestone."), HrtUiMessageType.Failure);
                 if (lodestoneCharacter.Gear.Soulcrystal != null)
                     foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Soulcrystal.ItemName, out isHq)?.ClassJobUse.Row;
                 else
                     foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand.ItemName, out isHq)?.ClassJobUse.Row;
                 if (foundJob == null || !Enum.IsDefined(typeof(Job), foundJob))
-                    return new HrtUiMessage("Could not resolve currently used job or currently displayed job on " +
-                        "Lodestone is not supported.", HrtUiMessageType.Failure);
+                    return new HrtUiMessage(
+                        Localize("LodestoneConnector:JobIncompatible", ("Could not resolve currently used job or currently displayed job on " +
+                        "Lodestone is not supported.")), HrtUiMessageType.Failure);
 
                 PlayableClass classToChange = p.MainChar.GetClass((Job)foundJob!);
                 classToChange.Level = lodestoneCharacter.ActiveClassJobLevel;
@@ -105,14 +107,16 @@ namespace HimbeertoniRaidTool.Connectors
                         classToChange.Gear[slot].Materia.Add(new(materiaCategory, materiaLevel));
                     }
                 }
-                return new HrtUiMessage($"Updated {p.MainChar.Name}'s {classToChange.Job} gear from Lodestone.",
+                return new HrtUiMessage(
+                    string.Format(
+                        Localize("LodestoneConnector:Sucess", "Updated {0}'s {1} gear from Lodestone."),
+                        p.MainChar.Name, classToChange.Job),
                     HrtUiMessageType.Success);
             }
             catch (Exception e)
             {
-                PluginLog.LogError(e.Message);
-                PluginLog.LogError(e.StackTrace ?? "");
-                return new HrtUiMessage("Could not successfully update gear from Lodestone.", HrtUiMessageType.Error);
+                PluginLog.Error(e, "Error in Lodestone Gear fetch");
+                return new HrtUiMessage(Localize("LodestoneConnector:Failure", "Could not update gear from Lodestone."), HrtUiMessageType.Error);
             }
         }
 
