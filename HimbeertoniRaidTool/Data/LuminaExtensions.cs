@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using HimbeertoniRaidTool.Data;
 using Lumina.Excel.GeneratedSheets;
-using System.Collections.Generic;
 
 namespace HimbeertoniRaidTool.Data
 {

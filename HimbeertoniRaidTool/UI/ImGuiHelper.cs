@@ -5,6 +5,7 @@ using System.Numerics;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Modules;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using ImGuiNET;
 using Lumina.Excel;
@@ -74,7 +75,7 @@ namespace HimbeertoniRaidTool.UI
             return result;
             bool DrawInspectButton(bool insideContextMenu = false)
             {
-                if (Button(FontAwesomeIcon.Search, p.Pos.ToString(),
+                if (Button(FontAwesomeIcon.Search, "inspect",
                     $"{inspectTooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}",
                     canInspect))
                 {
@@ -86,8 +87,8 @@ namespace HimbeertoniRaidTool.UI
             bool DrawLodestoneButton(bool insideContextMenu = false)
             {
                 string tooltip = Localize("Lodestone Button", "Download Gear from Lodestone");
-                if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, p.Pos.ToString()
-                    , $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}"))
+                if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, "lodestone",
+                    $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}"))
                 {
                     Services.TaskManager.RegisterTask(module,
                         Services.ConnectorPool.LodestoneConnector.UpdateCharacter(p));
