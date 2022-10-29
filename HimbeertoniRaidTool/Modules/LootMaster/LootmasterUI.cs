@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -93,6 +93,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, p, _lootMaster.Configuration.Data.GetDefaultBiS), true);
             }
+            ImGui.BeginChild("JobList");
             foreach (var playableClass in p.MainChar.Classes)
             {
                 ImGui.Separator();

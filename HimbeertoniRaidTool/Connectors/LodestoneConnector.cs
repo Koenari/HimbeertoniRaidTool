@@ -53,7 +53,7 @@ namespace HimbeertoniRaidTool.Connectors
                         Localize("LodestoneConnector:JobIncompatible", ("Could not resolve currently used job or currently displayed job on " +
                         "Lodestone is not supported.")), HrtUiMessageType.Failure);
 
-                PlayableClass classToChange = p.MainChar.GetClass((Job)foundJob!);
+                PlayableClass classToChange = p.MainChar[foundJob.Value];
                 classToChange.Level = lodestoneCharacter.ActiveClassJobLevel;
                 //Getting Race, Clan and Gender is not yet correctly implemented in Netstone 1.0.0
                 //classToChange.Tribe = (unit)lodestoneCharacter.RaceClanGender;
