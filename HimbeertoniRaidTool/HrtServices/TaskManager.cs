@@ -25,9 +25,9 @@ namespace HimbeertoniRaidTool.HrtServices
                 callBack(task.Result);
             _tasks.RemoveAll(t => t.task.IsCompleted);
         }
-        internal void RegisterTask<T, S>(IHrtModule<T, S> hrtModule, Func<HrtUiMessage> task) where T : new() where S : IHrtConfigUi
+        internal void RegisterTask(IHrtModule hrtModule, Func<HrtUiMessage> task)
             => RegisterTask(hrtModule.HandleMessage, Task.Run(task));
-        internal void RegisterTask<T, S>(IHrtModule<T, S> hrtModule, Task<HrtUiMessage> task) where T : new() where S : IHrtConfigUi
+        internal void RegisterTask(IHrtModule hrtModule, Task<HrtUiMessage> task)
             => RegisterTask(hrtModule.HandleMessage, task);
         internal void RegisterTask(Action<HrtUiMessage> callBack, Func<HrtUiMessage> task) =>
             RegisterTask(callBack, Task.Run(task));
@@ -35,9 +35,9 @@ namespace HimbeertoniRaidTool.HrtServices
         {
             _tasks.Add((callBack, task));
         }
-        internal void RegisterTask<T, S>(IHrtModule<T, S> hrtModule, Func<bool> task, string success, string failure) where T : new() where S : IHrtConfigUi
+        internal void RegisterTask(IHrtModule hrtModule, Func<bool> task, string success, string failure)
             => RegisterTask(hrtModule.HandleMessage, task, success, failure);
-        internal void RegisterTask<T, S>(IHrtModule<T, S> hrtModule, Task<bool> task, string success, string failure) where T : new() where S : IHrtConfigUi
+        internal void RegisterTask(IHrtModule hrtModule, Task<bool> task, string success, string failure)
             => RegisterTask(hrtModule.HandleMessage, task, success, failure);
         internal void RegisterTask(Action<HrtUiMessage> callBack, Func<bool> task, string success, string failure)
             => RegisterTask(callBack, Task.Run(task), success, failure);

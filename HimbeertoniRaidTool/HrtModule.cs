@@ -5,18 +5,20 @@ using HimbeertoniRaidTool.UI;
 
 namespace HimbeertoniRaidTool
 {
-    public interface IHrtModule<T, S> where T : new() where S : IHrtConfigUi
+    public interface IHrtModule<T, S> : IHrtModule where T : new() where S : IHrtConfigUi
+    {
+        HRTConfiguration<T, S> Configuration { get; }
+    }
+    public interface IHrtModule
     {
         string Name { get; }
         string InternalName { get; }
         string Description { get; }
         IEnumerable<HrtCommand> Commands { get; }
-        HRTConfiguration<T, S> Configuration { get; }
         void HandleMessage(HrtUiMessage message);
         void AfterFullyLoaded();
         void Update(Framework fw);
         void Dispose();
-
     }
     public struct HrtCommand
     {
