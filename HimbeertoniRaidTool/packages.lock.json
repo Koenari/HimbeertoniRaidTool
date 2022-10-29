@@ -19,6 +19,38 @@
         "requested": "[6.0.2, )",
         "resolved": "6.0.2",
         "contentHash": "C/GnQ61iO0yEpf8LPixU3tCThar1MWUiBkO8gdZHNtVskg8AvFeuIxk7Zmkf2yeAJ0drR/KOTdSS7GpbsgmoaQ=="
+      },
+      "HtmlAgilityPack": {
+        "type": "Transitive",
+        "resolved": "1.11.46",
+        "contentHash": "dLMn4EVfJBHWmWK4Uh0XGD76FPLHI0qr2Tm0s1m/xmgiHb1JUb9zB8AzO8HtrkBBlMN6JfCUBYddhqC0hZNR+g=="
+      },
+      "JetBrains.Annotations": {
+        "type": "Transitive",
+        "resolved": "2022.1.0",
+        "contentHash": "ASfpoFJxiRsC9Xc4TWuPM41Zb/gl64xwfMOhnOZ3RnVWGYIZchjpWQV5zshJgoc/ZxVtgjaF7b577lURj7E6ig=="
+      },
+      "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": {
+        "type": "Transitive",
+        "resolved": "0.0.2",
+        "contentHash": "+7cqe/+tN7gDW36pgrefSeyAQvhqznM34D0uTwnETgU25iAC6boPtblxbrMluW5rA9o6MzjEg4qZK7WrnT+tSw==",
+        "dependencies": {
+          "HtmlAgilityPack": "1.11.46"
+        }
+      },
+      "Newtonsoft.Json": {
+        "type": "Transitive",
+        "resolved": "13.0.1",
+        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
+      },
+      "netstone": {
+        "type": "Project",
+        "dependencies": {
+          "HtmlAgilityPack": "[1.11.46, )",
+          "JetBrains.Annotations": "[2022.1.0, )",
+          "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "[0.0.2, )",
+          "Newtonsoft.Json": "[13.0.1, )"
+        }
       }
     }
   }

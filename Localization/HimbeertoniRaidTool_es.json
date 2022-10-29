@@ -335,6 +335,14 @@
     "message": "Intervalo de actualización (días)",
     "description": "ConfigUi.Draw"
   },
+  "DefaultBiSHeading": {
+    "message": "Default BiS sets (as etro.gg ID)",
+    "description": "ConfigUi.Draw"
+  },
+  "DefaultBiSDisclaimer": {
+    "message": "These sets are used when creating a new characer or adding a new job. These do not affect already created characters and jobs.",
+    "description": "ConfigUi.Draw"
+  },
   "Reset to default": {
     "message": "Restablecer por defecto",
     "description": "ConfigUi.Draw"
@@ -521,11 +529,11 @@
   },
   "Dmgper100Tooltip": {
     "message": "Daño promedio con una habilidad de 100 de potencia",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|11_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|13_1"
   },
   "Empty": {
     "message": "Vacío",
-    "description": "LootmasterUI.<DrawSlot>g__DrawItem|15_0"
+    "description": "LootmasterUI.<DrawSlot>g__DrawItem|17_0"
   },
   "PlayerDetailsTitle": {
     "message": "Detalles de jugador",
@@ -542,18 +550,6 @@
   "Swap players positions": {
     "message": "Cambiar la posicion de personaje",
     "description": "SwapPositionWindow.Draw"
-  },
-  "invalid item": {
-    "message": "objeto inválido",
-    "description": "LootSession.Evaluate"
-  },
-  "Need > Greed": {
-    "message": "Necesidad > Codicia",
-    "description": "LootSession.Evaluate"
-  },
-  "Greed": {
-    "message": "Codicia",
-    "description": "LootSession.Evaluate"
   },
   "Loot session for": {
     "message": "Sesión de loot para",
@@ -607,6 +603,10 @@
     "message": "Draw",
     "description": "LootResultWindow.Draw"
   },
+  "Needed items": {
+    "message": "Needed items",
+    "description": "LootResultWindow.Draw"
+  },
   "Rule": {
     "message": "Regla",
     "description": "LootResultWindow.Draw"
@@ -623,121 +623,141 @@
     "message": "Ultimate",
     "description": "CuratedData..cctor"
   },
+  "Strength": {
+    "message": "Strength",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Dexterity": {
+    "message": "Dexterity",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Vitality": {
+    "message": "Vitality",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Intelligence": {
+    "message": "Intelligence",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Mind": {
+    "message": "Mind",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Piety": {
+    "message": "Piety",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "HP": {
+    "message": "HP",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "MP": {
+    "message": "MP",
+    "description": "EnumExtensions.FriendlyName"
+  },
   "Physical Damage": {
     "message": "Daño físico",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.FriendlyName"
   },
   "Magical Damage": {
     "message": "Daño mágico",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.FriendlyName"
   },
-  "Critical Hit": {
-    "message": "Golpe crítico",
-    "description": "EnumExtensions..cctor"
+  "Tenacity": {
+    "message": "Tenacity",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "AttackPower": {
+    "message": "AttackPower",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Defense": {
+    "message": "Defense",
+    "description": "EnumExtensions.FriendlyName"
   },
   "Direct Hit": {
     "message": "Golpe directo",
-    "description": "EnumExtensions..cctor"
-  },
-  "Skill Speed": {
-    "message": "Velocidad de Habilidades",
-    "description": "EnumExtensions..cctor"
-  },
-  "Spell Speed": {
-    "message": "Velocidad de hechizos",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.FriendlyName"
   },
   "Magic Defense": {
     "message": "Defensa mágica",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Critical Hit Power": {
+    "message": "Critical Hit Power",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Critical Hit": {
+    "message": "Golpe crítico",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "AttackMagicPotency": {
+    "message": "Attack Magic Potency",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "HealingMagicPotency": {
+    "message": "Healing Magic Potency",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Determination": {
+    "message": "Determination",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Skill Speed": {
+    "message": "Velocidad de Habilidades",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Spell Speed": {
+    "message": "Velocidad de hechizos",
+    "description": "EnumExtensions.FriendlyName"
   },
   "CRT": {
     "message": "CRT",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "DH": {
     "message": "DH",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "SKS": {
     "message": "SKS",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "SPS": {
     "message": "SPS",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "DET": {
     "message": "DET",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "PIE": {
     "message": "PIE",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "MND": {
     "message": "MND",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "STR": {
     "message": "STR",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "DEX": {
     "message": "DEX",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "INT": {
     "message": "INT",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "VIT": {
     "message": "VIT",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "TEN": {
     "message": "TEN",
-    "description": "EnumExtensions..cctor"
-  },
-  "Shield": {
-    "message": "Escudo",
-    "description": "EnumExtensions..cctor"
-  },
-  "Head": {
-    "message": "Cabeza",
-    "description": "EnumExtensions..cctor"
-  },
-  "Body": {
-    "message": "Cuerpo",
-    "description": "EnumExtensions..cctor"
-  },
-  "NoBelts": {
-    "message": "Los cinturones no existen",
-    "description": "EnumExtensions..cctor"
-  },
-  "Trousers": {
-    "message": "Piernas",
-    "description": "EnumExtensions..cctor"
-  },
-  "Shoes": {
-    "message": "Pies",
-    "description": "EnumExtensions..cctor"
-  },
-  "Necklace": {
-    "message": "Collar",
-    "description": "EnumExtensions..cctor"
-  },
-  "Bracelet": {
-    "message": "Brazalete",
-    "description": "EnumExtensions..cctor"
-  },
-  "Ring": {
-    "message": "Anillo",
-    "description": "EnumExtensions..cctor"
-  },
-  "Soul Crystal": {
-    "message": "Cristal de Alma",
-    "description": "EnumExtensions..cctor"
+    "description": "EnumExtensions.Abbrev"
   },
   "HimbeerToni Raid Tool": {
     "message": "HimbeerToni Raid Tool",
@@ -757,6 +777,46 @@
   },
   "FullGroup": {
     "message": "Grupo completo",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Shield": {
+    "message": "Escudo",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Head": {
+    "message": "Cabeza",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Body": {
+    "message": "Cuerpo",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "NoBelts": {
+    "message": "Los cinturones no existen",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Trousers": {
+    "message": "Piernas",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Shoes": {
+    "message": "Pies",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Necklace": {
+    "message": "Collar",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Bracelet": {
+    "message": "Brazalete",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Ring": {
+    "message": "Anillo",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Soul Crystal": {
+    "message": "Cristal de Alma",
     "description": "EnumExtensions.FriendlyName"
   },
   "Raid": {
@@ -781,6 +841,34 @@
   },
   "Alliance": {
     "message": "Alianzas",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Quest": {
+    "message": "Quest",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Relic": {
+    "message": "Relic",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Tank": {
+    "message": "Tank",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Healer": {
+    "message": "Healer",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Melee": {
+    "message": "Melee",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Ranged": {
+    "message": "Ranged",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Caster": {
+    "message": "Caster",
     "description": "EnumExtensions.FriendlyName"
   },
   "BISOverUpgrade": {
@@ -809,6 +897,14 @@
   },
   "None": {
     "message": "Ninguno",
+    "description": "LootRule.GetName"
+  },
+  "Greed": {
+    "message": "Codicia",
+    "description": "LootRule.GetName"
+  },
+  "Need over Greed": {
+    "message": "Need over Greed",
     "description": "LootRule.GetName"
   },
   "Not defined": {

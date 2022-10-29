@@ -64,7 +64,7 @@ namespace HimbeertoniRaidTool
             if (Configurations.ContainsKey(config.GetType()))
                 return false;
             Configurations.Add(config.GetType(), config);
-            return Services.HrtDataManager.ModuleConfigurationManager.LoadConfiguration(config.ParentInternalName, ref config.Data);
+            return Services.HrtDataManager.ModuleConfigurationManager?.LoadConfiguration(config.ParentInternalName, ref config.Data) ?? false;
         }
         internal void Save(bool saveAll = true)
         {
@@ -214,7 +214,7 @@ namespace HimbeertoniRaidTool
         }
         internal void Save()
         {
-            Services.HrtDataManager.ModuleConfigurationManager.SaveConfiguration(ParentInternalName, Data);
+            Services.HrtDataManager.ModuleConfigurationManager?.SaveConfiguration(ParentInternalName, Data);
         }
         public abstract void AfterLoad();
     }

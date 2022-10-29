@@ -1,0 +1,3 @@
+[submodule "NetStone"]
+	path = NetStone
+	url = https://github.com/Koenari/NetStone.git

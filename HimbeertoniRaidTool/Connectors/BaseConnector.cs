@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dalamud.Game;
 using Dalamud.Logging;
+using NetStone;
 
 namespace HimbeertoniRaidTool.Connectors
 {
@@ -67,16 +68,6 @@ namespace HimbeertoniRaidTool.Connectors
         private bool RateLimitHit()
         {
             return (_currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now)) > _rateLimit.MaxRequests;
-        }
-        public struct RateLimit
-        {
-            public RateLimit(int requests, TimeSpan time)
-            {
-                MaxRequests = requests;
-                Time = time;
-            }
-            public int MaxRequests { get; set; } = 1;
-            public TimeSpan Time { get; set; } = new(0, 0, 5);
         }
     }
 }
