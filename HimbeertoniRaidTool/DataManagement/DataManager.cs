@@ -20,18 +20,18 @@ namespace HimbeertoniRaidTool.DataManagement
         private readonly List<RaidGroup>? _Groups;
         //Files
         private const string HrtGearDBJsonFileName = "HrtGearDB.json";
-        private readonly FileInfo HrtGearDBJsonFile;
+        private readonly FileInfo? HrtGearDBJsonFile;
         private const string EtroGearDBJsonFileName = "EtroGearDB.json";
-        private readonly FileInfo EtroGearDBJsonFile;
+        private readonly FileInfo? EtroGearDBJsonFile;
         private const string CharDBJsonFileName = "CharacterDB.json";
-        private readonly FileInfo CharDBJsonFile;
+        private readonly FileInfo? CharDBJsonFile;
         private const string RaidGroupJsonFileName = "RaidGroups.json";
-        private readonly FileInfo RaidGRoupJsonFile;
+        private readonly FileInfo? RaidGRoupJsonFile;
         //Converters
-        private readonly GearSetReferenceConverter GearSetRefConv;
-        private readonly CharacterReferenceConverter CharRefConv;
+        private readonly GearSetReferenceConverter? GearSetRefConv;
+        private readonly CharacterReferenceConverter? CharRefConv;
         public List<RaidGroup> Groups => _Groups ?? new();
-        internal ModuleConfigurationManager ModuleConfigurationManager { get; private set; }
+        internal ModuleConfigurationManager? ModuleConfigurationManager { get; private set; }
         private static readonly JsonSerializerSettings JsonSettings = new()
         {
             Formatting = Formatting.Indented,
@@ -68,31 +68,51 @@ namespace HimbeertoniRaidTool.DataManagement
             if (!EtroGearDBJsonFile.Exists)
                 EtroGearDBJsonFile.Create().Close();
             //Read files
+            bool loadError = false;
             ModuleConfigurationManager = new(pluginInterface);
-            try
+            loadError |= !TryRead(HrtGearDBJsonFile, out string hrtGearJson);
+            loadError |= !TryRead(EtroGearDBJsonFile, out string etroGearJson);
+            loadError |= !TryRead(CharDBJsonFile, out string charDBJson);
+            loadError |= !TryRead(RaidGRoupJsonFile, out string RaidGRoupJson);
+            if (!loadError)
             {
-                var hrtGearReader = HrtGearDBJsonFile.OpenText();
-                var etroGearReader = EtroGearDBJsonFile.OpenText();
-                GearDB = new(hrtGearReader.ReadToEnd(), etroGearReader.ReadToEnd(), JsonSettings);
-                hrtGearReader.Close();
-                etroGearReader.Close();
+                GearDB = new(hrtGearJson, etroGearJson, JsonSettings);
                 GearSetRefConv = new GearSetReferenceConverter(GearDB);
-                var charDBReader = CharDBJsonFile.OpenText();
-                CharacterDB = new(charDBReader.ReadToEnd(), GearSetRefConv, JsonSettings);
-                charDBReader.Close();
+                CharacterDB = new(charDBJson, GearSetRefConv, JsonSettings);
                 CharRefConv = new CharacterReferenceConverter(CharacterDB);
                 JsonSettings.Converters.Add(CharRefConv);
-                var raidGroupReader = RaidGRoupJsonFile.OpenText();
-                _Groups = JsonConvert.DeserializeObject<List<RaidGroup>>(
-                    raidGroupReader.ReadToEnd(), JsonSettings) ?? new();
-                raidGroupReader.Close();
+                _Groups = JsonConvert.DeserializeObject<List<RaidGroup>>(RaidGRoupJson, JsonSettings) ?? new();
                 JsonSettings.Converters.Remove(CharRefConv);
-                Initialized = true;
+            }
+            Initialized = !loadError;
+        }
+        internal static bool TryRead(FileInfo file, out string data)
+        {
+            data = "";
+            using var reader = file.OpenText();
+            try
+            {
+                data = reader.ReadToEnd();
+                return true;
             }
             catch (Exception e)
             {
-                PluginLog.Error("Could not load data files\n{0}", e);
-                Initialized = false;
+                PluginLog.Error(e, "Could not load data file");
+                return false;
+            }
+        }
+        internal static bool TryWrite(FileInfo file, in string data)
+        {
+            using var writer = file.CreateText();
+            try
+            {
+                writer.Write(data);
+                return true;
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error(e, "Could not write data file");
+                return false;
             }
         }
         public List<uint> GetWorldsWithCharacters()
@@ -166,16 +186,19 @@ namespace HimbeertoniRaidTool.DataManagement
             return GearDB.UpdateIndex(oldID, ref gs);
         }
         public void UpdateEtroSets(int maxAgeDays) => GearDB?.UpdateEtroSets(maxAgeDays);
-        private string SerializeGroupData()
+        private string SerializeGroupData(CharacterReferenceConverter charRefCon)
         {
-            JsonSettings.Converters.Add(CharRefConv);
+            JsonSettings.Converters.Add(charRefCon);
             string result = JsonConvert.SerializeObject(_Groups, JsonSettings);
-            JsonSettings.Converters.Remove(CharRefConv);
+            JsonSettings.Converters.Remove(charRefCon);
             return result;
         }
         public bool Save()
         {
-            if (!Initialized || Saving || GearDB == null || CharacterDB == null)
+            if (!Initialized || Saving || GearDB == null || CharacterDB == null
+                || EtroGearDBJsonFile == null || HrtGearDBJsonFile == null
+                || CharDBJsonFile == null || RaidGRoupJsonFile == null
+                || GearSetRefConv == null || CharRefConv == null)
                 return false;
             Saving = true;
             var time1 = DateTime.Now;
@@ -183,38 +206,17 @@ namespace HimbeertoniRaidTool.DataManagement
             Serializing = true;
             string characterData = CharacterDB.Serialize(GearSetRefConv, JsonSettings);
             (string hrtGearData, string etroGearData) = GearDB.Serialize(JsonSettings);
-            string groupData = SerializeGroupData();
+            string groupData = SerializeGroupData(CharRefConv);
             Serializing = false;
             //Write serialized data
             var time2 = DateTime.Now;
-            bool hasError = false;
-            StreamWriter? hrtWriter = null;
-            StreamWriter? etroWriter = null;
-            StreamWriter? characterWriter = null;
-            StreamWriter? groupWriter = null;
-            try
-            {
-                hrtWriter = HrtGearDBJsonFile.CreateText();
-                hrtWriter.Write(hrtGearData);
-                etroWriter = EtroGearDBJsonFile.CreateText();
-                etroWriter.Write(etroGearData);
-                characterWriter = CharDBJsonFile.CreateText();
-                characterWriter.Write(characterData);
-                groupWriter = RaidGRoupJsonFile.CreateText();
-                groupWriter.Write(groupData);
-            }
-            catch (Exception e)
-            {
-                PluginLog.Error("Could not write data file\n{0}", e);
-                hasError = true;
-            }
-            finally
-            {
-                hrtWriter?.Close();
-                etroWriter?.Close();
-                characterWriter?.Close();
-                groupWriter?.Close();
-            }
+            bool hasError = !TryWrite(HrtGearDBJsonFile, hrtGearData);
+            if (!hasError)
+                hasError |= !TryWrite(EtroGearDBJsonFile, etroGearData);
+            if (!hasError)
+                hasError |= !TryWrite(CharDBJsonFile, characterData);
+            if (!hasError)
+                hasError |= !TryWrite(RaidGRoupJsonFile, groupData);
             Saving = false;
             var time3 = DateTime.Now;
             PluginLog.Debug($"Serializing time: {time2 - time1}");

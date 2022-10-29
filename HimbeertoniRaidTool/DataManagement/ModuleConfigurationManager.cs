@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Dalamud.Logging;
 using Dalamud.Plugin;
 using Newtonsoft.Json;
 
@@ -20,38 +19,35 @@ namespace HimbeertoniRaidTool.DataManagement
         internal ModuleConfigurationManager(DalamudPluginInterface pluginInterface)
         {
             ModuleConfigDir = new(pluginInterface.ConfigDirectory.FullName + "\\moduleConfigs\\");
-            if (!ModuleConfigDir.Exists)
-                ModuleConfigDir.Create();
+            try
+            {
+                if (!ModuleConfigDir.Exists)
+                    ModuleConfigDir.Create();
+            }
+            catch (Exception) { }
         }
 
-        internal void SaveConfiguration<T>(string internalName, T configData) where T : new()
+        internal bool SaveConfiguration<T>(string internalName, T configData) where T : new()
         {
-            var file = new FileInfo(ModuleConfigDir.FullName + internalName + ".json");
+            FileInfo file = new(ModuleConfigDir.FullName + internalName + ".json");
             string json = JsonConvert.SerializeObject(configData, JsonSerializerSettings);
-            File.WriteAllText(file.FullName, json);
+            return HrtDataManager.TryWrite(file, json);
         }
         internal bool LoadConfiguration<T>(string internalName, ref T configData) where T : new()
         {
-            var file = new FileInfo(ModuleConfigDir.FullName + internalName + ".json");
+            FileInfo file = new(ModuleConfigDir.FullName + internalName + ".json");
             if (file.Exists)
             {
-                try
-                {
-                    T? fromJson = JsonConvert.DeserializeObject<T>(file.OpenText().ReadToEnd(), JsonSerializerSettings);
-                    if (fromJson != null)
-                    {
-                        configData = fromJson;
-                        return true;
-                    }
-                    else
-                        return false;
-                }
-                catch (Exception e)
-                {
-                    PluginLog.Error("Could not load module config \n {0}", e);
+                if (!HrtDataManager.TryRead(file, out string json))
                     return false;
+                T? fromJson = JsonConvert.DeserializeObject<T>(json, JsonSerializerSettings);
+                if (fromJson != null)
+                {
+                    configData = fromJson;
+                    return true;
                 }
-
+                else
+                    return false;
             }
             return true;
         }
