@@ -1,13 +1,11 @@
 name: Create Manifest
-run-name: 'Create Manifest for version ${{ github.ref_name }} with commit ${{github.sha}}'
+run-name: 'Create Manifest for version ${{ github.ref_name }} with commit ${{ github.sha }}'
 on:
   push:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+.[0-9]+'
-env:
-  NEW_VERSION: $github.ref_name
-  COMMIT_SHA: $github.sha
-
+  workflow_dispatch:
+      
 jobs:
   create_deploy_commmits:
     name: "Create manifest.toml with current sha and changelog"
@@ -15,6 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Read changelog
+      id: yaml-data
       uses: jbutcher5/read-yaml@1.6
       with:
         file: "./HimbeertoniRaidTool/HimbeertoniRaidTool.yaml"
@@ -24,7 +23,7 @@ jobs:
       with:
         file: "HimbeertoniRaidTool/manifest.toml"
         key: "plugin.commit"
-        value: $COMMIT_SHA
+        value: "${{ github.sha }}"
     - name: Write changelog
       uses: ciiiii/toml-editor@1.0.0
       with:
@@ -33,5 +32,5 @@ jobs:
         value: "${{ steps.yaml-data.outputs.data }}"
     - uses: actions/upload-artifact@v3
       with:
-        name: ${{ env.NEW_VERSION }}-manifest
+        name: ${{ github.ref_name }}-manifest
         path: HimbeertoniRaidTool/manifest.toml
