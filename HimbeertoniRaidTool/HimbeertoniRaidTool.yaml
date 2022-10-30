@@ -1,0 +1,16 @@
+author: Koenari
+name: Himbeertoni Raid Tool
+punchline: All you need for Raiding
+description: A collection of useful tools for RaidGroups, including loot management
+tags:
+    - Raid
+    - Loot
+    - Equipment
+internal_name: HimbeertoniRaidTool
+repo_url: https://github.com/Koenari/HimbeertoniRaidTool/wiki
+icon_url: https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png
+image_urls:
+    - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/loot_session.png
+    - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
+    - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
+changelog: 'fix: loot results did not show'
