@@ -13,4 +13,11 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/loot_session.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
-changelog: 'fix: loot results did not show'
+changelog: |-
+    + Ui is now customizable
+    * loot distribution results include evaluated data in visual output
+    + includes translations for Español, Français und Deutsch
+    + you can now fetch gear from lodestone
+    * fixed several issues with second ring
+    + add support for non-standard group compositions
+    * performance optimisations
