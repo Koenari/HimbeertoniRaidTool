@@ -13,7 +13,7 @@ jobs:
     name: "Create manifest.toml with current sha and changelog"
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkou@v3
+    - uses: actions/checkout@v3
     - name: Read changelog
       uses: jbutcher5/read-yaml@1.6
       with:
