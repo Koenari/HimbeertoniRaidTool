@@ -240,16 +240,28 @@
     "description": "ImGuiHelper.CancelButton"
   },
   "Inspect": {
-    "message": "Actualizar equipo",
-    "description": "ImGuiHelper.GearUpdateButton"
+    "message": "Update Gear by Examining",
+    "description": "ImGuiHelper.GearUpdateButtons"
   },
   "InspectUnavail": {
     "message": "Funcionalidad no disponible debido a incompatibilidad con la versión del juego",
-    "description": "ImGuiHelper.GearUpdateButton"
+    "description": "ImGuiHelper.GearUpdateButtons"
   },
   "CharacterNotInReach": {
     "message": "El personaje no está a rango para examinar",
-    "description": "ImGuiHelper.GearUpdateButton"
+    "description": "ImGuiHelper.GearUpdateButtons"
+  },
+  "rightClickHint": {
+    "message": "right click for more options",
+    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawInspectButton|4_0"
+  },
+  "Lodestone Button": {
+    "message": "Download Gear from Lodestone",
+    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|4_1"
+  },
+  "LodestonUpdateStarted": {
+    "message": "Started gear update for",
+    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|4_1"
   },
   "Remove option": {
     "message": "Eliminar opción",
@@ -327,6 +339,30 @@
     "message": "Abrir resumen de grupo al iniciar sesión",
     "description": "ConfigUi.Draw"
   },
+  "Config:Lootmaster:ColoredItemNames": {
+    "message": "Color items by item level",
+    "description": "ConfigUi.Draw"
+  },
+  "Config:Lootmaster:Colors": {
+    "message": "Configured colors",
+    "description": "ConfigUi.Draw"
+  },
+  "iLvl": {
+    "message": "iLvl",
+    "description": "ConfigUi.Draw"
+  },
+  "Config:Lootmaster:Itemformat": {
+    "message": "Item format",
+    "description": "ConfigUi.Draw"
+  },
+  "Config:Lootmaster:Itemformat:Available": {
+    "message": "Available options",
+    "description": "ConfigUi.Draw"
+  },
+  "Examples": {
+    "message": "Examples",
+    "description": "ConfigUi.Draw"
+  },
   "UpdateBisONStartUp": {
     "message": "Actualizar los sets periódicamente desde etro.gg",
     "description": "ConfigUi.Draw"
@@ -371,10 +407,6 @@
     "message": "Actual",
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
-  "iLvl": {
-    "message": "nivel de objetos: ",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
   "gear": {
     "message": "equipo",
     "description": "LootmasterUI.DrawDetailedPlayer"
@@ -397,6 +429,10 @@
   },
   "SecondaryStats": {
     "message": "Estadísticas secundarias",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "Gear": {
+    "message": "Gear",
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "Add Player": {
@@ -459,6 +495,10 @@
     "message": "Opciones",
     "description": "LootmasterUI.Draw"
   },
+  "GroupTabTooltip": {
+    "message": "Right click for more options",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
   "Edit group": {
     "message": "Editar grupo",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
@@ -475,6 +515,10 @@
     "message": "Del grupo",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
+  "AutoCreatedGroupName": {
+    "message": "Auto Created",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
   "From scratch": {
     "message": "Desde cero",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
@@ -482,6 +526,10 @@
   "Add empty group": {
     "message": "Añadir grupo vacío",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "n.A.": {
+    "message": "n.A.",
+    "description": "LootmasterUI.DrawPlayer"
   },
   "LvLShort": {
     "message": "Nivel",
@@ -527,13 +575,21 @@
     "message": "Distribuir el botín para:",
     "description": "LootmasterUI.DrawLootHandlerButtons"
   },
+  "Critical Damage": {
+    "message": "Critical Damage",
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|14_1"
+  },
+  "SpeedMultiplierName": {
+    "message": "AA / DoT multiplier",
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|14_1"
+  },
   "Dmgper100Tooltip": {
     "message": "Daño promedio con una habilidad de 100 de potencia",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|13_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|14_1"
   },
   "Empty": {
     "message": "Vacío",
-    "description": "LootmasterUI.<DrawSlot>g__DrawItem|17_0"
+    "description": "LootmasterUI.<DrawSlot>g__DrawItem|18_0"
   },
   "PlayerDetailsTitle": {
     "message": "Detalles de jugador",
@@ -934,5 +990,21 @@
   "Unknown": {
     "message": "Unknown",
     "description": "GameExpansion.get_Name"
+  },
+  "LodestoneConnector:CharNotFound": {
+    "message": "Character not found on Lodestone.",
+    "description": "<UpdateCharacter>d__5.MoveNext"
+  },
+  "LodestoneConnector:JobIncompatible": {
+    "message": "Could not resolve currently used job or currently displayed job on Lodestone is not supported.",
+    "description": "<UpdateCharacter>d__5.MoveNext"
+  },
+  "LodestoneConnector:Sucess": {
+    "message": "Updated {0}'s {1} gear from Lodestone.",
+    "description": "<UpdateCharacter>d__5.MoveNext"
+  },
+  "LodestoneConnector:Failure": {
+    "message": "Could not update gear from Lodestone.",
+    "description": "<UpdateCharacter>d__5.MoveNext"
   }
 }
