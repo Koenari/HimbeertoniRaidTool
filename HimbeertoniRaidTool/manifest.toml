@@ -1,0 +1,4 @@
+[plugin]
+repository = "https://github.com/Koenari/HimbeertoniRaidTool.git"
+owners = ["Koenari"]
+project_path = "HimbeertoniRaidTool"
