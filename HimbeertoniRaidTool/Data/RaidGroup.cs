@@ -12,27 +12,37 @@ namespace HimbeertoniRaidTool.Data
         public DateTime TimeStamp;
         [JsonProperty("Name")]
         public string Name;
+        [JsonProperty("Members")]
         private readonly Player[] _Players;
         [JsonProperty("Type")]
         public GroupType Type;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public RolePriority? RolePriority = null;
+        //These are needed for deserialization of RaidGRoups.json from versions < 1.1.0
+        [Obsolete("Use []",true)]
         [JsonProperty]
-        private Player Tank1 { get => _Players[0]; set => _Players[0] = value; }
+        private Player Tank1 { set => _Players[0] = value; }
+        [Obsolete("Use []", true)]
         [JsonProperty]
-        private Player Tank2 { get => _Players[1]; set => _Players[1] = value; }
+        private Player Tank2 { set => _Players[1] = value; }
+        [Obsolete("Use []", true)]
         [JsonProperty]
-        private Player Heal1 { get => _Players[2]; set => _Players[2] = value; }
+        private Player Heal1 { set => _Players[2] = value; }
+        [Obsolete("Use []", true)]
         [JsonProperty]
-        private Player Heal2 { get => _Players[3]; set => _Players[3] = value; }
+        private Player Heal2 { set => _Players[3] = value; }
+        [Obsolete("Use []", true)]
         [JsonProperty]
-        private Player Melee1 { get => _Players[4]; set => _Players[4] = value; }
+        private Player Melee1 { set => _Players[4] = value; }
+        [Obsolete("Use []", true)]
         [JsonProperty]
-        private Player Melee2 { get => _Players[5]; set => _Players[5] = value; }
+        private Player Melee2 { set => _Players[5] = value; }
+        [Obsolete("Use []", true)]
         [JsonProperty]
-        private Player Ranged { get => _Players[6]; set => _Players[6] = value; }
+        private Player Ranged {set => _Players[6] = value; }
+        [Obsolete("Use []", true)]
         [JsonProperty]
-        private Player Caster { get => _Players[7]; set => _Players[7] = value; }
+        private Player Caster { set => _Players[7] = value; }
         private IEnumerable<Player> Players
         {
             get
@@ -61,7 +71,7 @@ namespace HimbeertoniRaidTool.Data
             TimeStamp = DateTime.Now;
             Name = name;
             _Players = new Player[8];
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < _Players.Length; i++)
             {
                 _Players[i] = new();
             }
