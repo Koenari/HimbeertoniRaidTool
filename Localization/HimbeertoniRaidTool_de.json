@@ -240,7 +240,7 @@
     "description": "ImGuiHelper.CancelButton"
   },
   "Inspect": {
-    "message": "Update Gear by Examining",
+    "message": "Ausrüstung aktualisieren durch Untersuchen",
     "description": "ImGuiHelper.GearUpdateButtons"
   },
   "InspectUnavail": {
@@ -252,15 +252,15 @@
     "description": "ImGuiHelper.GearUpdateButtons"
   },
   "rightClickHint": {
-    "message": "right click for more options",
+    "message": "Rechtsklick für mehr Optionen",
     "description": "ImGuiHelper.<GearUpdateButtons>g__DrawInspectButton|4_0"
   },
   "Lodestone Button": {
-    "message": "Download Gear from Lodestone",
+    "message": "Ausrüstungsdaten vom Lodestone herunterladen",
     "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|4_1"
   },
   "LodestonUpdateStarted": {
-    "message": "Started gear update for",
+    "message": "Ausrüstungsaktualisierung gestrtet für",
     "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|4_1"
   },
   "Remove option": {
@@ -340,27 +340,27 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:ColoredItemNames": {
-    "message": "Color items by item level",
+    "message": "Färbe Items nach ItemLevel ein",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:Colors": {
-    "message": "Configured colors",
+    "message": "Eingestellte Farben",
     "description": "ConfigUi.Draw"
   },
   "iLvl": {
-    "message": "iLvl",
+    "message": "G.-St.",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:Itemformat": {
-    "message": "Item format",
+    "message": "Item Format",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:Itemformat:Available": {
-    "message": "Available options",
+    "message": "Mögliche Optionen",
     "description": "ConfigUi.Draw"
   },
   "Examples": {
-    "message": "Examples",
+    "message": "Beispiele",
     "description": "ConfigUi.Draw"
   },
   "UpdateBisONStartUp": {
@@ -372,11 +372,11 @@
     "description": "ConfigUi.Draw"
   },
   "DefaultBiSHeading": {
-    "message": "Default BiS sets (as etro.gg ID)",
+    "message": "Standard BiS Sets (als etro.gg ID)",
     "description": "ConfigUi.Draw"
   },
   "DefaultBiSDisclaimer": {
-    "message": "These sets are used when creating a new characer or adding a new job. These do not affect already created characters and jobs.",
+    "message": "Diese Sets werden beim Erstellen eines neuen Charakters oder beim Hinzufügen eines neuen Jobs verwendet. Diese ändern nicht die bereits erstellten Charaktere und Jobs.",
     "description": "ConfigUi.Draw"
   },
   "Reset to default": {
@@ -432,7 +432,7 @@
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "Gear": {
-    "message": "Gear",
+    "message": "Ausrüstung",
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "Add Player": {
@@ -496,7 +496,7 @@
     "description": "LootmasterUI.Draw"
   },
   "GroupTabTooltip": {
-    "message": "Right click for more options",
+    "message": "Rechtsklick für mehr Optionen",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "Edit group": {
@@ -516,7 +516,7 @@
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "AutoCreatedGroupName": {
-    "message": "Auto Created",
+    "message": "Automatisch erstellt",
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "From scratch": {
@@ -528,7 +528,7 @@
     "description": "LootmasterUI.DrawRaidGroupSwitchBar"
   },
   "n.A.": {
-    "message": "n.A.",
+    "message": "n.V.",
     "description": "LootmasterUI.DrawPlayer"
   },
   "LvLShort": {
@@ -576,11 +576,11 @@
     "description": "LootmasterUI.DrawLootHandlerButtons"
   },
   "Critical Damage": {
-    "message": "Critical Damage",
+    "message": "Kritischer Schaden",
     "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|14_1"
   },
   "SpeedMultiplierName": {
-    "message": "AA / DoT multiplier",
+    "message": "AA/DoT Multiplikator",
     "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|14_1"
   },
   "Dmgper100Tooltip": {
@@ -660,7 +660,7 @@
     "description": "LootResultWindow.Draw"
   },
   "Needed items": {
-    "message": "Needed items",
+    "message": "Benötigte Items",
     "description": "LootResultWindow.Draw"
   },
   "Rule": {
@@ -680,31 +680,31 @@
     "description": "CuratedData..cctor"
   },
   "Strength": {
-    "message": "Strength",
+    "message": "Stärke",
     "description": "EnumExtensions.FriendlyName"
   },
   "Dexterity": {
-    "message": "Dexterity",
+    "message": "Geschick",
     "description": "EnumExtensions.FriendlyName"
   },
   "Vitality": {
-    "message": "Vitality",
+    "message": "Konstitution",
     "description": "EnumExtensions.FriendlyName"
   },
   "Intelligence": {
-    "message": "Intelligence",
+    "message": "Intelligenz",
     "description": "EnumExtensions.FriendlyName"
   },
   "Mind": {
-    "message": "Mind",
+    "message": "Willenskraft",
     "description": "EnumExtensions.FriendlyName"
   },
   "Piety": {
-    "message": "Piety",
+    "message": "Frömmigkeit",
     "description": "EnumExtensions.FriendlyName"
   },
   "HP": {
-    "message": "HP",
+    "message": "LP",
     "description": "EnumExtensions.FriendlyName"
   },
   "MP": {
@@ -720,15 +720,15 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "Tenacity": {
-    "message": "Tenacity",
+    "message": "Unbeugsamkeit",
     "description": "EnumExtensions.FriendlyName"
   },
   "AttackPower": {
-    "message": "AttackPower",
+    "message": "Stärke der Attacke",
     "description": "EnumExtensions.FriendlyName"
   },
   "Defense": {
-    "message": "Defense",
+    "message": "Verteidigung",
     "description": "EnumExtensions.FriendlyName"
   },
   "Direct Hit": {
@@ -740,7 +740,7 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "Critical Hit Power": {
-    "message": "Critical Hit Power",
+    "message": "Kritische Trefferstärke",
     "description": "EnumExtensions.FriendlyName"
   },
   "Critical Hit": {
@@ -748,15 +748,15 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "AttackMagicPotency": {
-    "message": "Attack Magic Potency",
+    "message": "Offensivmagie",
     "description": "EnumExtensions.FriendlyName"
   },
   "HealingMagicPotency": {
-    "message": "Healing Magic Potency",
+    "message": "Heilmagie",
     "description": "EnumExtensions.FriendlyName"
   },
   "Determination": {
-    "message": "Determination",
+    "message": "Entschlossenheit",
     "description": "EnumExtensions.FriendlyName"
   },
   "Skill Speed": {
@@ -904,7 +904,7 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "Relic": {
-    "message": "Relic",
+    "message": "Relikt",
     "description": "EnumExtensions.FriendlyName"
   },
   "Tank": {
@@ -912,15 +912,15 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "Healer": {
-    "message": "Healer",
+    "message": "Heiler",
     "description": "EnumExtensions.FriendlyName"
   },
   "Melee": {
-    "message": "Melee",
+    "message": "Nahkämpfer",
     "description": "EnumExtensions.FriendlyName"
   },
   "Ranged": {
-    "message": "Ranged",
+    "message": "Fernkämpfer",
     "description": "EnumExtensions.FriendlyName"
   },
   "Caster": {
@@ -960,7 +960,7 @@
     "description": "LootRule.GetName"
   },
   "Need over Greed": {
-    "message": "Need over Greed",
+    "message": "Bedarf vor Gier",
     "description": "LootRule.GetName"
   },
   "Not defined": {
@@ -992,19 +992,19 @@
     "description": "GameExpansion.get_Name"
   },
   "LodestoneConnector:CharNotFound": {
-    "message": "Character not found on Lodestone.",
+    "message": "Charakter wurde nicht auf dem Lodestone gefunden.",
     "description": "<UpdateCharacter>d__5.MoveNext"
   },
   "LodestoneConnector:JobIncompatible": {
-    "message": "Could not resolve currently used job or currently displayed job on Lodestone is not supported.",
+    "message": "Der aktuell verwendete Job konnte nicht ermittlet werden oder der aktuell angezeigte Job auf dem Lodestone wird nicht unterstützt.",
     "description": "<UpdateCharacter>d__5.MoveNext"
   },
   "LodestoneConnector:Sucess": {
-    "message": "Updated {0}'s {1} gear from Lodestone.",
+    "message": "{0}'s {1} Ausrüstung vom Lodestone aktualisiert.",
     "description": "<UpdateCharacter>d__5.MoveNext"
   },
   "LodestoneConnector:Failure": {
-    "message": "Could not update gear from Lodestone.",
+    "message": "Konnte die Ausrüstung vom Lodestone nicht aktualisieren.",
     "description": "<UpdateCharacter>d__5.MoveNext"
   }
 }
