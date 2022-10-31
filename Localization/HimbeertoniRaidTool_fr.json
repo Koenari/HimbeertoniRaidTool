@@ -256,11 +256,11 @@
     "description": "ImGuiHelper.<GearUpdateButtons>g__DrawInspectButton|4_0"
   },
   "Lodestone Button": {
-    "message": "Télécharger l'équipement à partir de Lodestone",
+    "message": "Télécharger l'équipement depuis le Lodestone",
     "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|4_1"
   },
   "LodestonUpdateStarted": {
-    "message": "Mise à jour de l'équipement débutée pour",
+    "message": "Mise à jour de l'équipement initialisée pour",
     "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|4_1"
   },
   "Remove option": {
@@ -344,15 +344,15 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:Colors": {
-    "message": "Couleurs configurées",
+    "message": "Couleurs prédéfinies",
     "description": "ConfigUi.Draw"
   },
   "iLvl": {
-    "message": "Nv objet",
+    "message": "iLvl",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:Itemformat": {
-    "message": "Format des objets",
+    "message": "Format d'objet",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:Itemformat:Available": {
@@ -372,11 +372,11 @@
     "description": "ConfigUi.Draw"
   },
   "DefaultBiSHeading": {
-    "message": "Ensembles BiS par défaut (en tant qu'identifiant etro.gg)",
+    "message": "Sets BiS par défaut (via leur ID etro.gg)",
     "description": "ConfigUi.Draw"
   },
   "DefaultBiSDisclaimer": {
-    "message": "Ces ensembles sont utilisés lors de la création d'un nouveau personnage ou de l'ajout d'une nouvelle job. Ils n'affectent pas les personnages déjà créés et les jobs.",
+    "message": "Ces sets sont utilisés lors de la création d'un nouveau personnage ou de l'ajout d'un nouveau job. Ils n'affectent pas les personnages déjà créés ni leurs jobs.",
     "description": "ConfigUi.Draw"
   },
   "Reset to default": {
@@ -580,7 +580,7 @@
     "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|14_1"
   },
   "SpeedMultiplierName": {
-    "message": "Multiplicateur AA / DoT",
+    "message": "Multiplicateur d'AAs / de DoTs",
     "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|14_1"
   },
   "Dmgper100Tooltip": {
@@ -660,7 +660,7 @@
     "description": "LootResultWindow.Draw"
   },
   "Needed items": {
-    "message": "Objets avec lancé de dé de type cupidité",
+    "message": "Objets désirés",
     "description": "LootResultWindow.Draw"
   },
   "Rule": {
@@ -720,11 +720,11 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "Tenacity": {
-    "message": "Tenacité",
+    "message": "Ténacité",
     "description": "EnumExtensions.FriendlyName"
   },
   "AttackPower": {
-    "message": "Pouvoir d'attaque",
+    "message": "Puissance d'attaque",
     "description": "EnumExtensions.FriendlyName"
   },
   "Defense": {
@@ -740,7 +740,7 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "Critical Hit Power": {
-    "message": "Puissance de dégâts critiques",
+    "message": "Puissance des dégâts critiques",
     "description": "EnumExtensions.FriendlyName"
   },
   "Critical Hit": {
@@ -916,15 +916,15 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "Melee": {
-    "message": "DPS corps-à-corps",
+    "message": "DPS Mêlée",
     "description": "EnumExtensions.FriendlyName"
   },
   "Ranged": {
-    "message": "DPS à distance",
+    "message": "DPS Distance",
     "description": "EnumExtensions.FriendlyName"
   },
   "Caster": {
-    "message": "DPS magique",
+    "message": "DPS Magique ",
     "description": "EnumExtensions.FriendlyName"
   },
   "BISOverUpgrade": {
@@ -960,7 +960,7 @@
     "description": "LootRule.GetName"
   },
   "Need over Greed": {
-    "message": "Besoin avant Cupidité",
+    "message": "Besoin prioritaire sur Cupidité",
     "description": "LootRule.GetName"
   },
   "Not defined": {
@@ -996,15 +996,15 @@
     "description": "<UpdateCharacter>d__5.MoveNext"
   },
   "LodestoneConnector:JobIncompatible": {
-    "message": "Impossible de résoudre la job présentement utilisée ou la job présentement affichée sur Lodestone n'est pas supportée.",
+    "message": "Impossible de déterminer le job présentement utilisé, ou alors le job présentement affiché sur le Lodestone n'est pas supporté.",
     "description": "<UpdateCharacter>d__5.MoveNext"
   },
   "LodestoneConnector:Sucess": {
-    "message": "Mis à jour l'équipement de {0} {1} à partir de Lodestone.",
+    "message": "L'équipement {1} de {0} a été mis à jour via les informations du Lodestone.",
     "description": "<UpdateCharacter>d__5.MoveNext"
   },
   "LodestoneConnector:Failure": {
-    "message": "Impossible de mettre à jour l'équipement à partir de Lodestone.",
+    "message": "Impossible de mettre à jour l'équipement depuis le Lodestone.",
     "description": "<UpdateCharacter>d__5.MoveNext"
   }
 }
