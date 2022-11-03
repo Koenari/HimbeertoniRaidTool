@@ -14,7 +14,7 @@ using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
 {
-    internal class LootmasterUI : Window
+    internal class LootmasterUI : HrtWindow
     {
         public Vector4 ILevelColor(GearItem item) => (_lootMaster.Configuration.Data.SelectedRaidTier.ArmorItemLevel - (int)item.ItemLevel) switch
         {
@@ -35,16 +35,35 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _lootMaster = lootMaster;
             _CurrenGroupIndex = 0;
             Size = new Vector2(1600, 670);
-            SizingCondition = ImGuiCond.FirstUseEver;
+            SizeCondition = ImGuiCond.FirstUseEver;
             Title = Localize("LootMasterWindowTitle", "Loot Master");
 
+        }
+        private bool AddChild(HrtWindow child)
+        {
+            Queue<HrtWindow> toRemove = new();
+            foreach (HrtWindow w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen).Cast<HrtWindow>())
+                toRemove.Enqueue(w);
+            foreach (HrtWindow w in toRemove)
+            {
+                if (!w.Equals(this))
+                    _lootMaster.WindowSystem.RemoveWindow(w);
+            }
+            if (_lootMaster.WindowSystem.Windows.Any(w => child.Equals(w)))
+            {
+                child.Dispose();
+                return false;
+            }
+            _lootMaster.WindowSystem.AddWindow(child);
+            child.Show();
+            return true;
         }
         protected override void BeforeDispose()
         {
             _lootMaster.Configuration.Data.LastGroupIndex = _CurrenGroupIndex;
             _lootMaster.Configuration.Save();
         }
-        protected override void OnShow()
+        public override void OnOpen()
         {
             _CurrenGroupIndex = _lootMaster.Configuration.Data.LastGroupIndex;
         }
@@ -91,7 +110,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}", $"{Localize("Edit player", "Edit player")} {p.NickName}"))
             {
-                AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, p, _lootMaster.Configuration.Data.GetDefaultBiS), true);
+                AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, p, _lootMaster.Configuration.Data.GetDefaultBiS));
             }
             ImGui.BeginChild("JobList");
             foreach (var playableClass in p.MainChar.Classes)
@@ -113,13 +132,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.Text($"{Localize("Current", "Current")} {Localize("iLvl", "iLvl")}: {playableClass.Gear.ItemLevel:D3}");
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.Job} {Localize("gear", "gear")}"))
-                    AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job, _lootMaster.Configuration.Data.SelectedRaidTier), true);
+                    AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job, _lootMaster.Configuration.Data.SelectedRaidTier));
                 //BiS
                 ImGui.SameLine();
                 ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvl")}: {playableClass.BIS.ItemLevel:D3}");
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.BIS.Name}"))
-                    AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job, _lootMaster.Configuration.Data.SelectedRaidTier), true);
+                    AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job, _lootMaster.Configuration.Data.SelectedRaidTier));
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
                     string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
@@ -234,7 +253,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.EndTable();
             ImGui.EndChild();
         }
-        protected override void Draw()
+        public override void Draw()
         {
             if (_CurrenGroupIndex > RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
                 _CurrenGroupIndex = 0;
@@ -248,7 +267,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 else
                 {
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
-                        AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup[0], _lootMaster.Configuration.Data.GetDefaultBiS), true);
+                        AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup[0], _lootMaster.Configuration.Data.GetDefaultBiS));
                 }
             }
             else if (CurrentGroup.Type == GroupType.Raid || CurrentGroup.Type == GroupType.Group)
@@ -343,7 +362,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 if (ImGuiHelper.Button(Localize("From scratch", "From scratch"), Localize("Add empty group", "Add empty group")))
                 {
-                    AddChild(new EditGroupWindow(new RaidGroup(), group => _lootMaster.AddGroup(group, false)), true);
+                    AddChild(new EditGroupWindow(new RaidGroup(), group => _lootMaster.AddGroup(group, false)));
                 }
                 ImGui.EndPopup();
             }
@@ -440,7 +459,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Edit",
                         $"{Localize("Edit", "Edit")} {player.NickName}", true, buttonSize))
                     {
-                        AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player, _lootMaster.Configuration.Data.GetDefaultBiS), true);
+                        AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player, _lootMaster.Configuration.Data.GetDefaultBiS));
                     }
                     if (ImGuiHelper.Button(FontAwesomeIcon.Redo, player.BIS.EtroID,
                         string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), player.BIS.Name), true, buttonSize))
@@ -449,13 +468,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("failed", "failed")}");
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, "Details",
-                        $"{Localize("PlayerDetails", "Show player details for")} {player.NickName}",true, buttonSize))
+                        $"{Localize("PlayerDetails", "Show player details for")} {player.NickName}", true, buttonSize))
                     {
                         AddChild(new PlayerdetailWindow(this, player));
                     }
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "Delete",
-                        $"{Localize("Delete", "Delete")} {player.NickName}",true, buttonSize))
+                        $"{Localize("Delete", "Delete")} {player.NickName}", true, buttonSize))
                     {
                         AddChild(new ConfimationDialog(
                             () => player.Reset(),
@@ -471,10 +490,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.TableNextColumn();
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddNew", Localize("Add", "Add")))
-                    AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player, _lootMaster.Configuration.Data.GetDefaultBiS), true);
+                    AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player, _lootMaster.Configuration.Data.GetDefaultBiS));
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Search, "AddFromDB", Localize("Add from DB", "Add from DB")))
-                    AddChild(new GetCharacterFromDBWindow(ref player), true);
+                    AddChild(new GetCharacterFromDBWindow(ref player));
             }
         }
         private void DrawSlot(GearItem item, GearItem bis, bool extended = false)
@@ -560,8 +579,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 if (ImGuiHelper.Button(lootSource.ToString(), null))
                 {
-                    LootSessionUI lui = new(lootSource, CurrentGroup, _lootMaster.Configuration.Data.LootRuling, _lootMaster.Configuration.Data.RolePriority);
-                    lui.Show();
+                    AddChild(new LootSessionUI(_lootMaster, lootSource, CurrentGroup, _lootMaster.Configuration.Data.LootRuling, _lootMaster.Configuration.Data.RolePriority));
                 }
                 ImGui.SameLine();
             }
@@ -573,7 +591,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _messageQueue.Enqueue(message);
         }
 
-        private class PlayerdetailWindow : Window
+        private class PlayerdetailWindow : HrtWindow
         {
             private readonly Action<Player> DrawPlayer;
             private readonly Player Player;
@@ -583,12 +601,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 Player = p;
                 Show();
                 Title = $"{Localize("PlayerDetailsTitle", "Player Details")} {Player.NickName}";
-                (Size, SizingCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
+                (Size, SizeCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
             }
-            protected override void Draw() => DrawPlayer(Player);
+            public override void Draw() => DrawPlayer(Player);
         }
     }
-    internal class GetCharacterFromDBWindow : Window
+    internal class GetCharacterFromDBWindow : HrtWindow
     {
         private readonly Player _p;
         private readonly uint[] Worlds;
@@ -604,9 +622,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             WorldNames = Array.ConvertAll(Worlds, x => Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name.RawString ?? "");
             Title = Localize("GetCharacterTitle", "Get character from DB");
             Size = new Vector2(350, 420);
-            WindowFlags = ImGuiWindowFlags.NoScrollbar;
+            Flags = ImGuiWindowFlags.NoScrollbar;
         }
-        protected override void Draw()
+        public override void Draw()
         {
             ImGui.InputText(Localize("Player Name", "Player Name"), ref NickName, 50);
             if (ImGui.ListBox("World", ref worldSelectIndex, WorldNames, WorldNames.Length))
@@ -632,7 +650,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 Hide();
         }
     }
-    internal class SwapPositionWindow : Window
+    internal class SwapPositionWindow : HrtWindow
     {
         private readonly RaidGroup _group;
         private readonly int _oldPos;
@@ -650,9 +668,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             possiblePositionNames = positions.ConvertAll(position => $"{_group[position].NickName} (#{position + 1})").ToArray();
             Size = new Vector2(170f, _group.Type == GroupType.Raid ? 230f : 150f);
             Title = $"{Localize("Swap Position of", "Swap Position of")} {_group[_oldPos].NickName}";
-            WindowFlags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
+            Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
         }
-        protected override void Draw()
+        public override void Draw()
         {
             if (ImGuiHelper.SaveButton(Localize("Swap players positions", "Swap players positions")))
             {
