@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using Dalamud.Game.Command;
+using Dalamud.Interface;
 using Dalamud.Interface.Internal.Notifications;
+using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
@@ -74,6 +76,7 @@ namespace HimbeertoniRaidTool
                     AddCommand(command);
                 if (!_Configuration.RegisterConfig(module.Configuration))
                     PluginLog.Error($"Configuration load error:{module.Name}");
+                Services.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
                 module.AfterFullyLoaded();
             }
             catch (Exception e)
@@ -106,6 +109,8 @@ namespace HimbeertoniRaidTool
             {
                 try
                 {
+                    WindowSystem w = moduleEntry.Value.WindowSystem;
+                    Services.PluginInterface.UiBuilder.Draw -= w.Draw;
                     moduleEntry.Value.Dispose();
                 }
                 catch (Exception e)

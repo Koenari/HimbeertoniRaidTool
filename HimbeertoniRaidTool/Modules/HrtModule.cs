@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dalamud.Game;
+using Dalamud.Interface.Windowing;
 using HimbeertoniRaidTool.UI;
 
 namespace HimbeertoniRaidTool.Modules
@@ -14,6 +15,7 @@ namespace HimbeertoniRaidTool.Modules
         string Name { get; }
         string InternalName { get; }
         string Description { get; }
+        WindowSystem WindowSystem { get; }
         IEnumerable<HrtCommand> Commands { get; }
         void HandleMessage(HrtUiMessage message);
         void AfterFullyLoaded();

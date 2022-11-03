@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
+using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
@@ -17,6 +18,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public string InternalName => "LootMaster";
         public HRTConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi> Configuration => _config;
         public string Description => "";
+        public WindowSystem WindowSystem { get; }
         public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
         {
             new()
@@ -48,7 +50,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
 
             _config = new(this);
+            WindowSystem = new WindowSystem(InternalName);
             Ui = new(this);
+            WindowSystem.AddWindow(Ui);
             Services.ClientState.Login += OnLogin;
         }
         public void AfterFullyLoaded()

@@ -94,25 +94,32 @@ namespace HimbeertoniRaidTool
             [JsonProperty]
             public bool HideInCombat = true;
         }
-        public class ConfigUI : Window
+        public class ConfigUI : HrtWindow
         {
+            private readonly Dalamud.Interface.Windowing.WindowSystem _windowSystem;
             private readonly Configuration _configuration;
             private ConfigData _dataCopy;
             public ConfigUI(Configuration configuration) : base(false, "HimbeerToni Raid Tool Configuration")
             {
+                _windowSystem = new("HRTConfig");
+                _windowSystem.AddWindow(this);
                 _configuration = configuration;
                 _dataCopy = _configuration.Data.Clone();
                 Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
+                Services.PluginInterface.UiBuilder.Draw += _windowSystem.Draw;
 
-                (Size, SizingCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);
-                WindowFlags = ImGuiWindowFlags.NoCollapse;
+                (Size, SizeCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);
+                Flags = ImGuiWindowFlags.NoCollapse;
                 Title = Localize("ConfigWindowTitle", "HimbeerToni Raid Tool Configuration");
+                IsOpen = false;
             }
-            protected override void BeforeDispose()
+            public new void Dispose()
             {
                 Services.PluginInterface.UiBuilder.OpenConfigUi -= Show;
+                Services.PluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
+                base.Dispose();
             }
-            protected override void OnShow()
+            public override void OnOpen()
             {
                 _dataCopy = _configuration.Data.Clone();
                 foreach (dynamic config in _configuration.Configurations.Values)
@@ -123,7 +130,7 @@ namespace HimbeertoniRaidTool
                     }
                     catch (Exception) { }
             }
-            protected override void OnHide()
+            public override void OnClose()
             {
                 foreach (dynamic config in _configuration.Configurations.Values)
                     try
@@ -133,7 +140,7 @@ namespace HimbeertoniRaidTool
                     }
                     catch (Exception) { }
             }
-            protected override void Draw()
+            public override void Draw()
             {
                 if (ImGuiHelper.SaveButton())
                     Save();

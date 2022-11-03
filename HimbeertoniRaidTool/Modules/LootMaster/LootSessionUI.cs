@@ -6,14 +6,17 @@ using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
 {
-    internal class LootSessionUI : Window
+    internal class LootSessionUI : HrtWindow
     {
+        private readonly Dalamud.Interface.Windowing.WindowSystem _windowSystem;
         private readonly LootSource _lootSource;
         private readonly LootSession _session;
         private UiSortableList<LootRule> _ruleListUi;
         private readonly LootRuling _lootRuling;
-        internal LootSessionUI(LootSource lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
+        private HrtWindow? _resultWindow;
+        internal LootSessionUI(LootMasterModule lootMaster, LootSource lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
         {
+            _windowSystem = lootMaster.WindowSystem;
             _lootRuling = lootRuling;
             _lootSource = lootSource;
             _session = new(group, _lootRuling, group.RolePriority ?? defaultRolePriority,
@@ -21,18 +24,22 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
             Size = new Vector2(550, 370);
             Title = $"{Localize("Loot session for", "Loot session for")} {_lootSource}";
-            WindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar;
+            Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar;
             OpenCentered = true;
         }
         private void StartLootDistribution()
         {
             _session.RulingOptions.RuleSet = _ruleListUi.List;
             _session.EvaluateAll(true);
-            ClearChildren();
-            if (_session.Results.Count > 0)
-                AddChild(new LootResultWindow(_session), true);
+            if (_resultWindow == null)
+            {
+                _resultWindow = new LootResultWindow(_session);
+                _windowSystem.AddWindow(_resultWindow);
+            }
+            _resultWindow.Show();
+
         }
-        protected override void Draw()
+        public override void Draw()
         {
             ImGui.Text($"{Localize("Group", "Group")}: ");
             ImGui.SameLine();
@@ -41,7 +48,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 foreach (RaidGroup group in Services.HrtDataManager.Groups)
                     if (ImGui.Selectable(group.Name) && group != _session.Group)
                     {
-                        ClearChildren();
                         _session.Group = group;
                     }
                 ImGui.EndCombo();
@@ -89,7 +95,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.EndChild();
             }
         }
-        private class LootResultWindow : Window
+        private class LootResultWindow : HrtWindow
         {
             private readonly LootSession _session;
             public LootResultWindow(LootSession session) : base()
@@ -97,10 +103,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 _session = session;
                 Size = new Vector2(900, 450);
                 Title = Localize("LootResultTitle", "Loot Results");
-                WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
+                Flags = ImGuiWindowFlags.AlwaysAutoResize;
                 OpenCentered = true;
             }
-            protected override void Draw()
+            public override void Draw()
             {
                 if (_session.Results.Count == 0)
                     ImGui.Text(Localize("No loot", "No loot"));

@@ -39,7 +39,7 @@ namespace HimbeertoniRaidTool.Data
         private Player Melee2 { set => _Players[5] = value; }
         [Obsolete("Use []", true)]
         [JsonProperty]
-        private Player Ranged {set => _Players[6] = value; }
+        private Player Ranged { set => _Players[6] = value; }
         [Obsolete("Use []", true)]
         [JsonProperty]
         private Player Caster { set => _Players[7] = value; }

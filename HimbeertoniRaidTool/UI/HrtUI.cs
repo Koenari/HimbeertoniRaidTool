@@ -1,103 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
-using Dalamud.Game;
+using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
-    public abstract class Window : IDisposable, IEquatable<Window>
+    public abstract class HrtWindow : Window, IDisposable, IEquatable<HrtWindow>
     {
         private bool _disposed = false;
-        private bool _volatile;
-        private bool IsChild => Parent != null;
-        protected virtual bool HideInBattle { get; } = false;
-        protected bool Visible = false;
+        private readonly bool _volatile;
         private readonly string _id;
-        protected Window? Parent { get; private set; }
         protected string Title;
-        private Vector2 LastSize = default;
-        protected Vector2 Size = default;
         protected Vector2 MinSize = default;
         protected Vector2 MaxSize = ImGui.GetIO().DisplaySize * 0.9f;
         protected bool OpenCentered = false;
-        private Vector2 ScaledSize = default;
-        protected ImGuiCond SizingCondition = ImGuiCond.Appearing;
-        protected ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.None;
-        private readonly List<Window> Children = new();
         public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
-        public Window(bool @volatile = true, string? id = null)
+        public HrtWindow(bool @volatile = true, string? id = null) : base(id ?? Guid.NewGuid().ToString())
         {
-            _id = id ?? Guid.NewGuid().ToString();
+            _id = base.WindowName;
             Title = "";
             _volatile = @volatile;
-            RegisterActions();
-        }
-        private void RegisterActions()
-        {
-            Services.PluginInterface.UiBuilder.Draw += InternalDraw;
-            Services.Framework.Update += Update;
-        }
-        private void UnRegisterActions()
-        {
-            Services.PluginInterface.UiBuilder.Draw -= InternalDraw;
-            Services.Framework.Update -= Update;
         }
         public void Show()
         {
             if (_disposed)
                 return;
-            OnShow();
-            Visible = true;
-            Children.ForEach(x => x.Show());
+            IsOpen = true;
         }
-        protected virtual void OnShow() { }
         public void Hide()
         {
-            Children.ForEach(x => x.Hide());
-            Visible = false;
-            OnHide();
+            IsOpen = false;
         }
-        protected virtual void OnHide() { }
-        protected virtual void OnUpdate() { }
-        private void Update(Framework fw)
+        public override void Update()
         {
-            if (!Visible)
-                Children.ForEach(x => x.Hide());
-            if (!Visible && _volatile)
+            WindowName = $"{Title}##{_id}";
+            SizeConstraints = new()
+            {
+                MinimumSize = MinSize,
+                MaximumSize = MaxSize
+            };
+            if (!IsOpen && _volatile)
                 Dispose();
-            Children.ForEach(x => x.Update(fw));
-            Children.RemoveAll(x => x._disposed);
-            OnUpdate();
         }
-        protected bool AddChild(Window child, bool showOnAdd = false)
-        {
-            if (!ChildExists(child))
-            {
-                child.SetUpAsChild(this);
-                Children.Add(child);
-                if (showOnAdd)
-                    child.Show();
-                return true;
-            }
-            else
-            {
-                child.Dispose();
-                return false;
-            }
 
-        }
-        protected bool ChildExists<T>([DisallowNull] T c) => Children.Exists(x => c.Equals(x));
-        protected void ClearChildren() => Children.ForEach(x => x.Dispose());
-        private void SetUpAsChild(Window parent)
-        {
-            _volatile = true;
-            Parent = parent;
-            UnRegisterActions();
-            Show();
-        }
         protected virtual void BeforeDispose() { }
         public void Dispose()
         {
@@ -105,52 +51,38 @@ namespace HimbeertoniRaidTool.UI
                 return;
             Hide();
             BeforeDispose();
-            Children.ForEach(c => c.Dispose());
-            Children.Clear();
-            if (!IsChild)
-                UnRegisterActions();
             _disposed = true;
         }
-        private void InternalDraw()
+        public override bool DrawConditions()
         {
-            if (!Visible
-                || _disposed
-                || (Services.Config.HideInBattle && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
-                || (Services.Config.HideOnZoneChange && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas])
-                )
-                return;
-            Children.ForEach(_ => _.InternalDraw());
-            ScaledSize = Size * ScaleFactor;
-            ImGui.SetNextWindowSizeConstraints(MinSize, MaxSize);
-            ImGui.SetNextWindowSize(ScaledSize, (LastSize != ScaledSize) ? ImGuiCond.Always : SizingCondition);
-            if(OpenCentered)
-            {
-                ImGui.SetNextWindowPos((ImGui.GetIO().DisplaySize - ScaledSize) /2);
-                OpenCentered = false;
-            }
-            if (ImGui.Begin($"{Title}##{_id}", ref Visible, WindowFlags))
-            {
-                ScaledSize = ImGui.GetWindowSize();
-                Size = ScaledSize / ScaleFactor;
-                LastSize = ScaledSize;
-                Draw();
-                ImGui.End();
-            }
-
+            return !_disposed
+                && !(Services.Config.HideInBattle && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
+                && !(Services.Config.HideOnZoneChange && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas])
+                && base.DrawConditions();
         }
-        protected abstract void Draw();
-        public override bool Equals(object? obj) => (obj is Window w) && Equals(w);
-        public bool Equals(Window? other) => _id.Equals(other?._id);
+        public override void PreDraw()
+        {
+            if (OpenCentered)
+            {
+                this.Position = (ImGui.GetIO().DisplaySize - Size) / 2;
+                PositionCondition = ImGuiCond.Appearing;
+                OpenCentered = false;
+
+            }
+        }
+        public override bool Equals(object? obj) => Equals(obj as HrtWindow);
+        public bool Equals(HrtWindow? other) => _id.Equals(other?._id);
 
         public override int GetHashCode() => _id.GetHashCode();
     }
-    public class ConfimationDialog : Window
+    public class ConfimationDialog : HrtWindow
     {
         private readonly Action _Action;
         private readonly string _Title;
         private readonly string _Text;
+        private bool Visible = true;
 
-        public ConfimationDialog(Action action, string text, string title = "") : base()
+        public ConfimationDialog(Action action, string text, string title = "") : base(true)
         {
             title = title.Equals("") ? Localize("Confirmation", "Confirmation") : title;
             _Text = text;
@@ -158,7 +90,7 @@ namespace HimbeertoniRaidTool.UI
             _Action = action;
             Show();
         }
-        protected override void Draw()
+        public override void Draw()
         {
             ImGui.OpenPopup(_Title);
             ImGui.SetNextWindowPos(

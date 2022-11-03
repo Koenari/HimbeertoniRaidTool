@@ -21,10 +21,15 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
 
         public HRTConfiguration<WelcomeWindowConfig.ConfigData, IHrtConfigUi> Configuration => _config;
 
-        private WelcomeWindowui? _ui;
+        public Dalamud.Interface.Windowing.WindowSystem WindowSystem { get; }
+
+        private WelcomeWindowui _ui;
         private readonly WelcomeWindowConfig _config;
         public WelcomeWindowModule()
         {
+            WindowSystem = new(InternalName);
+            _ui = new(this);
+            WindowSystem.AddWindow(_ui);
             _config = new WelcomeWindowConfig(this);
         }
         public void Update(Framework fw) { }
@@ -43,7 +48,7 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
 
         internal void Show()
         {
-            (_ui ??= new(this)).Show();
+            _ui.Show();
         }
 
         public void AfterFullyLoaded()
@@ -52,18 +57,18 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
                 Show();
         }
 
-        private class WelcomeWindowui : Window
+        private class WelcomeWindowui : HrtWindow
         {
             private const string WikiURL = "https://github.com/Koenari/HimbeertoniRaidTool/wiki";
             private readonly WelcomeWindowModule _parent;
             public WelcomeWindowui(WelcomeWindowModule parent) : base()
             {
-                (Size, SizingCondition) = (new Vector2(520, 345), ImGuiCond.Always);
+                (Size, SizeCondition) = (new Vector2(520, 345), ImGuiCond.Always);
                 Title = Localize("Welcome to HRT", "Welcome to Himbeertoni Raid Tool");
-                WindowFlags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize;
+                Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize;
                 _parent = parent;
             }
-            protected override void Draw()
+            public override void Draw()
             {
                 ImGui.TextWrapped(Localize("WelcomeWindowLine1", "Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group."));
                 ImGui.TextWrapped(Localize("WelcomeWindowLine2", "Start your journey by opening LootMaster by typing \"/lootmaster\" (or \"/lm\") in chat (or the button below). There we already added your character for you."));
@@ -102,9 +107,8 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
                 if (ImGuiHelper.Button(Localize("Close", "Close"), Localize("Close this window", "Close this window")))
                     Hide();
             }
-            protected override void OnHide()
+            public override void OnClose()
             {
-                _parent._ui = null;
                 _parent.Configuration.Data.ShowWelcomeWindow = false;
                 _parent.Configuration.Save();
             }
