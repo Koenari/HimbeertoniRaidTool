@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 using Dalamud.Game.Command;
-using Dalamud.Interface;
 using Dalamud.Interface.Internal.Notifications;
-using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
@@ -26,7 +25,7 @@ namespace HimbeertoniRaidTool
         private readonly bool LoadError = false;
 
         private readonly List<string> RegisteredCommands = new();
-        private readonly Dictionary<Type, dynamic> RegisteredModules = new();
+        private readonly Dictionary<Type, IHrtModule> RegisteredModules = new();
 
         public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
         {
@@ -48,8 +47,8 @@ namespace HimbeertoniRaidTool
                 });
                 //TODO: Some more elegant way to load modules
 
-                AddModule<LootMasterModule, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>(new());
-                AddModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>(new());
+                AddModule<LootMasterModule, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>();
+                AddModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>();
             }
             else
             {
@@ -57,18 +56,24 @@ namespace HimbeertoniRaidTool
                 Services.ChatGui.PrintError(Name + " did not load correctly. Please disbale/enable to try again");
             }
         }
-        private T? GetModule<T, S, Q>() where T : IHrtModule<S, Q> where S : new() where Q : IHrtConfigUi
+        private bool TryGetModule<T>([NotNullWhen(true)] out T? module) where T : class, IHrtModule
         {
-            RegisteredModules.TryGetValue(typeof(T), out dynamic? value);
-            return (T?)value;
+            module = null;
+            if (RegisteredModules.TryGetValue(typeof(T), out IHrtModule? value))
+            {
+                module = (T)value;
+                return true;
+            }
+            return false;
         }
-        private void AddModule<T, S, Q>(T module) where T : IHrtModule<S, Q> where S : new() where Q : IHrtConfigUi
+        private void AddModule<T, S, Q>() where T : IHrtModule<S, Q>, new() where S : new() where Q : IHrtConfigUi
         {
             if (RegisteredModules.ContainsKey(typeof(T)))
             {
-                PluginLog.Error($"Tried to register module \"{module.Name}\" twice");
+                PluginLog.Error($"Tried to register module \"{typeof(T)}\" twice");
                 return;
             }
+            T module = new();
             try
             {
                 RegisteredModules.Add(typeof(T), module);
@@ -105,17 +110,16 @@ namespace HimbeertoniRaidTool
                 _Configuration.Save(false);
                 Services.HrtDataManager.Save();
             }
-            foreach (var moduleEntry in RegisteredModules)
+            foreach ((Type type, IHrtModule module) in RegisteredModules)
             {
                 try
                 {
-                    WindowSystem w = moduleEntry.Value.WindowSystem;
-                    Services.PluginInterface.UiBuilder.Draw -= w.Draw;
-                    moduleEntry.Value.Dispose();
+                    Services.PluginInterface.UiBuilder.Draw -= module.WindowSystem.Draw;
+                    module.Dispose();
                 }
                 catch (Exception e)
                 {
-                    PluginLog.Fatal($"Unable to Dispose module \"{moduleEntry.Key}\"\n{e}");
+                    PluginLog.Fatal($"Unable to Dispose module \"{type}\"\n{e}");
                 }
             }
             Localization.Dispose();
@@ -130,7 +134,7 @@ namespace HimbeertoniRaidTool
 #if DEBUG
                 case string b when b.Contains("exportlocale"): Localization.ExportLocalizable(); break;
 #endif
-                case string when args.IsNullOrEmpty(): GetModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>()?.Show(); break;
+                case string when args.IsNullOrEmpty(): if (TryGetModule(out WelcomeWindowModule? wcw)) wcw.Show(); break;
                 default:
                     PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
                     break;
