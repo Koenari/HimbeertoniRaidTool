@@ -217,16 +217,16 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
                         ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, false, i));
-                    if (type == weaponStat && ImGui.IsItemHovered())
-                        ImGui.SetTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
+                    if (type == weaponStat)
+                        ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
                     //BiS
                     ImGui.TableNextColumn();
                     ImGui.Text(curClass.GetBiSStat(type).ToString());
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
                         ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, true, i));
-                    if (type == weaponStat && ImGui.IsItemHovered())
-                        ImGui.SetTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
+                    if (type == weaponStat)
+                        ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
                 }
             }
             /**
@@ -321,8 +321,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 if (ImGui.TabItemButton($"{g.Name}##{tabBarIdx}"))
                     _CurrenGroupIndex = tabBarIdx;
-                if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip(Localize("GroupTabTooltip", "Right click for more options"));
+                ImGuiHelper.AddTooltip(Localize("GroupTabTooltip", "Right click for more options"));
                 //0 is reserved for Solo on current Character (non editable)
                 if (tabBarIdx > 0)
                 {
@@ -405,8 +404,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     var bis = player.BIS;
                     ImGui.TableNextColumn();
                     ImGui.Text(gear.ItemLevel.ToString());
-                    if (ImGui.IsItemHovered())
-                        ImGui.SetTooltip(gear.HrtID);
+                    ImGuiHelper.AddTooltip(gear.HrtID);
                     ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
                     ImGui.Text(bis.ItemLevel.ToString() + " (Etro)");
                     if (ImGui.IsItemClicked())
@@ -415,8 +413,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             FileName = EtroConnector.GearsetWebBaseUrl + bis.EtroID,
                             UseShellExecute = true,
                         });
-                    if (ImGui.IsItemHovered())
-                        ImGui.SetTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
+                    ImGuiHelper.AddTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
                     DrawSlot(gear.MainHand, bis.MainHand);
                     DrawSlot(gear.Head, bis.Head);
                     DrawSlot(gear.Body, bis.Body);
