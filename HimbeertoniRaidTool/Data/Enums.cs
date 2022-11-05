@@ -350,7 +350,7 @@ namespace HimbeertoniRaidTool.Data
             _ => Localize("undefined", "undefined"),
         };
         public static Job GetJob(this PlayerCharacter target) => (Job)target.ClassJob.Id;
-
+        public static bool IsCombatJob(this Job j) => j.MainStat() != StatType.None;
         public static StatType GetStatType(this MateriaCategory materiaCategory) => materiaCategory switch
         {
             MateriaCategory.Piety => StatType.Piety,
