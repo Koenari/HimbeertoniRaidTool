@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using ColorHelper;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
-using static ColorHelper.HRTColorConversions;
 using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
@@ -120,7 +118,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
                 if (isMainJob)
-                    ImGui.PushStyleColor(ImGuiCol.Button, Vec4(ColorName.Redwood.ToHsv().Value(0.6f)));
+                    ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
                 if (ImGuiHelper.Button(playableClass.Job.ToString(), null, true, new Vector2(38f * ScaleFactor, 0f)))
                     p.MainChar.MainJob = playableClass.Job;
                 if (isMainJob)
@@ -159,9 +157,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 var mainStat = curJob.MainStat();
                 var weaponStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.MagicalDamage : StatType.PhysicalDamage;
                 var potencyStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.AttackMagicPotency : StatType.AttackPower;
-                ImGui.TextColored(Vec4(ColorName.RedCrayola.ToRgb()),
-                    Localize("StatsUnfinished", "Stats are under development and only work correctly for level 70/80/90 jobs"));
-
+                ImGui.TextColored(Colors.Red, Localize("StatsUnfinished",
+                    "Stats are under development and only work correctly for level 70/80/90 jobs"));
                 ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
                 ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
                 ImGui.TableSetupColumn(Localize("Current", "Current"));
@@ -302,7 +299,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             else
             {
-                ImGui.TextColored(Vec4(ColorName.Red), $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
+                ImGui.TextColored(Colors.Red, $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
             }
         }
 
@@ -316,7 +313,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 RaidGroup g = RaidGroups[tabBarIdx];
                 if (tabBarIdx == _CurrenGroupIndex)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Tab, Vec4(ColorName.Redwood.ToHsv().Value(0.6f)));
+                    ImGui.PushStyleColor(ImGuiCol.Tab, Colors.RedWood);
                     colorPushed = true;
                 }
                 if (ImGui.TabItemButton($"{g.Name}##{tabBarIdx}"))
