@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using ColorHelper;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Data;
@@ -526,7 +525,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 bool isCurrentItem = item.RowId == Item?.ID;
                 if (isCurrentItem)
-                    ImGui.PushStyleColor(ImGuiCol.Button, HRTColorConversions.Vec4(ColorName.Redwood.ToHsv().Value(0.75f)));
+                    ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", Localize("Use this item", "Use this item"), true, new Vector2(32f, 32f)))
                 {
                     if (isCurrentItem)

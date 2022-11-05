@@ -71,10 +71,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.BeginTabBar("LootMaster");
                 if (ImGui.BeginTabItem(Localize("Appearance", "Appearance")))
                 {
-                    ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"),
-                        ref _dataCopy.OpenOnStartup);
+                    ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"), ref _dataCopy.OpenOnStartup);
+                    ImGuiHelper.AddTooltip(Localize("Lootmaster:OpenOnLoginTooltip",
+                        "Opens group overview window whean you log in"));
                     ImGui.Checkbox(Localize("Config:Lootmaster:ColoredItemNames", "Color items by item level"), ref _dataCopy.ColoredItemNames);
+                    ImGuiHelper.AddTooltip(Localize("Lootmaster:ColoredItemNamesTooltip",
+                        "Color items according to the item level"));
                     ImGui.Text($"{Localize("Config:Lootmaster:Colors", "Configured colors")}:");
+                    ImGui.NewLine();
                     uint iLvL = _config.Data.SelectedRaidTier.ArmorItemLevel;
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.CalcTextSize($"{iLvL} > ").X);
                     ImGui.Text($"{Localize("iLvl", "iLvl")} >= {iLvL}");
@@ -101,15 +105,21 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.Text($"{Localize("Examples", "Examples")}:");
                     for (int i = 0; i < 4; i++)
                     {
+                        (long curiLvL, string source, string slot) = (iLvL - 10 * i, ((GearSource)i).FriendlyName(), ((GearSetSlot)(i * 2)).FriendlyName());
                         if (_dataCopy.ColoredItemNames)
-                            ImGui.TextColored(_dataCopy.ItemLevelColors[i], String.Format(_dataCopy.ItemFormatString, iLvL - 10 * i, GearSource.Raid.FriendlyName(), GearSetSlot.Body.FriendlyName()));
+                            ImGui.TextColored(_dataCopy.ItemLevelColors[i], String.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
                         else
-                            ImGui.Text(String.Format(_dataCopy.ItemFormatString, iLvL - 10 * i, GearSource.Raid.FriendlyName(), GearSetSlot.Body.FriendlyName()));
+                            ImGui.Text(String.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
+                        ImGui.SameLine();
                     }
                     ImGui.EndTabItem();
                 }
                 if (ImGui.BeginTabItem("BiS"))
                 {
+                    ImGui.Checkbox(Localize("Config:Lootmaster:IgnoreMateriaforBis",
+                        "Ignore Materia"), ref _dataCopy.IgnoreMateriaForBiS);
+                    ImGuiHelper.AddTooltip(Localize("Config:Lootmaster:IgnoreMateriaforBisTooltip",
+                        "Ignore Materia when determining if an item is equivalent to BiS"));
                     ImGui.Checkbox(Localize("UpdateBisONStartUp", "Update sets from etro.gg periodically"), ref _dataCopy.UpdateEtroBisOnStartup);
                     ImGui.SetNextItemWidth(150f * ScaleFactor);
                     if (ImGui.InputInt(Localize("BisUpdateInterval", "Update interval (days)"), ref _dataCopy.EtroUpdateIntervalDays))
@@ -207,23 +217,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
              */
             [JsonProperty]
             public bool OpenOnStartup = false;
-
+            [JsonProperty]
+            public bool IgnoreMateriaForBiS = false;
             [JsonProperty("UserItemFormat")]
             private string _userItemFormat = "{ilvl} {source} {slot}";
-            [JsonIgnore]
-            public string UserItemFormat
-            {
-                get => _userItemFormat;
-                set
-                {
-                    _userItemFormat = value;
-                    ItemFormatStringCache = null;
-                }
-            }
-            [JsonIgnore]
-            private string? ItemFormatStringCache;
-            [JsonIgnore]
-            public string ItemFormatString => ItemFormatStringCache ??= ParseItemFormatString(UserItemFormat);
             [JsonProperty]
             public bool ColoredItemNames = true;
             [JsonProperty]
@@ -274,6 +271,20 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             /*
              * Internal
              */
+            [JsonIgnore]
+            public string UserItemFormat
+            {
+                get => _userItemFormat;
+                set
+                {
+                    _userItemFormat = value;
+                    ItemFormatStringCache = null;
+                }
+            }
+            [JsonIgnore]
+            private string? ItemFormatStringCache;
+            [JsonIgnore]
+            public string ItemFormatString => ItemFormatStringCache ??= ParseItemFormatString(UserItemFormat);
             [JsonProperty]
             public int LastGroupIndex = 0;
             [JsonProperty("RaidTier")]
@@ -284,7 +295,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             private static string ParseItemFormatString(string input)
             {
                 List<string> result = new();
-                string[] split = input.Split(' ');
+                string[] split = input.Replace("}{", "} {").Split(' ');
                 foreach (string item in split)
                 {
                     switch (item.ToLower())

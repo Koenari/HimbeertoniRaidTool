@@ -156,11 +156,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                     ImGui.TableNextColumn();
                                     string toPrint = result.EvaluatedRules[player].TryGetValue(rule, out string? val) ? val : "";
                                     if (rule == decision && rule == last)
-                                        ImGui.TextColored(ColorHelper.HRTColorConversions.Vec4(ColorHelper.ColorName.Yellow), toPrint);
+                                        ImGui.TextColored(Colors.Yellow, toPrint);
                                     else if (rule == decision)
-                                        ImGui.TextColored(ColorHelper.HRTColorConversions.Vec4(ColorHelper.ColorName.Green), toPrint);
+                                        ImGui.TextColored(Colors.Green, toPrint);
                                     else if (rule == last)
-                                        ImGui.TextColored(ColorHelper.HRTColorConversions.Vec4(ColorHelper.ColorName.Red), toPrint);
+                                        ImGui.TextColored(Colors.Red, toPrint);
                                     else
                                         ImGui.Text(toPrint);
                                 }

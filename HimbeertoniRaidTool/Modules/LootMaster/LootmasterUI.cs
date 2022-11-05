@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using ColorHelper;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
-using static ColorHelper.HRTColorConversions;
 using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
@@ -120,7 +118,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
                 if (isMainJob)
-                    ImGui.PushStyleColor(ImGuiCol.Button, Vec4(ColorName.Redwood.ToHsv().Value(0.6f)));
+                    ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
                 if (ImGuiHelper.Button(playableClass.Job.ToString(), null, true, new Vector2(38f * ScaleFactor, 0f)))
                     p.MainChar.MainJob = playableClass.Job;
                 if (isMainJob)
@@ -159,9 +157,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 var mainStat = curJob.MainStat();
                 var weaponStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.MagicalDamage : StatType.PhysicalDamage;
                 var potencyStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.AttackMagicPotency : StatType.AttackPower;
-                ImGui.TextColored(Vec4(ColorName.RedCrayola.ToRgb()),
-                    Localize("StatsUnfinished", "Stats are under development and only work correctly for level 70/80/90 jobs"));
-
+                ImGui.TextColored(Colors.Red, Localize("StatsUnfinished",
+                    "Stats are under development and only work correctly for level 70/80/90 jobs"));
                 ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
                 ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
                 ImGui.TableSetupColumn(Localize("Current", "Current"));
@@ -217,16 +214,16 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
                         ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, false, i));
-                    if (type == weaponStat && ImGui.IsItemHovered())
-                        ImGui.SetTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
+                    if (type == weaponStat)
+                        ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
                     //BiS
                     ImGui.TableNextColumn();
                     ImGui.Text(curClass.GetBiSStat(type).ToString());
                     ImGui.TableNextColumn();
                     for (int i = 0; i < numEvals; i++)
                         ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, true, i));
-                    if (type == weaponStat && ImGui.IsItemHovered())
-                        ImGui.SetTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
+                    if (type == weaponStat)
+                        ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
                 }
             }
             /**
@@ -302,7 +299,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             else
             {
-                ImGui.TextColored(Vec4(ColorName.Red), $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
+                ImGui.TextColored(Colors.Red, $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
             }
         }
 
@@ -316,13 +313,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 RaidGroup g = RaidGroups[tabBarIdx];
                 if (tabBarIdx == _CurrenGroupIndex)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Tab, Vec4(ColorName.Redwood.ToHsv().Value(0.6f)));
+                    ImGui.PushStyleColor(ImGuiCol.Tab, Colors.RedWood);
                     colorPushed = true;
                 }
                 if (ImGui.TabItemButton($"{g.Name}##{tabBarIdx}"))
                     _CurrenGroupIndex = tabBarIdx;
-                if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip(Localize("GroupTabTooltip", "Right click for more options"));
+                ImGuiHelper.AddTooltip(Localize("GroupTabTooltip", "Right click for more options"));
                 //0 is reserved for Solo on current Character (non editable)
                 if (tabBarIdx > 0)
                 {
@@ -405,8 +401,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     var bis = player.BIS;
                     ImGui.TableNextColumn();
                     ImGui.Text(gear.ItemLevel.ToString());
-                    if (ImGui.IsItemHovered())
-                        ImGui.SetTooltip(gear.HrtID);
+                    ImGuiHelper.AddTooltip(gear.HrtID);
                     ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
                     ImGui.Text(bis.ItemLevel.ToString() + " (Etro)");
                     if (ImGui.IsItemClicked())
@@ -415,8 +410,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             FileName = EtroConnector.GearsetWebBaseUrl + bis.EtroID,
                             UseShellExecute = true,
                         });
-                    if (ImGui.IsItemHovered())
-                        ImGui.SetTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
+                    ImGuiHelper.AddTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
                     DrawSlot(gear.MainHand, bis.MainHand);
                     DrawSlot(gear.Head, bis.Head);
                     DrawSlot(gear.Body, bis.Body);
@@ -499,7 +493,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private void DrawSlot(GearItem item, GearItem bis, bool extended = false)
         {
             ImGui.TableNextColumn();
-            if (item.Filled && bis.Filled && item.Equals(bis))
+            if (item.Filled && bis.Filled && item.Equals(bis,
+                _lootMaster.Configuration.Data.IgnoreMateriaForBiS ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full))
             {
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / (extended ? 2 : 1));
                 ImGui.BeginGroup();

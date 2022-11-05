@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Data;
@@ -99,6 +100,13 @@ namespace HimbeertoniRaidTool.UI
                 return false;
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddTooltip(string tooltip)
+        {
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip(tooltip);
+        }
+
 
         public static bool Combo<T>(string label, ref T value) where T : struct
         {

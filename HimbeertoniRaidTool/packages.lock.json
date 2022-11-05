@@ -2,12 +2,6 @@
   "version": 1,
   "dependencies": {
     "net6.0-windows7.0": {
-      "ColorHelper": {
-        "type": "Direct",
-        "requested": "[1.8.0, )",
-        "resolved": "1.8.0",
-        "contentHash": "yXdDp9lsfeonDSC4F5OAlr7S0HJ6vR3eAMN00G/LAz3jwLbF/G1hRwgsLytopU49WxPCmjaEi5pz4llvRSv9DA=="
-      },
       "DalamudPackager": {
         "type": "Direct",
         "requested": "[2.1.8, )",
