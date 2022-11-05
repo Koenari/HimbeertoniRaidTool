@@ -1,3 +1,4 @@
 [submodule "NetStone"]
-	path = NetStone
+	path = lib/NetStone
 	url = https://github.com/Koenari/NetStone.git
+    branch = for_plugin
