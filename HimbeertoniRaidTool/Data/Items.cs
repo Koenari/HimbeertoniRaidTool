@@ -56,6 +56,7 @@ namespace HimbeertoniRaidTool.Data
             return result;
         }
         public GearItem(uint ID = 0) : base(ID) { }
+        public override bool Equals(object? other) => Equals(other as GearItem);
         public bool Equals(GearItem? other) => Equals(other, ItemComparisonMode.Full);
         public bool Equals(GearItem? other, ItemComparisonMode mode)
         {
@@ -105,7 +106,7 @@ namespace HimbeertoniRaidTool.Data
             get
             {
                 if (IsExhangableItem)
-                    foreach(uint id in CuratedData.ExchangedFor[ID])
+                    foreach (uint id in CuratedData.ExchangedFor[ID])
                         yield return new GearItem(id);
                 if (IsContainerItem)
                     foreach (uint id in CuratedData.ItemContainerDB[ID])

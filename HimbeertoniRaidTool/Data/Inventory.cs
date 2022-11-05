@@ -1,88 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Data
 {
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    internal class Inventory
+    [JsonDictionary]
+    public class Inventory : Dictionary<int, InventoryEntry>
     {
-        [JsonProperty("Wallet", ObjectCreationHandling = ObjectCreationHandling.Replace)]
-        private readonly Dictionary<Currency, int> _wallet = new();
+        public bool Contains(uint id) => Values.Any(i => i.ID == id);
+    }
+    [JsonDictionary]
+    internal class Wallet : Dictionary<Currency, uint>
+    {
 
-        [JsonProperty("ItemTypes", ObjectCreationHandling = ObjectCreationHandling.Replace)]
-        private readonly Dictionary<int, Type> _itemTypes = new();
+    }
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore, MissingMemberHandling = MissingMemberHandling.Ignore, MemberSerialization = MemberSerialization.Fields)]
+    public struct InventoryEntry
+    {
+        public uint quantity;
+        public string type;
+        public HrtItem hrtItem;
+        public GearItem gearItem;
+        public HrtMateria hrtMateria;
 
-        [JsonProperty("Gear", TypeNameHandling = TypeNameHandling.All, ObjectCreationHandling = ObjectCreationHandling.Replace)]
-        private readonly Dictionary<int, GearItem> _gear = new();
-
-        [JsonProperty("Items", TypeNameHandling = TypeNameHandling.All, ObjectCreationHandling = ObjectCreationHandling.Replace)]
-        private readonly Dictionary<int, HrtItem> _items = new();
-
-        private bool Remove(int key)
+        public bool IsGear => type == nameof(GearItem);
+        public bool IsMateria => type == nameof(HrtMateria);
+        public uint ID
         {
-            if(!_itemTypes.Remove(key, out Type? t))
-                return false;
-            if(t == typeof(GearItem))
-                return _gear.Remove(key);
-            else if(t == typeof(HrtItem))
-                return _items.Remove(key);
-            else
-                return false;
-        }
-        private bool Set<T>(int key, T item) where T: HrtItem
-        {
-            Type t = typeof(T);
-            if(_itemTypes.TryGetValue(key, out Type? t2))
+            get
             {
-                if(t2 != t)
-                {
-                    _itemTypes[key] = t;
-                    if(t2 == typeof(GearItem))
-                        _gear.Remove(key);
-                    else if(t2 == typeof(HrtItem))
-                        _items.Remove(key);
-                }
+                if (type == nameof(GearItem)) return gearItem.ID;
+                if (type == nameof(HrtMateria)) return hrtMateria.ID;
+                if (type == nameof(HrtItem)) return hrtItem.ID;
+                return 0;
             }
-            else
+        }
+        public static implicit operator InventoryEntry(GearItem item) =>
+            new()
             {
-                _itemTypes.Add(key, t);
-            }
-            if (item is GearItem item1)
-                _gear[key]= item1;
-            else if (item is HrtItem item2)
-                _items[key] = item2;
-            return true;
-        }
-
-        public int this[Currency c] 
-        {
-            get =>  _wallet.TryGetValue(c, out int val) ? val : _wallet[c] = 0;
-            set => _wallet[c] = value < 0 ? 0 : value;
-        }
-        public HrtItem? this[int key]
-        {
-            get => _items.TryGetValue(key, out HrtItem? val) ? val : null;
-            set 
-            {   if (value is not null)
-                    Set(key,value);
-                else
-                    Remove(key);
-            }
-        }
-        public bool TryGet<T>(int key,[NotNullWhen(true)] out T? val) where T : HrtItem
-        {
-            val = null;
-            if(!_items.TryGetValue(key,out HrtItem? fromDic))
-                return false;
-            val = fromDic as T;
-            return val is not null;
-        }
-        public bool Contains<T>(T item) where T : HrtItem
-            => Contains(item.ID);
-        public bool Contains(uint id) => _items.Values.Any(i => i.ID == id);
+                type = nameof(GearItem),
+                gearItem = item,
+                quantity = 1,
+            };
+        public static implicit operator InventoryEntry(HrtItem item) =>
+            new()
+            {
+                type = nameof(HrtItem),
+                hrtItem = item,
+                quantity = 1,
+            };
+        public static implicit operator InventoryEntry(HrtMateria item) =>
+            new()
+            {
+                type = nameof(HrtMateria),
+                hrtMateria = item,
+                quantity = 1,
+            };
     }
     internal class Currency
     {

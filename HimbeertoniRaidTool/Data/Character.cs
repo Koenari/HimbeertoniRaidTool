@@ -29,6 +29,10 @@ namespace HimbeertoniRaidTool.Data
         public Tribe Tribe => _tribeSheet.GetRow(TribeID)!;
         [JsonProperty("LodestoneID")]
         public int LodestoneID = 0;
+        [JsonProperty("Wallet")]
+        internal readonly Wallet Wallet = new();
+        [JsonProperty("MainInventory")]
+        public readonly Inventory MainInventory = new();
         public World? HomeWorld
         {
             get => HomeWorldID > 0 ? _worldSheet?.GetRow(HomeWorldID) : null;
