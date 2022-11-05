@@ -38,18 +38,12 @@
           "HtmlAgilityPack": "1.11.46"
         }
       },
-      "Newtonsoft.Json": {
-        "type": "Transitive",
-        "resolved": "13.0.1",
-        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
-      },
       "netstone": {
         "type": "Project",
         "dependencies": {
           "HtmlAgilityPack": "[1.11.46, )",
           "JetBrains.Annotations": "[2022.1.0, )",
-          "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "[0.0.2, )",
-          "Newtonsoft.Json": "[13.0.1, )"
+          "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "[0.0.2, )"
         }
       }
     }
