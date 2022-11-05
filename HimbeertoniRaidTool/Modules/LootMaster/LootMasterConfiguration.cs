@@ -116,6 +116,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 if (ImGui.BeginTabItem("BiS"))
                 {
+                    ImGui.Checkbox(Localize("Config:Lootmaster:IgnoreMateriaforBis",
+                        "Ignore Materia"), ref _dataCopy.IgnoreMateriaForBiS);
+                    ImGuiHelper.AddTooltip(Localize("Config:Lootmaster:IgnoreMateriaforBisTooltip",
+                        "Ignore Materia when determining if an item is equivalent to BiS"));
                     ImGui.Checkbox(Localize("UpdateBisONStartUp", "Update sets from etro.gg periodically"), ref _dataCopy.UpdateEtroBisOnStartup);
                     ImGui.SetNextItemWidth(150f * ScaleFactor);
                     if (ImGui.InputInt(Localize("BisUpdateInterval", "Update interval (days)"), ref _dataCopy.EtroUpdateIntervalDays))
@@ -213,7 +217,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
              */
             [JsonProperty]
             public bool OpenOnStartup = false;
-
+            [JsonProperty]
+            public bool IgnoreMateriaForBiS = false;
             [JsonProperty("UserItemFormat")]
             private string _userItemFormat = "{ilvl} {source} {slot}";
             [JsonProperty]

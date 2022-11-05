@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace HimbeertoniRaidTool.Data
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public class GearItem : HrtItem
+    public class GearItem : HrtItem, IEquatable<GearItem>
     {
         [JsonProperty]
         public bool IsHq = false;
@@ -56,10 +56,16 @@ namespace HimbeertoniRaidTool.Data
             return result;
         }
         public GearItem(uint ID = 0) : base(ID) { }
-        public bool Equals(GearItem other)
+        public bool Equals(GearItem? other) => Equals(other, ItemComparisonMode.Full);
+        public bool Equals(GearItem? other, ItemComparisonMode mode)
         {
-            if (ReferenceEquals(this, other)) return true;
-            if (ID != other.ID) return false;
+            //idOnly
+            if (ID != other?.ID) return false;
+            if (mode == ItemComparisonMode.IdOnly) return true;
+            //IgnoreMateria
+            if (IsHq != other.IsHq) return false;
+            if (mode == ItemComparisonMode.IgnoreMateria) return true;
+            //Full
             if (Materia.Count != other.Materia.Count) return false;
             Dictionary<HrtMateria, int> cnt = new();
             foreach (HrtMateria s in Materia)
@@ -171,4 +177,19 @@ namespace HimbeertoniRaidTool.Data
         IEnumerator IEnumerable.GetEnumerator() => _IDs.GetEnumerator();
     }
 
+    public enum ItemComparisonMode
+    {
+        /// <summary>
+        /// Ignores everything besides the item ID
+        /// </summary>
+        IdOnly,
+        /// <summary>
+        /// Ignores affixed materia when comparing
+        /// </summary>
+        IgnoreMateria,
+        /// <summary>
+        /// Compares all aspects of the item
+        /// </summary>
+        Full
+    }
 }

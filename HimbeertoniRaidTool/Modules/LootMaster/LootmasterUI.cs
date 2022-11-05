@@ -493,7 +493,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private void DrawSlot(GearItem item, GearItem bis, bool extended = false)
         {
             ImGui.TableNextColumn();
-            if (item.Filled && bis.Filled && item.Equals(bis))
+            if (item.Filled && bis.Filled && item.Equals(bis,
+                _lootMaster.Configuration.Data.IgnoreMateriaForBiS ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full))
             {
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / (extended ? 2 : 1));
                 ImGui.BeginGroup();
