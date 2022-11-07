@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Dalamud.Data;
 using Dalamud.Plugin;
 using Dalamud.Utility;
@@ -43,5 +44,9 @@ namespace HimbeertoniRaidTool.HrtServices
         }
         ~IconCache()
         => Dispose();
+    }
+    public static class IconExtensions
+    {
+        public static Vector2 Size(this TextureWrap tex) => new Vector2(tex.Width, tex.Height);
     }
 }

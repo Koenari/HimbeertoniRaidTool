@@ -56,6 +56,7 @@ namespace HimbeertoniRaidTool.Data
             return result;
         }
         public GearItem(uint ID = 0) : base(ID) { }
+        public override bool Equals(object? other) => Equals(other as GearItem);
         public bool Equals(GearItem? other) => Equals(other, ItemComparisonMode.Full);
         public bool Equals(GearItem? other, ItemComparisonMode mode)
         {
@@ -97,9 +98,21 @@ namespace HimbeertoniRaidTool.Data
         private Item? ItemCache = null;
         public Item? Item => ItemCache ??= _itemSheet.GetRow(ID);
         public string Name => Item?.Name.RawString ?? "";
-        public bool IsGear => (Item?.ClassJobCategory.Row ?? 0) != 0;
+        public bool IsGear => this is GearItem || (Item?.ClassJobCategory.Row ?? 0) != 0;
         public bool IsExhangableItem => CuratedData.ExchangedFor.ContainsKey(ID);
         public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
+        public IEnumerable<GearItem> PossiblePurchases
+        {
+            get
+            {
+                if (IsExhangableItem)
+                    foreach (uint id in CuratedData.ExchangedFor[ID])
+                        yield return new GearItem(id);
+                if (IsContainerItem)
+                    foreach (uint id in CuratedData.ItemContainerDB[ID])
+                        yield return new GearItem(id);
+            }
+        }
         [JsonIgnore]
         protected static readonly ExcelSheet<Item> _itemSheet = Services.DataManager.Excel.GetSheet<Item>()!;
 
@@ -134,28 +147,6 @@ namespace HimbeertoniRaidTool.Data
 
 
         public int GetStat() => Materia?.Value[MateriaLevel] ?? 0;
-    }
-    /// <summary>
-    /// Models an item that can be exchanged for another item
-    /// Items with FilterGroup 16??
-    /// </summary>
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public class ExchangableItem : HrtItem
-    {
-        public List<GearItem> PossiblePurchases =>
-            CuratedData.ExchangedFor.GetValueOrDefault(_ID)?.ToList().ConvertAll(id => new GearItem(id))
-            ?? new();
-
-        public ExchangableItem(uint id) : base(id) { }
-    }
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public class ContainerItem : HrtItem
-    {
-        public List<GearItem> PossiblePurchases =>
-            CuratedData.ItemContainerDB.GetValueOrDefault(_ID)?.ToList().ConvertAll(id => new GearItem(id))
-            ?? new();
-
-        public ContainerItem(uint id) : base(id) { }
     }
     public class ItemIDRange : ItemIDCollection
     {
