@@ -255,6 +255,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (_CurrenGroupIndex > RaidGroups.Count - 1 || _CurrenGroupIndex < 0)
                 _CurrenGroupIndex = 0;
             DrawUiMessages();
+            if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "showconfig", Localize("lootmaster:button:showconfig:tooltip", "Open Configuration")))
+                Services.Config.Ui.Show();
+            ImGui.SameLine();
             DrawLootHandlerButtons();
             DrawRaidGroupSwitchBar();
             if (CurrentGroup.Type == GroupType.Solo)
