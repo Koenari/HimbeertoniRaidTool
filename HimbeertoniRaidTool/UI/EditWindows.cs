@@ -166,16 +166,20 @@ namespace HimbeertoniRaidTool.UI
         private void SavePlayer()
         {
             List<(Job, Func<bool>)> bisUpdates = new();
+            //Player Data
             Player.NickName = PlayerCopy.NickName;
             Player.AdditionalData.ManualDPS = PlayerCopy.AdditionalData.ManualDPS;
+            //Character Data
             if (IsNew)
             {
                 Character c = new(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
                 Services.HrtDataManager.GetManagedCharacter(ref c);
                 Player.MainChar = c;
+                //Do not silently override existing characters
                 if (c.Classes.Any())
                     return;
             }
+            //Name or world changed. Need to update the DataBase
             if (Player.MainChar.Name != PlayerCopy.MainChar.Name || Player.MainChar.HomeWorldID != PlayerCopy.MainChar.HomeWorldID)
             {
                 uint oldWorld = Player.MainChar.HomeWorldID;
@@ -186,7 +190,10 @@ namespace HimbeertoniRaidTool.UI
                 Services.HrtDataManager.RearrangeCharacter(oldWorld, oldName, ref c);
                 Player.MainChar = c;
             }
+            //Copy safe data
+            Player.MainChar.TribeID = PlayerCopy.MainChar.TribeID;
             Player.MainChar.MainJob = PlayerCopy.MainChar.MainJob;
+            //Remove classes that were removed in Ui
             for (int i = 0; i < Player.MainChar.Classes.Count(); i++)
             {
                 PlayableClass c = Player.MainChar.Classes.ElementAt(i);
@@ -196,6 +203,7 @@ namespace HimbeertoniRaidTool.UI
                     i--;
                 }
             }
+            //Add missing classes and update Bis/Level for existing ones
             foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
             {
                 PlayableClass target = Player.MainChar[c.Job];
@@ -216,6 +224,8 @@ namespace HimbeertoniRaidTool.UI
                 }
                 target.BIS = set;
             }
+            if (!Player.MainChar.Classes.Any(c => c.Job == Player.MainChar.MainJob))
+                Player.MainChar.MainJob = Player.MainChar.Classes.FirstOrDefault()?.Job;
             Services.HrtDataManager.Save();
         }
     }
