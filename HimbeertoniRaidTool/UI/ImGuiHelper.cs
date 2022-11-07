@@ -40,7 +40,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.SetTooltip(tooltip);
             return result;
         }
-        public static bool GearUpdateButtons(Player p, IHrtModule module, bool showMultiple = false)
+        public static bool GearUpdateButtons(Player p, IHrtModule module, bool showMultiple = false, Vector2 size = default)
         {
             ImGui.PushID(p.NickName);
             bool result = false;
@@ -78,7 +78,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 if (Button(FontAwesomeIcon.Search, "inspect",
                     $"{inspectTooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}",
-                    canInspect))
+                    canInspect, size))
                 {
                     GearRefresherOnExamine.RefreshGearInfos(playerChar);
                     return true;
@@ -89,7 +89,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 string tooltip = Localize("Lodestone Button", "Download Gear from Lodestone");
                 if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, "lodestone",
-                    $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}"))
+                    $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}", true, size))
                 {
                     module.HandleMessage(new HrtUiMessage(
                         $"{Localize("LodestonUpdateStarted", "Started gear update for")} {p.MainChar.Name}", HrtUiMessageType.Info));

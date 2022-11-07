@@ -29,11 +29,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private readonly Queue<HrtUiMessage> _messageQueue = new();
         private (HrtUiMessage message, DateTime time)? _currentMessage;
         private static readonly TimeSpan _messageTime = TimeSpan.FromSeconds(10);
+        private readonly Vector2 _buttonSize;
+        private Vector2 ButtonSize => _buttonSize * ScaleFactor;
         internal LootmasterUI(LootMasterModule lootMaster) : base(false, "LootMaster")
         {
             _lootMaster = lootMaster;
             _CurrenGroupIndex = 0;
             Size = new Vector2(1600, 670);
+            _buttonSize = new Vector2(30f, 25f);
             SizeCondition = ImGuiCond.FirstUseEver;
             Title = Localize("LootMasterWindowTitle", "Loot Master");
 
@@ -331,7 +334,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             ImGui.CloseCurrentPopup();
                         }
                         ImGui.SameLine();
-                        if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "DeleteGroup", Localize("Delete group", "Delete group")))
+                        if (ImGuiHelper.Button(FontAwesomeIcon.TrashAlt, "DeleteGroup", Localize("Delete group", "Delete group")))
                         {
                             AddChild(new ConfimationDialog(
                                 () => RaidGroups.Remove(g),
@@ -443,10 +446,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                  * Start of functional button section
                  */
                 {
-                    ImGuiHelper.GearUpdateButtons(player, _lootMaster);
+                    ImGuiHelper.GearUpdateButtons(player, _lootMaster, false, ButtonSize);
                     Vector2 buttonSize = ImGui.GetItemRectSize();
                     ImGui.SameLine();
-                    if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange", "Swap Position", true, buttonSize))
+                    if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange", Localize("lootmaster:button:swapposition:tooltip", "Swap Position"), true, ButtonSize))
                     {
                         AddChild(new SwapPositionWindow(pos, CurrentGroup));
                     }
@@ -456,15 +459,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     {
                         AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player, _lootMaster.Configuration.Data.GetDefaultBiS));
                     }
-                    if (ImGuiHelper.Button(FontAwesomeIcon.Info, "Inventory", "Opens Inventory", true, buttonSize))
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Wallet, "Inventory", Localize("lootmaster:button:inventorytooltip", "Open inventory window"), true, buttonSize))
                         AddChild(new InventoryWindow(player.MainChar.MainInventory, $"{player.MainChar.Name}'s Inventory"));
-                    /*
-                    if (ImGuiHelper.Button(FontAwesomeIcon.Redo, player.BIS.EtroID,
-                        string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), player.BIS.Name), true, buttonSize))
-                        Services.TaskManager.RegisterTask(_lootMaster, () => Services.ConnectorPool.EtroConnector.GetGearSet(player.BIS)
-                        , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("successful", "successful")}"
-                        , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("failed", "failed")}");
-                    */
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, "Details",
                         $"{Localize("PlayerDetails", "Show player details for")} {player.NickName}", true, buttonSize))
@@ -472,7 +468,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         AddChild(new PlayerdetailWindow(this, player));
                     }
                     ImGui.SameLine();
-                    if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "Delete",
+                    if (ImGuiHelper.Button(FontAwesomeIcon.TrashAlt, "Delete",
                         $"{Localize("Delete", "Delete")} {player.NickName}", true, buttonSize))
                     {
                         AddChild(new ConfimationDialog(
