@@ -220,7 +220,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             [JsonProperty]
             public bool IgnoreMateriaForBiS = false;
             [JsonProperty("UserItemFormat")]
-            private string _userItemFormat = "{ilvl} {source} {slot}";
+            private string _userItemFormat = "{source} {slot}";
             [JsonProperty]
             public bool ColoredItemNames = true;
             [JsonProperty]
