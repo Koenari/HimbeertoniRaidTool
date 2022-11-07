@@ -20,7 +20,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _lootRuling = lootRuling;
             _lootSource = lootSource;
             _session = new(group, _lootRuling, group.RolePriority ?? defaultRolePriority,
-                LootDB.GetPossibleLoot(_lootSource).ConvertAll(x => (x, 0)).ToArray());
+                LootDB.GetPossibleLoot(_lootSource));
             _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
             Size = new Vector2(550, 370);
             Title = $"{Localize("Loot session for", "Loot session for")} {_lootSource}";
@@ -69,11 +69,16 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             //
             if (ImGui.BeginChild("Loot", new Vector2(250 * ScaleFactor, 300 * ScaleFactor), false))
             {
-                for (int i = 0; i < _session.Loot.Length; i++)
+                foreach ((HrtItem item, int count) in _session.Loot)
                 {
-                    ImGui.Text(_session.Loot[i].item.Name);
-                    if (ImGui.InputInt($"##Input{i}", ref _session.Loot[i].count) && _session.Loot[i].count < 0)
-                        _session.Loot[i].count = 0;
+                    ImGui.Text(item.Name);
+                    int count2 = count;
+                    if (ImGui.InputInt($"##Input{item.ID}", ref count2))
+                    {
+                        if (count2 < 0)
+                            count2 = 0;
+                        _session.Loot[item] = count2;
+                    }
                 }
                 ImGui.EndChild();
             }

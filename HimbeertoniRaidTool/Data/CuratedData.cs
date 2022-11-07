@@ -32,9 +32,24 @@ namespace HimbeertoniRaidTool.Data
             AsphodelosSavage,
             AbyssosSavage
         };
-
-        public static readonly Dictionary<ItemIDRange, LootSource> LootSourceDB = new()
+        public static readonly Dictionary<ItemIDRange, LootSource> GuaranteedLootSourceDB = new()
         {
+            //Only books here atm
+            //6.0
+            {35823 , (AsphodelosSavage, 1)},
+            {35824 , (AsphodelosSavage, 2)},
+            {35825 , (AsphodelosSavage, 3)},
+            {35826 , (AsphodelosSavage, 4)},
+            //6.2
+            {38381 , (AbyssosSavage, 1)},
+            {38382 , (AbyssosSavage, 2)},
+            {38383 , (AbyssosSavage, 3)},
+            {38384 , (AbyssosSavage, 4)},
+        };
+
+        public static readonly Dictionary<ItemIDRange, LootSource> PossibleLootSourceDB = new()
+        {
+            //6.0
             { (35245, 35264), (AsphodelosSavage, 4) },//All Asphodelos Weapons
             { 35734, (AsphodelosSavage, 4) },//Asphodelos weapon coffer
             { 35735, new((AsphodelosSavage, 2), (AsphodelosSavage, 3)) },//Asphodelos head gear coffer

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace HimbeertoniRaidTool.Data
@@ -30,38 +31,70 @@ namespace HimbeertoniRaidTool.Data
         public static bool operator ==(LootSource left, LootSource right) => left.Equals(right);
         public static bool operator !=(LootSource left, LootSource right) => !left.Equals(right);
     }
+    public readonly struct Loot
+    {
+        public readonly ReadOnlyCollection<HrtItem> PossibleItems { get; }
+        public readonly ReadOnlyCollection<HrtItem> GuaranteedItems { get; }
+
+        public Loot(IList<HrtItem> guaranteedLoot, IList<HrtItem> possibleLoot)
+        {
+            PossibleItems = new(possibleLoot);
+            GuaranteedItems = new(guaranteedLoot);
+        }
+    }
 
     public static class LootDB
     {
-        private static readonly Dictionary<(RaidTier, int), List<HrtItem>> LootSourceDB;
+        private static readonly Dictionary<(RaidTier, int), Loot> LootSourceDB;
 
         static LootDB()
         {
+            var PossibleDB = new Dictionary<(RaidTier, int), List<HrtItem>>();
+            var GuaranteedDB = new Dictionary<(RaidTier, int), List<HrtItem>>();
             LootSourceDB = new();
-            foreach (var entry in CuratedData.LootSourceDB)
+            foreach (var entry in CuratedData.PossibleLootSourceDB)
             {
                 foreach ((RaidTier, int) source in entry.Value.Sources)
                 {
-                    if (!LootSourceDB.ContainsKey(source))
-                        LootSourceDB.Add(source, new());
+                    if (!PossibleDB.ContainsKey(source))
+                        PossibleDB.Add(source, new());
                     foreach (uint id in entry.Key)
-                        LootSourceDB[source].Add(new(id));
+                        PossibleDB[source].Add(new(id));
 
 
                 }
             }
+            foreach (var entry in CuratedData.GuaranteedLootSourceDB)
+            {
+                foreach ((RaidTier, int) source in entry.Value.Sources)
+                {
+                    if (!GuaranteedDB.ContainsKey(source))
+                        GuaranteedDB.Add(source, new());
+                    foreach (uint id in entry.Key)
+                        GuaranteedDB[source].Add(new(id));
+
+
+                }
+            }
+            foreach (var entry in PossibleDB)
+            {
+                GuaranteedDB.TryGetValue(entry.Key, out List<HrtItem>? gI);
+                LootSourceDB[entry.Key] = new(gI ?? Enumerable.Empty<HrtItem>().ToList(), entry.Value);
+            }
         }
-        public static List<HrtItem> GetPossibleLoot(LootSource source)
+        public static IEnumerable<HrtItem> GetPossibleLoot(LootSource source)
         {
             if (!source.IsList)
                 return GetPossibleLoot(source.Sources.First());
             List<HrtItem> result = new();
             foreach (var entry in source.Sources)
-                if (LootSourceDB.TryGetValue(entry, out List<HrtItem>? loot))
-                    result.AddRange(loot);
-            return result.Distinct().ToList();
+                if (LootSourceDB.TryGetValue(entry, out Loot loot))
+                    result.AddRange(loot.PossibleItems);
+            return result.Distinct();
         }
-        public static List<HrtItem> GetPossibleLoot((RaidTier raidTear, int boss) source) =>
-            LootSourceDB.GetValueOrDefault((source.raidTear, source.boss), new());
+        public static IEnumerable<HrtItem> GetPossibleLoot((RaidTier raidTear, int boss) source) =>
+            LootSourceDB.GetValueOrDefault((source.raidTear, source.boss), new()).PossibleItems;
+        public static IEnumerable<HrtItem> GetGuaranteedLoot((RaidTier raidTear, int boss) source) =>
+            LootSourceDB.GetValueOrDefault((source.raidTear, source.boss), new()).GuaranteedItems;
     }
 }
