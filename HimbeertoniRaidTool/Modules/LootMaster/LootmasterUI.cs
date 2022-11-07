@@ -6,6 +6,7 @@ using System.Numerics;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.HrtServices;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using static HimbeertoniRaidTool.HrtServices.Localization;
@@ -455,11 +456,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     {
                         AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player, _lootMaster.Configuration.Data.GetDefaultBiS));
                     }
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Info, "Inventory", "Opens Inventory", true, buttonSize))
+                        AddChild(new InventoryWindow(player.MainChar.MainInventory, $"{player.MainChar.Name}'s Inventory"));
+                    /*
                     if (ImGuiHelper.Button(FontAwesomeIcon.Redo, player.BIS.EtroID,
                         string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), player.BIS.Name), true, buttonSize))
                         Services.TaskManager.RegisterTask(_lootMaster, () => Services.ConnectorPool.EtroConnector.GetGearSet(player.BIS)
                         , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("successful", "successful")}"
                         , $"{Localize("BisUpdateResult", "BIS update for character")} {player.MainChar.Name} ({player.MainChar.MainJob}) {Localize("failed", "failed")}");
+                    */
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, "Details",
                         $"{Localize("PlayerDetails", "Show player details for")} {player.NickName}", true, buttonSize))
@@ -643,6 +648,49 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, "cancel", Localize("Cancel", "Cancel")))
                 Hide();
+        }
+    }
+    internal class InventoryWindow : HrtWindow
+    {
+        private readonly Inventory _inv;
+
+        internal InventoryWindow(Inventory inv, string title)
+        {
+            Size = new(400f, 300f);
+            SizeCondition = ImGuiCond.Appearing;
+            Title = title;
+            _inv = inv;
+            for (int i = 1; i < 5; i++)
+                foreach (var item in LootDB.GetGuaranteedLoot((CuratedData.CurrentRaidSavage, i)))
+                {
+                    if (!_inv.Contains(item.ID))
+                    {
+                        _inv[_inv.FirstFreeSlot()] = new(item)
+                        {
+                            quantity = 0
+                        };
+                    }
+                }
+
+        }
+        public override void Draw()
+        {
+            if (ImGuiHelper.SaveButton())
+                Hide();
+            for (int i = 1; i < 5; i++)
+                foreach (var item in LootDB.GetGuaranteedLoot((CuratedData.CurrentRaidSavage, i)))
+                {
+                    var icon = Services.IconCache[item.Item!.Icon];
+                    ImGui.Image(icon.ImGuiHandle, icon.Size());
+                    ImGui.SameLine();
+                    ImGui.Text(item.Name);
+                    ImGui.SameLine();
+                    InventoryEntry entry = _inv[_inv.IndexOf(item.ID)];
+                    ImGui.SetNextItemWidth(150f * ScaleFactor);
+                    ImGui.InputInt($"##{item.Name}", ref entry.quantity);
+                    _inv[_inv.IndexOf(item.ID)] = entry;
+                }
+
         }
     }
     internal class SwapPositionWindow : HrtWindow
