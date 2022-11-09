@@ -24,7 +24,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
             Size = new Vector2(550, 370);
             Title = $"{Localize("Loot session for", "Loot session for")} {_lootSource}";
-            Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar;
+            Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar;
             OpenCentered = true;
         }
         private void StartLootDistribution()
@@ -106,7 +106,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             public LootResultWindow(LootSession session) : base()
             {
                 _session = session;
-                Size = new Vector2(900, 450);
+                MinSize = new Vector2(500, 250);
                 Title = Localize("LootResultTitle", "Loot Results");
                 Flags = ImGuiWindowFlags.AlwaysAutoResize;
                 OpenCentered = true;
