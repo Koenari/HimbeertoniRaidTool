@@ -49,29 +49,13 @@ namespace HimbeertoniRaidTool.Data
                 }
             }
             CurrentExpansion = new(6, 10, 90, 2);
-            CurrentExpansion.SavageRaidTiers[0] = new(CurrentExpansion, EncounterDifficulty.Savage, 605, 600, "Asphodelos " + Localize("Savage", "Savage"))
-            {
-                Bosses = new InstanceWithLoot[]
-                {
-                    new(30112, "Erichthonios (P1S)", 35823,new ItemIDRange(35740,35743)),
-                    new(30114, "Hippokampos (P2S)", 35824, new ItemIDList(35735,35737,35739,35830,35831)),
-                    new(30110, "Phoinix (P3S)", 35825, new ItemIDList(35735,35737,35738,35739,35828,35829)),
-                    new(30108, "Hesperos (P4S)", 35826, new ItemIDList((35245, 35264),35734,35736)),
+            CurrentExpansion.SavageRaidTiers[0] = new(CurrentExpansion, EncounterDifficulty.Savage, 605, 600,
+                "Asphodelos " + Localize("Savage", "Savage"), new uint[] { 30112, 30114, 30110, 30108 });
+            CurrentExpansion.SavageRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Savage, 635, 630,
+                "Abyssos " + Localize("Savage", "Savage"), new uint[] { 30117, 30121, 30119, 30123 });
+            CurrentExpansion.NormalRaidTiers[0] = new(CurrentExpansion, EncounterDifficulty.Normal, 590, 580, "Asphodelos", Array.Empty<uint>());
+            CurrentExpansion.NormalRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Normal, 620, 610, "Abyssos", Array.Empty<uint>());
                 }
-            };
-            CurrentExpansion.SavageRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Savage, 635, 630, "Abyssos " + Localize("Savage", "Savage"))
-            {
-                Bosses = new InstanceWithLoot[]
-                {
-                    new(30112, "Proto-Carbuncle (P5S)", 38381,new ItemIDRange(38396,38399)),
-                    new(30114, "Hegemone (P6S)", 38382, new ItemIDList(38391,38393,38395,38388,38389)),
-                    new(30110, "Agdistis (P7S)", 38383, new ItemIDList(38391,38393,38395,38386,38387)),
-                    new(30108, "Hephaistos (P8S)", 38384,new ItemIDList((38081, 38099),38390,38392)),
-                }
-            };
-            CurrentExpansion.NormalRaidTiers[0] = new(CurrentExpansion, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
-            CurrentExpansion.NormalRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Normal, 620, 610, "Abyssos");
-        }
         public static GameExpansion CurrentExpansion { get; }
 
         public static readonly Dictionary<uint, ItemIDCollection> ItemContainerDB = new()
@@ -135,6 +119,19 @@ namespace HimbeertoniRaidTool.Data
             { new ItemIDRange(38400,38419), GearSource.Relic }, //Manderville
 
         }.ExplodeIDCollection();
+        public static Dictionary<uint, InstanceWithLoot> InstanceDB = new()
+        {
+            { 30108, new(30108, ContentType.Raid, "Hesperos (P4S)", 35826, new ItemIDList((35245, 35264),35734,35736)) },
+            { 30110, new(30110, ContentType.Raid, "Phoinix (P3S)", 35825, new ItemIDList(35735,35737,35738,35739,35828,35829)) },
+            { 30112, new(30112, ContentType.Raid, "Erichthonios (P1S)", 35823,new ItemIDRange(35740,35743)) },
+            { 30114, new(30114, ContentType.Raid, "Hippokampos (P2S)", 35824, new ItemIDList(35735,35737,35739,35830,35831)) },
+            //6.2
+            {30117, new(30117, ContentType.Raid, "Proto-Carbuncle (P5S)", 38381,new ItemIDRange(38396,38399)) },
+            {30119, new(30119, ContentType.Raid, "Agdistis (P7S)", 38383, new ItemIDList(38391,38393,38395,38386,38387)) },
+            {30121, new(30121, ContentType.Raid, "Hegemone (P6S)", 38382, new ItemIDList(38391,38393,38395,38388,38389)) },
+            {30123, new(30123, ContentType.Raid, "Hephaistos (P8S)", 38384,new ItemIDList((38081, 38099),38390,38392)) },
+
+        };
         public static Dictionary<uint, (uint shopID, int idx)> ShopIndex { get; }
         public static Dictionary<uint, List<uint>> UsedToBuy { get; }
         public static CustomSpecialShop.ShopEntry? GetShopEntry(uint id) => ShopSheet.GetRow(ShopIndex[id].shopID)?.ShopEntries[ShopIndex[id].idx];

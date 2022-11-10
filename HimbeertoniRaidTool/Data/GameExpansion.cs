@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Data
@@ -41,16 +42,24 @@ namespace HimbeertoniRaidTool.Data
         public readonly uint WeaponItemLevel;
         public readonly uint ArmorItemLevel;
         public readonly string Name;
-        public InstanceWithLoot[] Bosses = new InstanceWithLoot[4];
+        private readonly uint[] BossIDs;
+        public IEnumerable<InstanceWithLoot> Bosses
+        {
+            get
+            {
+                foreach (uint id in BossIDs)
+                    yield return CuratedData.InstanceDB[id];
+            }
+        }
 
-        public RaidTier(GameExpansion exp, EncounterDifficulty difficulty, uint weaponItemLevel, uint armorItemLevel, string name)
+        public RaidTier(GameExpansion exp, EncounterDifficulty difficulty, uint weaponItemLevel, uint armorItemLevel, string name, uint[] bossIDS)
         {
             GameExpansion = exp;
             Difficulty = difficulty;
             WeaponItemLevel = weaponItemLevel;
             ArmorItemLevel = armorItemLevel;
             Name = name;
-
+            BossIDs = bossIDS;
         }
 
         public uint ItemLevel(GearSetSlot slot) => slot == GearSetSlot.MainHand ? WeaponItemLevel : ArmorItemLevel;

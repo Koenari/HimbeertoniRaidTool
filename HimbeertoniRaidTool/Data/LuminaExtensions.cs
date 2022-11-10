@@ -53,7 +53,7 @@ namespace Lumina.Excel.Extensions
     {
         public static List<Job> ToJob(this ClassJobCategory self)
         {
-            List<Job> jobs = new List<Job>();
+            List<Job> jobs = new();
             for (int i = 0; i < (int)Job.SGE; i++)
             {
                 if (self.Contains((Job)i))
