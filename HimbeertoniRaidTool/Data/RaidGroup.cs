@@ -19,7 +19,7 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public RolePriority? RolePriority = null;
         //These are needed for deserialization of RaidGRoups.json from versions < 1.1.0
-        [Obsolete("Use []",true)]
+        [Obsolete("Use []", true)]
         [JsonProperty]
         private Player Tank1 { set => _Players[0] = value; }
         [Obsolete("Use []", true)]

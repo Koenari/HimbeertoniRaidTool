@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dalamud.Game;
 using Dalamud.Logging;
-using NetStone;
 
 namespace HimbeertoniRaidTool.Connectors
 {

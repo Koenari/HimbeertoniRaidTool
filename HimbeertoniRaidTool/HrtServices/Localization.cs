@@ -16,7 +16,7 @@ namespace HimbeertoniRaidTool.HrtServices
     {
         private static bool FallBack = true;
         private static Dalamud.Localization? Loc;
-        private readonly static Dictionary<string, string> _localizationCache = new();
+        private static readonly Dictionary<string, string> _localizationCache = new();
         internal static void Init(DalamudPluginInterface pluginInterface)
         {
             if (Loc is not null)

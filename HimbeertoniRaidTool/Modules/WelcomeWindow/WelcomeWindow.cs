@@ -23,7 +23,7 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
 
         public Dalamud.Interface.Windowing.WindowSystem WindowSystem { get; }
 
-        private WelcomeWindowui _ui;
+        private readonly WelcomeWindowui _ui;
         private readonly WelcomeWindowConfig _config;
         public WelcomeWindowModule()
         {

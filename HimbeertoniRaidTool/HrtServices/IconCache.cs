@@ -47,6 +47,6 @@ namespace HimbeertoniRaidTool.HrtServices
     }
     public static class IconExtensions
     {
-        public static Vector2 Size(this TextureWrap tex) => new Vector2(tex.Width, tex.Height);
+        public static Vector2 Size(this TextureWrap tex) => new(tex.Width, tex.Height);
     }
 }
