@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using Dalamud.Logging;
+using System.Linq;
+using Dalamud.Utility;
 using Lumina.Excel;
 using Lumina.Excel.CustomSheets;
 using static HimbeertoniRaidTool.Data.Job;
@@ -25,21 +26,18 @@ namespace HimbeertoniRaidTool.Data
         private static readonly ExcelSheet<CustomSpecialShop> ShopSheet = Services.DataManager.GetExcelSheet<CustomSpecialShop>()!;
         static CuratedData()
         {
+            //Load Vendor Data
             ShopIndex = new();
             UsedToBuy = new();
-            foreach (uint shopID in RelevantShops)
+            foreach (CustomSpecialShop shop in ShopSheet.Where(s => !s.Name.RawString.IsNullOrEmpty()))
             {
-                CustomSpecialShop? shop = ShopSheet.GetRow(shopID);
-                if (shop == null)
-                    continue;
-                PluginLog.Debug(shop.Name);
                 for (int idx = 0; idx < shop.ShopEntries.Length; idx++)
                 {
                     var entry = shop.ShopEntries[idx];
                     //Cannot handle dual output
                     if (entry.ItemReceiveEntries[1].Item.Row != 0)
                         continue;
-                    ShopIndex[entry.ItemReceiveEntries[0].Item.Row] = (shopID, idx);
+                    ShopIndex[entry.ItemReceiveEntries[0].Item.Row] = (shop.RowId, idx);
                     foreach (var item in entry.ItemCostEntries)
                     {
                         if (!UsedToBuy.ContainsKey(item.Item.Row))
@@ -53,9 +51,9 @@ namespace HimbeertoniRaidTool.Data
                 "Asphodelos " + Localize("Savage", "Savage"), new uint[] { 30112, 30114, 30110, 30108 });
             CurrentExpansion.SavageRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Savage, 635, 630,
                 "Abyssos " + Localize("Savage", "Savage"), new uint[] { 30117, 30121, 30119, 30123 });
-            CurrentExpansion.NormalRaidTiers[0] = new(CurrentExpansion, EncounterDifficulty.Normal, 590, 580, "Asphodelos", Array.Empty<uint>());
-            CurrentExpansion.NormalRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Normal, 620, 610, "Abyssos", Array.Empty<uint>());
-                }
+            CurrentExpansion.NormalRaidTiers[0] = new(CurrentExpansion, EncounterDifficulty.Normal, 590, 580, "Asphodelos", System.Array.Empty<uint>());
+            CurrentExpansion.NormalRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Normal, 620, 610, "Abyssos", System.Array.Empty<uint>());
+        }
         public static GameExpansion CurrentExpansion { get; }
 
         public static readonly Dictionary<uint, ItemIDCollection> ItemContainerDB = new()
@@ -135,35 +133,6 @@ namespace HimbeertoniRaidTool.Data
         public static Dictionary<uint, (uint shopID, int idx)> ShopIndex { get; }
         public static Dictionary<uint, List<uint>> UsedToBuy { get; }
         public static CustomSpecialShop.ShopEntry? GetShopEntry(uint id) => ShopSheet.GetRow(ShopIndex[id].shopID)?.ShopEntries[ShopIndex[id].idx];
-        public static readonly HashSet<uint> RelevantShops = new()
-        {
-            //6.0
-            1770437, //Allagan Tomestones of Astronomy (DoW)
-            1770438, //Allagan Tomestones of Astronomy (DoM)
-            1770443, //Asphodelos Mythos Exchange (DoW) I
-            1770444, //Asphodelos Mythos Exchange (DoW) II
-            1770445, //Asphodelos Mythos Exchange (DoM)
-            1770446, //Allagan Tomestones of Astronomy Exchange (Weapons)
-            1770447, //Radiant's Gear Augmentation (DoW) I
-            1770448, //Radiant's Gear Augmentation (DoW) II
-            1770449, //Radiant's Gear Augmentation (DoM)
-            //6.1
-            1770456, //Out-of-this-world Oddities
-            //6.2
-            1770606, //Allagan Tomestones of Causality (DoW)
-            1770607, //Allagan Tomestones of Causality (DoM)
-            1770608, //Unsung Relic of Abyssos Exchange (DoW) I
-            1770609, //Unsung Relic of Abyssos Exchange (DoW) II
-            1770610, //Unsung Relic of Abyssos Exchange (DoM)
-            1770611, //Abyssos Mythos Exchange (DoW) I
-            1770612, //Abyssos Mythos Exchange (DoW) II
-            1770613, //Abyssos Mythos Exchange (DoM)
-            1770614, //Allagan Tomestones of Causality Exchange (Weapons)
-            1770615, //Aug Lunar Envoy DoW I
-            1770616, //Aug Lunar Envoy DoW II
-            1770617, //Aug Lunar Envoy DoM
-            1770618, //Totem Gear (Barbariccia)
-        };
         /// <summary>
         /// Holds a list of Etro IDs to use as BiS sets if users did not enter a preferred BiS
         /// </summary>
