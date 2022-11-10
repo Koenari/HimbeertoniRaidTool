@@ -9,18 +9,18 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
     internal class LootSessionUI : HrtWindow
     {
         private readonly Dalamud.Interface.Windowing.WindowSystem _windowSystem;
-        private readonly LootSource _lootSource;
+        private readonly InstanceWithLoot _lootSource;
         private readonly LootSession _session;
         private UiSortableList<LootRule> _ruleListUi;
         private readonly LootRuling _lootRuling;
         private HrtWindow? _resultWindow;
-        internal LootSessionUI(LootMasterModule lootMaster, LootSource lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
+        internal LootSessionUI(LootMasterModule lootMaster, InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
         {
             _windowSystem = lootMaster.WindowSystem;
             _lootRuling = lootRuling;
             _lootSource = lootSource;
             _session = new(group, _lootRuling, group.RolePriority ?? defaultRolePriority,
-                LootDB.GetPossibleLoot(_lootSource));
+                _lootSource.PossibleItems);
             _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
             Size = new Vector2(550, 370);
             Title = $"{Localize("Loot session for", "Loot session for")} {_lootSource}";

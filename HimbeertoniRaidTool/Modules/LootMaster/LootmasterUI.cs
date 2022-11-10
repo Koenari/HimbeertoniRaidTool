@@ -558,25 +558,29 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private void DrawLootHandlerButtons()
         {
-            LootSource[] currentLootSources = new LootSource[4];
-            int selectedTier = Array.IndexOf(CuratedData.RaidTiers, _lootMaster.Configuration.Data.SelectedRaidTier);
-            ImGui.SetNextItemWidth(ImGui.CalcTextSize(CuratedData.RaidTiers[selectedTier].Name).X + 32f * ScaleFactor);
-            if (ImGui.Combo("##Raid Tier", ref selectedTier, Array.ConvertAll(CuratedData.RaidTiers, x => x.Name), CuratedData.RaidTiers.Length))
+            ImGui.SetNextItemWidth(ImGui.CalcTextSize(_lootMaster.Configuration.Data.SelectedRaidTier.Name).X + 32f * ScaleFactor);
+            if (ImGui.BeginCombo("##Raid Tier", _lootMaster.Configuration.Data.SelectedRaidTier.Name))
             {
-                if (selectedTier != Array.IndexOf(CuratedData.RaidTiers, CuratedData.CurrentRaidSavage))
-                    _lootMaster.Configuration.Data.RaidTierOverride = CuratedData.RaidTiers[selectedTier];
-                else
-                    _lootMaster.Configuration.Data.RaidTierOverride = null;
+                for (int i = 0; i < CuratedData.CurrentExpansion.SavageRaidTiers.Length; i++)
+                {
+                    var tier = CuratedData.CurrentExpansion.SavageRaidTiers[i];
+                    if (ImGui.Selectable(tier.Name))
+                    {
+                        if (i == CuratedData.CurrentExpansion.SavageRaidTiers.Length - 1)
+                            _lootMaster.Configuration.Data.RaidTierOverride = null;
+                        else
+                            _lootMaster.Configuration.Data.RaidTierOverride = i;
+                    }
+                }
+                ImGui.EndCombo();
             }
             ImGui.SameLine();
             ImGui.Text(Localize("Distribute loot for:", "Distribute loot for:"));
             ImGui.SameLine();
-            for (int i = 0; i < currentLootSources.Length; i++)
-                currentLootSources[i] = new(_lootMaster.Configuration.Data.SelectedRaidTier, i + 1);
 
-            foreach (var lootSource in currentLootSources)
+            foreach (InstanceWithLoot lootSource in _lootMaster.Configuration.Data.SelectedRaidTier.Bosses)
             {
-                if (ImGuiHelper.Button(lootSource.ToString(), null))
+                if (ImGuiHelper.Button(lootSource.Name, null))
                 {
                     AddChild(new LootSessionUI(_lootMaster, lootSource, CurrentGroup, _lootMaster.Configuration.Data.LootRuling, _lootMaster.Configuration.Data.RolePriority));
                 }
@@ -659,8 +663,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             SizeCondition = ImGuiCond.Appearing;
             Title = title;
             _inv = inv;
-            for (int i = 1; i < 5; i++)
-                foreach (var item in LootDB.GetGuaranteedLoot((CuratedData.CurrentRaidSavage, i)))
+            foreach (var boss in CuratedData.CurrentExpansion.CurrentSavage.Bosses)
+                foreach (var item in boss.GuaranteedItems)
                 {
                     if (!_inv.Contains(item.ID))
                     {
@@ -676,8 +680,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             if (ImGuiHelper.SaveButton())
                 Hide();
-            for (int i = 1; i < 5; i++)
-                foreach (var item in LootDB.GetGuaranteedLoot((CuratedData.CurrentRaidSavage, i)))
+            foreach (var boss in CuratedData.CurrentExpansion.CurrentSavage.Bosses)
+                foreach (var item in boss.GuaranteedItems)
                 {
                     var icon = Services.IconCache[item.Item!.Icon];
                     ImGui.Image(icon.ImGuiHandle, icon.Size());

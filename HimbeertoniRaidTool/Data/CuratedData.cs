@@ -48,72 +48,32 @@ namespace HimbeertoniRaidTool.Data
                     }
                 }
             }
+            CurrentExpansion = new(6, 10, 90, 2);
+            CurrentExpansion.SavageRaidTiers[0] = new(CurrentExpansion, EncounterDifficulty.Savage, 605, 600, "Asphodelos " + Localize("Savage", "Savage"))
+            {
+                Bosses = new InstanceWithLoot[]
+                {
+                    new(30112, "Erichthonios (P1S)", 35823,new ItemIDRange(35740,35743)),
+                    new(30114, "Hippokampos (P2S)", 35824, new ItemIDList(35735,35737,35739,35830,35831)),
+                    new(30110, "Phoinix (P3S)", 35825, new ItemIDList(35735,35737,35738,35739,35828,35829)),
+                    new(30108, "Hesperos (P4S)", 35826, new ItemIDList((35245, 35264),35734,35736)),
+                }
+            };
+            CurrentExpansion.SavageRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Savage, 635, 630, "Abyssos " + Localize("Savage", "Savage"))
+            {
+                Bosses = new InstanceWithLoot[]
+                {
+                    new(30112, "Proto-Carbuncle (P5S)", 38381,new ItemIDRange(38396,38399)),
+                    new(30114, "Hegemone (P6S)", 38382, new ItemIDList(38391,38393,38395,38388,38389)),
+                    new(30110, "Agdistis (P7S)", 38383, new ItemIDList(38391,38393,38395,38386,38387)),
+                    new(30108, "Hephaistos (P8S)", 38384,new ItemIDList((38081, 38099),38390,38392)),
+                }
+            };
+            CurrentExpansion.NormalRaidTiers[0] = new(CurrentExpansion, EncounterDifficulty.Normal, 590, 580, "Asphodelos");
+            CurrentExpansion.NormalRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Normal, 620, 610, "Abyssos");
         }
-        public static readonly int MaxLevel = 90;
-        public static RaidTier CurrentRaidSavage => AbyssosSavage;
-        public static RaidTier AbyssosNormal = new(6, 2, EncounterDifficulty.Normal, 620, 610, "Abyssos", 10);
-        public static RaidTier AbyssosSavage = new(6, 2, EncounterDifficulty.Savage, 635, 630, "Abyssos " + Localize("Savage", "Savage"), 10);
-        public static RaidTier AsphodelosNormal = new(6, 1, EncounterDifficulty.Normal, 590, 580, "Asphodelos", 10);
-        public static RaidTier AsphodelosSavage = new(6, 1, EncounterDifficulty.Savage, 605, 600, "Asphodelos " + Localize("Savage", "Savage"), 10);
-        public static RaidTier DragonsongRepriseUltimate = new(6, 1, EncounterDifficulty.Ultimate, 605, 0, $"{Localize("Dragonsong Reprise", "Dragonsong Reprise")} {Localize("Ultimate", "Ultimate")}", 10);
+        public static GameExpansion CurrentExpansion { get; }
 
-        public static RaidTier[] RaidTiers = new RaidTier[]
-        {
-            AsphodelosSavage,
-            AbyssosSavage
-        };
-        public static readonly Dictionary<ItemIDRange, LootSource> GuaranteedLootSourceDB = new()
-        {
-            //Only books here atm
-            //6.0
-            {35823 , (AsphodelosSavage, 1)},
-            {35824 , (AsphodelosSavage, 2)},
-            {35825 , (AsphodelosSavage, 3)},
-            {35826 , (AsphodelosSavage, 4)},
-            //6.2
-            {38381 , (AbyssosSavage, 1)},
-            {38382 , (AbyssosSavage, 2)},
-            {38383 , (AbyssosSavage, 3)},
-            {38384 , (AbyssosSavage, 4)},
-        };
-
-        public static readonly Dictionary<ItemIDRange, LootSource> PossibleLootSourceDB = new()
-        {
-            //6.0
-            { (35245, 35264), (AsphodelosSavage, 4) },//All Asphodelos Weapons
-            { 35734, (AsphodelosSavage, 4) },//Asphodelos weapon coffer
-            { 35735, new((AsphodelosSavage, 2), (AsphodelosSavage, 3)) },//Asphodelos head gear coffer
-            { 35736, (AsphodelosSavage, 4) },//Asphodelos chest gear coffer
-            { 35737, new((AsphodelosSavage, 2), (AsphodelosSavage, 3)) },//Asphodelos hand gear coffer
-            { 35738, (AsphodelosSavage, 3) },//Asphodelos leg gear coffer
-            { 35739, new((AsphodelosSavage, 2), (AsphodelosSavage, 3)) },//Asphodelos foot gear coffer
-            { 35740, (AsphodelosSavage, 1) },//Asphodelos earring coffer
-            { 35741, (AsphodelosSavage, 1) },//Asphodelos necklace coffer
-            { 35742, (AsphodelosSavage, 1) },//Asphodelos bracelet coffer
-            { 35743, (AsphodelosSavage, 1) },//Asphodelos ring coffers
-            { 35828, (AsphodelosSavage, 3) },//Radiant Roborant
-            { 35829, (AsphodelosSavage, 3) },//Radiant Twine
-            { 35830, (AsphodelosSavage, 2) },//Radiant Coating
-            { 35831, (AsphodelosSavage, 2) }, //Discal Tomestone
-            //6.2
-            { (38081, 38099), (AbyssosSavage, 4) },//All Abyssos Weapons
-            { 38390, (AbyssosSavage, 4) },//Abyssos weapon coffer
-            { 38391, new((AbyssosSavage, 2), (AbyssosSavage, 3)) },//Abyssos head gear coffer
-            { 38392, (AbyssosSavage, 4) },//Abyssos chest gear coffer
-            { 38393, new((AbyssosSavage, 2), (AbyssosSavage, 3)) },//Abyssos hand gear coffer
-            { 38394, (AbyssosSavage, 3) },//Abyssos leg gear coffer
-            { 38395, new((AbyssosSavage, 2), (AbyssosSavage, 3)) },//Abyssos foot gear coffer
-            { 38396, (AbyssosSavage, 1) },//Abyssos earring coffer
-            { 38397, (AbyssosSavage, 1) },//Abyssos necklace coffer
-            { 38398, (AbyssosSavage, 1) },//Abyssos bracelet coffer
-            { 38399, (AbyssosSavage, 1) },//Abyssos ring coffers
-            { 38386, (AbyssosSavage, 3) },//Moonshine Brine
-            { 38387, (AbyssosSavage, 3) },//Moonshine Twine
-            { 38388, (AbyssosSavage, 2) },//Moonshine Shine
-            { 38389, (AbyssosSavage, 2) }, //Ultralight Tomestone
-
-
-        };
         public static readonly Dictionary<uint, ItemIDCollection> ItemContainerDB = new()
         {
             //6.0
@@ -175,8 +135,8 @@ namespace HimbeertoniRaidTool.Data
             { new ItemIDRange(38400,38419), GearSource.Relic }, //Manderville
 
         }.ExplodeIDCollection();
-        public static readonly Dictionary<uint, (uint shopID, int idx)> ShopIndex;
-        public static readonly Dictionary<uint, List<uint>> UsedToBuy;
+        public static Dictionary<uint, (uint shopID, int idx)> ShopIndex { get; }
+        public static Dictionary<uint, List<uint>> UsedToBuy { get; }
         public static CustomSpecialShop.ShopEntry? GetShopEntry(uint id) => ShopSheet.GetRow(ShopIndex[id].shopID)?.ShopEntries[ShopIndex[id].idx];
         public static readonly HashSet<uint> RelevantShops = new()
         {

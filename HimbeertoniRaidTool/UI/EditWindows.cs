@@ -135,7 +135,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.SetNextItemWidth(150f * ScaleFactor);
                 if (ImGui.InputInt($"{Localize("Level", "Level")}##{c.Job}", ref c.Level))
                 {
-                    c.Level = Math.Clamp(c.Level, 1, CuratedData.MaxLevel);
+                    c.Level = Math.Clamp(c.Level, 1, CuratedData.CurrentExpansion.MaxLevel);
                 }
 
                 ImGui.Separator();
@@ -388,7 +388,7 @@ namespace HimbeertoniRaidTool.UI
                 if (_gearSetCopy[slot].Materia.Count < (_gearSetCopy[slot].Item?.IsAdvancedMeldingPermitted ?? false ? 5 : _gearSetCopy[slot].Item?.MateriaSlotCount))
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}addmat", Localize("Select materia", "Select materia")))
                     {
-                        byte maxMatLevel = _currentRaidTier?.MaxMateriaLevel ?? 0;
+                        byte maxMatLevel = _currentRaidTier?.GameExpansion.MaxMateriaLevel ?? 0;
                         if (_gearSetCopy[slot].Materia.Count > _gearSetCopy[slot].Item?.MateriaSlotCount)
                             maxMatLevel--;
                         ModalChild = (new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }, maxMatLevel));

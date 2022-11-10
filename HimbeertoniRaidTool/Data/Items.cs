@@ -150,8 +150,6 @@ namespace HimbeertoniRaidTool.Data
     }
     public class ItemIDRange : ItemIDCollection
     {
-        public static implicit operator ItemIDRange(uint id) => new(id, id);
-        public static implicit operator ItemIDRange((uint, uint) id) => new(id.Item1, id.Item2);
         public ItemIDRange(uint start, uint end) : base(Enumerable.Range((int)start, Math.Max(0, (int)end - (int)start + 1)).ToList().ConvertAll(x => (uint)x)) { }
     }
     public class ItemIDList : ItemIDCollection
@@ -159,6 +157,7 @@ namespace HimbeertoniRaidTool.Data
         public static implicit operator ItemIDList(uint[] ids) => new(ids);
 
         public ItemIDList(params uint[] ids) : base(ids) { }
+        public ItemIDList(ItemIDCollection col, params uint[] ids) : base(col.Concat(ids)) { }
     }
     public abstract class ItemIDCollection : IEnumerable<uint>
     {
@@ -167,6 +166,8 @@ namespace HimbeertoniRaidTool.Data
         protected ItemIDCollection(IEnumerable<uint> ids) => _IDs = new(ids.ToList());
         public IEnumerator<uint> GetEnumerator() => _IDs.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => _IDs.GetEnumerator();
+        public static implicit operator ItemIDCollection(uint id) => new ItemIDList(id);
+        public static implicit operator ItemIDCollection((uint, uint) id) => new ItemIDRange(id.Item1, id.Item2);
     }
 
     public enum ItemComparisonMode

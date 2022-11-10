@@ -36,13 +36,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             if (Data.Version != TargetVersion)
                 Upgrade();
-            //Make sure this is the same object as the one in CuratedData
-            try
-            {
-                if (Data.RaidTierOverride is not null)
-                    Data.RaidTierOverride = CuratedData.RaidTiers[Array.IndexOf(CuratedData.RaidTiers, Data.RaidTierOverride)];
-            }
-            catch (Exception) { };
             FullyLoaded = true;
         }
         //Still first version no upgrade possible
@@ -287,10 +280,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             public string ItemFormatString => ItemFormatStringCache ??= ParseItemFormatString(UserItemFormat);
             [JsonProperty]
             public int LastGroupIndex = 0;
-            [JsonProperty("RaidTier")]
-            public RaidTier? RaidTierOverride = null;
+            [JsonProperty("RaidTierIndex")]
+            public int? RaidTierOverride = null;
             [JsonIgnore]
-            public RaidTier SelectedRaidTier => RaidTierOverride ?? CuratedData.CurrentRaidSavage;
+            public RaidTier SelectedRaidTier => CuratedData.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
             public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : CuratedData.DefaultBIS.ContainsKey(c) ? CuratedData.DefaultBIS[c] : "";
             private static string ParseItemFormatString(string input)
             {
