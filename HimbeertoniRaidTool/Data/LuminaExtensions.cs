@@ -188,6 +188,30 @@ namespace Lumina.Excel.CustomSheets
                     new LazyRow<Achievement>(gameData, parser.ReadColumn<int>(AFTER_COST_OFFSET + 2 * NUM_ENTRIES + i), language);
                 ShopEntries[i].UnknownData1381 = parser.ReadColumn<byte>(AFTER_COST_OFFSET + 3 * NUM_ENTRIES + i);
                 ShopEntries[i].PatchNumber = parser.ReadColumn<ushort>(AFTER_COST_OFFSET + 4 * NUM_ENTRIES + i);
+                if (ShopEntries[i].PatchNumber == 600)
+                {
+                    foreach (var item in ShopEntries[i].ItemCostEntries)
+                    {
+                        //Astronomy TomeStone
+                        if (item.Item.Row == 2)
+                            item.Item = new(gameData, 43, language);
+
+                    }
+                }
+                if (ShopEntries[i].PatchNumber == 620)
+                {
+                    foreach (var item in ShopEntries[i].ItemCostEntries)
+                    {
+                        switch (item.Item.Row)
+                        {
+                            case 2: item.Item = new(gameData, 25199, language); break; //White crafter scrip
+                            case 3: item.Item = new(gameData, 44, language); break; //Casualty TomeStone
+                            case 4: item.Item = new(gameData, 25200, language); break; //White gatherer scrip
+                            case 6: item.Item = new(gameData, 33913, language); break; //Purple crafter scrip
+                            case 7: item.Item = new(gameData, 33914, language); break; //Purple gatherer scrip
+                        }
+                    }
+                }
             }
             this.UseCurrencyType = parser.ReadColumn<byte>(AFTER_ENTRIES_OFFSET);
             this.UnlockQuest = new LazyRow<Quest>(gameData, parser.ReadColumn<int>(AFTER_ENTRIES_OFFSET + 1), language);

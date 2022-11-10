@@ -30,10 +30,7 @@ namespace HimbeertoniRaidTool.UI
                         {
                             if (cost.Item.Row == 0)
                                 continue;
-                            if (cost.Item.Row < 100)
-                                content += $"Currency ({cost.Count})\n";
-                            else
-                                content += $"{cost.Item.Value?.Name} ({cost.Count})\n";
+                            content += $"{cost.Item.Value?.Name} ({cost.Count})\n";
                         }
                         DrawRow(Localize("itemShop", "Shop cost"), content);
                     }
