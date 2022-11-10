@@ -99,15 +99,15 @@ namespace HimbeertoniRaidTool.Data
         public Item? Item => ItemCache ??= _itemSheet.GetRow(ID);
         public string Name => Item?.Name.RawString ?? "";
         public bool IsGear => this is GearItem || (Item?.ClassJobCategory.Row ?? 0) != 0;
-        public bool IsExhangableItem => CuratedData.ExchangedFor.ContainsKey(ID);
+        public bool IsExhangableItem => CuratedData.UsedToBuy.ContainsKey(ID);
         public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
         public IEnumerable<GearItem> PossiblePurchases
         {
             get
             {
                 if (IsExhangableItem)
-                    foreach (uint id in CuratedData.ExchangedFor[ID])
-                        yield return new GearItem(id);
+                    foreach (uint canBuy in CuratedData.UsedToBuy[ID])
+                        yield return new GearItem(canBuy);
                 if (IsContainerItem)
                     foreach (uint id in CuratedData.ItemContainerDB[ID])
                         yield return new GearItem(id);
@@ -163,6 +163,7 @@ namespace HimbeertoniRaidTool.Data
     public abstract class ItemIDCollection : IEnumerable<uint>
     {
         private readonly ReadOnlyCollection<uint> _IDs;
+        public int Count => _IDs.Count;
         protected ItemIDCollection(IEnumerable<uint> ids) => _IDs = new(ids.ToList());
         public IEnumerator<uint> GetEnumerator() => _IDs.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => _IDs.GetEnumerator();

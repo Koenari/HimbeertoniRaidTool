@@ -20,6 +20,27 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.TableSetupColumn(Localize("Value", "Value"));
                 DrawRow(Localize("Name", "Name"), $"{item.Item.Name} {(item.IsHq ? "(HQ)" : "")}");
                 DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel.ToString());
+                if (CuratedData.ShopIndex.ContainsKey(item.ID))
+                {
+                    var shopEntry = CuratedData.GetShopEntry(item.ID);
+                    if (shopEntry != null)
+                    {
+                        string content = "";
+                        foreach (var cost in shopEntry.ItemCostEntries)
+                        {
+                            if (cost.Item.Row == 0)
+                                continue;
+                            if (cost.Item.Row < 100)
+                                content += $"Currency ({cost.Count})\n";
+                            else
+                                content += $"{cost.Item.Value?.Name} ({cost.Count})\n";
+                        }
+                        DrawRow(Localize("itemShop", "Shop cost"), content);
+                    }
+
+
+                }
+
                 DrawRow(Localize("itemSource", "Source"), item.Source.ToString());
                 if (isWeapon)
                 {
