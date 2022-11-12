@@ -23,7 +23,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 _lootSource.PossibleItems);
             _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
             Size = new Vector2(550, 370);
-            Title = $"{Localize("Loot session for", "Loot session for")} {_lootSource}";
+            Title = $"{Localize("Loot session for", "Loot session for")} {_lootSource.Name}";
             Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar;
             OpenCentered = true;
         }
@@ -118,8 +118,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 foreach (((HrtItem item, int nr), LootResults results) in _session.Results)
                 {
                     if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n " +
-                        ((results.Count > 0 && results[0].Category == LootCategory.Need) ? $"{results[0].Player.NickName} won" +
-                        $"{((results.Count > 1 & results[1].Category == LootCategory.Need) ? $" over {results[1].Player.NickName} " : "")}({results[0].DecidingFactor(results[1])})  "
+                        ((results.Count > 0 && results[0].Category == LootCategory.Need) ? $"{results[0].Player.NickName} ({results[0].AplicableJob.Job}) won" +
+                        $"{((results.Count > 1 & results[1].Category == LootCategory.Need) ? $" over {results[1].Player.NickName} ({results[1].AplicableJob.Job}) " : "")}({results[0].DecidingFactor(results[1])})  "
                         : $"{Localize("Greed only", "Greed only")}")
                         ))
                     {
@@ -143,7 +143,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                 ImGui.TableNextColumn();
                                 ImGui.Text(place.ToString());
                                 ImGui.TableNextColumn();
-                                ImGui.Text($"{singleResult.Player.NickName} ({singleResult.Player.MainChar.MainJob})");
+                                ImGui.Text($"{singleResult.Player.NickName} ({singleResult.AplicableJob})");
                                 ImGui.TableNextColumn();
                                 foreach (var neededItem in singleResult.NeededItems)
                                 {

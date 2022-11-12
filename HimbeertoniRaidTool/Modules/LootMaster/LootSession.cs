@@ -49,6 +49,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private LootResults Evaluate(HrtItem droppedItem, IEnumerable<Player>? excludeAddition = null)
         {
             List<Player> excluded = new();
+            LootResults results = new(this);
             excluded.AddRange(Excluded);
             if (excludeAddition != null)
                 excluded.AddRange(excludeAddition);
@@ -58,44 +59,25 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             else if (droppedItem.IsContainerItem || droppedItem.IsExchangableItem)
                 possibleItems = droppedItem.PossiblePurchases;
             else
-                return new();
-            LootResults results = new();
-            foreach (var player in Group)
+                return results;
+            if (_group.Type == GroupType.Solo)
             {
-
-                if (excluded.Contains(player))
-                    continue;
-                //Pre filter items by job
-                LootResult result = new(
-                        this,
-                        player,
-                        possibleItems.Where(i => (i.Item?.ClassJobCategory.Value).Contains(player.MainChar.MainJob))
-                    );
-                //Calculate need for each item
-                foreach (var item in result.ApplicableItems)
-
-                    if (
-                        //Always need if Bis and not aquired
-                        ((player.CurJob?.BIS.Contains(item)).GetValueOrDefault()
-                        && !(player.CurJob?.Gear.Contains(item)).GetValueOrDefault())
-                        //No need if any of following are true
-                        || !(
-                            //Player already has this unique item
-                            ((item.Item?.IsUnique ?? true) && (player.CurJob?.Gear.Contains(item)).GetValueOrDefault())
-                            //Player has Bis or higher/same iLvl for all aplicable slots
-                            || (player.MainChar.MainClass?.HaveBisOrHigherItemLevel(item.Slots, item) ?? false)
-                        )
-                    )
-                    {
-                        result.NeededItems.Add(item);
-                    }
-                if (result.NeededItems.Count > 0)
-                    result.Category = LootCategory.Need;
-                else
-                    result.Category = LootCategory.Greed;
-                results.Players.Add(result);
+                var player = _group.First();
+                foreach (var job in player.MainChar)
+                {
+                    results.Add(new(this, player, possibleItems, job.Job));
+                }
             }
-            results.Eval(this);
+            else
+            {
+                foreach (var player in Group)
+                {
+                    if (excluded.Contains(player))
+                        continue;
+                    results.Add(new(this, player, possibleItems));
+                }
+            }
+            results.Eval();
             return results;
         }
     }
@@ -112,26 +94,31 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private readonly LootSession _session;
         public LootCategory Category = LootCategory.Undecided;
         public readonly Player Player;
+        public readonly Job Job;
         public readonly int Roll;
+        public PlayableClass AplicableJob => Player.MainChar[Job];
         public int RolePrio => _session.RolePriority.GetPriority(Player.CurJob.GetRole());
         public bool IsEvaluated { get; private set; } = false;
         public readonly Dictionary<LootRule, (int val, string reason)> EvaluatedRules = new();
         public readonly HashSet<GearItem> ApplicableItems;
         public readonly List<GearItem> NeededItems = new();
-        public LootResult(LootSession session, Player p, IEnumerable<GearItem> applicableItems)
+        public LootResult(LootSession session, Player p, IEnumerable<GearItem> possibleItems, Job? job = null)
         {
             _session = session;
             Player = p;
+            Job = job ?? p.MainChar.MainJob ?? Job.ADV;
             Roll = Random.Next(0, 101);
-            ApplicableItems = new(applicableItems);
+            //Filter items by job
+            ApplicableItems = new(possibleItems.Where(i => (i.Item?.ClassJobCategory.Value).Contains(Job)));
+            CalcNeed();
         }
-        public void Evaluate(LootSession session)
+        public void Evaluate()
         {
             if (IsEvaluated)
                 return;
-            foreach (LootRule rule in session.RulingOptions.RuleSet)
+            foreach (LootRule rule in _session.RulingOptions.RuleSet)
             {
-                EvaluatedRules[rule] = rule.Eval(this, session, NeededItems);
+                EvaluatedRules[rule] = rule.Eval(this, _session, NeededItems);
             }
             IsEvaluated = true;
         }
@@ -144,43 +131,63 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             return LootRuling.Default;
         }
-
+        private void CalcNeed()
+        {
+            foreach (var item in ApplicableItems)
+                if (
+                    //Always need if Bis and not aquired
+                    (AplicableJob.BIS.Contains(item) && !AplicableJob.Gear.Contains(item))
+                    //No need if any of following are true
+                    || !(
+                        //Player already has this unique item
+                        ((item.Item?.IsUnique ?? true) && AplicableJob.Gear.Contains(item))
+                        //Player has Bis or higher/same iLvl for all aplicable slots
+                        || AplicableJob.HaveBisOrHigherItemLevel(item.Slots, item)
+                    )
+                )
+                { NeededItems.Add(item); }
+            Category = NeededItems.Count > 0 ? LootCategory.Need : LootCategory.Greed;
+        }
     }
     public class LootResults : IReadOnlyList<LootResult>
     {
-        public readonly List<LootResult> Players = new();
-        public int Count => Players.Count;
+        private readonly List<LootResult> Participants = new();
+        public int Count => Participants.Count;
+        public readonly LootSession Session;
+        public LootResult this[int index] => Participants[index];
 
-        public LootResult this[int index] => Players[index];
-
-        internal void Eval(LootSession session)
+        public LootResults(LootSession session)
+        {
+            Session = session;
+        }
+        internal void Eval()
         {
 
             foreach (LootResult result in this.Where(r => !r.IsEvaluated))
-                result.Evaluate(session);
-            Players.Sort(new LootRulingComparer(session));
+                result.Evaluate();
+            Participants.Sort(new LootRulingComparer(Session.RulingOptions.RuleSet));
         }
-        public IEnumerator<LootResult> GetEnumerator() => Players.GetEnumerator();
+        internal void Add(LootResult result) => Participants.Add(result);
+        public IEnumerator<LootResult> GetEnumerator() => Participants.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => Players.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => Participants.GetEnumerator();
     }
     internal class LootRulingComparer : IComparer<LootResult>
     {
-        private readonly LootSession _session;
-        public LootRulingComparer(LootSession session)
+        private readonly List<LootRule> Rules;
+        public LootRulingComparer(List<LootRule> rules)
         {
-            _session = session;
+            Rules = rules;
         }
-        private static int Compare(LootResult x, LootResult y, LootRule r) => y.EvaluatedRules[r].val - x.EvaluatedRules[r].val;
         public int Compare(LootResult? x, LootResult? y)
         {
             if (x is null || y is null)
                 return 0;
             if (x.Category - y.Category != 0)
                 return x.Category - y.Category;
-            foreach (var rule in _session.RulingOptions.RuleSet)
+            foreach (var rule in Rules)
             {
-                int result = Compare(x, y, rule);
+                int result = y.EvaluatedRules[rule].val - x.EvaluatedRules[rule].val;
                 if (result != 0)
                 {
                     return result;

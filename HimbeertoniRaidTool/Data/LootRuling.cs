@@ -105,7 +105,7 @@ namespace HimbeertoniRaidTool.Data
             LootRuleEnum.LowestItemLevel => (-x.ItemLevel(), x.ItemLevel().ToString()),
             LootRuleEnum.HighesItemLevelGain => (x.ItemLevelGain(), null),
             LootRuleEnum.BISOverUpgrade => x.IsBiS() ? (1, "y") : (-1, "n"),
-            LootRuleEnum.RolePrio => (x.RolePrio(session), x.Player.CurJob?.GetRole().ToString()),
+            LootRuleEnum.RolePrio => (x.RolePrio(session), x.AplicableJob.GetRole().ToString()),
             LootRuleEnum.DPS => (x.Player.AdditionalData.ManualDPS, null),
             _ => (0, "none"),
         };
@@ -139,21 +139,24 @@ namespace HimbeertoniRaidTool.Data
 
     public static class LootRulesExtension
     {
-        public static int RolePrio(this LootResult p, LootSession s) => -s.RolePriority.GetPriority(p.Player.MainChar.MainJob.GetRole());
+        public static int RolePrio(this LootResult p, LootSession s) => -s.RolePriority.GetPriority(p.AplicableJob.GetRole());
         public static int Roll(this LootResult p) => p.Roll;
-        public static int ItemLevel(this LootResult p) => p.Player.CurJob?.Gear.ItemLevel ?? 0;
+        public static int ItemLevel(this LootResult p) => p.AplicableJob.Gear.ItemLevel;
         public static int ItemLevelGain(this LootResult p)
         {
             int result = 0;
             foreach (GearItem item in p.NeededItems)
             {
-                result = Math.Max(result, (int)item.ItemLevel - (int)(p.Player.CurJob?.Gear.Where(i => i.Slots.Intersect(item.Slots).Any()).MinBy(i => i.ItemLevel)?.ItemLevel ?? item.ItemLevel));
+                result = Math.Max(result, (int)item.ItemLevel -
+                    p.AplicableJob.Gear.
+                        Where(i => i.Slots.Intersect(item.Slots).Any()).
+                        Aggregate((int)item.ItemLevel, (min, i) => Math.Min((int)i.ItemLevel, min))
+                    );
             }
-
             return result;
         }
         //IS broken for non unique items
         public static bool IsBiS(this LootResult p) =>
-            p.NeededItems.Any(i => (p.Player.CurJob?.BIS.Contains(i) ?? false) && !(p.Player.CurJob?.Gear.Contains(i) ?? false));
+            p.NeededItems.Any(i => p.AplicableJob.BIS.Contains(i) && !p.AplicableJob.Gear.Contains(i));
     }
 }
