@@ -112,8 +112,8 @@ namespace HimbeertoniRaidTool.Data
         {
             ILevelCache = null;
         }
-        public bool Contains(HrtItem item) => Array.Exists(Items, x => x.ID == item.ID);
-        public bool ContainsExact(GearItem item) => Array.Exists(Items, x => x.Equals(item));
+        public bool Contains(HrtItem item) => Array.Exists(Items, x => x.Equals(item));
+        public bool ContainsExact(GearItem item) => Array.Exists(Items, x => x.Equals(item, ItemComparisonMode.Full));
         /*
          * Caching stats is a problem since this needs to be invalidated when changing materia
          * At the moment all mechanisms to change materia replace the item but it could lead to an invalid state in theory

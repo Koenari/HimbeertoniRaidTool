@@ -56,7 +56,6 @@ namespace HimbeertoniRaidTool.Data
             return result;
         }
         public GearItem(uint ID = 0) : base(ID) { }
-        public override bool Equals(object? other) => Equals(other as GearItem);
         public bool Equals(GearItem? other) => Equals(other, ItemComparisonMode.Full);
         public bool Equals(GearItem? other, ItemComparisonMode mode)
         {
@@ -90,7 +89,7 @@ namespace HimbeertoniRaidTool.Data
         }
     }
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public class HrtItem
+    public class HrtItem : IEquatable<HrtItem>
     {
         [JsonProperty("ID", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         protected readonly uint _ID = 0;
@@ -118,16 +117,14 @@ namespace HimbeertoniRaidTool.Data
 
         public HrtItem(uint ID) => _ID = ID;
 
-        public override bool Equals(object? obj)
+        public bool Equals(HrtItem? obj)
         {
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj is not HrtItem other) return false;
-            return ID == other.ID;
+            return ID == obj?.ID;
         }
         public override int GetHashCode() => ID.GetHashCode();
     }
     [JsonObject(MemberSerialization.OptIn)]
-    public class HrtMateria : HrtItem
+    public class HrtMateria : HrtItem, IEquatable<HrtMateria>
     {
         [JsonProperty("Category")]
         private readonly MateriaCategory Category;
@@ -144,9 +141,8 @@ namespace HimbeertoniRaidTool.Data
         public HrtMateria((MateriaCategory cat, byte lvl) mat) : this(mat.cat, mat.lvl) { }
         [JsonConstructor]
         public HrtMateria(MateriaCategory cat, byte lvl) : base(0) => (Category, MateriaLevel) = (cat, lvl);
-
-
         public int GetStat() => Materia?.Value[MateriaLevel] ?? 0;
+        public bool Equals(HrtMateria? other) => base.Equals(other);
     }
     public class ItemIDRange : ItemIDCollection
     {
