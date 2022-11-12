@@ -47,6 +47,7 @@ namespace HimbeertoniRaidTool.HrtServices
             Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
         }
 #if DEBUG
+#pragma warning disable 
         internal static void ExportLocalizable()
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -137,6 +138,7 @@ namespace HimbeertoniRaidTool.HrtServices
             [JsonProperty("description")]
             public string Description { get; set; }
         }
+#pragma warning restore
 #endif
     }
 }

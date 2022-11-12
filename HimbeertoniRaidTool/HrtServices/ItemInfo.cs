@@ -10,7 +10,7 @@ namespace HimbeertoniRaidTool.HrtServices
 {
     internal class ItemInfo
     {
-        private readonly ExcelSheet<CustomSpecialShop> ShopSheet;
+        private readonly ExcelSheet<SpecialShop> ShopSheet;
         private readonly Dictionary<uint, ItemSource> ItemSources;
         private readonly Dictionary<uint, ItemIDCollection> ItemContainerDB;
         private readonly Dictionary<uint, (uint shopID, int idx)> ShopIndex;
@@ -19,11 +19,11 @@ namespace HimbeertoniRaidTool.HrtServices
         {
             ItemSources = curData.ItemSourceDB;
             ItemContainerDB = curData.ItemContainerDB;
-            ShopSheet = dataManager.GetExcelSheet<CustomSpecialShop>()!;
+            ShopSheet = dataManager.GetExcelSheet<SpecialShop>()!;
             //Load Vendor Data
             ShopIndex = new();
             UsedAsCurrency = new();
-            foreach (CustomSpecialShop shop in ShopSheet.Where(s => !s.Name.RawString.IsNullOrEmpty()))
+            foreach (SpecialShop shop in ShopSheet.Where(s => !s.Name.RawString.IsNullOrEmpty()))
             {
                 for (int idx = 0; idx < shop.ShopEntries.Length; idx++)
                 {
@@ -45,7 +45,7 @@ namespace HimbeertoniRaidTool.HrtServices
         public bool UsedAsShopCurrency(uint itemID) => UsedAsCurrency.ContainsKey(itemID);
         public ItemIDCollection GetPossiblePurchases(uint itemID) => new ItemIDList(UsedAsCurrency.GetValueOrDefault(itemID) ?? Enumerable.Empty<uint>());
         public ItemIDCollection GetContainerContents(uint itemID) => ItemContainerDB.GetValueOrDefault(itemID, ItemIDCollection.Empty);
-        public CustomSpecialShop.ShopEntry? GetShopEntryForItem(uint itemID) => ShopSheet.GetRow(ShopIndex[itemID].shopID)?.ShopEntries[ShopIndex[itemID].idx];
+        public SpecialShop.ShopEntry? GetShopEntryForItem(uint itemID) => ShopSheet.GetRow(ShopIndex[itemID].shopID)?.ShopEntries[ShopIndex[itemID].idx];
         public ItemSource GetSource(uint itemID) => ItemSources.GetValueOrDefault(itemID, ItemSource.undefined);
     }
 }

@@ -125,8 +125,7 @@ namespace HimbeertoniRaidTool
                 foreach (dynamic config in _configuration.Configurations.Values)
                     try
                     {
-                        if (config.Ui != null)
-                            config.Ui.OnShow();
+                        config.Ui?.OnShow();
                     }
                     catch (Exception) { }
             }
@@ -135,8 +134,7 @@ namespace HimbeertoniRaidTool
                 foreach (dynamic config in _configuration.Configurations.Values)
                     try
                     {
-                        if (config.Ui != null)
-                            config.Ui.OnHide();
+                        config.Ui?.OnHide();
                     }
                     catch (Exception) { }
             }
@@ -190,16 +188,14 @@ namespace HimbeertoniRaidTool
                 _configuration.Data = _dataCopy;
                 _configuration._saveInterval = TimeSpan.FromMinutes(_configuration.Data.SaveIntervalMinutes);
                 foreach (dynamic c in _configuration.Configurations.Values)
-                    if (c.Ui != null)
-                        c.Ui.Save();
+                    c.Ui?.Save();
                 _configuration.Save();
                 Hide();
             }
             private void Cancel()
             {
                 foreach (dynamic c in _configuration.Configurations.Values)
-                    if (c.Ui != null)
-                        c.Ui.Cancel();
+                    c.Ui?.Cancel();
                 Hide();
             }
         }

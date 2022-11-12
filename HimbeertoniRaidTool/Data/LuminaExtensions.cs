@@ -104,7 +104,7 @@ namespace Lumina.Excel.Extensions
 namespace Lumina.Excel.CustomSheets
 {
     [Sheet("SpecialShop", columnHash: 0x24d7a0ef)]
-    public class CustomSpecialShop : ExcelRow
+    public class SpecialShop : ExcelRow
     {
         public const int NUM_ENTRIES = 60;
         public const int GLOBAL_OFFSET = 1;
@@ -165,21 +165,25 @@ namespace Lumina.Excel.CustomSheets
                 //Receives
                 for (int j = 0; j < NUM_RECEIVE; j++)
                 {
-                    ShopEntries[i].ItemReceiveEntries[j] = new();
-                    ShopEntries[i].ItemReceiveEntries[j].Item = new LazyRow<Item>(gameData, parser.ReadColumn<int>(GLOBAL_OFFSET + j * NUM_ENTRIES * RECEIVE_SIZE + 0 * NUM_ENTRIES + i), language);
-                    ShopEntries[i].ItemReceiveEntries[j].Count = parser.ReadColumn<uint>(GLOBAL_OFFSET + j * NUM_ENTRIES * RECEIVE_SIZE + 1 * NUM_ENTRIES + i);
-                    ShopEntries[i].ItemReceiveEntries[j].SpecialShopItemCategory =
-                        new LazyRow<SpecialShopItemCategory>(gameData, parser.ReadColumn<int>(GLOBAL_OFFSET + j * NUM_ENTRIES * RECEIVE_SIZE + 2 * NUM_ENTRIES + i), language);
-                    ShopEntries[i].ItemReceiveEntries[j].HQ = parser.ReadColumn<bool>(GLOBAL_OFFSET + j * NUM_ENTRIES * RECEIVE_SIZE + 3 * NUM_ENTRIES + i);
+                    ShopEntries[i].ItemReceiveEntries[j] = new()
+                    {
+                        Item = new LazyRow<Item>(gameData, parser.ReadColumn<int>(GLOBAL_OFFSET + j * NUM_ENTRIES * RECEIVE_SIZE + 0 * NUM_ENTRIES + i), language),
+                        Count = parser.ReadColumn<uint>(GLOBAL_OFFSET + j * NUM_ENTRIES * RECEIVE_SIZE + 1 * NUM_ENTRIES + i),
+                        SpecialShopItemCategory =
+                            new LazyRow<SpecialShopItemCategory>(gameData, parser.ReadColumn<int>(GLOBAL_OFFSET + j * NUM_ENTRIES * RECEIVE_SIZE + 2 * NUM_ENTRIES + i), language),
+                        HQ = parser.ReadColumn<bool>(GLOBAL_OFFSET + j * NUM_ENTRIES * RECEIVE_SIZE + 3 * NUM_ENTRIES + i)
+                    };
                 }
                 //COSTS
                 for (int j = 0; j < NUM_COST; j++)
                 {
-                    ShopEntries[i].ItemCostEntries[j] = new();
-                    ShopEntries[i].ItemCostEntries[j].Item = new LazyRow<Item>(gameData, parser.ReadColumn<int>(COST_OFFSET + j * NUM_ENTRIES * COST_SIZE + 0 * NUM_ENTRIES + i), language);
-                    ShopEntries[i].ItemCostEntries[j].Count = parser.ReadColumn<uint>(COST_OFFSET + j * NUM_ENTRIES * COST_SIZE + 1 * NUM_ENTRIES + i);
-                    ShopEntries[i].ItemCostEntries[j].HQ = parser.ReadColumn<bool>(COST_OFFSET + j * NUM_ENTRIES * COST_SIZE + 2 * NUM_ENTRIES + i);
-                    ShopEntries[i].ItemCostEntries[j].CollectabilityRatingCost = parser.ReadColumn<ushort>(COST_OFFSET + j * NUM_ENTRIES * COST_SIZE + 3 * NUM_ENTRIES + i);
+                    ShopEntries[i].ItemCostEntries[j] = new()
+                    {
+                        Item = new LazyRow<Item>(gameData, parser.ReadColumn<int>(COST_OFFSET + j * NUM_ENTRIES * COST_SIZE + 0 * NUM_ENTRIES + i), language),
+                        Count = parser.ReadColumn<uint>(COST_OFFSET + j * NUM_ENTRIES * COST_SIZE + 1 * NUM_ENTRIES + i),
+                        HQ = parser.ReadColumn<bool>(COST_OFFSET + j * NUM_ENTRIES * COST_SIZE + 2 * NUM_ENTRIES + i),
+                        CollectabilityRatingCost = parser.ReadColumn<ushort>(COST_OFFSET + j * NUM_ENTRIES * COST_SIZE + 3 * NUM_ENTRIES + i)
+                    };
                 }
                 ShopEntries[i].Quest =
                     new LazyRow<Quest>(gameData, parser.ReadColumn<int>(AFTER_COST_OFFSET + 0 * NUM_ENTRIES + i), language);
