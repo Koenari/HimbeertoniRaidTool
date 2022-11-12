@@ -115,11 +115,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 if (_session.Results.Count == 0)
                     ImGui.Text(Localize("No loot", "No loot"));
-                foreach (((HrtItem item, int nr), LootSession.LootResult result) in _session.Results)
+                foreach (((HrtItem item, int nr), LootResults results) in _session.Results)
                 {
                     if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n " +
-                        ((result.Needer.Count > 0) ? $"{result.Needer[0].NickName} won" +
-                        $"{(result.Needer.Count > 1 ? $" over {result.Needer[1].NickName} " : "")}({result.DecidingFactors[result.Needer[0]]})  "
+                        ((results.Count > 0 && results[0].Category == LootCategory.Need) ? $"{results[0].Player.NickName} won" +
+                        $"{((results.Count > 1 & results[1].Category == LootCategory.Need) ? $" over {results[1].Player.NickName} " : "")}({results[0].DecidingFactor(results[1])})  "
                         : $"{Localize("Greed only", "Greed only")}")
                         ))
                     {
@@ -135,16 +135,17 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             ImGui.TableHeadersRow();
 
                             int place = 1;
-                            LootRule last = LootRuling.Default;
-                            foreach (Player player in result)
+                            LootRule lastRule = LootRuling.Default;
+                            for (int i = 0; i < results.Count; i++)//foreach (LootResult singleResult in results)
                             {
-                                LootRule decision = result.DecidingFactors[player];
+                                bool isLast = i == results.Count - 1;
+                                var singleResult = results[i];
                                 ImGui.TableNextColumn();
                                 ImGui.Text(place.ToString());
                                 ImGui.TableNextColumn();
-                                ImGui.Text($"{player.NickName} ({player.MainChar.MainJob})");
+                                ImGui.Text($"{singleResult.Player.NickName} ({singleResult.Player.MainChar.MainJob})");
                                 ImGui.TableNextColumn();
-                                foreach (var neededItem in result.NeededItems[player])
+                                foreach (var neededItem in singleResult.NeededItems)
                                 {
                                     ImGui.Text(neededItem.Name);
                                     if (ImGui.IsItemHovered())
@@ -155,21 +156,37 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                     }
                                 }
                                 ImGui.TableNextColumn();
-                                ImGui.Text(decision.Name);
-                                foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                                if (singleResult.Category == LootCategory.Need)
                                 {
-                                    ImGui.TableNextColumn();
-                                    string toPrint = result.EvaluatedRules[player].TryGetValue(rule, out string? val) ? val : "";
-                                    if (rule == decision && rule == last)
-                                        ImGui.TextColored(Colors.Yellow, toPrint);
-                                    else if (rule == decision)
-                                        ImGui.TextColored(Colors.Green, toPrint);
-                                    else if (rule == last)
-                                        ImGui.TextColored(Colors.Red, toPrint);
-                                    else
-                                        ImGui.Text(toPrint);
+                                    var decidingFactor = isLast ? LootRuling.Default
+                                        : (results[i + 1].Category > LootCategory.Need ? new(LootRuleEnum.NeedGreed) : singleResult.DecidingFactor(results[i + 1]));
+                                    ImGui.Text(decidingFactor.Name);
+                                    foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                                    {
+                                        ImGui.TableNextColumn();
+                                        string toPrint = singleResult.EvaluatedRules.TryGetValue(rule, out (int _, string val) a) ? a.val : "";
+                                        if (rule == decidingFactor && rule == lastRule)
+                                            ImGui.TextColored(Colors.Yellow, toPrint);
+                                        else if (rule == decidingFactor)
+                                            ImGui.TextColored(Colors.Green, toPrint);
+                                        else if (rule == lastRule)
+                                            ImGui.TextColored(Colors.Red, toPrint);
+                                        else
+                                            ImGui.Text(toPrint);
+                                    }
+                                    lastRule = decidingFactor;
                                 }
-                                last = decision;
+                                else
+                                {
+                                    ImGui.Text(singleResult.Category.ToString());
+                                    foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                                    {
+                                        ImGui.TableNextColumn();
+                                        ImGui.Text("-");
+                                    }
+
+                                }
+
                                 place++;
                             }
                             ImGui.EndTable();

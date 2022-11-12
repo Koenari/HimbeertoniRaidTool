@@ -86,10 +86,7 @@ namespace HimbeertoniRaidTool.Data
     {
         [JsonProperty("Rule")]
         public readonly LootRuleEnum Rule;
-        [JsonProperty("Name")]
-        public readonly string Name;
-        [JsonIgnore]
-        public string Expression;
+        public string Name => GetName();
         /// <summary>
         /// Evaluates this LootRule for given player
         /// </summary>
@@ -97,19 +94,19 @@ namespace HimbeertoniRaidTool.Data
         /// <param name="session">Loot session to evaluate for</param>
         /// <param name="applicableItems">List of items to evaluate for. These need to be filtered to be equippable by the players MainJob</param>
         /// <returns>A tuple of int (can be used for Compare like (right - left)) and a string describing the value</returns>
-        public (int, string) Eval(Player x, LootSession session, IEnumerable<GearItem> applicableItems)
+        public (int, string) Eval(LootResult x, LootSession session, IEnumerable<GearItem> applicableItems)
         {
             (int val, string? reason) = InternalEval(x, session, applicableItems);
             return (val, reason ?? val.ToString());
         }
-        private (int, string?) InternalEval(Player x, LootSession session, IEnumerable<GearItem> applicableItems) => Rule switch
+        private (int, string?) InternalEval(LootResult x, LootSession session, IEnumerable<GearItem> applicableItems) => Rule switch
         {
-            LootRuleEnum.Random => (x.Roll(session), null),
+            LootRuleEnum.Random => (x.Roll(), null),
             LootRuleEnum.LowestItemLevel => (-x.ItemLevel(), x.ItemLevel().ToString()),
-            LootRuleEnum.HighesItemLevelGain => (x.ItemLevelGain(applicableItems), null),
-            LootRuleEnum.BISOverUpgrade => x.IsBiS(applicableItems) ? (1, "y") : (-1, "n"),
-            LootRuleEnum.RolePrio => (-session.RolePriority.GetPriority(x.MainChar.MainJob.GetRole()), x.MainChar.MainJob.GetRole().ToString()),
-            LootRuleEnum.DPS => (x.AdditionalData.ManualDPS, null),
+            LootRuleEnum.HighesItemLevelGain => (x.ItemLevelGain(), null),
+            LootRuleEnum.BISOverUpgrade => x.IsBiS() ? (1, "y") : (-1, "n"),
+            LootRuleEnum.RolePrio => (x.RolePrio(session), x.Player.CurJob?.GetRole().ToString()),
+            LootRuleEnum.DPS => (x.Player.AdditionalData.ManualDPS, null),
             _ => (0, "none"),
         };
         public override string ToString() => Name;
@@ -127,12 +124,9 @@ namespace HimbeertoniRaidTool.Data
             _ => Localize("Not defined", "Not defined"),
         };
         [JsonConstructor]
-        public LootRule(LootRuleEnum rule, string? name = null)
+        public LootRule(LootRuleEnum rule)
         {
             Rule = rule;
-            //TODO: implement correctly
-            Expression = "";
-            Name = name ?? GetName();
         }
 
         public override int GetHashCode() => Rule.GetHashCode();
@@ -145,19 +139,21 @@ namespace HimbeertoniRaidTool.Data
 
     public static class LootRulesExtension
     {
-
-        public static int Roll(this Player p, LootSession session) => session.Rolls[p];
-        public static int ItemLevel(this Player p) => p.Gear.ItemLevel;
-        public static int ItemLevelGain(this Player p, IEnumerable<GearItem> newItems)
+        public static int RolePrio(this LootResult p, LootSession s) => -s.RolePriority.GetPriority(p.Player.MainChar.MainJob.GetRole());
+        public static int Roll(this LootResult p) => p.Roll;
+        public static int ItemLevel(this LootResult p) => p.Player.CurJob?.Gear.ItemLevel ?? 0;
+        public static int ItemLevelGain(this LootResult p)
         {
             int result = 0;
-            foreach (GearItem item in newItems)
+            foreach (GearItem item in p.NeededItems)
             {
-                result = Math.Max(result, (int)item.ItemLevel - (int)(p.Gear.Where(i => i.Slots.Intersect(item.Slots).Any()).MinBy(i => i.ItemLevel)?.ItemLevel ?? item.ItemLevel));
+                result = Math.Max(result, (int)item.ItemLevel - (int)(p.Player.CurJob?.Gear.Where(i => i.Slots.Intersect(item.Slots).Any()).MinBy(i => i.ItemLevel)?.ItemLevel ?? item.ItemLevel));
             }
 
             return result;
         }
-        public static bool IsBiS(this Player p, IEnumerable<GearItem> items) => p.BIS.Any(bisItem => items.Any(i => i.ID == bisItem.ID));
+        //IS broken for non unique items
+        public static bool IsBiS(this LootResult p) =>
+            p.NeededItems.Any(i => (p.Player.CurJob?.BIS.Contains(i) ?? false) && !(p.Player.CurJob?.Gear.Contains(i) ?? false));
     }
 }

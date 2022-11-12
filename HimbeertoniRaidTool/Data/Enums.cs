@@ -262,6 +262,7 @@ namespace HimbeertoniRaidTool.Data
             StatType.Tenacity => Localize("TEN", "TEN"),
             _ => "XXX",
         };
+        public static Role GetRole(this PlayableClass? c) => (c?.Job).GetRole();
         public static Role GetRole(this Job? c) => c.HasValue ? GetRole(c.Value) : Role.None;
         public static Role GetRole(this Job c) => c switch
         {

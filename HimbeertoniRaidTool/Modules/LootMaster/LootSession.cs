@@ -10,8 +10,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     public class LootSession
     {
-        private readonly Random Random = new(Guid.NewGuid().GetHashCode());
-        public Dictionary<Player, int> Rolls = new();
         public LootRuling RulingOptions { get; private set; }
         internal readonly Dictionary<HrtItem, int> Loot;
         private RaidGroup _group;
@@ -21,11 +19,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             set
             {
                 _group = value;
-                ReRoll();
                 Results.Clear();
             }
         }
-        public Dictionary<(HrtItem, int), LootResult> Results = new();
+        public Dictionary<(HrtItem, int), LootResults> Results = new();
         public List<Player> Excluded = new();
         public readonly RolePriority RolePriority;
         internal int NumLootItems => Loot.Values.Aggregate(0, (sum, x) => sum + x);
@@ -38,25 +35,18 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _group = Group = group;
             RolePriority = rolePriority;
         }
-        private void ReRoll()
-        {
-            Rolls.Clear();
-            foreach (var p in Group)
-                Rolls.Add(p, Random.Next(0, 101));
-        }
         public void EvaluateAll(bool reevaluate = false)
         {
             if (Results.Count == NumLootItems && !reevaluate)
                 return;
             Results.Clear();
-            ReRoll();
             foreach ((HrtItem item, int count) in Loot)
                 for (int i = 0; i < count; i++)
                 {
                     Results.Add((item, i), Evaluate(item, Excluded));
                 }
         }
-        private LootResult Evaluate(HrtItem droppedItem, IEnumerable<Player> excludeAddition)
+        private LootResults Evaluate(HrtItem droppedItem, IEnumerable<Player> excludeAddition)
         {
             List<Player> excluded = new();
             excluded.AddRange(Excluded);
@@ -68,128 +58,135 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 possibleItems = droppedItem.PossiblePurchases;
             else
                 return new();
-            LootResult result = new();
-            foreach (var p in Group)
+            LootResults results = new();
+            foreach (var player in Group)
             {
-                if (excluded.Contains(p))
+
+                if (excluded.Contains(player))
                     continue;
                 //Pre filter items by job
-                result.ApplicableItems[p] = possibleItems.Where(i => (i.Item?.ClassJobCategory.Value).Contains(p.MainChar.MainJob));
-                result.NeededItems[p] = new List<GearItem>();
+                LootResult result = new(
+                        this,
+                        player,
+                        possibleItems.Where(i => (i.Item?.ClassJobCategory.Value).Contains(player.MainChar.MainJob))
+                    );
                 //Calculate need for each item
-                foreach (var item in result.ApplicableItems[p])
+                foreach (var item in result.ApplicableItems)
 
                     if (
                         //Always need if Bis and not aquired
-                        (p.BIS.Contains(item) && !p.Gear.Contains(item))
+                        ((player.CurJob?.BIS.Contains(item)).GetValueOrDefault()
+                        && !(player.CurJob?.Gear.Contains(item)).GetValueOrDefault())
                         //No need if any of following are true
                         || !(
                             //Player already has this unique item
-                            ((item.Item?.IsUnique ?? true) && p.Gear.Contains(item))
+                            ((item.Item?.IsUnique ?? true) && (player.CurJob?.Gear.Contains(item)).GetValueOrDefault())
                             //Player has Bis or higher/same iLvl for all aplicable slots
-                            || (p.MainChar.MainClass?.HaveBisOrHigherItemLevel(item.Slots, item) ?? false)
+                            || (player.MainChar.MainClass?.HaveBisOrHigherItemLevel(item.Slots, item) ?? false)
                         )
                     )
                     {
-                        result.NeededItems[p].Add(item);
+                        result.NeededItems.Add(item);
                     }
-                if (result.NeededItems[p].Count > 0)
-                    result.Needer.Add(p);
+                if (result.NeededItems.Count > 0)
+                    result.Category = LootCategory.Need;
                 else
-                    result.Greeder.Add(p);
+                    result.Category = LootCategory.Greed;
+                results.Players.Add(result);
             }
-            var comparer = GetComparer(possibleItems);
-            result.Needer.Sort(comparer);
-            result.Fill(comparer);
-            return result;
-        }
-        public class LootResult : IEnumerable<Player>
-        {
-            public List<Player> Needer = new();
-            public List<Player> Greeder = new();
-            public Dictionary<Player, LootRule> DecidingFactors = new();
-            public Dictionary<Player, Dictionary<LootRule, string>> EvaluatedRules = new();
-            public Dictionary<Player, IEnumerable<GearItem>> ApplicableItems = new();
-            public Dictionary<Player, List<GearItem>> NeededItems = new();
-            internal void Fill(LootRulingComparer comparer)
-            {
-                foreach (Player p in this)
-                {
-                    EvaluatedRules[p] = new();
-                    if (!comparer.EvaluatedRules.TryGetValue(p, out var evals))
-                        evals = comparer.EvaluatePlayer(p);
-                    foreach ((LootRule rule, (_, string reason)) in evals)
-                        EvaluatedRules[p].Add(rule, reason);
-                    EvaluatedRules[p].Add(new(LootRuleEnum.Greed), "");
-                }
-                for (int i = 0; i < Needer.Count - 1; i++)
-                    DecidingFactors[Needer[i]] = comparer.DecidingRule[(Needer[i], Needer[i + 1])];
-                if (Needer.Count > 0)
-                    DecidingFactors[Needer.Last()] = new(LootRuleEnum.NeedGreed);
-                foreach (var p in Greeder)
-                    DecidingFactors[p] = new(LootRuleEnum.Greed);
-            }
-            private IEnumerable<Player> GetPlayers()
-            {
-                foreach (var player in Needer)
-                    yield return player;
-                foreach (var player in Greeder)
-                    yield return player;
-            }
-
-            public IEnumerator<Player> GetEnumerator() => GetPlayers().GetEnumerator();
-
-            IEnumerator IEnumerable.GetEnumerator() => GetPlayers().GetEnumerator();
-        }
-        private LootRulingComparer GetComparer(IEnumerable<GearItem> possibleItems) => new(this, possibleItems);
-        internal class LootRulingComparer : IComparer<Player>
-        {
-            private readonly LootSession _session;
-            private readonly IEnumerable<GearItem> _possibleItems;
-            public Dictionary<(Player, Player), LootRule> DecidingRule = new();
-            public Dictionary<Player, Dictionary<LootRule, (int val, string reason)>> EvaluatedRules = new();
-            public LootRulingComparer(LootSession session, IEnumerable<GearItem> possibleItems)
-            {
-                (_session, _possibleItems) = (session, possibleItems);
-            }
-
-            internal Dictionary<LootRule, (int val, string reason)> EvaluatePlayer(Player p)
-            {
-                if (EvaluatedRules.TryGetValue(p, out var result))
-                    return result;
-                result = new();
-                foreach (LootRule rule in _session.RulingOptions.RuleSet)
-                {
-                    result[rule] = rule.Eval(p, _session, _possibleItems);
-                }
-                EvaluatedRules.Add(p, result);
-                return result;
-            }
-            private int Compare(Player x, Player y, LootRule r) => EvaluatedRules[y][r].val - EvaluatedRules[x][r].val;
-            public int Compare(Player? x, Player? y)
-            {
-                if (x is null || y is null)
-                    return 0;
-                EvaluatePlayer(x);
-                EvaluatePlayer(y);
-                if (DecidingRule.TryGetValue((x, y), out LootRule? cachedRule))
-                {
-                    return Compare(x, y, cachedRule);
-                }
-                foreach (var rule in _session.RulingOptions.RuleSet)
-                {
-                    int result = Compare(x, y, rule);
-                    if (result != 0)
-                    {
-                        DecidingRule.Add((x, y), rule);
-                        DecidingRule.Add((y, x), rule);
-                        return result;
-                    }
-                }
-                DecidingRule.Add((x, y), LootRuling.Default);
-                return 0;
-            }
+            results.Eval(this);
+            return results;
         }
     }
+    public enum LootCategory
+    {
+        Need = 0,
+        Greed = 10,
+        Pass = 20,
+        Undecided = 30,
+    }
+    public class LootResult
+    {
+        private static readonly Random Random = new(Guid.NewGuid().GetHashCode());
+        private readonly LootSession _session;
+        public LootCategory Category = LootCategory.Undecided;
+        public readonly Player Player;
+        public readonly int Roll;
+        public int RolePrio => _session.RolePriority.GetPriority(Player.CurJob.GetRole());
+        public bool IsEvaluated { get; private set; } = false;
+        public readonly Dictionary<LootRule, (int val, string reason)> EvaluatedRules = new();
+        public readonly HashSet<GearItem> ApplicableItems;
+        public readonly List<GearItem> NeededItems = new();
+        public LootResult(LootSession session, Player p, IEnumerable<GearItem> applicableItems)
+        {
+            _session = session;
+            Player = p;
+            Roll = Random.Next(0, 101);
+            ApplicableItems = new(applicableItems);
+        }
+        public void Evaluate(LootSession session)
+        {
+            if (IsEvaluated)
+                return;
+            foreach (LootRule rule in session.RulingOptions.RuleSet)
+            {
+                EvaluatedRules[rule] = rule.Eval(this, session, NeededItems);
+            }
+            IsEvaluated = true;
+        }
+        public LootRule DecidingFactor(LootResult other)
+        {
+            foreach ((LootRule rule, (int val, string _)) in EvaluatedRules)
+            {
+                if (val != other.EvaluatedRules[rule].val)
+                    return rule;
+            }
+            return LootRuling.Default;
+        }
 
+    }
+    public class LootResults : IReadOnlyList<LootResult>
+    {
+        public readonly List<LootResult> Players = new();
+        public int Count => Players.Count;
+
+        public LootResult this[int index] => Players[index];
+
+        internal void Eval(LootSession session)
+        {
+
+            foreach (LootResult result in this.Where(r => !r.IsEvaluated))
+                result.Evaluate(session);
+            Players.Sort(new LootRulingComparer(session));
+        }
+        public IEnumerator<LootResult> GetEnumerator() => Players.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => Players.GetEnumerator();
+    }
+    internal class LootRulingComparer : IComparer<LootResult>
+    {
+        private readonly LootSession _session;
+        public LootRulingComparer(LootSession session)
+        {
+            _session = session;
+        }
+        private static int Compare(LootResult x, LootResult y, LootRule r) => y.EvaluatedRules[r].val - x.EvaluatedRules[r].val;
+        public int Compare(LootResult? x, LootResult? y)
+        {
+            if (x is null || y is null)
+                return 0;
+            if (x.Category - y.Category != 0)
+                return x.Category - y.Category;
+            foreach (var rule in _session.RulingOptions.RuleSet)
+            {
+                int result = Compare(x, y, rule);
+                if (result != 0)
+                {
+                    return result;
+                }
+            }
+            return 0;
+        }
+    }
 }
+
