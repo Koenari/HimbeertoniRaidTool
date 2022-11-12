@@ -163,7 +163,17 @@ namespace HimbeertoniRaidTool.Data
             return result;
 
         }
-
+        public static IEnumerable<GearSetSlot> Slots
+        {
+            get
+            {
+                foreach (GearSetSlot slot in Enum.GetValues<GearSetSlot>())
+                {
+                    if (slot < GearSetSlot.SoulCrystal && slot != GearSetSlot.Waist)
+                        yield return slot;
+                }
+            }
+        }
         public IEnumerator<GearItem> GetEnumerator()
         {
             return ((IEnumerable<GearItem>)Items).GetEnumerator();

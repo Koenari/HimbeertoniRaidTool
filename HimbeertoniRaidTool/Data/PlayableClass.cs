@@ -36,6 +36,28 @@ namespace HimbeertoniRaidTool.Data
             BIS = new(GearSetManager.HRT, c, Job, "BIS");
             Services.HrtDataManager.GetManagedGearSet(ref BIS);
         }
+        public (GearItem, GearItem) this[GearSetSlot slot]
+        {
+            get
+            {
+                GearSetSlot slot2 = slot;
+                if (slot is GearSetSlot.Ring1 or GearSetSlot.Ring2)
+                {
+                    if (Gear[GearSetSlot.Ring2].Equals(BIS[GearSetSlot.Ring1], ItemComparisonMode.IdOnly)
+                        || Gear[GearSetSlot.Ring1].Equals(BIS[GearSetSlot.Ring2], ItemComparisonMode.IdOnly))
+                        slot2 = slot == GearSetSlot.Ring1 ? GearSetSlot.Ring2 : GearSetSlot.Ring1;
+                }
+                return (Gear[slot], BIS[slot2]);
+            }
+        }
+        public IEnumerable<(GearSetSlot, (GearItem, GearItem))> ItemTuples
+        {
+            get
+            {
+                foreach (GearSetSlot slot in GearSet.Slots)
+                    yield return (slot, this[slot]);
+            }
+        }
         /// <summary>
         /// Evaluates if all of the given slots have BiS item or an item with higher or euqla item level as given item
         /// </summary>
@@ -108,5 +130,6 @@ namespace HimbeertoniRaidTool.Data
                 return false;
             return Job == other.Job;
         }
+        public override string ToString() => $"{Job} ({Level})";
     }
 }

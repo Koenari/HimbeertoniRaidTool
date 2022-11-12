@@ -101,8 +101,10 @@ namespace HimbeertoniRaidTool.UI
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddTooltip(string tooltip)
+        public static void AddTooltip(string? tooltip)
         {
+            if (tooltip == null)
+                return;
             if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 ImGui.SetTooltip(tooltip);
         }

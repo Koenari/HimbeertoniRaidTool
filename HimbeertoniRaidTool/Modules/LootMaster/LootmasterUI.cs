@@ -238,19 +238,28 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.TableSetupColumn(Localize("Gear", "Gear"));
             ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
-            bool ringsSwapped = p.Gear.Ring1.ID == p.BIS.Ring2.ID || p.Gear.Ring2.ID == p.BIS.Ring1.ID;
-            DrawSlot(p.Gear.MainHand, p.BIS.MainHand, true);
-            DrawSlot(p.Gear.OffHand, p.BIS.OffHand, true);
-            DrawSlot(p.Gear.Head, p.BIS.Head, true);
-            DrawSlot(p.Gear.Ear, p.BIS.Ear, true);
-            DrawSlot(p.Gear.Body, p.BIS.Body, true);
-            DrawSlot(p.Gear.Neck, p.BIS.Neck, true);
-            DrawSlot(p.Gear.Hands, p.BIS.Hands, true);
-            DrawSlot(p.Gear.Wrist, p.BIS.Wrist, true);
-            DrawSlot(p.Gear.Legs, p.BIS.Legs, true);
-            DrawSlot(p.Gear.Ring1, ringsSwapped ? p.BIS.Ring2 : p.BIS.Ring1, true);
-            DrawSlot(p.Gear.Feet, p.BIS.Feet, true);
-            DrawSlot(p.Gear.Ring2, ringsSwapped ? p.BIS.Ring1 : p.BIS.Ring2, true);
+            if (curClass is not null)
+            {
+                DrawSlot(curClass[GearSetSlot.MainHand], true);
+                DrawSlot(curClass[GearSetSlot.OffHand], true);
+                DrawSlot(curClass[GearSetSlot.Head], true);
+                DrawSlot(curClass[GearSetSlot.Ear], true);
+                DrawSlot(curClass[GearSetSlot.Body], true);
+                DrawSlot(curClass[GearSetSlot.Neck], true);
+                DrawSlot(curClass[GearSetSlot.Hands], true);
+                DrawSlot(curClass[GearSetSlot.Wrist], true);
+                DrawSlot(curClass[GearSetSlot.Legs], true);
+                DrawSlot(curClass[GearSetSlot.Ring1], true);
+                DrawSlot(curClass[GearSetSlot.Feet], true);
+                DrawSlot(curClass[GearSetSlot.Ring2], true);
+            }
+            else
+            {
+                for (int i = 0; i < 12; i++)
+                {
+                    ImGui.TableNextColumn();
+                }
+            }
             ImGui.EndTable();
             ImGui.EndChild();
         }
@@ -274,24 +283,19 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup[0], _lootMaster.Configuration.Data.GetDefaultBiS));
                 }
             }
-            else if (CurrentGroup.Type == GroupType.Raid || CurrentGroup.Type == GroupType.Group)
+            else
             {
                 if (ImGui.BeginTable("RaidGroup", 14,
                 ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg))
                 {
                     ImGui.TableSetupColumn(Localize("Player", "Player"));
                     ImGui.TableSetupColumn(Localize("itemLevelShort", "iLvl"));
-                    ImGui.TableSetupColumn(Localize("Weapon", "Weapon"));
-                    ImGui.TableSetupColumn(Localize("HeadGear", "Head"));
-                    ImGui.TableSetupColumn(Localize("ChestGear", "Chest"));
-                    ImGui.TableSetupColumn(Localize("Gloves", "Gloves"));
-                    ImGui.TableSetupColumn(Localize("LegGear", "Legs"));
-                    ImGui.TableSetupColumn(Localize("FeetGear", "Feet"));
-                    ImGui.TableSetupColumn(Localize("Earrings", "Earrings"));
-                    ImGui.TableSetupColumn(Localize("NeckGear", "Necklace"));
-                    ImGui.TableSetupColumn(Localize("WristGear", "Bracelet"));
-                    ImGui.TableSetupColumn(Localize("LeftRing", "Ring L"));
-                    ImGui.TableSetupColumn(Localize("RightRing", "Ring R"));
+                    foreach (GearSetSlot slot in GearSet.Slots)
+                    {
+                        if (slot == GearSetSlot.OffHand)
+                            continue;
+                        ImGui.TableSetupColumn(slot.FriendlyName());
+                    }
                     ImGui.TableSetupColumn(Localize("Options", "Options"));
                     ImGui.TableHeadersRow();
                     for (int position = 0; position < CurrentGroup.Count; position++)
@@ -303,10 +307,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
                     ImGui.EndTable();
                 }
-            }
-            else
-            {
-                ImGui.TextColored(Colors.Red, $"Gui for group type ({CurrentGroup.Type.FriendlyName()}) not yet implemented");
             }
         }
 
@@ -375,26 +375,23 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private void DrawPlayer(Player player, int pos)
         {
             bool playerExists = player.Filled && player.MainChar.Filled;
-            bool hasClasses = playerExists && player.MainChar.Classes.Any();
             if (playerExists)
             {
 
                 ImGui.TableNextColumn();
-                ImGui.Text($"{player.MainChar.MainJob.GetRole().FriendlyName()}:   {player.NickName}");
+                ImGui.Text($"{player.CurJob.GetRole().FriendlyName()}:   {player.NickName}");
                 ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? Localize("n.A.", "n.A.")}");
-                var c = player.MainChar;
-                if (hasClasses)
+                var curJob = player.CurJob;
+                if (curJob != null)
                 {
-                    ImGui.Text($"{Localize("LvLShort", "Lvl")}: {player.MainChar.MainClass?.Level ?? 1}");
-                    ImGui.SameLine();
                     if (player.MainChar.Classes.Count() > 1)
                     {
-                        ImGui.SetNextItemWidth(100 * ScaleFactor);
-                        if (ImGui.BeginCombo($"##Class", player.MainChar.MainClass?.Job.ToString()))
+                        ImGui.SetNextItemWidth(110 * ScaleFactor);
+                        if (ImGui.BeginCombo($"##Class", curJob.ToString()))
                         {
                             foreach (PlayableClass job in player.MainChar)
                             {
-                                if (ImGui.Selectable(job.Job.ToString()))
+                                if (ImGui.Selectable(job.ToString()))
                                     player.MainChar.MainJob = job.Job;
                             }
                             ImGui.EndCombo();
@@ -402,15 +399,19 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     }
                     else
                     {
-                        ImGui.Text(player.MainChar.MainJob.ToString());
+                        ImGui.Text(curJob.ToString());
                     }
-                    var gear = player.Gear;
-                    var bis = player.BIS;
+                    var gear = curJob.Gear;
+                    var bis = curJob.BIS;
                     ImGui.TableNextColumn();
-                    ImGui.Text(gear.ItemLevel.ToString());
+                    ImGui.Text($"{gear.ItemLevel}");
                     ImGuiHelper.AddTooltip(gear.HrtID);
-                    ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
-                    ImGui.Text(bis.ItemLevel.ToString() + " (Etro)");
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditGear", $"Edit {gear.Name}"))
+                        AddChild(new EditGearSetWindow(gear, curJob.Job)); ;
+                    //ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
+
+                    ImGui.Text($"{bis.ItemLevel}");
                     if (ImGui.IsItemClicked())
                         Process.Start(new ProcessStartInfo
                         {
@@ -418,37 +419,27 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             UseShellExecute = true,
                         });
                     ImGuiHelper.AddTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
-                    DrawSlot(gear.MainHand, bis.MainHand);
-                    DrawSlot(gear.Head, bis.Head);
-                    DrawSlot(gear.Body, bis.Body);
-                    DrawSlot(gear.Hands, bis.Hands);
-                    DrawSlot(gear.Legs, bis.Legs);
-                    DrawSlot(gear.Feet, bis.Feet);
-                    DrawSlot(gear.Ear, bis.Ear);
-                    DrawSlot(gear.Neck, bis.Neck);
-                    DrawSlot(gear.Wrist, bis.Wrist);
-                    if (gear.Ring1.ID == bis.Ring2.ID || gear.Ring2.ID == bis.Ring1.ID)
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditGear", $"Edit {bis.Name}"))
+                        AddChild(new EditGearSetWindow(bis, curJob.Job));
+                    foreach ((GearSetSlot slot, var itemTuple) in curJob.ItemTuples)
                     {
-                        DrawSlot(gear.Ring1, bis.Ring2);
-                        DrawSlot(gear.Ring2, bis.Ring1);
+                        if (slot == GearSetSlot.OffHand)
+                            continue;
+                        DrawSlot(itemTuple);
                     }
-                    else
-                    {
-                        DrawSlot(gear.Ring1, bis.Ring1);
-                        DrawSlot(gear.Ring2, bis.Ring2);
-                    }
-                    ImGui.TableNextColumn();
                 }
                 else
                 {
                     ImGui.Text("");
-                    for (int i = 0; i < 13; i++)
+                    for (int i = 0; i < 12; i++)
                         ImGui.TableNextColumn();
                 }
                 /**
                  * Start of functional button section
                  */
                 {
+                    ImGui.TableNextColumn();
                     ImGuiHelper.GearUpdateButtons(player, _lootMaster, false, ButtonSize);
                     Vector2 buttonSize = ImGui.GetItemRectSize();
                     ImGui.SameLine();
@@ -494,11 +485,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     AddChild(new GetCharacterFromDBWindow(ref player));
             }
         }
-        private void DrawSlot(GearItem item, GearItem bis, bool extended = false)
+        private void DrawSlot((GearItem, GearItem) itemTuple, bool extended = false)
         {
+            (GearItem item, GearItem bis) = itemTuple;
             ImGui.TableNextColumn();
-            if (item.Filled && bis.Filled && item.Equals(bis,
-                _lootMaster.Configuration.Data.IgnoreMateriaForBiS ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full))
+            if (item.Filled && bis.Filled &&
+                item.Equals(bis, _lootMaster.Configuration.Data.IgnoreMateriaForBiS ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full))
             {
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / (extended ? 2 : 1));
                 ImGui.BeginGroup();
