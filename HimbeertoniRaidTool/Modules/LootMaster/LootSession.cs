@@ -43,18 +43,19 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             foreach ((HrtItem item, int count) in Loot)
                 for (int i = 0; i < count; i++)
                 {
-                    Results.Add((item, i), Evaluate(item, Excluded));
+                    Results.Add((item, i), Evaluate(item));
                 }
         }
-        private LootResults Evaluate(HrtItem droppedItem, IEnumerable<Player> excludeAddition)
+        private LootResults Evaluate(HrtItem droppedItem, IEnumerable<Player>? excludeAddition = null)
         {
             List<Player> excluded = new();
             excluded.AddRange(Excluded);
-            excluded.AddRange(excludeAddition);
+            if (excludeAddition != null)
+                excluded.AddRange(excludeAddition);
             IEnumerable<GearItem> possibleItems;
             if (droppedItem.IsGear)
                 possibleItems = new List<GearItem> { new(droppedItem.ID) };
-            else if (droppedItem.IsContainerItem || droppedItem.IsExhangableItem)
+            else if (droppedItem.IsContainerItem || droppedItem.IsExchangableItem)
                 possibleItems = droppedItem.PossiblePurchases;
             else
                 return new();

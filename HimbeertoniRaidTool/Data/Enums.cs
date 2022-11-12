@@ -3,7 +3,7 @@ using Lumina.Excel.GeneratedSheets;
 using static HimbeertoniRaidTool.HrtServices.Localization;
 namespace HimbeertoniRaidTool.Data
 {
-    public enum GearSource
+    public enum ItemSource
     {
         Raid,
         Dungeon,
@@ -329,16 +329,16 @@ namespace HimbeertoniRaidTool.Data
             _ => Localize("undefined", "undefined")
 
         };
-        public static string FriendlyName(this GearSource source) => source switch
+        public static string FriendlyName(this ItemSource source) => source switch
         {
-            GearSource.Raid => Localize("Raid", "Raid"),
-            GearSource.Dungeon => Localize("Dungeon", "Dungeon"),
-            GearSource.Trial => Localize("Trial", "Trial"),
-            GearSource.Tome => Localize("Tome", "Tome"),
-            GearSource.Crafted => Localize("Crafted", "Crafted"),
-            GearSource.AllianceRaid => Localize("Alliance", "Alliance"),
-            GearSource.Quest => Localize("Quest", "Quest"),
-            GearSource.Relic => Localize("Relic", "Relic"),
+            ItemSource.Raid => Localize("Raid", "Raid"),
+            ItemSource.Dungeon => Localize("Dungeon", "Dungeon"),
+            ItemSource.Trial => Localize("Trial", "Trial"),
+            ItemSource.Tome => Localize("Tome", "Tome"),
+            ItemSource.Crafted => Localize("Crafted", "Crafted"),
+            ItemSource.AllianceRaid => Localize("Alliance", "Alliance"),
+            ItemSource.Quest => Localize("Quest", "Quest"),
+            ItemSource.Relic => Localize("Relic", "Relic"),
             _ => Localize("undefined", "undefined"),
         };
         public static string FriendlyName(this Role role) => role switch

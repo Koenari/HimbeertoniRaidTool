@@ -22,8 +22,6 @@ namespace HimbeertoniRaidTool.Data
         public List<Job> Jobs => Item?.ClassJobCategory.Value?.ToJob() ?? new List<Job>();
         [JsonIgnore]
         public IEnumerable<GearSetSlot> Slots => (Item?.EquipSlotCategory.Value).AvailableSlots();
-        [JsonIgnore]
-        public GearSource Source => CuratedData.GearSourceDB.GetValueOrDefault(ID, GearSource.undefined);
         [JsonProperty("Materia")]
         public List<HrtMateria> Materia = new();
         [JsonIgnore]
@@ -98,17 +96,18 @@ namespace HimbeertoniRaidTool.Data
         public Item? Item => ItemCache ??= _itemSheet.GetRow(ID);
         public string Name => Item?.Name.RawString ?? "";
         public bool IsGear => this is GearItem || (Item?.ClassJobCategory.Row ?? 0) != 0;
-        public bool IsExhangableItem => CuratedData.UsedToBuy.ContainsKey(ID);
-        public bool IsContainerItem => CuratedData.ItemContainerDB.ContainsKey(ID);
+        public ItemSource Source => Services.ItemInfo.GetSource(ID);
+        public bool IsExchangableItem => Services.ItemInfo.UsedAsShopCurrency(ID);
+        public bool IsContainerItem => Services.ItemInfo.IsItemContainer(ID);
         public IEnumerable<GearItem> PossiblePurchases
         {
             get
             {
-                if (IsExhangableItem)
-                    foreach (uint canBuy in CuratedData.UsedToBuy[ID])
+                if (IsExchangableItem)
+                    foreach (uint canBuy in Services.ItemInfo.GetPossiblePurchases(ID))
                         yield return new GearItem(canBuy);
                 if (IsContainerItem)
-                    foreach (uint id in CuratedData.ItemContainerDB[ID])
+                    foreach (uint id in Services.ItemInfo.GetContainerContents(ID))
                         yield return new GearItem(id);
             }
         }
@@ -154,9 +153,11 @@ namespace HimbeertoniRaidTool.Data
 
         public ItemIDList(params uint[] ids) : base(ids) { }
         public ItemIDList(ItemIDCollection col, params uint[] ids) : base(col.Concat(ids)) { }
+        public ItemIDList(IEnumerable<uint> ids) : base(ids) { }
     }
     public abstract class ItemIDCollection : IEnumerable<uint>
     {
+        public static ItemIDCollection Empty = new ItemIDList();
         private readonly ReadOnlyCollection<uint> _IDs;
         public int Count => _IDs.Count;
         protected ItemIDCollection(IEnumerable<uint> ids) => _IDs = new(ids.ToList());

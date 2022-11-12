@@ -20,9 +20,9 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.TableSetupColumn(Localize("Value", "Value"));
                 DrawRow(Localize("Name", "Name"), $"{item.Item.Name} {(item.IsHq ? "(HQ)" : "")}");
                 DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel.ToString());
-                if (CuratedData.ShopIndex.ContainsKey(item.ID))
+                if (Services.ItemInfo.UsedAsShopCurrency(item.ID))
                 {
-                    var shopEntry = CuratedData.GetShopEntry(item.ID);
+                    var shopEntry = Services.ItemInfo.GetShopEntryForItem(item.ID);
                     if (shopEntry != null)
                     {
                         string content = "";

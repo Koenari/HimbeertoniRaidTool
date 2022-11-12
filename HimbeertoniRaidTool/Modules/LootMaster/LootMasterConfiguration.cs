@@ -98,7 +98,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.Text($"{Localize("Examples", "Examples")}:");
                     for (int i = 0; i < 4; i++)
                     {
-                        (long curiLvL, string source, string slot) = (iLvL - 10 * i, ((GearSource)i).FriendlyName(), ((GearSetSlot)(i * 2)).FriendlyName());
+                        (long curiLvL, string source, string slot) = (iLvL - 10 * i, ((ItemSource)i).FriendlyName(), ((GearSetSlot)(i * 2)).FriendlyName());
                         if (_dataCopy.ColoredItemNames)
                             ImGui.TextColored(_dataCopy.ItemLevelColors[i], String.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
                         else
@@ -145,7 +145,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         string value = _dataCopy.GetDefaultBiS(c);
                         if (ImGui.InputText(c.ToString(), ref value, 100))
                         {
-                            if (value != CuratedData.DefaultBIS[c])
+                            if (value != ConfigData.DefaultBIS[c])
                             {
                                 if (isOverriden)
                                     _dataCopy.BISUserOverride[c] = value;
@@ -204,6 +204,32 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
         internal sealed class ConfigData
         {
+            /// <summary>
+            /// Holds a list of Etro IDs to use as BiS sets if users did not enter a preferred BiS
+            /// </summary>
+            [JsonIgnore]
+            internal static Dictionary<Job, string> DefaultBIS { get; } = new Dictionary<Job, string>
+            {
+                { Job.AST, "a2201358-04ad-4b07-81e4-003a514f0694" },
+                { Job.BLM, "bd1b7a52-5893-4928-9d7c-d47aea22d8d2" },
+                { Job.BRD, "2a242f9b-8a41-4d09-9e14-3c8fb08e97e4" },
+                { Job.DNC, "fb5976d5-a94c-4052-9092-3c3990fefa76" },
+                { Job.DRG, "de153cb0-05e7-4f23-a924-1fc28c7ae8db" },
+                { Job.DRK, "9467c373-ba77-4f20-aa76-06c8e6f926b8" },
+                { Job.GNB, "1cdcf24b-af97-4d6b-ab88-dcfee79f791c" },
+                { Job.MCH, "8a0bdf80-80f5-42e8-b10a-160b0fc2d151" },
+                { Job.MNK, "12aff29c-8420-4c28-a3c4-68d03ac5afa3" },
+                { Job.NIN, "c0c2ba50-b93a-4d18-8cba-a0ebb0705fed" },
+                { Job.PLD, "86b4625f-d8ef-4bb1-92b1-cef8bcce7390" },
+                { Job.RDM, "5f972eb8-c3cd-44da-aa73-0fa769957e5b" },
+                { Job.RPR, "c293f73b-5c58-4855-b43d-aae55b212611" },
+                { Job.SAM, "4356046d-2f05-432a-a98c-632f11098ade" },
+                { Job.SCH, "41c65b56-fa08-4c6a-b86b-627fd14d04ff" },
+                { Job.SGE, "80bec2f5-8e9e-43fb-adcf-0cd7f7018c02" },
+                { Job.SMN, "b3567b2d-5c92-4ba1-a18a-eb91b614e944" },
+                { Job.WAR, "f3f765a3-56a5-446e-b1e1-1c7cdd23f24b" },
+                { Job.WHM, "da9ef350-7568-4c98-8ecc-959040d9ba3a" },
+            };
             public int Version { get; set; } = 1;
             /*
              * Appearance
@@ -283,8 +309,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             [JsonProperty("RaidTierIndex")]
             public int? RaidTierOverride = null;
             [JsonIgnore]
-            public RaidTier SelectedRaidTier => CuratedData.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
-            public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : CuratedData.DefaultBIS.ContainsKey(c) ? CuratedData.DefaultBIS[c] : "";
+            public RaidTier SelectedRaidTier => Services.GameInfo.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
+            public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : DefaultBIS.ContainsKey(c) ? DefaultBIS[c] : "";
             private static string ParseItemFormatString(string input)
             {
                 List<string> result = new();

@@ -553,12 +553,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.SetNextItemWidth(ImGui.CalcTextSize(_lootMaster.Configuration.Data.SelectedRaidTier.Name).X + 32f * ScaleFactor);
             if (ImGui.BeginCombo("##Raid Tier", _lootMaster.Configuration.Data.SelectedRaidTier.Name))
             {
-                for (int i = 0; i < CuratedData.CurrentExpansion.SavageRaidTiers.Length; i++)
+                for (int i = 0; i < Services.GameInfo.CurrentExpansion.SavageRaidTiers.Length; i++)
                 {
-                    var tier = CuratedData.CurrentExpansion.SavageRaidTiers[i];
+                    var tier = Services.GameInfo.CurrentExpansion.SavageRaidTiers[i];
                     if (ImGui.Selectable(tier.Name))
                     {
-                        if (i == CuratedData.CurrentExpansion.SavageRaidTiers.Length - 1)
+                        if (i == Services.GameInfo.CurrentExpansion.SavageRaidTiers.Length - 1)
                             _lootMaster.Configuration.Data.RaidTierOverride = null;
                         else
                             _lootMaster.Configuration.Data.RaidTierOverride = i;
@@ -655,7 +655,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             SizeCondition = ImGuiCond.Appearing;
             Title = title;
             _inv = inv;
-            foreach (var boss in CuratedData.CurrentExpansion.CurrentSavage.Bosses)
+            foreach (var boss in Services.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
                 foreach (var item in boss.GuaranteedItems)
                 {
                     if (!_inv.Contains(item.ID))
@@ -672,7 +672,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             if (ImGuiHelper.SaveButton())
                 Hide();
-            foreach (var boss in CuratedData.CurrentExpansion.CurrentSavage.Bosses)
+            foreach (var boss in Services.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
                 foreach (var item in boss.GuaranteedItems)
                 {
                     var icon = Services.IconCache[item.Item!.Icon];

@@ -48,7 +48,7 @@ namespace HimbeertoniRaidTool.Data
             get
             {
                 foreach (uint id in BossIDs)
-                    yield return CuratedData.InstanceDB[id];
+                    yield return Services.GameInfo.GetInstance(id);
             }
         }
 

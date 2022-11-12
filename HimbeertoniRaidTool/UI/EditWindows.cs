@@ -135,7 +135,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.SetNextItemWidth(150f * ScaleFactor);
                 if (ImGui.InputInt($"{Localize("Level", "Level")}##{c.Job}", ref c.Level))
                 {
-                    c.Level = Math.Clamp(c.Level, 1, CuratedData.CurrentExpansion.MaxLevel);
+                    c.Level = Math.Clamp(c.Level, 1, Services.GameInfo.CurrentExpansion.MaxLevel);
                 }
 
                 ImGui.Separator();
