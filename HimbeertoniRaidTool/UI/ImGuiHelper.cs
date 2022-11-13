@@ -20,6 +20,8 @@ namespace HimbeertoniRaidTool.UI
         => Button(FontAwesomeIcon.Save, "Save", tooltip ?? Localize("Save", "Save"), enabled, size ?? new Vector2(50f, 25f));
         public static bool CancelButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
         => Button(FontAwesomeIcon.WindowClose, "Cancel", tooltip ?? Localize("Cancel", "Cancel"), enabled, size ?? new Vector2(50f, 25f));
+        public static bool CloseButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
+        => Button(FontAwesomeIcon.WindowClose, "Close", tooltip ?? Localize("Close", "Close"), enabled, size ?? new Vector2(50f, 25f));
         public static bool Button(string label, string? tooltip, bool enabled = true, Vector2 size = default)
         {
             ImGui.BeginDisabled(!enabled);

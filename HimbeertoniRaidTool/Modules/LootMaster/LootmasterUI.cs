@@ -374,10 +374,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         private void DrawPlayer(Player player, int pos)
         {
-            bool playerExists = player.Filled && player.MainChar.Filled;
-            if (playerExists)
+            if (player.Filled && player.MainChar.Filled)
             {
-
+                //Player Column
                 ImGui.TableNextColumn();
                 ImGui.Text($"{player.CurJob.GetRole().FriendlyName()}:   {player.NickName}");
                 ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? Localize("n.A.", "n.A.")}");
@@ -401,6 +400,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     {
                         ImGui.Text(curJob.ToString());
                     }
+                    //Gear Column
                     var gear = curJob.Gear;
                     var bis = curJob.BIS;
                     ImGui.TableNextColumn();
@@ -410,13 +410,17 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditGear", $"Edit {gear.Name}"))
                         AddChild(new EditGearSetWindow(gear, curJob.Job)); ;
                     //ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
-
+                    ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / 2f);
                     ImGui.Text($"{bis.ItemLevel}");
                     if (ImGui.IsItemClicked())
-                        Process.Start(new ProcessStartInfo
+                        Services.TaskManager.RegisterTask(a => { }, () =>
                         {
-                            FileName = EtroConnector.GearsetWebBaseUrl + bis.EtroID,
-                            UseShellExecute = true,
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = EtroConnector.GearsetWebBaseUrl + bis.EtroID,
+                                UseShellExecute = true,
+                            });
+                            return new HrtUiMessage();
                         });
                     ImGuiHelper.AddTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
                     ImGui.SameLine();
@@ -645,13 +649,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 Hide();
         }
     }
-    internal class InventoryWindow : HrtWindow
+    internal class InventoryWindow : HRTWindowWithModalChild
     {
         private readonly Inventory _inv;
 
         internal InventoryWindow(Inventory inv, string title)
         {
-            Size = new(400f, 300f);
+            Size = new(400f, 550f);
             SizeCondition = ImGuiCond.Appearing;
             Title = title;
             _inv = inv;
@@ -670,7 +674,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         public override void Draw()
         {
-            if (ImGuiHelper.SaveButton())
+            if (ImGuiHelper.CloseButton())
                 Hide();
             foreach (var boss in Services.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
                 foreach (var item in boss.GuaranteedItems)
@@ -685,7 +689,35 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.InputInt($"##{item.Name}", ref entry.quantity);
                     _inv[_inv.IndexOf(item.ID)] = entry;
                 }
-
+            ImGui.Separator();
+            ImGui.Text(Localize("Inventory:AdditionalGear", "Additional Gear"));
+            Vector2 iconSize = new Vector2(37, 37) * ScaleFactor;
+            foreach ((int idx, InventoryEntry entry) in _inv.Where(e => e.Value.IsGear))
+            {
+                ImGui.PushID(idx);
+                if (entry.Item is not GearItem item || item.Item is null)
+                    continue;
+                var icon = Services.IconCache[item.Item.Icon];
+                if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "Delete", null, true, iconSize))
+                    _inv.Remove(idx);
+                ImGui.SameLine();
+                ImGui.BeginGroup();
+                ImGui.Image(icon.ImGuiHandle, iconSize);
+                ImGui.SameLine();
+                ImGui.Text(item.Name);
+                ImGui.EndGroup();
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    item.Draw();
+                    ImGui.EndTooltip();
+                }
+                ImGui.PopID();
+            }
+            ImGui.BeginDisabled(ChildIsOpen);
+            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"Add", null, true, iconSize))
+                ModalChild = new SelectGearItemWindow(i => _inv.Add(_inv.FirstFreeSlot(), i), i => { }, null, null, null, Services.GameInfo.CurrentExpansion.CurrentSavage.ArmorItemLevel);
+            ImGui.EndDisabled();
         }
     }
     internal class SwapPositionWindow : HrtWindow
