@@ -6,6 +6,40 @@ using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
+    public abstract class HRTWindowWithModalChild : HrtWindow
+    {
+        private HrtWindow? _modalChild;
+        protected HrtWindow? ModalChild
+        {
+            get => _modalChild;
+            set
+            {
+                _modalChild = value;
+                _modalChild?.Show();
+            }
+        }
+        protected bool ChildIsOpen => _modalChild != null && _modalChild.IsOpen;
+        public override void Update()
+        {
+            if (ModalChild != null && !ModalChild.IsOpen)
+            {
+                ModalChild = null;
+            }
+        }
+        public override void PostDraw()
+        {
+            if (ModalChild == null)
+                return;
+            bool Open = ModalChild.IsOpen;
+            if (ImGui.Begin(ModalChild.WindowName, ref Open, ModalChild.Flags))
+            {
+                ModalChild.Draw();
+                ImGui.End();
+            }
+            if (!Open)
+                ModalChild.IsOpen = Open;
+        }
+    }
     public abstract class HrtWindow : Window, IDisposable, IEquatable<HrtWindow>
     {
         private bool _disposed = false;

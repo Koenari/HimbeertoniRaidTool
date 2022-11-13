@@ -286,22 +286,12 @@ namespace HimbeertoniRaidTool.UI
             }
         }
     }
-    internal class EditGearSetWindow : HrtWindow
+    internal class EditGearSetWindow : HRTWindowWithModalChild
     {
         private readonly GearSet _gearSet;
         private readonly GearSet _gearSetCopy;
         private readonly Job _job;
         private readonly RaidTier? _currentRaidTier;
-        private HrtWindow? _modalChild;
-        private HrtWindow? ModalChild
-        {
-            get => _modalChild;
-            set
-            {
-                _modalChild = value;
-                _modalChild?.Show();
-            }
-        }
         private bool CanHaveShield => _job is Job.PLD or Job.THM or Job.GLA;
 
         internal EditGearSetWindow(GearSet original, Job job, RaidTier? raidTier = null) : base()
@@ -345,7 +335,7 @@ namespace HimbeertoniRaidTool.UI
         }
         private void DrawSlot(GearSetSlot slot)
         {
-            ImGui.BeginDisabled(ModalChild != null);
+            ImGui.BeginDisabled(ChildIsOpen);
             ImGui.TableNextColumn();
             if (!_gearSetCopy[slot].Filled)
             {
@@ -395,26 +385,6 @@ namespace HimbeertoniRaidTool.UI
                     }
             }
             ImGui.EndDisabled();
-        }
-        public override void PreDraw()
-        {
-            if (ModalChild != null && !ModalChild.IsOpen)
-            {
-                ModalChild = null;
-            }
-        }
-        public override void PostDraw()
-        {
-            if (ModalChild == null)
-                return;
-            bool Open = ModalChild.IsOpen;
-            if (ImGui.Begin(ModalChild.WindowName, ref Open, ModalChild.Flags))
-            {
-                ModalChild.Draw();
-                ImGui.End();
-            }
-            if (!Open)
-                ModalChild.IsOpen = Open;
         }
         private void Save()
         {
@@ -490,7 +460,8 @@ namespace HimbeertoniRaidTool.UI
             }
             _lockJob = job.HasValue;
             Job = job;
-            Title = $"{Localize("Get item for", "Get item for")} {Slots.Aggregate("", (string res, GearSetSlot slot) => res += "," + slot.FriendlyName())[1..]}";
+            Title = $"{Localize("Get item for", "Get item for")}" +
+                $" {string.Join(',', Slots.Select((e, _) => e.FriendlyName()))}";
             maxILvl = maxItemLevel;
             minILvl = maxILvl > 30 ? maxILvl - 30 : 0;
             _items = reevaluateItems();
@@ -561,11 +532,13 @@ namespace HimbeertoniRaidTool.UI
         }
         private List<Item> reevaluateItems()
         {
-            _items = Sheet.Where(x => Slots.Any(slot => x.EquipSlotCategory.Value.Contains(slot))
+            _items = Sheet.Where(x =>
+                (x.ClassJobCategory.Row != 0)
+                && (!Slots.Any() || Slots.Any(slot => slot == GearSetSlot.None || x.EquipSlotCategory.Value.Contains(slot)))
                 && (maxILvl == 0 || x.LevelItem.Row <= maxILvl)
                 && x.LevelItem.Row >= minILvl
-                && (Job == 0 || x.ClassJobCategory.Value.Contains(Job))
-                ).ToList();
+                && (Job.GetValueOrDefault(0) == 0 || x.ClassJobCategory.Value.Contains(Job))
+                ).Take(50).ToList();
             _items.Sort((x, y) => (int)y.LevelItem.Row - (int)x.LevelItem.Row);
             return _items;
         }
