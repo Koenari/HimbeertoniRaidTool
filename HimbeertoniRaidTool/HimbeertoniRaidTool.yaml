@@ -14,5 +14,10 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-    fix: loot results window sizing hid parts of text
+        + Added the ability to manually track items in inventory
+        * Fixed tribe of chartacter not being saved
+        * beautify Ui
+        + show if item can be bought / exchanged
+        * Fixed a bug with BiS detection
+        + You can evaluate loot for all jobs in Solo groups
 
