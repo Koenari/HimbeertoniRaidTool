@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using HimbeertoniRaidTool.Data;
 using Lumina.Excel.Extensions;
+using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
 {
@@ -80,6 +81,25 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             results.Eval();
             return results;
         }
+        public enum State
+        {
+            STARTED,
+            LOOT_CHOSEN,
+            DISTRIBUTION_STARTED,
+            FINISHED,
+        }
+    }
+    public static class LootSessionExtensions
+    {
+        public static string FriendlyName(this LootSession.State state) => state switch
+        {
+            LootSession.State.STARTED => Localize("LootSession:State:STARTED", "Waiting for Loot"),
+            LootSession.State.LOOT_CHOSEN => Localize("LootSession:State:LOOT_CHOSEN", "Loot chosen"),
+            LootSession.State.DISTRIBUTION_STARTED => Localize("LootSession:State:DISTRIBUTION_STARTED", "Dsitribution started"),
+            LootSession.State.FINISHED => Localize("LootSession:State:FINISHED", "Finished"),
+            _ => Localize("undefinded", "undefinded")
+        };
+
     }
     public enum LootCategory
     {

@@ -136,7 +136,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
                             int place = 1;
                             LootRule lastRule = LootRuling.Default;
-                            for (int i = 0; i < results.Count; i++)//foreach (LootResult singleResult in results)
+                            for (int i = 0; i < results.Count; i++)
                             {
                                 bool isLast = i == results.Count - 1;
                                 var singleResult = results[i];
