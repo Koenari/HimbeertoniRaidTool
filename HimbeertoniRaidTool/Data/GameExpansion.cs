@@ -37,29 +37,20 @@ namespace HimbeertoniRaidTool.Data
     }
     public class RaidTier
     {
-        public readonly GameExpansion GameExpansion;
         public readonly EncounterDifficulty Difficulty;
         public readonly uint WeaponItemLevel;
         public readonly uint ArmorItemLevel;
         public readonly string Name;
-        private readonly uint[] BossIDs;
-        public IEnumerable<InstanceWithLoot> Bosses
-        {
-            get
-            {
-                foreach (uint id in BossIDs)
-                    yield return Services.GameInfo.GetInstance(id);
-            }
-        }
+        private readonly List<uint> BossIDs;
+        public List<InstanceWithLoot> Bosses => BossIDs.ConvertAll(id => Services.GameInfo.GetInstance(id));
 
-        public RaidTier(GameExpansion exp, EncounterDifficulty difficulty, uint weaponItemLevel, uint armorItemLevel, string name, uint[] bossIDS)
+        public RaidTier(EncounterDifficulty difficulty, uint weaponItemLevel, uint armorItemLevel, string name, IEnumerable<uint> bossIDS)
         {
-            GameExpansion = exp;
             Difficulty = difficulty;
             WeaponItemLevel = weaponItemLevel;
             ArmorItemLevel = armorItemLevel;
             Name = name;
-            BossIDs = bossIDS;
+            BossIDs = new(bossIDS);
         }
 
         public uint ItemLevel(GearSetSlot slot) => slot == GearSetSlot.MainHand ? WeaponItemLevel : ArmorItemLevel;

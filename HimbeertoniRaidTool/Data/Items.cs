@@ -96,7 +96,16 @@ namespace HimbeertoniRaidTool.Data
         public Item? Item => ItemCache ??= _itemSheet.GetRow(ID);
         public string Name => Item?.Name.RawString ?? "";
         public bool IsGear => this is GearItem || (Item?.ClassJobCategory.Row ?? 0) != 0;
-        public ItemSource Source => Services.ItemInfo.GetSource(ID);
+        public ItemSource Source => Services.ItemInfo.GetSource(this);
+        public string SourceShortName
+        {
+            get
+            {
+                if (Source == ItemSource.Loot && Services.ItemInfo.CanBeLooted(ID))
+                    return Services.ItemInfo.GetLootSources(ID).First().InstanceType.FriendlyName();
+                return Source.FriendlyName();
+            }
+        }
         public bool IsExchangableItem => Services.ItemInfo.UsedAsShopCurrency(ID);
         public bool IsContainerItem => Services.ItemInfo.IsItemContainer(ID);
         public IEnumerable<GearItem> PossiblePurchases

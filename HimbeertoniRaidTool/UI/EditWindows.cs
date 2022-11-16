@@ -359,8 +359,8 @@ namespace HimbeertoniRaidTool.UI
                 }
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}changeitem", Localize("Select item", "Select item")))
-                    ModalChild = (new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], slot, _job,
-                        slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? _currentRaidTier?.WeaponItemLevel ?? 0 : _currentRaidTier?.ArmorItemLevel ?? 0));
+                    ModalChild = new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], slot, _job,
+                        _currentRaidTier?.ItemLevel(slot) ?? 0);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, $"delete{slot}", Localize("Delete", "Delete")))
                     _gearSetCopy[slot] = new();
@@ -378,7 +378,7 @@ namespace HimbeertoniRaidTool.UI
                 if (_gearSetCopy[slot].Materia.Count < (_gearSetCopy[slot].Item?.IsAdvancedMeldingPermitted ?? false ? 5 : _gearSetCopy[slot].Item?.MateriaSlotCount))
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}addmat", Localize("Select materia", "Select materia")))
                     {
-                        byte maxMatLevel = _currentRaidTier?.GameExpansion.MaxMateriaLevel ?? 0;
+                        byte maxMatLevel = Services.GameInfo.CurrentExpansion.MaxMateriaLevel;
                         if (_gearSetCopy[slot].Materia.Count > _gearSetCopy[slot].Item?.MateriaSlotCount)
                             maxMatLevel--;
                         ModalChild = (new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }, maxMatLevel));

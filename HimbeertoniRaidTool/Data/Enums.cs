@@ -5,15 +5,20 @@ namespace HimbeertoniRaidTool.Data
 {
     public enum ItemSource
     {
-        Raid,
-        Dungeon,
-        Trial,
-        Tome,
-        Crafted,
-        undefined,
-        AllianceRaid,
-        Quest,
-        Relic
+
+        undefined = 0,
+
+        Raid = 1,
+        Dungeon = 2,
+        Trial = 3,
+        AllianceRaid = 101,
+
+        Tome = 10,
+        Crafted = 20,
+        Quest = 30,
+        Relic = 40,
+        Shop = 50,
+        Loot = 60,
     }
     public enum GearSetSlot : short
     {
@@ -48,6 +53,7 @@ namespace HimbeertoniRaidTool.Data
     }
     public enum EncounterDifficulty
     {
+        None = 0,
         Normal,
         Hard,
         Extreme,
@@ -97,12 +103,14 @@ namespace HimbeertoniRaidTool.Data
         Ranged = 3,
         Caster = 5,
     }
-    public enum ContentType
+    public enum InstanceType
     {
-        Raid,
-        AllianceRaid,
-        Trial,
-        Dungeon
+        Unknown = 0,
+        Raid = 1,
+        Trial = 4,
+        Dungeon = 2,
+        SoloInstance = 7,
+
     }
     public enum GroupType
     {
@@ -339,6 +347,16 @@ namespace HimbeertoniRaidTool.Data
             ItemSource.AllianceRaid => Localize("Alliance", "Alliance"),
             ItemSource.Quest => Localize("Quest", "Quest"),
             ItemSource.Relic => Localize("Relic", "Relic"),
+            ItemSource.Shop => Localize("Shop", "Shop"),
+            ItemSource.Loot => Localize("ItemSource:Loot", "Looted"),
+            _ => Localize("undefined", "undefined"),
+        };
+        public static string FriendlyName(this InstanceType source) => source switch
+        {
+            InstanceType.Raid => Localize("Raid", "Raid"),
+            InstanceType.Trial => Localize("Trial", "Trial"),
+            InstanceType.Dungeon => Localize("Dungeon", "Dungeon"),
+            InstanceType.SoloInstance => Localize("Solo", "Solo"),
             _ => Localize("undefined", "undefined"),
         };
         public static string FriendlyName(this Role role) => role switch
@@ -368,6 +386,13 @@ namespace HimbeertoniRaidTool.Data
             MateriaCategory.SkillSpeed => StatType.SkillSpeed,
             MateriaCategory.SpellSpeed => StatType.SpellSpeed,
             _ => StatType.None,
+        };
+        public static ItemSource ToItemSource(this InstanceType contentType) => contentType switch
+        {
+            InstanceType.Raid => ItemSource.Raid,
+            InstanceType.Trial => ItemSource.Trial,
+            InstanceType.Dungeon => ItemSource.Dungeon,
+            _ => ItemSource.undefined,
         };
     }
 }

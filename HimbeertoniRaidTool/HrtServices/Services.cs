@@ -48,8 +48,9 @@ namespace HimbeertoniRaidTool
             ConnectorPool ??= new(Framework);
             CharacterInfoService ??= new(ObjectTable, Framework);
             _curatedData = new CuratedData();
-            ItemInfo = new ItemInfo(DataManager, _curatedData);
             GameInfo = new GameInfo(_curatedData);
+            ItemInfo = new ItemInfo(DataManager, _curatedData, GameInfo);
+
             return HrtDataManager.Initialized;
         }
         internal static void Dispose()

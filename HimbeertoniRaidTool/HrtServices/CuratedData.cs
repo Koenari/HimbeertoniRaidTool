@@ -22,12 +22,12 @@ namespace HimbeertoniRaidTool.HrtServices
         internal CuratedData()
         {
             CurrentExpansion = new(6, 10, 90, 2);
-            CurrentExpansion.SavageRaidTiers[0] = new(CurrentExpansion, EncounterDifficulty.Savage, 605, 600,
+            CurrentExpansion.SavageRaidTiers[0] = new(EncounterDifficulty.Savage, 605, 600,
                 "Asphodelos " + Localize("Savage", "Savage"), new uint[] { 30112, 30114, 30110, 30108 });
-            CurrentExpansion.SavageRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Savage, 635, 630,
+            CurrentExpansion.SavageRaidTiers[1] = new(EncounterDifficulty.Savage, 635, 630,
                 "Abyssos " + Localize("Savage", "Savage"), new uint[] { 30117, 30121, 30119, 30123 });
-            CurrentExpansion.NormalRaidTiers[0] = new(CurrentExpansion, EncounterDifficulty.Normal, 590, 580, "Asphodelos", System.Array.Empty<uint>());
-            CurrentExpansion.NormalRaidTiers[1] = new(CurrentExpansion, EncounterDifficulty.Normal, 620, 610, "Abyssos", System.Array.Empty<uint>());
+            CurrentExpansion.NormalRaidTiers[0] = new(EncounterDifficulty.Normal, 590, 580, "Asphodelos", System.Array.Empty<uint>());
+            CurrentExpansion.NormalRaidTiers[1] = new(EncounterDifficulty.Normal, 620, 610, "Abyssos", System.Array.Empty<uint>());
         }
         internal readonly GameExpansion CurrentExpansion;
 
@@ -56,64 +56,48 @@ namespace HimbeertoniRaidTool.HrtServices
             { 38398, new ItemIDRange(38146, 38150) },//Abyssos bracelet coffer
             { 38399, new ItemIDRange(38151, 38155) },//Abyssos ring coffers
         };
-        internal readonly Dictionary<uint, ItemSource> ItemSourceDB = new Dictionary<ItemIDCollection, ItemSource>()
+        //I only record Gear and items used to get gear
+        internal readonly HashSet<InstanceWithLoot> InstanceDB = new()
         {
-            { new ItemIDRange(34810,34829), ItemSource.Dungeon }, //Etheirys  (The Aitiascope)
-            { new ItemIDRange(34830,34849), ItemSource.Dungeon }, //The last (Dead Ends)
-            { new ItemIDRange(34850,34924), ItemSource.Tome }, //Moonward Tomestone
-            { new ItemIDRange(34925,34944), ItemSource.Trial }, //Divine Light
-            { new ItemIDRange(34945,34964), ItemSource.Trial }, //Eternal Dark
-            { new ItemIDRange(34965,35019), ItemSource.Raid }, //Asphodelos
-            { new ItemIDRange(35020,35094), ItemSource.Crafted }, //Classical
-            { new ItemIDRange(35095,35169), ItemSource.Tome }, //Radiant Tomestone
-            { new ItemIDRange(35170,35244), ItemSource.Tome }, //Aug Radiant Tomestone
-            { new ItemIDRange(35245,35319), ItemSource.Raid }, //Asphodelos Savage
-            { new ItemIDRange(35320,35340), ItemSource.undefined }, //High Durium
-            { new ItemIDRange(35341,35361), ItemSource.undefined }, //Bismuth
-            { new ItemIDRange(35362,35382), ItemSource.undefined }, //Mangaganese
-            { new ItemIDRange(35383,35403), ItemSource.undefined }, //Chondrite
-            //missing items
-            { new ItemIDRange(36718,36792), ItemSource.Crafted }, //Augm Classical
-            //missing items
-            { new ItemIDRange(36923,36942), ItemSource.Trial }, //Bluefeather
-            //missing items
-            { new ItemIDRange(37131,37165), ItemSource.AllianceRaid }, //Panthean
-            { new ItemIDRange(37166,37227), ItemSource.Dungeon }, //Darbar (alzadaals Legacy)
-            //missing items
-            { new ItemIDRange(37742,37816), ItemSource.Crafted }, //Rinascita
-            //missing items
-            { new ItemIDRange(37856,37875), ItemSource.Trial }, //Windswept
-            { new ItemIDRange(37876,37930), ItemSource.Raid }, //Abyssos
-            { new ItemIDRange(37931,38005), ItemSource.Tome }, //Lunar Envoy Tomestone
-            { new ItemIDRange(38006,38080), ItemSource.Tome }, //Aug Lunar Envoy Tomestone
-            { new ItemIDRange(38081,38155), ItemSource.Raid }, //Abyssos savage
-            { new ItemIDRange(38156,38210), ItemSource.Dungeon }, //Troian
-            //missing items
-            { new ItemIDRange(38400,38419), ItemSource.Relic }, //Manderville
-
-        }.ExplodeIDCollection();
-        internal readonly Dictionary<uint, InstanceWithLoot> InstanceDB = new()
-        {
-            { 30108, new(30108, ContentType.Raid, "Hesperos (P4S)", 35826, new ItemIDList((35245, 35264),35734,35736)) },
-            { 30110, new(30110, ContentType.Raid, "Phoinix (P3S)", 35825, new ItemIDList(35735,35737,35738,35739,35828,35829)) },
-            { 30112, new(30112, ContentType.Raid, "Erichthonios (P1S)", 35823,new ItemIDRange(35740,35743)) },
-            { 30114, new(30114, ContentType.Raid, "Hippokampos (P2S)", 35824, new ItemIDList(35735,35737,35739,35830,35831)) },
+            //6.0
+            new(78   , "The Tower of Zot",EncounterDifficulty.Normal,(34155,34229)),
+            new(79   , "The Stigma Dreamscape",EncounterDifficulty.Normal,(34830,34849)),
+            new(80   , "The Tower of Babil",EncounterDifficulty.Normal,(34305,34379)),
+            new(81   , "The Aitiascope",EncounterDifficulty.Normal,(34810,34829)),
+            new(82   , "Ktisis Hyperboreia",EncounterDifficulty.Normal,(34605,34679)),
+            new(83   , "Vanaspati",EncounterDifficulty.Normal,(34455,34529)),
+            new(84   , "The Dead Ends",EncounterDifficulty.Normal,(34830,34849)),
+            new(85   , "Smileton", EncounterDifficulty.Normal,(34830,34849)),
+            new(20077, "The Mothercrystal", EncounterDifficulty.Normal, 36283),
+            new(20078, "The Minstrel's Ballad: Hydaelyn's Call", EncounterDifficulty.Extreme, (34925,34944)),
+            new(20079, "The Final Day", EncounterDifficulty.Normal, 36275),
+            new(20080, "The Dark Inside", EncounterDifficulty.Normal, 36282),
+            new(20081, "The Minstrel's Ballad: Zodiark's Fall", EncounterDifficulty.Extreme, (34945,34964)),
+            new(30107, "Hesperos (P4)", EncounterDifficulty.Normal, (35817, 35822)),
+            new(30108, "Hesperos (P4S)", EncounterDifficulty.Savage, new ItemIDList((35245, 35264),35734,35736),35826),
+            new(30109, "Phoinix (P3)", EncounterDifficulty.Normal, (35817, 35822)),
+            new(30110, "Phoinix (P3S)", EncounterDifficulty.Savage, new ItemIDList(35735, 35737, 35738, 35739, 35828, 35829), 35825),
+            new(30111, "Erichthonios (P1)", EncounterDifficulty.Normal, (35817, 35822)),
+            new(30112, "Erichthonios (P1S)", EncounterDifficulty.Savage, new ItemIDRange(35740, 35743), 35823),
+            new(30113, "Hippokampos (P2)", EncounterDifficulty.Normal, (35817, 35822)),
+            new(30114, "Hippokampos (P2S)", EncounterDifficulty.Savage, new ItemIDList(35735, 35737, 35739, 35830, 35831), 35824),
+            //6.1
+            new(87   , "Alzadaal's Legacy", EncounterDifficulty.Normal,(37166, 37227)),
+            new(20083, "The Minstrel's Ballad: Endsinger's Aria", EncounterDifficulty.Extreme, (36923,36942), 36809),
+            new(30106, "Dragonsong Reprise (Ultimate)", EncounterDifficulty.Ultimate, 36810),
+            new(30115, "Aglaia", EncounterDifficulty.Normal,(37131,37165),36820),
             //6.2
-            { 30117, new(30117, ContentType.Raid, "Proto-Carbuncle (P5S)", 38381,new ItemIDRange(38396,38399)) },
-            { 30119, new(30119, ContentType.Raid, "Agdistis (P7S)", 38383, new ItemIDList(38391,38393,38395,38386,38387)) },
-            { 30121, new(30121, ContentType.Raid, "Hegemone (P6S)", 38382, new ItemIDList(38391,38393,38395,38388,38389)) },
-            { 30123, new(30123, ContentType.Raid, "Hephaistos (P8S)", 38384,new ItemIDList((38081, 38099),38390,38392)) },
+            new(88   , "The Fell Court of Troia", EncounterDifficulty.Normal, (38156, 38210)),
+            new(20084, "Storm's Crown", EncounterDifficulty.Normal, 38437),
+            new(20085, "Storm's Crown (Extreme)",EncounterDifficulty.Extreme,(37856,37875),38374),
+            new(30116, "Proto-Carbuncle  (P5)", EncounterDifficulty.Normal, (38375, 38380)),
+            new(30117, "Proto-Carbuncle (P5S)", EncounterDifficulty.Savage, new ItemIDRange(38396, 38399), 38381),
+            new(30118, "Agdistis (P7)", EncounterDifficulty.Normal, (38375, 38380)),
+            new(30119, "Agdistis (P7S)", EncounterDifficulty.Savage, new ItemIDList(38391, 38393, 38395, 38386, 38387), 38383),
+            new(30120, "Hegemone (P6)", EncounterDifficulty.Normal, (38375, 38380)),
+            new(30121, "Hegemone (P6S)", EncounterDifficulty.Savage, new ItemIDList(38391, 38393, 38395, 38388, 38389), 38382),
+            new(30122, "Hephaistos (P8)", EncounterDifficulty.Normal, (38375, 38380),38385),
+            new(30123, "Hephaistos (P8S)", EncounterDifficulty.Savage, new ItemIDList((38081, 38099), 38390, 38392), 38384),
         };
-    }
-    public static class CuratedDataExtension
-    {
-        public static Dictionary<uint, T> ExplodeIDCollection<T>(this Dictionary<ItemIDCollection, T> source)
-        {
-            Dictionary<uint, T> result = new();
-            foreach ((var ids, var val) in source)
-                foreach (uint id in ids)
-                    result.Add(id, val);
-            return result;
-        }
     }
 }
