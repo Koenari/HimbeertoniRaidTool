@@ -107,7 +107,7 @@ namespace HimbeertoniRaidTool.HrtServices
                      || (GetShopEntryForItem(itemID)?.ItemCostEntries.Where(e => e.Item.Row != 0)
                             .Any(e => GetSource(new(e.Item.Row), maxDepth) == ItemSource.Tome)).GetValueOrDefault())
                     return ItemSource.Tome;
-                if ((GetShopEntryForItem(itemID)?.ItemCostEntries.Any(e => GetSource(new(e.Item.Row)) == ItemSource.Raid)).GetValueOrDefault())
+                if ((GetShopEntryForItem(itemID)?.ItemCostEntries.Any(e => GetSource(new(e.Item.Row),maxDepth) == ItemSource.Raid)).GetValueOrDefault())
                     return ItemSource.Raid;
                 return ItemSource.Shop;
             }
