@@ -13,8 +13,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private readonly LootResultWindow _resultWindow;
         internal LootSessionUI(IHrtModule module, InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
         {
-            _session = new(group, lootRuling, group.RolePriority ?? defaultRolePriority,lootSource);
-            _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
+            _session = new(group, lootRuling, defaultRolePriority,lootSource);
+            _ruleListUi = new(LootRuling.PossibleRules, lootRuling.RuleSet);
             _resultWindow = new LootResultWindow(_session);
             module.WindowSystem.AddWindow(_resultWindow);
             Size = new Vector2(550, 370);
@@ -46,15 +46,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 _session.NumLootItems > 0))
                 StartLootDistribution();
             ImGui.SameLine();
-            if (ImGuiHelper.Button(Localize("Close", "Close"), null))
+            if (ImGuiHelper.CloseButton())
                 Hide();
-            if (_session.Group.Type == GroupType.Solo)
-                ImGui.TextColored(new Vector4(.9f, 0f, 0f, 1f), Localize("DistributeForSolo", "You have selected a group with only one player!"));
-            else if (_session.NumLootItems == 0)
+            if (_session.NumLootItems == 0)
                 ImGui.TextColored(new Vector4(.9f, 0f, 0f, 1f), Localize("NoLootSelected", "You have not selected any loot!"));
+            else if (_session.Group.Type == GroupType.Solo)
+                ImGui.TextColored(new Vector4(.9f, .9f, 0f, 1f), Localize("DistributeForSolo", "You have selected a group with only one player!"));
             else
                 ImGui.NewLine();
-            //
+            //Begin Loot selection section
             if (ImGui.BeginChild("Loot", new Vector2(250 * ScaleFactor, 300 * ScaleFactor), false))
             {
                 foreach ((HrtItem item, int count) in _session.Loot)
@@ -71,7 +71,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.EndChild();
             }
             ImGui.SameLine();
-
+            //Begin rule section
             if (ImGui.BeginChild("Rules", new Vector2(270 * ScaleFactor, 270 * ScaleFactor), false))
             {
                 ImGui.TextWrapped($"{Localize("Role priority", "Role priority")}:\n{_session.RolePriority}");
