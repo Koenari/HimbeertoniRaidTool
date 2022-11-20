@@ -8,36 +8,24 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal class LootSessionUI : HrtWindow
     {
-        private readonly Dalamud.Interface.Windowing.WindowSystem _windowSystem;
-        private readonly InstanceWithLoot _lootSource;
         private readonly LootSession _session;
-        private UiSortableList<LootRule> _ruleListUi;
-        private readonly LootRuling _lootRuling;
-        private HrtWindow? _resultWindow;
-        internal LootSessionUI(LootMasterModule lootMaster, InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
+        private readonly UiSortableList<LootRule> _ruleListUi;
+        private readonly LootResultWindow _resultWindow;
+        internal LootSessionUI(IHrtModule module, InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
         {
-            _windowSystem = lootMaster.WindowSystem;
-            _lootRuling = lootRuling;
-            _lootSource = lootSource;
-            _session = new(group, _lootRuling, group.RolePriority ?? defaultRolePriority,
-                _lootSource.PossibleItems);
+            _session = new(group, lootRuling, group.RolePriority ?? defaultRolePriority,lootSource);
             _ruleListUi = new(LootRuling.PossibleRules, _session.RulingOptions.RuleSet);
+            _resultWindow = new LootResultWindow(_session);
+            module.WindowSystem.AddWindow(_resultWindow);
             Size = new Vector2(550, 370);
-            Title = $"{Localize("Loot session for", "Loot session for")} {_lootSource.Name}";
+            Title = $"{Localize("Loot session for", "Loot session for")} {lootSource.Name}";
             Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar;
             OpenCentered = true;
         }
         private void StartLootDistribution()
         {
-            _session.RulingOptions.RuleSet = _ruleListUi.List;
             _session.EvaluateAll(true);
-            if (_resultWindow == null)
-            {
-                _resultWindow = new LootResultWindow(_session);
-                _windowSystem.AddWindow(_resultWindow);
-            }
             _resultWindow.Show();
-
         }
         public override void Draw()
         {
@@ -87,14 +75,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (ImGui.BeginChild("Rules", new Vector2(270 * ScaleFactor, 270 * ScaleFactor), false))
             {
                 ImGui.TextWrapped($"{Localize("Role priority", "Role priority")}:\n{_session.RolePriority}");
-                _ruleListUi.Draw();
-                if (ImGuiHelper.Button(Localize("Reset to default", "Reset to default"),
-                    Localize("OverrideWithDefaults", "Overrides these settings with defaults from configuration")))
-                {
-                    _ruleListUi = new(LootRuling.PossibleRules, _lootRuling.RuleSet);
-                }
+                if (_ruleListUi.Draw())
+                    _session.RulingOptions.RuleSet = _ruleListUi.List;
                 ImGui.NewLine();
-
                 ImGui.TextWrapped(Localize("ChangesOnlyForThisLootSesseion",
                     "Changes made here only affect this loot session"));
                 ImGui.EndChild();
@@ -103,7 +86,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private class LootResultWindow : HrtWindow
         {
             private readonly LootSession _session;
-            public LootResultWindow(LootSession session) : base()
+            public LootResultWindow(LootSession session) : base(false)
             {
                 _session = session;
                 MinSize = new Vector2(500, 250);

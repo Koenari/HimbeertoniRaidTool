@@ -11,7 +11,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     public class LootSession
     {
-        public LootRuling RulingOptions { get; private set; }
+        public readonly InstanceWithLoot Instance;
+        public LootRuling RulingOptions { get; set; }
         internal readonly Dictionary<HrtItem, int> Loot;
         private RaidGroup _group;
         internal RaidGroup Group
@@ -27,11 +28,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public List<Player> Excluded = new();
         public readonly RolePriority RolePriority;
         internal int NumLootItems => Loot.Values.Aggregate(0, (sum, x) => sum + x);
-        public LootSession(RaidGroup group, LootRuling rulingOptions, RolePriority rolePriority, IEnumerable<HrtItem> possibleItems)
+        public LootSession(RaidGroup group, LootRuling rulingOptions, RolePriority rolePriority, InstanceWithLoot instance)
         {
+            Instance= instance;
             RulingOptions = rulingOptions.Clone();
             Loot = new();
-            foreach (var item in possibleItems)
+            foreach (var item in Instance.PossibleItems)
                 Loot[item] = 0;
             _group = Group = group;
             RolePriority = rolePriority;
