@@ -18,8 +18,11 @@ namespace HimbeertoniRaidTool.UI
             {
                 ImGui.TableSetupColumn(Localize("ItemTableHeader", "Header"));
                 ImGui.TableSetupColumn(Localize("Value", "Value"));
+                //General Data
                 DrawRow(Localize("Name", "Name"), $"{item.Item.Name} {(item.IsHq ? "(HQ)" : "")}");
-                DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel.ToString());
+                DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel);
+                DrawRow(Localize("itemSource", "Source"), item.Source);
+                //Shop Data
                 if (Services.ItemInfo.CanBePurchased(item.ID))
                 {
                     var shopEntry = Services.ItemInfo.GetShopEntryForItem(item.ID);
@@ -37,23 +40,33 @@ namespace HimbeertoniRaidTool.UI
 
 
                 }
-
-                DrawRow(Localize("itemSource", "Source"), item.Source.ToString());
+                //Loot Data
+                if (Services.ItemInfo.CanBeLooted(item.ID))
+                {
+                    string content = "";
+                    foreach (InstanceWithLoot instance in Services.ItemInfo.GetLootSources(item.ID))
+                    {
+                        content += $"{instance.Name}\n";
+                    }
+                    DrawRow(Localize("item:looted:sources", "Looted in"), content);
+                }
+                //Stats
                 if (isWeapon)
                 {
                     if (item.Item.DamageMag >= item.Item.DamagePhys)
-                        DrawRow(Localize("MagicDamage", "Magic Damage"), item.Item.DamageMag.ToString());
+                        DrawRow(Localize("MagicDamage", "Magic Damage"), item.Item.DamageMag);
                     else
-                        DrawRow(Localize("PhysicalDamage", "Physical Damage"), item.Item.DamagePhys.ToString());
+                        DrawRow(Localize("PhysicalDamage", "Physical Damage"), item.Item.DamagePhys);
                 }
                 else
                 {
-                    DrawRow(Localize("PhysicalDefense", "Defense"), item.Item.DefensePhys.ToString());
-                    DrawRow(Localize("MagicalDefense", "Magical Defense"), item.Item.DefenseMag.ToString());
+                    DrawRow(Localize("PhysicalDefense", "Defense"), item.Item.DefensePhys);
+                    DrawRow(Localize("MagicalDefense", "Magical Defense"), item.Item.DefenseMag);
                 }
                 foreach (var stat in item.Item.UnkData59)
                     if ((StatType)stat.BaseParam != StatType.None)
-                        DrawRow(((StatType)stat.BaseParam).FriendlyName(), item.GetStat((StatType)stat.BaseParam, false).ToString());
+                        DrawRow(((StatType)stat.BaseParam).FriendlyName(), stat.BaseParamValue);
+                //Materia
                 if (item.Materia.Count > 0)
                 {
                     ImGui.TableNextColumn();
@@ -65,13 +78,13 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.EndTable();
             }
         }
-        private static void DrawRow(string label, string value)
+        private static void DrawRow(string label, object value)
         {
 
             ImGui.TableNextColumn();
             ImGui.Text(label);
             ImGui.TableNextColumn();
-            ImGui.Text(value);
+            ImGui.Text($"{value}");
         }
     }
 }
