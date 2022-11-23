@@ -13,6 +13,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
     {
         public readonly InstanceWithLoot Instance;
         public LootRuling RulingOptions { get; set; }
+        public State CurrentState { get; private set; } = State.STARTED;
         internal readonly Dictionary<HrtItem, int> Loot;
         private RaidGroup _group;
         internal RaidGroup Group
@@ -24,7 +25,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 Results.Clear();
             }
         }
-        public Dictionary<(HrtItem, int), LootResults> Results = new();
+        public Dictionary<(HrtItem, int), LootResults> Results { get; private set; } = new();
         public List<Player> Excluded = new();
         public readonly RolePriority RolePriority;
         internal int NumLootItems => Loot.Values.Aggregate(0, (sum, x) => sum + x);
@@ -40,6 +41,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         public void EvaluateAll(bool reevaluate = false)
         {
+            if(CurrentState < State.LOOT_CHOSEN) 
+                CurrentState= State.LOOT_CHOSEN;
             if (Results.Count == NumLootItems && !reevaluate)
                 return;
             Results.Clear();
@@ -146,9 +149,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         public LootRule DecidingFactor(LootResult other)
         {
-            foreach ((LootRule rule, (int val, string _)) in EvaluatedRules)
+            foreach (LootRule rule in _session.RulingOptions.RuleSet)
             {
-                if (val != other.EvaluatedRules[rule].val)
+                    if (EvaluatedRules[rule].val != other.EvaluatedRules[rule].val)
                     return rule;
             }
             return LootRuling.Default;

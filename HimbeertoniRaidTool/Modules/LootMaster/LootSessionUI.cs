@@ -6,7 +6,7 @@ using static HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Modules.LootMaster
 {
-    internal class LootSessionUI : HrtWindow
+    internal class LootSessionUI : HRTWindowWithModalChild
     {
         private readonly LootSession _session;
         private readonly UiSortableList<LootRule> _ruleListUi;
@@ -22,9 +22,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar;
             OpenCentered = true;
         }
-        private void StartLootDistribution()
+        private void EvaluateSession()
         {
             _session.EvaluateAll(true);
+            ModalChild = _resultWindow;
             _resultWindow.Show();
         }
         public override void Draw()
@@ -41,10 +42,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.EndCombo();
             }
             ImGui.SameLine();
-            if (ImGuiHelper.Button(Localize("Distribute", "Distribute"),
+            if (ImGuiHelper.Button(Localize("Calculate", "Calculate"),
                 Localize("OpenLootResultTooltip", "Opens a window with results of loot distribution according to these rules and current equipment of players"),
-                _session.NumLootItems > 0))
-                StartLootDistribution();
+                _session.CurrentState < LootSession.State.LOOT_CHOSEN))
+                EvaluateSession();
             ImGui.SameLine();
             if (ImGuiHelper.CloseButton())
                 Hide();
@@ -54,7 +55,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.TextColored(new Vector4(.9f, .9f, 0f, 1f), Localize("DistributeForSolo", "You have selected a group with only one player!"));
             else
                 ImGui.NewLine();
+            ImGui.Text(_session.CurrentState.FriendlyName());
             //Begin Loot selection section
+            ImGui.BeginDisabled(_session.CurrentState >= LootSession.State.LOOT_CHOSEN);
             if (ImGui.BeginChild("Loot", new Vector2(250 * ScaleFactor, 300 * ScaleFactor), false))
             {
                 foreach ((HrtItem item, int count) in _session.Loot)
@@ -71,6 +74,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.EndChild();
             }
             ImGui.SameLine();
+            ImGui.EndDisabled();
             //Begin rule section
             if (ImGui.BeginChild("Rules", new Vector2(270 * ScaleFactor, 270 * ScaleFactor), false))
             {
