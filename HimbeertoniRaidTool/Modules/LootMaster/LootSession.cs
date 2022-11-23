@@ -66,14 +66,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (_group.Type == GroupType.Solo)
             {
                 var player = _group.First();
-                foreach (var job in player.MainChar)
+                foreach (var job in player.MainChar.Where(j => !j.IsEmpty))
                 {
                     results.Add(new(this, player, possibleItems, job.Job));
                 }
             }
             else
             {
-                foreach (var player in Group)
+                foreach (var player in Group.Where(p => p.Filled))
                 {
                     if (excluded.Contains(player))
                         continue;

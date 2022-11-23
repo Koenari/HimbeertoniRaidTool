@@ -118,7 +118,7 @@ namespace HimbeertoniRaidTool.Data
             if (Gear.HrtID.StartsWith(testString))
                 Parent = c;
         }
-        public bool IsEmpty => Level == 0 && Gear.IsEmpty && BIS.IsEmpty;
+        public bool IsEmpty => Level == 1 && Gear.IsEmpty && BIS.IsEmpty;
         public void ManageGear()
         {
             Services.HrtDataManager.GetManagedGearSet(ref Gear);
