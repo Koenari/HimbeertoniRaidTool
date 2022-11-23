@@ -30,7 +30,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         internal int NumLootItems => Loot.Values.Aggregate(0, (sum, x) => sum + x);
         public LootSession(RaidGroup group, LootRuling rulingOptions, RolePriority defaultRolePriority, InstanceWithLoot instance)
         {
-            Instance= instance;
+            Instance = instance;
             RulingOptions = rulingOptions.Clone();
             Loot = new();
             foreach (var item in Instance.PossibleItems)
@@ -177,21 +177,24 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public int Count => Participants.Count;
         public readonly LootSession Session;
         public LootResult this[int index] => Participants[index];
-
+        public Player? AwardedTo => _awardedIdx.HasValue ? this[_awardedIdx.Value].Player : null;
+        public bool IsAwarded => AwardedTo != null;
+        private int? _awardedIdx;
         public LootResults(LootSession session)
         {
             Session = session;
         }
-        internal void Eval()
+        internal void Eval(bool reevaluate = true)
         {
-
-            foreach (LootResult result in this.Where(r => !r.IsEvaluated))
+            if (IsAwarded)
+                return;
+            foreach (LootResult result in this.Where(r => (reevaluate || !r.IsEvaluated)))
                 result.Evaluate();
             Participants.Sort(new LootRulingComparer(Session.RulingOptions.RuleSet));
         }
+        public void Award(int idx) => _awardedIdx ??= idx;
         internal void Add(LootResult result) => Participants.Add(result);
         public IEnumerator<LootResult> GetEnumerator() => Participants.GetEnumerator();
-
         IEnumerator IEnumerable.GetEnumerator() => Participants.GetEnumerator();
     }
     internal class LootRulingComparer : IComparer<LootResult>
