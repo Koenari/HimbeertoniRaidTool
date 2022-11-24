@@ -11,9 +11,9 @@ namespace HimbeertoniRaidTool.UI
         public static void Draw(this Item item) => Draw(new GearItem(item.RowId));
         public static void Draw(this HrtItem item)
         {
-            if (item.ID == 0 || item.Item is null)
+            if (!item.Filled || item.Item is null)
                 return;
-            if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders))
+            if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
             {
                 ImGui.TableSetupColumn(Localize("ItemTableHeader", "Header"));
                 ImGui.TableSetupColumn(Localize("Value", "Value"));

@@ -517,9 +517,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 if (ImGui.IsItemHovered())
                 {
                     ImGui.BeginTooltip();
-                    ImGui.Columns(2);
+                    if (item.Filled && bis.Filled)
+                        ImGui.Columns(2);
                     item.Draw();
-                    ImGui.NextColumn();
+                    if (item.Filled && bis.Filled)
+                        ImGui.NextColumn();
                     bis.Draw();
                     ImGui.Columns();
                     ImGui.EndTooltip();

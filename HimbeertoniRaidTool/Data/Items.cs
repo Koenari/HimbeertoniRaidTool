@@ -24,7 +24,6 @@ namespace HimbeertoniRaidTool.Data
         public IEnumerable<GearSetSlot> Slots => (Item?.EquipSlotCategory.Value).AvailableSlots();
         [JsonProperty("Materia")]
         public List<HrtMateria> Materia = new();
-        public bool Filled => ID > 0;
         public int GetStat(StatType type, bool includeMateria = true)
         {
             if (Item is null) return 0;
@@ -97,6 +96,7 @@ namespace HimbeertoniRaidTool.Data
         public uint? ILevelCache = null;
         [JsonIgnore]
         public uint ItemLevel => ILevelCache ??= Item?.LevelItem.Row ?? 0;
+        public bool Filled => ID > 0;
         public string SourceShortName
         {
             get
