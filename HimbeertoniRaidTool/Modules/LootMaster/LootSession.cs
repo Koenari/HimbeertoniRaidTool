@@ -28,6 +28,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public Dictionary<(HrtItem, int), LootResults> Results { get; private set; } = new();
         public List<Player> Excluded = new();
         public readonly RolePriority RolePriority;
+        public Dictionary<HrtItem, bool> GuaranteedLoot { get; private set; } = new();
         internal int NumLootItems => Loot.Values.Aggregate(0, (sum, x) => sum + x);
         public LootSession(RaidGroup group, LootRuling rulingOptions, RolePriority defaultRolePriority, InstanceWithLoot instance)
         {
@@ -36,13 +37,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             Loot = new();
             foreach (var item in Instance.PossibleItems)
                 Loot[item] = 0;
+            foreach (var item in instance.GuaranteedItems)
+                GuaranteedLoot[item] = false;
             _group = Group = group;
             RolePriority = group.RolePriority ?? defaultRolePriority;
         }
         public void EvaluateAll(bool reevaluate = false)
         {
-            if(CurrentState < State.LOOT_CHOSEN) 
-                CurrentState= State.LOOT_CHOSEN;
+            if (CurrentState < State.LOOT_CHOSEN)
+                CurrentState = State.LOOT_CHOSEN;
             if (Results.Count == NumLootItems && !reevaluate)
                 return;
             Results.Clear();
@@ -86,6 +89,49 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             results.Eval();
             return results;
         }
+
+        internal void AwardGuaranteedLoot(HrtItem item)
+        {
+            if (GuaranteedLoot[item])
+                return;
+            GuaranteedLoot[item] = true;
+            foreach (Player p in Group)
+            {
+                Inventory inv = p.MainChar.MainInventory;
+                int idx;
+                if (inv.Contains(item.ID))
+                    idx = inv.IndexOf(item.ID);
+                else
+                {
+                    idx = inv.FirstFreeSlot();
+                    inv[idx] = new(item)
+                    {
+                        quantity = 0,
+                    };
+                }
+                inv[idx].quantity++;
+            }
+        }
+        internal bool AwardItem((HrtItem, int) loot, GearItem toAward, int idx)
+        {
+            if (CurrentState < State.DISTRIBUTION_STARTED)
+                CurrentState = State.DISTRIBUTION_STARTED;
+            if (Results[loot].IsAwarded || CurrentState == State.FINISHED)
+                return false;
+            Results[loot].Award(idx);
+            GearSetSlot slot = toAward.Slots.First();
+            PlayableClass? c = Results[loot].AwardedTo?.AplicableJob;
+            if (c != null)
+            {
+                c.Gear[slot] = toAward;
+                foreach (HrtMateria m in c.BIS[slot].Materia)
+                    c.Gear[slot].Materia.Add(m);
+            }
+            if (Results.Values.All(l => l.IsAwarded))
+                CurrentState = State.FINISHED;
+            return true;
+        }
+
         public enum State
         {
             STARTED,
@@ -98,9 +144,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
     {
         public static string FriendlyName(this LootSession.State state) => state switch
         {
-            LootSession.State.STARTED => Localize("LootSession:State:STARTED", "Waiting for Loot"),
-            LootSession.State.LOOT_CHOSEN => Localize("LootSession:State:LOOT_CHOSEN", "Loot chosen"),
-            LootSession.State.DISTRIBUTION_STARTED => Localize("LootSession:State:DISTRIBUTION_STARTED", "Dsitribution started"),
+            LootSession.State.STARTED => Localize("LootSession:State:STARTED", "Chosing Loot"),
+            LootSession.State.LOOT_CHOSEN => Localize("LootSession:State:LOOT_CHOSEN", "Loot locked"),
+            LootSession.State.DISTRIBUTION_STARTED => Localize("LootSession:State:DISTRIBUTION_STARTED", "Distribution started"),
             LootSession.State.FINISHED => Localize("LootSession:State:FINISHED", "Finished"),
             _ => Localize("undefinded", "undefinded")
         };
@@ -151,7 +197,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             foreach (LootRule rule in _session.RulingOptions.RuleSet)
             {
-                    if (EvaluatedRules[rule].val != other.EvaluatedRules[rule].val)
+                if (EvaluatedRules[rule].val != other.EvaluatedRules[rule].val)
                     return rule;
             }
             return LootRuling.Default;
@@ -180,7 +226,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public int Count => Participants.Count;
         public readonly LootSession Session;
         public LootResult this[int index] => Participants[index];
-        public Player? AwardedTo => _awardedIdx.HasValue ? this[_awardedIdx.Value].Player : null;
+        public LootResult? AwardedTo => _awardedIdx.HasValue ? this[_awardedIdx.Value] : null;
         public bool IsAwarded => AwardedTo != null;
         private int? _awardedIdx;
         public LootResults(LootSession session)

@@ -13,7 +13,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private readonly LootResultWindow _resultWindow;
         internal LootSessionUI(IHrtModule module, InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
         {
-            _session = new(group, lootRuling, defaultRolePriority,lootSource);
+            _session = new(group, lootRuling, defaultRolePriority, lootSource);
             _ruleListUi = new(LootRuling.PossibleRules, lootRuling.RuleSet);
             _resultWindow = new LootResultWindow(_session);
             module.WindowSystem.AddWindow(_resultWindow);
@@ -100,8 +100,26 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             public override void Draw()
             {
-                if (_session.Results.Count == 0)
-                    ImGui.Text(Localize("No loot", "No loot"));
+                ImGui.Text(Localize("LootResultWindow:GuaranteedITems", "Guaranteed Items (per player)"));
+                foreach ((var item, bool awareded) in _session.GuaranteedLoot)
+                {
+                    if (item.Item is null)
+                        continue;
+                    ImGui.BeginGroup();
+                    ImGui.Image(Services.IconCache[item.Item.Icon].ImGuiHandle, Vector2.One * ImGui.GetTextLineHeightWithSpacing());
+                    ImGui.SameLine();
+                    ImGui.Text(item.Item.Name);
+                    ImGui.EndGroup();
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        item.Draw();
+                        ImGui.EndTooltip();
+                    }
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button(Localize("Award", "Award"), Localize("LootResultWindow:Button:AwardGuaranteed", "Award 1 to eacch player"), !awareded))
+                        _session.AwardGuaranteedLoot(item);
+                }
                 foreach (((HrtItem item, int nr), LootResults results) in _session.Results)
                 {
                     if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n " +
@@ -132,7 +150,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                 ImGui.TableNextColumn();
                                 ImGui.Text($"{singleResult.Player.NickName} ({singleResult.AplicableJob})");
                                 ImGui.TableNextColumn();
-                                foreach (var neededItem in singleResult.NeededItems)
+                                foreach (GearItem neededItem in singleResult.NeededItems)
                                 {
                                     ImGui.Text(neededItem.Name);
                                     if (ImGui.IsItemHovered())
@@ -140,6 +158,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                         ImGui.BeginTooltip();
                                         neededItem.Draw();
                                         ImGui.EndTooltip();
+                                    }
+                                    ImGui.SameLine();
+                                    if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Check, $"Award##{i}##{neededItem.ID}",
+                                        Localize("LootResult:Button:AwardTooltip", "Award")))
+                                    {
+                                        _session.AwardItem((item, nr), neededItem, i);
                                     }
                                 }
                                 ImGui.TableNextColumn();
