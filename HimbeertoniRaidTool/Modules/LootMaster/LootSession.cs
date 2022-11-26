@@ -14,7 +14,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public readonly InstanceWithLoot Instance;
         public LootRuling RulingOptions { get; set; }
         public State CurrentState { get; private set; } = State.STARTED;
-        internal readonly Dictionary<HrtItem, int> Loot;
+        internal readonly List<(HrtItem item, int count)> Loot = new();
         private RaidGroup _group;
         internal RaidGroup Group
         {
@@ -25,40 +25,50 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 Results.Clear();
             }
         }
-        public Dictionary<(HrtItem, int), LootResults> Results { get; private set; } = new();
+        public Dictionary<(HrtItem, int), LootResultContainer> Results { get; private set; } = new();
         public List<Player> Excluded = new();
         public readonly RolePriority RolePriority;
         public Dictionary<HrtItem, bool> GuaranteedLoot { get; private set; } = new();
-        internal int NumLootItems => Loot.Values.Aggregate(0, (sum, x) => sum + x);
+        internal int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
         public LootSession(RaidGroup group, LootRuling rulingOptions, RolePriority defaultRolePriority, InstanceWithLoot instance)
         {
             Instance = instance;
             RulingOptions = rulingOptions.Clone();
-            Loot = new();
             foreach (var item in Instance.PossibleItems)
-                Loot[item] = 0;
+                Loot.Add((item, 0));
             foreach (var item in instance.GuaranteedItems)
                 GuaranteedLoot[item] = false;
             _group = Group = group;
             RolePriority = group.RolePriority ?? defaultRolePriority;
         }
-        public void EvaluateAll(bool reevaluate = false)
+        public void Evaluate()
         {
             if (CurrentState < State.LOOT_CHOSEN)
                 CurrentState = State.LOOT_CHOSEN;
-            if (Results.Count == NumLootItems && !reevaluate)
-                return;
-            Results.Clear();
-            foreach ((HrtItem item, int count) in Loot)
-                for (int i = 0; i < count; i++)
-                {
-                    Results.Add((item, i), Evaluate(item));
-                }
+            if (Results.Count != NumLootItems && CurrentState < State.DISTRIBUTION_STARTED)
+            {
+                Results.Clear();
+                foreach ((HrtItem item, int count) in Loot)
+                    for (int i = 0; i < count; i++)
+                    {
+                        Results.Add((item, i), ConstructLootResults(item));
+                    }
+            }
+            foreach (LootResultContainer results in Results.Values)
+                results.Eval();
+            { }
         }
-        private LootResults Evaluate(HrtItem droppedItem, IEnumerable<Player>? excludeAddition = null)
+        public bool RevertToChooseLoot()
+        {
+            if (CurrentState != State.LOOT_CHOSEN)
+                return false;
+            CurrentState = State.STARTED;
+            return true;
+        }
+        private LootResultContainer ConstructLootResults(HrtItem droppedItem, IEnumerable<Player>? excludeAddition = null)
         {
             List<Player> excluded = new();
-            LootResults results = new(this);
+            LootResultContainer results = new(this);
             excluded.AddRange(Excluded);
             if (excludeAddition != null)
                 excluded.AddRange(excludeAddition);
@@ -86,14 +96,19 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     results.Add(new(this, player, possibleItems));
                 }
             }
-            results.Eval();
             return results;
         }
-
-        internal void AwardGuaranteedLoot(HrtItem item)
+        private void EvaluateFinished()
         {
-            if (GuaranteedLoot[item])
-                return;
+            if (Results.Values.All(l => l.IsAwarded) && GuaranteedLoot.Values.All(t => t))
+                CurrentState = State.FINISHED;
+        }
+        internal bool AwardGuaranteedLoot(HrtItem item)
+        {
+            if (CurrentState < State.DISTRIBUTION_STARTED)
+                CurrentState = State.DISTRIBUTION_STARTED;
+            if (GuaranteedLoot[item] || CurrentState == State.FINISHED)
+                return false;
             GuaranteedLoot[item] = true;
             foreach (Player p in Group)
             {
@@ -111,6 +126,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 inv[idx].quantity++;
             }
+            EvaluateFinished();
+            return true;
         }
         internal bool AwardItem((HrtItem, int) loot, GearItem toAward, int idx)
         {
@@ -118,7 +135,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 CurrentState = State.DISTRIBUTION_STARTED;
             if (Results[loot].IsAwarded || CurrentState == State.FINISHED)
                 return false;
-            Results[loot].Award(idx);
+            Results[loot].Award(idx, toAward);
             GearSetSlot slot = toAward.Slots.First();
             PlayableClass? c = Results[loot].AwardedTo?.AplicableJob;
             if (c != null)
@@ -127,8 +144,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 foreach (HrtMateria m in c.BIS[slot].Materia)
                     c.Gear[slot].Materia.Add(m);
             }
-            if (Results.Values.All(l => l.IsAwarded))
-                CurrentState = State.FINISHED;
+            EvaluateFinished();
+            if (CurrentState != State.FINISHED)
+                Evaluate();
             return true;
         }
 
@@ -173,6 +191,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public readonly Dictionary<LootRule, (int val, string reason)> EvaluatedRules = new();
         public readonly HashSet<GearItem> ApplicableItems;
         public readonly List<GearItem> NeededItems = new();
+        public GearItem? AwardedItem;
         public LootResult(LootSession session, Player p, IEnumerable<GearItem> possibleItems, Job? job = null)
         {
             _session = session;
@@ -181,12 +200,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             Roll = Random.Next(0, 101);
             //Filter items by job
             ApplicableItems = new(possibleItems.Where(i => (i.Item?.ClassJobCategory.Value).Contains(Job)));
-            CalcNeed();
         }
         public void Evaluate()
         {
-            if (IsEvaluated)
-                return;
+            CalcNeed();
             foreach (LootRule rule in _session.RulingOptions.RuleSet)
             {
                 EvaluatedRules[rule] = rule.Eval(this, _session, NeededItems);
@@ -204,6 +221,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private void CalcNeed()
         {
+            NeededItems.Clear();
             foreach (var item in ApplicableItems)
                 if (
                     //Always need if Bis and not aquired
@@ -220,7 +238,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             Category = NeededItems.Count > 0 ? LootCategory.Need : LootCategory.Greed;
         }
     }
-    public class LootResults : IReadOnlyList<LootResult>
+    public class LootResultContainer : IReadOnlyList<LootResult>
     {
         private readonly List<LootResult> Participants = new();
         public int Count => Participants.Count;
@@ -228,20 +246,24 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public LootResult this[int index] => Participants[index];
         public LootResult? AwardedTo => _awardedIdx.HasValue ? this[_awardedIdx.Value] : null;
         public bool IsAwarded => AwardedTo != null;
-        private int? _awardedIdx;
-        public LootResults(LootSession session)
+        public int? _awardedIdx { get; private set; }
+        public LootResultContainer(LootSession session)
         {
             Session = session;
         }
-        internal void Eval(bool reevaluate = true)
+        internal void Eval()
         {
             if (IsAwarded)
                 return;
-            foreach (LootResult result in this.Where(r => (reevaluate || !r.IsEvaluated)))
+            foreach (LootResult result in this)
                 result.Evaluate();
             Participants.Sort(new LootRulingComparer(Session.RulingOptions.RuleSet));
         }
-        public void Award(int idx) => _awardedIdx ??= idx;
+        public void Award(int idx, GearItem awarded)
+        {
+            _awardedIdx ??= idx;
+            AwardedTo!.AwardedItem = awarded;
+        }
         internal void Add(LootResult result) => Participants.Add(result);
         public IEnumerator<LootResult> GetEnumerator() => Participants.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => Participants.GetEnumerator();
