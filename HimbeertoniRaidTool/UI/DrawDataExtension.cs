@@ -19,7 +19,8 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.TableSetupColumn(Localize("Value", "Value"));
                 //General Data
                 DrawRow(Localize("Name", "Name"), $"{item.Item.Name} {((item is GearItem gear2) && gear2.IsHq ? "(HQ)" : "")}");
-                DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel);
+                if (item.ItemLevel > 1)
+                    DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel);
                 DrawRow(Localize("itemSource", "Source"), item.Source);
                 //Shop Data
                 if (Services.ItemInfo.CanBePurchased(item.ID))

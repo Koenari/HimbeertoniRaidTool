@@ -369,7 +369,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         private void DrawPlayer(Player player, int pos)
         {
-            if (player.Filled && player.MainChar.Filled)
+            if (player.Filled)
             {
                 //Player Column
                 ImGui.TableNextColumn();

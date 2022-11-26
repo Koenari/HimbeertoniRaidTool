@@ -12,7 +12,7 @@ namespace HimbeertoniRaidTool.Data
         public readonly AdditionalPlayerData AdditionalData = new();
         [JsonProperty("Chars")]
         public List<Character> Chars { get; set; } = new();
-        public bool Filled => NickName != "";
+        public bool Filled => NickName != "" || (Chars.Count > 0 && Chars[0].Filled);
         public Character MainChar
         {
             get
