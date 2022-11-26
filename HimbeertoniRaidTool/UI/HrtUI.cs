@@ -25,6 +25,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 ModalChild = null;
             }
+            base.Update();
         }
         public override void PostDraw()
         {
