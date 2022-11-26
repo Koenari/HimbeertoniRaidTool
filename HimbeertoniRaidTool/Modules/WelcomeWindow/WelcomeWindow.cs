@@ -33,10 +33,7 @@ namespace HimbeertoniRaidTool.Modules.WelcomeWindow
             _config = new WelcomeWindowConfig(this);
         }
         public void Update(Framework fw) { }
-        public void Dispose()
-        {
-            _ui?.Dispose();
-        }
+        public void Dispose() { }
 
         public void HandleMessage(HrtUiMessage message)
         {

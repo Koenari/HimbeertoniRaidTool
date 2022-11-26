@@ -41,9 +41,8 @@ namespace HimbeertoniRaidTool.UI
                 ModalChild.IsOpen = Open;
         }
     }
-    public abstract class HrtWindow : Window, IDisposable, IEquatable<HrtWindow>
+    public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     {
-        private bool _disposed = false;
         private readonly bool _volatile;
         private readonly string _id;
         protected string Title;
@@ -59,8 +58,6 @@ namespace HimbeertoniRaidTool.UI
         }
         public void Show()
         {
-            if (_disposed)
-                return;
             IsOpen = true;
         }
         public void Hide()
@@ -78,20 +75,9 @@ namespace HimbeertoniRaidTool.UI
             if (!IsOpen && _volatile)
                 Dispose();
         }
-
-        protected virtual void BeforeDispose() { }
-        public void Dispose()
-        {
-            if (_disposed)
-                return;
-            Hide();
-            BeforeDispose();
-            _disposed = true;
-        }
         public override bool DrawConditions()
         {
-            return !_disposed
-                && !(Services.Config.HideInBattle && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
+            return !(Services.Config.HideInBattle && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
                 && !(Services.Config.HideOnZoneChange && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas])
                 && base.DrawConditions();
         }

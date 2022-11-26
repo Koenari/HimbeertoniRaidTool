@@ -23,7 +23,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _ => _lootMaster.Configuration.Data.ItemLevelColors[3],
         };
         private readonly LootMasterModule _lootMaster;
-        private int _CurrenGroupIndex;
+        internal int _CurrenGroupIndex { get; private set; }
         private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
         private readonly Queue<HrtUiMessage> _messageQueue = new();
@@ -53,17 +53,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             if (_lootMaster.WindowSystem.Windows.Any(w => child.Equals(w)))
             {
-                child.Dispose();
+                child.Hide();
                 return false;
             }
             _lootMaster.WindowSystem.AddWindow(child);
             child.Show();
             return true;
-        }
-        protected override void BeforeDispose()
-        {
-            _lootMaster.Configuration.Data.LastGroupIndex = _CurrenGroupIndex;
-            _lootMaster.Configuration.Save();
         }
         public override void OnOpen()
         {

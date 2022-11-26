@@ -235,7 +235,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public void Dispose()
         {
             GearRefresherOnExamine.Dispose();
-            Ui.Dispose();
+
+            Configuration.Data.LastGroupIndex = Ui._CurrenGroupIndex;
+            Configuration.Save();
         }
 
         public void HandleMessage(HrtUiMessage message)
