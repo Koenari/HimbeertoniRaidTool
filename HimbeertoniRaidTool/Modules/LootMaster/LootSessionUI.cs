@@ -12,19 +12,23 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
     {
         private readonly LootSession _session;
         private readonly UiSortableList<LootRule> _ruleListUi;
-        internal LootSessionUI(IHrtModule module, InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
+        internal LootSessionUI(InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
         {
             _session = new(group, lootRuling, defaultRolePriority, lootSource);
             _ruleListUi = new(LootRuling.PossibleRules, lootRuling.RuleSet);
 
-            MinSize = new Vector2(550, 370);
+            MinSize = new Vector2(600, 300);
+            Size = new Vector2(1100, 600);
+            SizeCondition = ImGuiCond.Appearing;
             Title = $"{Localize("Loot session for", "Loot session for")} {lootSource.Name}";
-            Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.AlwaysAutoResize;
             OpenCentered = true;
         }
         public override void Draw()
         {
             //Header
+            if (ImGuiHelper.CloseButton())
+                Hide();
+            ImGui.SameLine();
             ImGui.Text($"{Localize("Lootsession:State", "Current State")}: {_session.CurrentState.FriendlyName()}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Cogs, "RulesButton", Localize("LootSession:RulesButton:Tooltip", "Override ruling ooptions")))
@@ -36,7 +40,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 DrawRulingOptions();
                 ImGui.EndPopup();
             }
-            //Group Selection
             ImGui.BeginDisabled(_session.CurrentState >= LootSession.State.LOOT_CHOSEN);
             ImGui.SameLine();
             ImGui.SetNextItemWidth(ScaleFactor * 200f);
@@ -53,31 +56,23 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (ImGuiHelper.Button(Localize("Calculate", "Calculate"),
                 Localize("OpenLootResultTooltip", "Opens a window with results of loot distribution according to these rules and current equipment of players")))
                 _session.Evaluate();
-            ImGui.SameLine();
             ImGui.EndDisabled();
-            ImGui.SameLine();
-            if (ImGuiHelper.CloseButton())
-                Hide();
             ImGui.NewLine();
 
             DrawLootSelection();
             ImGui.NewLine();
 
             if (_session.CurrentState >= LootSession.State.LOOT_CHOSEN)
-            {
                 DrawResults();
-
-            }
-
         }
 
         private void DrawLootSelection()
         {
             const float ItemSize = 80f;
-            const int ItemsPerRow = 6;
+            const int ItemsPerRow = 7;
             int rows = (int)Math.Ceiling(_session.Loot.Count / (float)ItemsPerRow);
             ImGui.BeginDisabled(_session.CurrentState >= LootSession.State.LOOT_CHOSEN);
-            if (ImGui.BeginChild("Loot", new Vector2(ScaleFactor * ItemSize * 6, rows * (ItemSize + 10) * ScaleFactor)))
+            if (ImGui.BeginChild("Loot", new Vector2(ScaleFactor * ItemSize * ItemsPerRow, rows * (ItemSize + 10) * ScaleFactor)))
             {
                 for (int row = 0; row < rows; row++)
                 {
@@ -173,7 +168,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.EndTooltip();
                 }
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(Localize("LootResultWindow:Button:AwardGuaranteed", "Award to all"), Localize("LootResultWindow:Button:AwardGuaranteedTooltip", "Award 1 to eacch player"), !awareded))
+                if (ImGuiHelper.Button($"{Localize("LootResultWindow:Button:AwardGuaranteed", "Award to all")}##{item.ID}",
+                    Localize("LootResultWindow:Button:AwardGuaranteedTooltip", "Award 1 to eacch player"), !awareded))
                     _session.AwardGuaranteedLoot(item);
             }
             //Possible Items
@@ -184,13 +180,10 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.Text(Localize("None", "None"));
             foreach (((HrtItem item, int nr), LootResultContainer results) in _session.Results)
             {
-                if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n " +
-                    ((results.Count > 0 && results[0].Category == LootCategory.Need) ? $"{results[0].Player.NickName} ({results[0].AplicableJob.Job}) won" +
-                    $"{((results.Count > 1 & results[1].Category == LootCategory.Need) ? $" over {results[1].Player.NickName} ({results[1].AplicableJob.Job}) " : "")}({results[0].DecidingFactor(results[1])})  "
-                    : $"{Localize("Greed only", "Greed only")}")
-                    ))
+                ImGui.PushID($"{item.ID}##{nr}");
+                if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n {results.ShortResult}", ImGuiTreeNodeFlags.DefaultOpen))
                 {
-                    if (ImGui.BeginTable($"LootTable##{item.Name} # {nr + 1}", 4 + _session.RulingOptions.RuleSet.Count,
+                    if (ImGui.BeginTable($"LootTable", 4 + _session.RulingOptions.RuleSet.Count,
                         ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg))
                     {
                         ImGui.TableSetupColumn(Localize("Pos", "Pos"));
@@ -205,8 +198,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         LootRule lastRule = LootRuling.Default;
                         for (int i = 0; i < results.Count; i++)
                         {
-                            bool isLast = i == results.Count - 1;
-                            var singleResult = results[i];
+                            LootResult singleResult = results[i];
+                            LootResult? nextResult = (i + 1) < results.Count ? results[i + 1] : null;
                             ImGui.TableNextColumn();
                             ImGui.Text(place.ToString());
                             ImGui.TableNextColumn();
@@ -221,7 +214,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                     neededItem.Draw();
                                     ImGui.EndTooltip();
                                 }
-                                if (!results.IsAwarded || (results._awardedIdx == i && neededItem.Equals(results[i].AwardedItem)))
+                                if (!results.IsAwarded || (results.AwardedIdx == i && neededItem.Equals(results[i].AwardedItem)))
                                 {
                                     ImGui.SameLine();
                                     if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"Award##{i}##{neededItem.ID}",
@@ -234,8 +227,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             ImGui.TableNextColumn();
                             if (singleResult.Category == LootCategory.Need)
                             {
-                                var decidingFactor = isLast ? LootRuling.Default
-                                    : (results[i + 1].Category > LootCategory.Need ? new(LootRuleEnum.NeedGreed) : singleResult.DecidingFactor(results[i + 1]));
+                                var decidingFactor = singleResult.DecidingFactor(nextResult);
                                 ImGui.Text(decidingFactor.Name);
                                 foreach (LootRule rule in _session.RulingOptions.RuleSet)
                                 {
@@ -268,6 +260,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         ImGui.EndTable();
                     }
                 }
+                ImGui.PopID();
             }
         }
     }

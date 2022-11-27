@@ -210,8 +210,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             IsEvaluated = true;
         }
-        public LootRule DecidingFactor(LootResult other)
+        public LootRule DecidingFactor(LootResult? other)
         {
+            if (other == null)
+                return LootRuling.Default;
+            if (this.Category == LootCategory.Need && other.Category == LootCategory.Greed)
+                return LootRuling.NeedOverGreed;
             foreach (LootRule rule in _session.RulingOptions.RuleSet)
             {
                 if (EvaluatedRules[rule].val != other.EvaluatedRules[rule].val)
@@ -244,9 +248,34 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public int Count => Participants.Count;
         public readonly LootSession Session;
         public LootResult this[int index] => Participants[index];
-        public LootResult? AwardedTo => _awardedIdx.HasValue ? this[_awardedIdx.Value] : null;
+        public LootResult? AwardedTo => AwardedIdx.HasValue ? this[AwardedIdx.Value] : null;
         public bool IsAwarded => AwardedTo != null;
-        public int? _awardedIdx { get; private set; }
+        public int? AwardedIdx { get; private set; }
+
+        private string? ShortResultCache;
+        internal bool ShowDetails = true;
+
+        public string ShortResult
+        {
+            get
+            {
+                if (ShortResultCache != null)
+                    return ShortResultCache;
+                if (IsAwarded)
+                    return ShortResultCache = $"{AwardedTo?.AwardedItem?.Name} {Localize("LootResult:ItemAwardedTo", "awarded to")} {AwardedTo?.Player.NickName} ({AwardedTo?.AplicableJob})";
+                if (Count == 0 || this[0].Category != LootCategory.Need)
+                    return ShortResultCache = Localize("LootResult:GreedOnly", "Greed only");
+                string result = $"{this[0].Player.NickName} ({this[0].AplicableJob.Job}) {Localize("LootResult:PlayerWon", "won")}";
+                if (Count > 1)
+                {
+                    if (this[1].Category == LootCategory.Need)
+                        result += $" {Localize("LootResult:PlayerWonOver", "over")} {this[1].Player.NickName} ({this[1].AplicableJob.Job})";
+                    result += $" ({this[0].DecidingFactor(this[1])})";
+                }
+                return ShortResultCache = result;
+            }
+        }
+
         public LootResultContainer(LootSession session)
         {
             Session = session;
@@ -258,11 +287,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             foreach (LootResult result in this)
                 result.Evaluate();
             Participants.Sort(new LootRulingComparer(Session.RulingOptions.RuleSet));
+            ShortResultCache = null;
         }
         public void Award(int idx, GearItem awarded)
         {
-            _awardedIdx ??= idx;
+            AwardedIdx ??= idx;
             AwardedTo!.AwardedItem = awarded;
+            ShortResultCache = null;
         }
         internal void Add(LootResult result) => Participants.Add(result);
         public IEnumerator<LootResult> GetEnumerator() => Participants.GetEnumerator();
