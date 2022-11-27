@@ -14,6 +14,13 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
+        + new loot distribution
+        + includes guarranteed drops (eg. books)
+        + award items to players, no need to manually update them after loot distribution
+        * revised lootsession Ui
         + Shows cost if an item is obtainable from a shop
         * reworked item source system
+        + can track items in inventories
+        + you can now evaluate loot for alt jobs
+
 
