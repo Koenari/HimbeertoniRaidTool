@@ -67,6 +67,14 @@
     "message": "Ursprung",
     "description": "DrawDataExtension.Draw"
   },
+  "itemShop": {
+    "message": "Shop cost",
+    "description": "DrawDataExtension.Draw"
+  },
+  "item:looted:sources": {
+    "message": "Looted in",
+    "description": "DrawDataExtension.Draw"
+  },
   "MagicDamage": {
     "message": "Magischer Schaden",
     "description": "DrawDataExtension.Draw"
@@ -86,6 +94,10 @@
   "Edit Player": {
     "message": "Spieler bearbeiten",
     "description": "EditPlayerWindow..ctor"
+  },
+  "Save Player": {
+    "message": "Spieler speichern",
+    "description": "EditPlayerWindow.Draw"
   },
   "Player Data": {
     "message": "Spielerdaten",
@@ -145,10 +157,6 @@
   },
   "Add Job": {
     "message": "Job hinzufügen",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "Save Player": {
-    "message": "Spieler speichern",
     "description": "EditPlayerWindow.Draw"
   },
   "Edit Group": {
@@ -239,6 +247,10 @@
     "message": "Abbrechen",
     "description": "ImGuiHelper.CancelButton"
   },
+  "Close": {
+    "message": "Schließen",
+    "description": "ImGuiHelper.CloseButton"
+  },
   "Inspect": {
     "message": "Ausrüstung aktualisieren durch Untersuchen",
     "description": "ImGuiHelper.GearUpdateButtons"
@@ -253,15 +265,15 @@
   },
   "rightClickHint": {
     "message": "Rechtsklick für mehr Optionen",
-    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawInspectButton|4_0"
+    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawInspectButton|5_0"
   },
   "Lodestone Button": {
     "message": "Ausrüstungsdaten vom Lodestone herunterladen",
-    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|4_1"
+    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|5_1"
   },
   "LodestonUpdateStarted": {
     "message": "Ausrüstungsaktualisierung gestrtet für",
-    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|4_1"
+    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|5_1"
   },
   "Remove option": {
     "message": "Option entfernen",
@@ -323,10 +335,6 @@
     "message": "Wiki im Standard Browser öffnen",
     "description": "WelcomeWindowui.Draw"
   },
-  "Close": {
-    "message": "Schließen",
-    "description": "WelcomeWindowui.Draw"
-  },
   "Close this window": {
     "message": "Dieses Fenster schließen",
     "description": "WelcomeWindowui.Draw"
@@ -339,8 +347,16 @@
     "message": "LootMaster beim Login öffnen",
     "description": "ConfigUi.Draw"
   },
+  "Lootmaster:OpenOnLoginTooltip": {
+    "message": "Opens group overview window whean you log in",
+    "description": "ConfigUi.Draw"
+  },
   "Config:Lootmaster:ColoredItemNames": {
     "message": "Färbe Items nach ItemLevel ein",
+    "description": "ConfigUi.Draw"
+  },
+  "Lootmaster:ColoredItemNamesTooltip": {
+    "message": "Color items according to the item level",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:Colors": {
@@ -361,6 +377,14 @@
   },
   "Examples": {
     "message": "Beispiele",
+    "description": "ConfigUi.Draw"
+  },
+  "Config:Lootmaster:IgnoreMateriaforBis": {
+    "message": "Ignore Materia",
+    "description": "ConfigUi.Draw"
+  },
+  "Config:Lootmaster:IgnoreMateriaforBisTooltip": {
+    "message": "Ignore Materia when determining if an item is equivalent to BiS",
     "description": "ConfigUi.Draw"
   },
   "UpdateBisONStartUp": {
@@ -435,6 +459,10 @@
     "message": "Ausrüstung",
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
+  "lootmaster:button:showconfig:tooltip": {
+    "message": "Open Configuration",
+    "description": "LootmasterUI.Draw"
+  },
   "Add Player": {
     "message": "Spieler hinzufügen",
     "description": "LootmasterUI.Draw"
@@ -445,50 +473,6 @@
   },
   "itemLevelShort": {
     "message": "iLvl",
-    "description": "LootmasterUI.Draw"
-  },
-  "Weapon": {
-    "message": "Waffe",
-    "description": "LootmasterUI.Draw"
-  },
-  "HeadGear": {
-    "message": "Kopf",
-    "description": "LootmasterUI.Draw"
-  },
-  "ChestGear": {
-    "message": "Rumpf",
-    "description": "LootmasterUI.Draw"
-  },
-  "Gloves": {
-    "message": "Hände",
-    "description": "LootmasterUI.Draw"
-  },
-  "LegGear": {
-    "message": "Beine",
-    "description": "LootmasterUI.Draw"
-  },
-  "FeetGear": {
-    "message": "Füße",
-    "description": "LootmasterUI.Draw"
-  },
-  "Earrings": {
-    "message": "Ohrring",
-    "description": "LootmasterUI.Draw"
-  },
-  "NeckGear": {
-    "message": "Halskette",
-    "description": "LootmasterUI.Draw"
-  },
-  "WristGear": {
-    "message": "Armreif",
-    "description": "LootmasterUI.Draw"
-  },
-  "LeftRing": {
-    "message": "Ring L",
-    "description": "LootmasterUI.Draw"
-  },
-  "RightRing": {
-    "message": "Ring R",
     "description": "LootmasterUI.Draw"
   },
   "Options": {
@@ -531,24 +515,12 @@
     "message": "n.V.",
     "description": "LootmasterUI.DrawPlayer"
   },
-  "LvLShort": {
-    "message": "Lvl",
+  "lootmaster:button:swapposition:tooltip": {
+    "message": "Swap Position",
     "description": "LootmasterUI.DrawPlayer"
   },
-  "to BIS": {
-    "message": "zum BiS",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "BisUpdateResult": {
-    "message": "BIS-Update für Charakter",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "successful": {
-    "message": "Erfolgreich",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "failed": {
-    "message": "Fehlgeschlagen",
+  "lootmaster:button:inventorytooltip": {
+    "message": "Open inventory window",
     "description": "LootmasterUI.DrawPlayer"
   },
   "PlayerDetails": {
@@ -577,19 +549,19 @@
   },
   "Critical Damage": {
     "message": "Kritischer Schaden",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|14_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|21_1"
   },
   "SpeedMultiplierName": {
     "message": "AA/DoT Multiplikator",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|14_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|21_1"
   },
   "Dmgper100Tooltip": {
     "message": "Durchschnittlicher Schaden mit einer 100 Potenz Fähigkeit",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|14_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|21_1"
   },
   "Empty": {
     "message": "Leer",
-    "description": "LootmasterUI.<DrawSlot>g__DrawItem|18_0"
+    "description": "LootmasterUI.<DrawSlot>g__DrawItem|25_0"
   },
   "PlayerDetailsTitle": {
     "message": "Spieler Details",
@@ -599,6 +571,10 @@
     "message": "Charakter von Datenbank abrufen",
     "description": "GetCharacterFromDBWindow..ctor"
   },
+  "Inventory:AdditionalGear": {
+    "message": "Additional Gear",
+    "description": "InventoryWindow.Draw"
+  },
   "Swap Position of": {
     "message": "Tausche Position von",
     "description": "SwapPositionWindow..ctor"
@@ -607,77 +583,137 @@
     "message": "Spielerpositionen tauschen",
     "description": "SwapPositionWindow.Draw"
   },
+  "LootSession:State:STARTED": {
+    "message": "Chosing Loot",
+    "description": "LootSessionExtensions.FriendlyName"
+  },
+  "LootSession:State:LOOT_CHOSEN": {
+    "message": "Loot locked",
+    "description": "LootSessionExtensions.FriendlyName"
+  },
+  "LootSession:State:DISTRIBUTION_STARTED": {
+    "message": "Distribution started",
+    "description": "LootSessionExtensions.FriendlyName"
+  },
+  "LootSession:State:FINISHED": {
+    "message": "Finished",
+    "description": "LootSessionExtensions.FriendlyName"
+  },
+  "undefinded": {
+    "message": "undefinded",
+    "description": "LootSessionExtensions.FriendlyName"
+  },
+  "LootCategory:Need": {
+    "message": "Need",
+    "description": "LootSessionExtensions.FriendlyName"
+  },
+  "LootCategory:Greed": {
+    "message": "Greed",
+    "description": "LootSessionExtensions.FriendlyName"
+  },
+  "LootCategory:Pass": {
+    "message": "Pass",
+    "description": "LootSessionExtensions.FriendlyName"
+  },
+  "LootCategory:Undecided": {
+    "message": "Undecided",
+    "description": "LootSessionExtensions.FriendlyName"
+  },
+  "LootResult:ItemAwardedTo": {
+    "message": "awarded to",
+    "description": "LootResultContainer.get_ShortResult"
+  },
+  "LootResult:GreedOnly": {
+    "message": "Greed only",
+    "description": "LootResultContainer.get_ShortResult"
+  },
+  "LootResult:PlayerWon": {
+    "message": "won",
+    "description": "LootResultContainer.get_ShortResult"
+  },
+  "LootResult:PlayerWonOver": {
+    "message": "over",
+    "description": "LootResultContainer.get_ShortResult"
+  },
   "Loot session for": {
     "message": "Loot Sitzung für",
     "description": "LootSessionUI..ctor"
   },
-  "Group": {
-    "message": "Gruppe",
+  "Lootsession:State": {
+    "message": "Current State",
     "description": "LootSessionUI.Draw"
   },
-  "Distribute": {
-    "message": "Verteilen",
+  "LootSession:RulesButton:Tooltip": {
+    "message": "Override ruling ooptions",
     "description": "LootSessionUI.Draw"
   },
-  "OpenLootResultTooltip": {
-    "message": "Öffnet ein Fenster mit den Ergebnissen der Lootverteilung für die aktuelle Gruppe mit den angegebenen Regeln",
+  "LootSesseion:CalcButton:Text": {
+    "message": "Calculate",
     "description": "LootSessionUI.Draw"
   },
-  "DistributeForSolo": {
-    "message": "Die ausgewählte Gruppe hat nur ein Mitglied!",
-    "description": "LootSessionUI.Draw"
-  },
-  "NoLootSelected": {
-    "message": "Es ist kein Loot ausgewählt!",
+  "LootSesseion:CalcButton:Tooltip": {
+    "message": "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection",
     "description": "LootSessionUI.Draw"
   },
   "Role priority": {
     "message": "Rollenpriorität",
-    "description": "LootSessionUI.Draw"
-  },
-  "OverrideWithDefaults": {
-    "message": "Überschreibe diese Einstellungen mit de, Standard aus der Konfiguration",
-    "description": "LootSessionUI.Draw"
+    "description": "LootSessionUI.DrawRulingOptions"
   },
   "ChangesOnlyForThisLootSesseion": {
     "message": "Änderungen hier gelten nur für die aktuelle Loot Sitzung",
-    "description": "LootSessionUI.Draw"
+    "description": "LootSessionUI.DrawRulingOptions"
   },
-  "LootResultTitle": {
-    "message": "Loot Ergebnisse",
-    "description": "LootResultWindow..ctor"
+  "Results for": {
+    "message": "Results for",
+    "description": "LootSessionUI.DrawResults"
   },
-  "No loot": {
-    "message": "Kein Loot",
-    "description": "LootResultWindow.Draw"
+  "LootResults:AbortButton:Text": {
+    "message": "Abort",
+    "description": "LootSessionUI.DrawResults"
   },
-  "Greed only": {
-    "message": "Nur Gier",
-    "description": "LootResultWindow.Draw"
+  "LootResults:AbortButton:Tooltip": {
+    "message": "Abort distribution to change loot or rules",
+    "description": "LootSessionUI.DrawResults"
+  },
+  "LootResultWindow:GuaranteedItems": {
+    "message": "Guaranteed Items (per player)",
+    "description": "LootSessionUI.DrawResults"
+  },
+  "None": {
+    "message": "Nichts",
+    "description": "LootSessionUI.DrawResults"
+  },
+  "LootResultWindow:Button:AwardGuaranteed": {
+    "message": "Award to all",
+    "description": "LootSessionUI.DrawResults"
+  },
+  "LootResultWindow:Button:AwardGuaranteed:Tooltip": {
+    "message": "Award 1 to eacch player",
+    "description": "LootSessionUI.DrawResults"
+  },
+  "LootResult:PossibleItems": {
+    "message": "Items to distribute:",
+    "description": "LootSessionUI.DrawResults"
   },
   "Pos": {
     "message": "Pos",
-    "description": "LootResultWindow.Draw"
+    "description": "LootSessionUI.DrawResults"
   },
   "Needed items": {
     "message": "Benötigte Items",
-    "description": "LootResultWindow.Draw"
+    "description": "LootSessionUI.DrawResults"
   },
   "Rule": {
     "message": "Regel",
-    "description": "LootResultWindow.Draw"
+    "description": "LootSessionUI.DrawResults"
+  },
+  "LootResult:AwardButton:Tooltip": {
+    "message": "Award to player",
+    "description": "LootSessionUI.DrawResults"
   },
   "Savage": {
     "message": "Episch",
-    "description": "CuratedData..cctor"
-  },
-  "Dragonsong Reprise": {
-    "message": "Drachenkrieg",
-    "description": "CuratedData..cctor"
-  },
-  "Ultimate": {
-    "message": "Fatal",
-    "description": "CuratedData..cctor"
+    "description": "CuratedData..ctor"
   },
   "Strength": {
     "message": "Stärke",
@@ -831,8 +867,16 @@
     "message": "Solo",
     "description": "EnumExtensions.FriendlyName"
   },
+  "Group": {
+    "message": "Gruppe",
+    "description": "EnumExtensions.FriendlyName"
+  },
   "FullGroup": {
     "message": "Volle Gruppe",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Weapon": {
+    "message": "Waffe",
     "description": "EnumExtensions.FriendlyName"
   },
   "Shield": {
@@ -847,6 +891,10 @@
     "message": "Rumpf",
     "description": "EnumExtensions.FriendlyName"
   },
+  "Gloves": {
+    "message": "Hände",
+    "description": "EnumExtensions.FriendlyName"
+  },
   "NoBelts": {
     "message": "Gürtel sind ein Konzept der Vergangenheit",
     "description": "EnumExtensions.FriendlyName"
@@ -857,6 +905,10 @@
   },
   "Shoes": {
     "message": "Füße",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Earrings": {
+    "message": "Ohrring",
     "description": "EnumExtensions.FriendlyName"
   },
   "Necklace": {
@@ -907,6 +959,14 @@
     "message": "Relikt",
     "description": "EnumExtensions.FriendlyName"
   },
+  "Shop": {
+    "message": "Shop",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "ItemSource:Loot": {
+    "message": "Looted",
+    "description": "EnumExtensions.FriendlyName"
+  },
   "Tank": {
     "message": "Tank",
     "description": "EnumExtensions.FriendlyName"
@@ -926,6 +986,30 @@
   "Caster": {
     "message": "Caster",
     "description": "EnumExtensions.FriendlyName"
+  },
+  "EXP_2": {
+    "message": "A Realm Reborn",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_3": {
+    "message": "Heavensward",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_4": {
+    "message": "Stormblood",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_5": {
+    "message": "Shadowbringers",
+    "description": "GameExpansion.get_Name"
+  },
+  "EXP_6": {
+    "message": "Endwalker",
+    "description": "GameExpansion.get_Name"
+  },
+  "Unknown": {
+    "message": "Unbekannt",
+    "description": "GameExpansion.get_Name"
   },
   "BISOverUpgrade": {
     "message": "BiS > Verbesserung",
@@ -951,10 +1035,6 @@
     "message": "DPS",
     "description": "LootRule.GetName"
   },
-  "None": {
-    "message": "Nichts",
-    "description": "LootRule.GetName"
-  },
   "Greed": {
     "message": "Gier",
     "description": "LootRule.GetName"
@@ -966,30 +1046,6 @@
   "Not defined": {
     "message": "Nicht definiert",
     "description": "LootRule.GetName"
-  },
-  "EXP_2": {
-    "message": "A Realm Reborn",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_3": {
-    "message": "Heavensward",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_4": {
-    "message": "Stormblood",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_5": {
-    "message": "Shadowbringers",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_6": {
-    "message": "Endwalker",
-    "description": "GameExpansion.get_Name"
-  },
-  "Unknown": {
-    "message": "Unbekannt",
-    "description": "GameExpansion.get_Name"
   },
   "LodestoneConnector:CharNotFound": {
     "message": "Charakter wurde nicht auf dem Lodestone gefunden.",
