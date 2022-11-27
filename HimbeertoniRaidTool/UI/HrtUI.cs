@@ -2,7 +2,7 @@
 using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using Loc = HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
@@ -72,8 +72,6 @@ namespace HimbeertoniRaidTool.UI
                 MinimumSize = MinSize,
                 MaximumSize = MaxSize
             };
-            if (!IsOpen && _volatile)
-                Dispose();
         }
         public override bool DrawConditions()
         {
@@ -105,7 +103,7 @@ namespace HimbeertoniRaidTool.UI
 
         public ConfimationDialog(Action action, string text, string title = "") : base(true)
         {
-            title = title.Equals("") ? Localize("Confirmation", "Confirmation") : title;
+            title = title.Equals("") ? Loc.Localize("Confirmation", "Confirmation") : title;
             _Text = text;
             _Title = title;
             _Action = action;
@@ -121,7 +119,7 @@ namespace HimbeertoniRaidTool.UI
             if (ImGui.BeginPopupModal(_Title, ref Visible, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar))
             {
                 ImGui.Text(_Text);
-                if (ImGuiHelper.Button(Localize("OK", "OK"), Localize("Confirm action", "OK")))
+                if (ImGuiHelper.Button(Loc.Localize("OK", "OK"), Loc.Localize("Confirm action", "OK")))
                 {
                     _Action();
                     Hide();

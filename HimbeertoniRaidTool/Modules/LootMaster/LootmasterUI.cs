@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.HrtServices;
@@ -43,14 +44,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private bool AddChild(HrtWindow child)
         {
-            Queue<HrtWindow> toRemove = new();
-            foreach (HrtWindow w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen).Cast<HrtWindow>())
-                toRemove.Enqueue(w);
-            foreach (HrtWindow w in toRemove)
-            {
-                if (!w.Equals(this))
-                    _lootMaster.WindowSystem.RemoveWindow(w);
-            }
             if (_lootMaster.WindowSystem.Windows.Any(w => child.Equals(w)))
             {
                 child.Hide();
@@ -63,6 +56,22 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public override void OnOpen()
         {
             _CurrenGroupIndex = _lootMaster.Configuration.Data.LastGroupIndex;
+        }
+        public override void Update()
+        {
+            base.Update();
+            Queue<HrtWindow> toRemove = new();
+            foreach (HrtWindow w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen).Cast<HrtWindow>())
+                toRemove.Enqueue(w);
+            foreach (HrtWindow w in toRemove)
+            {
+                if (!w.Equals(this))
+                {
+                    PluginLog.Debug($"Cleaning Up Window: {w.WindowName}");
+                    _lootMaster.WindowSystem.RemoveWindow(w);
+                }
+
+            }
         }
         private void DrawUiMessages()
         {

@@ -115,6 +115,7 @@ namespace HimbeertoniRaidTool
                 try
                 {
                     Services.PluginInterface.UiBuilder.Draw -= module.WindowSystem.Draw;
+                    module.WindowSystem.RemoveAllWindows();
                     module.Dispose();
                 }
                 catch (Exception e)
