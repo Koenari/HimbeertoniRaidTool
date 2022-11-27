@@ -56,7 +56,6 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             foreach (LootResultContainer results in Results.Values)
                 results.Eval();
-            { }
         }
         public bool RevertToChooseLoot()
         {
@@ -100,7 +99,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private void EvaluateFinished()
         {
-            if (Results.Values.All(l => l.IsAwarded) && GuaranteedLoot.Values.All(t => t))
+            if (Results.Values.All(l => l.Finished) && GuaranteedLoot.Values.All(t => t))
                 CurrentState = State.FINISHED;
         }
         internal bool AwardGuaranteedLoot(HrtItem item)
@@ -258,6 +257,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public LootResult this[int index] => Participants[index];
         public LootResult? AwardedTo => AwardedIdx.HasValue ? this[AwardedIdx.Value] : null;
         public bool IsAwarded => AwardedTo != null;
+        public bool Finished => IsAwarded || Count == 0 || this[0].Category != LootCategory.Need;
         public int? AwardedIdx { get; private set; }
 
         private string? ShortResultCache;
