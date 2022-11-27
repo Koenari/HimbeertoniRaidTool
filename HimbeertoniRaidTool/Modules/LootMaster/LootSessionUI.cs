@@ -21,6 +21,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             Size = new Vector2(1100, 600);
             SizeCondition = ImGuiCond.Appearing;
             Title = $"{Localize("Loot session for", "Loot session for")} {lootSource.Name}";
+            Flags = ImGuiWindowFlags.AlwaysAutoResize;
             OpenCentered = true;
         }
         public override void Draw()
@@ -72,58 +73,52 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             const int ItemsPerRow = 7;
             int rows = (int)Math.Ceiling(_session.Loot.Count / (float)ItemsPerRow);
             ImGui.BeginDisabled(_session.CurrentState >= LootSession.State.LOOT_CHOSEN);
-            if (ImGui.BeginChild("Loot", new Vector2(ScaleFactor * ItemSize * ItemsPerRow, rows * (ItemSize + 10) * ScaleFactor)))
+            for (int row = 0; row < rows; row++)
             {
-                for (int row = 0; row < rows; row++)
+                ImGui.PushID(row);
+                if (ImGui.BeginTable("LootSelection", ItemsPerRow, ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.SizingFixedFit))
                 {
-                    ImGui.PushID(row);
-                    if (ImGui.BeginTable("LootSelection", ItemsPerRow, ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.SizingFixedFit))
+                    for (int col = 0; col < ItemsPerRow; col++)
                     {
-                        for (int col = 0; col < ItemsPerRow; col++)
+                        if (row * ItemsPerRow + col >= _session.Loot.Count)
                         {
-                            if (row * ItemsPerRow + col >= _session.Loot.Count)
-                            {
-                                ImGui.TableNextRow();
-                                break;
-                            }
+                            ImGui.TableNextRow();
+                            break;
+                        }
 
-                            HrtItem item = _session.Loot[row * ItemsPerRow + col].item;
-                            ImGui.TableNextColumn();
-                            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
-                            ImGui.Image(Services.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, Vector2.One * ScaleFactor * (ItemSize - 30f));
-                            if (ImGui.IsItemHovered())
-                            {
-                                ImGui.BeginTooltip();
-                                item.Draw();
-                                ImGui.EndTooltip();
-                            }
-                        }
-                        for (int col = 0; col < ItemsPerRow; col++)
+                        HrtItem item = _session.Loot[row * ItemsPerRow + col].item;
+                        ImGui.TableNextColumn();
+                        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
+                        ImGui.Image(Services.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, Vector2.One * ScaleFactor * (ItemSize - 30f));
+                        if (ImGui.IsItemHovered())
                         {
-                            if (row * ItemsPerRow + col >= _session.Loot.Count)
-                            {
-                                ImGui.TableNextRow();
-                                break;
-                            }
-                            (HrtItem item, int count) = _session.Loot[row * ItemsPerRow + col];
-                            ImGui.TableNextColumn();
-                            int count2 = count;
-                            ImGui.SetNextItemWidth(ScaleFactor * (ItemSize - 10f));
-                            if (ImGui.InputInt($"##Input{item.ID}", ref count2))
-                            {
-                                if (count2 < 0)
-                                    count2 = 0;
-                                _session.Loot[row * ItemsPerRow + col] = (item, count2);
-                            }
+                            ImGui.BeginTooltip();
+                            item.Draw();
+                            ImGui.EndTooltip();
                         }
-                        ImGui.EndTable();
                     }
-                    ImGui.PopID();
+                    for (int col = 0; col < ItemsPerRow; col++)
+                    {
+                        if (row * ItemsPerRow + col >= _session.Loot.Count)
+                        {
+                            ImGui.TableNextRow();
+                            break;
+                        }
+                        (HrtItem item, int count) = _session.Loot[row * ItemsPerRow + col];
+                        ImGui.TableNextColumn();
+                        int count2 = count;
+                        ImGui.SetNextItemWidth(ScaleFactor * (ItemSize - 10f));
+                        if (ImGui.InputInt($"##Input{item.ID}", ref count2))
+                        {
+                            if (count2 < 0)
+                                count2 = 0;
+                            _session.Loot[row * ItemsPerRow + col] = (item, count2);
+                        }
+                    }
+                    ImGui.EndTable();
                 }
-
-                ImGui.EndChild();
+                ImGui.PopID();
             }
-            ImGui.SameLine();
             ImGui.EndDisabled();
         }
         private void DrawRulingOptions()
