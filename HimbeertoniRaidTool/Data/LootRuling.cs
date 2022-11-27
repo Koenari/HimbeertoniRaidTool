@@ -13,6 +13,7 @@ namespace HimbeertoniRaidTool.Data
     public class LootRuling
     {
         public static readonly LootRule Default = new(LootRuleEnum.None);
+        public static readonly LootRule NeedOverGreed = new(LootRuleEnum.NeedGreed);
         public static IEnumerable<LootRule> PossibleRules
         {
             get

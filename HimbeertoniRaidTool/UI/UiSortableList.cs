@@ -38,19 +38,22 @@ namespace HimbeertoniRaidTool.UI
         /// <summary>
         /// Draws Ui for Editing this list using ImGui. Should be called inside of an ImGui Frame.
         /// </summary>
-        public void Draw()
+        public bool Draw()
         {
+            bool changed = false;
             for (int i = 0; i < Lenght; i++)
             {
 
                 if (ImGui.Combo("##" + i, ref FieldRefs[i],
                     Possibilities.ConvertAll(x => x!.ToString()).ToArray(), Possibilities.Count))
                 {
+                    changed = true;
                     ReorganizeList(i);
                 }
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"x##{i}", Localize("Remove option", "Remove option")))
                 {
+                   changed= true;
                     DeleteItem(i);
                 }
             }
@@ -58,9 +61,11 @@ namespace HimbeertoniRaidTool.UI
             {
                 if (ImGuiHelper.Button("+", Localize("Add option", "Add option")))
                 {
+                    changed= true;
                     AddItem();
                 }
             }
+            return changed;
         }
         private void AddItem()
         {

@@ -94,7 +94,7 @@ namespace HimbeertoniRaidTool
             [JsonProperty]
             public bool HideInCombat = true;
         }
-        public class ConfigUI : HrtWindow
+        public class ConfigUI : HrtWindow, IDisposable
         {
             private readonly Dalamud.Interface.Windowing.WindowSystem _windowSystem;
             private readonly Configuration _configuration;
@@ -113,11 +113,10 @@ namespace HimbeertoniRaidTool
                 Title = Localize("ConfigWindowTitle", "HimbeerToni Raid Tool Configuration");
                 IsOpen = false;
             }
-            public new void Dispose()
+            public void Dispose()
             {
                 Services.PluginInterface.UiBuilder.OpenConfigUi -= Show;
                 Services.PluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
-                base.Dispose();
             }
             public override void OnOpen()
             {

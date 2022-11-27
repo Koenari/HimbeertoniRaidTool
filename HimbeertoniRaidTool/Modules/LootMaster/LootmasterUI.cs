@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.Connectors;
 using HimbeertoniRaidTool.Data;
 using HimbeertoniRaidTool.HrtServices;
@@ -23,7 +24,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _ => _lootMaster.Configuration.Data.ItemLevelColors[3],
         };
         private readonly LootMasterModule _lootMaster;
-        private int _CurrenGroupIndex;
+        internal int _CurrenGroupIndex { get; private set; }
         private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
         private readonly Queue<HrtUiMessage> _messageQueue = new();
@@ -43,31 +44,34 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private bool AddChild(HrtWindow child)
         {
-            Queue<HrtWindow> toRemove = new();
-            foreach (HrtWindow w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen).Cast<HrtWindow>())
-                toRemove.Enqueue(w);
-            foreach (HrtWindow w in toRemove)
-            {
-                if (!w.Equals(this))
-                    _lootMaster.WindowSystem.RemoveWindow(w);
-            }
             if (_lootMaster.WindowSystem.Windows.Any(w => child.Equals(w)))
             {
-                child.Dispose();
+                child.Hide();
                 return false;
             }
             _lootMaster.WindowSystem.AddWindow(child);
             child.Show();
             return true;
         }
-        protected override void BeforeDispose()
-        {
-            _lootMaster.Configuration.Data.LastGroupIndex = _CurrenGroupIndex;
-            _lootMaster.Configuration.Save();
-        }
         public override void OnOpen()
         {
             _CurrenGroupIndex = _lootMaster.Configuration.Data.LastGroupIndex;
+        }
+        public override void Update()
+        {
+            base.Update();
+            Queue<HrtWindow> toRemove = new();
+            foreach (HrtWindow w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen).Cast<HrtWindow>())
+                toRemove.Enqueue(w);
+            foreach (HrtWindow w in toRemove)
+            {
+                if (!w.Equals(this))
+                {
+                    PluginLog.Debug($"Cleaning Up Window: {w.WindowName}");
+                    _lootMaster.WindowSystem.RemoveWindow(w);
+                }
+
+            }
         }
         private void DrawUiMessages()
         {
@@ -374,7 +378,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 
         private void DrawPlayer(Player player, int pos)
         {
-            if (player.Filled && player.MainChar.Filled)
+            if (player.Filled)
             {
                 //Player Column
                 ImGui.TableNextColumn();
@@ -517,9 +521,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 if (ImGui.IsItemHovered())
                 {
                     ImGui.BeginTooltip();
-                    ImGui.Columns(2);
+                    if (item.Filled && bis.Filled)
+                        ImGui.Columns(2);
                     item.Draw();
-                    ImGui.NextColumn();
+                    if (item.Filled && bis.Filled)
+                        ImGui.NextColumn();
                     bis.Draw();
                     ImGui.Columns();
                     ImGui.EndTooltip();
@@ -578,7 +584,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             {
                 if (ImGuiHelper.Button(lootSource.Name, null))
                 {
-                    AddChild(new LootSessionUI(_lootMaster, lootSource, CurrentGroup, _lootMaster.Configuration.Data.LootRuling, _lootMaster.Configuration.Data.RolePriority));
+                    AddChild(new LootSessionUI(lootSource, CurrentGroup, _lootMaster.Configuration.Data.LootRuling, _lootMaster.Configuration.Data.RolePriority));
                 }
                 ImGui.SameLine();
             }

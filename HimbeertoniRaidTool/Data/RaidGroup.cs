@@ -52,7 +52,8 @@ namespace HimbeertoniRaidTool.Data
                     int idx = i;
                     if (Type == GroupType.Group)
                         idx *= 2;
-                    yield return _Players[idx];
+                    if (_Players[idx].Filled)
+                        yield return _Players[idx];
                 }
             }
 

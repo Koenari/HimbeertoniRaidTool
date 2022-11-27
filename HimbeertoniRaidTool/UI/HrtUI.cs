@@ -2,7 +2,7 @@
 using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using Loc = HimbeertoniRaidTool.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.UI
 {
@@ -25,6 +25,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 ModalChild = null;
             }
+            base.Update();
         }
         public override void PostDraw()
         {
@@ -40,9 +41,8 @@ namespace HimbeertoniRaidTool.UI
                 ModalChild.IsOpen = Open;
         }
     }
-    public abstract class HrtWindow : Window, IDisposable, IEquatable<HrtWindow>
+    public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     {
-        private bool _disposed = false;
         private readonly bool _volatile;
         private readonly string _id;
         protected string Title;
@@ -58,8 +58,6 @@ namespace HimbeertoniRaidTool.UI
         }
         public void Show()
         {
-            if (_disposed)
-                return;
             IsOpen = true;
         }
         public void Hide()
@@ -74,23 +72,10 @@ namespace HimbeertoniRaidTool.UI
                 MinimumSize = MinSize,
                 MaximumSize = MaxSize
             };
-            if (!IsOpen && _volatile)
-                Dispose();
-        }
-
-        protected virtual void BeforeDispose() { }
-        public void Dispose()
-        {
-            if (_disposed)
-                return;
-            Hide();
-            BeforeDispose();
-            _disposed = true;
         }
         public override bool DrawConditions()
         {
-            return !_disposed
-                && !(Services.Config.HideInBattle && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
+            return !(Services.Config.HideInBattle && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
                 && !(Services.Config.HideOnZoneChange && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas])
                 && base.DrawConditions();
         }
@@ -118,7 +103,7 @@ namespace HimbeertoniRaidTool.UI
 
         public ConfimationDialog(Action action, string text, string title = "") : base(true)
         {
-            title = title.Equals("") ? Localize("Confirmation", "Confirmation") : title;
+            title = title.Equals("") ? Loc.Localize("Confirmation", "Confirmation") : title;
             _Text = text;
             _Title = title;
             _Action = action;
@@ -134,7 +119,7 @@ namespace HimbeertoniRaidTool.UI
             if (ImGui.BeginPopupModal(_Title, ref Visible, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar))
             {
                 ImGui.Text(_Text);
-                if (ImGuiHelper.Button(Localize("OK", "OK"), Localize("Confirm action", "OK")))
+                if (ImGuiHelper.Button(Loc.Localize("OK", "OK"), Loc.Localize("Confirm action", "OK")))
                 {
                     _Action();
                     Hide();
