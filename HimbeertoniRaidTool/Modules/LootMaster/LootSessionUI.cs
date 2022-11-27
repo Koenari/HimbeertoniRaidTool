@@ -10,6 +10,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     internal class LootSessionUI : HrtWindow
     {
+        private const string RulesPopupID = "RulesButtonPopup";
         private readonly LootSession _session;
         private readonly UiSortableList<LootRule> _ruleListUi;
         internal LootSessionUI(InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling, RolePriority defaultRolePriority) : base()
@@ -18,7 +19,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             _ruleListUi = new(LootRuling.PossibleRules, lootRuling.RuleSet);
 
             MinSize = new Vector2(600, 300);
-            Size = new Vector2(1100, 600);
+            //Size = new Vector2(1100, 600);
             SizeCondition = ImGuiCond.Appearing;
             Title = $"{Localize("Loot session for", "Loot session for")} {lootSource.Name}";
             Flags = ImGuiWindowFlags.AlwaysAutoResize;
@@ -33,8 +34,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.Text($"{Localize("Lootsession:State", "Current State")}: {_session.CurrentState.FriendlyName()}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Cogs, "RulesButton", Localize("LootSession:RulesButton:Tooltip", "Override ruling ooptions")))
-                ImGui.OpenPopup("RulesButtonPopup");
-            if (ImGui.BeginPopup("RulesButtonPopup"))
+                ImGui.OpenPopup(RulesPopupID);
+            if (ImGui.BeginPopup(RulesPopupID))
             {
                 if (ImGuiHelper.CloseButton())
                     ImGui.CloseCurrentPopup();
@@ -54,8 +55,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 ImGui.EndCombo();
             }
             ImGui.SameLine();
-            if (ImGuiHelper.Button(Localize("Calculate", "Calculate"),
-                Localize("OpenLootResultTooltip", "Opens a window with results of loot distribution according to these rules and current equipment of players")))
+            if (ImGuiHelper.Button(Localize("LootSesseion:CalcButton:Text", "Calculate"),
+                Localize("LootSesseion:CalcButton:Tooltip", "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection")))
                 _session.Evaluate();
             ImGui.EndDisabled();
             ImGui.NewLine();
@@ -140,7 +141,8 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             //Header 
             ImGui.Text($"{Localize("Results for", "Results for")} {_session.Instance.Name} ({_session.Group.Name})");
             ImGui.SameLine();
-            if (ImGuiHelper.Button("Abort", "Abort", _session.CurrentState < LootSession.State.DISTRIBUTION_STARTED))
+            if (ImGuiHelper.Button(Localize("LootResults:AbortButton:Text", "Abort"),
+                Localize("LootResults:AbortButton:Tooltip", "Abort distribution to change loot or rules"), _session.CurrentState < LootSession.State.DISTRIBUTION_STARTED))
                 _session.RevertToChooseLoot();
             ImGui.Separator();
             //Guaranteed Item
@@ -164,12 +166,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 }
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"{Localize("LootResultWindow:Button:AwardGuaranteed", "Award to all")}##{item.ID}",
-                    Localize("LootResultWindow:Button:AwardGuaranteedTooltip", "Award 1 to eacch player"), !awareded))
+                    Localize("LootResultWindow:Button:AwardGuaranteed:Tooltip", "Award 1 to eacch player"), !awareded))
                     _session.AwardGuaranteedLoot(item);
             }
             //Possible Items
             ImGui.NewLine();
-            ImGui.Text(Localize("LootResult:PossibleItems", "Items"));
+            ImGui.Text(Localize("LootResult:PossibleItems", "Items to distribute:"));
             ImGui.Separator();
             if (_session.Results.Count == 0)
                 ImGui.Text(Localize("None", "None"));
@@ -213,7 +215,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                 {
                                     ImGui.SameLine();
                                     if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"Award##{i}##{neededItem.ID}",
-                                        Localize("LootResult:Button:AwardTooltip", "Award"), !results.IsAwarded))
+                                        Localize("LootResult:AwardButton:Tooltip", "Award to player"), !results.IsAwarded))
                                     {
                                         _session.AwardItem((item, nr), neededItem, i);
                                     }
@@ -241,7 +243,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             }
                             else
                             {
-                                ImGui.Text(singleResult.Category.ToString());
+                                ImGui.Text(singleResult.Category.FriendlyName());
                                 foreach (LootRule rule in _session.RulingOptions.RuleSet)
                                 {
                                     ImGui.TableNextColumn();

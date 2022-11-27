@@ -168,6 +168,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             LootSession.State.FINISHED => Localize("LootSession:State:FINISHED", "Finished"),
             _ => Localize("undefinded", "undefinded")
         };
+        public static string FriendlyName(this LootCategory cat) => cat switch
+        {
+            LootCategory.Need => Localize("LootCategory:Need", "Need"),
+            LootCategory.Greed => Localize("LootCategory:Greed", "Greed"),
+            LootCategory.Pass => Localize("LootCategory:Pass", "Pass"),
+            LootCategory.Undecided => Localize("LootCategory:Undecided", "Undecided"),
+            _ => Localize("undefinded", "undefinded"),
+        };
 
     }
     public enum LootCategory
