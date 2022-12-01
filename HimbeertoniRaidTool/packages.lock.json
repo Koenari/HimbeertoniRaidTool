@@ -32,8 +32,30 @@
           "HtmlAgilityPack": "1.11.46"
         }
       },
+      "Lumina": {
+        "type": "Transitive",
+        "resolved": "3.10.0",
+        "contentHash": "OKDBlcz8VcapWCZjJWKoCq6iWjtooiN2WSu8ijP6hGtSTX03ksHuPFypSswur8KBCY9I6XYOYVBZ6IccFjrjnA=="
+      },
+      "Lumina.Excel": {
+        "type": "Transitive",
+        "resolved": "6.2.1",
+        "contentHash": "czgE8ZrB91HFDFHRopdOHAwbo71r+XVmLvyteFl/+Mqa43WxhbmOlDkxV8yeh33qkqNzP6cCyU7ja30p0MRlxw==",
+        "dependencies": {
+          "Lumina": "3.10.0"
+        }
+      },
+      "Newtonsoft.Json": {
+        "type": "Transitive",
+        "resolved": "13.0.2",
+        "contentHash": "R2pZ3B0UjeyHShm9vG+Tu0EBb2lC8b0dFzV9gVn50ofHXh9Smjk6kTn7A/FdAsC8B5cKib1OnGYOXxRBz5XQDg=="
+      },
       "himbeertoniraidtool.common": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Lumina.Excel": "[6.2.1, )",
+          "Newtonsoft.Json": "[13.0.2, )"
+        }
       },
       "netstone": {
         "type": "Project",
