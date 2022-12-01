@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Dalamud.Game;
 using Dalamud.Interface.Windowing;
-using HimbeertoniRaidTool.UI;
+using HimbeertoniRaidTool.Plugin.UI;
 
-namespace HimbeertoniRaidTool.Modules
+namespace HimbeertoniRaidTool.Plugin.Modules
 {
     public interface IHrtModule<T, S> : IHrtModule where T : new() where S : IHrtConfigUi
     {

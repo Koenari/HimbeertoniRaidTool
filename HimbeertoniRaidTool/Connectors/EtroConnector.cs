@@ -4,7 +4,7 @@ using Dalamud.Game;
 using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 
-namespace HimbeertoniRaidTool.Connectors
+namespace HimbeertoniRaidTool.Plugin.Connectors
 {
     internal class EtroConnector : WebConnector
     {
@@ -32,7 +32,7 @@ namespace HimbeertoniRaidTool.Connectors
             if (MateriaCache.Count == 0)
             {
                 string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
-                EtroMateria[]? matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
+                var matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
                 if (matList != null)
                     foreach (var mat in matList)
                         for (byte i = 0; i < mat.tiers.Length; i++)
@@ -75,7 +75,7 @@ namespace HimbeertoniRaidTool.Connectors
                 if (set[slot].Source == ItemSource.Crafted)
                     set[slot].IsHq = true;
                 string idString = id.ToString() + (slot == GearSetSlot.Ring1 ? "L" : slot == GearSetSlot.Ring2 ? "R" : "");
-                if (etroSet!.materia?.TryGetValue(idString, out Dictionary<uint, uint?>? materia) ?? false)
+                if (etroSet!.materia?.TryGetValue(idString, out var materia) ?? false)
                     foreach (uint? matId in materia.Values)
                         if (matId.HasValue)
                             set[slot].Materia.Add(new(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, byte)>(matId.Value, (0, 0))));

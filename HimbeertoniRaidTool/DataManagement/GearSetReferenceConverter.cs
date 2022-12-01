@@ -3,7 +3,7 @@ using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace HimbeertoniRaidTool.DataManagement
+namespace HimbeertoniRaidTool.Plugin.DataManagement
 {
     internal class GearSetReferenceConverter : JsonConverter<GearSet>
     {

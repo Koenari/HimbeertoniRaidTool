@@ -7,7 +7,7 @@ using Dalamud.Plugin;
 using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 
-namespace HimbeertoniRaidTool.DataManagement
+namespace HimbeertoniRaidTool.Plugin.DataManagement
 {
     public class HrtDataManager
     {
@@ -165,7 +165,7 @@ namespace HimbeertoniRaidTool.DataManagement
                 Thread.Sleep(1);
             }
             hasError |= CharacterDB.UpdateIndex(oldWorld, oldName, ref c);
-            foreach (PlayableClass job in c)
+            foreach (var job in c)
             {
                 string oldID = job.Gear.HrtID;
                 job.Gear.UpdateID(c, job.Job);

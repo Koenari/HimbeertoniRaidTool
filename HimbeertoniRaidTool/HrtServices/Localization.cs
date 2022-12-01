@@ -10,7 +10,7 @@ using Mono.Cecil;
 using Newtonsoft.Json;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
 #endif
-namespace HimbeertoniRaidTool.HrtServices
+namespace HimbeertoniRaidTool.Plugin.HrtServices
 {
     internal static class Localization
     {

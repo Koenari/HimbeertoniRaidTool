@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
-namespace HimbeertoniRaidTool.UI
+
+namespace HimbeertoniRaidTool.Plugin.UI
 {
     public static class Colors
     {

@@ -6,12 +6,12 @@ using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.DataExtensions;
+using HimbeertoniRaidTool.Plugin.DataExtensions;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using XivCommon;
 
-namespace HimbeertoniRaidTool.Modules.LootMaster
+namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster
 {
     //Inspired by aka Copied from
     //https://github.com/Caraxi/SimpleTweaksPlugin/blob/main/Tweaks/UiAdjustment/ExamineItemLevel.cs
@@ -97,7 +97,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (worldFromExamine is null)
                 return;
             //Make sure examine window correspods to intended character and character info is fetchable
-            if (!Services.CharacterInfoService.TryGetChar(out PlayerCharacter? target, charNameFromExamine, worldFromExamine)
+            if (!Services.CharacterInfoService.TryGetChar(out var target, charNameFromExamine, worldFromExamine)
                 && !Services.CharacterInfoService.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
             {
                 PluginLog.Debug($"Name + World from examine window didn't match any character in the area: " +
@@ -116,7 +116,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
 
             //Start getting Infos from Game
-            Job targetClass = target.GetJob();
+            var targetClass = target.GetJob();
             if (!targetClass.IsCombatJob())
                 return;
             //Getting level does not work in level synced content
@@ -124,14 +124,14 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 targetChar[targetClass].Level = target.Level;
             try
             {
-                InventoryContainer* container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
+                var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
                 GearSet setToFill = new(GearSetManager.HRT, targetChar, targetClass);
                 Services.HrtDataManager.GetManagedGearSet(ref setToFill);
                 for (int i = 0; i < 13; i++)
                 {
                     if (i == (int)GearSetSlot.Waist)
                         continue;
-                    InventoryItem* slot = container->GetInventorySlot(i);
+                    var slot = container->GetInventorySlot(i);
                     if (slot->ItemID == 0)
                         continue;
                     setToFill[(GearSetSlot)i] = new(slot->ItemID)

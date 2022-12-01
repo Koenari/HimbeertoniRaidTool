@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 using Dalamud.Game;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.UI;
+using HimbeertoniRaidTool.Plugin.UI;
 using Lumina.Excel.GeneratedSheets;
 using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Model.Parseables.Character.Gear;
 using NetStone.Search.Character;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.Connectors
+namespace HimbeertoniRaidTool.Plugin.Connectors
 {
     internal class LodestoneConnector : NetstoneBase
     {
@@ -27,9 +27,9 @@ namespace HimbeertoniRaidTool.Connectors
 
         internal LodestoneConnector(Framework fw) : base(fw, new(NoOfAllowedLodestoneRequests, new(0, 0, 30)))
         {
-            this._itemSheet = Services.DataManager.GetExcelSheet<Item>();
-            this._materiaSheet = Services.DataManager.GetExcelSheet<Materia>();
-            this._romanNumerals = new() {
+            _itemSheet = Services.DataManager.GetExcelSheet<Item>();
+            _materiaSheet = Services.DataManager.GetExcelSheet<Materia>();
+            _romanNumerals = new() {
                 { 'I', 1 }, { 'V', 5 }, { 'X', 10 }, { 'L', 50 }
             };
         }
@@ -41,7 +41,7 @@ namespace HimbeertoniRaidTool.Connectors
 
             try
             {
-                LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
+                var lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
                 if (lodestoneCharacter == null)
                     return new HrtUiMessage(Localize("LodestoneConnector:CharNotFound", "Character not found on Lodestone."), HrtUiMessageType.Failure);
                 if (lodestoneCharacter.Gear.Soulcrystal != null)
@@ -50,16 +50,16 @@ namespace HimbeertoniRaidTool.Connectors
                     foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand.ItemName, out isHq)?.ClassJobUse.Row;
                 if (foundJob == null || !Enum.IsDefined(typeof(Job), foundJob))
                     return new HrtUiMessage(
-                        Localize("LodestoneConnector:JobIncompatible", ("Could not resolve currently used job or currently displayed job on " +
-                        "Lodestone is not supported.")), HrtUiMessageType.Failure);
+                        Localize("LodestoneConnector:JobIncompatible", "Could not resolve currently used job or currently displayed job on " +
+                        "Lodestone is not supported."), HrtUiMessageType.Failure);
 
-                PlayableClass classToChange = p.MainChar[foundJob.Value];
+                var classToChange = p.MainChar[foundJob.Value];
                 classToChange.Level = lodestoneCharacter.ActiveClassJobLevel;
                 //Getting Race, Clan and Gender is not yet correctly implemented in Netstone 1.0.0
                 //classToChange.Tribe = (unit)lodestoneCharacter.RaceClanGender;
 
                 // Populate GearSet with newGearset
-                CharacterGear newGearset = lodestoneCharacter.Gear;
+                var newGearset = lodestoneCharacter.Gear;
                 FillItem(newGearset.Mainhand, GearSetSlot.MainHand);
                 FillItem(newGearset.Offhand, GearSetSlot.OffHand);
                 FillItem(newGearset.Head, GearSetSlot.Head);
@@ -80,7 +80,7 @@ namespace HimbeertoniRaidTool.Connectors
                         classToChange.Gear[slot] = new();
                         return;
                     }
-                    Item? itemEntry = GetItemByName(gearPiece.ItemName, out isHq);
+                    var itemEntry = GetItemByName(gearPiece.ItemName, out isHq);
                     if (itemEntry == null)
                     {
                         PluginLog.Warning($"Tried parsing the item <{gearPiece.ItemName}> but found nothing.");
@@ -135,8 +135,8 @@ namespace HimbeertoniRaidTool.Connectors
                 name = name.Remove(name.Length - 1, 1);
                 isHq = true;
             }
-            return this._itemSheet!.FirstOrDefault(item => item.Name.RawString.Equals(
-                name, System.StringComparison.InvariantCultureIgnoreCase));
+            return _itemSheet!.FirstOrDefault(item => item.Name.RawString.Equals(
+                name, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -151,8 +151,8 @@ namespace HimbeertoniRaidTool.Connectors
             for (int i = 0; i < numeral.Length; i++)
             {
                 char cur = numeral[i];
-                this._romanNumerals.TryGetValue(cur, out byte val);
-                if (i + 1 < numeral.Length && this._romanNumerals[numeral[i + 1]] > this._romanNumerals[cur])
+                _romanNumerals.TryGetValue(cur, out byte val);
+                if (i + 1 < numeral.Length && _romanNumerals[numeral[i + 1]] > _romanNumerals[cur])
                     sum -= val;
                 else
                     sum += val;
@@ -173,19 +173,19 @@ namespace HimbeertoniRaidTool.Connectors
 
         internal NetstoneBase(Framework fw, RateLimit rateLimit = default, TimeSpan? cacheTime = null)
         {
-            this._lodestoneClient = GetLodestoneClient();
-            this._rateLimit = rateLimit;
-            this._cacheTime = cacheTime ?? new(0, 15, 0);
-            this._currentRequests = new();
-            this._cachedRequests = new();
+            _lodestoneClient = GetLodestoneClient();
+            _rateLimit = rateLimit;
+            _cacheTime = cacheTime ?? new(0, 15, 0);
+            _currentRequests = new();
+            _cachedRequests = new();
             fw.Update += Update;
         }
 
         private void Update(Framework fw)
         {
-            foreach (var req in this._cachedRequests.Where(e => e.Value.time + _cacheTime < DateTime.Now))
+            foreach (var req in _cachedRequests.Where(e => e.Value.time + _cacheTime < DateTime.Now))
             {
-                this._cachedRequests.TryRemove(req.Key, out _);
+                _cachedRequests.TryRemove(req.Key, out _);
             }
         }
 
@@ -205,14 +205,14 @@ namespace HimbeertoniRaidTool.Connectors
             _currentRequests.TryAdd(c.Name, DateTime.Now);
             try
             {
-                World? homeWorld = c.HomeWorld;
+                var homeWorld = c.HomeWorld;
                 LodestoneCharacter? foundCharacter;
                 if (c.LodestoneID == 0)
                 {
                     if (c.HomeWorldID == 0 || homeWorld == null)
                         return null;
                     PluginLog.Log("Using name and homeworld to search...");
-                    var netstoneResponse = await this._lodestoneClient!.SearchCharacter(new CharacterSearchQuery()
+                    var netstoneResponse = await _lodestoneClient!.SearchCharacter(new CharacterSearchQuery()
                     {
                         CharacterName = c.Name,
                         World = homeWorld.Name.RawString
@@ -246,12 +246,12 @@ namespace HimbeertoniRaidTool.Connectors
 
         private bool RateLimitHit()
         {
-            return (_currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now)) > _rateLimit.MaxRequests;
+            return _currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now) > _rateLimit.MaxRequests;
         }
 
         private static LodestoneClient GetLodestoneClient()
         {
-            Task<LodestoneClient> result = GetLodestoneClientAsync();
+            var result = GetLodestoneClientAsync();
             result.Wait();
             return result.Result;
         }

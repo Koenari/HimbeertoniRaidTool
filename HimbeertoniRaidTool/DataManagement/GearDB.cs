@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.UI;
+using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 
-namespace HimbeertoniRaidTool.DataManagement
+namespace HimbeertoniRaidTool.Plugin.DataManagement
 {
     internal class GearDB
     {
@@ -25,7 +25,7 @@ namespace HimbeertoniRaidTool.DataManagement
             {
                 if (!HrtGearDB.ContainsKey(gearSet.HrtID))
                     HrtGearDB.Add(gearSet.HrtID, gearSet);
-                if (HrtGearDB.TryGetValue(gearSet.HrtID, out GearSet? result))
+                if (HrtGearDB.TryGetValue(gearSet.HrtID, out var result))
                 {
                     if (result.TimeStamp < gearSet.TimeStamp)
                         result.CopyFrom(gearSet);
@@ -36,7 +36,7 @@ namespace HimbeertoniRaidTool.DataManagement
             {
                 if (!EtroGearDB.ContainsKey(gearSet.EtroID))
                     EtroGearDB.Add(gearSet.EtroID, gearSet);
-                if (EtroGearDB.TryGetValue(gearSet.EtroID, out GearSet? result))
+                if (EtroGearDB.TryGetValue(gearSet.EtroID, out var result))
                     gearSet = result;
             }
             return true;
@@ -70,10 +70,10 @@ namespace HimbeertoniRaidTool.DataManagement
         }
         private HrtUiMessage UpdateEtroSetsAsync(int maxAgeInDays)
         {
-            DateTime OldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
-            DateTime ErrorIfOlder = DateTime.UtcNow - new TimeSpan(365, 0, 0, 0);
+            var OldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
+            var ErrorIfOlder = DateTime.UtcNow - new TimeSpan(365, 0, 0, 0);
             int updateCount = 0;
-            foreach (GearSet gearSet in EtroGearDB.Values)
+            foreach (var gearSet in EtroGearDB.Values)
             {
                 if (gearSet.EtroFetchDate >= OldestValid)
                     continue;

@@ -4,9 +4,9 @@ using System.Data;
 using System.Linq;
 using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.Modules.LootMaster
+namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class LootRuling
@@ -97,7 +97,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public static int ItemLevelGain(this LootResult p)
         {
             int result = 0;
-            foreach (GearItem item in p.NeededItems)
+            foreach (var item in p.NeededItems)
             {
                 result = Math.Max(result, (int)item.ItemLevel -
                     p.AplicableJob.Gear.

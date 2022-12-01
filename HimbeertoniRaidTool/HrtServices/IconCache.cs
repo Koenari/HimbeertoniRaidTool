@@ -6,7 +6,7 @@ using Dalamud.Plugin;
 using Dalamud.Utility;
 using ImGuiScene;
 
-namespace HimbeertoniRaidTool.HrtServices
+namespace HimbeertoniRaidTool.Plugin.HrtServices
 {
     //Inspired by InventoryTools by Critical-Impact 
     public class IconCache : IDisposable

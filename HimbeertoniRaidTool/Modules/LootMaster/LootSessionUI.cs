@@ -2,11 +2,11 @@
 using System.Numerics;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.UI;
+using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.Modules.LootMaster
+namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster
 {
     internal class LootSessionUI : HrtWindow
     {
@@ -47,7 +47,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.SetNextItemWidth(ScaleFactor * 200f);
             if (ImGui.BeginCombo("##RaidGroup", _session.Group.Name))
             {
-                foreach (RaidGroup group in Services.HrtDataManager.Groups)
+                foreach (var group in Services.HrtDataManager.Groups)
                     if (ImGui.Selectable(group.Name) && group != _session.Group)
                     {
                         _session.Group = group;
@@ -87,7 +87,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             break;
                         }
 
-                        HrtItem item = _session.Loot[row * ItemsPerRow + col].item;
+                        var item = _session.Loot[row * ItemsPerRow + col].item;
                         ImGui.TableNextColumn();
                         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
                         ImGui.Image(Services.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, Vector2.One * ScaleFactor * (ItemSize - 30f));
@@ -105,7 +105,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             ImGui.TableNextRow();
                             break;
                         }
-                        (HrtItem item, int count) = _session.Loot[row * ItemsPerRow + col];
+                        (var item, int count) = _session.Loot[row * ItemsPerRow + col];
                         ImGui.TableNextColumn();
                         int count2 = count;
                         ImGui.SetNextItemWidth(ScaleFactor * (ItemSize - 10f));
@@ -175,7 +175,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.Separator();
             if (_session.Results.Count == 0)
                 ImGui.Text(Localize("None", "None"));
-            foreach (((HrtItem item, int nr), LootResultContainer results) in _session.Results)
+            foreach (((var item, int nr), var results) in _session.Results)
             {
                 ImGui.PushID($"{item.ID}##{nr}");
                 if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n {results.ShortResult}", ImGuiTreeNodeFlags.DefaultOpen))
@@ -187,22 +187,22 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         ImGui.TableSetupColumn(Localize("Player", "Player"));
                         ImGui.TableSetupColumn(Localize("Needed items", "Needed items"));
                         ImGui.TableSetupColumn(Localize("Rule", "Rule"));
-                        foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                        foreach (var rule in _session.RulingOptions.RuleSet)
                             ImGui.TableSetupColumn(rule.Name);
                         ImGui.TableHeadersRow();
 
                         int place = 1;
-                        LootRule lastRule = LootRuling.Default;
+                        var lastRule = LootRuling.Default;
                         for (int i = 0; i < results.Count; i++)
                         {
-                            LootResult singleResult = results[i];
-                            LootResult? nextResult = (i + 1) < results.Count ? results[i + 1] : null;
+                            var singleResult = results[i];
+                            var nextResult = i + 1 < results.Count ? results[i + 1] : null;
                             ImGui.TableNextColumn();
                             ImGui.Text(place.ToString());
                             ImGui.TableNextColumn();
                             ImGui.Text($"{singleResult.Player.NickName} ({singleResult.AplicableJob})");
                             ImGui.TableNextColumn();
-                            foreach (GearItem neededItem in singleResult.NeededItems)
+                            foreach (var neededItem in singleResult.NeededItems)
                             {
                                 ImGui.Text(neededItem.Name);
                                 if (ImGui.IsItemHovered())
@@ -211,7 +211,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                                     neededItem.Draw();
                                     ImGui.EndTooltip();
                                 }
-                                if (!results.IsAwarded || (results.AwardedIdx == i && neededItem.Equals(results[i].AwardedItem)))
+                                if (!results.IsAwarded || results.AwardedIdx == i && neededItem.Equals(results[i].AwardedItem))
                                 {
                                     ImGui.SameLine();
                                     if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"Award##{i}##{neededItem.ID}",
@@ -226,7 +226,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             {
                                 var decidingFactor = singleResult.DecidingFactor(nextResult);
                                 ImGui.Text(decidingFactor.Name);
-                                foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                                foreach (var rule in _session.RulingOptions.RuleSet)
                                 {
                                     ImGui.TableNextColumn();
                                     string toPrint = singleResult.EvaluatedRules.TryGetValue(rule, out (int _, string val) a) ? a.val : "";
@@ -244,7 +244,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                             else
                             {
                                 ImGui.Text(singleResult.Category.FriendlyName());
-                                foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                                foreach (var rule in _session.RulingOptions.RuleSet)
                                 {
                                     ImGui.TableNextColumn();
                                     ImGui.Text("-");

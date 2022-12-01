@@ -1,16 +1,16 @@
 ﻿using System.Linq;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Services;
-using HimbeertoniRaidTool.DataExtensions;
+using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.UI
+namespace HimbeertoniRaidTool.Plugin.UI
 {
     public static class DrawDataExtension
     {
-        public static void Draw(this Item item) => Draw(new GearItem(item.RowId));
+        public static void Draw(this Item item) => new GearItem(item.RowId).Draw();
         public static void Draw(this HrtItem item)
         {
             if (!item.Filled || item.Item is null)
@@ -20,7 +20,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.TableSetupColumn(Localize("ItemTableHeader", "Header"));
                 ImGui.TableSetupColumn(Localize("Value", "Value"));
                 //General Data
-                DrawRow(Localize("Name", "Name"), $"{item.Item.Name} {((item is GearItem gear2) && gear2.IsHq ? "(HQ)" : "")}");
+                DrawRow(Localize("Name", "Name"), $"{item.Item.Name} {(item is GearItem gear2 && gear2.IsHq ? "(HQ)" : "")}");
                 if (item.ItemLevel > 1)
                     DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel);
                 DrawRow(Localize("itemSource", "Source"), item.Source);
@@ -46,7 +46,7 @@ namespace HimbeertoniRaidTool.UI
                 if (ServiceManager.ItemInfo.CanBeLooted(item.ID))
                 {
                     string content = "";
-                    foreach (InstanceWithLoot instance in ServiceManager.ItemInfo.GetLootSources(item.ID))
+                    foreach (var instance in ServiceManager.ItemInfo.GetLootSources(item.ID))
                     {
                         content += $"{instance.Name}\n";
                     }

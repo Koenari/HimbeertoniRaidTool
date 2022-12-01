@@ -2,9 +2,9 @@
 using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using Loc = HimbeertoniRaidTool.HrtServices.Localization;
+using Loc = HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.UI
+namespace HimbeertoniRaidTool.Plugin.UI
 {
     public abstract class HRTWindowWithModalChild : HrtWindow
     {
@@ -52,7 +52,7 @@ namespace HimbeertoniRaidTool.UI
         public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
         public HrtWindow(bool @volatile = true, string? id = null) : base(id ?? Guid.NewGuid().ToString())
         {
-            _id = base.WindowName;
+            _id = WindowName;
             Title = "";
             _volatile = @volatile;
         }
@@ -83,7 +83,7 @@ namespace HimbeertoniRaidTool.UI
         {
             if (OpenCentered)
             {
-                this.Position = (ImGui.GetIO().DisplaySize - Size) / 2;
+                Position = (ImGui.GetIO().DisplaySize - Size) / 2;
                 PositionCondition = ImGuiCond.Appearing;
                 OpenCentered = false;
 

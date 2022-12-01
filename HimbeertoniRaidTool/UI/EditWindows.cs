@@ -7,13 +7,13 @@ using Dalamud.Interface;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Services;
-using HimbeertoniRaidTool.DataExtensions;
+using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.Extensions;
 using Lumina.Excel.GeneratedSheets;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.UI
+namespace HimbeertoniRaidTool.Plugin.UI
 {
     internal class EditPlayerWindow : HrtWindow
     {
@@ -45,7 +45,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 PlayerCopy = Player.Clone();
             }
-            Size = new Vector2(450, 330 + (ClassHeight * PlayerCopy.MainChar.Classes.Count()));
+            Size = new Vector2(450, 330 + ClassHeight * PlayerCopy.MainChar.Classes.Count());
             Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName}";
         }
         public override void Draw()
@@ -99,7 +99,7 @@ namespace HimbeertoniRaidTool.UI
                     PlayerCopy.MainChar.MainJob = PlayerCopy.MainChar.Classes.First().Job;
                 if (ImGui.BeginCombo(Localize("Main Job", "Main Job"), PlayerCopy.MainChar.MainJob.ToString()))
                 {
-                    foreach (PlayableClass curJob in PlayerCopy.MainChar)
+                    foreach (var curJob in PlayerCopy.MainChar)
                     {
                         if (ImGui.Selectable(curJob.Job.ToString()))
                             PlayerCopy.MainChar.MainJob = curJob.Job;
@@ -117,7 +117,7 @@ namespace HimbeertoniRaidTool.UI
             ImGui.SetColumnWidth(1, 400f * ScaleFactor);
             ImGui.Separator();
             Job? toDelete = null;
-            foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
+            foreach (var c in PlayerCopy.MainChar.Classes)
             {
                 if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"delete{c.Job}", $"Delete all data for {c.Job}"))
                     toDelete = c.Job;
@@ -152,7 +152,7 @@ namespace HimbeertoniRaidTool.UI
             }
 
             ImGui.Columns(1);
-            if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out Job job, newJob.ToString(), ImGuiComboFlags.None,
+            if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out var job, newJob.ToString(), ImGuiComboFlags.None,
                 Enum.GetValues<Job>(), (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
                 j => j.ToString(), (t) => !PlayerCopy.MainChar.Classes.Any(y => y.Job == t)))
             {
@@ -189,7 +189,7 @@ namespace HimbeertoniRaidTool.UI
                 string oldName = Player.MainChar.Name;
                 Player.MainChar.Name = PlayerCopy.MainChar.Name;
                 Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
-                Character c = Player.MainChar;
+                var c = Player.MainChar;
                 Services.HrtDataManager.RearrangeCharacter(oldWorld, oldName, ref c);
                 Player.MainChar = c;
             }
@@ -199,7 +199,7 @@ namespace HimbeertoniRaidTool.UI
             //Remove classes that were removed in Ui
             for (int i = 0; i < Player.MainChar.Classes.Count(); i++)
             {
-                PlayableClass c = Player.MainChar.Classes.ElementAt(i);
+                var c = Player.MainChar.Classes.ElementAt(i);
                 if (!PlayerCopy.MainChar.Classes.Any(x => x.Job == c.Job))
                 {
                     Player.MainChar.RemoveClass(c.Job);
@@ -207,9 +207,9 @@ namespace HimbeertoniRaidTool.UI
                 }
             }
             //Add missing classes and update Bis/Level for existing ones
-            foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
+            foreach (var c in PlayerCopy.MainChar.Classes)
             {
-                PlayableClass target = Player.MainChar[c.Job];
+                var target = Player.MainChar[c.Job];
                 target.Level = c.Level;
                 if (target.BIS.EtroID.Equals(c.BIS.EtroID))
                     continue;
@@ -343,8 +343,8 @@ namespace HimbeertoniRaidTool.UI
             if (!_gearSetCopy[slot].Filled)
             {
                 if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}changeitem", Localize("Select item", "Select item")))
-                    ModalChild = (new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], slot, _job,
-                        slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? _currentRaidTier?.WeaponItemLevel ?? 0 : _currentRaidTier?.ArmorItemLevel ?? 0));
+                    ModalChild = new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], slot, _job,
+                        slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? _currentRaidTier?.WeaponItemLevel ?? 0 : _currentRaidTier?.ArmorItemLevel ?? 0);
             }
             else
             {
@@ -384,7 +384,7 @@ namespace HimbeertoniRaidTool.UI
                         byte maxMatLevel = ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
                         if (_gearSetCopy[slot].Materia.Count > _gearSetCopy[slot].Item?.MateriaSlotCount)
                             maxMatLevel--;
-                        ModalChild = (new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }, maxMatLevel));
+                        ModalChild = new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }, maxMatLevel);
                     }
             }
             ImGui.EndDisabled();
@@ -505,7 +505,7 @@ namespace HimbeertoniRaidTool.UI
                 reevaluateItems();
             }
             //Draw item list
-            foreach (Item item in _items)
+            foreach (var item in _items)
             {
                 bool isCurrentItem = item.RowId == Item?.ID;
                 if (isCurrentItem)
@@ -536,7 +536,7 @@ namespace HimbeertoniRaidTool.UI
         private List<Item> reevaluateItems()
         {
             _items = Sheet.Where(x =>
-                (x.ClassJobCategory.Row != 0)
+                x.ClassJobCategory.Row != 0
                 && (!Slots.Any() || Slots.Any(slot => slot == GearSetSlot.None || x.EquipSlotCategory.Value.Contains(slot)))
                 && (maxILvl == 0 || x.LevelItem.Row <= maxILvl)
                 && x.LevelItem.Row >= minILvl

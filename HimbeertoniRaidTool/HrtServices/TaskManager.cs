@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dalamud.Game;
 using Dalamud.Logging;
-using HimbeertoniRaidTool.Modules;
-using HimbeertoniRaidTool.UI;
+using HimbeertoniRaidTool.Plugin.Modules;
+using HimbeertoniRaidTool.Plugin.UI;
 
-namespace HimbeertoniRaidTool.HrtServices
+namespace HimbeertoniRaidTool.Plugin.HrtServices
 {
     internal class TaskManager : IDisposable
     {

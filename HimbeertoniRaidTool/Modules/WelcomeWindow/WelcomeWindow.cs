@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.Numerics;
 using Dalamud.Game;
 using Dalamud.Logging;
-using HimbeertoniRaidTool.UI;
+using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.Modules.WelcomeWindow
+namespace HimbeertoniRaidTool.Plugin.Modules.WelcomeWindow
 {
     internal class WelcomeWindowModule : IHrtModule<WelcomeWindowConfig.ConfigData, IHrtConfigUi>
     {

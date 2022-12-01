@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Dalamud.Game;
 using Dalamud.Logging;
 
-namespace HimbeertoniRaidTool.Connectors
+namespace HimbeertoniRaidTool.Plugin.Connectors
 {
     internal abstract class WebConnector
     {
@@ -66,7 +66,7 @@ namespace HimbeertoniRaidTool.Connectors
         }
         private bool RateLimitHit()
         {
-            return (_currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now)) > _rateLimit.MaxRequests;
+            return _currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now) > _rateLimit.MaxRequests;
         }
     }
 }

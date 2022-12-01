@@ -6,9 +6,9 @@ using System.Linq;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using Lumina.Excel.Extensions;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.Modules.LootMaster
+namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster
 {
     public class LootSession
     {
@@ -49,13 +49,13 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (Results.Count != NumLootItems && CurrentState < State.DISTRIBUTION_STARTED)
             {
                 Results.Clear();
-                foreach ((HrtItem item, int count) in Loot)
+                foreach ((var item, int count) in Loot)
                     for (int i = 0; i < count; i++)
                     {
                         Results.Add((item, i), ConstructLootResults(item));
                     }
             }
-            foreach (LootResultContainer results in Results.Values)
+            foreach (var results in Results.Values)
                 results.Eval();
         }
         public bool RevertToChooseLoot()
@@ -110,9 +110,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (GuaranteedLoot[item] || CurrentState == State.FINISHED)
                 return false;
             GuaranteedLoot[item] = true;
-            foreach (Player p in Group)
+            foreach (var p in Group)
             {
-                Inventory inv = p.MainChar.MainInventory;
+                var inv = p.MainChar.MainInventory;
                 int idx;
                 if (inv.Contains(item.ID))
                     idx = inv.IndexOf(item.ID);
@@ -136,12 +136,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             if (Results[loot].IsAwarded || CurrentState == State.FINISHED)
                 return false;
             Results[loot].Award(idx, toAward);
-            GearSetSlot slot = toAward.Slots.First();
-            PlayableClass? c = Results[loot].AwardedTo?.AplicableJob;
+            var slot = toAward.Slots.First();
+            var c = Results[loot].AwardedTo?.AplicableJob;
             if (c != null)
             {
                 c.Gear[slot] = toAward;
-                foreach (HrtMateria m in c.BIS[slot].Materia)
+                foreach (var m in c.BIS[slot].Materia)
                     c.Gear[slot].Materia.Add(m);
             }
             EvaluateFinished();
@@ -212,7 +212,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         public void Evaluate()
         {
             CalcNeed();
-            foreach (LootRule rule in _session.RulingOptions.RuleSet)
+            foreach (var rule in _session.RulingOptions.RuleSet)
             {
                 EvaluatedRules[rule] = rule.Eval(this, _session);
             }
@@ -222,9 +222,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             if (other == null)
                 return LootRuling.Default;
-            if (this.Category == LootCategory.Need && other.Category == LootCategory.Greed)
+            if (Category == LootCategory.Need && other.Category == LootCategory.Greed)
                 return LootRuling.NeedOverGreed;
-            foreach (LootRule rule in _session.RulingOptions.RuleSet)
+            foreach (var rule in _session.RulingOptions.RuleSet)
             {
                 if (EvaluatedRules[rule].val != other.EvaluatedRules[rule].val)
                     return rule;
@@ -237,11 +237,11 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             foreach (var item in ApplicableItems)
                 if (
                     //Always need if Bis and not aquired
-                    (AplicableJob.BIS.Contains(item) && !AplicableJob.Gear.Contains(item))
+                    AplicableJob.BIS.Contains(item) && !AplicableJob.Gear.Contains(item)
                     //No need if any of following are true
                     || !(
                         //Player already has this unique item
-                        ((item.Item?.IsUnique ?? true) && AplicableJob.Gear.Contains(item))
+                        (item.Item?.IsUnique ?? true) && AplicableJob.Gear.Contains(item)
                         //Player has Bis or higher/same iLvl for all aplicable slots
                         || AplicableJob.HaveBisOrHigherItemLevel(item.Slots, item)
                     )
@@ -293,7 +293,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             if (IsAwarded)
                 return;
-            foreach (LootResult result in this)
+            foreach (var result in this)
                 result.Evaluate();
             Participants.Sort(new LootRulingComparer(Session.RulingOptions.RuleSet));
             ShortResultCache = null;

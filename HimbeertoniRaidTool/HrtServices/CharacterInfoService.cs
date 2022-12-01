@@ -7,7 +7,7 @@ using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Lumina.Excel.GeneratedSheets;
 
-namespace HimbeertoniRaidTool.HrtServices
+namespace HimbeertoniRaidTool.Plugin.HrtServices
 {
     internal class CharacterInfoService
     {

@@ -3,7 +3,7 @@ using System.IO;
 using Dalamud.Plugin;
 using Newtonsoft.Json;
 
-namespace HimbeertoniRaidTool.DataManagement
+namespace HimbeertoniRaidTool.Plugin.DataManagement
 {
     internal class ModuleConfigurationManager
     {
@@ -40,7 +40,7 @@ namespace HimbeertoniRaidTool.DataManagement
             {
                 if (!HrtDataManager.TryRead(file, out string json))
                     return false;
-                T? fromJson = JsonConvert.DeserializeObject<T>(json, JsonSerializerSettings);
+                var fromJson = JsonConvert.DeserializeObject<T>(json, JsonSerializerSettings);
                 if (fromJson != null)
                 {
                     configData = fromJson;

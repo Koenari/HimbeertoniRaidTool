@@ -7,12 +7,12 @@ using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
-using HimbeertoniRaidTool.HrtServices;
-using HimbeertoniRaidTool.Modules;
-using HimbeertoniRaidTool.Modules.LootMaster;
-using HimbeertoniRaidTool.Modules.WelcomeWindow;
+using HimbeertoniRaidTool.Plugin.HrtServices;
+using HimbeertoniRaidTool.Plugin.Modules;
+using HimbeertoniRaidTool.Plugin.Modules.LootMaster;
+using HimbeertoniRaidTool.Plugin.Modules.WelcomeWindow;
 
-namespace HimbeertoniRaidTool
+namespace HimbeertoniRaidTool.Plugin
 {
     public sealed class HRTPlugin : IDalamudPlugin
     {

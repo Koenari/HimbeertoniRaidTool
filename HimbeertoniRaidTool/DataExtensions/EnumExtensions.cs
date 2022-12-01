@@ -1,8 +1,8 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using HimbeertoniRaidTool.Common.Data;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.DataExtensions
+namespace HimbeertoniRaidTool.Plugin.DataExtensions
 {
     public static class EnumExtensions
     {

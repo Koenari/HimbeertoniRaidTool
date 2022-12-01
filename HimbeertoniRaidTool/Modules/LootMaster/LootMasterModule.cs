@@ -6,11 +6,11 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.DataExtensions;
-using HimbeertoniRaidTool.UI;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using HimbeertoniRaidTool.Plugin.DataExtensions;
+using HimbeertoniRaidTool.Plugin.UI;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.Modules.LootMaster
+namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster
 {
     internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
     {

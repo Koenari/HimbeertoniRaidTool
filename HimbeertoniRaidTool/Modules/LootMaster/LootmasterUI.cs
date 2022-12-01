@@ -7,14 +7,14 @@ using Dalamud.Interface;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Services;
-using HimbeertoniRaidTool.Connectors;
-using HimbeertoniRaidTool.DataExtensions;
-using HimbeertoniRaidTool.HrtServices;
-using HimbeertoniRaidTool.UI;
+using HimbeertoniRaidTool.Plugin.Connectors;
+using HimbeertoniRaidTool.Plugin.DataExtensions;
+using HimbeertoniRaidTool.Plugin.HrtServices;
+using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.Modules.LootMaster
+namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster
 {
     internal class LootmasterUI : HrtWindow
     {
@@ -64,9 +64,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             base.Update();
             Queue<HrtWindow> toRemove = new();
-            foreach (HrtWindow w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen).Cast<HrtWindow>())
+            foreach (var w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen).Cast<HrtWindow>())
                 toRemove.Enqueue(w);
-            foreach (HrtWindow w in toRemove)
+            foreach (var w in toRemove)
             {
                 if (!w.Equals(this))
                 {
@@ -80,7 +80,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             if (_currentMessage.HasValue && _currentMessage.Value.time + _messageTime < DateTime.Now)
                 _currentMessage = null;
-            if (!_currentMessage.HasValue && _messageQueue.TryDequeue(out HrtUiMessage message))
+            if (!_currentMessage.HasValue && _messageQueue.TryDequeue(out var message))
                 _currentMessage = (message, DateTime.Now);
             if (_currentMessage.HasValue)
             {
@@ -297,7 +297,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     ImGui.TableSetupColumn(Localize("Player", "Player"));
                     ImGui.TableSetupColumn(Localize("itemLevelShort", "iLvl"));
-                    foreach (GearSetSlot slot in GearSet.Slots)
+                    foreach (var slot in GearSet.Slots)
                     {
                         if (slot == GearSetSlot.OffHand)
                             continue;
@@ -324,7 +324,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             for (int tabBarIdx = 0; tabBarIdx < RaidGroups.Count; tabBarIdx++)
             {
                 bool colorPushed = false;
-                RaidGroup g = RaidGroups[tabBarIdx];
+                var g = RaidGroups[tabBarIdx];
                 if (tabBarIdx == _CurrenGroupIndex)
                 {
                     ImGui.PushStyleColor(ImGuiCol.Tab, Colors.RedWood);
@@ -395,7 +395,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         ImGui.SetNextItemWidth(110 * ScaleFactor);
                         if (ImGui.BeginCombo($"##Class", curJob.ToString()))
                         {
-                            foreach (PlayableClass job in player.MainChar)
+                            foreach (var job in player.MainChar)
                             {
                                 if (ImGui.Selectable(job.ToString()))
                                     player.MainChar.MainJob = job.Job;
@@ -433,7 +433,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditGear", $"Edit {bis.Name}"))
                         AddChild(new EditGearSetWindow(bis, curJob.Job));
-                    foreach ((GearSetSlot slot, var itemTuple) in curJob.ItemTuples)
+                    foreach ((var slot, var itemTuple) in curJob.ItemTuples)
                     {
                         if (slot == GearSetSlot.OffHand)
                             continue;
@@ -452,7 +452,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                 {
                     ImGui.TableNextColumn();
                     ImGuiHelper.GearUpdateButtons(player, _lootMaster, false, ButtonSize);
-                    Vector2 buttonSize = ImGui.GetItemRectSize();
+                    var buttonSize = ImGui.GetItemRectSize();
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange", Localize("lootmaster:button:swapposition:tooltip", "Swap Position"), true, ButtonSize))
                     {
@@ -498,7 +498,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         }
         private void DrawSlot((GearItem, GearItem) itemTuple, bool extended = false)
         {
-            (GearItem item, GearItem bis) = itemTuple;
+            (var item, var bis) = itemTuple;
             ImGui.TableNextColumn();
             if (item.Filled && bis.Filled &&
                 item.Equals(bis, _lootMaster.Configuration.Data.IgnoreMateriaForBiS ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full))
@@ -583,7 +583,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.Text(Localize("Distribute loot for:", "Distribute loot for:"));
             ImGui.SameLine();
 
-            foreach (InstanceWithLoot lootSource in _lootMaster.Configuration.Data.SelectedRaidTier.Bosses)
+            foreach (var lootSource in _lootMaster.Configuration.Data.SelectedRaidTier.Bosses)
             {
                 if (ImGuiHelper.Button(lootSource.Name, null))
                 {
@@ -693,15 +693,15 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.SameLine();
                     ImGui.Text(item.Name);
                     ImGui.SameLine();
-                    InventoryEntry entry = _inv[_inv.IndexOf(item.ID)];
+                    var entry = _inv[_inv.IndexOf(item.ID)];
                     ImGui.SetNextItemWidth(150f * ScaleFactor);
                     ImGui.InputInt($"##{item.Name}", ref entry.quantity);
                     _inv[_inv.IndexOf(item.ID)] = entry;
                 }
             ImGui.Separator();
             ImGui.Text(Localize("Inventory:AdditionalGear", "Additional Gear"));
-            Vector2 iconSize = new Vector2(37, 37) * ScaleFactor;
-            foreach ((int idx, InventoryEntry entry) in _inv.Where(e => e.Value.IsGear))
+            var iconSize = new Vector2(37, 37) * ScaleFactor;
+            foreach ((int idx, var entry) in _inv.Where(e => e.Value.IsGear))
             {
                 ImGui.PushID(idx);
                 if (entry.Item is not GearItem item || item.Item is null)

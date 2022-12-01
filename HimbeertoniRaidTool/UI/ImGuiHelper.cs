@@ -6,13 +6,13 @@ using System.Runtime.CompilerServices;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Modules;
-using HimbeertoniRaidTool.Modules.LootMaster;
+using HimbeertoniRaidTool.Plugin.Modules;
+using HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 using ImGuiNET;
 using Lumina.Excel;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.UI
+namespace HimbeertoniRaidTool.Plugin.UI
 {
     public static class ImGuiHelper
     {
@@ -90,7 +90,7 @@ namespace HimbeertoniRaidTool.UI
             bool DrawLodestoneButton(bool insideContextMenu = false)
             {
                 string tooltip = Localize("Lodestone Button", "Download Gear from Lodestone");
-                if (ImGuiHelper.Button(FontAwesomeIcon.CloudDownloadAlt, "lodestone",
+                if (Button(FontAwesomeIcon.CloudDownloadAlt, "lodestone",
                     $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}", true, size))
                 {
                     module.HandleMessage(new HrtUiMessage(
@@ -136,7 +136,7 @@ namespace HimbeertoniRaidTool.UI
             => ExcelSheetCombo(id, out selected, getPreview, flags, searchPredicate, toName, (t) => true);
         public static bool ExcelSheetCombo<T>(string id, out T? selected, Func<ExcelSheet<T>, string> getPreview, ImGuiComboFlags flags, Func<T, string, bool> searchPredicate, Func<T, string> toName, Func<T, bool> preFilter) where T : ExcelRow
         {
-            ExcelSheet<T>? sheet = Services.DataManager.GetExcelSheet<T>();
+            var sheet = Services.DataManager.GetExcelSheet<T>();
             if (sheet is null)
             {
                 selected = null;
@@ -193,7 +193,7 @@ namespace HimbeertoniRaidTool.UI
                 bool hovered = hoveredItem == i;
                 ImGui.PushID(i);
 
-                if (ImGui.Selectable(toName(row), hovered) || (enterClicked && hovered))
+                if (ImGui.Selectable(toName(row), hovered) || enterClicked && hovered)
                 {
                     hasSelected = true;
                     selected = row;

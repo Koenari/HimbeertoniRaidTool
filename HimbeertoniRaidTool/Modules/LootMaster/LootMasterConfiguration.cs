@@ -7,14 +7,14 @@ using Dalamud.Utility;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Services;
-using HimbeertoniRaidTool.DataExtensions;
-using HimbeertoniRaidTool.Modules.LootMaster;
-using HimbeertoniRaidTool.UI;
+using HimbeertoniRaidTool.Plugin.DataExtensions;
+using HimbeertoniRaidTool.Plugin.Modules.LootMaster;
+using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using static HimbeertoniRaidTool.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.Modules.LootMaster
+namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster
 {
     internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
     {
@@ -104,9 +104,9 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     {
                         (long curiLvL, string source, string slot) = (iLvL - 10 * i, ((ItemSource)i).FriendlyName(), ((GearSetSlot)(i * 2)).FriendlyName());
                         if (_dataCopy.ColoredItemNames)
-                            ImGui.TextColored(_dataCopy.ItemLevelColors[i], String.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
+                            ImGui.TextColored(_dataCopy.ItemLevelColors[i], string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
                         else
-                            ImGui.Text(String.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
+                            ImGui.Text(string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
                         ImGui.SameLine();
                     }
                     ImGui.EndTabItem();
@@ -143,7 +143,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                         return a.ToString().CompareTo(b.ToString());
 
                     });
-                    foreach (Job c in jobs)
+                    foreach (var c in jobs)
                     {
                         bool isOverriden = _dataCopy.BISUserOverride.ContainsKey(c);
                         string value = _dataCopy.GetDefaultBiS(c);

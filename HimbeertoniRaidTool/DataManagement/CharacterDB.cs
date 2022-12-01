@@ -2,7 +2,7 @@
 using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 
-namespace HimbeertoniRaidTool.DataManagement
+namespace HimbeertoniRaidTool.Plugin.DataManagement
 {
     internal class CharacterDB
     {
@@ -17,8 +17,8 @@ namespace HimbeertoniRaidTool.DataManagement
             settings.Converters.Remove(conv);
             //Potentially parallelize later
             foreach (var SingleWorldDB in CharDB.Values)
-                foreach (Character c in SingleWorldDB.Values)
-                    foreach (PlayableClass job in c)
+                foreach (var c in SingleWorldDB.Values)
+                    foreach (var job in c)
                         job.SetParent(c);
         }
         internal List<uint> GetUsedWorlds()
@@ -41,7 +41,7 @@ namespace HimbeertoniRaidTool.DataManagement
                 CharDB.Add(c.HomeWorldID, new Dictionary<string, Character>());
             if (!CharDB[c.HomeWorldID].ContainsKey(c.Name))
                 CharDB[c.HomeWorldID].Add(c.Name, c);
-            if (CharDB[c.HomeWorldID].TryGetValue(c.Name, out Character? c2))
+            if (CharDB[c.HomeWorldID].TryGetValue(c.Name, out var c2))
                 c = c2;
             return true;
         }

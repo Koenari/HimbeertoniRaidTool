@@ -1,6 +1,6 @@
 ﻿using Dalamud.Game;
 
-namespace HimbeertoniRaidTool.Connectors
+namespace HimbeertoniRaidTool.Plugin.Connectors
 {
     internal class ConnectorPool
     {

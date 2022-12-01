@@ -8,12 +8,12 @@ using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using HimbeertoniRaidTool.Connectors;
-using HimbeertoniRaidTool.DataManagement;
-using HimbeertoniRaidTool.HrtServices;
+using HimbeertoniRaidTool.Plugin.Connectors;
+using HimbeertoniRaidTool.Plugin.DataManagement;
+using HimbeertoniRaidTool.Plugin.HrtServices;
 #pragma warning disable CS8618
-namespace HimbeertoniRaidTool.HrtServices { }
-namespace HimbeertoniRaidTool
+namespace HimbeertoniRaidTool.Plugin.HrtServices { }
+namespace HimbeertoniRaidTool.Plugin
 {
     internal class Services
     {
