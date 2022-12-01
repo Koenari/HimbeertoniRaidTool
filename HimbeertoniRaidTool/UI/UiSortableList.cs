@@ -53,7 +53,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"x##{i}", Localize("Remove option", "Remove option")))
                 {
-                   changed= true;
+                    changed = true;
                     DeleteItem(i);
                 }
             }
@@ -61,7 +61,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 if (ImGuiHelper.Button("+", Localize("Add option", "Add option")))
                 {
-                    changed= true;
+                    changed = true;
                     AddItem();
                 }
             }

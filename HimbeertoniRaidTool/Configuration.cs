@@ -4,6 +4,7 @@ using System.Numerics;
 using Dalamud.Configuration;
 using Dalamud.Game;
 using Dalamud.Logging;
+using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using Newtonsoft.Json;

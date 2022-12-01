@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using HimbeertoniRaidTool.Modules.LootMaster;
-using ImGuiNET;
+using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 using static HimbeertoniRaidTool.HrtServices.Localization;
 
-namespace HimbeertoniRaidTool.Data
+namespace HimbeertoniRaidTool.Modules.LootMaster
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class LootRuling
@@ -32,55 +31,7 @@ namespace HimbeertoniRaidTool.Data
         [JsonProperty("RuleSet")]
         public List<LootRule> RuleSet = new();
     }
-    [JsonDictionary]
-    public class RolePriority : Dictionary<Role, int>
-    {
-        private int Max => this.Aggregate(0, (sum, x) => Math.Max(sum, x.Value));
-        public int GetPriority(Role r) => ContainsKey(r) ? this[r] : Max + 1;
 
-        public void DrawEdit()
-        {
-            foreach (Role r in Enum.GetValues<Role>())
-            {
-                if (r == Role.None)
-                    continue;
-                if (!ContainsKey(r))
-                {
-                    Add(r, Max + 1);
-                }
-                int val = this[r];
-                if (ImGui.InputInt($"{r}##RolePriority", ref val))
-                {
-                    this[r] = Math.Max(val, 0);
-                }
-            }
-        }
-        public override string ToString()
-        {
-
-            if (Count == 0)
-                return string.Join(" = ", Enum.GetNames<Role>());
-            List<KeyValuePair<Role, int>> ordered = this.ToList();
-            ordered.Sort((l, r) => l.Value - r.Value);
-            string result = "";
-            for (int i = 0; i < ordered.Count - 1; i++)
-            {
-                result += $"{ordered[i].Key} {(ordered[i].Value < ordered[i + 1].Value ? ">" : "=")} ";
-            }
-            result += ordered[^1].Key;
-            List<Role> missing = Enum.GetValues<Role>().Where(r => !ContainsKey(r)).Where(r => r != Role.None).ToList();
-            if (missing.Any())
-            {
-                result += " > ";
-                for (int j = 0; j < missing.Count - 1; j++)
-                {
-                    result += $"{missing[j]} = ";
-                }
-                result += missing[^1].ToString();
-            }
-            return result;
-        }
-    }
 
     [JsonObject(MemberSerialization.OptIn)]
     public class LootRule : IEquatable<LootRule>
@@ -95,12 +46,12 @@ namespace HimbeertoniRaidTool.Data
         /// <param name="session">Loot session to evaluate for</param>
         /// <param name="applicableItems">List of items to evaluate for. These need to be filtered to be equippable by the players MainJob</param>
         /// <returns>A tuple of int (can be used for Compare like (right - left)) and a string describing the value</returns>
-        public (int, string) Eval(LootResult x, LootSession session, IEnumerable<GearItem> applicableItems)
+        public (int, string) Eval(LootResult x, LootSession session)
         {
-            (int val, string? reason) = InternalEval(x, session, applicableItems);
+            (int val, string? reason) = InternalEval(x, session);
             return (val, reason ?? val.ToString());
         }
-        private (int, string?) InternalEval(LootResult x, LootSession session, IEnumerable<GearItem> applicableItems) => Rule switch
+        private (int, string?) InternalEval(LootResult x, LootSession session) => Rule switch
         {
             LootRuleEnum.Random => (x.Roll(), null),
             LootRuleEnum.LowestItemLevel => (-x.ItemLevel(), x.ItemLevel().ToString()),

@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Modules;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using ImGuiNET;

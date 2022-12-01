@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common;
+using HimbeertoniRaidTool.Common.Data;
 using Lumina.Excel.Extensions;
 using static HimbeertoniRaidTool.HrtServices.Localization;
 
@@ -213,7 +214,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             CalcNeed();
             foreach (LootRule rule in _session.RulingOptions.RuleSet)
             {
-                EvaluatedRules[rule] = rule.Eval(this, _session, NeededItems);
+                EvaluatedRules[rule] = rule.Eval(this, _session);
             }
             IsEvaluated = true;
         }

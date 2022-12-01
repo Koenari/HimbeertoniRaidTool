@@ -5,7 +5,8 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.DataExtensions;
 using HimbeertoniRaidTool.UI;
 using static HimbeertoniRaidTool.HrtServices.Localization;
 

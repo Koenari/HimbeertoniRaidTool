@@ -1,5 +1,7 @@
 ﻿using System.Linq;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Common.Services;
+using HimbeertoniRaidTool.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using static HimbeertoniRaidTool.HrtServices.Localization;
@@ -23,9 +25,9 @@ namespace HimbeertoniRaidTool.UI
                     DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel);
                 DrawRow(Localize("itemSource", "Source"), item.Source);
                 //Shop Data
-                if (Services.ItemInfo.CanBePurchased(item.ID))
+                if (ServiceManager.ItemInfo.CanBePurchased(item.ID))
                 {
-                    var shopEntry = Services.ItemInfo.GetShopEntryForItem(item.ID);
+                    var shopEntry = ServiceManager.ItemInfo.GetShopEntryForItem(item.ID);
                     if (shopEntry != null)
                     {
                         string content = "";
@@ -41,10 +43,10 @@ namespace HimbeertoniRaidTool.UI
 
                 }
                 //Loot Data
-                if (Services.ItemInfo.CanBeLooted(item.ID))
+                if (ServiceManager.ItemInfo.CanBeLooted(item.ID))
                 {
                     string content = "";
-                    foreach (InstanceWithLoot instance in Services.ItemInfo.GetLootSources(item.ID))
+                    foreach (InstanceWithLoot instance in ServiceManager.ItemInfo.GetLootSources(item.ID))
                     {
                         content += $"{instance.Name}\n";
                     }

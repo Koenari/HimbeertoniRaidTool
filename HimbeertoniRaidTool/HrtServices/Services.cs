@@ -31,9 +31,9 @@ namespace HimbeertoniRaidTool
         [PluginService] public static Condition Condition { get; private set; }
         public static IconCache IconCache { get; private set; }
         public static HrtDataManager HrtDataManager { get; private set; }
-        private static CuratedData _curatedData { get; set; }
-        internal static ItemInfo ItemInfo { get; private set; }
-        internal static GameInfo GameInfo { get; private set; }
+        //private static CuratedData _curatedData { get; set; }
+        //internal static ItemInfo ItemInfo { get; private set; }
+        //internal static GameInfo GameInfo { get; private set; }
         internal static TaskManager TaskManager { get; private set; }
         internal static ConnectorPool ConnectorPool { get; private set; }
         internal static Configuration Config { get; set; }
@@ -41,15 +41,17 @@ namespace HimbeertoniRaidTool
         internal static bool Init(DalamudPluginInterface pluginInterface)
         {
             pluginInterface.Create<Services>();
+            Common.Services.ServiceManager.Init(DataManager.Excel);
             FFXIVClientStructs.Resolver.Initialize(SigScanner.SearchBase);
             IconCache ??= new IconCache(PluginInterface, DataManager);
             HrtDataManager ??= new(PluginInterface);
             TaskManager ??= new(Framework);
             ConnectorPool ??= new(Framework);
             CharacterInfoService ??= new(ObjectTable, Framework);
-            _curatedData = new CuratedData();
-            GameInfo = new GameInfo(_curatedData);
-            ItemInfo = new ItemInfo(DataManager, _curatedData, GameInfo);
+            //_curatedData = new CuratedData();
+            //GameInfo = new GameInfo(_curatedData);
+            //ItemInfo = new ItemInfo(DataManager, _curatedData, GameInfo);
+
 
             return HrtDataManager.Initialized;
         }

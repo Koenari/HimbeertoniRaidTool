@@ -5,8 +5,10 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Logging;
+using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Connectors;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.DataExtensions;
 using HimbeertoniRaidTool.HrtServices;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
@@ -26,6 +28,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         private readonly LootMasterModule _lootMaster;
         internal int _CurrenGroupIndex { get; private set; }
         private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
+        private static GameExpansion CurrentExpansion => ServiceManager.GameInfo.CurrentExpansion;
         private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
         private readonly Queue<HrtUiMessage> _messageQueue = new();
         private (HrtUiMessage message, DateTime time)? _currentMessage;
@@ -563,12 +566,12 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             ImGui.SetNextItemWidth(ImGui.CalcTextSize(_lootMaster.Configuration.Data.SelectedRaidTier.Name).X + 32f * ScaleFactor);
             if (ImGui.BeginCombo("##Raid Tier", _lootMaster.Configuration.Data.SelectedRaidTier.Name))
             {
-                for (int i = 0; i < Services.GameInfo.CurrentExpansion.SavageRaidTiers.Length; i++)
+                for (int i = 0; i < CurrentExpansion.SavageRaidTiers.Length; i++)
                 {
-                    var tier = Services.GameInfo.CurrentExpansion.SavageRaidTiers[i];
+                    var tier = CurrentExpansion.SavageRaidTiers[i];
                     if (ImGui.Selectable(tier.Name))
                     {
-                        if (i == Services.GameInfo.CurrentExpansion.SavageRaidTiers.Length - 1)
+                        if (i == CurrentExpansion.SavageRaidTiers.Length - 1)
                             _lootMaster.Configuration.Data.RaidTierOverride = null;
                         else
                             _lootMaster.Configuration.Data.RaidTierOverride = i;
@@ -665,7 +668,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             SizeCondition = ImGuiCond.Appearing;
             Title = title;
             _inv = inv;
-            foreach (var boss in Services.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
+            foreach (var boss in ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
                 foreach (var item in boss.GuaranteedItems)
                 {
                     if (!_inv.Contains(item.ID))
@@ -682,7 +685,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
         {
             if (ImGuiHelper.CloseButton())
                 Hide();
-            foreach (var boss in Services.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
+            foreach (var boss in ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
                 foreach (var item in boss.GuaranteedItems)
                 {
                     var icon = Services.IconCache[item.Item!.Icon];
@@ -722,7 +725,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             }
             ImGui.BeginDisabled(ChildIsOpen);
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"Add", null, true, iconSize))
-                ModalChild = new SelectGearItemWindow(i => _inv.Add(_inv.FirstFreeSlot(), i), i => { }, null, null, null, Services.GameInfo.CurrentExpansion.CurrentSavage.ArmorItemLevel);
+                ModalChild = new SelectGearItemWindow(i => _inv.Add(_inv.FirstFreeSlot(), i), i => { }, null, null, null, ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.ArmorItemLevel);
             ImGui.EndDisabled();
         }
     }

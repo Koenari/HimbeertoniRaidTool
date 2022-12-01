@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dalamud.Logging;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.UI;
 using Newtonsoft.Json;
 

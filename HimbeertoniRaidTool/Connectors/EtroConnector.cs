@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dalamud.Game;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Connectors

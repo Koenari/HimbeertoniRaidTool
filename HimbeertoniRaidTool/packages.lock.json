@@ -32,6 +32,9 @@
           "HtmlAgilityPack": "1.11.46"
         }
       },
+      "himbeertoniraidtool.common": {
+        "type": "Project"
+      },
       "netstone": {
         "type": "Project",
         "dependencies": {

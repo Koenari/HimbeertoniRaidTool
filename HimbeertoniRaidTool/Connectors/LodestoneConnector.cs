@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dalamud.Game;
 using Dalamud.Logging;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.UI;
 using Lumina.Excel.GeneratedSheets;
 using NetStone;

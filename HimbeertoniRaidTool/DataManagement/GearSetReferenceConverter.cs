@@ -1,5 +1,5 @@
 ﻿using System;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

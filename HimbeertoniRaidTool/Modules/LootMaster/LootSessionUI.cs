@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using Dalamud.Interface;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using static HimbeertoniRaidTool.HrtServices.Localization;

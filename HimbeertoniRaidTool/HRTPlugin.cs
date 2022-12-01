@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
-using System.Text;
 using Dalamud.Game.Command;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.IoC;
@@ -13,7 +11,6 @@ using HimbeertoniRaidTool.HrtServices;
 using HimbeertoniRaidTool.Modules;
 using HimbeertoniRaidTool.Modules.LootMaster;
 using HimbeertoniRaidTool.Modules.WelcomeWindow;
-using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool
 {
@@ -140,17 +137,6 @@ namespace HimbeertoniRaidTool
                     PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
                     break;
             }
-        }
-    }
-    public static class HRTExtensions
-    {
-        public static T Clone<T>(this T source)
-            => JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(source))!;
-        public static int ConsistentHash(this string obj)
-        {
-            SHA512 alg = SHA512.Create();
-            byte[] sha = alg.ComputeHash(Encoding.UTF8.GetBytes(obj));
-            return sha[0] + 256 * sha[1] + 256 * 256 * sha[2] + 256 * 256 * 256 * sha[2];
         }
     }
 }

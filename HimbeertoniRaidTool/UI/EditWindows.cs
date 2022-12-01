@@ -4,7 +4,10 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common;
+using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Common.Services;
+using HimbeertoniRaidTool.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.Extensions;
 using Lumina.Excel.GeneratedSheets;
@@ -135,7 +138,7 @@ namespace HimbeertoniRaidTool.UI
                 ImGui.SetNextItemWidth(150f * ScaleFactor);
                 if (ImGui.InputInt($"{Localize("Level", "Level")}##{c.Job}", ref c.Level))
                 {
-                    c.Level = Math.Clamp(c.Level, 1, Services.GameInfo.CurrentExpansion.MaxLevel);
+                    c.Level = Math.Clamp(c.Level, 1, ServiceManager.GameInfo.CurrentExpansion.MaxLevel);
                 }
 
                 ImGui.Separator();
@@ -282,7 +285,7 @@ namespace HimbeertoniRaidTool.UI
             {
                 ImGui.Text(Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
                 ImGui.Text($"{Localize("Current priority", "Current priority")}: {GroupCopy.RolePriority}");
-                GroupCopy.RolePriority!.DrawEdit();
+                GroupCopy.RolePriority!.DrawEdit(ImGui.InputInt);
             }
         }
     }
@@ -378,7 +381,7 @@ namespace HimbeertoniRaidTool.UI
                 if (_gearSetCopy[slot].Materia.Count < (_gearSetCopy[slot].Item?.IsAdvancedMeldingPermitted ?? false ? 5 : _gearSetCopy[slot].Item?.MateriaSlotCount))
                     if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}addmat", Localize("Select materia", "Select materia")))
                     {
-                        byte maxMatLevel = Services.GameInfo.CurrentExpansion.MaxMateriaLevel;
+                        byte maxMatLevel = ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
                         if (_gearSetCopy[slot].Materia.Count > _gearSetCopy[slot].Item?.MateriaSlotCount)
                             maxMatLevel--;
                         ModalChild = (new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }, maxMatLevel));

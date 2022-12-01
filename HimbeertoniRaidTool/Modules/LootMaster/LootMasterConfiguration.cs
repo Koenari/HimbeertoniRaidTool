@@ -4,7 +4,11 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Logging;
 using Dalamud.Utility;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common;
+using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Common.Services;
+using HimbeertoniRaidTool.DataExtensions;
+using HimbeertoniRaidTool.Modules.LootMaster;
 using HimbeertoniRaidTool.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
@@ -181,7 +185,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
                     ImGui.Separator();
                     ImGui.Text(Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
                     ImGui.Text($"{Localize("Current priority", "Current priority")}: {_dataCopy.RolePriority}");
-                    _dataCopy.RolePriority.DrawEdit();
+                    _dataCopy.RolePriority.DrawEdit(ImGui.InputInt);
                     ImGui.EndTabItem();
                 }
                 ImGui.EndTabBar();
@@ -309,7 +313,7 @@ namespace HimbeertoniRaidTool.Modules.LootMaster
             [JsonProperty("RaidTierIndex")]
             public int? RaidTierOverride = null;
             [JsonIgnore]
-            public RaidTier SelectedRaidTier => Services.GameInfo.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
+            public RaidTier SelectedRaidTier => ServiceManager.GameInfo.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
             public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : DefaultBIS.ContainsKey(c) ? DefaultBIS[c] : "";
             private static string ParseItemFormatString(string input)
             {

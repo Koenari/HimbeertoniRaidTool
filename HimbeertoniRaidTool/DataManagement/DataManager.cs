@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.DataManagement

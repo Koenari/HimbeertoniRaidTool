@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using HimbeertoniRaidTool.Data;
+using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.DataManagement
