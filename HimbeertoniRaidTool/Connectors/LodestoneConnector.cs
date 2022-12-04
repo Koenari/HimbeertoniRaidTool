@@ -54,6 +54,12 @@ internal class LodestoneConnector : NetstoneBase
                     "Lodestone is not supported."), HrtUiMessageType.Failure);
 
             var classToChange = p.MainChar[foundJob.Value];
+            if (classToChange == null)
+            {
+                classToChange = p.MainChar.AddClass(foundJob.Value);
+                Services.HrtDataManager.GetManagedGearSet(ref classToChange.Gear);
+                Services.HrtDataManager.GetManagedGearSet(ref classToChange.BIS);
+            }
             classToChange.Level = lodestoneCharacter.ActiveClassJobLevel;
             //Getting Race, Clan and Gender is not yet correctly implemented in Netstone 1.0.0
             //classToChange.Tribe = (unit)lodestoneCharacter.RaceClanGender;

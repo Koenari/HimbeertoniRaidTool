@@ -116,16 +116,23 @@ internal static unsafe class GearRefresherOnExamine
         }
 
         //Start getting Infos from Game
-        var targetClass = target.GetJob();
-        if (!targetClass.IsCombatJob())
+        var targetJob = target.GetJob();
+        if (!targetJob.IsCombatJob())
             return;
+        var targetClass = targetChar[targetJob];
+        if (targetClass == null)
+        {
+            targetClass = targetChar.AddClass(targetJob);
+            Services.HrtDataManager.GetManagedGearSet(ref targetClass.Gear);
+            Services.HrtDataManager.GetManagedGearSet(ref targetClass.BIS);
+        }
         //Getting level does not work in level synced content
-        if (target.Level > targetChar[targetClass].Level)
-            targetChar[targetClass].Level = target.Level;
+        if (target.Level > targetClass.Level)
+            targetClass.Level = target.Level;
         try
         {
             var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
-            GearSet setToFill = new(GearSetManager.HRT, targetChar, targetClass);
+            GearSet setToFill = new(GearSetManager.HRT, targetChar, targetJob);
             Services.HrtDataManager.GetManagedGearSet(ref setToFill);
             for (int i = 0; i < 13; i++)
             {

@@ -82,7 +82,7 @@ internal class EditPlayerWindow : HrtWindow
             PlayerCopy.MainChar.HomeWorld = w;
         }
         //ImGuiHelper.Combo(Localize("Gender", "Gender"), ref PlayerCopy.MainChar.Gender);
-        string GetGenderedTribeName(Tribe t) => PlayerCopy.MainChar.Gender == Gender.Male ? t.Masculine.RawString : t.Feminine.RawString;
+        string GetGenderedTribeName(Tribe? t) => (PlayerCopy.MainChar.Gender == Gender.Male ? t?.Masculine.RawString : t?.Feminine.RawString) ?? String.Empty;
         if (ImGuiHelper.ExcelSheetCombo(Localize("Tribe", "Tribe") + "##" + Title, out Tribe? t,
            x => GetGenderedTribeName(PlayerCopy.MainChar.Tribe), ImGuiComboFlags.None,
             (x, y) => GetGenderedTribeName(x).Contains(y, StringComparison.CurrentCultureIgnoreCase),
@@ -161,7 +161,14 @@ internal class EditPlayerWindow : HrtWindow
         ImGui.SameLine();
         if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
         {
-            PlayerCopy.MainChar[newJob].BIS.EtroID = GetBisID(newJob);
+            var newClass = PlayerCopy.MainChar[newJob];
+            if (newClass == null)
+            {
+                newClass = PlayerCopy.MainChar.AddClass(newJob);
+                Services.HrtDataManager.GetManagedGearSet(ref newClass.Gear);
+                Services.HrtDataManager.GetManagedGearSet(ref newClass.BIS);
+            }
+            newClass.BIS.EtroID = GetBisID(newJob);
             if (Size.HasValue)
                 Size = new(Size.Value.X, Size.Value.Y + ClassHeight);
         }
@@ -210,6 +217,8 @@ internal class EditPlayerWindow : HrtWindow
         foreach (var c in PlayerCopy.MainChar.Classes)
         {
             var target = Player.MainChar[c.Job];
+            if (target == null)
+                continue;
             target.Level = c.Level;
             if (target.BIS.EtroID.Equals(c.BIS.EtroID))
                 continue;

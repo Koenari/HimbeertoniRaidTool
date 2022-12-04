@@ -193,7 +193,7 @@ public class LootResult
     public readonly Player Player;
     public readonly Job Job;
     public readonly int Roll;
-    public PlayableClass AplicableJob => Player.MainChar[Job];
+    public readonly PlayableClass AplicableJob;
     public int RolePrio => _session.RolePriority.GetPriority(Player.CurJob.GetRole());
     public bool IsEvaluated { get; private set; } = false;
     public readonly Dictionary<LootRule, (int val, string reason)> EvaluatedRules = new();
@@ -205,6 +205,14 @@ public class LootResult
         _session = session;
         Player = p;
         Job = job ?? p.MainChar.MainJob ?? Job.ADV;
+        var applicableJob = Player.MainChar[Job];
+        if (applicableJob == null)
+        {
+            applicableJob = Player.MainChar.AddClass(Job);
+            Services.HrtDataManager.GetManagedGearSet(ref applicableJob.Gear);
+            Services.HrtDataManager.GetManagedGearSet(ref applicableJob.BIS);
+        }
+        AplicableJob = applicableJob;
         Roll = Random.Next(0, 101);
         //Filter items by job
         ApplicableItems = new(possibleItems.Where(i => (i.Item?.ClassJobCategory.Value).Contains(Job)));
