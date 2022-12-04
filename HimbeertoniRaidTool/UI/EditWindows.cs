@@ -218,7 +218,11 @@ internal class EditPlayerWindow : HrtWindow
         {
             var target = Player.MainChar[c.Job];
             if (target == null)
-                continue;
+            {
+                target = Player.MainChar.AddClass(c.Job);
+                Services.HrtDataManager.GetManagedGearSet(ref target.Gear);
+                Services.HrtDataManager.GetManagedGearSet(ref target.BIS);
+            }
             target.Level = c.Level;
             if (target.BIS.EtroID.Equals(c.BIS.EtroID))
                 continue;
