@@ -14,6 +14,6 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        * fix a potential crash un updating gear
+        * fix: shop entries with multiple items (PLD weapons for example)
 
 
