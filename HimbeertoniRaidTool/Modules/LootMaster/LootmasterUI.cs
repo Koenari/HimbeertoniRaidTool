@@ -32,7 +32,6 @@ internal class LootmasterUI : HrtWindow
     private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
     private readonly Queue<HrtUiMessage> _messageQueue = new();
     private (HrtUiMessage message, DateTime time)? _currentMessage;
-    private static readonly TimeSpan _messageTime = TimeSpan.FromSeconds(10);
     private readonly Vector2 _buttonSize;
     private Vector2 ButtonSize => _buttonSize * ScaleFactor;
     internal LootmasterUI(LootMasterModule lootMaster) : base(false, "LootMaster")
@@ -76,9 +75,21 @@ internal class LootmasterUI : HrtWindow
 
         }
     }
+    private TimeSpan MessgeTimeByMessgeType(HrtUiMessageType type) => type switch
+    {
+        HrtUiMessageType.Info
+        => TimeSpan.FromSeconds(3),
+        HrtUiMessageType.Success
+        or HrtUiMessageType.Warning
+            => TimeSpan.FromSeconds(5),
+        HrtUiMessageType.Failure or HrtUiMessageType.Error
+        or HrtUiMessageType.Important
+            => TimeSpan.FromSeconds(10),
+        _ => TimeSpan.FromSeconds(10),
+    };
     private void DrawUiMessages()
     {
-        if (_currentMessage.HasValue && _currentMessage.Value.time + _messageTime < DateTime.Now)
+        if (_currentMessage.HasValue && _currentMessage.Value.time + MessgeTimeByMessgeType(_currentMessage.Value.message.MessageType) < DateTime.Now)
             _currentMessage = null;
         if (!_currentMessage.HasValue && _messageQueue.TryDequeue(out var message))
             _currentMessage = (message, DateTime.Now);
