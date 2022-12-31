@@ -9,7 +9,6 @@ using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
-using Lumina.Excel.Extensions;
 using Lumina.Excel.GeneratedSheets;
 using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 

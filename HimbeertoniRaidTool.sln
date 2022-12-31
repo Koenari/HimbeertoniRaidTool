@@ -14,6 +14,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetStone", "lib\NetStone\Ne
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HimbeertoniRaidTool.Common", "lib\HimbeertoniRaidTool.Common\HimbeertoniRaidTool.Common\HimbeertoniRaidTool.Common.csproj", "{EA419F64-32A4-4027-9956-1A6FF16B94FD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XIVCalc", "lib\HimbeertoniRaidTool.Common\lib\XIVCalc\XIVCalc\XIVCalc.csproj", "{BBC390E5-25EE-4F8E-BBF5-3FB4C6F786DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,14 @@ Global
 		{EA419F64-32A4-4027-9956-1A6FF16B94FD}.Release|Any CPU.Build.0 = Release|x64
 		{EA419F64-32A4-4027-9956-1A6FF16B94FD}.Release|x64.ActiveCfg = Release|x64
 		{EA419F64-32A4-4027-9956-1A6FF16B94FD}.Release|x64.Build.0 = Release|x64
+		{BBC390E5-25EE-4F8E-BBF5-3FB4C6F786DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBC390E5-25EE-4F8E-BBF5-3FB4C6F786DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBC390E5-25EE-4F8E-BBF5-3FB4C6F786DB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BBC390E5-25EE-4F8E-BBF5-3FB4C6F786DB}.Debug|x64.Build.0 = Debug|Any CPU
+		{BBC390E5-25EE-4F8E-BBF5-3FB4C6F786DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBC390E5-25EE-4F8E-BBF5-3FB4C6F786DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBC390E5-25EE-4F8E-BBF5-3FB4C6F786DB}.Release|x64.ActiveCfg = Release|Any CPU
+		{BBC390E5-25EE-4F8E-BBF5-3FB4C6F786DB}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

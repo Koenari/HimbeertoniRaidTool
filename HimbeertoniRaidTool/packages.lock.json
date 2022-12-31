@@ -54,7 +54,8 @@
         "type": "Project",
         "dependencies": {
           "Lumina.Excel": "[6.2.1, )",
-          "Newtonsoft.Json": "[13.0.2, )"
+          "Newtonsoft.Json": "[13.0.2, )",
+          "XIVCalc": "[0.1.0, )"
         }
       },
       "netstone": {
@@ -63,6 +64,12 @@
           "HtmlAgilityPack": "[1.11.46, )",
           "JetBrains.Annotations": "[2022.1.0, )",
           "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "[0.0.2, )"
+        }
+      },
+      "xivcalc": {
+        "type": "Project",
+        "dependencies": {
+          "Lumina.Excel": "[6.2.1, )"
         }
       }
     }

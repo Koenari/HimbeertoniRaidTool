@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
-using Lumina.Excel.Extensions;
 using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
