@@ -68,11 +68,11 @@
     "description": "DrawDataExtension.Draw"
   },
   "itemShop": {
-    "message": "Shop cost",
+    "message": "Händlerkosten",
     "description": "DrawDataExtension.Draw"
   },
   "item:looted:sources": {
-    "message": "Looted in",
+    "message": "Loot von",
     "description": "DrawDataExtension.Draw"
   },
   "MagicDamage": {
@@ -348,7 +348,7 @@
     "description": "ConfigUi.Draw"
   },
   "Lootmaster:OpenOnLoginTooltip": {
-    "message": "Opens group overview window whean you log in",
+    "message": "Öffnet die Gruppenübersicht nach dem Einloggen",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:ColoredItemNames": {
@@ -356,7 +356,7 @@
     "description": "ConfigUi.Draw"
   },
   "Lootmaster:ColoredItemNamesTooltip": {
-    "message": "Color items according to the item level",
+    "message": "Items nach Itemlevel einfärben",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:Colors": {
@@ -380,11 +380,11 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaforBis": {
-    "message": "Ignore Materia",
+    "message": "Materia ignorieren",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaforBisTooltip": {
-    "message": "Ignore Materia when determining if an item is equivalent to BiS",
+    "message": "Beim Vergleich von Items zu BiS die gesockelten Materia ignorieren",
     "description": "ConfigUi.Draw"
   },
   "UpdateBisONStartUp": {
@@ -460,7 +460,7 @@
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "lootmaster:button:showconfig:tooltip": {
-    "message": "Open Configuration",
+    "message": "Konfiguration öffnen",
     "description": "LootmasterUI.Draw"
   },
   "Add Player": {
@@ -516,11 +516,11 @@
     "description": "LootmasterUI.DrawPlayer"
   },
   "lootmaster:button:swapposition:tooltip": {
-    "message": "Swap Position",
+    "message": "Position tauschen",
     "description": "LootmasterUI.DrawPlayer"
   },
   "lootmaster:button:inventorytooltip": {
-    "message": "Open inventory window",
+    "message": "Lootmaster-Inventar öffnen",
     "description": "LootmasterUI.DrawPlayer"
   },
   "PlayerDetails": {
@@ -572,7 +572,7 @@
     "description": "GetCharacterFromDBWindow..ctor"
   },
   "Inventory:AdditionalGear": {
-    "message": "Additional Gear",
+    "message": "Zusätzliche Ausrüstung",
     "description": "InventoryWindow.Draw"
   },
   "Swap Position of": {
@@ -584,55 +584,55 @@
     "description": "SwapPositionWindow.Draw"
   },
   "LootSession:State:STARTED": {
-    "message": "Chosing Loot",
+    "message": "Beute auswählen",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootSession:State:LOOT_CHOSEN": {
-    "message": "Loot locked",
+    "message": "Beute festgelegt",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootSession:State:DISTRIBUTION_STARTED": {
-    "message": "Distribution started",
+    "message": "Verteilung gestartet",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootSession:State:FINISHED": {
-    "message": "Finished",
+    "message": "Beendet",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "undefinded": {
-    "message": "undefinded",
+    "message": "undefiniert",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootCategory:Need": {
-    "message": "Need",
+    "message": "Bedarf",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootCategory:Greed": {
-    "message": "Greed",
+    "message": "Gier",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootCategory:Pass": {
-    "message": "Pass",
+    "message": "Passen",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootCategory:Undecided": {
-    "message": "Undecided",
+    "message": "Nicht entschieden",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootResult:ItemAwardedTo": {
-    "message": "awarded to",
+    "message": "vergeben an",
     "description": "LootResultContainer.get_ShortResult"
   },
   "LootResult:GreedOnly": {
-    "message": "Greed only",
+    "message": "Nur Gier",
     "description": "LootResultContainer.get_ShortResult"
   },
   "LootResult:PlayerWon": {
-    "message": "won",
+    "message": "gewonnen",
     "description": "LootResultContainer.get_ShortResult"
   },
   "LootResult:PlayerWonOver": {
-    "message": "over",
+    "message": "über",
     "description": "LootResultContainer.get_ShortResult"
   },
   "Loot session for": {
@@ -640,19 +640,19 @@
     "description": "LootSessionUI..ctor"
   },
   "Lootsession:State": {
-    "message": "Current State",
+    "message": "Aktueller Status",
     "description": "LootSessionUI.Draw"
   },
   "LootSession:RulesButton:Tooltip": {
-    "message": "Override ruling ooptions",
+    "message": "Verteilungsregeln überschreiben",
     "description": "LootSessionUI.Draw"
   },
   "LootSesseion:CalcButton:Text": {
-    "message": "Calculate",
+    "message": "Berechnen",
     "description": "LootSessionUI.Draw"
   },
   "LootSesseion:CalcButton:Tooltip": {
-    "message": "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection",
+    "message": "Berechnet die Ergebnisse der Beuteverteilung entsprechend den Regeln und der aktuellen Ausrüstung der Spieler.\n Sperrt die Beuteauswahl",
     "description": "LootSessionUI.Draw"
   },
   "Role priority": {
@@ -664,19 +664,19 @@
     "description": "LootSessionUI.DrawRulingOptions"
   },
   "Results for": {
-    "message": "Results for",
+    "message": "Ergebnisse für",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResults:AbortButton:Text": {
-    "message": "Abort",
+    "message": "Abbrechen",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResults:AbortButton:Tooltip": {
-    "message": "Abort distribution to change loot or rules",
+    "message": "Verteilung abbrechen, um Beute oder Regeln zu ändern",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResultWindow:GuaranteedItems": {
-    "message": "Guaranteed Items (per player)",
+    "message": "Garantierte Items (pro Spieler)",
     "description": "LootSessionUI.DrawResults"
   },
   "None": {
@@ -684,15 +684,15 @@
     "description": "LootSessionUI.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed": {
-    "message": "Award to all",
+    "message": "An alle vergeben",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed:Tooltip": {
-    "message": "Award 1 to eacch player",
+    "message": "Jedem Spieler einmal vergeben",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResult:PossibleItems": {
-    "message": "Items to distribute:",
+    "message": "Zu verteilende Items:",
     "description": "LootSessionUI.DrawResults"
   },
   "Pos": {
@@ -708,7 +708,7 @@
     "description": "LootSessionUI.DrawResults"
   },
   "LootResult:AwardButton:Tooltip": {
-    "message": "Award to player",
+    "message": "An Spieler vergeben",
     "description": "LootSessionUI.DrawResults"
   },
   "Savage": {
@@ -964,7 +964,7 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "ItemSource:Loot": {
-    "message": "Looted",
+    "message": "Geplündert",
     "description": "EnumExtensions.FriendlyName"
   },
   "Tank": {
