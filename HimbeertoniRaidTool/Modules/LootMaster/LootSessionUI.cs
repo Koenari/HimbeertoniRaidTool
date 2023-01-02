@@ -33,7 +33,7 @@ internal class LootSessionUI : HrtWindow
         ImGui.SameLine();
         ImGui.Text($"{Localize("Lootsession:State", "Current State")}: {_session.CurrentState.FriendlyName()}");
         ImGui.SameLine();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Cogs, "RulesButton", Localize("LootSession:RulesButton:Tooltip", "Override ruling ooptions")))
+        if (ImGuiHelper.Button(FontAwesomeIcon.Cogs, "RulesButton", Localize("LootSession:RulesButton:Tooltip", "Override ruling options")))
             ImGui.OpenPopup(RulesPopupID);
         if (ImGui.BeginPopup(RulesPopupID))
         {
