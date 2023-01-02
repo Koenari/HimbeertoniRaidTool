@@ -166,7 +166,7 @@ internal class LootSessionUI : HrtWindow
             }
             ImGui.SameLine();
             if (ImGuiHelper.Button($"{Localize("LootResultWindow:Button:AwardGuaranteed", "Award to all")}##{item.ID}",
-                Localize("LootResultWindow:Button:AwardGuaranteed:Tooltip", "Award 1 to eacch player"), !awareded))
+                Localize("LootResultWindow:Button:AwardGuaranteed:Tooltip", "Award 1 to each player"), !awareded))
                 _session.AwardGuaranteedLoot(item);
         }
         //Possible Items
