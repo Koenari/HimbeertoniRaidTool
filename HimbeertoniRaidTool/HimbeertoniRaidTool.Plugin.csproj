@@ -50,7 +50,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DalamudPackager" Version="2.1.8" />
+    <PackageReference Include="DalamudPackager" Version="2.1.9" />
     <PackageReference Include="XivCommon" Version="6.0.2" />
     <Reference Include="Mono.Cecil" Condition="'$(Configuration)'=='Debug'">
       <HintPath>$(DalamudLibPath)Mono.Cecil.dll</HintPath>
