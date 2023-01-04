@@ -193,7 +193,7 @@ public class LootResult
     public readonly Job Job;
     public readonly int Roll;
     public readonly PlayableClass AplicableJob;
-    public int RolePrio => _session.RolePriority.GetPriority(Player.CurJob.GetRole());
+    public int RolePrio => _session.RolePriority.GetPriority(AplicableJob.Role);
     public bool IsEvaluated { get; private set; } = false;
     public readonly Dictionary<LootRule, (int val, string reason)> EvaluatedRules = new();
     public readonly HashSet<GearItem> ApplicableItems;

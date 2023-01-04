@@ -57,7 +57,7 @@ public class LootRule : IEquatable<LootRule>
         LootRuleEnum.LowestItemLevel => (-x.ItemLevel(), x.ItemLevel().ToString()),
         LootRuleEnum.HighesItemLevelGain => (x.ItemLevelGain(), null),
         LootRuleEnum.BISOverUpgrade => x.IsBiS() ? (1, "y") : (-1, "n"),
-        LootRuleEnum.RolePrio => (x.RolePrio(session), x.AplicableJob.GetRole().ToString()),
+        LootRuleEnum.RolePrio => (x.RolePrio(session), x.AplicableJob.Role.ToString()),
         LootRuleEnum.DPS => (x.Player.AdditionalData.ManualDPS, null),
         _ => (0, "none"),
     };
@@ -91,7 +91,7 @@ public class LootRule : IEquatable<LootRule>
 
 public static class LootRulesExtension
 {
-    public static int RolePrio(this LootResult p, LootSession s) => -s.RolePriority.GetPriority(p.AplicableJob.GetRole());
+    public static int RolePrio(this LootResult p, LootSession s) => -s.RolePriority.GetPriority(p.AplicableJob.Role);
     public static int Roll(this LootResult p) => p.Roll;
     public static int ItemLevel(this LootResult p) => p.AplicableJob.Gear.ItemLevel;
     public static int ItemLevelGain(this LootResult p)

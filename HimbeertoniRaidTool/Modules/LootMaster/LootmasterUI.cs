@@ -397,7 +397,7 @@ internal class LootmasterUI : HrtWindow
         {
             //Player Column
             ImGui.TableNextColumn();
-            ImGui.Text($"{player.CurJob.GetRole().FriendlyName()}:   {player.NickName}");
+            ImGui.Text($"{player.CurJob?.Role.FriendlyName()}:   {player.NickName}");
             ImGui.Text($"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? Localize("n.A.", "n.A.")}");
             var curJob = player.CurJob;
             if (curJob != null)

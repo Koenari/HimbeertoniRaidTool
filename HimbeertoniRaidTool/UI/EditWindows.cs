@@ -552,7 +552,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             && (!Slots.Any() || Slots.Any(slot => slot == GearSetSlot.None || x.EquipSlotCategory.Value.Contains(slot)))
             && (maxILvl == 0 || x.LevelItem.Row <= maxILvl)
             && x.LevelItem.Row >= minILvl
-            && (Job.GetValueOrDefault(0) == 0 || x.ClassJobCategory.Value.Contains(Job))
+            && (Job.GetValueOrDefault(0) == 0 || x.ClassJobCategory.Value.Contains(Job.GetValueOrDefault()))
             ).Take(50).ToList();
         _items.Sort((x, y) => (int)y.LevelItem.Row - (int)x.LevelItem.Row);
         return _items;
