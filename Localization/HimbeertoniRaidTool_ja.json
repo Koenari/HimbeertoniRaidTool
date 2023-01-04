@@ -684,7 +684,7 @@
     "description": "LootSessionUI.Draw"
   },
   "LootSession:RulesButton:Tooltip": {
-    "message": "Override ruling options",
+    "message": "設定を上書き",
     "description": "LootSessionUI.Draw"
   },
   "LootSesseion:CalcButton:Text": {
@@ -724,7 +724,7 @@
     "description": "LootSessionUI.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed:Tooltip": {
-    "message": "Award 1 to each player",
+    "message": "各プレイヤーに1つずつ与える",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResult:PossibleItems": {
