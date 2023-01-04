@@ -32,6 +32,14 @@
           "HtmlAgilityPack": "1.11.46"
         }
       },
+      "Koenari.XIVCalc": {
+        "type": "Transitive",
+        "resolved": "0.1.1",
+        "contentHash": "h42wWZo7keAUc/7SCq0xmo+YUisZF47/A85XsT/MvvzoYpfRA4QnpitGyGpQC9ALmYZha3YRUVZuI3E+Q9LQcg==",
+        "dependencies": {
+          "Lumina.Excel": "6.2.1"
+        }
+      },
       "Lumina": {
         "type": "Transitive",
         "resolved": "3.10.0",
@@ -53,9 +61,9 @@
       "himbeertoniraidtool.common": {
         "type": "Project",
         "dependencies": {
+          "Koenari.XIVCalc": "[0.1.1, )",
           "Lumina.Excel": "[6.2.1, )",
-          "Newtonsoft.Json": "[13.0.2, )",
-          "XIVCalc": "[0.1.0, )"
+          "Newtonsoft.Json": "[13.0.2, )"
         }
       },
       "netstone": {
@@ -64,12 +72,6 @@
           "HtmlAgilityPack": "[1.11.46, )",
           "JetBrains.Annotations": "[2022.1.0, )",
           "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "[0.0.2, )"
-        }
-      },
-      "xivcalc": {
-        "type": "Project",
-        "dependencies": {
-          "Lumina.Excel": "[6.2.1, )"
         }
       }
     }
