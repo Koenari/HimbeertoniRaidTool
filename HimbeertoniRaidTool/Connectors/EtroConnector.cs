@@ -13,7 +13,8 @@ internal class EtroConnector : WebConnector
     public static string GearsetApiBaseUrl => ApiBaseUrl + "gearsets/";
     public static string GearsetWebBaseUrl => WebBaseUrl + "gearset/";
     public static string MateriaApiBaseUrl => ApiBaseUrl + "materia/";
-    private static readonly Dictionary<uint, (MateriaCategory, byte)> MateriaCache = new();
+    private readonly Lazy<Dictionary<uint, (MateriaCategory, byte)>> LazyMateriaCache;
+    private Dictionary<uint, (MateriaCategory, byte)> MateriaCache => LazyMateriaCache.Value;
     private static JsonSerializerSettings JsonSettings => new()
     {
         StringEscapeHandling = StringEscapeHandling.Default,
@@ -29,17 +30,19 @@ internal class EtroConnector : WebConnector
     };
     internal EtroConnector(Framework fw) : base(fw, new(4, new(0, 0, 30)))
     {
-        if (MateriaCache.Count == 0)
-        {
-            string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
-            var matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
-            if (matList != null)
-                foreach (var mat in matList)
-                    for (byte i = 0; i < mat.tiers.Length; i++)
-                        MateriaCache.Add(mat.tiers[i].id, ((MateriaCategory)mat.id, i));
-        }
+        LazyMateriaCache = new(CreateMateriaCache, true);
     }
-
+    private Dictionary<uint, (MateriaCategory, byte)> CreateMateriaCache()
+    {
+        Dictionary<uint, (MateriaCategory, byte)> materiaCache = new();
+        string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
+        var matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
+        if (matList != null)
+            foreach (var mat in matList)
+                for (byte i = 0; i < mat.tiers.Length; i++)
+                    materiaCache.Add(mat.tiers[i].id, ((MateriaCategory)mat.id, i));
+        return materiaCache;
+    }
 
     public bool GetGearSet(GearSet set)
     {
