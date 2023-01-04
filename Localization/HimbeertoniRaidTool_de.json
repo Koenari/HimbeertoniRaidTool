@@ -549,19 +549,19 @@
   },
   "Critical Damage": {
     "message": "Kritischer Schaden",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|21_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
   },
   "SpeedMultiplierName": {
     "message": "AA/DoT Multiplikator",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|21_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
   },
   "Dmgper100Tooltip": {
     "message": "Durchschnittlicher Schaden mit einer 100 Potenz Fähigkeit",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|21_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
   },
   "Empty": {
     "message": "Leer",
-    "description": "LootmasterUI.<DrawSlot>g__DrawItem|25_0"
+    "description": "LootmasterUI.<DrawSlot>g__DrawItem|27_0"
   },
   "PlayerDetailsTitle": {
     "message": "Spieler Details",
@@ -582,6 +582,46 @@
   "Swap players positions": {
     "message": "Spielerpositionen tauschen",
     "description": "SwapPositionWindow.Draw"
+  },
+  "BISOverUpgrade": {
+    "message": "BiS > Verbesserung",
+    "description": "LootRule.GetName"
+  },
+  "LowestItemLevel": {
+    "message": "Niedrigste Gegenstandsstufe",
+    "description": "LootRule.GetName"
+  },
+  "HighesItemLevelGain": {
+    "message": "Gegenstandsstufen Gewinn",
+    "description": "LootRule.GetName"
+  },
+  "ByRole": {
+    "message": "Rollenpriorität",
+    "description": "LootRule.GetName"
+  },
+  "Rolling": {
+    "message": "Würfeln",
+    "description": "LootRule.GetName"
+  },
+  "DPS": {
+    "message": "DPS",
+    "description": "LootRule.GetName"
+  },
+  "None": {
+    "message": "Nichts",
+    "description": "LootRule.GetName"
+  },
+  "Greed": {
+    "message": "Gier",
+    "description": "LootRule.GetName"
+  },
+  "Need over Greed": {
+    "message": "Bedarf vor Gier",
+    "description": "LootRule.GetName"
+  },
+  "Not defined": {
+    "message": "Nicht definiert",
+    "description": "LootRule.GetName"
   },
   "LootSession:State:STARTED": {
     "message": "Beute auswählen",
@@ -644,7 +684,7 @@
     "description": "LootSessionUI.Draw"
   },
   "LootSession:RulesButton:Tooltip": {
-    "message": "Verteilungsregeln überschreiben",
+    "message": "Override ruling options",
     "description": "LootSessionUI.Draw"
   },
   "LootSesseion:CalcButton:Text": {
@@ -679,16 +719,12 @@
     "message": "Garantierte Items (pro Spieler)",
     "description": "LootSessionUI.DrawResults"
   },
-  "None": {
-    "message": "Nichts",
-    "description": "LootSessionUI.DrawResults"
-  },
   "LootResultWindow:Button:AwardGuaranteed": {
     "message": "An alle vergeben",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed:Tooltip": {
-    "message": "Jedem Spieler einmal vergeben",
+    "message": "Award 1 to each player",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResult:PossibleItems": {
@@ -710,10 +746,6 @@
   "LootResult:AwardButton:Tooltip": {
     "message": "An Spieler vergeben",
     "description": "LootSessionUI.DrawResults"
-  },
-  "Savage": {
-    "message": "Episch",
-    "description": "CuratedData..ctor"
   },
   "Strength": {
     "message": "Stärke",
@@ -986,66 +1018,6 @@
   "Caster": {
     "message": "Caster",
     "description": "EnumExtensions.FriendlyName"
-  },
-  "EXP_2": {
-    "message": "A Realm Reborn",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_3": {
-    "message": "Heavensward",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_4": {
-    "message": "Stormblood",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_5": {
-    "message": "Shadowbringers",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_6": {
-    "message": "Endwalker",
-    "description": "GameExpansion.get_Name"
-  },
-  "Unknown": {
-    "message": "Unbekannt",
-    "description": "GameExpansion.get_Name"
-  },
-  "BISOverUpgrade": {
-    "message": "BiS > Verbesserung",
-    "description": "LootRule.GetName"
-  },
-  "LowestItemLevel": {
-    "message": "Niedrigste Gegenstandsstufe",
-    "description": "LootRule.GetName"
-  },
-  "HighesItemLevelGain": {
-    "message": "Gegenstandsstufen Gewinn",
-    "description": "LootRule.GetName"
-  },
-  "ByRole": {
-    "message": "Rollenpriorität",
-    "description": "LootRule.GetName"
-  },
-  "Rolling": {
-    "message": "Würfeln",
-    "description": "LootRule.GetName"
-  },
-  "DPS": {
-    "message": "DPS",
-    "description": "LootRule.GetName"
-  },
-  "Greed": {
-    "message": "Gier",
-    "description": "LootRule.GetName"
-  },
-  "Need over Greed": {
-    "message": "Bedarf vor Gier",
-    "description": "LootRule.GetName"
-  },
-  "Not defined": {
-    "message": "Nicht definiert",
-    "description": "LootRule.GetName"
   },
   "LodestoneConnector:CharNotFound": {
     "message": "Charakter wurde nicht auf dem Lodestone gefunden.",
