@@ -549,19 +549,19 @@
   },
   "Critical Damage": {
     "message": "Critical Damage",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|21_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
   },
   "SpeedMultiplierName": {
     "message": "AA / DoT multiplier",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|21_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
   },
   "Dmgper100Tooltip": {
     "message": "Average Dmg with a 100 potency skill",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|21_1"
+    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
   },
   "Empty": {
     "message": "Empty",
-    "description": "LootmasterUI.<DrawSlot>g__DrawItem|25_0"
+    "description": "LootmasterUI.<DrawSlot>g__DrawItem|27_0"
   },
   "PlayerDetailsTitle": {
     "message": "Player Details",
@@ -582,6 +582,46 @@
   "Swap players positions": {
     "message": "Swap players positions",
     "description": "SwapPositionWindow.Draw"
+  },
+  "BISOverUpgrade": {
+    "message": "BIS > Upgrade",
+    "description": "LootRule.GetName"
+  },
+  "LowestItemLevel": {
+    "message": "Lowest overall ItemLevel",
+    "description": "LootRule.GetName"
+  },
+  "HighesItemLevelGain": {
+    "message": "Highest ItemLevel Gain",
+    "description": "LootRule.GetName"
+  },
+  "ByRole": {
+    "message": "Prioritise by role",
+    "description": "LootRule.GetName"
+  },
+  "Rolling": {
+    "message": "Rolling",
+    "description": "LootRule.GetName"
+  },
+  "DPS": {
+    "message": "DPS",
+    "description": "LootRule.GetName"
+  },
+  "None": {
+    "message": "None",
+    "description": "LootRule.GetName"
+  },
+  "Greed": {
+    "message": "Greed",
+    "description": "LootRule.GetName"
+  },
+  "Need over Greed": {
+    "message": "Need over Greed",
+    "description": "LootRule.GetName"
+  },
+  "Not defined": {
+    "message": "Not defined",
+    "description": "LootRule.GetName"
   },
   "LootSession:State:STARTED": {
     "message": "Chosing Loot",
@@ -644,7 +684,7 @@
     "description": "LootSessionUI.Draw"
   },
   "LootSession:RulesButton:Tooltip": {
-    "message": "Override ruling ooptions",
+    "message": "Override ruling options",
     "description": "LootSessionUI.Draw"
   },
   "LootSesseion:CalcButton:Text": {
@@ -679,16 +719,12 @@
     "message": "Guaranteed Items (per player)",
     "description": "LootSessionUI.DrawResults"
   },
-  "None": {
-    "message": "None",
-    "description": "LootSessionUI.DrawResults"
-  },
   "LootResultWindow:Button:AwardGuaranteed": {
     "message": "Award to all",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed:Tooltip": {
-    "message": "Award 1 to eacch player",
+    "message": "Award 1 to each player",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResult:PossibleItems": {
@@ -710,10 +746,6 @@
   "LootResult:AwardButton:Tooltip": {
     "message": "Award to player",
     "description": "LootSessionUI.DrawResults"
-  },
-  "Savage": {
-    "message": "Savage",
-    "description": "CuratedData..ctor"
   },
   "Strength": {
     "message": "Strength",
@@ -986,66 +1018,6 @@
   "Caster": {
     "message": "Caster",
     "description": "EnumExtensions.FriendlyName"
-  },
-  "EXP_2": {
-    "message": "A Realm Reborn",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_3": {
-    "message": "Heavensward",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_4": {
-    "message": "Stormblood",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_5": {
-    "message": "Shadowbringers",
-    "description": "GameExpansion.get_Name"
-  },
-  "EXP_6": {
-    "message": "Endwalker",
-    "description": "GameExpansion.get_Name"
-  },
-  "Unknown": {
-    "message": "Unknown",
-    "description": "GameExpansion.get_Name"
-  },
-  "BISOverUpgrade": {
-    "message": "BIS > Upgrade",
-    "description": "LootRule.GetName"
-  },
-  "LowestItemLevel": {
-    "message": "Lowest overall ItemLevel",
-    "description": "LootRule.GetName"
-  },
-  "HighesItemLevelGain": {
-    "message": "Highest ItemLevel Gain",
-    "description": "LootRule.GetName"
-  },
-  "ByRole": {
-    "message": "Prioritise by role",
-    "description": "LootRule.GetName"
-  },
-  "Rolling": {
-    "message": "Rolling",
-    "description": "LootRule.GetName"
-  },
-  "DPS": {
-    "message": "DPS",
-    "description": "LootRule.GetName"
-  },
-  "Greed": {
-    "message": "Greed",
-    "description": "LootRule.GetName"
-  },
-  "Need over Greed": {
-    "message": "Need over Greed",
-    "description": "LootRule.GetName"
-  },
-  "Not defined": {
-    "message": "Not defined",
-    "description": "LootRule.GetName"
   },
   "LodestoneConnector:CharNotFound": {
     "message": "Character not found on Lodestone.",
