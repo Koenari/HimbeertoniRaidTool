@@ -684,7 +684,7 @@
     "description": "LootSessionUI.Draw"
   },
   "LootSession:RulesButton:Tooltip": {
-    "message": "Override ruling options",
+    "message": "Verteilungsregeln überschreiben",
     "description": "LootSessionUI.Draw"
   },
   "LootSesseion:CalcButton:Text": {
@@ -724,7 +724,7 @@
     "description": "LootSessionUI.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed:Tooltip": {
-    "message": "Award 1 to each player",
+    "message": "Jedem Spieler einmal vergeben",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResult:PossibleItems": {
