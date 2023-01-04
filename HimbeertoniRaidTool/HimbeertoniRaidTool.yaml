@@ -16,3 +16,5 @@ image_urls:
 changelog: |-
         fix: HP calculation
         add: stat calculation for most levels
+        localization: added JP (thanks to Refer)
+        fix: load time reduced

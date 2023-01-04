@@ -76,7 +76,7 @@ internal class LootmasterUI : HrtWindow
 
         }
     }
-    private TimeSpan MessgeTimeByMessgeType(HrtUiMessageType type) => type switch
+    private static TimeSpan MessageTimeByMessgeType(HrtUiMessageType type) => type switch
     {
         HrtUiMessageType.Info
         => TimeSpan.FromSeconds(3),
@@ -90,7 +90,7 @@ internal class LootmasterUI : HrtWindow
     };
     private void DrawUiMessages()
     {
-        if (_currentMessage.HasValue && _currentMessage.Value.time + MessgeTimeByMessgeType(_currentMessage.Value.message.MessageType) < DateTime.Now)
+        if (_currentMessage.HasValue && _currentMessage.Value.time + MessageTimeByMessgeType(_currentMessage.Value.message.MessageType) < DateTime.Now)
             _currentMessage = null;
         if (!_currentMessage.HasValue && _messageQueue.TryDequeue(out var message))
             _currentMessage = (message, DateTime.Now);
