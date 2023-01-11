@@ -42,7 +42,6 @@ namespace HimbeertoniRaidTool.Plugin
         {
             pluginInterface.Create<Services>();
             Common.Services.ServiceManager.Init(DataManager.Excel);
-            FFXIVClientStructs.Resolver.Initialize(SigScanner.SearchBase);
             IconCache ??= new IconCache(PluginInterface, DataManager);
             HrtDataManager ??= new(PluginInterface);
             TaskManager ??= new(Framework);
