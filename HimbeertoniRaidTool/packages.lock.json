@@ -35,7 +35,7 @@
       "Koenari.XIVCalc": {
         "type": "Transitive",
         "resolved": "0.1.2",
-        "contentHash": "2S9ZlQGzEMWneVaqjHMFrzWjr8nOuj0HzzuQy2P1VJ8O6oS5IvWIkUa05XInW+EyoXODxoHf7gMMtoHfHGZbrg==",
+        "contentHash": "IgAy4ard2i+9E1Y3x2LIIM7tV3SqD4ZIcYceo5RMAO/qR4RqxjOf4LPaKvfi5zxOsK1GrWwt6VwuwyusdV8mpQ==",
         "dependencies": {
           "Lumina.Excel": "6.2.1"
         }
