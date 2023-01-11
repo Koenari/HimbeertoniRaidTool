@@ -1,12 +1,12 @@
 {
   "version": 1,
   "dependencies": {
-    "net6.0-windows7.0": {
+    "net7.0-windows7.0": {
       "DalamudPackager": {
         "type": "Direct",
-        "requested": "[2.1.9, )",
-        "resolved": "2.1.9",
-        "contentHash": "raxjlbAWAt9AYXTiRlRJOHHFOraNicVsPJXlFQEzx+Ym2Imh990llQ5bQ+DACVGgy65+axVnlL9QwkKspY5yzQ=="
+        "requested": "[2.1.10, )",
+        "resolved": "2.1.10",
+        "contentHash": "S6NrvvOnLgT4GDdgwuKVJjbFo+8ZEj+JsEYk9ojjOR/MMfv1dIFpT8aRJQfI24rtDcw1uF+GnSSMN4WW1yt7fw=="
       },
       "XivCommon": {
         "type": "Direct",
@@ -47,8 +47,8 @@
       },
       "Lumina.Excel": {
         "type": "Transitive",
-        "resolved": "6.2.1",
-        "contentHash": "czgE8ZrB91HFDFHRopdOHAwbo71r+XVmLvyteFl/+Mqa43WxhbmOlDkxV8yeh33qkqNzP6cCyU7ja30p0MRlxw==",
+        "resolved": "6.3.1",
+        "contentHash": "GPj3GfE3ExU1Ob4ENTV/Xj/1+k9WkBaYPrZhGyPXVxILcQd2u2lmU2SmR+Uv9SbAGZD/Rbmuc5cmiHrZRW405w==",
         "dependencies": {
           "Lumina": "3.10.0"
         }
@@ -62,7 +62,7 @@
         "type": "Project",
         "dependencies": {
           "Koenari.XIVCalc": "[0.1.2, )",
-          "Lumina.Excel": "[6.2.1, )",
+          "Lumina.Excel": "[6.3.1, )",
           "Newtonsoft.Json": "[13.0.2, )"
         }
       },
@@ -71,7 +71,8 @@
         "dependencies": {
           "HtmlAgilityPack": "[1.11.46, )",
           "JetBrains.Annotations": "[2022.1.0, )",
-          "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "[0.0.2, )"
+          "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "[0.0.2, )",
+          "Newtonsoft.Json": "[13.0.1, )"
         }
       }
     }
