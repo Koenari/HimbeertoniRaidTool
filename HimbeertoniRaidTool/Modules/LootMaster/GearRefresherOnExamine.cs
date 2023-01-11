@@ -38,8 +38,9 @@ internal static unsafe class GearRefresherOnExamine
             PluginLog.LogError(e, "Failed to hook into examine window");
             HookLoadSuccessful = false;
         }
-        XivCommonBase = new XivCommonBase();
-        CanOpenExamine = true;
+        //ToDO: broken
+        //XivCommonBase = new XivCommonBase();
+        CanOpenExamine = false;
         WorldSheet = Services.DataManager.GetExcelSheet<World>();
     }
     internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
