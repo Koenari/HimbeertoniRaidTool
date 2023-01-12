@@ -256,7 +256,7 @@
     "description": "ImGuiHelper.GearUpdateButtons"
   },
   "InspectUnavail": {
-    "message": "Diese Funktion ist inkompatibel mit der aktuellen Spielversion",
+    "message": "Examinining from here is unavailable due to incompatibility with game version.\nYou can still examine characters manually to update their gear.",
     "description": "ImGuiHelper.GearUpdateButtons"
   },
   "CharacterNotInReach": {
