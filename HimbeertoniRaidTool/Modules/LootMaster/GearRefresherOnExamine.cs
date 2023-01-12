@@ -9,7 +9,6 @@ using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
-using XivCommon;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
@@ -18,13 +17,13 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 internal static unsafe class GearRefresherOnExamine
 {
     private static readonly bool HookLoadSuccessful;
-    internal static readonly bool CanOpenExamine;
+    internal static bool CanOpenExamine => OpenExamine.CanOpen;
     private static readonly Hook<CharacterInspectOnRefresh>? Hook;
     private static readonly IntPtr HookAddress;
     private static readonly ExcelSheet<World>? WorldSheet;
 
     private delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
-    private static readonly XivCommonBase? XivCommonBase;
+
     static GearRefresherOnExamine()
     {
         try
@@ -38,18 +37,15 @@ internal static unsafe class GearRefresherOnExamine
             PluginLog.LogError(e, "Failed to hook into examine window");
             HookLoadSuccessful = false;
         }
-        //ToDO: broken
-        //XivCommonBase = new XivCommonBase();
-        CanOpenExamine = false;
         WorldSheet = Services.DataManager.GetExcelSheet<World>();
     }
     internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
     {
-        if (!CanOpenExamine || @object is null || XivCommonBase is null)
+        if (!CanOpenExamine || @object is null)
             return;
         try
         {
-            XivCommonBase.Functions.Examine.OpenExamineWindow(@object);
+            OpenExamine.OpenExamineWindow(@object);
         }
         catch (Exception e)
         {
@@ -167,6 +163,5 @@ internal static unsafe class GearRefresherOnExamine
             Hook.Disable();
             Hook.Dispose();
         }
-        XivCommonBase?.Dispose();
     }
 }
