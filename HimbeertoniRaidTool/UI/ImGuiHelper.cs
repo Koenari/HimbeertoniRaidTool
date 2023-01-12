@@ -48,12 +48,17 @@ public static class ImGuiHelper
         bool result = false;
         PlayerCharacter? playerChar = null;
         string inspectTooltip = Localize("Inspect", "Update Gear by Examining");
-        bool canInspect = GearRefresherOnExamine.CanOpenExamine && Services.CharacterInfoService.TryGetChar(out playerChar, p.MainChar.Name, p.MainChar.HomeWorld);
-        if (!canInspect)
-            inspectTooltip =
-                GearRefresherOnExamine.CanOpenExamine
-                ? Localize("CharacterNotInReach", "Character is not in reach to examine")
-                : Localize("InspectUnavail", "Functionality unavailable due to incompatibility with game version");
+        bool canInspect = true;
+        if (!GearRefresherOnExamine.CanOpenExamine)
+        {
+            canInspect = false;
+            inspectTooltip = Localize("InspectUnavail", "Examinining from here is unavailable due to incompatibility with game version.\nYou can still examine characters manually to update their gear.");
+        }
+        else if (Services.CharacterInfoService.TryGetChar(out playerChar, p.MainChar.Name, p.MainChar.HomeWorld))
+        {
+            canInspect = false;
+            inspectTooltip = Localize("CharacterNotInReach", "Character is not in reach to examine");
+        }
         if (canInspect || showMultiple)
             result |= DrawInspectButton();
         if (!canInspect || showMultiple)
