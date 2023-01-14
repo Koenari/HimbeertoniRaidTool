@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Party;
 using Dalamud.Hooking;
 using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -111,7 +112,15 @@ internal static unsafe class GearRefresherOnExamine
             PluginLog.Error($"Internal database error. Did not update gear for:{targetChar.Name}@{targetChar.HomeWorld?.Name}");
             return;
         }
-
+        //Save characters ContentID if not already known
+        if (targetChar.ContentID == 0)
+        {
+            PartyMember? p = Services.PartyList.FirstOrDefault(p => p?.ObjectId == target.ObjectId, null);
+            if (p != null)
+            {
+                targetChar.ContentID = p.ContentId;
+            }
+        }
         //Start getting Infos from Game
         var targetJob = target.GetJob();
         if (!targetJob.IsCombatJob())
