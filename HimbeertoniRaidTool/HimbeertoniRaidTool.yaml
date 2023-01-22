@@ -14,4 +14,4 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        fixed examine functionality
+        correctly identify upgraded crafted items
