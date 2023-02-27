@@ -113,12 +113,12 @@ internal static unsafe class GearRefresherOnExamine
             return;
         }
         //Save characters ContentID if not already known
-        if (targetChar.ContentID == 0)
+        if (targetChar.CharID == 0)
         {
             PartyMember? p = Services.PartyList.FirstOrDefault(p => p?.ObjectId == target.ObjectId, null);
             if (p != null)
             {
-                targetChar.ContentID = p.ContentId;
+                targetChar.CharID = Character.CalcCharID(p.ContentId);
             }
         }
         //Start getting Infos from Game

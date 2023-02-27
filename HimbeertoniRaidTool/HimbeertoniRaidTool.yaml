@@ -15,3 +15,5 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
         correctly identify upgraded crafted items
+        French translation updated (Thanks to Arganier)
+        some internal changes
