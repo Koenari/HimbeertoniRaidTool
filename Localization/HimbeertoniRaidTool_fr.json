@@ -68,11 +68,11 @@
     "description": "DrawDataExtension.Draw"
   },
   "itemShop": {
-    "message": "Shop cost",
+    "message": "Coûts de boutique",
     "description": "DrawDataExtension.Draw"
   },
   "item:looted:sources": {
-    "message": "Looted in",
+    "message": "Looté dans",
     "description": "DrawDataExtension.Draw"
   },
   "MagicDamage": {
@@ -256,7 +256,7 @@
     "description": "ImGuiHelper.GearUpdateButtons"
   },
   "InspectUnavail": {
-    "message": "Examinining from here is unavailable due to incompatibility with game version.\nYou can still examine characters manually to update their gear.",
+    "message": "Examiner d'ici n'est pas disponible en raison d'incompatibilité avec la version du jeu.\nVous pouvez toujours examiner les personnages manuellement pour mettre à jour leur équipement.",
     "description": "ImGuiHelper.GearUpdateButtons"
   },
   "CharacterNotInReach": {
@@ -348,7 +348,7 @@
     "description": "ConfigUi.Draw"
   },
   "Lootmaster:OpenOnLoginTooltip": {
-    "message": "Opens group overview window whean you log in",
+    "message": "Ouvre la fenêtre d'aperçu du groupe quand vous vous connectez",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:ColoredItemNames": {
@@ -356,7 +356,7 @@
     "description": "ConfigUi.Draw"
   },
   "Lootmaster:ColoredItemNamesTooltip": {
-    "message": "Color items according to the item level",
+    "message": "Éléments de couleur en fonction du niveau de l'objet",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:Colors": {
@@ -380,11 +380,11 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaforBis": {
-    "message": "Ignore Materia",
+    "message": "Ignorer les Materia",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaforBisTooltip": {
-    "message": "Ignore Materia when determining if an item is equivalent to BiS",
+    "message": "Ignorer les Materia lorsqu'il est déterminé si un objet est équivalent au BiS",
     "description": "ConfigUi.Draw"
   },
   "UpdateBisONStartUp": {
@@ -460,7 +460,7 @@
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "lootmaster:button:showconfig:tooltip": {
-    "message": "Open Configuration",
+    "message": "Ouvrir le fichier de configuration",
     "description": "LootmasterUI.Draw"
   },
   "Add Player": {
@@ -516,11 +516,11 @@
     "description": "LootmasterUI.DrawPlayer"
   },
   "lootmaster:button:swapposition:tooltip": {
-    "message": "Swap Position",
+    "message": "Échanger de position",
     "description": "LootmasterUI.DrawPlayer"
   },
   "lootmaster:button:inventorytooltip": {
-    "message": "Open inventory window",
+    "message": "Ouvrir la fenêtre d'inventaire",
     "description": "LootmasterUI.DrawPlayer"
   },
   "PlayerDetails": {
@@ -572,7 +572,7 @@
     "description": "GetCharacterFromDBWindow..ctor"
   },
   "Inventory:AdditionalGear": {
-    "message": "Additional Gear",
+    "message": "Équipement supplémentaire",
     "description": "InventoryWindow.Draw"
   },
   "Swap Position of": {
@@ -624,55 +624,55 @@
     "description": "LootRule.GetName"
   },
   "LootSession:State:STARTED": {
-    "message": "Chosing Loot",
+    "message": "Choix du butin",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootSession:State:LOOT_CHOSEN": {
-    "message": "Loot locked",
+    "message": "Butin verrouillé",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootSession:State:DISTRIBUTION_STARTED": {
-    "message": "Distribution started",
+    "message": "Début de la distribution",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootSession:State:FINISHED": {
-    "message": "Finished",
+    "message": "Terminé",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "undefinded": {
-    "message": "undefinded",
+    "message": "indéfini",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootCategory:Need": {
-    "message": "Need",
+    "message": "Besoin",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootCategory:Greed": {
-    "message": "Greed",
+    "message": "Cupidité",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootCategory:Pass": {
-    "message": "Pass",
+    "message": "Passer",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootCategory:Undecided": {
-    "message": "Undecided",
+    "message": "Indécis",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootResult:ItemAwardedTo": {
-    "message": "awarded to",
+    "message": "décerné à",
     "description": "LootResultContainer.get_ShortResult"
   },
   "LootResult:GreedOnly": {
-    "message": "Greed only",
+    "message": "Cupidité uniquement",
     "description": "LootResultContainer.get_ShortResult"
   },
   "LootResult:PlayerWon": {
-    "message": "won",
+    "message": "gagné",
     "description": "LootResultContainer.get_ShortResult"
   },
   "LootResult:PlayerWonOver": {
-    "message": "over",
+    "message": "sur",
     "description": "LootResultContainer.get_ShortResult"
   },
   "Loot session for": {
@@ -680,19 +680,19 @@
     "description": "LootSessionUI..ctor"
   },
   "Lootsession:State": {
-    "message": "Current State",
+    "message": "État actuel",
     "description": "LootSessionUI.Draw"
   },
   "LootSession:RulesButton:Tooltip": {
-    "message": "Override ruling options",
+    "message": "Ignorer les options de décision",
     "description": "LootSessionUI.Draw"
   },
   "LootSesseion:CalcButton:Text": {
-    "message": "Calculate",
+    "message": "Calculer",
     "description": "LootSessionUI.Draw"
   },
   "LootSesseion:CalcButton:Tooltip": {
-    "message": "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection",
+    "message": "Calcule les résultats de la distribution du butin selon les règles et l'équipement actuel des joueurs\n Verrouille la sélection du butin",
     "description": "LootSessionUI.Draw"
   },
   "Role priority": {
@@ -704,31 +704,31 @@
     "description": "LootSessionUI.DrawRulingOptions"
   },
   "Results for": {
-    "message": "Results for",
+    "message": "Résultats pour",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResults:AbortButton:Text": {
-    "message": "Abort",
+    "message": "Annuler",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResults:AbortButton:Tooltip": {
-    "message": "Abort distribution to change loot or rules",
+    "message": "Annuler la distribution pour changer le butin ou les règles",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResultWindow:GuaranteedItems": {
-    "message": "Guaranteed Items (per player)",
+    "message": "Objets garantis (par joueur)",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed": {
-    "message": "Award to all",
+    "message": "Décerné à tous",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed:Tooltip": {
-    "message": "Award 1 to each player",
+    "message": "Décerné 1 à chaque joueur",
     "description": "LootSessionUI.DrawResults"
   },
   "LootResult:PossibleItems": {
-    "message": "Items to distribute:",
+    "message": "Objets à distribuer :",
     "description": "LootSessionUI.DrawResults"
   },
   "Pos": {
@@ -744,7 +744,7 @@
     "description": "LootSessionUI.DrawResults"
   },
   "LootResult:AwardButton:Tooltip": {
-    "message": "Award to player",
+    "message": "Décerné au joueur",
     "description": "LootSessionUI.DrawResults"
   },
   "Strength": {
@@ -992,11 +992,11 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "Shop": {
-    "message": "Shop",
+    "message": "Boutique",
     "description": "EnumExtensions.FriendlyName"
   },
   "ItemSource:Loot": {
-    "message": "Looted",
+    "message": "Looté",
     "description": "EnumExtensions.FriendlyName"
   },
   "Tank": {
