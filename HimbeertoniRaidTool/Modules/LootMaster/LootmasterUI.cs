@@ -154,6 +154,9 @@ internal class LootmasterUI : HrtWindow
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.Job} {Localize("gear", "gear")}"))
                 AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job, _lootMaster.Configuration.Data.SelectedRaidTier));
+            ImGui.SameLine();
+            if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, $"QuickCompare{playableClass.Job}", $"{Localize("Quick compare", "Quick compare")}"))
+                AddChild(new QuickCompareWindow(this, playableClass));
             //BiS
             ImGui.SameLine();
             ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvl")}: {playableClass.BIS.ItemLevel:D3}");
@@ -508,7 +511,9 @@ internal class LootmasterUI : HrtWindow
                 AddChild(new GetCharacterFromDBWindow(ref player));
         }
     }
-    private void DrawSlot((GearItem, GearItem) itemTuple, bool extended = false)
+    internal void DrawSlot(GearItem item, bool extended)
+        => DrawSlot((item, GearItem.Empty), extended);
+    internal void DrawSlot((GearItem, GearItem) itemTuple, bool extended = false)
     {
         (var item, var bis) = itemTuple;
         ImGui.TableNextColumn();
