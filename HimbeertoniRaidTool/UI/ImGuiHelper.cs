@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -155,12 +156,14 @@ public static class ImGuiHelper
     private static int hoveredItem = 0;
     //This is a small hack since to my knowledge there is no way to close and existing combo when not clikced
     private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> comboDic = new();
-    public static bool SearchableCombo<T>(string id, out T? selected, string preview, ImGuiComboFlags flags, IEnumerable<T> possibilities, Func<T, string, bool> searchPredicate, Func<T, string> toName, Func<T, bool> preFilter) where T : notnull
+    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview, ImGuiComboFlags flags, IEnumerable<T> possibilities, Func<T, string, bool> searchPredicate, Func<T, string> toName, Func<T, bool> preFilter) where T : notnull
     {
-        bool hasSelected = false;
         if (!comboDic.ContainsKey(id))
             comboDic.Add(id, (false, false));
         (bool toogle, bool wasEnterClickedLastTime) = comboDic[id];
+        selected = default;
+        if (!ImGui.BeginCombo(id + (toogle ? "##x" : ""), preview, flags)) return false;
+        bool hasSelected = false;
         if (wasEnterClickedLastTime || ImGui.IsKeyPressed(ImGuiKey.Escape))
         {
             toogle = !toogle;
@@ -175,9 +178,6 @@ public static class ImGuiHelper
         if (ImGui.IsKeyPressed(ImGuiKey.DownArrow))
             hoveredItem++;
         hoveredItem = Math.Clamp(hoveredItem, 0, Math.Max(filtered?.Count - 1 ?? 0, 0));
-        selected = default;
-        if (!ImGui.BeginCombo(id + (toogle ? "##x" : ""), preview, flags)) return false;
-
         if (ImGui.IsWindowAppearing() && ImGui.IsWindowFocused() && !ImGui.IsAnyItemActive())
         {
             search = string.Empty;
