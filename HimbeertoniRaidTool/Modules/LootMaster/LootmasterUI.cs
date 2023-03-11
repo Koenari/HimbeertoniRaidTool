@@ -177,81 +177,8 @@ internal class LootmasterUI : HrtWindow
          */
         ImGui.NextColumn();
         if (curClass is not null)
-        {
-            var curJob = curClass.Job;
-            var curRole = curJob.GetRole();
-            var mainStat = curJob.MainStat();
-            var weaponStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.MagicalDamage : StatType.PhysicalDamage;
-            var potencyStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.AttackMagicPotency : StatType.AttackPower;
-            ImGui.TextColored(Colors.Red, Localize("StatsUnfinished",
-                "Stats are under development and only work correctly for level 70/80/90 jobs"));
-            ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
-            ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
-            ImGui.TableSetupColumn(Localize("Current", "Current"));
-            ImGui.TableSetupColumn("");
-            ImGui.TableSetupColumn(Localize("BiS", "BiS"));
-            ImGui.TableSetupColumn("");
-            ImGui.TableHeadersRow();
-            DrawStatRow(weaponStat);
-            DrawStatRow(StatType.Vitality);
-            DrawStatRow(mainStat);
-            DrawStatRow(StatType.Defense);
-            DrawStatRow(StatType.MagicDefense);
-            ImGui.EndTable();
-            ImGui.NewLine();
-            ImGui.BeginTable("SecondaryStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
-            ImGui.TableSetupColumn(Localize("SecondaryStats", "Secondary Stats"));
-            ImGui.TableSetupColumn(Localize("Current", "Current"));
-            ImGui.TableSetupColumn("");
-            ImGui.TableSetupColumn(Localize("BiS", "BiS"));
-            ImGui.TableSetupColumn("");
-            ImGui.TableHeadersRow();
-            DrawStatRow(StatType.CriticalHit);
-            DrawStatRow(StatType.Determination);
-            DrawStatRow(StatType.DirectHitRate);
-            if (curRole == Role.Healer || curRole == Role.Caster)
-            {
-                DrawStatRow(StatType.SpellSpeed);
-                if (curRole == Role.Healer)
-                    DrawStatRow(StatType.Piety);
-            }
-            else
-            {
-                DrawStatRow(StatType.SkillSpeed);
-                if (curRole == Role.Tank)
-                    DrawStatRow(StatType.Tenacity);
-            }
-            ImGui.EndTable();
-            ImGui.NewLine();
-            void DrawStatRow(StatType type)
-            {
-                int numEvals = 1;
-                if (type == StatType.CriticalHit || type == StatType.Tenacity || type == StatType.SpellSpeed || type == StatType.SkillSpeed)
-                    numEvals++;
-                ImGui.TableNextColumn();
-                ImGui.Text(type.FriendlyName());
-                if (type == StatType.CriticalHit)
-                    ImGui.Text(Localize("Critical Damage", "Critical Damage"));
-                if (type is StatType.SkillSpeed or StatType.SpellSpeed)
-                    ImGui.Text(Localize("SpeedMultiplierName", "AA / DoT multiplier"));
-                //Current
-                ImGui.TableNextColumn();
-                ImGui.Text(curClass.GetCurrentStat(type).ToString());
-                ImGui.TableNextColumn();
-                for (int i = 0; i < numEvals; i++)
-                    ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, false, i));
-                if (type == weaponStat)
-                    ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
-                //BiS
-                ImGui.TableNextColumn();
-                ImGui.Text(curClass.GetBiSStat(type).ToString());
-                ImGui.TableNextColumn();
-                for (int i = 0; i < numEvals; i++)
-                    ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, curClass, true, i));
-                if (type == weaponStat)
-                    ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
-            }
-        }
+            DrawStatTable(curClass, curClass.Gear, curClass.BIS, Localize("Current", "Current"), Localize("BiS", "BiS"));
+
         /**
          * Show Gear
          */
@@ -284,6 +211,136 @@ internal class LootmasterUI : HrtWindow
         }
         ImGui.EndTable();
         ImGui.EndChild();
+    }
+    internal static void DrawStatTable(PlayableClass curClass, IReadOnlyGearSet left, IReadOnlyGearSet right, string leftHeader, string rightHeader)
+    {
+        var curJob = curClass.Job;
+        var curRole = curJob.GetRole();
+        var mainStat = curJob.MainStat();
+        var weaponStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.MagicalDamage : StatType.PhysicalDamage;
+        ImGui.BeginTable("MainStats", 7, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
+        ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
+        ImGui.TableSetupColumn(leftHeader);
+        ImGui.TableSetupColumn(rightHeader);
+        ImGui.TableSetupColumn("");
+        ImGui.TableSetupColumn(leftHeader);
+        ImGui.TableSetupColumn(rightHeader);
+        ImGui.TableSetupColumn("");
+        ImGui.TableHeadersRow();
+        DrawStatRow(weaponStat);
+        DrawStatRow(StatType.Vitality);
+        DrawStatRow(mainStat);
+        DrawStatRow(StatType.Defense);
+        DrawStatRow(StatType.MagicDefense);
+        ImGui.EndTable();
+        ImGui.NewLine();
+        ImGui.BeginTable("SecondaryStats", 7, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
+        ImGui.TableSetupColumn(Localize("SecondaryStats", "Secondary Stats"));
+        ImGui.TableSetupColumn(leftHeader);
+        ImGui.TableSetupColumn(rightHeader);
+        ImGui.TableSetupColumn("");
+        ImGui.TableSetupColumn(leftHeader);
+        ImGui.TableSetupColumn(rightHeader);
+        ImGui.TableSetupColumn("");
+        ImGui.TableHeadersRow();
+        DrawStatRow(StatType.CriticalHit);
+        DrawStatRow(StatType.Determination);
+        DrawStatRow(StatType.DirectHitRate);
+        if (curRole == Role.Healer || curRole == Role.Caster)
+        {
+            DrawStatRow(StatType.SpellSpeed);
+            if (curRole == Role.Healer)
+                DrawStatRow(StatType.Piety);
+        }
+        else
+        {
+            DrawStatRow(StatType.SkillSpeed);
+            if (curRole == Role.Tank)
+                DrawStatRow(StatType.Tenacity);
+        }
+        ImGui.EndTable();
+        ImGui.NewLine();
+        void DrawStatRow(StatType type)
+        {
+            Func<double, Vector4> Color = (double diff) => diff < 0 ? new(0.85f, 0.17f, 0.17f, 1f) : new(0.17f, 0.85f, 0.17f, 1f);
+            int numEvals = 1;
+            if (type == StatType.CriticalHit || type == StatType.Tenacity || type == StatType.SpellSpeed || type == StatType.SkillSpeed)
+                numEvals++;
+            int leftStat = curClass.GetStat(type, left);
+            int rightStat = curClass.GetStat(type, right);
+            double[] leftEvalStat = new double[numEvals];
+            double[] rightEvalStat = new double[numEvals];
+            for (int i = 0; i < numEvals; i++)
+            {
+                leftEvalStat[i] = AllaganLibrary.EvaluateStat(type, curClass, left, i);
+                rightEvalStat[i] = AllaganLibrary.EvaluateStat(type, curClass, right, i);
+            }
+            ImGui.TableNextColumn();
+            ImGui.Text(type.FriendlyName());
+            if (type == StatType.CriticalHit)
+                ImGui.Text(Localize("Critical Damage", "Critical Damage"));
+            if (type is StatType.SkillSpeed or StatType.SpellSpeed)
+                ImGui.Text(Localize("SpeedMultiplierName", "AA / DoT multiplier"));
+
+            //Stats
+            ImGui.TableNextColumn();
+            ImGui.Text(leftStat.ToString());
+            ImGui.TableNextColumn();
+            ImGui.Text(rightStat.ToString());
+            ImGui.TableNextColumn();
+            {
+                string text;
+                int intDiff = rightStat - leftStat;
+                if (intDiff == 0)
+                    text = "-";
+                else
+                {
+                    text = $"{(intDiff < 0 ? "" : "+")}{intDiff}";
+                }
+                text = $"( {text} )";
+                if (intDiff == 0)
+                    ImGui.Text(text);
+                else
+                    ImGui.TextColored(Color(intDiff), text);
+            }
+
+            //Evals
+            ImGui.TableNextColumn();
+            for (int i = 0; i < numEvals; i++)
+            {
+                var (Val, Unit) = AllaganLibrary.FormatStatValue(leftEvalStat[i], type, i);
+                ImGui.Text($"{Val} {Unit}");
+            }
+            if (type == weaponStat)
+                ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
+            ImGui.TableNextColumn();
+            for (int i = 0; i < numEvals; i++)
+            {
+                var (Val, Unit) = AllaganLibrary.FormatStatValue(rightEvalStat[i], type, i);
+                ImGui.Text($"{Val} {Unit}");
+            }
+            if (type == weaponStat)
+                ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
+            ImGui.TableNextColumn();
+            for (int i = 0; i < numEvals; i++)
+            {
+
+                string text;
+                double diff = rightEvalStat[i] - leftEvalStat[i];
+                if (diff == 0)
+                    text = "-";
+                else
+                {
+                    text = $"{(diff < 0 ? "" : "+")}{AllaganLibrary.FormatStatValue(diff, type, i).Val}";
+                }
+                text = $"( {text} )";
+                if (diff == 0)
+                    ImGui.Text(text);
+                else
+                    ImGui.TextColored(Color(diff), text);
+            }
+
+        }
     }
     public override void Draw()
     {
@@ -555,6 +612,11 @@ internal class LootmasterUI : HrtWindow
         {
             if (item.Filled)
             {
+                if (extended)
+                {
+                    ImGui.Image(Services.IconCache[item.Item!.Icon].ImGuiHandle, new Vector2(24) * ScaleFactor);
+                    ImGui.SameLine();
+                }
                 string toDraw = string.Format(_lootMaster.Configuration.Data.ItemFormatString,
                     item.ItemLevel,
                     item.Source.FriendlyName(),
@@ -565,6 +627,7 @@ internal class LootmasterUI : HrtWindow
                     ImGui.Text(toDraw);
                 if (extended)
                 {
+
                     List<string> materia = new();
                     foreach (var mat in item.Materia)
                         materia.Add($"{mat.StatType.Abbrev()} +{mat.GetStat()}");

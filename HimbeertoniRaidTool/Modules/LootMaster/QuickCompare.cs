@@ -1,9 +1,7 @@
 ﻿using Dalamud.Interface;
 using HimbeertoniRaidTool.Common;
-using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Services;
-using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
@@ -16,7 +14,7 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
     private readonly PlayableClass CurClass;
     private IReadOnlyGearSet CurGear => CurClass.Gear;
 
-    private GearSet NewGear;
+    private readonly GearSet NewGear;
     internal QuickCompareWindow(LootmasterUI lmui, PlayableClass job) : base()
     {
         CurClass = job;
@@ -36,7 +34,7 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
          * Current gear
          */
         {
-            ImGui.BeginTable("GearCompareCurrenn", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
+            ImGui.BeginTable("GearCompareCurrent", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
             ImGui.TableSetupColumn(Localize("Gear", "Gear"));
             ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
@@ -58,86 +56,14 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
          * Stat Table
          */
         ImGui.NextColumn();
-
-        var curRole = CurClass.Job.GetRole();
-        var mainStat = CurClass.Job.MainStat();
-        var weaponStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.MagicalDamage : StatType.PhysicalDamage;
-        var potencyStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.AttackMagicPotency : StatType.AttackPower;
-        ImGui.TextColored(Colors.Red, Localize("StatsUnfinished",
-            "Stats are under development and only work correctly for level 70/80/90 jobs"));
-        ImGui.BeginTable("MainStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
-        ImGui.TableSetupColumn(Localize("MainStats", "Main Stats"));
-        ImGui.TableSetupColumn(Localize("Current", "Current"));
-        ImGui.TableSetupColumn("");
-        ImGui.TableSetupColumn(Localize("New Gear", "New Gear"));
-        ImGui.TableSetupColumn("");
-        ImGui.TableHeadersRow();
-        DrawStatRow(weaponStat);
-        DrawStatRow(StatType.Vitality);
-        DrawStatRow(mainStat);
-        DrawStatRow(StatType.Defense);
-        DrawStatRow(StatType.MagicDefense);
-        ImGui.EndTable();
-        ImGui.NewLine();
-        ImGui.BeginTable("SecondaryStats", 5, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV | ImGuiTableFlags.RowBg);
-        ImGui.TableSetupColumn(Localize("SecondaryStats", "Secondary Stats"));
-        ImGui.TableSetupColumn(Localize("Current", "Current"));
-        ImGui.TableSetupColumn("");
-        ImGui.TableSetupColumn(Localize("New Gear", "New Gear"));
-        ImGui.TableSetupColumn("");
-        ImGui.TableHeadersRow();
-        DrawStatRow(StatType.CriticalHit);
-        DrawStatRow(StatType.Determination);
-        DrawStatRow(StatType.DirectHitRate);
-        if (curRole == Role.Healer || curRole == Role.Caster)
-        {
-            DrawStatRow(StatType.SpellSpeed);
-            if (curRole == Role.Healer)
-                DrawStatRow(StatType.Piety);
-        }
-        else
-        {
-            DrawStatRow(StatType.SkillSpeed);
-            if (curRole == Role.Tank)
-                DrawStatRow(StatType.Tenacity);
-        }
-        ImGui.EndTable();
-        ImGui.NewLine();
-        void DrawStatRow(StatType type)
-        {
-            int numEvals = 1;
-            if (type == StatType.CriticalHit || type == StatType.Tenacity || type == StatType.SpellSpeed || type == StatType.SkillSpeed)
-                numEvals++;
-            ImGui.TableNextColumn();
-            ImGui.Text(type.FriendlyName());
-            if (type == StatType.CriticalHit)
-                ImGui.Text(Localize("Critical Damage", "Critical Damage"));
-            if (type is StatType.SkillSpeed or StatType.SpellSpeed)
-                ImGui.Text(Localize("SpeedMultiplierName", "AA / DoT multiplier"));
-            //Current
-            ImGui.TableNextColumn();
-            ImGui.Text(CurClass.GetStat(type, CurGear).ToString());
-            ImGui.TableNextColumn();
-            for (int i = 0; i < numEvals; i++)
-                ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, CurClass, false, i, CurGear));
-            if (type == weaponStat)
-                ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
-            //New
-            ImGui.TableNextColumn();
-            ImGui.Text(CurClass.GetStat(type, NewGear).ToString());
-            ImGui.TableNextColumn();
-            for (int i = 0; i < numEvals; i++)
-                ImGui.Text(AllaganLibrary.EvaluateStatToDisplay(type, CurClass, true, i, NewGear));
-            if (type == weaponStat)
-                ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
-        }
-
+        LootmasterUI.DrawStatTable(CurClass, CurGear, NewGear,
+            Localize("Current", "Current"), Localize("New Gear", "New Gear"));
         /**
          * New Gear
          */
         {
             ImGui.NextColumn();
-            ImGui.BeginTable("SoloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
+            ImGui.BeginTable("GearCompareNew", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
             ImGui.TableSetupColumn(Localize("New Gear", "New Gear"));
             ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
@@ -162,18 +88,19 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
     {
         var item = NewGear[slot];
         ImGui.TableNextColumn();
-        if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out Item? outItem, x => NewGear[slot].Name,
-            ImGuiComboFlags.None, (i, search) => i.Name.RawString.Contains(search, System.StringComparison.InvariantCultureIgnoreCase),
-            i => i.Name.ToString(), IsApplicable))
-        {
-            NewGear[slot] = new(outItem.RowId);
-        }
-        ImGui.TextColored(_lmui.ILevelColor(item), item.Name);
+        ImGui.Image(Services.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, new(24, 24));
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
             NewGear[slot].Draw();
             ImGui.EndTooltip();
+        }
+        ImGui.SameLine();
+        if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out Item? outItem, x => NewGear[slot].Name,
+            ImGuiComboFlags.None, (i, search) => i.Name.RawString.Contains(search, System.StringComparison.InvariantCultureIgnoreCase),
+            i => i.Name.ToString(), IsApplicable))
+        {
+            NewGear[slot] = new(outItem.RowId);
         }
         for (int i = 0; i < item.Materia.Count; i++)
         {
