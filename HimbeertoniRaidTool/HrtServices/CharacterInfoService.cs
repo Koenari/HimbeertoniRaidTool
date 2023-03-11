@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Lumina.Excel.GeneratedSheets;
@@ -14,20 +13,17 @@ internal class CharacterInfoService
     private readonly ObjectTable GameObjects;
     private readonly Dictionary<string, uint> Cache = new();
     private readonly HashSet<string> NotFound = new();
-    private TimeSpan TimeSinceLastPrune;
+    private DateTime LastPrune;
     private static readonly TimeSpan PruneInterval = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan MaxCacheTime = TimeSpan.FromSeconds(30);
-    private DateTime LastAccess;
-    internal CharacterInfoService(ObjectTable gameObjects, Framework fw)
+    internal CharacterInfoService(ObjectTable gameObjects)
     {
         GameObjects = gameObjects;
-        TimeSinceLastPrune = TimeSpan.Zero;
-        fw.Update += Update;
-        LastAccess = DateTime.Now;
+        LastPrune = DateTime.Now;
     }
     public bool TryGetChar([NotNullWhen(returnValue: true)] out PlayerCharacter? result, string name, World? w = null)
     {
-        LastAccess = DateTime.Now;
+        Update();
         if (Cache.TryGetValue(name, out uint id))
         {
             result = GameObjects.SearchById(id) as PlayerCharacter;
@@ -63,27 +59,14 @@ internal class CharacterInfoService
         }
     }
 
-    private void Update(Framework fw)
+    private void Update()
     {
-        TimeSinceLastPrune += fw.UpdateDelta;
-        if (TimeSinceLastPrune > PruneInterval)
+        if (NotFound.Count == 0) return;
+        if (DateTime.Now - LastPrune > PruneInterval)
         {
-            TimeSinceLastPrune = TimeSpan.Zero;
-            if (NotFound.Any() && LastAccess + MaxCacheTime < DateTime.Now)
-            {
-                NotFound.Clear();
-                return;
-            }
-            foreach (PlayerCharacter p in Services.ObjectTable.Where(p => p is PlayerCharacter))
-            {
-                if (NotFound.Contains(p.Name.TextValue))
-                    NotFound.Remove(p.Name.TextValue);
-            }
+            LastPrune = DateTime.Now;
+            NotFound.Clear();
         }
 
-    }
-    public void Dispose(Framework fw)
-    {
-        fw.Update -= Update;
     }
 }

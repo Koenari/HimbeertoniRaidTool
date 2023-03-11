@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Dalamud.Game;
 using Dalamud.Logging;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
@@ -15,15 +14,14 @@ internal abstract class WebConnector
     private readonly TimeSpan _cacheTime;
     private readonly ConcurrentDictionary<string, (DateTime time, string response)> _cachedRequests;
     private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
-    internal WebConnector(Framework fw, RateLimit rateLimit = default, TimeSpan? cacheTime = null)
+    internal WebConnector(RateLimit rateLimit = default, TimeSpan? cacheTime = null)
     {
         _rateLimit = rateLimit;
         _cachedRequests = new();
         _currentRequests = new();
         _cacheTime = cacheTime ?? new(0, 15, 0);
-        fw.Update += Update;
     }
-    private void Update(Framework fw)
+    private void UpdateCache()
     {
         foreach (var req in _cachedRequests.Where(e => e.Value.time + _cacheTime < DateTime.Now))
         {
@@ -32,6 +30,7 @@ internal abstract class WebConnector
     }
     protected string? MakeWebRequest(string URL)
     {
+        UpdateCache();
         if (_cachedRequests.TryGetValue(URL, out var result))
             return result.response;
         var requestTask = MakeAsyncWebRequest(URL);

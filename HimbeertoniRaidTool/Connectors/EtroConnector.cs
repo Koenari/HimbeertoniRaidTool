@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dalamud.Game;
 using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 
@@ -28,7 +27,7 @@ internal class EtroConnector : WebConnector
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 
     };
-    internal EtroConnector(Framework fw) : base(fw, new(4, new(0, 0, 30)))
+    internal EtroConnector() : base(new(4, new(0, 0, 30)))
     {
         LazyMateriaCache = new(CreateMateriaCache, true);
     }

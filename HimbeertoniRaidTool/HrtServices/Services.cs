@@ -45,15 +45,14 @@ namespace HimbeertoniRaidTool.Plugin
             IconCache ??= new IconCache(PluginInterface, DataManager);
             HrtDataManager ??= new(PluginInterface);
             TaskManager ??= new(Framework);
-            ConnectorPool ??= new(Framework);
-            CharacterInfoService ??= new(ObjectTable, Framework);
+            ConnectorPool ??= new();
+            CharacterInfoService ??= new(ObjectTable);
             return HrtDataManager.Initialized;
         }
         internal static void Dispose()
         {
             TaskManager.Dispose();
             IconCache.Dispose();
-            CharacterInfoService.Dispose(Framework);
         }
     }
 }

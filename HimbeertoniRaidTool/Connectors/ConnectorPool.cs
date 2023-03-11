@@ -1,15 +1,13 @@
-﻿using Dalamud.Game;
-
-namespace HimbeertoniRaidTool.Plugin.Connectors;
+﻿namespace HimbeertoniRaidTool.Plugin.Connectors;
 
 internal class ConnectorPool
 {
     internal readonly EtroConnector EtroConnector;
     internal readonly LodestoneConnector LodestoneConnector;
 
-    internal ConnectorPool(Framework fw)
+    internal ConnectorPool()
     {
-        EtroConnector = new(fw);
-        LodestoneConnector = new(fw);
+        EtroConnector = new();
+        LodestoneConnector = new();
     }
 }

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dalamud.Game;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -25,7 +24,7 @@ internal class LodestoneConnector : NetstoneBase
 
     private const int NoOfAllowedLodestoneRequests = 8;
 
-    internal LodestoneConnector(Framework fw) : base(fw, new(NoOfAllowedLodestoneRequests, new(0, 0, 30)))
+    internal LodestoneConnector() : base(new(NoOfAllowedLodestoneRequests, new(0, 0, 30)))
     {
         _itemSheet = Services.DataManager.GetExcelSheet<Item>();
         _materiaSheet = Services.DataManager.GetExcelSheet<Materia>();
@@ -177,17 +176,16 @@ internal class NetstoneBase
     private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
     private readonly ConcurrentDictionary<string, (DateTime time, LodestoneCharacter response)> _cachedRequests;
 
-    internal NetstoneBase(Framework fw, RateLimit rateLimit = default, TimeSpan? cacheTime = null)
+    internal NetstoneBase(RateLimit rateLimit = default, TimeSpan? cacheTime = null)
     {
         _lodestoneClient = GetLodestoneClient();
         _rateLimit = rateLimit;
         _cacheTime = cacheTime ?? new(0, 15, 0);
         _currentRequests = new();
         _cachedRequests = new();
-        fw.Update += Update;
     }
 
-    private void Update(Framework fw)
+    private void UpdateCache()
     {
         foreach (var req in _cachedRequests.Where(e => e.Value.time + _cacheTime < DateTime.Now))
         {
@@ -203,6 +201,7 @@ internal class NetstoneBase
     /// <returns></returns>
     internal async Task<LodestoneCharacter?> FetchCharacterFromLodestone(Character c)
     {
+        UpdateCache();
         while (RateLimitHit() || _currentRequests.ContainsKey(c.Name))
             Thread.Sleep(1000);
         if (_cachedRequests.TryGetValue(c.Name, out var result))
