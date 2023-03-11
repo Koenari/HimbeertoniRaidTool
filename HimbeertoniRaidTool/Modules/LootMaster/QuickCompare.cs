@@ -1,37 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using Dalamud.Interface;
+using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
+using Lumina.Excel.GeneratedSheets;
 using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
-internal class QuickCompareWindow : HrtWindow
+internal class QuickCompareWindow : HRTWindowWithModalChild
 {
     private readonly LootmasterUI _lmui;
     private readonly PlayableClass CurClass;
     private IReadOnlyGearSet CurGear => CurClass.Gear;
-    private readonly Dictionary<GearSetSlot, GearItem> ItemOverrides;
-    private IReadOnlyGearSet? NewGearCache = null;
-    private IReadOnlyGearSet NewGear
-    {
-        get
-        {
-            if (NewGearCache != null)
-                return NewGearCache;
-            IReadOnlyGearSet result = CurClass.Gear;
-            foreach ((var slot, var item) in ItemOverrides)
-            {
-                result = result.With(item, slot);
-            }
-            return NewGearCache = result;
-        }
-    }
+
+    private GearSet NewGear;
     internal QuickCompareWindow(LootmasterUI lmui, PlayableClass job) : base()
     {
         CurClass = job;
-        ItemOverrides = new();
+        NewGear = new();
+        NewGear.CopyFrom(CurClass.Gear);
         _lmui = lmui;
         Title = $"Compare";
         OpenCentered = true;
@@ -170,13 +160,47 @@ internal class QuickCompareWindow : HrtWindow
     }
     private void DrawEditSlot(GearSetSlot slot)
     {
+        var item = NewGear[slot];
         ImGui.TableNextColumn();
-        ImGui.Text(NewGear[slot].Name);
+        if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out Item? outItem, x => NewGear[slot].Name,
+            ImGuiComboFlags.None, (i, search) => i.Name.RawString.Contains(search, System.StringComparison.InvariantCultureIgnoreCase),
+            i => i.Name.ToString(), IsApplicable))
+        {
+            NewGear[slot] = new(outItem.RowId);
+        }
+        ImGui.TextColored(_lmui.ILevelColor(item), item.Name);
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
             NewGear[slot].Draw();
             ImGui.EndTooltip();
+        }
+        for (int i = 0; i < item.Materia.Count; i++)
+        {
+            if (ImGuiHelper.Button(FontAwesomeIcon.Eraser,
+                $"Delete{slot}mat{i}", Localize("Remove this materia", "Remove this materia"), i == item.Materia.Count - 1))
+            {
+                item.Materia.RemoveAt(i);
+                i--;
+                continue;
+            }
+            ImGui.SameLine();
+            ImGui.Text(item.Materia[i].Item?.Name.RawString);
+        }
+        if (item.Materia.Count < (item.Item?.IsAdvancedMeldingPermitted ?? false ? 5 : item.Item?.MateriaSlotCount))
+        {
+            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}addmat", Localize("Select materia", "Select materia")))
+            {
+                byte maxMatLevel = ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
+                if (item.Materia.Count > item.Item?.MateriaSlotCount)
+                    maxMatLevel--;
+                ModalChild = new SelectMateriaWindow(x => item.Materia.Add(x), (x) => { }, maxMatLevel);
+            }
+        }
+        bool IsApplicable(Item item)
+        {
+            return item.ClassJobCategory.Value.Contains(CurClass.Job)
+                && item.EquipSlotCategory.Value.Contains(slot);
         }
     }
 }
