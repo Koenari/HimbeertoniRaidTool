@@ -156,7 +156,9 @@ public static class ImGuiHelper
     private static int hoveredItem = 0;
     //This is a small hack since to my knowledge there is no way to close and existing combo when not clikced
     private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> comboDic = new();
-    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview, ImGuiComboFlags flags, IEnumerable<T> possibilities, Func<T, string, bool> searchPredicate, Func<T, string> toName, Func<T, bool> preFilter) where T : notnull
+    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
+        ImGuiComboFlags flags, IEnumerable<T> possibilities, Func<T, string, bool> searchPredicate,
+        Func<T, string> toName, Func<T, bool> preFilter) where T : notnull
     {
         if (!comboDic.ContainsKey(id))
             comboDic.Add(id, (false, false));
