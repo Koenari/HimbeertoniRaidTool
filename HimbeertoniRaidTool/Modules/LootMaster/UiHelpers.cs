@@ -15,6 +15,14 @@ using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 internal static class UiHelpers
 {
+    private static Vector2 MaxMateriaCatSize;
+    private static Vector2 MaxMateriaLevelSize;
+
+    static UiHelpers()
+    {
+        MaxMateriaCatSize = ImGui.CalcTextSize(Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
+        MaxMateriaLevelSize = ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
+    }
     public static Vector4 ILevelColor(LootMasterConfiguration.ConfigData config, GearItem item)
     {
         return (config.SelectedRaidTier.ItemLevel(item.Slots.First()) - (int)item.ItemLevel) switch
@@ -131,7 +139,7 @@ internal static class UiHelpers
         for (int i = 0; i < item.Materia.Count; i++)
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Eraser,
-                $"Delete{slot}mat{i}", Localize("Remove this materia", "Remove this materia"), i == item.Materia.Count - 1))
+                $"Delete{slot}mat{i}", Localize("Remove this materia", "Remove this materia")))
             {
                 item.Materia.RemoveAt(i);
                 i--;
@@ -140,30 +148,37 @@ internal static class UiHelpers
             float buttonWidth = ImGui.GetItemRectSize().X;
             ImGui.SameLine();
             var mat = item.Materia[i];
-            ImGui.Text(mat.Item?.Name.RawString);
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + buttonWidth + 8);
-            ImGui.SetNextItemWidth(ImGui.CalcTextSize(HrtMateria.LongestCatName).X + 40 * HrtWindow.ScaleFactor);
+            ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
             if (ImGuiHelper.SearchableCombo(
                 $"##mat{slot}{i}",
-                out MateriaCategory cat, mat.StatType.FriendlyName(),
-                ImGuiComboFlags.None,
+                out MateriaCategory cat,
+                mat.Category.PrefixName(),
+                ImGuiComboFlags.NoArrowButton,
                 Enum.GetValues<MateriaCategory>(),
-                (cat, s) => cat.GetStatType().FriendlyName().Contains(s, StringComparison.InvariantCultureIgnoreCase),
-                cat => cat.GetStatType().FriendlyName(),
+                (cat, s) =>
+                cat.PrefixName().Contains(s, StringComparison.InvariantCultureIgnoreCase) ||
+                cat.GetStatType().FriendlyName().Contains(s, StringComparison.InvariantCultureIgnoreCase),
+                cat => cat.PrefixName(),
                 _ => true) && cat != MateriaCategory.None)
             {
-                item.Materia[i] = new(cat, mat.MateriaLevel);
+                item.Materia[i] = new(cat, mat.Level);
             }
-            int level = mat.MateriaLevel;
-
+            ImGui.SameLine();
+            ImGui.Text(Localize("Materia", "Materia"));
             bool overmeld = i >= item.Item?.MateriaSlotCount;
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(ImGui.CalcTextSize(HrtMateria.LongestLevelName).X + 40 * HrtWindow.ScaleFactor);
-            if (ImGui.Combo(
+            ImGui.SetNextItemWidth(MaxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
+            if (ImGuiHelper.SearchableCombo(
                 $"##matlevel{slot}{i}",
-                ref level,
-                Enum.GetNames<MateriaLevel>(),
-                overmeld ? maxMatLevel : (maxMatLevel + 1)))
+                out MateriaLevel level,
+                mat.Level.ToString(),
+                ImGuiComboFlags.NoArrowButton,
+                Enum.GetValues<MateriaLevel>(),
+                (val, s) => val.ToString().Contains(s, StringComparison.InvariantCultureIgnoreCase)
+                        || (byte.TryParse(s, out byte search) && search - 1 == (byte)val),
+                v => v.ToString(),
+                _ => true
+                ))
             {
                 item.Materia[i] = new(mat.Category, (byte)level);
             }
@@ -171,12 +186,30 @@ internal static class UiHelpers
         }
         if (item.Materia.Count < (item.Item?.IsAdvancedMeldingPermitted ?? false ? 5 : item.Item?.MateriaSlotCount))
         {
-            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}addmat", Localize("Select materia", "Select materia")))
+            MateriaLevel leveltoAdd = (MateriaLevel)(item.Materia.Count > item.Item?.MateriaSlotCount ? (byte)(maxMatLevel - 1) : maxMatLevel);
+            if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}addmat", Localize("Select materia", "Select materia")))
             {
-                var mat = item.Materia;
-                parent.AddChild(new SelectMateriaWindow(x => mat.Add(x), (x) => { },
-                                            item.Materia.Count > item.Item?.MateriaSlotCount ? (byte)(maxMatLevel - 1) : maxMatLevel));
+                parent.AddChild(new SelectMateriaWindow(x => item.Materia.Add(x), (x) => { }, (byte)leveltoAdd));
             }
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
+            if (ImGuiHelper.SearchableCombo(
+                $"##matadd{slot}",
+                out MateriaCategory cat,
+                MateriaCategory.None.ToString(),
+                ImGuiComboFlags.NoArrowButton,
+                Enum.GetValues<MateriaCategory>(),
+                (cat, s) => cat.GetStatType().FriendlyName().Contains(s, StringComparison.InvariantCultureIgnoreCase),
+                cat => cat.GetStatType().FriendlyName(),
+                _ => true) && cat != MateriaCategory.None)
+            {
+                item.Materia.Add(new(cat, leveltoAdd));
+            }
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(MaxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
+            ImGui.BeginDisabled();
+            ImGui.BeginCombo("##Undef", $"{leveltoAdd}", ImGuiComboFlags.NoArrowButton);
+            ImGui.EndDisabled();
         }
         bool IsApplicable(Item item)
         {
@@ -197,7 +230,6 @@ internal static class UiHelpers
         StatTableCompareMode compareMode = StatTableCompareMode.Default)
     {
         bool doCompare = compareMode.HasFlag(StatTableCompareMode.DoCompare);
-        int diffFactor = compareMode.HasFlag(StatTableCompareMode.DiffRightToLeft) ? -1 : 1;
         var curJob = curClass.Job;
         var curRole = curJob.GetRole();
         var mainStat = curJob.MainStat();
@@ -230,7 +262,15 @@ internal static class UiHelpers
         ImGui.NewLine();
         void DrawStatRow(StatType type)
         {
-            Vector4 Color(double diff) => diff < 0 ? new(0.85f, 0.17f, 0.17f, 1f) : new(0.17f, 0.85f, 0.17f, 1f);
+            Vector4 Color(double diff)
+            {
+                bool negative;
+                if (compareMode.HasFlag(StatTableCompareMode.DiffRightToLeft))
+                    negative = diff > 0;
+                else
+                    negative = diff > 0;
+                return negative ? new(0.85f, 0.17f, 0.17f, 1f) : new(0.17f, 0.85f, 0.17f, 1f);
+            }
             int numEvals = 1;
             if (type == StatType.CriticalHit || type == StatType.Tenacity || type == StatType.SpellSpeed || type == StatType.SkillSpeed)
                 numEvals++;
@@ -257,7 +297,6 @@ internal static class UiHelpers
             {
                 ImGui.TableNextColumn();
                 int intDiff = rightStat - leftStat;
-                intDiff *= diffFactor;
                 if (intDiff == 0)
                     ImGui.Text(" - ");
                 else
@@ -283,7 +322,6 @@ internal static class UiHelpers
                 for (int i = 0; i < numEvals; i++)
                 {
                     double diff = rightEvalStat[i] - leftEvalStat[i];
-                    diff *= diffFactor;
                     if (double.IsNaN(diff) || diff == 0)
                     {
                         ImGui.Text(" - ");

@@ -307,7 +307,6 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
     private readonly GearSet _gearSetCopy;
     private readonly Job _job;
     private readonly RaidTier? _currentRaidTier;
-    private bool CanHaveShield => _job is Job.PLD or Job.THM or Job.GLA;
 
     internal EditGearSetWindow(GearSet original, Job job, RaidTier? raidTier = null) : base()
     {
@@ -331,7 +330,7 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
             ImGui.TableSetupColumn("Gear");
             ImGui.TableHeadersRow();
             DrawSlot(GearSetSlot.MainHand);
-            if (CanHaveShield)
+            if (_job.CanHaveShield())
                 DrawSlot(GearSetSlot.OffHand);
             else
                 ImGui.TableNextColumn();

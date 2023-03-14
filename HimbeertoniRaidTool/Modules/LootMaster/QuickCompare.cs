@@ -68,7 +68,10 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
             ImGui.TableHeadersRow();
 
             DrawEditSlot(GearSetSlot.MainHand);
-            DrawEditSlot(GearSetSlot.OffHand);
+            if (CurClass.Job.CanHaveShield())
+                DrawEditSlot(GearSetSlot.OffHand);
+            else
+                ImGui.TableNextColumn();
             DrawEditSlot(GearSetSlot.Head);
             DrawEditSlot(GearSetSlot.Ear);
             DrawEditSlot(GearSetSlot.Body);
