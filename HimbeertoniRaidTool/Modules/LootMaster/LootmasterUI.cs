@@ -15,17 +15,6 @@ using ImGuiNET;
 using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
-[Flags]
-public enum SlotDrawFlags
-{
-    None = 0,
-    SingleItem = 1,
-    ItemCompare = 2,
-    SimpleView = 4,
-    ExtendedView = 8,
-    Default = ItemCompare | SimpleView,
-    DetailedSingle = SingleItem | ExtendedView,
-}
 internal class LootmasterUI : HrtWindow
 {
 
