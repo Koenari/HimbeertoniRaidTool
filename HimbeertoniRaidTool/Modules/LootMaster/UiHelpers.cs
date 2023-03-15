@@ -132,7 +132,7 @@ internal static class UiHelpers
         ImGui.SameLine();
         //Quick select
         if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out Item? outItem, x => item.Name,
-            ImGuiComboFlags.None, (i, search) => i.Name.RawString.Contains(search, System.StringComparison.InvariantCultureIgnoreCase),
+            ImGuiComboFlags.NoArrowButton, (i, search) => i.Name.RawString.Contains(search, System.StringComparison.InvariantCultureIgnoreCase),
             i => i.Name.ToString(), IsApplicable))
         {
             onItemChange(new(outItem.RowId));
@@ -156,7 +156,6 @@ internal static class UiHelpers
                 i--;
                 continue;
             }
-            float buttonWidth = ImGui.GetItemRectSize().X;
             ImGui.SameLine();
             var mat = item.Materia[i];
             ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
