@@ -17,3 +17,4 @@ image_urls:
 changelog: |-
         fix lodestone updates for non English clients
         fix edit BiS button in group overview didn't work
+        slightly improved performance
