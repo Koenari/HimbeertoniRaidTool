@@ -320,7 +320,7 @@ internal class LootmasterUI : HrtWindow
                 for (int position = 0; position < CurrentGroup.Count; position++)
                 {
                     ImGui.PushID(position.ToString());
-                    DrawPlayer(CurrentGroup[position], position);
+                    DrawPlayerRow(CurrentGroup[position], position);
                     ImGui.PopID();
                 }
 
@@ -391,7 +391,7 @@ internal class LootmasterUI : HrtWindow
         ImGui.EndTabBar();
     }
 
-    private void DrawPlayer(Player player, int pos)
+    private void DrawPlayerRow(Player player, int pos)
     {
         if (player.Filled)
         {
@@ -426,7 +426,7 @@ internal class LootmasterUI : HrtWindow
                 ImGui.Text($"{gear.ItemLevel}");
                 ImGuiHelper.AddTooltip(gear.HrtID);
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditGear", $"Edit {gear.Name}"))
+                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditCurGear", $"Edit {gear.Name}"))
                     AddChild(new EditGearSetWindow(gear, curJob.Job)); ;
                 //ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / 2f);
@@ -443,7 +443,7 @@ internal class LootmasterUI : HrtWindow
                     });
                 ImGuiHelper.AddTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditGear", $"Edit {bis.Name}"))
+                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditBiSGear", $"Edit {bis.Name}"))
                     AddChild(new EditGearSetWindow(bis, curJob.Job));
                 foreach ((var slot, var itemTuple) in curJob.ItemTuples)
                 {

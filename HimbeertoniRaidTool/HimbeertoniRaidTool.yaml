@@ -6,6 +6,7 @@ tags:
     - Raid
     - Loot
     - Equipment
+    - Gear
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/wiki
 icon_url: https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png
@@ -15,3 +16,4 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
         fix lodestone updates for non English clients
+        fix edit BiS button in group overview didn't work
