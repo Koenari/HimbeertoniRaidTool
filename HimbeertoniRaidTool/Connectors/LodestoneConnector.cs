@@ -26,8 +26,8 @@ internal class LodestoneConnector : NetstoneBase
 
     internal LodestoneConnector() : base(new(NoOfAllowedLodestoneRequests, new(0, 0, 30)))
     {
-        _itemSheet = Services.DataManager.GetExcelSheet<Item>();
-        _materiaSheet = Services.DataManager.GetExcelSheet<Materia>();
+        _itemSheet = Services.DataManager.GetExcelSheet<Item>(Dalamud.ClientLanguage.English);
+        _materiaSheet = Services.DataManager.GetExcelSheet<Materia>(Dalamud.ClientLanguage.English);
         _romanNumerals = new() {
             { 'I', 1 }, { 'V', 5 }, { 'X', 10 }, { 'L', 50 }
         };
