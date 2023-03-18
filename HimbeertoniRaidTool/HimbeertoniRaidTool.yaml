@@ -18,3 +18,4 @@ changelog: |-
         New feature: gear-set compare
         Ui: reworked editing of gear
         Ui: stat tabel now includes comparison
+        LootSession: calc estimated dps gain/loss

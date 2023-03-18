@@ -229,7 +229,7 @@ internal class LootSessionUI : HrtWindow
                             foreach (var rule in _session.RulingOptions.RuleSet)
                             {
                                 ImGui.TableNextColumn();
-                                string toPrint = singleResult.EvaluatedRules.TryGetValue(rule, out (int _, string val) a) ? a.val : "";
+                                string toPrint = singleResult.EvaluatedRules.TryGetValue(rule, out (float _, string val) a) ? a.val : "";
                                 if (rule == decidingFactor && rule == lastRule)
                                     ImGui.TextColored(Colors.Yellow, toPrint);
                                 else if (rule == decidingFactor)
