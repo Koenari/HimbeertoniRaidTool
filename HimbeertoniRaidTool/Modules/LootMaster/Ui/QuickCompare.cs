@@ -32,7 +32,7 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
          * Current gear
          */
         {
-            var SlotDraw = (GearItem i) => UiHelpers.DrawSlot(CurrentConfig, i, SlotDrawFlags.DetailedSingle);
+            var SlotDraw = (GearItem i) => LmUiHelpers.DrawSlot(CurrentConfig, i, SlotDrawFlags.DetailedSingle);
             ImGui.BeginTable("GearCompareCurrent", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
             ImGui.TableSetupColumn(Localize("Gear", "Gear"));
             ImGui.TableSetupColumn("");
@@ -55,7 +55,7 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
          * Stat Table
          */
         ImGui.NextColumn();
-        UiHelpers.DrawStatTable(CurClass, CurGear, NewGear,
+        LmUiHelpers.DrawStatTable(CurClass, CurGear, NewGear,
             Localize("Current", "Current"), Localize("QuickCompareStatGain", "Gain"), Localize("New Gear", "New Gear"));
         /**
          * New Gear

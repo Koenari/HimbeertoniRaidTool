@@ -169,9 +169,9 @@ internal class LootmasterUI : HrtWindow
          */
         ImGui.NextColumn();
         if (curClass is not null)
-            UiHelpers.DrawStatTable(curClass, curClass.Gear, curClass.BIS,
+            LmUiHelpers.DrawStatTable(curClass, curClass.Gear, curClass.BIS,
                 Localize("Current", "Current"), " < ", Localize("BiS", "BiS"),
-                UiHelpers.StatTableCompareMode.DoCompare | UiHelpers.StatTableCompareMode.DiffRightToLeft);
+                LmUiHelpers.StatTableCompareMode.DoCompare | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
 
         /**
          * Show Gear
@@ -433,7 +433,7 @@ internal class LootmasterUI : HrtWindow
         }
     }
     private void DrawSlot((GearItem, GearItem) itemTuple, SlotDrawFlags style = SlotDrawFlags.Default)
-        => UiHelpers.DrawSlot(CurConfig, itemTuple, style);
+        => LmUiHelpers.DrawSlot(CurConfig, itemTuple, style);
 
     private void DrawLootHandlerButtons()
     {

@@ -6,12 +6,9 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 internal static class OpenExamine
 {
-    internal static bool CanOpen = true;
-
     internal static unsafe void OpenExamineWindow(PlayerCharacter? @object)
     {
-
-        if (!CanOpen || @object is null)
+        if (@object is null)
             return;
         try
         {

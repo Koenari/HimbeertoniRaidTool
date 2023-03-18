@@ -18,7 +18,6 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 internal static unsafe class GearRefresherOnExamine
 {
     private static readonly bool HookLoadSuccessful;
-    internal static bool CanOpenExamine => OpenExamine.CanOpen;
     private static readonly Hook<CharacterInspectOnRefresh>? Hook;
     private static readonly IntPtr HookAddress;
     private static readonly ExcelSheet<World>? WorldSheet;
@@ -42,7 +41,7 @@ internal static unsafe class GearRefresherOnExamine
     }
     internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
     {
-        if (!CanOpenExamine || @object is null)
+        if (@object is null)
             return;
         try
         {
@@ -50,7 +49,7 @@ internal static unsafe class GearRefresherOnExamine
         }
         catch (Exception e)
         {
-            PluginLog.Error(e, "Could not inspect character");
+            PluginLog.Error(e, $"Could not inspect character {@object.Name}");
         }
     }
     internal static void Enable()
