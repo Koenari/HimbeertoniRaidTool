@@ -141,7 +141,7 @@ public class LootSession
         {
             c.Gear[slot] = toAward;
             foreach (var m in c.BIS[slot].Materia)
-                c.Gear[slot].Materia.Add(m);
+                c.Gear[slot].AddMateria(m);
         }
         EvaluateFinished();
         if (CurrentState != State.FINISHED)

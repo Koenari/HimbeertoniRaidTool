@@ -5,6 +5,7 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Hooking;
 using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
@@ -18,7 +19,6 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 internal static unsafe class GearRefresherOnExamine
 {
     private static readonly bool HookLoadSuccessful;
-    internal static bool CanOpenExamine => OpenExamine.CanOpen;
     private static readonly Hook<CharacterInspectOnRefresh>? Hook;
     private static readonly IntPtr HookAddress;
     private static readonly ExcelSheet<World>? WorldSheet;
@@ -40,17 +40,17 @@ internal static unsafe class GearRefresherOnExamine
         }
         WorldSheet = Services.DataManager.GetExcelSheet<World>();
     }
-    internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
+    internal static void RefreshGearInfos(PlayerCharacter? @object)
     {
-        if (!CanOpenExamine || @object is null)
+        if (@object is null)
             return;
         try
         {
-            OpenExamine.OpenExamineWindow(@object);
+            AgentInspect.Instance()->ExamineCharacter(@object.ObjectId);
         }
         catch (Exception e)
         {
-            PluginLog.Error(e, "Could not inspect character");
+            PluginLog.Error(e, $"Could not inspect character {@object.Name}");
         }
     }
     internal static void Enable()
@@ -155,7 +155,7 @@ internal static unsafe class GearRefresherOnExamine
                 {
                     if (slot->Materia[j] == 0)
                         break;
-                    setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
+                    setToFill[(GearSetSlot)i].AddMateria(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
                 }
             }
             setToFill.TimeStamp = DateTime.UtcNow;

@@ -307,7 +307,6 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
     private readonly GearSet _gearSetCopy;
     private readonly Job _job;
     private readonly RaidTier? _currentRaidTier;
-    private bool CanHaveShield => _job is Job.PLD or Job.THM or Job.GLA;
 
     internal EditGearSetWindow(GearSet original, Job job, RaidTier? raidTier = null) : base()
     {
@@ -316,6 +315,7 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
         _gearSet = original;
         _gearSetCopy = original.Clone();
         Title = $"{Localize("Edit", "Edit")} {(_gearSet.ManagedBy == GearSetManager.HRT ? _gearSet.HrtID : _gearSet.EtroID)}";
+        MinSize = new(550, 300);
     }
 
     public override void Draw()
@@ -331,7 +331,7 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
             ImGui.TableSetupColumn("Gear");
             ImGui.TableHeadersRow();
             DrawSlot(GearSetSlot.MainHand);
-            if (CanHaveShield)
+            if (_job.CanHaveShield())
                 DrawSlot(GearSetSlot.OffHand);
             else
                 ImGui.TableNextColumn();
@@ -347,59 +347,19 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
             DrawSlot(GearSetSlot.Ring2);
             ImGui.EndTable();
         }
-    }
-    private void DrawSlot(GearSetSlot slot)
-    {
-        ImGui.BeginDisabled(ChildIsOpen);
-        ImGui.TableNextColumn();
-        if (!_gearSetCopy[slot].Filled)
+        void DrawSlot(GearSetSlot slot)
         {
-            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}changeitem", Localize("Select item", "Select item")))
-                ModalChild = new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], slot, _job,
-                    slot is GearSetSlot.MainHand or GearSetSlot.OffHand ? _currentRaidTier?.WeaponItemLevel ?? 0 : _currentRaidTier?.ArmorItemLevel ?? 0);
-        }
-        else
-        {
-            ImGui.BeginGroup();
-            ImGui.Text(_gearSetCopy[slot].Item?.Name.RawString);
-            ImGui.SameLine();
-            if (_gearSetCopy[slot].Item?.CanBeHq ?? false)
-                ImGui.Checkbox($"{Localize("HQ", "HQ")}##{slot}", ref _gearSetCopy[slot].IsHq);
-            ImGui.EndGroup();
-            if (ImGui.IsItemHovered())
+            ImGui.BeginDisabled(ChildIsOpen);
+            ImGui.TableNextColumn();
+            UiHelpers.DrawGearEdit(this, slot, _gearSetCopy[slot], i =>
             {
-                ImGui.BeginTooltip();
-                _gearSetCopy[slot].Draw();
-                ImGui.EndTooltip();
-            }
-            ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}changeitem", Localize("Select item", "Select item")))
-                ModalChild = new SelectGearItemWindow(x => { _gearSetCopy[slot] = x; }, (x) => { }, _gearSetCopy[slot], slot, _job,
-                    _currentRaidTier?.ItemLevel(slot) ?? 0);
-            ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, $"delete{slot}", Localize("Delete", "Delete")))
-                _gearSetCopy[slot] = new();
-            for (int i = 0; i < _gearSetCopy[slot].Materia.Count; i++)
-            {
-                if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{slot}mat{i}", Localize("Remove this materia", "Remove this materia"), i == _gearSetCopy[slot].Materia.Count - 1))
-                {
-                    _gearSetCopy[slot].Materia.RemoveAt(i);
-                    i--;
-                    continue;
-                }
-                ImGui.SameLine();
-                ImGui.Text(_gearSetCopy[slot].Materia[i].Item?.Name.RawString);
-            }
-            if (_gearSetCopy[slot].Materia.Count < (_gearSetCopy[slot].Item?.IsAdvancedMeldingPermitted ?? false ? 5 : _gearSetCopy[slot].Item?.MateriaSlotCount))
-                if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"{slot}addmat", Localize("Select materia", "Select materia")))
-                {
-                    byte maxMatLevel = ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
-                    if (_gearSetCopy[slot].Materia.Count > _gearSetCopy[slot].Item?.MateriaSlotCount)
-                        maxMatLevel--;
-                    ModalChild = new SelectMateriaWindow(x => _gearSetCopy[slot].Materia.Add(x), (x) => { }, maxMatLevel);
-                }
+                foreach (var mat in _gearSetCopy[slot].Materia)
+                    i.AddMateria(mat);
+                _gearSetCopy[slot] = i;
+
+            }, _job);
+            ImGui.EndDisabled();
         }
-        ImGui.EndDisabled();
     }
     private void Save()
     {

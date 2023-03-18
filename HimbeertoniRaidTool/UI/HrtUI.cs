@@ -18,7 +18,7 @@ public abstract class HRTWindowWithModalChild : HrtWindow
             _modalChild?.Show();
         }
     }
-    protected bool ChildIsOpen => _modalChild != null && _modalChild.IsOpen;
+    public bool ChildIsOpen => _modalChild != null && _modalChild.IsOpen;
     public override void Update()
     {
         if (ModalChild != null && !ModalChild.IsOpen)
@@ -39,6 +39,13 @@ public abstract class HRTWindowWithModalChild : HrtWindow
         }
         if (!Open)
             ModalChild.IsOpen = Open;
+    }
+    public bool AddChild(HrtWindow child)
+    {
+        if (_modalChild != null)
+            return false;
+        ModalChild = child;
+        return true;
     }
 }
 public abstract class HrtWindow : Window, IEquatable<HrtWindow>

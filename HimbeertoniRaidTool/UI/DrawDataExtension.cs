@@ -72,7 +72,7 @@ public static class DrawDataExtension
                     if ((StatType)stat.BaseParam != StatType.None)
                         DrawRow(((StatType)stat.BaseParam).FriendlyName(), stat.BaseParamValue);
                 //Materia
-                if (gearItem.Materia.Count > 0)
+                if (gearItem.Materia.Any())
                 {
                     ImGui.TableNextColumn();
                     ImGui.Text("Materia");

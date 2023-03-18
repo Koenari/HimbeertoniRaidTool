@@ -6,6 +6,11 @@ namespace HimbeertoniRaidTool.Plugin.DataExtensions;
 
 public static class EnumExtensions
 {
+    public static string PrefixName(this MateriaCategory cat)
+    {
+        HrtMateria mat = new(cat, MateriaLevel.I);
+        return mat.Name.Length > 9 ? mat.Name[0..^9] : "";
+    }
     public static string FriendlyName(this StatType t) => t switch
     {
         StatType.Strength => Localize("Strength", "Strength"),

@@ -15,6 +15,6 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        fix lodestone updates for non English clients
-        fix edit BiS button in group overview didn't work
-        slightly improved performance
+        New feature: gear-set compare
+        Ui: reworked editing of gear
+        Ui: stat tabel now includes comparison
