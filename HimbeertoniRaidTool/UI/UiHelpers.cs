@@ -50,17 +50,17 @@ internal class UiHelpers
             ImGui.EndDisabled();
         }
         byte maxMatLevel = ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
-        for (int i = 0; i < item.Materia.Count; i++)
+        for (int i = 0; i < item.Materia.Count(); i++)
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Eraser,
                 $"Delete{slot}mat{i}", Localize("Remove this materia", "Remove this materia")))
             {
-                item.Materia.RemoveAt(i);
+                item.RemoveMateria(i);
                 i--;
                 continue;
             }
             ImGui.SameLine();
-            var mat = item.Materia[i];
+            var mat = item.Materia.Skip(i).First();
             ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
             if (ImGuiHelper.SearchableCombo(
                 $"##mat{slot}{i}",
@@ -74,7 +74,7 @@ internal class UiHelpers
                 cat => cat.PrefixName(),
                 _ => true) && cat != MateriaCategory.None)
             {
-                item.Materia[i] = new(cat, mat.Level);
+                item.ReplacecMateria(i, new(cat, mat.Level));
             }
             ImGui.SameLine();
             ImGui.Text(Localize("Materia", "Materia"));
@@ -93,16 +93,16 @@ internal class UiHelpers
                 _ => true
                 ))
             {
-                item.Materia[i] = new(mat.Category, (byte)level);
+                item.ReplacecMateria(i, new(mat.Category, (byte)level));
             }
 
         }
-        if (item.Materia.Count < (item.Item?.IsAdvancedMeldingPermitted ?? false ? 5 : item.Item?.MateriaSlotCount))
+        if (item.CanAffixMateria())
         {
-            MateriaLevel leveltoAdd = (MateriaLevel)(item.Materia.Count > item.Item?.MateriaSlotCount ? (byte)(maxMatLevel - 1) : maxMatLevel);
+            MateriaLevel leveltoAdd = item.MaxAffixableMateriaLevel();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}addmat", Localize("Select materia", "Select materia")))
             {
-                parent.AddChild(new SelectMateriaWindow(x => item.Materia.Add(x), (x) => { }, (byte)leveltoAdd));
+                parent.AddChild(new SelectMateriaWindow(item.AddMateria, (x) => { }, (byte)leveltoAdd));
             }
             ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
@@ -116,7 +116,7 @@ internal class UiHelpers
                 cat => cat.GetStatType().FriendlyName(),
                 _ => true) && cat != MateriaCategory.None)
             {
-                item.Materia.Add(new(cat, leveltoAdd));
+                item.AddMateria(new(cat, leveltoAdd));
             }
             ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);

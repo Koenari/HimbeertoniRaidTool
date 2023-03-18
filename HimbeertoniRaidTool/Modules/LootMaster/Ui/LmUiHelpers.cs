@@ -98,7 +98,7 @@ internal static class LmUiHelpers
                         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 32 * HrtWindow.ScaleFactor);
                     else
                         ImGui.SameLine();
-                    ImGui.Text($"( {string.Join(" | ", item.Materia.ConvertAll(mat => $"{mat.StatType.Abbrev()} +{mat.GetStat()}"))} )");
+                    ImGui.Text($"( {string.Join(" | ", item.Materia.ToList().ConvertAll(mat => $"{mat.StatType.Abbrev()} +{mat.GetStat()}"))} )");
                 }
             }
             else
@@ -158,7 +158,7 @@ internal static class LmUiHelpers
                 if (compareMode.HasFlag(StatTableCompareMode.DiffRightToLeft))
                     negative = diff > 0;
                 else
-                    negative = diff > 0;
+                    negative = diff < 0;
                 return negative ? new(0.85f, 0.17f, 0.17f, 1f) : new(0.17f, 0.85f, 0.17f, 1f);
             }
             int numEvals = 1;

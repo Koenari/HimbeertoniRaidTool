@@ -155,7 +155,7 @@ internal static unsafe class GearRefresherOnExamine
                 {
                     if (slot->Materia[j] == 0)
                         break;
-                    setToFill[(GearSetSlot)i].Materia.Add(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
+                    setToFill[(GearSetSlot)i].AddMateria(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
                 }
             }
             setToFill.TimeStamp = DateTime.UtcNow;

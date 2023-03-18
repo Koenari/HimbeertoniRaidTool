@@ -92,5 +92,10 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
         }
     }
     private Action<GearItem> ItemChangeCallback(GearSetSlot slot)
-        => newItem => NewGear[slot] = newItem;
+        => newItem =>
+        {
+            foreach (var mat in NewGear[slot].Materia)
+                newItem.AddMateria(mat);
+            NewGear[slot] = newItem;
+        };
 }

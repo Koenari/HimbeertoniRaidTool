@@ -80,7 +80,7 @@ internal class EtroConnector : WebConnector
             if (etroSet!.materia?.TryGetValue(idString, out var materia) ?? false)
                 foreach (uint? matId in materia.Values)
                     if (matId.HasValue)
-                        set[slot].Materia.Add(new(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, byte)>(matId.Value, (0, 0))));
+                        set[slot].AddMateria(new(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, byte)>(matId.Value, (0, 0))));
         }
     }
     private class EtroGearSet

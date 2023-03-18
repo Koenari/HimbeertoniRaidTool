@@ -41,23 +41,23 @@
       },
       "Lumina.Excel": {
         "type": "Transitive",
-        "resolved": "6.3.1",
-        "contentHash": "GPj3GfE3ExU1Ob4ENTV/Xj/1+k9WkBaYPrZhGyPXVxILcQd2u2lmU2SmR+Uv9SbAGZD/Rbmuc5cmiHrZRW405w==",
+        "resolved": "6.3.2",
+        "contentHash": "tdSIhTDV5Tnh19slA8qRDv8f1ewSY3ujrkwQteFRmIgydBq6kvZO6suC69/3uv9tHpUe7Ec+aiylW530E8nlMg==",
         "dependencies": {
           "Lumina": "3.10.0"
         }
       },
       "Newtonsoft.Json": {
         "type": "Transitive",
-        "resolved": "13.0.2",
-        "contentHash": "R2pZ3B0UjeyHShm9vG+Tu0EBb2lC8b0dFzV9gVn50ofHXh9Smjk6kTn7A/FdAsC8B5cKib1OnGYOXxRBz5XQDg=="
+        "resolved": "13.0.3",
+        "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
       "himbeertoniraidtool.common": {
         "type": "Project",
         "dependencies": {
           "Koenari.XIVCalc": "[0.1.2, )",
-          "Lumina.Excel": "[6.3.1, )",
-          "Newtonsoft.Json": "[13.0.2, )"
+          "Lumina.Excel": "[6.3.2, )",
+          "Newtonsoft.Json": "[13.0.3, )"
         }
       },
       "netstone": {

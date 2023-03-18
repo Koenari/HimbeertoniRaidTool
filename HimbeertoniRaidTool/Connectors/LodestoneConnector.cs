@@ -109,7 +109,7 @@ internal class LodestoneConnector : NetstoneBase
                     MateriaCategory materiaCategory = (MateriaCategory)materiaCategoryId;
                     byte materiaLevel = TranslateMateriaLevel(materia.Remove(0, materia.LastIndexOf(" ")).Trim());
 
-                    classToChange.Gear[slot].Materia.Add(new(materiaCategory, materiaLevel));
+                    classToChange.Gear[slot].AddMateria(new(materiaCategory, materiaLevel));
                 }
             }
             return new HrtUiMessage(

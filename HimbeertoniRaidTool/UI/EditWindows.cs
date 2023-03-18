@@ -315,7 +315,7 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
         _gearSet = original;
         _gearSetCopy = original.Clone();
         Title = $"{Localize("Edit", "Edit")} {(_gearSet.ManagedBy == GearSetManager.HRT ? _gearSet.HrtID : _gearSet.EtroID)}";
-        Size = new(550, 300);
+        MinSize = new(550, 300);
     }
 
     public override void Draw()
@@ -351,7 +351,13 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
         {
             ImGui.BeginDisabled(ChildIsOpen);
             ImGui.TableNextColumn();
-            UiHelpers.DrawGearEdit(this, slot, _gearSetCopy[slot], i => _gearSetCopy[slot] = i, _job);
+            UiHelpers.DrawGearEdit(this, slot, _gearSetCopy[slot], i =>
+            {
+                foreach (var mat in _gearSetCopy[slot].Materia)
+                    i.AddMateria(mat);
+                _gearSetCopy[slot] = i;
+
+            }, _job);
             ImGui.EndDisabled();
         }
     }
