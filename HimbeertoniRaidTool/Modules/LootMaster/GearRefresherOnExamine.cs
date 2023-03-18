@@ -5,6 +5,7 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Hooking;
 using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
@@ -39,13 +40,13 @@ internal static unsafe class GearRefresherOnExamine
         }
         WorldSheet = Services.DataManager.GetExcelSheet<World>();
     }
-    internal static unsafe void RefreshGearInfos(PlayerCharacter? @object)
+    internal static void RefreshGearInfos(PlayerCharacter? @object)
     {
         if (@object is null)
             return;
         try
         {
-            OpenExamine.OpenExamineWindow(@object);
+            AgentInspect.Instance()->ExamineCharacter(@object.ObjectId);
         }
         catch (Exception e)
         {
