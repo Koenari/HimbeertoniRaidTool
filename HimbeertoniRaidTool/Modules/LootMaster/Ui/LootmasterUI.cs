@@ -170,7 +170,7 @@ internal class LootmasterUI : HrtWindow
         ImGui.NextColumn();
         if (curClass is not null)
             LmUiHelpers.DrawStatTable(curClass, curClass.Gear, curClass.BIS,
-                Localize("Current", "Current"), " < ", Localize("BiS", "BiS"),
+                Localize("Current", "Current"), " ", Localize("BiS", "BiS"),
                 LmUiHelpers.StatTableCompareMode.DoCompare | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
 
         /**

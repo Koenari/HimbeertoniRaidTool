@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors>Koenari</Authors>
     <Company></Company>
-    <Version>1.1.3.56</Version>
+    <Version>1.1.4.57</Version>
     <Description>A collection of useful tools for RaidGroups, including loot management</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>
@@ -32,6 +32,7 @@
         <Tag>Raid</Tag>
         <Tag>Loot</Tag>
         <Tag>Equipment</Tag>
+        <Tag>Gear</Tag>
       </Tags>
       <Hidden>False</Hidden>
     </DalamudPlugin>
