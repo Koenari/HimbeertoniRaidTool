@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using HimbeertoniRaidTool.Common;
+using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
@@ -46,12 +48,12 @@ public class LootRule : IEquatable<LootRule>
     /// <param name="session">Loot session to evaluate for</param>
     /// <param name="applicableItems">List of items to evaluate for. These need to be filtered to be equippable by the players MainJob</param>
     /// <returns>A tuple of int (can be used for Compare like (right - left)) and a string describing the value</returns>
-    public (int, string) Eval(LootResult x, LootSession session)
+    public (float, string) Eval(LootResult x, LootSession session)
     {
-        (int val, string? reason) = InternalEval(x, session);
+        (float val, string? reason) = InternalEval(x, session);
         return (val, reason ?? val.ToString());
     }
-    private (int, string?) InternalEval(LootResult x, LootSession session) => Rule switch
+    private (float, string?) InternalEval(LootResult x, LootSession session) => Rule switch
     {
         LootRuleEnum.Random => (x.Roll(), null),
         LootRuleEnum.LowestItemLevel => (-x.ItemLevel(), x.ItemLevel().ToString()),
@@ -59,6 +61,7 @@ public class LootRule : IEquatable<LootRule>
         LootRuleEnum.BISOverUpgrade => x.IsBiS() ? (1, "y") : (-1, "n"),
         LootRuleEnum.RolePrio => (x.RolePrio(session), x.AplicableJob.Role.ToString()),
         LootRuleEnum.DPS => (x.Player.AdditionalData.ManualDPS, null),
+        LootRuleEnum.DPSGain => (x.DPSGain(), $"{(x.DPSGain() * 100):f1} %%"),
         _ => (0, "none"),
     };
     public override string ToString() => Name;
@@ -70,6 +73,7 @@ public class LootRule : IEquatable<LootRule>
         LootRuleEnum.RolePrio => Localize("ByRole", "Prioritise by role"),
         LootRuleEnum.Random => Localize("Rolling", "Rolling"),
         LootRuleEnum.DPS => Localize("DPS", "DPS"),
+        LootRuleEnum.DPSGain => Localize("DPSGain", "% DPS gained"),
         LootRuleEnum.None => Localize("None", "None"),
         LootRuleEnum.Greed => Localize("Greed", "Greed"),
         LootRuleEnum.NeedGreed => Localize("Need over Greed", "Need over Greed"),
@@ -106,6 +110,22 @@ public static class LootRulesExtension
                 );
         }
         return result;
+    }
+    public static float DPSGain(this LootResult p)
+    {
+        var curClass = p.AplicableJob;
+        double baseDPS = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.Gear);
+        double newDps = double.NegativeInfinity;
+        foreach (var i in p.ApplicableItems)
+        {
+            var item = i.Clone();
+            foreach (var mat in curClass.Gear[i.Slots.First()].Materia)
+                item.AddMateria(mat);
+            double cur = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.Gear.With(item));
+            if (cur > newDps)
+                newDps = cur;
+        }
+        return (float)((newDps - baseDPS) / baseDPS);
     }
     //IS broken for non unique items
     public static bool IsBiS(this LootResult p) =>

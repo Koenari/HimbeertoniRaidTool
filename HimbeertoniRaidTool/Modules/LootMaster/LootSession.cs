@@ -195,7 +195,7 @@ public class LootResult
     public readonly PlayableClass AplicableJob;
     public int RolePrio => _session.RolePriority.GetPriority(AplicableJob.Role);
     public bool IsEvaluated { get; private set; } = false;
-    public readonly Dictionary<LootRule, (int val, string reason)> EvaluatedRules = new();
+    public readonly Dictionary<LootRule, (float val, string reason)> EvaluatedRules = new();
     public readonly HashSet<GearItem> ApplicableItems;
     public readonly List<GearItem> NeededItems = new();
     public GearItem? AwardedItem;
@@ -330,10 +330,14 @@ internal class LootRulingComparer : IComparer<LootResult>
             return x.Category - y.Category;
         foreach (var rule in Rules)
         {
-            int result = y.EvaluatedRules[rule].val - x.EvaluatedRules[rule].val;
-            if (result != 0)
+            float result = y.EvaluatedRules[rule].val - x.EvaluatedRules[rule].val;
+            if (result < 0)
             {
-                return result;
+                return -1;
+            }
+            else if (result > 0)
+            {
+                return 1;
             }
         }
         return 0;
