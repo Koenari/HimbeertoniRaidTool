@@ -71,6 +71,8 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
                 ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"), ref _dataCopy.OpenOnStartup);
                 ImGuiHelper.AddTooltip(Localize("Lootmaster:OpenOnLoginTooltip",
                     "Opens group overview window whean you log in"));
+                ImGui.Checkbox(Localize("Config:Lootmaster:IconInGroupOverview", "Show item icon in group overview"),
+                    ref _dataCopy.ShowIconInGroupOverview);
                 ImGui.Checkbox(Localize("Config:Lootmaster:ColoredItemNames", "Color items by item level"), ref _dataCopy.ColoredItemNames);
                 ImGuiHelper.AddTooltip(Localize("Lootmaster:ColoredItemNamesTooltip",
                     "Color items according to the item level"));
@@ -246,6 +248,8 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
         private string _userItemFormat = "{source} {slot}";
         [JsonProperty]
         public bool ColoredItemNames = true;
+        [JsonProperty]
+        public bool ShowIconInGroupOverview = false;
         [JsonProperty]
         public Vector4[] ItemLevelColors = new Vector4[4]
         {

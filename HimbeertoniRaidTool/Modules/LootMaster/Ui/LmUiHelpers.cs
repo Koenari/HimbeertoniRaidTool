@@ -42,11 +42,13 @@ internal static class LmUiHelpers
             ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full;
         (var item, var bis) = itemTuple;
         ImGui.TableNextColumn();
+        if (!item.Filled && !bis.Filled)
+            return;
         if (singleItem || (item.Filled && bis.Filled && item.Equals(bis, comparisonMode)))
         {
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / (extended ? 2 : 1));
             ImGui.BeginGroup();
-            DrawItem(item, extended, true);
+            DrawItem(item, true);
             ImGui.EndGroup();
             if (ImGui.IsItemHovered())
             {
@@ -58,9 +60,10 @@ internal static class LmUiHelpers
         else
         {
             ImGui.BeginGroup();
-            DrawItem(item, extended);
-            ImGui.NewLine();
-            DrawItem(bis, extended);
+            DrawItem(item);
+            if (!extended)
+                ImGui.NewLine();
+            DrawItem(bis);
             ImGui.EndGroup();
             if (ImGui.IsItemHovered())
             {
@@ -75,30 +78,49 @@ internal static class LmUiHelpers
                 ImGui.EndTooltip();
             }
         }
-        void DrawItem(GearItem item, bool extended, bool multiLine = false)
+        void DrawItem(GearItem item, bool multiLine = false)
         {
             if (item.Filled)
             {
-                if (extended)
+                if (extended || config.ShowIconInGroupOverview)
                 {
-                    ImGui.Image(Services.IconCache[item.Item!.Icon].ImGuiHandle, new Vector2(24) * HrtWindow.ScaleFactor);
+                    Vector2 iconSize = new(ImGui.GetTextLineHeightWithSpacing());
+                    if (extended)
+                    {
+                        if (!multiLine)
+                            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() * 0.3f);
+                        iconSize *= multiLine ? 2.4f : 1.4f;
+                    }
+                    ImGui.Image(Services.IconCache.LoadIcon(item.Item!.Icon, item.IsHq).ImGuiHandle, iconSize * HrtWindow.ScaleFactor);
                     ImGui.SameLine();
                 }
                 string toDraw = string.Format(config.ItemFormatString,
                     item.ItemLevel,
                     item.Source.FriendlyName(),
                     item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
+                var cursorPos = ImGui.GetCursorPos();
+                if (extended)
+                {
+                    cursorPos.Y += ImGui.GetTextLineHeightWithSpacing() * 0.2f;
+                    ImGui.SetCursorPos(cursorPos);
+                }
                 if (config.ColoredItemNames)
                     ImGui.TextColored(ILevelColor(config, item), toDraw);
                 else
                     ImGui.Text(toDraw);
                 if (extended)
                 {
+                    ImGui.SameLine();
                     if (multiLine)
-                        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 32 * HrtWindow.ScaleFactor);
+                        cursorPos.Y += ImGui.GetTextLineHeightWithSpacing();
                     else
-                        ImGui.SameLine();
+                        cursorPos.X = ImGui.GetCursorPosX();
+                    ImGui.SetCursorPos(cursorPos);
                     ImGui.Text($"( {string.Join(" | ", item.Materia.ToList().ConvertAll(mat => $"{mat.StatType.Abbrev()} +{mat.GetStat()}"))} )");
+                    if (multiLine)
+                        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() * 0.25f);
+                    else
+                        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() * 0.3f);
                 }
             }
             else
