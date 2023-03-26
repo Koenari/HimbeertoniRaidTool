@@ -62,7 +62,7 @@ internal class GearDB
         if (EtroHasUpdated)
             return;
         EtroHasUpdated = true;
-        Services.TaskManager.RegisterTask(LogUpdates, () => UpdateEtroSetsAsync(maxAgeInDays));
+        Services.TaskManager.RegisterTask(new(() => UpdateEtroSetsAsync(maxAgeInDays), LogUpdates));
     }
     private void LogUpdates(HrtUiMessage hrtUiMessage)
     {

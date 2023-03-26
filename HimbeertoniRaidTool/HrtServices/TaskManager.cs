@@ -1,53 +1,84 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
-using Dalamud.Game;
-using Dalamud.Logging;
-using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.HrtServices;
 
 internal class TaskManager : IDisposable
 {
-    private readonly List<(Action<HrtUiMessage> callBack, Task<HrtUiMessage> task)> _tasks = new();
+    private class TaskWrapper
+    {
+        public Task SystemTask;
+        public HrtTask InternalTask;
+        public TaskWrapper(HrtTask task)
+        {
+            InternalTask = task;
+            SystemTask = Task.Run(() => task.CallBack(task.Action()));
+        }
+    }
+
+    private readonly Timer TaskTimer;
+    private readonly Timer SecondTimer;
+    private readonly Timer MinuteTimer;
+
+    private readonly ConcurrentQueue<TaskWrapper> TasksOnce = new();
+    private readonly ConcurrentBag<PeriodicTask> TasksOnSecond = new();
+    private readonly ConcurrentBag<PeriodicTask> TasksOnMinute = new();
     private bool disposedValue;
 
-    internal TaskManager(Framework fw)
+    internal TaskManager()
     {
-        fw.Update += Update;
+        SecondTimer = new(OnSecondTimer, null, 1000, 1000);
+        TaskTimer = new(OnTaskTimer, null, 1000, 1000);
+        MinuteTimer = new(OnMinuteTimer, null, 1000, 60 * 1000);
     }
-    public void Update(Framework fw)
+    private void OnTaskTimer(object? _)
     {
-        if (_tasks.Count == 0 || disposedValue)
-            return;
-        foreach (var (callBack, task) in _tasks.Where(t => t.task.IsCompleted))
-            callBack(task.Result);
-        _tasks.RemoveAll(t => t.task.IsCompleted);
+        if (disposedValue || TasksOnce.IsEmpty) return;
+        while (TasksOnce.TryPeek(out var oldestTaks) && oldestTaks.SystemTask.IsCompleted)
+            TasksOnce.TryDequeue(out var _);
     }
-    internal void RegisterTask(IHrtModule hrtModule, Func<HrtUiMessage> task)
-        => RegisterTask(hrtModule.HandleMessage, Task.Run(task));
-    internal void RegisterTask(IHrtModule hrtModule, Task<HrtUiMessage> task)
-        => RegisterTask(hrtModule.HandleMessage, task);
-    internal void RegisterTask(Action<HrtUiMessage> callBack, Func<HrtUiMessage> task) =>
-        RegisterTask(callBack, Task.Run(task));
-    internal void RegisterTask(Action<HrtUiMessage> callBack, Task<HrtUiMessage> task)
+    private void OnSecondTimer(object? _)
     {
-        _tasks.Add((callBack, task));
+        if (disposedValue || TasksOnSecond.IsEmpty) return;
+        var ExecutionTime = DateTime.Now;
+        foreach (var task in TasksOnSecond)
+        {
+            if (task.ShouldRun && task.LastRun + task.Repeat < ExecutionTime)
+            {
+                task.CallBack(task.Action());
+                task.LastRun = ExecutionTime;
+            }
+        }
     }
-    internal void RegisterTask(IHrtModule hrtModule, Func<bool> task, string success, string failure)
-        => RegisterTask(hrtModule.HandleMessage, task, success, failure);
-    internal void RegisterTask(IHrtModule hrtModule, Task<bool> task, string success, string failure)
-        => RegisterTask(hrtModule.HandleMessage, task, success, failure);
-    internal void RegisterTask(Action<HrtUiMessage> callBack, Func<bool> task, string success, string failure)
-        => RegisterTask(callBack, Task.Run(task), success, failure);
-    internal void RegisterTask(Action<HrtUiMessage> callBack, Task<bool> task, string success, string failure)
+    private void OnMinuteTimer(object? _)
     {
-        RegisterTask(callBack, task.ContinueWith(
-            (r) => r.Result ? new HrtUiMessage() { MessageType = HrtUiMessageType.Success, Message = success }
-                            : new HrtUiMessage() { MessageType = HrtUiMessageType.Failure, Message = failure })
-            );
+        if (disposedValue || TasksOnMinute.IsEmpty) return;
+        var ExecutionTime = DateTime.Now;
+        foreach (var task in TasksOnMinute)
+        {
+            if (task.ShouldRun && task.LastRun + task.Repeat < ExecutionTime)
+            {
+                task.CallBack(task.Action());
+                task.LastRun = ExecutionTime;
+            }
+        }
+    }
+    internal void RegisterTask(HrtTask task)
+    {
+        if (task is PeriodicTask pTask)
+        {
+            if (pTask.Repeat.Minutes > 0)
+                TasksOnMinute.Add(pTask);
+            else
+                TasksOnSecond.Add(pTask);
+        }
+        else
+        {
+            TasksOnce.Enqueue(new(task));
+        }
     }
     protected virtual void Dispose(bool disposing)
     {
@@ -55,18 +86,17 @@ internal class TaskManager : IDisposable
         {
             if (disposing)
             {
-                Services.Framework.Update -= Update;
-                _tasks.RemoveAll(t => t.task.Status < TaskStatus.Running);
-                try
+                TaskTimer.Dispose();
+                SecondTimer.Dispose();
+                MinuteTimer.Dispose();
+                while (TasksOnce.TryDequeue(out var task))
                 {
-                    _tasks.ForEach(t => t.task.Wait(1000));
-                }
-                catch (AggregateException e)
-                {
-                    PluginLog.Error($"Task failed: {e}");
+                    if (task.SystemTask.Status > TaskStatus.Created)
+                    {
+                        task.SystemTask.Wait(1000);
+                    }
                 }
             }
-            _tasks.Clear();
             disposedValue = true;
         }
     }
@@ -83,5 +113,26 @@ internal class TaskManager : IDisposable
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+}
+
+internal class HrtTask
+{
+    public readonly Action<HrtUiMessage> CallBack;
+    public readonly Func<HrtUiMessage> Action;
+    public HrtTask(Func<HrtUiMessage> task, Action<HrtUiMessage> callBack)
+    {
+        CallBack = callBack;
+        Action = task;
+    }
+}
+internal class PeriodicTask : HrtTask
+{
+    public DateTime LastRun = DateTime.MinValue;
+    public bool ShouldRun = true;
+    public TimeSpan Repeat;
+    public PeriodicTask(Func<HrtUiMessage> task, Action<HrtUiMessage> callBack, TimeSpan repeat) : base(task, callBack)
+    {
+        Repeat = repeat;
     }
 }

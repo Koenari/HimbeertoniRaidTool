@@ -6,8 +6,8 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Plugin.HrtServices;
 using HimbeertoniRaidTool.Plugin.Modules;
-using HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 using ImGuiNET;
 using Lumina.Excel;
 using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
@@ -81,7 +81,7 @@ public static class ImGuiHelper
                 $"{inspectTooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}",
                 canInspect, size))
             {
-                GearRefresherOnExamine.RefreshGearInfos(playerChar);
+                GearRefresher.RefreshGearInfos(playerChar);
                 return true;
             }
             return false;
@@ -94,8 +94,9 @@ public static class ImGuiHelper
             {
                 module.HandleMessage(new HrtUiMessage(
                     $"{Localize("LodestonUpdateStarted", "Started gear update for")} {p.MainChar.Name}", HrtUiMessageType.Info));
-                Services.TaskManager.RegisterTask(module,
-                    Services.ConnectorPool.LodestoneConnector.UpdateCharacter(p));
+                Services.TaskManager.RegisterTask(
+                    new(() => Services.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
+                    module.HandleMessage));
                 return true;
             }
             return false;

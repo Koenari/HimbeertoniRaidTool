@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
@@ -43,17 +44,18 @@ internal class EtroConnector : WebConnector
         return materiaCache;
     }
 
-    public bool GetGearSet(GearSet set)
+    public HrtUiMessage GetGearSet(GearSet set)
     {
+        HrtUiMessage errorMessage = new($"Could not update set {set.Name}", HrtUiMessageType.Failure);
         if (set.EtroID.Equals(""))
-            return false;
+            return errorMessage;
         EtroGearSet? etroSet;
         string? jsonResponse = MakeWebRequest(GearsetApiBaseUrl + set.EtroID);
         if (jsonResponse == null)
-            return false;
+            return errorMessage;
         etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);
         if (etroSet == null)
-            return false;
+            return errorMessage;
         set.Name = etroSet.name ?? "";
         set.TimeStamp = etroSet.lastUpdate;
         set.EtroFetchDate = DateTime.UtcNow;
@@ -69,8 +71,7 @@ internal class EtroConnector : WebConnector
         FillItem(etroSet.fingerL, GearSetSlot.Ring1);
         FillItem(etroSet.fingerR, GearSetSlot.Ring2);
         FillItem(etroSet.offHand, GearSetSlot.OffHand);
-        return true;
-
+        return new($"Update from Etro for {set.Name} succeeded", HrtUiMessageType.Success);
         void FillItem(uint id, GearSetSlot slot)
         {
             set[slot] = new(id);

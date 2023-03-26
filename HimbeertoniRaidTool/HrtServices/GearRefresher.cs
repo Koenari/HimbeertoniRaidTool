@@ -12,11 +12,11 @@ using HimbeertoniRaidTool.Plugin.DataExtensions;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 
-namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
+namespace HimbeertoniRaidTool.Plugin.HrtServices;
 
 //Inspired by aka Copied from
 //https://github.com/Caraxi/SimpleTweaksPlugin/blob/main/Tweaks/UiAdjustment/ExamineItemLevel.cs
-internal static unsafe class GearRefresherOnExamine
+internal static unsafe class GearRefresher
 {
     private static readonly bool HookLoadSuccessful;
     private static readonly Hook<CharacterInspectOnRefresh>? Hook;
@@ -25,7 +25,7 @@ internal static unsafe class GearRefresherOnExamine
 
     private delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
 
-    static GearRefresherOnExamine()
+    static GearRefresher()
     {
         try
         {
@@ -40,6 +40,10 @@ internal static unsafe class GearRefresherOnExamine
         }
         WorldSheet = Services.DataManager.GetExcelSheet<World>();
     }
+    internal static void Enable()
+    {
+        if (HookLoadSuccessful && Hook is not null) Hook.Enable();
+    }
     internal static void RefreshGearInfos(PlayerCharacter? @object)
     {
         if (@object is null)
@@ -53,10 +57,7 @@ internal static unsafe class GearRefresherOnExamine
             PluginLog.Error(e, $"Could not inspect character {@object.Name}");
         }
     }
-    internal static void Enable()
-    {
-        if (HookLoadSuccessful && Hook is not null) Hook.Enable();
-    }
+
 
     private static byte OnExamineRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* loadingStage)
     {
@@ -71,6 +72,7 @@ internal static unsafe class GearRefresherOnExamine
         return result;
 
     }
+
     private static void GetItemInfos(AtkUnitBase* examineWindow)
     {
         if (!HookLoadSuccessful)
@@ -121,7 +123,6 @@ internal static unsafe class GearRefresherOnExamine
                 targetChar.CharID = Character.CalcCharID(p.ContentId);
             }
         }
-        //Start getting Infos from Game
         var targetJob = target.GetJob();
         if (!targetJob.IsCombatJob())
             return;
@@ -135,11 +136,13 @@ internal static unsafe class GearRefresherOnExamine
         //Getting level does not work in level synced content
         if (target.Level > targetClass.Level)
             targetClass.Level = target.Level;
+        var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
+        UpdateGear(container, targetClass);
+    }
+    internal static void UpdateGear(InventoryContainer* container, PlayableClass targetClass)
+    {
         try
         {
-            var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
-            GearSet setToFill = new(GearSetManager.HRT, targetChar, targetJob);
-            Services.HrtDataManager.GetManagedGearSet(ref setToFill);
             for (int i = 0; i < 13; i++)
             {
                 if (i == (int)GearSetSlot.Waist)
@@ -147,7 +150,7 @@ internal static unsafe class GearRefresherOnExamine
                 var slot = container->GetInventorySlot(i);
                 if (slot->ItemID == 0)
                     continue;
-                setToFill[(GearSetSlot)i] = new(slot->ItemID)
+                targetClass.Gear[(GearSetSlot)i] = new(slot->ItemID)
                 {
                     IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ)
                 };
@@ -155,19 +158,19 @@ internal static unsafe class GearRefresherOnExamine
                 {
                     if (slot->Materia[j] == 0)
                         break;
-                    setToFill[(GearSetSlot)i].AddMateria(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
+                    targetClass.Gear[(GearSetSlot)i].AddMateria(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
                 }
             }
-            setToFill.TimeStamp = DateTime.UtcNow;
+            targetClass.Gear.TimeStamp = DateTime.UtcNow;
         }
         catch (Exception e)
         {
-            PluginLog.Error(e, $"Something went wrong getting gear for:{targetChar.Name}");
+            PluginLog.Error(e, $"Something went wrong getting gear for:{targetClass.Parent?.Name}");
         }
     }
     public static void Dispose()
     {
-        if (Hook is not null)
+        if (Hook is not null && !Hook.IsDisposed)
         {
             Hook.Disable();
             Hook.Dispose();

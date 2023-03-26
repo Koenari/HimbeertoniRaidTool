@@ -58,7 +58,6 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     }
     public void AfterFullyLoaded()
     {
-        GearRefresherOnExamine.Enable();
         if (Services.ClientState.IsLoggedIn)
             OnLogin(null, new());
         if (Configuration.Data.UpdateEtroBisOnStartup)
@@ -235,8 +234,6 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     }
     public void Dispose()
     {
-        GearRefresherOnExamine.Dispose();
-
         Configuration.Data.LastGroupIndex = Ui._CurrenGroupIndex;
         Configuration.Save();
     }

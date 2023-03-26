@@ -158,9 +158,8 @@ internal class LootmasterUI : HrtWindow
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
                 string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
-                Services.TaskManager.RegisterTask(_lootMaster, () => Services.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS)
-                    , $"BIS update for Character {p.MainChar.Name} ({playableClass.Job}) succeeded"
-                    , $"BIS update for Character {p.MainChar.Name} ({playableClass.Job}) failed");
+                Services.TaskManager.RegisterTask(
+                    new(() => Services.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS), HandleMessage));
             ImGui.Spacing();
         }
         ImGui.EndChild();
@@ -356,7 +355,7 @@ internal class LootmasterUI : HrtWindow
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / 2f);
                 ImGui.Text($"{bis.ItemLevel}");
                 if (ImGui.IsItemClicked())
-                    Services.TaskManager.RegisterTask(a => { }, () =>
+                    Services.TaskManager.RegisterTask(new(() =>
                     {
                         Process.Start(new ProcessStartInfo
                         {
@@ -364,7 +363,7 @@ internal class LootmasterUI : HrtWindow
                             UseShellExecute = true,
                         });
                         return new HrtUiMessage();
-                    });
+                    }, a => { }));
                 ImGuiHelper.AddTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditBiSGear", $"Edit {bis.Name}"))

@@ -44,13 +44,15 @@ namespace HimbeertoniRaidTool.Plugin
             Common.Services.ServiceManager.Init(DataManager.Excel);
             IconCache ??= new IconCache(PluginInterface, DataManager);
             HrtDataManager ??= new(PluginInterface);
-            TaskManager ??= new(Framework);
+            TaskManager ??= new();
             ConnectorPool ??= new();
             CharacterInfoService ??= new(ObjectTable);
+            GearRefresher.Enable();
             return HrtDataManager.Initialized;
         }
         internal static void Dispose()
         {
+            GearRefresher.Dispose();
             TaskManager.Dispose();
             IconCache.Dispose();
         }

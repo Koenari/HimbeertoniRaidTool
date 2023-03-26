@@ -32,8 +32,13 @@ internal class LodestoneConnector : NetstoneBase
             { 'I', 1 }, { 'V', 5 }, { 'X', 10 }, { 'L', 50 }
         };
     }
-
-    public async Task<HrtUiMessage> UpdateCharacter(Player p)
+    public HrtUiMessage UpdateCharacter(Player p)
+    {
+        var updateAsync = UpdateCharacterAsync(p);
+        updateAsync.Wait();
+        return updateAsync.Result;
+    }
+    public async Task<HrtUiMessage> UpdateCharacterAsync(Player p)
     {
         Job? foundJob = null;
         bool isHq = false;

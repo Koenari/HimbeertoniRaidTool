@@ -233,9 +233,7 @@ internal class EditPlayerWindow : HrtWindow
             if (!set.EtroID.Equals(""))
             {
                 Services.HrtDataManager.GetManagedGearSet(ref set);
-                Services.TaskManager.RegisterTask(CallBack, () => Services.ConnectorPool.EtroConnector.GetGearSet(target.BIS)
-                , $"BIS update for Character {Player.MainChar.Name} ({c.Job}) succeeded"
-                , $"BIS update for Character {Player.MainChar.Name} ({c.Job}) failed");
+                Services.TaskManager.RegisterTask(new(() => Services.ConnectorPool.EtroConnector.GetGearSet(target.BIS), CallBack));
             }
             target.BIS = set;
         }
