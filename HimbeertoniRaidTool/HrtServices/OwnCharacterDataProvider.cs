@@ -4,7 +4,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using HimbeertoniRaidTool.Common.Data;
 
-namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
+namespace HimbeertoniRaidTool.Plugin.HrtServices;
 
 internal static class OwnCharacterDataProvider
 {
@@ -41,6 +41,16 @@ internal static class OwnCharacterDataProvider
             {
                 target.Wallet[type] = item.Quantity;
             }
+        }
+    }
+    public static unsafe void UpdateGear()
+    {
+        if (!GetChar(out Character? target, out PlayerCharacter? source))
+            return;
+        InventoryContainer* container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.EquippedItems);
+        for (int i = 0; i < container->Size; i++)
+        {
+            var item = container->Items[i];
         }
     }
 }
