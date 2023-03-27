@@ -319,7 +319,9 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
         public int? RaidTierOverride = null;
         [JsonIgnore]
         public RaidTier SelectedRaidTier => ServiceManager.GameInfo.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
-        public string GetDefaultBiS(Job c) => BISUserOverride.ContainsKey(c) ? BISUserOverride[c] : DefaultBIS.ContainsKey(c) ? DefaultBIS[c] : "";
+        public string GetDefaultBiS(Job c) => BISUserOverride.TryGetValue(c, out string? userOverrride)
+            ? userOverrride
+            : DefaultBIS.TryGetValue(c, out string? defaultBis) ? defaultBis : "";
         private static string ParseItemFormatString(string input)
         {
             List<string> result = new();

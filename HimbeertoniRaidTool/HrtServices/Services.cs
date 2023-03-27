@@ -31,9 +31,6 @@ namespace HimbeertoniRaidTool.Plugin
         [PluginService] public static Condition Condition { get; private set; }
         public static IconCache IconCache { get; private set; }
         public static HrtDataManager HrtDataManager { get; private set; }
-        //private static CuratedData _curatedData { get; set; }
-        //internal static ItemInfo ItemInfo { get; private set; }
-        //internal static GameInfo GameInfo { get; private set; }
         internal static TaskManager TaskManager { get; private set; }
         internal static ConnectorPool ConnectorPool { get; private set; }
         internal static Configuration Config { get; set; }

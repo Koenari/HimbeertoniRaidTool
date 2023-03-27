@@ -50,18 +50,16 @@ public abstract class HRTWindowWithModalChild : HrtWindow
 }
 public abstract class HrtWindow : Window, IEquatable<HrtWindow>
 {
-    private readonly bool _volatile;
     private readonly string _id;
     protected string Title;
     protected Vector2 MinSize = default;
     protected Vector2 MaxSize = ImGui.GetIO().DisplaySize * 0.9f;
     protected bool OpenCentered = false;
     public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
-    public HrtWindow(bool @volatile = true, string? id = null) : base(id ?? Guid.NewGuid().ToString())
+    public HrtWindow(string? id = null) : base(id ?? Guid.NewGuid().ToString())
     {
         _id = WindowName;
         Title = "";
-        _volatile = @volatile;
     }
     public void Show()
     {

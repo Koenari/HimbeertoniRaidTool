@@ -28,7 +28,7 @@ internal class LootmasterUI : HrtWindow
     private (HrtUiMessage message, DateTime time)? _currentMessage;
     private readonly Vector2 _buttonSize;
     private Vector2 ButtonSize => _buttonSize * ScaleFactor;
-    internal LootmasterUI(LootMasterModule lootMaster) : base(false, "LootMaster")
+    internal LootmasterUI(LootMasterModule lootMaster) : base("LootMaster")
     {
         _lootMaster = lootMaster;
         _CurrenGroupIndex = 0;
@@ -496,7 +496,7 @@ internal class GetCharacterFromDBWindow : HrtWindow
     private string[] CharacterNames = Array.Empty<string>();
     private int CharacterNameIndex = 0;
     private string NickName = " ";
-    internal GetCharacterFromDBWindow(ref Player p) : base(true, $"GetCharacterFromDBWindow{p.NickName}")
+    internal GetCharacterFromDBWindow(ref Player p) : base($"GetCharacterFromDBWindow{p.NickName}")
     {
         _p = p;
         Worlds = Services.HrtDataManager.GetWorldsWithCharacters().ToArray();
@@ -609,7 +609,7 @@ internal class SwapPositionWindow : HrtWindow
     private int _newPos;
     private readonly int[] possiblePositions;
     private readonly string[] possiblePositionNames;
-    internal SwapPositionWindow(int pos, RaidGroup g) : base(true, $"SwapPositionWindow{g.GetHashCode()}{pos}")
+    internal SwapPositionWindow(int pos, RaidGroup g) : base($"SwapPositionWindow{g.GetHashCode()}{pos}")
     {
         _group = g;
         _oldPos = pos;
