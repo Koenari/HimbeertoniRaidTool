@@ -15,9 +15,4 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        New feature: Quickly compare current gear to potential gear
-        Ui: add icons (see config options)
-        Ui: reworked editing of gear
-        Ui: stat table now includes comparison values
-        LootSession: new metric, estimated % dps gain/loss
-        Bugfix: fixed a crash in wine
+        Bugfix: Generla configuration is saved correctly

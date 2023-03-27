@@ -15,7 +15,7 @@ public class Configuration : IPluginConfiguration, IDisposable
     [JsonIgnore]
     private bool FullyLoaded = false;
     [JsonIgnore]
-    private readonly int TargetVersion = 6;
+    private readonly int TargetVersion = 5;
     [JsonInclude]
     public int Version { get; set; } = 5;
     [JsonIgnore]
@@ -30,8 +30,8 @@ public class Configuration : IPluginConfiguration, IDisposable
     {
         if (FullyLoaded)
             return;
-        if (Version < 6)
-            Version = 6;
+        if (Version < 5)
+            Version = 5;
         FullyLoaded = true;
     }
     internal void Show() => Ui.Show();
