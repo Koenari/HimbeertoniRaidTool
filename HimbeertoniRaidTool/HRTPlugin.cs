@@ -9,6 +9,7 @@ using Dalamud.Logging;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Plugin.HrtServices;
 using HimbeertoniRaidTool.Plugin.Modules;
+using HimbeertoniRaidTool.Plugin.Modules.Core;
 
 namespace HimbeertoniRaidTool.Plugin;
 
@@ -33,6 +34,10 @@ public sealed class HRTPlugin : IDalamudPlugin
         {
             //Load and update/correct configuration + ConfigUi
             _Configuration.AfterLoad();
+            //Ensure core module is loaded first
+            CoreModule core = new();
+            RegisterModule(core, true);
+            Services.CoreModule = core;
             LoadAllModules();
         }
         else
@@ -50,6 +55,7 @@ public sealed class HRTPlugin : IDalamudPlugin
             && !t.IsInterface && !t.IsAbstract
             && t.GetInterfaces().Any(i => i == typeof(IHrtModule))))
         {
+            if (moduleType == typeof(CoreModule)) continue;
             bool hasConfig = moduleType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHrtModule<,>));
             try
             {
@@ -98,8 +104,10 @@ public sealed class HRTPlugin : IDalamudPlugin
             if (hasConfig)
                 if (!_Configuration.RegisterConfig(instance.Configuration))
                     PluginLog.Error($"Configuration load error:{module.Name}");
+                else
+                    instance.Configuration.AfterLoad();
             Services.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
-            instance.AfterFullyLoaded();
+            module.AfterFullyLoaded();
             PluginLog.Debug($"Succesfully loaded module: {module.Name}");
         }
         catch (Exception e)

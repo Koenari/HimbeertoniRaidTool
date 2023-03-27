@@ -211,7 +211,7 @@ internal class LootmasterUI : HrtWindow
             _CurrenGroupIndex = 0;
         DrawUiMessages();
         if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "showconfig", Localize("lootmaster:button:showconfig:tooltip", "Open Configuration")))
-            Services.Config.Ui.Show();
+            Services.Config.Show();
         ImGui.SameLine();
         DrawLootHandlerButtons();
         DrawRaidGroupSwitchBar();

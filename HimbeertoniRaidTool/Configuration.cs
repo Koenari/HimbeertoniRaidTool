@@ -1,40 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text.Json.Serialization;
 using Dalamud.Configuration;
-using Dalamud.Game;
 using Dalamud.Logging;
-using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using Newtonsoft.Json;
 using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
 
 namespace HimbeertoniRaidTool.Plugin;
 
-[Serializable]
 public class Configuration : IPluginConfiguration, IDisposable
 {
     [JsonIgnore]
     private bool FullyLoaded = false;
     [JsonIgnore]
-    private readonly int TargetVersion = 5;
-    [JsonProperty]
+    private readonly int TargetVersion = 6;
+    [JsonInclude]
     public int Version { get; set; } = 5;
-    [JsonProperty]
-    private ConfigData Data = new();
-    [JsonIgnore]
-    private TimeSpan _saveInterval;
-    [JsonIgnore]
-    private TimeSpan _timeSinceLastSave;
-    [JsonIgnore]
-    public bool HideOnZoneChange => Data.HideOnZoneChange;
-    [JsonIgnore]
-    public bool HideInBattle => Data.HideInCombat;
     [JsonIgnore]
     private readonly Dictionary<Type, dynamic> Configurations = new();
     [JsonIgnore]
-    public readonly ConfigUI Ui;
+    private readonly ConfigUI Ui;
     public Configuration()
     {
         Ui = new ConfigUI(this);
@@ -43,23 +30,11 @@ public class Configuration : IPluginConfiguration, IDisposable
     {
         if (FullyLoaded)
             return;
-        if (Version < 5)
-            Version = 5;
-        _saveInterval = TimeSpan.FromMinutes(Data.SaveIntervalMinutes);
-        _timeSinceLastSave = TimeSpan.Zero;
-        Services.Framework.Update += Update;
+        if (Version < 6)
+            Version = 6;
         FullyLoaded = true;
     }
-    private void Update(Framework fw)
-    {
-        _timeSinceLastSave += fw.UpdateDelta;
-        if (Data.SavePeriodically && _timeSinceLastSave > _saveInterval)
-        {
-            Services.HrtDataManager.Save();
-            _timeSinceLastSave = TimeSpan.Zero;
-        }
-
-    }
+    internal void Show() => Ui.Show();
     internal bool RegisterConfig<T, S>(HRTConfiguration<T, S> config) where T : new() where S : IHrtConfigUi
     {
         if (Configurations.ContainsKey(config.GetType()))
@@ -84,28 +59,15 @@ public class Configuration : IPluginConfiguration, IDisposable
     {
         Ui.Dispose();
     }
-    private class ConfigData
-    {
-        [JsonProperty]
-        public bool SavePeriodically = true;
-        [JsonProperty]
-        public int SaveIntervalMinutes = 30;
-        [JsonProperty]
-        public bool HideOnZoneChange = true;
-        [JsonProperty]
-        public bool HideInCombat = true;
-    }
     public class ConfigUI : HrtWindow, IDisposable
     {
         private readonly Dalamud.Interface.Windowing.WindowSystem _windowSystem;
         private readonly Configuration _configuration;
-        private ConfigData _dataCopy;
-        public ConfigUI(Configuration configuration) : base(false, "HimbeerToni Raid Tool Configuration")
+        public ConfigUI(Configuration configuration) : base("HimbeerToniRaidToolConfiguration")
         {
             _windowSystem = new("HRTConfig");
             _windowSystem.AddWindow(this);
             _configuration = configuration;
-            _dataCopy = _configuration.Data.Clone();
             Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
             Services.PluginInterface.UiBuilder.Draw += _windowSystem.Draw;
 
@@ -121,7 +83,6 @@ public class Configuration : IPluginConfiguration, IDisposable
         }
         public override void OnOpen()
         {
-            _dataCopy = _configuration.Data.Clone();
             foreach (dynamic config in _configuration.Configurations.Values)
                 try
                 {
@@ -146,26 +107,6 @@ public class Configuration : IPluginConfiguration, IDisposable
             if (ImGuiHelper.CancelButton())
                 Cancel();
             ImGui.BeginTabBar("Modules");
-            if (ImGui.BeginTabItem(Localize("General", "General")))
-            {
-                ImGui.Text(Localize("Ui", "User Interface"));
-                ImGui.Checkbox(Localize("HideInCombat", "Hide in combat"), ref _dataCopy.HideInCombat);
-                ImGuiHelper.AddTooltip(Localize("HideInCombatTooltip", "Hides all windows while character is in combat"));
-                ImGui.Checkbox(Localize("HideOnZoneChange", "Hide in loading screenst"), ref _dataCopy.HideOnZoneChange);
-                ImGuiHelper.AddTooltip(Localize("HideOnZoneChangeTooltip", "Hides all windows while in a loading screen"));
-                ImGui.Separator();
-                ImGui.Text(Localize("Auto Save", "Auto Save"));
-                ImGui.Checkbox(Localize("Save periodically", "Save periodically"), ref _dataCopy.SavePeriodically);
-                ImGuiHelper.AddTooltip(Localize("SavePeriodicallyTooltip", "Saves all data of this plugin periodically. (Helps prevent losing data if your game crashes)"));
-                ImGui.TextWrapped($"{Localize("AutoSave_interval_min", "AutoSave interval (min)")}:");
-                ImGui.SetNextItemWidth(150 * ScaleFactor);
-                if (ImGui.InputInt("##AutoSave_interval_min", ref _dataCopy.SaveIntervalMinutes))
-                {
-                    if (_dataCopy.SaveIntervalMinutes < 1)
-                        _dataCopy.SaveIntervalMinutes = 1;
-                }
-                ImGui.EndTabItem();
-            }
             foreach (dynamic c in _configuration.Configurations.Values)
             {
                 try
@@ -185,8 +126,6 @@ public class Configuration : IPluginConfiguration, IDisposable
         }
         private void Save()
         {
-            _configuration.Data = _dataCopy;
-            _configuration._saveInterval = TimeSpan.FromMinutes(_configuration.Data.SaveIntervalMinutes);
             foreach (dynamic c in _configuration.Configurations.Values)
                 c.Ui?.Save();
             _configuration.Save();

@@ -80,8 +80,8 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     }
     public override bool DrawConditions()
     {
-        return !(Services.Config.HideInBattle && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
-            && !(Services.Config.HideOnZoneChange && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas])
+        return !(Services.CoreModule.Configuration.Data.HideInCombat && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
+            && !Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas]
             && base.DrawConditions();
     }
     public override void PreDraw()
@@ -106,7 +106,7 @@ public class ConfimationDialog : HrtWindow
     private readonly string _Text;
     private bool Visible = true;
 
-    public ConfimationDialog(Action action, string text, string title = "") : base(true)
+    public ConfimationDialog(Action action, string text, string title = "") : base()
     {
         title = title.Equals("") ? Loc.Localize("Confirmation", "Confirmation") : title;
         _Text = text;

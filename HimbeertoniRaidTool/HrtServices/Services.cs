@@ -11,6 +11,7 @@ using Dalamud.Plugin;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.HrtServices;
+using HimbeertoniRaidTool.Plugin.Modules.Core;
 #pragma warning disable CS8618
 namespace HimbeertoniRaidTool.Plugin.HrtServices { }
 namespace HimbeertoniRaidTool.Plugin
@@ -34,6 +35,7 @@ namespace HimbeertoniRaidTool.Plugin
         internal static TaskManager TaskManager { get; private set; }
         internal static ConnectorPool ConnectorPool { get; private set; }
         internal static Configuration Config { get; set; }
+        internal static CoreModule CoreModule { get; set; }
         internal static CharacterInfoService CharacterInfoService { get; private set; }
         internal static bool Init(DalamudPluginInterface pluginInterface)
         {

@@ -4,10 +4,9 @@ using Dalamud.Logging;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.HrtServices;
 using HimbeertoniRaidTool.Plugin.UI;
-using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
-internal class CoreModule : IHrtModule<CoreConfig.ConfigData, IHrtConfigUi>
+internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigUi>
 {
     private readonly CoreConfig _config;
     private readonly Ui.WelcomeWindow _wcw;
@@ -24,7 +23,7 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, IHrtConfigUi>
             },
     };
     public string InternalName => "Core";
-    public HRTConfiguration<CoreConfig.ConfigData, IHrtConfigUi> Configuration => _config;
+    public HRTConfiguration<CoreConfig.ConfigData, CoreConfig.ConfigUi> Configuration => _config;
     public Dalamud.Interface.Windowing.WindowSystem WindowSystem { get; }
     public CoreModule()
     {
@@ -44,7 +43,7 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, IHrtConfigUi>
     {
         switch (args)
         {
-            case string a when a.Contains("option") || a.Contains("config"): Services.Config.Ui.Show(); break;
+            case string a when a.Contains("option") || a.Contains("config"): Services.Config.Show(); break;
 #if DEBUG
             case string b when b.Contains("exportlocale"): Localization.ExportLocalizable(); break;
 #endif
@@ -63,20 +62,4 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, IHrtConfigUi>
     public void Update(Framework fw) { }
 
     public void Dispose() { }
-}
-internal sealed class CoreConfig : HRTConfiguration<CoreConfig.ConfigData, IHrtConfigUi>
-{
-    public override IHrtConfigUi? Ui => null;
-
-    public CoreConfig(CoreModule module) : base(module.InternalName, Localization.Localize("General", "General"))
-    {
-    }
-    public override void AfterLoad() { }
-
-    internal sealed class ConfigData
-    {
-        [JsonProperty]
-        internal bool ShowWelcomeWindow = true;
-        public ConfigData() { }
-    }
 }

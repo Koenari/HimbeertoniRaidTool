@@ -129,7 +129,7 @@ internal class HrtTask
 internal class PeriodicTask : HrtTask
 {
     public DateTime LastRun = DateTime.MinValue;
-    public bool ShouldRun = true;
+    public volatile bool ShouldRun = true;
     public TimeSpan Repeat;
     public PeriodicTask(Func<HrtUiMessage> task, Action<HrtUiMessage> callBack, TimeSpan repeat) : base(task, callBack)
     {
