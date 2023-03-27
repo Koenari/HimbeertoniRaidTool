@@ -127,7 +127,7 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
                 ImGui.Text(Localize("DefaultBiSHeading", "Default BiS sets (as etro.gg ID)"));
                 ImGui.TextWrapped(Localize("DefaultBiSDisclaimer",
                     "These sets are used when creating a new characer or adding a new job. These do not affect already created characters and jobs."));
-                var jobs = Enum.GetValues<Job>();
+                var jobs = Enum.GetValues<Job>().Where(j => j.IsCombatJob()).ToArray();
                 Array.Sort(jobs, (a, b) =>
                 {
                     bool aFilled = !_dataCopy.GetDefaultBiS(a).IsNullOrEmpty();
