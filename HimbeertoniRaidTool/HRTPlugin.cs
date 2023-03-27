@@ -87,7 +87,11 @@ public sealed class HRTPlugin : IDalamudPlugin
         }
         try
         {
-            IHrtModule? module = instance as IHrtModule;
+            if (instance is not IHrtModule module)
+            {
+                HandleError();
+                return;
+            }
             RegisteredModules.Add(module.GetType(), module);
             foreach (HrtCommand command in instance.Commands)
                 AddCommand(command);
@@ -102,7 +106,11 @@ public sealed class HRTPlugin : IDalamudPlugin
         {
             if (RegisteredModules.ContainsKey(instance.GetType()))
                 RegisteredModules.Remove(instance.GetType());
-            PluginLog.Error(e, $"Error loading module: {instance.GetType()}\n {1}");
+            HandleError(e);
+        }
+        void HandleError(Exception? e = null)
+        {
+            PluginLog.Error(e, $"Error loading module: {instance.GetType()}");
         }
     }
 
