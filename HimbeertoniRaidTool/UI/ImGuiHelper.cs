@@ -132,9 +132,9 @@ public static class ImGuiHelper
     }
     //Credit to UnknownX
     //Modified to have filtering of Excel sheet and be usable by keayboard only
-    public static bool ExcelSheetCombo<T>(string id, out T? selected, Func<ExcelSheet<T>, string> getPreview, ImGuiComboFlags flags, Func<T, string, bool> searchPredicate, Func<T, string> toName) where T : ExcelRow
+    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected, Func<ExcelSheet<T>, string> getPreview, ImGuiComboFlags flags, Func<T, string, bool> searchPredicate, Func<T, string> toName) where T : ExcelRow
         => ExcelSheetCombo(id, out selected, getPreview, flags, searchPredicate, toName, (t) => true);
-    public static bool ExcelSheetCombo<T>(string id, out T? selected, Func<ExcelSheet<T>, string> getPreview, ImGuiComboFlags flags, Func<T, string, bool> searchPredicate, Func<T, string> toName, Func<T, bool> preFilter) where T : ExcelRow
+    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected, Func<ExcelSheet<T>, string> getPreview, ImGuiComboFlags flags, Func<T, string, bool> searchPredicate, Func<T, string> toName, Func<T, bool> preFilter) where T : ExcelRow
     {
         var sheet = Services.DataManager.GetExcelSheet<T>();
         if (sheet is null)
@@ -159,7 +159,6 @@ public static class ImGuiHelper
         (bool toogle, bool wasEnterClickedLastTime) = comboDic[id];
         selected = default;
         if (!ImGui.BeginCombo(id + (toogle ? "##x" : ""), preview, flags)) return false;
-        bool hasSelected = false;
         if (wasEnterClickedLastTime || ImGui.IsKeyPressed(ImGuiKey.Escape))
         {
             toogle = !toogle;
@@ -196,14 +195,13 @@ public static class ImGuiHelper
 
             if (ImGui.Selectable(toName(row), hovered) || enterClicked && hovered)
             {
-                hasSelected = true;
                 selected = row;
+                ImGui.PopID();
+                ImGui.EndCombo();
+                return true;
             }
             ImGui.PopID();
             i++;
-            if (!hasSelected) continue;
-            ImGui.EndCombo();
-            return true;
         }
 
         ImGui.EndCombo();
