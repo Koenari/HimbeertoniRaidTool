@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Dalamud.Game.Command;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.HrtServices;
 using HimbeertoniRaidTool.Plugin.Modules;
-using HimbeertoniRaidTool.Plugin.Modules.LootMaster;
-using HimbeertoniRaidTool.Plugin.Modules.WelcomeWindow;
 
 namespace HimbeertoniRaidTool.Plugin;
 
@@ -35,22 +33,38 @@ public sealed class HRTPlugin : IDalamudPlugin
         {
             //Load and update/correct configuration + ConfigUi
             _Configuration.AfterLoad();
-            AddCommand(new HrtCommand()
-            {
-                Command = "/hrt",
-                Description = Localization.Localize("/hrt", "Open Welcome Window with explanations"),
-                ShowInHelp = true,
-                OnCommand = OnCommand
-            });
-            //TODO: Some more elegant way to load modules
-
-            AddModule<LootMasterModule, LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>();
-            AddModule<WelcomeWindowModule, WelcomeWindowConfig.ConfigData, IHrtConfigUi>();
+            LoadAllModules();
         }
         else
         {
             pluginInterface.UiBuilder.AddNotification(Name + " did not load correctly. Please disbale/enable to try again", "Error in HRT", NotificationType.Error, 10000);
             Services.ChatGui.PrintError(Name + " did not load correctly. Please disbale/enable to try again");
+        }
+    }
+    private void LoadAllModules()
+    {
+        string moduleNamespace = $"{GetType().Namespace}.Modules";
+        //Look for all classes in Modules namespace that imlement the IHrtModule interface
+        foreach (var moduleType in GetType().Assembly.GetTypes().Where(
+            t => (t.Namespace?.StartsWith(moduleNamespace) ?? false)
+            && !t.IsInterface && !t.IsAbstract
+            && t.GetInterfaces().Any(i => i == typeof(IHrtModule))))
+        {
+            bool hasConfig = moduleType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHrtModule<,>));
+            try
+            {
+                dynamic? module = Activator.CreateInstance(moduleType);
+                if (module is null)
+                {
+                    PluginLog.Error($"Could not create module: {moduleType.Name}");
+                    continue;
+                }
+                RegisterModule(module, hasConfig);
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error(e, $"Failed to load module: {moduleType.Name}");
+            }
         }
     }
     private bool TryGetModule<T>([NotNullWhen(true)] out T? module) where T : class, IHrtModule
@@ -63,29 +77,32 @@ public sealed class HRTPlugin : IDalamudPlugin
         }
         return false;
     }
-    private void AddModule<T, S, Q>() where T : IHrtModule<S, Q>, new() where S : new() where Q : IHrtConfigUi
+
+    private void RegisterModule(dynamic instance, bool hasConfig)
     {
-        if (RegisteredModules.ContainsKey(typeof(T)))
+        if (RegisteredModules.ContainsKey(instance.GetType()))
         {
-            PluginLog.Error($"Tried to register module \"{typeof(T)}\" twice");
+            PluginLog.Error($"Tried to register module \"{instance.GetType()}\" twice");
             return;
         }
-        T module = new();
         try
         {
-            RegisteredModules.Add(typeof(T), module);
-            foreach (HrtCommand command in module.Commands)
+            IHrtModule? module = instance as IHrtModule;
+            RegisteredModules.Add(module.GetType(), module);
+            foreach (HrtCommand command in instance.Commands)
                 AddCommand(command);
-            if (!_Configuration.RegisterConfig(module.Configuration))
-                PluginLog.Error($"Configuration load error:{module.Name}");
+            if (hasConfig)
+                if (!_Configuration.RegisterConfig(instance.Configuration))
+                    PluginLog.Error($"Configuration load error:{module.Name}");
             Services.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
-            module.AfterFullyLoaded();
+            instance.AfterFullyLoaded();
+            PluginLog.Debug($"Succesfully loaded module: {module.Name}");
         }
         catch (Exception e)
         {
-            if (RegisteredModules.ContainsKey(typeof(T)))
-                RegisteredModules.Remove(typeof(T));
-            PluginLog.Error("Error loading module: {0}\n {1}", module?.Name ?? string.Empty, e.ToString());
+            if (RegisteredModules.ContainsKey(instance.GetType()))
+                RegisteredModules.Remove(instance.GetType());
+            PluginLog.Error(e, $"Error loading module: {instance.GetType()}\n {1}");
         }
     }
 
@@ -123,19 +140,5 @@ public sealed class HRTPlugin : IDalamudPlugin
         Localization.Dispose();
         _Configuration.Dispose();
         Services.Dispose();
-    }
-    private void OnCommand(string args)
-    {
-        switch (args)
-        {
-            case string a when a.Contains("option") || a.Contains("config"): _Configuration.Ui.Show(); break;
-#if DEBUG
-            case string b when b.Contains("exportlocale"): Localization.ExportLocalizable(); break;
-#endif
-            case string when args.IsNullOrEmpty(): if (TryGetModule(out WelcomeWindowModule? wcw)) wcw.Show(); break;
-            default:
-                PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
-                break;
-        }
     }
 }
