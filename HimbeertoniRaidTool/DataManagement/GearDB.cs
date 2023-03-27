@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Dalamud.Logging;
+﻿using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
@@ -62,7 +60,7 @@ internal class GearDB
         if (EtroHasUpdated)
             return;
         EtroHasUpdated = true;
-        Services.TaskManager.RegisterTask(new(() => UpdateEtroSetsAsync(maxAgeInDays), LogUpdates));
+        ServiceManager.TaskManager.RegisterTask(new(() => UpdateEtroSetsAsync(maxAgeInDays), LogUpdates));
     }
     private void LogUpdates(HrtUiMessage hrtUiMessage)
     {
@@ -84,7 +82,7 @@ internal class GearDB
                 gearSet.EtroFetchDate = DateTime.UtcNow - new TimeSpan(Random.Shared.Next(maxAgeInDays), 0, 0, 0);
                 continue;
             }
-            Services.ConnectorPool.EtroConnector.GetGearSet(gearSet);
+            ServiceManager.ConnectorPool.EtroConnector.GetGearSet(gearSet);
             updateCount++;
         }
         return new()

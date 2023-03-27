@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-namespace HimbeertoniRaidTool.Plugin.HrtServices;
+namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal static class Localization
 {
@@ -36,7 +35,7 @@ internal static class Localization
     }
     public static void Dispose()
     {
-        Services.PluginInterface.LanguageChanged -= OnLanguageChanged;
+        ServiceManager.PluginInterface.LanguageChanged -= OnLanguageChanged;
     }
 #if DEBUG
     internal static void ExportLocalizable(bool ignore = true) => Loc?.ExportLocalizable(ignore);

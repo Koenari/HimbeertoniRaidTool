@@ -1,10 +1,9 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
@@ -47,7 +46,7 @@ internal class LootSessionUI : HrtWindow
         ImGui.SetNextItemWidth(ScaleFactor * 200f);
         if (ImGui.BeginCombo("##RaidGroup", _session.Group.Name))
         {
-            foreach (var group in Services.HrtDataManager.Groups)
+            foreach (var group in ServiceManager.HrtDataManager.Groups)
                 if (ImGui.Selectable(group.Name) && group != _session.Group)
                 {
                     _session.Group = group;
@@ -90,7 +89,7 @@ internal class LootSessionUI : HrtWindow
                     var item = _session.Loot[row * ItemsPerRow + col].item;
                     ImGui.TableNextColumn();
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
-                    ImGui.Image(Services.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, Vector2.One * ScaleFactor * (ItemSize - 30f));
+                    ImGui.Image(ServiceManager.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, Vector2.One * ScaleFactor * (ItemSize - 30f));
                     if (ImGui.IsItemHovered())
                     {
                         ImGui.BeginTooltip();
@@ -154,7 +153,7 @@ internal class LootSessionUI : HrtWindow
             if (item.Item is null)
                 continue;
             ImGui.BeginGroup();
-            ImGui.Image(Services.IconCache[item.Item.Icon].ImGuiHandle, Vector2.One * ImGui.GetTextLineHeightWithSpacing());
+            ImGui.Image(ServiceManager.IconCache[item.Item.Icon].ImGuiHandle, Vector2.One * ImGui.GetTextLineHeightWithSpacing());
             ImGui.SameLine();
             ImGui.Text(item.Item.Name);
             ImGui.EndGroup();

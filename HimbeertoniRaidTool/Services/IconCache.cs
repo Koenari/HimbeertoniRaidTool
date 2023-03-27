@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 using Dalamud.Data;
 using Dalamud.Plugin;
 using Dalamud.Utility;
 using ImGuiScene;
 
-namespace HimbeertoniRaidTool.Plugin.HrtServices;
+namespace HimbeertoniRaidTool.Plugin.Services;
 
 //Inspired by InventoryTools by Critical-Impact 
 public class IconCache : IDisposable

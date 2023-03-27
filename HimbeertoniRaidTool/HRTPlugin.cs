@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.Command;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-using HimbeertoniRaidTool.Plugin.HrtServices;
 using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
 
@@ -26,10 +22,10 @@ public sealed class HRTPlugin : IDalamudPlugin
     public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
     {
         //Init all services
-        LoadError = !Services.Init(pluginInterface);
+        LoadError = !ServiceManager.Init(pluginInterface);
         //Init Localization
         Localization.Init(pluginInterface);
-        Services.Config = _Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        ServiceManager.Config = _Configuration = ServiceManager.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         if (!LoadError)
         {
             //Load and update/correct configuration + ConfigUi
@@ -37,13 +33,13 @@ public sealed class HRTPlugin : IDalamudPlugin
             //Ensure core module is loaded first
             CoreModule core = new();
             RegisterModule(core, true);
-            Services.CoreModule = core;
+            ServiceManager.CoreModule = core;
             LoadAllModules();
         }
         else
         {
             pluginInterface.UiBuilder.AddNotification(Name + " did not load correctly. Please disbale/enable to try again", "Error in HRT", NotificationType.Error, 10000);
-            Services.ChatGui.PrintError(Name + " did not load correctly. Please disbale/enable to try again");
+            ServiceManager.ChatGui.PrintError(Name + " did not load correctly. Please disbale/enable to try again");
         }
     }
     private void LoadAllModules()
@@ -106,7 +102,7 @@ public sealed class HRTPlugin : IDalamudPlugin
                     PluginLog.Error($"Configuration load error:{module.Name}");
                 else
                     instance.Configuration.AfterLoad();
-            Services.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
+            ServiceManager.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
             module.AfterFullyLoaded();
             PluginLog.Debug($"Succesfully loaded module: {module.Name}");
         }
@@ -124,7 +120,7 @@ public sealed class HRTPlugin : IDalamudPlugin
 
     private void AddCommand(HrtCommand command)
     {
-        if (Services.CommandManager.AddHandler(command.Command,
+        if (ServiceManager.CommandManager.AddHandler(command.Command,
             new CommandInfo((x, y) => command.OnCommand(y))
             {
                 HelpMessage = command.Description,
@@ -134,17 +130,17 @@ public sealed class HRTPlugin : IDalamudPlugin
     }
     public void Dispose()
     {
-        RegisteredCommands.ForEach(command => Services.CommandManager.RemoveHandler(command));
+        RegisteredCommands.ForEach(command => ServiceManager.CommandManager.RemoveHandler(command));
         if (!LoadError)
         {
             _Configuration.Save(false);
-            Services.HrtDataManager.Save();
+            ServiceManager.HrtDataManager.Save();
         }
         foreach ((Type type, IHrtModule module) in RegisteredModules)
         {
             try
             {
-                Services.PluginInterface.UiBuilder.Draw -= module.WindowSystem.Draw;
+                ServiceManager.PluginInterface.UiBuilder.Draw -= module.WindowSystem.Draw;
                 module.WindowSystem.RemoveAllWindows();
                 module.Dispose();
             }
@@ -155,6 +151,6 @@ public sealed class HRTPlugin : IDalamudPlugin
         }
         Localization.Dispose();
         _Configuration.Dispose();
-        Services.Dispose();
+        ServiceManager.Dispose();
     }
 }

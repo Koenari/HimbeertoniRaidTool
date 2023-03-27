@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using HimbeertoniRaidTool.Plugin.UI;
 
-namespace HimbeertoniRaidTool.Plugin.HrtServices;
+namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class TaskManager : IDisposable
 {

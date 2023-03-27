@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Plugin.HrtServices;
 using HimbeertoniRaidTool.Plugin.Modules;
 using ImGuiNET;
 using Lumina.Excel;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -48,7 +44,7 @@ public static class ImGuiHelper
         bool result = false;
         string inspectTooltip = Localize("Inspect", "Update Gear by Examining");
         bool canInspect = true;
-        if (!Services.CharacterInfoService.TryGetChar(out var playerChar, p.MainChar.Name, p.MainChar.HomeWorld))
+        if (!ServiceManager.CharacterInfoService.TryGetChar(out var playerChar, p.MainChar.Name, p.MainChar.HomeWorld))
         {
             canInspect = false;
             inspectTooltip = Localize("CharacterNotInReach", "Character is not in reach to examine");
@@ -94,8 +90,8 @@ public static class ImGuiHelper
             {
                 module.HandleMessage(new HrtUiMessage(
                     $"{Localize("LodestonUpdateStarted", "Started gear update for")} {p.MainChar.Name}", HrtUiMessageType.Info));
-                Services.TaskManager.RegisterTask(
-                    new(() => Services.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
+                ServiceManager.TaskManager.RegisterTask(
+                    new(() => ServiceManager.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
                     module.HandleMessage));
                 return true;
             }
@@ -136,7 +132,7 @@ public static class ImGuiHelper
         => ExcelSheetCombo(id, out selected, getPreview, flags, searchPredicate, toName, (t) => true);
     public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected, Func<ExcelSheet<T>, string> getPreview, ImGuiComboFlags flags, Func<T, string, bool> searchPredicate, Func<T, string> toName, Func<T, bool> preFilter) where T : ExcelRow
     {
-        var sheet = Services.DataManager.GetExcelSheet<T>();
+        var sheet = ServiceManager.DataManager.GetExcelSheet<T>();
         if (sheet is null)
         {
             selected = null;

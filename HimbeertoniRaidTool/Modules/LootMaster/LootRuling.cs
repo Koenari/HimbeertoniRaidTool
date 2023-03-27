@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
+﻿using System.Data;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 

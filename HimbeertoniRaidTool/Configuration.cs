@@ -1,26 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text.Json.Serialization;
+﻿using System.Numerics;
 using Dalamud.Configuration;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin;
 
 public class Configuration : IPluginConfiguration, IDisposable
 {
-    [JsonIgnore]
     private bool FullyLoaded = false;
-    [JsonIgnore]
     private readonly int TargetVersion = 5;
-    [JsonInclude]
     public int Version { get; set; } = 5;
-    [JsonIgnore]
     private readonly Dictionary<Type, dynamic> Configurations = new();
-    [JsonIgnore]
     private readonly ConfigUI Ui;
     public Configuration()
     {
@@ -40,13 +32,13 @@ public class Configuration : IPluginConfiguration, IDisposable
         if (Configurations.ContainsKey(config.GetType()))
             return false;
         Configurations.Add(config.GetType(), config);
-        return Services.HrtDataManager.ModuleConfigurationManager?.LoadConfiguration(config.ParentInternalName, ref config.Data) ?? false;
+        return ServiceManager.HrtDataManager.ModuleConfigurationManager?.LoadConfiguration(config.ParentInternalName, ref config.Data) ?? false;
     }
     internal void Save(bool saveAll = true)
     {
         if (Version == TargetVersion)
         {
-            Services.PluginInterface.SavePluginConfig(this);
+            ServiceManager.PluginInterface.SavePluginConfig(this);
             if (saveAll)
                 foreach (var config in Configurations.Values)
                     config.Save();
@@ -68,8 +60,8 @@ public class Configuration : IPluginConfiguration, IDisposable
             _windowSystem = new("HRTConfig");
             _windowSystem.AddWindow(this);
             _configuration = configuration;
-            Services.PluginInterface.UiBuilder.OpenConfigUi += Show;
-            Services.PluginInterface.UiBuilder.Draw += _windowSystem.Draw;
+            ServiceManager.PluginInterface.UiBuilder.OpenConfigUi += Show;
+            ServiceManager.PluginInterface.UiBuilder.Draw += _windowSystem.Draw;
 
             (Size, SizeCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);
             Flags = ImGuiWindowFlags.NoCollapse;
@@ -78,8 +70,8 @@ public class Configuration : IPluginConfiguration, IDisposable
         }
         public void Dispose()
         {
-            Services.PluginInterface.UiBuilder.OpenConfigUi -= Show;
-            Services.PluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
+            ServiceManager.PluginInterface.UiBuilder.OpenConfigUi -= Show;
+            ServiceManager.PluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
         }
         public override void OnOpen()
         {
@@ -153,7 +145,7 @@ public abstract class HRTConfiguration<T, S> where T : new() where S : IHrtConfi
     }
     internal void Save()
     {
-        Services.HrtDataManager.ModuleConfigurationManager?.SaveConfiguration(ParentInternalName, Data);
+        ServiceManager.HrtDataManager.ModuleConfigurationManager?.SaveConfiguration(ParentInternalName, Data);
     }
     public abstract void AfterLoad();
 }

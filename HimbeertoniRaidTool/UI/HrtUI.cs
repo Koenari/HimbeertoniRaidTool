@@ -1,8 +1,7 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using Loc = HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using Loc = HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -80,8 +79,8 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     }
     public override bool DrawConditions()
     {
-        return !(Services.CoreModule.Configuration.Data.HideInCombat && Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
-            && !Services.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas]
+        return !(ServiceManager.CoreModule.Configuration.Data.HideInCombat && ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
+            && !ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas]
             && base.DrawConditions();
     }
     public override void PreDraw()

@@ -1,6 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using HimbeertoniRaidTool.Common.Data;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.DataExtensions;
 

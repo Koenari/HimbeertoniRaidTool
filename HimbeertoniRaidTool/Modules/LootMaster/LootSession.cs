@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Data;
-using System.Linq;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
@@ -208,8 +205,8 @@ public class LootResult
         if (applicableJob == null)
         {
             applicableJob = Player.MainChar.AddClass(Job);
-            Services.HrtDataManager.GetManagedGearSet(ref applicableJob.Gear);
-            Services.HrtDataManager.GetManagedGearSet(ref applicableJob.BIS);
+            ServiceManager.HrtDataManager.GetManagedGearSet(ref applicableJob.Gear);
+            ServiceManager.HrtDataManager.GetManagedGearSet(ref applicableJob.BIS);
         }
         AplicableJob = applicableJob;
         Roll = Random.Next(0, 101);

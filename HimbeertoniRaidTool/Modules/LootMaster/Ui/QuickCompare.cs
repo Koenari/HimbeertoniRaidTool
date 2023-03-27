@@ -1,8 +1,7 @@
-﻿using System;
-using HimbeertoniRaidTool.Common.Data;
+﻿using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 internal class QuickCompareWindow : HRTWindowWithModalChild

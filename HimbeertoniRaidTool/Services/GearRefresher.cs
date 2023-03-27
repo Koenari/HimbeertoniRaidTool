@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Hooking;
 using Dalamud.Logging;
@@ -12,7 +10,7 @@ using HimbeertoniRaidTool.Plugin.DataExtensions;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 
-namespace HimbeertoniRaidTool.Plugin.HrtServices;
+namespace HimbeertoniRaidTool.Plugin.Services;
 
 //Inspired by aka Copied from
 //https://github.com/Caraxi/SimpleTweaksPlugin/blob/main/Tweaks/UiAdjustment/ExamineItemLevel.cs
@@ -29,7 +27,7 @@ internal static unsafe class GearRefresher
     {
         try
         {
-            HookAddress = Services.SigScanner.ScanText("48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2");
+            HookAddress = ServiceManager.SigScanner.ScanText("48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2");
             Hook = Hook<CharacterInspectOnRefresh>.FromAddress(HookAddress, OnExamineRefresh);
             HookLoadSuccessful = true;
         }
@@ -38,7 +36,7 @@ internal static unsafe class GearRefresher
             PluginLog.LogError(e, "Failed to hook into examine window");
             HookLoadSuccessful = false;
         }
-        WorldSheet = Services.DataManager.GetExcelSheet<World>();
+        WorldSheet = ServiceManager.DataManager.GetExcelSheet<World>();
     }
     internal static void Enable()
     {
@@ -97,19 +95,19 @@ internal static unsafe class GearRefresher
         if (worldFromExamine is null)
             return;
         //Make sure examine window correspods to intended character and character info is fetchable
-        if (!Services.CharacterInfoService.TryGetChar(out var target, charNameFromExamine, worldFromExamine)
-            && !Services.CharacterInfoService.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
+        if (!ServiceManager.CharacterInfoService.TryGetChar(out var target, charNameFromExamine, worldFromExamine)
+            && !ServiceManager.CharacterInfoService.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
         {
             PluginLog.Debug($"Name + World from examine window didn't match any character in the area: " +
                 $"name1 {charNameFromExamine}, name 2 {charNameFromExamine2}, wolrd {worldFromExamine?.Name}");
             return;
         }
         //Do not execute on characters not part of any managed raid group
-        if (!Services.HrtDataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
+        if (!ServiceManager.HrtDataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
             return;
         Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
 
-        if (!Services.HrtDataManager.GetManagedCharacter(ref targetChar, false))
+        if (!ServiceManager.HrtDataManager.GetManagedCharacter(ref targetChar, false))
         {
             PluginLog.Error($"Internal database error. Did not update gear for:{targetChar.Name}@{targetChar.HomeWorld?.Name}");
             return;
@@ -117,7 +115,7 @@ internal static unsafe class GearRefresher
         //Save characters ContentID if not already known
         if (targetChar.CharID == 0)
         {
-            PartyMember? p = Services.PartyList.FirstOrDefault(p => p?.ObjectId == target.ObjectId, null);
+            PartyMember? p = ServiceManager.PartyList.FirstOrDefault(p => p?.ObjectId == target.ObjectId, null);
             if (p != null)
             {
                 targetChar.CharID = Character.CalcCharID(p.ContentId);
@@ -130,8 +128,8 @@ internal static unsafe class GearRefresher
         if (targetClass == null)
         {
             targetClass = targetChar.AddClass(targetJob);
-            Services.HrtDataManager.GetManagedGearSet(ref targetClass.Gear);
-            Services.HrtDataManager.GetManagedGearSet(ref targetClass.BIS);
+            ServiceManager.HrtDataManager.GetManagedGearSet(ref targetClass.Gear);
+            ServiceManager.HrtDataManager.GetManagedGearSet(ref targetClass.BIS);
         }
         //Getting level does not work in level synced content
         if (target.Level > targetClass.Level)

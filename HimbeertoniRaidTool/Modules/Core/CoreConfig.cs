@@ -1,10 +1,8 @@
-﻿using System;
-using HimbeertoniRaidTool.Common;
-using HimbeertoniRaidTool.Plugin.HrtServices;
+﻿using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 internal sealed class CoreConfig : HRTConfiguration<CoreConfig.ConfigData, CoreConfig.ConfigUi>
@@ -28,11 +26,11 @@ internal sealed class CoreConfig : HRTConfiguration<CoreConfig.ConfigData, CoreC
     {
         SaveTask.Repeat = TimeSpan.FromMinutes(Data.SaveIntervalMinutes);
         SaveTask.ShouldRun = Data.SavePeriodically;
-        Services.TaskManager.RegisterTask(SaveTask);
+        ServiceManager.TaskManager.RegisterTask(SaveTask);
     }
     private HrtUiMessage PeriodicSave()
     {
-        if (Services.HrtDataManager.Save())
+        if (ServiceManager.HrtDataManager.Save())
             return new(Localize("Core:PeriodicSaveSuccessful", "Data Saved successfully"), HrtUiMessageType.Success);
         else
             return new(Localize("Core:PeriodicSaveFailed", "Data failed to save"), HrtUiMessageType.Failure);

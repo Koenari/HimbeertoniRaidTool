@@ -104,4 +104,10 @@
   <ItemGroup>
     <Content Include="..\Localization\**" Link="locale\%(RecursiveDir)\%(Filename)%(Extension)" CopyToOutputDirectory="Always" />
   </ItemGroup>
+  <ItemGroup>
+    <Using Include="HimbeertoniRaidTool.Plugin.Services" />
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic"/>
+    <Using Include="System.Linq"/>
+  </ItemGroup>
 </Project>

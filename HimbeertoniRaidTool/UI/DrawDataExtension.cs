@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Common.Services;
+﻿using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -25,9 +23,9 @@ public static class DrawDataExtension
                 DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel);
             DrawRow(Localize("itemSource", "Source"), item.Source);
             //Shop Data
-            if (ServiceManager.ItemInfo.CanBePurchased(item.ID))
+            if (Common.Services.ServiceManager.ItemInfo.CanBePurchased(item.ID))
             {
-                var shopEntry = ServiceManager.ItemInfo.GetShopEntryForItem(item.ID);
+                var shopEntry = Common.Services.ServiceManager.ItemInfo.GetShopEntryForItem(item.ID);
                 if (shopEntry != null)
                 {
                     string content = "";
@@ -43,10 +41,10 @@ public static class DrawDataExtension
 
             }
             //Loot Data
-            if (ServiceManager.ItemInfo.CanBeLooted(item.ID))
+            if (Common.Services.ServiceManager.ItemInfo.CanBeLooted(item.ID))
             {
                 string content = "";
-                foreach (var instance in ServiceManager.ItemInfo.GetLootSources(item.ID))
+                foreach (var instance in Common.Services.ServiceManager.ItemInfo.GetLootSources(item.ID))
                 {
                     content += $"{instance.Name}\n";
                 }

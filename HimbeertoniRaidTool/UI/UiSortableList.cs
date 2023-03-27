@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+﻿using ImGuiNET;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 namespace HimbeertoniRaidTool.Plugin.UI;
 
 public class UiSortableList<T>

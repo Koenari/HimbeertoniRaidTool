@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Dalamud.Game;
+﻿using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
@@ -8,7 +6,7 @@ using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.UI;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
@@ -38,7 +36,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         }
     };
     //Properties
-    private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
+    private static List<RaidGroup> RaidGroups => ServiceManager.HrtDataManager.Groups;
     private readonly LootmasterUI Ui;
     private readonly LootMasterConfiguration _config;
     private bool _fillSoloOnLogin = false;
@@ -54,14 +52,14 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         WindowSystem = new WindowSystem(InternalName);
         Ui = new(this);
         WindowSystem.AddWindow(Ui);
-        Services.ClientState.Login += OnLogin;
+        ServiceManager.ClientState.Login += OnLogin;
     }
     public void AfterFullyLoaded()
     {
-        if (Services.ClientState.IsLoggedIn)
+        if (ServiceManager.ClientState.IsLoggedIn)
             OnLogin(null, new());
         if (Configuration.Data.UpdateEtroBisOnStartup)
-            Services.HrtDataManager.UpdateEtroSets(Configuration.Data.EtroUpdateIntervalDays);
+            ServiceManager.HrtDataManager.UpdateEtroSets(Configuration.Data.EtroUpdateIntervalDays);
     }
     public void OnLogin(object? sender, EventArgs e)
     {
@@ -80,13 +78,13 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     {
         PlayerCharacter? character = null;
         if (useSelf)
-            character = Services.TargetManager.Target as PlayerCharacter;
+            character = ServiceManager.TargetManager.Target as PlayerCharacter;
         if (character == null)
-            Services.CharacterInfoService.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
+            ServiceManager.CharacterInfoService.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
         if (character == null)
             return;
         Character c = new(character.Name.TextValue, character.HomeWorld.Id);
-        Services.HrtDataManager.GetManagedCharacter(ref c);
+        ServiceManager.HrtDataManager.GetManagedCharacter(ref c);
         p.NickName = c.Name.Split(' ')[0];
         p.MainChar = c;
         c.MainJob ??= character.GetJob();
@@ -97,10 +95,10 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
             {
                 EtroID = _config.Data.GetDefaultBiS(c.MainClass.Job)
             };
-            Services.HrtDataManager.GetManagedGearSet(ref bis);
+            ServiceManager.HrtDataManager.GetManagedGearSet(ref bis);
             c.MainClass.BIS = bis;
         }
-        Services.HrtDataManager.Save();
+        ServiceManager.HrtDataManager.Save();
     }
     internal void AddGroup(RaidGroup group, bool getGroupInfos)
     {
@@ -108,16 +106,16 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         if (!getGroupInfos)
             return;
         //Determine group type
-        if (Services.PartyList.Length < 2)
+        if (ServiceManager.PartyList.Length < 2)
             group.Type = GroupType.Solo;
-        else if (Services.PartyList.Length < 5)
+        else if (ServiceManager.PartyList.Length < 5)
             group.Type = GroupType.Group;
         else
             group.Type = GroupType.Raid;
         //Get Infos
         if (group.Type == GroupType.Solo)
         {
-            PlayerCharacter? target = Services.TargetManager.Target as PlayerCharacter;
+            PlayerCharacter? target = ServiceManager.TargetManager.Target as PlayerCharacter;
             if (target is not null)
             {
                 group[0].NickName = target.Name.TextValue;
@@ -131,9 +129,9 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         }
         List<PartyMember> players = new();
         List<PartyMember> fill = new();
-        for (int i = 0; i < Services.PartyList.Length; i++)
+        for (int i = 0; i < ServiceManager.PartyList.Length; i++)
         {
-            var p = Services.PartyList[i];
+            var p = ServiceManager.PartyList[i];
             if (p != null)
                 players.Add(p);
         }
@@ -200,13 +198,13 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
             var p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
             Character character = new(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
-            bool characterExisted = Services.HrtDataManager.CharacterExists(character.HomeWorldID, character.Name);
-            Services.HrtDataManager.GetManagedCharacter(ref character);
+            bool characterExisted = ServiceManager.HrtDataManager.CharacterExists(character.HomeWorldID, character.Name);
+            ServiceManager.HrtDataManager.GetManagedCharacter(ref character);
             p.MainChar = character;
             if (!characterExisted)
             {
                 bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
-                if (Services.CharacterInfoService.TryGetChar(out var pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
+                if (ServiceManager.CharacterInfoService.TryGetChar(out var pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                 {
                     p.MainChar.MainJob = c;
                     p.MainChar.MainClass!.Level = pc!.Level;
@@ -215,13 +213,13 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
                         ManagedBy = GearSetManager.Etro,
                         EtroID = _config.Data.GetDefaultBiS(c)
                     };
-                    Services.HrtDataManager.GetManagedGearSet(ref BIS);
+                    ServiceManager.HrtDataManager.GetManagedGearSet(ref BIS);
                     p.MainChar.MainClass.BIS = BIS;
                 }
             }
 
         }
-        Services.HrtDataManager.Save();
+        ServiceManager.HrtDataManager.Save();
     }
     public void OnCommand(string args)
     {

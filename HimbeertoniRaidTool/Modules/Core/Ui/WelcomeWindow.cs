@@ -2,7 +2,7 @@
 using System.Numerics;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 internal class WelcomeWindow : HrtWindow
@@ -31,13 +31,13 @@ internal class WelcomeWindow : HrtWindow
         if (ImGuiHelper.Button(Localize("Open LootMaster", "Open LootMaster"),
             Localize("Open LootMaster main window (/lootmaster)", "Open LootMaster main window (/lootmaster)")))
         {
-            Services.CommandManager.ProcessCommand("/lootmaster");
+            ServiceManager.CommandManager.ProcessCommand("/lootmaster");
         }
         ImGui.SameLine();
         if (ImGuiHelper.Button(Localize("Open Options", "Open Options"),
              Localize("Show configuration options (/hrt config)", "Show configuration options (/hrt config)")))
         {
-            Services.CommandManager.ProcessCommand("/hrt config");
+            ServiceManager.CommandManager.ProcessCommand("/hrt config");
 
         }
         ImGui.SameLine();

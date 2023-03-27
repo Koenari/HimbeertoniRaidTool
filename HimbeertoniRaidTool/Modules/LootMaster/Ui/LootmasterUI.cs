@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
-using HimbeertoniRaidTool.Plugin.HrtServices;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 internal class LootmasterUI : HrtWindow
@@ -22,8 +17,8 @@ internal class LootmasterUI : HrtWindow
     private LootMasterConfiguration.ConfigData CurConfig => _lootMaster.Configuration.Data;
     internal int _CurrenGroupIndex { get; private set; }
     private RaidGroup CurrentGroup => RaidGroups[_CurrenGroupIndex];
-    private static GameExpansion CurrentExpansion => ServiceManager.GameInfo.CurrentExpansion;
-    private static List<RaidGroup> RaidGroups => Services.HrtDataManager.Groups;
+    private static GameExpansion CurrentExpansion => Common.Services.ServiceManager.GameInfo.CurrentExpansion;
+    private static List<RaidGroup> RaidGroups => ServiceManager.HrtDataManager.Groups;
     private readonly Queue<HrtUiMessage> _messageQueue = new();
     private (HrtUiMessage message, DateTime time)? _currentMessage;
     private readonly Vector2 _buttonSize;
@@ -158,8 +153,8 @@ internal class LootmasterUI : HrtWindow
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
                 string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
-                Services.TaskManager.RegisterTask(
-                    new(() => Services.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS), HandleMessage));
+                ServiceManager.TaskManager.RegisterTask(
+                    new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS), HandleMessage));
             ImGui.Spacing();
         }
         ImGui.EndChild();
@@ -211,7 +206,7 @@ internal class LootmasterUI : HrtWindow
             _CurrenGroupIndex = 0;
         DrawUiMessages();
         if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "showconfig", Localize("lootmaster:button:showconfig:tooltip", "Open Configuration")))
-            Services.Config.Show();
+            ServiceManager.Config.Show();
         ImGui.SameLine();
         DrawLootHandlerButtons();
         DrawRaidGroupSwitchBar();
@@ -355,7 +350,7 @@ internal class LootmasterUI : HrtWindow
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / 2f);
                 ImGui.Text($"{bis.ItemLevel}");
                 if (ImGui.IsItemClicked())
-                    Services.TaskManager.RegisterTask(new(() =>
+                    ServiceManager.TaskManager.RegisterTask(new(() =>
                     {
                         Process.Start(new ProcessStartInfo
                         {
@@ -499,8 +494,8 @@ internal class GetCharacterFromDBWindow : HrtWindow
     internal GetCharacterFromDBWindow(ref Player p) : base($"GetCharacterFromDBWindow{p.NickName}")
     {
         _p = p;
-        Worlds = Services.HrtDataManager.GetWorldsWithCharacters().ToArray();
-        WorldNames = Array.ConvertAll(Worlds, x => Services.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name.RawString ?? "");
+        Worlds = ServiceManager.HrtDataManager.GetWorldsWithCharacters().ToArray();
+        WorldNames = Array.ConvertAll(Worlds, x => ServiceManager.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name.RawString ?? "");
         Title = Localize("GetCharacterTitle", "Get character from DB");
         Size = new Vector2(350, 420);
         Flags = ImGuiWindowFlags.NoScrollbar;
@@ -510,7 +505,7 @@ internal class GetCharacterFromDBWindow : HrtWindow
         ImGui.InputText(Localize("Player Name", "Player Name"), ref NickName, 50);
         if (ImGui.ListBox("World", ref worldSelectIndex, WorldNames, WorldNames.Length))
         {
-            var list = Services.HrtDataManager.GetCharacterNames(Worlds[worldSelectIndex]);
+            var list = ServiceManager.HrtDataManager.GetCharacterNames(Worlds[worldSelectIndex]);
             list.Sort();
             CharacterNames = list.ToArray();
         }
@@ -522,7 +517,7 @@ internal class GetCharacterFromDBWindow : HrtWindow
             var c = _p.MainChar;
             c.Name = CharacterNames[CharacterNameIndex];
             c.HomeWorldID = Worlds[worldSelectIndex];
-            Services.HrtDataManager.GetManagedCharacter(ref c);
+            ServiceManager.HrtDataManager.GetManagedCharacter(ref c);
             _p.MainChar = c;
             Hide();
         }
@@ -541,7 +536,7 @@ internal class InventoryWindow : HRTWindowWithModalChild
         SizeCondition = ImGuiCond.Appearing;
         Title = title;
         _inv = inv;
-        foreach (var boss in ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
+        foreach (var boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
             foreach (var item in boss.GuaranteedItems)
             {
                 if (!_inv.Contains(item.ID))
@@ -558,10 +553,10 @@ internal class InventoryWindow : HRTWindowWithModalChild
     {
         if (ImGuiHelper.CloseButton())
             Hide();
-        foreach (var boss in ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
+        foreach (var boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
             foreach (var item in boss.GuaranteedItems)
             {
-                var icon = Services.IconCache[item.Item!.Icon];
+                var icon = ServiceManager.IconCache[item.Item!.Icon];
                 ImGui.Image(icon.ImGuiHandle, icon.Size());
                 ImGui.SameLine();
                 ImGui.Text(item.Name);
@@ -579,7 +574,7 @@ internal class InventoryWindow : HRTWindowWithModalChild
             ImGui.PushID(idx);
             if (entry.Item is not GearItem item || item.Item is null)
                 continue;
-            var icon = Services.IconCache[item.Item.Icon];
+            var icon = ServiceManager.IconCache[item.Item.Icon];
             if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "Delete", null, true, iconSize))
                 _inv.Remove(idx);
             ImGui.SameLine();
@@ -598,7 +593,7 @@ internal class InventoryWindow : HRTWindowWithModalChild
         }
         ImGui.BeginDisabled(ChildIsOpen);
         if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"Add", null, true, iconSize))
-            ModalChild = new SelectGearItemWindow(i => _inv.Add(_inv.FirstFreeSlot(), i), i => { }, null, null, null, ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.ArmorItemLevel);
+            ModalChild = new SelectGearItemWindow(i => _inv.Add(_inv.FirstFreeSlot(), i), i => { }, null, null, null, Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.ArmorItemLevel);
         ImGui.EndDisabled();
     }
 }

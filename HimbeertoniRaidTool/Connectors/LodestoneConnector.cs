@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Dalamud.Logging;
@@ -12,7 +9,7 @@ using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Model.Parseables.Character.Gear;
 using NetStone.Search.Character;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
@@ -26,8 +23,8 @@ internal class LodestoneConnector : NetstoneBase
 
     internal LodestoneConnector() : base(new(NoOfAllowedLodestoneRequests, new(0, 0, 30)))
     {
-        _itemSheet = Services.DataManager.GetExcelSheet<Item>(Dalamud.ClientLanguage.English);
-        _materiaSheet = Services.DataManager.GetExcelSheet<Materia>(Dalamud.ClientLanguage.English);
+        _itemSheet = ServiceManager.DataManager.GetExcelSheet<Item>(Dalamud.ClientLanguage.English);
+        _materiaSheet = ServiceManager.DataManager.GetExcelSheet<Materia>(Dalamud.ClientLanguage.English);
         _romanNumerals = new() {
             { 'I', 1 }, { 'V', 5 }, { 'X', 10 }, { 'L', 50 }
         };
@@ -61,8 +58,8 @@ internal class LodestoneConnector : NetstoneBase
             if (classToChange == null)
             {
                 classToChange = p.MainChar.AddClass(foundJob.Value);
-                Services.HrtDataManager.GetManagedGearSet(ref classToChange.Gear);
-                Services.HrtDataManager.GetManagedGearSet(ref classToChange.BIS);
+                ServiceManager.HrtDataManager.GetManagedGearSet(ref classToChange.Gear);
+                ServiceManager.HrtDataManager.GetManagedGearSet(ref classToChange.BIS);
             }
             classToChange.Level = lodestoneCharacter.ActiveClassJobLevel;
             //Getting Race, Clan and Gender is not yet correctly implemented in Netstone 1.0.0

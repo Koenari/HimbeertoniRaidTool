@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Lumina.Excel.GeneratedSheets;
 
-namespace HimbeertoniRaidTool.Plugin.HrtServices;
+namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class CharacterInfoService
 {
@@ -39,7 +36,7 @@ internal class CharacterInfoService
             return false;
         }
         //This is really slow (comparatively)
-        result = Services.ObjectTable.FirstOrDefault(
+        result = ServiceManager.ObjectTable.FirstOrDefault(
             o =>
             {
                 PlayerCharacter? p = o as PlayerCharacter;

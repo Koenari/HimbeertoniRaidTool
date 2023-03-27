@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using HimbeertoniRaidTool.Common.Data;
+﻿using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 

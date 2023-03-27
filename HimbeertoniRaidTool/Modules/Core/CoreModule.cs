@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using Dalamud.Game;
+﻿using Dalamud.Game;
 using Dalamud.Logging;
 using Dalamud.Utility;
-using HimbeertoniRaidTool.Plugin.HrtServices;
 using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
@@ -43,7 +41,7 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
     {
         switch (args)
         {
-            case string a when a.Contains("option") || a.Contains("config"): Services.Config.Show(); break;
+            case string a when a.Contains("option") || a.Contains("config"): ServiceManager.Config.Show(); break;
 #if DEBUG
             case string b when b.Contains("exportlocale"): Localization.ExportLocalizable(); break;
 #endif

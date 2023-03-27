@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -30,7 +26,7 @@ internal class EditPlayerWindow : HrtWindow
         CallBack = callBack;
         Player = p;
         PlayerCopy = new();
-        PlayerCharacter? target = Services.TargetManager.Target as PlayerCharacter;
+        PlayerCharacter? target = ServiceManager.TargetManager.Target as PlayerCharacter;
         IsNew = !Player.Filled;
         if (IsNew && target is not null)
         {
@@ -69,7 +65,7 @@ internal class EditPlayerWindow : HrtWindow
         ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
         ImGui.Text(Localize("Character Data", "Character Data"));
         if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50)
-             && Services.CharacterInfoService.TryGetChar(out var pc, PlayerCopy.MainChar.Name))
+             && ServiceManager.CharacterInfoService.TryGetChar(out var pc, PlayerCopy.MainChar.Name))
         {
             PlayerCopy.MainChar.HomeWorld ??= pc?.HomeWorld.GameData;
         }
@@ -137,7 +133,7 @@ internal class EditPlayerWindow : HrtWindow
             ImGui.SetNextItemWidth(150f * ScaleFactor);
             if (ImGui.InputInt($"{Localize("Level", "Level")}##{c.Job}", ref c.Level))
             {
-                c.Level = Math.Clamp(c.Level, 1, ServiceManager.GameInfo.CurrentExpansion.MaxLevel);
+                c.Level = Math.Clamp(c.Level, 1, Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxLevel);
             }
 
             ImGui.Separator();
@@ -164,8 +160,8 @@ internal class EditPlayerWindow : HrtWindow
             if (newClass == null)
             {
                 newClass = PlayerCopy.MainChar.AddClass(newJob);
-                Services.HrtDataManager.GetManagedGearSet(ref newClass.Gear);
-                Services.HrtDataManager.GetManagedGearSet(ref newClass.BIS);
+                ServiceManager.HrtDataManager.GetManagedGearSet(ref newClass.Gear);
+                ServiceManager.HrtDataManager.GetManagedGearSet(ref newClass.BIS);
             }
             newClass.BIS.EtroID = GetBisID(newJob);
             if (Size.HasValue)
@@ -182,7 +178,7 @@ internal class EditPlayerWindow : HrtWindow
         if (IsNew)
         {
             Character c = new(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
-            Services.HrtDataManager.GetManagedCharacter(ref c);
+            ServiceManager.HrtDataManager.GetManagedCharacter(ref c);
             Player.MainChar = c;
             //Do not silently override existing characters
             if (c.Classes.Any())
@@ -196,7 +192,7 @@ internal class EditPlayerWindow : HrtWindow
             Player.MainChar.Name = PlayerCopy.MainChar.Name;
             Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
             var c = Player.MainChar;
-            Services.HrtDataManager.RearrangeCharacter(oldWorld, oldName, ref c);
+            ServiceManager.HrtDataManager.RearrangeCharacter(oldWorld, oldName, ref c);
             Player.MainChar = c;
         }
         //Copy safe data
@@ -219,8 +215,8 @@ internal class EditPlayerWindow : HrtWindow
             if (target == null)
             {
                 target = Player.MainChar.AddClass(c.Job);
-                Services.HrtDataManager.GetManagedGearSet(ref target.Gear);
-                Services.HrtDataManager.GetManagedGearSet(ref target.BIS);
+                ServiceManager.HrtDataManager.GetManagedGearSet(ref target.Gear);
+                ServiceManager.HrtDataManager.GetManagedGearSet(ref target.BIS);
             }
             target.Level = c.Level;
             if (target.BIS.EtroID.Equals(c.BIS.EtroID))
@@ -232,14 +228,14 @@ internal class EditPlayerWindow : HrtWindow
             };
             if (!set.EtroID.Equals(""))
             {
-                Services.HrtDataManager.GetManagedGearSet(ref set);
-                Services.TaskManager.RegisterTask(new(() => Services.ConnectorPool.EtroConnector.GetGearSet(target.BIS), CallBack));
+                ServiceManager.HrtDataManager.GetManagedGearSet(ref set);
+                ServiceManager.TaskManager.RegisterTask(new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(target.BIS), CallBack));
             }
             target.BIS = set;
         }
         if (!Player.MainChar.Classes.Any(c => c.Job == Player.MainChar.MainJob))
             Player.MainChar.MainJob = Player.MainChar.Classes.FirstOrDefault()?.Job;
-        Services.HrtDataManager.Save();
+        ServiceManager.HrtDataManager.Save();
     }
 }
 internal class EditGroupWindow : HrtWindow
@@ -363,13 +359,13 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
     {
         _gearSetCopy.TimeStamp = DateTime.Now;
         _gearSet.CopyFrom(_gearSetCopy);
-        Services.HrtDataManager.Save();
+        ServiceManager.HrtDataManager.Save();
         Hide();
     }
 }
 internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
 {
-    protected static readonly Lumina.Excel.ExcelSheet<Item> Sheet = Services.DataManager.GetExcelSheet<Item>()!;
+    protected static readonly Lumina.Excel.ExcelSheet<Item> Sheet = ServiceManager.DataManager.GetExcelSheet<Item>()!;
     protected T? Item = null;
     private readonly Action<T> OnSave;
     private readonly Action<T?> OnCancel;
@@ -491,7 +487,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
                 ImGui.PopStyleColor();
             ImGui.SameLine();
             ImGui.BeginGroup();
-            ImGui.Image(Services.IconCache.LoadIcon(item.Icon, item.CanBeHq).ImGuiHandle, new Vector2(32f, 32f));
+            ImGui.Image(ServiceManager.IconCache.LoadIcon(item.Icon, item.CanBeHq).ImGuiHandle, new Vector2(32f, 32f));
             ImGui.SameLine();
             ImGui.Text($"{item.Name.RawString} (IL {item.LevelItem.Row})");
             ImGui.EndGroup();

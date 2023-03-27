@@ -1,12 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 [Flags]
@@ -91,7 +89,7 @@ internal static class LmUiHelpers
                             ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() * 0.3f);
                         iconSize *= multiLine ? 2.4f : 1.4f;
                     }
-                    ImGui.Image(Services.IconCache.LoadIcon(item.Item!.Icon, item.IsHq).ImGuiHandle, iconSize * HrtWindow.ScaleFactor);
+                    ImGui.Image(ServiceManager.IconCache.LoadIcon(item.Item!.Icon, item.IsHq).ImGuiHandle, iconSize * HrtWindow.ScaleFactor);
                     ImGui.SameLine();
                 }
                 string toDraw = string.Format(config.ItemFormatString,

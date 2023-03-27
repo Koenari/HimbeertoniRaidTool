@@ -1,14 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
-using static HimbeertoniRaidTool.Plugin.HrtServices.Localization;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 internal class UiHelpers
@@ -25,7 +22,7 @@ internal class UiHelpers
         GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {
         //Item Icon with Info
-        ImGui.Image(Services.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, new(24, 24));
+        ImGui.Image(ServiceManager.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, new(24, 24));
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
@@ -46,10 +43,10 @@ internal class UiHelpers
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}changeitem", Localize("Select item", "Select item")))
                 parent.AddChild(new SelectGearItemWindow(onItemChange, (x) => { }, item, slot, curJob,
-                     ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.ItemLevel(slot)));
+                     Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.ItemLevel(slot)));
             ImGui.EndDisabled();
         }
-        byte maxMatLevel = ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
+        byte maxMatLevel = Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
         for (int i = 0; i < item.Materia.Count(); i++)
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Eraser,
