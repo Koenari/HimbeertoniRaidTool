@@ -72,9 +72,10 @@ internal class EtroConnector : WebConnector
         return new($"Update from Etro for {set.Name} succeeded", HrtUiMessageType.Success);
         void FillItem(uint id, GearSetSlot slot)
         {
-            set[slot] = new(id);
-            if (set[slot].Source == ItemSource.Crafted)
-                set[slot].IsHq = true;
+            set[slot] = new(id)
+            {
+                IsHq = (set[slot].Source == ItemSource.Crafted)
+            };
             string idString = id.ToString() + (slot == GearSetSlot.Ring1 ? "L" : slot == GearSetSlot.Ring2 ? "R" : "");
             if (etroSet!.materia?.TryGetValue(idString, out var materia) ?? false)
                 foreach (uint? matId in materia.Values)
