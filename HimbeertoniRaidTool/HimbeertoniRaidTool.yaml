@@ -15,4 +15,5 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        Bugfix: Generla configuration is saved correctly
+        Loot session: DPS gain accuracy improved for BiS items
+        Performance: sligth improvements

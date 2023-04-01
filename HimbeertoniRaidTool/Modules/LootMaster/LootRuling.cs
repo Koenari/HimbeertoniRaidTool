@@ -115,9 +115,18 @@ public static class LootRulesExtension
         double newDps = double.NegativeInfinity;
         foreach (var i in p.ApplicableItems)
         {
-            var item = i.Clone();
-            foreach (var mat in curClass.Gear[i.Slots.First()].Materia)
-                item.AddMateria(mat);
+            GearItem? item = null;
+            foreach (var bisItem in curClass.BIS)
+            {
+                if (bisItem.Equals(i, ItemComparisonMode.IdOnly))
+                    item = bisItem.Clone();
+            }
+            if (item is null)
+            {
+                item ??= i.Clone();
+                foreach (var mat in curClass.Gear[i.Slots.First()].Materia)
+                    item.AddMateria(mat);
+            }
             double cur = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.Gear.With(item));
             if (cur > newDps)
                 newDps = cur;
