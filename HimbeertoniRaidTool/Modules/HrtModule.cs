@@ -1,5 +1,7 @@
 ﻿using Dalamud.Game;
 using Dalamud.Interface.Windowing;
+using Dalamud.Logging;
+
 using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules;
@@ -29,4 +31,7 @@ public struct HrtCommand
     internal string Description;
     internal bool ShowInHelp;
     internal Action<string> OnCommand;
+    internal string getCommandBackup(string command) {
+        return command.Replace("/", "/hrt");
+    }
 }

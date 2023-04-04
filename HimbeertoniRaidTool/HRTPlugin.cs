@@ -120,13 +120,18 @@ public sealed class HRTPlugin : IDalamudPlugin
 
     private void AddCommand(HrtCommand command)
     {
-        if (ServiceManager.CommandManager.AddHandler(command.Command,
-            new CommandInfo((x, y) => command.OnCommand(y))
-            {
-                HelpMessage = command.Description,
-                ShowInHelp = command.ShowInHelp
-            }))
+        CommandInfo commandInfo = new CommandInfo((x, y) => command.OnCommand(y))
+        {
+            HelpMessage = command.Description,
+            ShowInHelp = command.ShowInHelp
+        };
+        if (ServiceManager.CommandManager.AddHandler(command.Command, commandInfo))
         { RegisteredCommands.Add(command.Command); }
+        else {
+            commandInfo.HelpMessage = commandInfo.HelpMessage.Replace("/lm", "/hrtlm");
+            if (ServiceManager.CommandManager.AddHandler(command.getCommandBackup(command.Command), commandInfo))
+            { RegisteredCommands.Add(command.getCommandBackup(command.Command)); }
+        }
     }
     public void Dispose()
     {
