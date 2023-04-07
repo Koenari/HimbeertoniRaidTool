@@ -1,5 +1,8 @@
-﻿using Dalamud.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Plugin.Security;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 
@@ -7,52 +10,58 @@ namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
 internal class GearDB
 {
-    private readonly Dictionary<string, GearSet> HrtGearDB;
-    private readonly Dictionary<string, GearSet> EtroGearDB;
+    private readonly HrtDataManager DataManager;
+    private readonly GearDBData Data;
+    private readonly Dictionary<string, HrtID> EtroLookup = new();
     private bool EtroHasUpdated = false;
-    internal GearDB(string hrtGearData, string etroGearData, JsonSerializerSettings settings)
+    internal GearDB(HrtDataManager dataManager, string gearData, JsonSerializerSettings settings)
     {
-        HrtGearDB = JsonConvert.DeserializeObject<Dictionary<string, GearSet>>(
-            hrtGearData, settings) ?? new();
-        EtroGearDB = JsonConvert.DeserializeObject<Dictionary<string, GearSet>>(
-            etroGearData, settings) ?? new();
+        DataManager = dataManager;
+        Data = JsonConvert.DeserializeObject<GearDBData>(gearData, settings) ?? new(1);
     }
-    internal bool AddOrGetSet(ref GearSet gearSet)
+    [Obsolete]
+    internal GearDB(HrtDataManager dataManager, LegacyGearDB oldDB, LocalIDProvider localIDProvider)
     {
-        if (gearSet.ManagedBy == GearSetManager.HRT && gearSet.HrtID.Length > 0)
-        {
-            if (!HrtGearDB.ContainsKey(gearSet.HrtID))
-                HrtGearDB.Add(gearSet.HrtID, gearSet);
-            if (HrtGearDB.TryGetValue(gearSet.HrtID, out var result))
-            {
-                if (result.TimeStamp < gearSet.TimeStamp)
-                    result.CopyFrom(gearSet);
-                gearSet = result;
-            }
-        }
-        else if (gearSet.ManagedBy == GearSetManager.Etro && gearSet.EtroID.Length > 0)
-        {
-            if (!EtroGearDB.ContainsKey(gearSet.EtroID))
-                EtroGearDB.Add(gearSet.EtroID, gearSet);
-            if (EtroGearDB.TryGetValue(gearSet.EtroID, out var result))
-                gearSet = result;
-        }
-        return true;
+        DataManager = dataManager;
+        Data = new(1);
+        Data.Migrate(oldDB, localIDProvider);
     }
-    internal bool UpdateIndex(string oldID, ref GearSet gs)
+    internal ulong GetNextSequence() => Data.NextSequence++;
+    internal bool AddSet(GearSet gearSet)
     {
-        if (gs.ManagedBy == GearSetManager.HRT)
+        if (gearSet.LocalID.IsEmpty)
+            gearSet.LocalID = DataManager.IDProvider.CreateID(HrtID.IDType.Gear);
+        return Data.TryAdd(gearSet.LocalID, gearSet);
+    }
+    internal bool TryGetSet(HrtID id, [NotNullWhen(true)] out GearSet? gearSet)
+    {
+        gearSet = null;
+        if (id.IsEmpty)
+            return false;
+        return Data.TryGetValue(id, out gearSet);
+    }
+    internal bool TryGetSetByEtroID(string etroID, [NotNullWhen(true)] out GearSet? set)
+    {
+        if (EtroLookup.TryGetValue(etroID, out HrtID? id))
+            return TryGetSet(id, out set);
+        id = Data.FirstOrDefault(s => s.Value.EtroID == etroID).Key;
+        if (id is not null)
         {
-            if (HrtGearDB.ContainsKey(oldID))
-                HrtGearDB.Remove(oldID);
-            AddOrGetSet(ref gs);
+            EtroLookup.Add(etroID, id);
+            set = Data[id];
+            return true;
         }
-        else if (gs.ManagedBy == GearSetManager.Etro)
-        {
-            if (EtroGearDB.ContainsKey(oldID))
-                EtroGearDB.Remove(oldID);
-            AddOrGetSet(ref gs);
-        }
+        set = null;
+        return false;
+    }
+    [Obsolete]
+    internal bool TryGetByOldId(string oldID, [NotNullWhen(true)] out GearSet? gearSet)
+    {
+        gearSet = null;
+        var entry = Data.FirstOrDefault(e => e.Value.OldHrtID == oldID, new KeyValuePair<HrtID, GearSet>(HrtID.Empty, null!));
+        if (entry.Key.IsEmpty)
+            return false;
+        gearSet = entry.Value;
         return true;
     }
     internal void UpdateEtroSets(int maxAgeInDays)
@@ -69,32 +78,54 @@ internal class GearDB
     private HrtUiMessage UpdateEtroSetsAsync(int maxAgeInDays)
     {
         var OldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
-        var ErrorIfOlder = DateTime.UtcNow - new TimeSpan(365, 0, 0, 0);
+        int totalCount = 0;
         int updateCount = 0;
-        foreach (var gearSet in EtroGearDB.Values)
+        foreach (var gearSet in Data.Values.Where(set => set.ManagedBy == GearSetManager.Etro))
         {
+            totalCount++;
             if (gearSet.EtroFetchDate >= OldestValid)
                 continue;
-            //Spaces out older entries (before fetrtching was tracked) over the time period equally
-            //This should manage the amount of request to be minimal (per day)
-            if (gearSet.EtroFetchDate < ErrorIfOlder)
-            {
-                gearSet.EtroFetchDate = DateTime.UtcNow - new TimeSpan(Random.Shared.Next(maxAgeInDays), 0, 0, 0);
-                continue;
-            }
             ServiceManager.ConnectorPool.EtroConnector.GetGearSet(gearSet);
             updateCount++;
         }
         return new()
         {
             MessageType = HrtUiMessageType.Info,
-            Message = $"Finished periodic etro Updates. ({updateCount}/{EtroGearDB.Count}) updated"
+            Message = $"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated"
         };
     }
-    internal (string hrt, string etro) Serialize(JsonSerializerSettings settings)
+    internal string Serialize(JsonSerializerSettings settings)
     {
-        string hrtData = JsonConvert.SerializeObject(HrtGearDB, settings);
-        string etroData = JsonConvert.SerializeObject(EtroGearDB, settings);
-        return (hrtData, etroData);
+        return JsonConvert.SerializeObject(Data, settings);
+    }
+    private class GearDBData : Dictionary<HrtID, GearSet>
+    {
+        [JsonProperty] public int Version = 0;
+        [JsonProperty] public ulong NextSequence = 1;
+        public GearDBData() : base() { }
+        public GearDBData(int ver)
+        {
+            Version = ver;
+        }
+        [Obsolete]
+        public void Migrate(LegacyGearDB oldDb, LocalIDProvider idProvider)
+        {
+            foreach (var gearSet in oldDb.HrtGearDB.Values)
+            {
+                if (gearSet.LocalID.IsEmpty)
+                {
+                    gearSet.LocalID = idProvider.CreateGearID(NextSequence++);
+                }
+                Add(gearSet.LocalID, gearSet);
+            }
+            foreach (var gearSet in oldDb.EtroGearDB.Values)
+            {
+                if (gearSet.LocalID.IsEmpty)
+                {
+                    gearSet.LocalID = idProvider.CreateGearID(NextSequence++);
+                }
+                Add(gearSet.LocalID, gearSet);
+            }
+        }
     }
 }

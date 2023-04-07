@@ -205,8 +205,9 @@ public class LootResult
         if (applicableJob == null)
         {
             applicableJob = Player.MainChar.AddClass(Job);
-            ServiceManager.HrtDataManager.GetManagedGearSet(ref applicableJob.Gear);
-            ServiceManager.HrtDataManager.GetManagedGearSet(ref applicableJob.BIS);
+
+            ServiceManager.HrtDataManager.GearDB.AddSet(applicableJob.Gear);
+            ServiceManager.HrtDataManager.GearDB.AddSet(applicableJob.BIS);
         }
         AplicableJob = applicableJob;
         Roll = Random.Next(0, 101);

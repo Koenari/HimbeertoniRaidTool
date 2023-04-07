@@ -107,7 +107,7 @@
   <ItemGroup>
     <Using Include="HimbeertoniRaidTool.Plugin.Services" />
     <Using Include="System" />
-    <Using Include="System.Collections.Generic"/>
-    <Using Include="System.Linq"/>
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Linq" />
   </ItemGroup>
 </Project>

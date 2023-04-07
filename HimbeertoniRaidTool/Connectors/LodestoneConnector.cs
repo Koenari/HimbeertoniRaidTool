@@ -58,8 +58,13 @@ internal class LodestoneConnector : NetstoneBase
             if (classToChange == null)
             {
                 classToChange = p.MainChar.AddClass(foundJob.Value);
-                ServiceManager.HrtDataManager.GetManagedGearSet(ref classToChange.Gear);
-                ServiceManager.HrtDataManager.GetManagedGearSet(ref classToChange.BIS);
+                bool hasError = false;
+                hasError |= ServiceManager.HrtDataManager.GearDB.AddSet(classToChange.Gear);
+                hasError |= ServiceManager.HrtDataManager.GearDB.AddSet(classToChange.BIS);
+                if (hasError)
+                    return new HrtUiMessage(
+                        Localize("LodestoneConnector:FailedtoCreateGear", "Could not create new gear set."),
+                        HrtUiMessageType.Failure);
             }
             classToChange.Level = lodestoneCharacter.ActiveClassJobLevel;
             //Getting Race, Clan and Gender is not yet correctly implemented in Netstone 1.0.0

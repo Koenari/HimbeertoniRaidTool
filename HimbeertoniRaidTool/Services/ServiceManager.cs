@@ -54,4 +54,8 @@ internal class ServiceManager
         IconCache.Dispose();
     }
 }
+public class FailedToLoadException : Exception
+{
+    public FailedToLoadException(string? message) : base(message) { }
+}
 #pragma warning restore CS8618

@@ -3,8 +3,12 @@ using Dalamud.Plugin;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
-
-internal class ModuleConfigurationManager
+internal interface IModuleConfigurationManager
+{
+    bool SaveConfiguration<T>(string internalName, T configData) where T : new();
+    bool LoadConfiguration<T>(string internalName, ref T configData) where T : new();
+}
+internal class ModuleConfigurationManager : IModuleConfigurationManager
 {
     private readonly DirectoryInfo ModuleConfigDir;
     private static readonly JsonSerializerSettings JsonSerializerSettings = new()
@@ -26,13 +30,13 @@ internal class ModuleConfigurationManager
         catch (Exception) { }
     }
 
-    internal bool SaveConfiguration<T>(string internalName, T configData) where T : new()
+    public bool SaveConfiguration<T>(string internalName, T configData) where T : new()
     {
         FileInfo file = new(ModuleConfigDir.FullName + internalName + ".json");
         string json = JsonConvert.SerializeObject(configData, JsonSerializerSettings);
         return HrtDataManager.TryWrite(file, json);
     }
-    internal bool LoadConfiguration<T>(string internalName, ref T configData) where T : new()
+    public bool LoadConfiguration<T>(string internalName, ref T configData) where T : new()
     {
         FileInfo file = new(ModuleConfigDir.FullName + internalName + ".json");
         if (file.Exists)
@@ -50,4 +54,12 @@ internal class ModuleConfigurationManager
         }
         return true;
     }
+}
+internal class NotLoadedModuleConfigurationManager : IModuleConfigurationManager
+{
+    public bool LoadConfiguration<T>(string internalName, ref T configData) where T : new()
+     => false;
+
+    public bool SaveConfiguration<T>(string internalName, T configData) where T : new()
+     => false;
 }
