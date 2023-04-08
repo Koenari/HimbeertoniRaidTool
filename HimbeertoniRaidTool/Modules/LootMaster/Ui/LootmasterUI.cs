@@ -140,7 +140,7 @@ internal class LootmasterUI : HrtWindow
             ImGui.Text($"{Localize("Current", "Current")} {Localize("iLvl", "iLvl")}: {playableClass.Gear.ItemLevel:D3}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.Job} {Localize("gear", "gear")}"))
-                AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job, CurConfig.SelectedRaidTier));
+                AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job));
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, $"QuickCompare{playableClass.Job}", $"{Localize("Quick compare", "Quick compare")}"))
                 AddChild(new QuickCompareWindow(CurConfig, playableClass));
@@ -149,7 +149,7 @@ internal class LootmasterUI : HrtWindow
             ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvl")}: {playableClass.BIS.ItemLevel:D3}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.BIS.Name}"))
-                AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job, CurConfig.SelectedRaidTier));
+                AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job));
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
                 string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
@@ -342,7 +342,7 @@ internal class LootmasterUI : HrtWindow
                 var bis = curJob.BIS;
                 ImGui.TableNextColumn();
                 ImGui.Text($"{gear.ItemLevel}");
-                ImGuiHelper.AddTooltip(gear.HrtID);
+                ImGuiHelper.AddTooltip(gear.Name);
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditCurGear", $"Edit {gear.Name}"))
                     AddChild(new EditGearSetWindow(gear, curJob.Job)); ;
@@ -494,7 +494,7 @@ internal class GetCharacterFromDBWindow : HrtWindow
     internal GetCharacterFromDBWindow(ref Player p) : base($"GetCharacterFromDBWindow{p.NickName}")
     {
         _p = p;
-        Worlds = ServiceManager.HrtDataManager.GetWorldsWithCharacters().ToArray();
+        Worlds = ServiceManager.HrtDataManager.CharDB.GetUsedWorlds().ToArray();
         WorldNames = Array.ConvertAll(Worlds, x => ServiceManager.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name.RawString ?? "");
         Title = Localize("GetCharacterTitle", "Get character from DB");
         Size = new Vector2(350, 420);
@@ -505,9 +505,9 @@ internal class GetCharacterFromDBWindow : HrtWindow
         ImGui.InputText(Localize("Player Name", "Player Name"), ref NickName, 50);
         if (ImGui.ListBox("World", ref worldSelectIndex, WorldNames, WorldNames.Length))
         {
-            var list = ServiceManager.HrtDataManager.GetCharacterNames(Worlds[worldSelectIndex]);
-            list.Sort();
+            var list = ServiceManager.HrtDataManager.CharDB.GetKnownChracters(Worlds[worldSelectIndex]);
             CharacterNames = list.ToArray();
+            Array.Sort(CharacterNames);
         }
         ImGui.ListBox("Name", ref CharacterNameIndex, CharacterNames, CharacterNames.Length);
         if (ImGuiHelper.Button(FontAwesomeIcon.Save, "save", Localize("Save", "Save")))
@@ -517,8 +517,8 @@ internal class GetCharacterFromDBWindow : HrtWindow
             var c = _p.MainChar;
             c.Name = CharacterNames[CharacterNameIndex];
             c.HomeWorldID = Worlds[worldSelectIndex];
-            ServiceManager.HrtDataManager.GetManagedCharacter(ref c);
-            _p.MainChar = c;
+            if (ServiceManager.HrtDataManager.CharDB.SearchCharacter(c.HomeWorldID, c.Name, out c))
+                _p.MainChar = c!;
             Hide();
         }
         ImGui.SameLine();

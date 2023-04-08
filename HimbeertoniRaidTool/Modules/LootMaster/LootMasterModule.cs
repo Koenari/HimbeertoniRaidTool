@@ -77,26 +77,52 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     private void FillSoloChar(Player p, bool useSelf = false)
     {
         PlayerCharacter? character = null;
+        long contentID = 0;
         if (useSelf)
-            character = ServiceManager.TargetManager.Target as PlayerCharacter;
-        if (character == null)
+        {
+            character = ServiceManager.ClientState.LocalPlayer;
+            contentID = ServiceManager.CharacterInfoService.GetLocalPlayerContentId();
+        }
+        else
+        {
             ServiceManager.CharacterInfoService.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
+            contentID = ServiceManager.CharacterInfoService.GetContentID(character);
+        }
+
         if (character == null)
             return;
-        Character c = new(character.Name.TextValue, character.HomeWorld.Id);
-        ServiceManager.HrtDataManager.GetManagedCharacter(ref c);
+        var characterDB = ServiceManager.HrtDataManager.CharDB;
+        ulong charID = Character.CalcCharID(contentID);
+        Character? c = null;
+        if (charID > 0)
+            characterDB.TryGetCharacterByCharID(charID, out c);
+        if (c == null)
+            characterDB.SearchCharacter(character.HomeWorld.Id, character.Name.TextValue, out c);
+        if (c is null)
+        {
+            c = new(character.Name.TextValue, character.HomeWorld.Id)
+            {
+                CharID = charID
+            };
+            if (!characterDB.TryAddCharacter(c))
+                return;
+        }
         p.NickName = c.Name.Split(' ')[0];
         p.MainChar = c;
         c.MainJob ??= character.GetJob();
         if (c.MainClass != null)
         {
             c.MainClass.Level = character.Level;
-            GearSet bis = new(GearSetManager.Etro, c, c.MainClass.Job)
+            var gearDB = ServiceManager.HrtDataManager.GearDB;
+            if (!gearDB.TryGetSetByEtroID(_config.Data.GetDefaultBiS(c.MainClass.Job), out var etroSet))
             {
-                EtroID = _config.Data.GetDefaultBiS(c.MainClass.Job)
-            };
-            ServiceManager.HrtDataManager.GetManagedGearSet(ref bis);
-            c.MainClass.BIS = bis;
+                etroSet = new(GearSetManager.Etro)
+                {
+                    EtroID = _config.Data.GetDefaultBiS(c.MainClass.Job)
+                };
+                gearDB.AddSet(etroSet);
+            }
+            c.MainClass.BIS = etroSet;
         }
         ServiceManager.HrtDataManager.Save();
     }
@@ -197,12 +223,14 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         {
             var p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
-            Character character = new(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
-            bool characterExisted = ServiceManager.HrtDataManager.CharacterExists(character.HomeWorldID, character.Name);
-            ServiceManager.HrtDataManager.GetManagedCharacter(ref character);
-            p.MainChar = character;
-            if (!characterExisted)
+            if (!ServiceManager.HrtDataManager.CharDB.TryGetCharacterByCharID
+                (Character.CalcCharID(pm.ContentId), out Character? character))
+                ServiceManager.HrtDataManager.CharDB.SearchCharacter
+                (pm.World.Id, pm.Name.TextValue, out character); ;
+            if (character is null)
             {
+                character = new(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
+                ServiceManager.HrtDataManager.CharDB.TryAddCharacter(character);
                 bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
                 if (ServiceManager.CharacterInfoService.TryGetChar(out var pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                 {
@@ -213,11 +241,11 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
                         ManagedBy = GearSetManager.Etro,
                         EtroID = _config.Data.GetDefaultBiS(c)
                     };
-                    ServiceManager.HrtDataManager.GetManagedGearSet(ref BIS);
+                    ServiceManager.HrtDataManager.GearDB.AddSet(BIS);
                     p.MainChar.MainClass.BIS = BIS;
                 }
             }
-
+            p.MainChar = character!;
         }
         ServiceManager.HrtDataManager.Save();
     }

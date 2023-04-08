@@ -102,16 +102,14 @@ internal static unsafe class GearRefresher
                 $"name1 {charNameFromExamine}, name 2 {charNameFromExamine2}, wolrd {worldFromExamine?.Name}");
             return;
         }
-        //Do not execute on characters not part of any managed raid group
-        if (!ServiceManager.HrtDataManager.CharacterExists(target.HomeWorld.Id, target.Name.TextValue))
-            return;
-        Character targetChar = new(target.Name.TextValue, target.HomeWorld.Id);
-
-        if (!ServiceManager.HrtDataManager.GetManagedCharacter(ref targetChar, false))
+        if (!ServiceManager.HrtDataManager.Ready)
         {
-            PluginLog.Error($"Internal database error. Did not update gear for:{targetChar.Name}@{targetChar.HomeWorld?.Name}");
+            PluginLog.Error($"Internal database error. Did not update gear for:{target.Name}@{target.HomeWorld.GameData?.Name}");
             return;
         }
+        //Do not execute on characters not already known
+        if (!ServiceManager.HrtDataManager.CharDB.SearchCharacter(target.HomeWorld.Id, target.Name.TextValue, out Character? targetChar))
+            return;
         //Save characters ContentID if not already known
         if (targetChar.CharID == 0)
         {
@@ -127,9 +125,14 @@ internal static unsafe class GearRefresher
         var targetClass = targetChar[targetJob];
         if (targetClass == null)
         {
+            if (!ServiceManager.HrtDataManager.Ready)
+            {
+                PluginLog.Error($"Internal database error. Did not update gear for:{targetChar.Name}@{targetChar.HomeWorld?.Name}");
+                return;
+            }
             targetClass = targetChar.AddClass(targetJob);
-            ServiceManager.HrtDataManager.GetManagedGearSet(ref targetClass.Gear);
-            ServiceManager.HrtDataManager.GetManagedGearSet(ref targetClass.BIS);
+            ServiceManager.HrtDataManager.GearDB.AddSet(targetClass.Gear);
+            ServiceManager.HrtDataManager.GearDB.AddSet(targetClass.BIS);
         }
         //Getting level does not work in level synced content
         if (target.Level > targetClass.Level)

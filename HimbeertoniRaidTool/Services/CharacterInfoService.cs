@@ -1,22 +1,60 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Party;
+using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using Lumina.Excel.GeneratedSheets;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal class CharacterInfoService
+internal unsafe class CharacterInfoService
 {
     private readonly ObjectTable GameObjects;
+    private readonly PartyList PartyList;
+    private readonly InfoModule* InfoModule;
+    private InfoProxyParty* PartyInfo => (InfoProxyParty*)InfoModule->GetInfoProxyById(InfoProxyId.Party);
     private readonly Dictionary<string, uint> Cache = new();
     private readonly HashSet<string> NotFound = new();
     private DateTime LastPrune;
     private static readonly TimeSpan PruneInterval = TimeSpan.FromSeconds(10);
-    private static readonly TimeSpan MaxCacheTime = TimeSpan.FromSeconds(30);
-    internal CharacterInfoService(ObjectTable gameObjects)
+    internal CharacterInfoService(ObjectTable gameObjects, PartyList partyList)
     {
         GameObjects = gameObjects;
+        PartyList = partyList;
         LastPrune = DateTime.Now;
+        InfoModule = Framework.Instance()->GetUiModule()->GetInfoModule();
+    }
+    public long GetLocalPlayerContentId()
+    {
+        return (long)InfoModule->LocalContentId;
+    }
+    public long GetContentID(PlayerCharacter? character)
+    {
+        if (character == null)
+            return 0;
+        foreach (var partyMember in PartyList)
+        {
+            bool found =
+                (partyMember.ObjectId == character.ObjectId)
+                || (partyMember.Name.Equals(character.Name) && partyMember.World.Id == character.CurrentWorld.Id);
+            if (found)
+                return partyMember.ContentId;
+        }
+        if (PartyInfo == null)
+            return 0;
+        for (uint i = 0; i < PartyInfo->InfoProxyCommonList.DataSize; ++i)
+        {
+            var entry = PartyInfo->InfoProxyCommonList.GetEntry(i);
+            if (entry == null) continue;
+            if (entry->HomeWorld == character.HomeWorld.Id)
+            {
+                string name = System.Text.Encoding.Default.GetString(entry->Name, 32);
+                if (name.Equals(character.Name))
+                    return entry->ContentId;
+            }
+        }
+        return 0;
     }
     public bool TryGetChar([NotNullWhen(returnValue: true)] out PlayerCharacter? result, string name, World? w = null)
     {
@@ -66,4 +104,6 @@ internal class CharacterInfoService
         }
 
     }
+
+
 }

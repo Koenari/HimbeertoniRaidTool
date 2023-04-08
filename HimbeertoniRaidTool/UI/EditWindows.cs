@@ -160,8 +160,8 @@ internal class EditPlayerWindow : HrtWindow
             if (newClass == null)
             {
                 newClass = PlayerCopy.MainChar.AddClass(newJob);
-                ServiceManager.HrtDataManager.GetManagedGearSet(ref newClass.Gear);
-                ServiceManager.HrtDataManager.GetManagedGearSet(ref newClass.BIS);
+                ServiceManager.HrtDataManager.GearDB.AddSet(newClass.Gear);
+                ServiceManager.HrtDataManager.GearDB.AddSet(newClass.BIS);
             }
             newClass.BIS.EtroID = GetBisID(newJob);
             if (Size.HasValue)
@@ -177,25 +177,21 @@ internal class EditPlayerWindow : HrtWindow
         //Character Data
         if (IsNew)
         {
-            Character c = new(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
-            ServiceManager.HrtDataManager.GetManagedCharacter(ref c);
+            if (!ServiceManager.HrtDataManager.CharDB.SearchCharacter(
+                PlayerCopy.MainChar.HomeWorldID, PlayerCopy.MainChar.Name, out Character? c))
+            {
+                c = new(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
+                if (!ServiceManager.HrtDataManager.CharDB.TryAddCharacter(c))
+                    return;
+            }
             Player.MainChar = c;
             //Do not silently override existing characters
             if (c.Classes.Any())
                 return;
         }
-        //Name or world changed. Need to update the DataBase
-        if (Player.MainChar.Name != PlayerCopy.MainChar.Name || Player.MainChar.HomeWorldID != PlayerCopy.MainChar.HomeWorldID)
-        {
-            uint oldWorld = Player.MainChar.HomeWorldID;
-            string oldName = Player.MainChar.Name;
-            Player.MainChar.Name = PlayerCopy.MainChar.Name;
-            Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
-            var c = Player.MainChar;
-            ServiceManager.HrtDataManager.RearrangeCharacter(oldWorld, oldName, ref c);
-            Player.MainChar = c;
-        }
         //Copy safe data
+        Player.MainChar.Name = PlayerCopy.MainChar.Name;
+        Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
         Player.MainChar.TribeID = PlayerCopy.MainChar.TribeID;
         Player.MainChar.MainJob = PlayerCopy.MainChar.MainJob;
         //Remove classes that were removed in Ui
@@ -212,26 +208,31 @@ internal class EditPlayerWindow : HrtWindow
         foreach (var c in PlayerCopy.MainChar.Classes)
         {
             var target = Player.MainChar[c.Job];
+            var gearSetDB = ServiceManager.HrtDataManager.GearDB;
             if (target == null)
             {
                 target = Player.MainChar.AddClass(c.Job);
-                ServiceManager.HrtDataManager.GetManagedGearSet(ref target.Gear);
-                ServiceManager.HrtDataManager.GetManagedGearSet(ref target.BIS);
+                gearSetDB.AddSet(target.Gear);
+                gearSetDB.AddSet(target.BIS);
             }
             target.Level = c.Level;
             if (target.BIS.EtroID.Equals(c.BIS.EtroID))
                 continue;
-            GearSet set = new()
+            if (!c.BIS.EtroID.Equals(""))
             {
-                ManagedBy = GearSetManager.Etro,
-                EtroID = c.BIS.EtroID
-            };
-            if (!set.EtroID.Equals(""))
-            {
-                ServiceManager.HrtDataManager.GetManagedGearSet(ref set);
-                ServiceManager.TaskManager.RegisterTask(new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(target.BIS), CallBack));
+                if (!gearSetDB.TryGetSetByEtroID(c.BIS.EtroID, out var etroSet))
+                {
+                    etroSet = new()
+                    {
+                        ManagedBy = GearSetManager.Etro,
+                        EtroID = c.BIS.EtroID
+                    };
+                    gearSetDB.AddSet(etroSet);
+                    ServiceManager.TaskManager.RegisterTask(new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(target.BIS), CallBack));
+                }
+                target.BIS = etroSet;
             }
-            target.BIS = set;
+
         }
         if (!Player.MainChar.Classes.Any(c => c.Job == Player.MainChar.MainJob))
             Player.MainChar.MainJob = Player.MainChar.Classes.FirstOrDefault()?.Job;
@@ -300,15 +301,13 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
     private readonly GearSet _gearSet;
     private readonly GearSet _gearSetCopy;
     private readonly Job _job;
-    private readonly RaidTier? _currentRaidTier;
 
-    internal EditGearSetWindow(GearSet original, Job job, RaidTier? raidTier = null) : base()
+    internal EditGearSetWindow(GearSet original, Job job) : base()
     {
-        _currentRaidTier = raidTier;
         _job = job;
         _gearSet = original;
         _gearSetCopy = original.Clone();
-        Title = $"{Localize("Edit", "Edit")} {(_gearSet.ManagedBy == GearSetManager.HRT ? _gearSet.HrtID : _gearSet.EtroID)}";
+        Title = $"{Localize("Edit", "Edit")} {original.Name}";
         MinSize = new(550, 300);
     }
 

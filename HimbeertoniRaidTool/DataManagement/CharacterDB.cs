@@ -1,75 +1,132 @@
-﻿using HimbeertoniRaidTool.Common.Data;
+﻿using System.Diagnostics.CodeAnalysis;
+using Dalamud.Logging;
+using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Plugin.Security;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
 internal class CharacterDB
 {
-    private readonly Dictionary<uint, Dictionary<string, Character>> CharDB;
+    private readonly HrtDataManager DataManager;
+    private readonly Dictionary<HrtID, Character> Data = new();
+    private readonly HashSet<uint> UsedWorlds = new();
+    private readonly Dictionary<(uint, string), HrtID> NameLookup = new();
+    private readonly Dictionary<ulong, HrtID> CharIDLookup = new();
+    private ulong NextSequence = 1;
 
-
-    internal CharacterDB(string serializedData, GearSetReferenceConverter conv, JsonSerializerSettings settings)
+    internal CharacterDB(HrtDataManager dataManager, string serializedData, GearsetReferenceConverter conv, JsonSerializerSettings settings)
     {
+        DataManager = dataManager;
         settings.Converters.Add(conv);
-        CharDB = JsonConvert.DeserializeObject<Dictionary<uint, Dictionary<string, Character>>>(
-            serializedData, settings) ?? new();
+        var data = JsonConvert.DeserializeObject<List<Character>>(serializedData, settings);
         settings.Converters.Remove(conv);
-        //Potentially parallelize later
-        foreach (var SingleWorldDB in CharDB.Values)
-            foreach (var c in SingleWorldDB.Values)
-                foreach (var job in c)
-                    job.SetParent(c);
+        if (data is null)
+            PluginLog.Error("Could not load CharacterDB");
+        else
+        {
+            foreach (Character c in data)
+            {
+                if (c.LocalID.IsEmpty)
+                {
+                    PluginLog.Error($"Character {c.Name} was missing an ID and was removed from the database");
+                    continue;
+                }
+                if (Data.TryAdd(c.LocalID, c))
+                {
+                    UsedWorlds.Add(c.HomeWorldID);
+                    NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID);
+                    if (c.CharID > 0)
+                        CharIDLookup.TryAdd(c.CharID, c.LocalID);
+                    NextSequence = Math.Max(NextSequence, c.LocalID.Sequence);
+                    foreach (var job in c)
+                        job.SetParent(c);
+                }
+            }
+        }
+        PluginLog.Debug($"DB conatins {Data.Count} characters");
+        NextSequence++;
     }
-    internal List<uint> GetUsedWorlds()
+    [Obsolete]
+    internal CharacterDB(HrtDataManager dataManager, LegacyCharacterDB oldDB, LocalIDProvider idProvider)
     {
-        return new List<uint>(CharDB.Keys);
+        //Migration constructor
+        PluginLog.Debug("Called character DB migration constructor");
+        DataManager = dataManager;
+        Data = new();
+        int count = 0;
+        foreach (var db in oldDB.CharDB.Values)
+        {
+            foreach (Character c in db.Values)
+            {
+                count++;
+                if (c.LocalID.IsEmpty)
+                    c.LocalID = idProvider.CreateCharID(NextSequence++);
+                Data.Add(c.LocalID, c);
+            }
+        }
+        PluginLog.Debug($"Migrated {count} characters");
     }
-    internal List<string> GetCharactersList(uint worldID)
+    internal ulong GetNextSequence() => NextSequence++;
+    internal IEnumerable<uint> GetUsedWorlds() => UsedWorlds;
+    internal IReadOnlyList<string> GetKnownChracters(uint worldID)
     {
         List<string> result = new();
-        foreach (var character in CharDB[worldID].Values)
+        foreach (var character in Data.Values.Where(c => c.HomeWorldID == worldID))
             result.Add(character.Name);
         return result;
     }
-    internal bool Exists(uint worldID, string name) =>
-        CharDB.ContainsKey(worldID) && CharDB[worldID].ContainsKey(name);
-
-    internal bool AddOrGetCharacter(ref Character c)
+    internal bool TryAddCharacter(in Character c)
     {
-        if (!CharDB.ContainsKey(c.HomeWorldID))
-            CharDB.Add(c.HomeWorldID, new Dictionary<string, Character>());
-        if (!CharDB[c.HomeWorldID].ContainsKey(c.Name))
-            CharDB[c.HomeWorldID].Add(c.Name, c);
-        if (CharDB[c.HomeWorldID].TryGetValue(c.Name, out var c2))
-            c = c2;
-        return true;
+        if (c.LocalID.IsEmpty)
+            c.LocalID = DataManager.IDProvider.CreateID(HrtID.IDType.Character);
+        if (Data.TryAdd(c.LocalID, c))
+        {
+            UsedWorlds.Add(c.HomeWorldID);
+            NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID);
+            if (c.CharID > 0)
+                CharIDLookup.TryAdd(c.CharID, c.LocalID);
+            return true;
+        }
+        return false;
     }
-    internal bool UpdateIndex(uint oldWorld, string oldName, ref Character c)
+    internal bool TryGetCharacterByCharID(ulong charID, [NotNullWhen(true)] out Character? c)
     {
-        if (CharDB.ContainsKey(oldWorld))
-            CharDB[oldWorld].Remove(oldName);
-        AddOrGetCharacter(ref c);
-        return true;
+        c = null;
+        if (CharIDLookup.TryGetValue(charID, out HrtID? id))
+            return TryGetCharacter(id, out c);
+        id = Data.FirstOrDefault(x => x.Value.CharID == charID).Key;
+        if (id is not null)
+        {
+            CharIDLookup.Add(charID, id);
+            c = Data[id];
+            return true;
+        }
+        return false;
     }
-    internal string Serialize(GearSetReferenceConverter conv, JsonSerializerSettings settings)
+    internal bool SearchCharacter(uint worldID, string name, [NotNullWhen(true)] out Character? c)
+    {
+        c = null;
+        if (NameLookup.TryGetValue((worldID, name), out HrtID? id))
+            return TryGetCharacter(id, out c);
+        id = Data.FirstOrDefault(x => x.Value.HomeWorldID == worldID && x.Value.Name.Equals(name)).Key;
+        if (id is not null)
+        {
+            NameLookup.Add((worldID, name), id);
+            c = Data[id];
+            return true;
+        }
+        return false;
+    }
+    internal bool TryGetCharacter(HrtID id, [NotNullWhen(true)] out Character? c)
+        => Data.TryGetValue(id, out c);
+    internal bool Contains(HrtID hrtID) => Data.ContainsKey(hrtID);
+    internal string Serialize(GearsetReferenceConverter conv, JsonSerializerSettings settings)
     {
         settings.Converters.Add(conv);
-        string result = JsonConvert.SerializeObject(CharDB, settings);
+        string result = JsonConvert.SerializeObject(Data.Values, settings);
         settings.Converters.Remove(conv);
         return result;
     }
-
-}
-public struct CharacterDBIndex
-{
-    [JsonConstructor]
-    public CharacterDBIndex(uint worldID, string name)
-    {
-        WorldID = worldID;
-        Name = name;
-    }
-    [JsonProperty]
-    public uint WorldID;
-    [JsonProperty]
-    public string Name;
 }
