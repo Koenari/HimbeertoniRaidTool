@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Security;
@@ -9,33 +10,62 @@ namespace HimbeertoniRaidTool.Plugin.DataManagement;
 internal class CharacterDB
 {
     private readonly HrtDataManager DataManager;
-    private readonly CharacterDBData Data;
+    private readonly Dictionary<HrtID, Character> Data = new();
     private readonly HashSet<uint> UsedWorlds = new();
     private readonly Dictionary<(uint, string), HrtID> NameLookup = new();
-    private const int CurrentDataVersion = 1;
-    public bool DataReady => Data.Version == CurrentDataVersion;
+    private ulong NextSequence = 1;
 
     internal CharacterDB(HrtDataManager dataManager, string serializedData, GearsetReferenceConverter conv, JsonSerializerSettings settings)
     {
         DataManager = dataManager;
         settings.Converters.Add(conv);
-        Data = JsonConvert.DeserializeObject<CharacterDBData>(serializedData, settings) ?? new(1);
+        var data = JsonConvert.DeserializeObject<List<Character>>(serializedData, settings);
         settings.Converters.Remove(conv);
-        foreach (var c in Data.Values)
+        if (data is null)
+            PluginLog.Error("Could not load CharacterDB");
+        else
         {
-            UsedWorlds.Add(c.HomeWorldID);
-            foreach (var job in c)
-                job.SetParent(c);
+            foreach (Character c in data)
+            {
+                if (c.LocalID.IsEmpty)
+                {
+                    PluginLog.Error($"Character {c.Name} is missing an ID");
+                    continue;
+                }
+                if (Data.TryAdd(c.LocalID, c))
+                {
+                    UsedWorlds.Add(c.HomeWorldID);
+                    NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID);
+                    NextSequence = Math.Max(NextSequence, c.LocalID.Sequence);
+                    foreach (var job in c)
+                        job.SetParent(c);
+                }
+            }
         }
+        PluginLog.Debug($"DB conatins {Data.Count} characters");
+        NextSequence++;
     }
     [Obsolete]
     internal CharacterDB(HrtDataManager dataManager, LegacyCharacterDB oldDB, LocalIDProvider idProvider)
     {
+        //Migration constructor
+        PluginLog.Debug("Called character DB migration constructor");
         DataManager = dataManager;
-        Data = new(1);
-        Data.Migrate(oldDB, idProvider);
+        Data = new();
+        int count = 0;
+        foreach (var db in oldDB.CharDB.Values)
+        {
+            foreach (Character c in db.Values)
+            {
+                count++;
+                if (c.LocalID.IsEmpty)
+                    c.LocalID = idProvider.CreateCharID(NextSequence++);
+                Data.Add(c.LocalID, c);
+            }
+        }
+        PluginLog.Debug($"Migrated {count} characters");
     }
-    internal ulong GetNextSequence() => Data.NextSequence++;
+    internal ulong GetNextSequence() => NextSequence++;
     internal IEnumerable<uint> GetUsedWorlds() => UsedWorlds;
     internal IReadOnlyList<string> GetCharactersList(uint worldID)
     {
@@ -48,7 +78,13 @@ internal class CharacterDB
     {
         if (c.LocalID.IsEmpty)
             c.LocalID = DataManager.IDProvider.CreateID(HrtID.IDType.Character);
-        return Data.TryAdd(c.LocalID, c);
+        if (Data.TryAdd(c.LocalID, c))
+        {
+            UsedWorlds.Add(c.HomeWorldID);
+            NameLookup.Add((c.HomeWorldID, c.Name), c.LocalID);
+            return true;
+        }
+        return false;
     }
     internal bool SearchCharacter(uint worldID, string name, [NotNullWhen(true)] out Character? c)
     {
@@ -70,32 +106,8 @@ internal class CharacterDB
     internal string Serialize(GearsetReferenceConverter conv, JsonSerializerSettings settings)
     {
         settings.Converters.Add(conv);
-        string result = JsonConvert.SerializeObject(Data, settings);
+        string result = JsonConvert.SerializeObject(Data.Values, settings);
         settings.Converters.Remove(conv);
         return result;
-    }
-    private class CharacterDBData : Dictionary<HrtID, Character>
-    {
-        public int Version = 0;
-        public ulong NextSequence = 1;
-        public CharacterDBData() : base() { }
-        public CharacterDBData(int ver)
-        {
-            Version = ver;
-        }
-        [Obsolete]
-        internal void Migrate(LegacyCharacterDB oldDB, LocalIDProvider idProvider)
-        {
-            foreach (var db in oldDB.CharDB.Values)
-            {
-                foreach (Character c in db.Values)
-                {
-                    if (c.LocalID.IsEmpty)
-                        c.LocalID = idProvider.CreateCharID(NextSequence++);
-                    Add(c.LocalID, c);
-                }
-
-            }
-        }
     }
 }

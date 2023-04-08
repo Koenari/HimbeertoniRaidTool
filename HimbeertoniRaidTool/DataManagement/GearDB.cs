@@ -11,22 +11,56 @@ namespace HimbeertoniRaidTool.Plugin.DataManagement;
 internal class GearDB
 {
     private readonly HrtDataManager DataManager;
-    private readonly GearDBData Data;
+    private readonly Dictionary<HrtID, GearSet> Data = new();
     private readonly Dictionary<string, HrtID> EtroLookup = new();
     private bool EtroHasUpdated = false;
+    private ulong NextSequence = 1;
     internal GearDB(HrtDataManager dataManager, string gearData, JsonSerializerSettings settings)
     {
         DataManager = dataManager;
-        Data = JsonConvert.DeserializeObject<GearDBData>(gearData, settings) ?? new(1);
+        var data = JsonConvert.DeserializeObject<List<GearSet>>(gearData, settings);
+        if (data is null)
+            PluginLog.Error("Could not load GearDB");
+        else
+        {
+            foreach (var set in data)
+            {
+                Data.TryAdd(set.LocalID, set);
+                if (set.ManagedBy == GearSetManager.Etro)
+                    EtroLookup.Add(set.EtroID, set.LocalID);
+                NextSequence = Math.Max(NextSequence, set.LocalID.Sequence);
+            }
+        }
+        PluginLog.Debug($"DB conatins {Data.Count} gearsets");
     }
     [Obsolete]
     internal GearDB(HrtDataManager dataManager, LegacyGearDB oldDB, LocalIDProvider localIDProvider)
     {
+        PluginLog.Debug("Called gear DB migration constructor");
         DataManager = dataManager;
-        Data = new(1);
-        Data.Migrate(oldDB, localIDProvider);
+        Data = new();
+        int count = 0;
+        foreach (var gearSet in oldDB.HrtGearDB.Values)
+        {
+            count++;
+            if (gearSet.LocalID.IsEmpty)
+            {
+                gearSet.LocalID = localIDProvider.CreateGearID(NextSequence++);
+            }
+            Data.Add(gearSet.LocalID, gearSet);
+        }
+        foreach (var gearSet in oldDB.EtroGearDB.Values)
+        {
+            count++;
+            if (gearSet.LocalID.IsEmpty)
+            {
+                gearSet.LocalID = localIDProvider.CreateGearID(NextSequence++);
+            }
+            Data.Add(gearSet.LocalID, gearSet);
+        }
+        PluginLog.Debug($"Migrated {count} gear sets");
     }
-    internal ulong GetNextSequence() => Data.NextSequence++;
+    internal ulong GetNextSequence() => NextSequence++;
     internal bool AddSet(GearSet gearSet)
     {
         if (gearSet.LocalID.IsEmpty)
@@ -53,16 +87,6 @@ internal class GearDB
         }
         set = null;
         return false;
-    }
-    [Obsolete]
-    internal bool TryGetByOldId(string oldID, [NotNullWhen(true)] out GearSet? gearSet)
-    {
-        gearSet = null;
-        var entry = Data.FirstOrDefault(e => e.Value.OldHrtID == oldID, new KeyValuePair<HrtID, GearSet>(HrtID.Empty, null!));
-        if (entry.Key.IsEmpty)
-            return false;
-        gearSet = entry.Value;
-        return true;
     }
     internal void UpdateEtroSets(int maxAgeInDays)
     {
@@ -96,36 +120,6 @@ internal class GearDB
     }
     internal string Serialize(JsonSerializerSettings settings)
     {
-        return JsonConvert.SerializeObject(Data, settings);
-    }
-    private class GearDBData : Dictionary<HrtID, GearSet>
-    {
-        [JsonProperty] public int Version = 0;
-        [JsonProperty] public ulong NextSequence = 1;
-        public GearDBData() : base() { }
-        public GearDBData(int ver)
-        {
-            Version = ver;
-        }
-        [Obsolete]
-        public void Migrate(LegacyGearDB oldDb, LocalIDProvider idProvider)
-        {
-            foreach (var gearSet in oldDb.HrtGearDB.Values)
-            {
-                if (gearSet.LocalID.IsEmpty)
-                {
-                    gearSet.LocalID = idProvider.CreateGearID(NextSequence++);
-                }
-                Add(gearSet.LocalID, gearSet);
-            }
-            foreach (var gearSet in oldDb.EtroGearDB.Values)
-            {
-                if (gearSet.LocalID.IsEmpty)
-                {
-                    gearSet.LocalID = idProvider.CreateGearID(NextSequence++);
-                }
-                Add(gearSet.LocalID, gearSet);
-            }
-        }
+        return JsonConvert.SerializeObject(Data.Values, settings);
     }
 }

@@ -39,11 +39,7 @@ public class HrtDataManager
     internal readonly IIDProvider IDProvider = new NullIDProvider();
     private static readonly JsonSerializerSettings JsonSettings = new()
     {
-#if DEBUG
         Formatting = Formatting.Indented,
-#else
-        Formatting = Formatting.None,
-#endif
         TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
         TypeNameHandling = TypeNameHandling.None,
         NullValueHandling = NullValueHandling.Ignore,
@@ -108,7 +104,7 @@ public class HrtDataManager
             CharDBJsonFile.CopyTo(CharDBJsonFile.FullName + ".bak", true);
             RaidGRoupJsonFile.CopyTo(RaidGRoupJsonFile.FullName + ".bak", true);
             Initialized = !migrationError;
-            migrationError |= Save();
+            migrationError |= !Save();
             loadError |= migrationError;
 #pragma warning restore CS0612 // Type or member is obsolete
         }
