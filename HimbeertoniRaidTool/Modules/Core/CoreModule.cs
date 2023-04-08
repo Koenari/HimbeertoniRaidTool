@@ -8,6 +8,7 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
 {
     private readonly CoreConfig _config;
     private readonly Ui.WelcomeWindow _wcw;
+    private readonly List<HrtCommand> RegisteredCommands = new();
     public string Name => "Core Functions";
     public string Description => "Core functionality of Himbeertoni Raid Tool";
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
@@ -17,7 +18,8 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
                 Command = "/hrt",
                 Description = Localization.Localize("/hrt", "Open Welcome Window with explanations"),
                 ShowInHelp = true,
-                OnCommand = OnCommand
+                OnCommand = OnCommand,
+                ShouldExposeToDalamud = true
             },
     };
     public string InternalName => "Core";
@@ -29,6 +31,7 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
         _wcw = new(this);
         WindowSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
+        ServiceManager.CoreModule = this;
     }
     public void HandleMessage(HrtUiMessage message)
     {
@@ -37,18 +40,32 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
         else
             PluginLog.Information(message.Message);
     }
-    private void OnCommand(string args)
+    internal void AddCommand(HrtCommand command)
     {
-        switch (args)
+        RegisteredCommands.Add(command);
+    }
+    private void OnCommand(string command, string args)
+    {
+        if (command.Equals("/hrt"))
         {
-            case string a when a.Contains("option") || a.Contains("config"): ServiceManager.Config.Show(); break;
+            string subCommand = '/' + args.Split(' ')[0];
+            if (RegisteredCommands.Any(x => x.Command == subCommand))
+            {
+                string newArgs = args[(subCommand.Length - 1)..].Trim();
+                RegisteredCommands.First(x => x.Command == subCommand).OnCommand(subCommand, newArgs);
+                return;
+            }
+            switch (args)
+            {
+                case string a when a.Contains("option") || a.Contains("config"): ServiceManager.Config.Show(); break;
 #if DEBUG
-            case string b when b.Contains("exportlocale"): Localization.ExportLocalizable(); break;
+                case string b when b.Contains("exportlocale"): Localization.ExportLocalizable(); break;
 #endif
-            case string when args.IsNullOrEmpty() || args.Contains("help"): _wcw.Show(); break;
-            default:
-                PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
-                break;
+                case string when args.IsNullOrEmpty() || args.Contains("help"): _wcw.Show(); break;
+                default:
+                    PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
+                    break;
+            }
         }
     }
     public void AfterFullyLoaded()
