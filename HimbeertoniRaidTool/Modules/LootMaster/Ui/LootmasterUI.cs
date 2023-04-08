@@ -505,7 +505,7 @@ internal class GetCharacterFromDBWindow : HrtWindow
         ImGui.InputText(Localize("Player Name", "Player Name"), ref NickName, 50);
         if (ImGui.ListBox("World", ref worldSelectIndex, WorldNames, WorldNames.Length))
         {
-            var list = ServiceManager.HrtDataManager.CharDB.GetCharactersList(Worlds[worldSelectIndex]);
+            var list = ServiceManager.HrtDataManager.CharDB.GetKnownChracters(Worlds[worldSelectIndex]);
             CharacterNames = list.ToArray();
             Array.Sort(CharacterNames);
         }

@@ -102,6 +102,7 @@ internal class LegacyCharacterReferenceConverter : JsonConverter<Character>
         return result;
     }
 }
+[Obsolete]
 public class LegacyCharacterReference
 {
     [JsonProperty("WorldID")]

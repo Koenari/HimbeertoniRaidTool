@@ -77,17 +77,35 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     private void FillSoloChar(Player p, bool useSelf = false)
     {
         PlayerCharacter? character = null;
+        long contentID = 0;
         if (useSelf)
-            character = ServiceManager.TargetManager.Target as PlayerCharacter;
-        if (character == null)
+        {
+            character = ServiceManager.ClientState.LocalPlayer;
+            contentID = ServiceManager.CharacterInfoService.GetLocalPlayerContentId();
+        }
+        else
+        {
             ServiceManager.CharacterInfoService.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
+            contentID = ServiceManager.CharacterInfoService.GetContentID(character);
+        }
+
         if (character == null)
             return;
         var characterDB = ServiceManager.HrtDataManager.CharDB;
-        if (!characterDB.SearchCharacter(character.HomeWorld.Id, character.Name.TextValue, out Character? c))
+        ulong charID = Character.CalcCharID(contentID);
+        Character? c = null;
+        if (charID > 0)
+            characterDB.TryGetCharacterByCharID(charID, out c);
+        if (c == null)
+            characterDB.SearchCharacter(character.HomeWorld.Id, character.Name.TextValue, out c);
+        if (c is null)
         {
-            c = new(character.Name.TextValue, character.HomeWorld.Id);
-            characterDB.TryAddCharacter(c);
+            c = new(character.Name.TextValue, character.HomeWorld.Id)
+            {
+                CharID = charID
+            };
+            if (!characterDB.TryAddCharacter(c))
+                return;
         }
         p.NickName = c.Name.Split(' ')[0];
         p.MainChar = c;
@@ -205,10 +223,11 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         {
             var p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
-            bool characterExisted =
+            if (!ServiceManager.HrtDataManager.CharDB.TryGetCharacterByCharID
+                (Character.CalcCharID(pm.ContentId), out Character? character))
                 ServiceManager.HrtDataManager.CharDB.SearchCharacter
-                (pm.World.GameData?.RowId ?? 0, pm.Name.TextValue, out var character);
-            if (!characterExisted)
+                (pm.World.Id, pm.Name.TextValue, out character); ;
+            if (character is null)
             {
                 character = new(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
                 ServiceManager.HrtDataManager.CharDB.TryAddCharacter(character);

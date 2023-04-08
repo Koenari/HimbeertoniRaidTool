@@ -177,21 +177,21 @@ internal class EditPlayerWindow : HrtWindow
         //Character Data
         if (IsNew)
         {
-            Character c = new(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
-            ServiceManager.HrtDataManager.CharDB.TryAddCharacter(c);
+            if (!ServiceManager.HrtDataManager.CharDB.SearchCharacter(
+                PlayerCopy.MainChar.HomeWorldID, PlayerCopy.MainChar.Name, out Character? c))
+            {
+                c = new(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
+                if (!ServiceManager.HrtDataManager.CharDB.TryAddCharacter(c))
+                    return;
+            }
+            Player.MainChar = c;
             //Do not silently override existing characters
             if (c.Classes.Any())
                 return;
         }
-        //Name or world changed. Need to update the DataBase
-        if (Player.MainChar.Name != PlayerCopy.MainChar.Name || Player.MainChar.HomeWorldID != PlayerCopy.MainChar.HomeWorldID)
-        {
-            uint oldWorld = Player.MainChar.HomeWorldID;
-            string oldName = Player.MainChar.Name;
-            Player.MainChar.Name = PlayerCopy.MainChar.Name;
-            Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
-        }
         //Copy safe data
+        Player.MainChar.Name = PlayerCopy.MainChar.Name;
+        Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
         Player.MainChar.TribeID = PlayerCopy.MainChar.TribeID;
         Player.MainChar.MainJob = PlayerCopy.MainChar.MainJob;
         //Remove classes that were removed in Ui

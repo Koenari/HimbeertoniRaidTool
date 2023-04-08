@@ -19,7 +19,7 @@ internal class CharacterReferenceConverter : JsonConverter<Character>
             writer.WriteNull();
             return;
         }
-        serializer.Serialize(writer, value.LocalID, typeof(LegacyCharacterReference));
+        serializer.Serialize(writer, value.LocalID, typeof(HrtID));
     }
 
     public override Character? ReadJson(JsonReader reader, Type objectType, Character? existingValue, bool hasExistingValue, JsonSerializer serializer)

@@ -13,6 +13,7 @@ internal class CharacterDB
     private readonly Dictionary<HrtID, Character> Data = new();
     private readonly HashSet<uint> UsedWorlds = new();
     private readonly Dictionary<(uint, string), HrtID> NameLookup = new();
+    private readonly Dictionary<ulong, HrtID> CharIDLookup = new();
     private ulong NextSequence = 1;
 
     internal CharacterDB(HrtDataManager dataManager, string serializedData, GearsetReferenceConverter conv, JsonSerializerSettings settings)
@@ -29,13 +30,15 @@ internal class CharacterDB
             {
                 if (c.LocalID.IsEmpty)
                 {
-                    PluginLog.Error($"Character {c.Name} is missing an ID");
+                    PluginLog.Error($"Character {c.Name} was missing an ID and was removed from the database");
                     continue;
                 }
                 if (Data.TryAdd(c.LocalID, c))
                 {
                     UsedWorlds.Add(c.HomeWorldID);
                     NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID);
+                    if (c.CharID > 0)
+                        CharIDLookup.TryAdd(c.CharID, c.LocalID);
                     NextSequence = Math.Max(NextSequence, c.LocalID.Sequence);
                     foreach (var job in c)
                         job.SetParent(c);
@@ -67,21 +70,37 @@ internal class CharacterDB
     }
     internal ulong GetNextSequence() => NextSequence++;
     internal IEnumerable<uint> GetUsedWorlds() => UsedWorlds;
-    internal IReadOnlyList<string> GetCharactersList(uint worldID)
+    internal IReadOnlyList<string> GetKnownChracters(uint worldID)
     {
         List<string> result = new();
         foreach (var character in Data.Values.Where(c => c.HomeWorldID == worldID))
             result.Add(character.Name);
         return result;
     }
-    internal bool TryAddCharacter(Character c)
+    internal bool TryAddCharacter(in Character c)
     {
         if (c.LocalID.IsEmpty)
             c.LocalID = DataManager.IDProvider.CreateID(HrtID.IDType.Character);
         if (Data.TryAdd(c.LocalID, c))
         {
             UsedWorlds.Add(c.HomeWorldID);
-            NameLookup.Add((c.HomeWorldID, c.Name), c.LocalID);
+            NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID);
+            if (c.CharID > 0)
+                CharIDLookup.TryAdd(c.CharID, c.LocalID);
+            return true;
+        }
+        return false;
+    }
+    internal bool TryGetCharacterByCharID(ulong charID, [NotNullWhen(true)] out Character? c)
+    {
+        c = null;
+        if (CharIDLookup.TryGetValue(charID, out HrtID? id))
+            return TryGetCharacter(id, out c);
+        id = Data.FirstOrDefault(x => x.Value.CharID == charID).Key;
+        if (id is not null)
+        {
+            CharIDLookup.Add(charID, id);
+            c = Data[id];
             return true;
         }
         return false;

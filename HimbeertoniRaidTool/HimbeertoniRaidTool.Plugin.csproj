@@ -19,24 +19,6 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
-
-  <ProjectExtensions>
-    <DalamudPlugin>
-      <ApiLevel>7</ApiLevel>
-      <Author>Koenari</Author>
-      <Name>Himbeertoni Raid Tool</Name>
-      <Punchline>All you need for Raiding</Punchline>
-      <Description>A collection of useful tools for RaidGroups, including loot managemen</Description>
-      <IconUrl>https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png</IconUrl>
-      <Tags>
-        <Tag>Raid</Tag>
-        <Tag>Loot</Tag>
-        <Tag>Equipment</Tag>
-        <Tag>Gear</Tag>
-      </Tags>
-      <Hidden>False</Hidden>
-    </DalamudPlugin>
-  </ProjectExtensions>
   <PropertyGroup>
     <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
     <AssemblyName>HimbeertoniRaidTool</AssemblyName>

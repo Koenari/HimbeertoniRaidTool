@@ -43,7 +43,7 @@ internal class ServiceManager
         HrtDataManager ??= new(PluginInterface);
         TaskManager ??= new();
         ConnectorPool ??= new();
-        CharacterInfoService ??= new(ObjectTable);
+        CharacterInfoService ??= new(ObjectTable, PartyList);
         GearRefresher.Enable();
         return HrtDataManager.Initialized;
     }

@@ -59,8 +59,8 @@ internal class LodestoneConnector : NetstoneBase
             {
                 classToChange = p.MainChar.AddClass(foundJob.Value);
                 bool hasError = false;
-                hasError |= ServiceManager.HrtDataManager.GearDB.AddSet(classToChange.Gear);
-                hasError |= ServiceManager.HrtDataManager.GearDB.AddSet(classToChange.BIS);
+                hasError |= !ServiceManager.HrtDataManager.GearDB.AddSet(classToChange.Gear);
+                hasError |= !ServiceManager.HrtDataManager.GearDB.AddSet(classToChange.BIS);
                 if (hasError)
                     return new HrtUiMessage(
                         Localize("LodestoneConnector:FailedtoCreateGear", "Could not create new gear set."),
