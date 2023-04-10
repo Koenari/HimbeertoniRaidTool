@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game;
+using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using HimbeertoniRaidTool.Plugin.UI;
 
@@ -28,5 +29,6 @@ public struct HrtCommand
     internal string Command;
     internal string Description;
     internal bool ShowInHelp;
-    internal Action<string> OnCommand;
+    internal CommandInfo.HandlerDelegate OnCommand;
+    internal bool ShouldExposeToDalamud;
 }

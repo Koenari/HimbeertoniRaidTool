@@ -26,6 +26,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
             Description = Localize("/lootmaster", "Opens LootMaster Window (or /lm as short variant)"),
             ShowInHelp = true,
             OnCommand = OnCommand,
+            ShouldExposeToDalamud = true,
         },
         new()
         {
@@ -33,6 +34,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
             Description = Localize("/lootmaster", "Opens LootMaster Window (or /lm as short variant)"),
             ShowInHelp = false,
             OnCommand = OnCommand,
+            ShouldExposeToDalamud = true,
         }
     };
     //Properties
@@ -249,7 +251,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         }
         ServiceManager.HrtDataManager.Save();
     }
-    public void OnCommand(string args)
+    public void OnCommand(string command, string args)
     {
         switch (args)
         {

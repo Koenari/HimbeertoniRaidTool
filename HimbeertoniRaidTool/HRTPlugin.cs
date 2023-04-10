@@ -16,7 +16,7 @@ public sealed class HRTPlugin : IDalamudPlugin
 
     private readonly bool LoadError = false;
 
-    private readonly List<string> RegisteredCommands = new();
+    private readonly List<string> DalamudRegisteredCommands = new();
     private readonly Dictionary<Type, IHrtModule> RegisteredModules = new();
 
     public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
@@ -31,9 +31,7 @@ public sealed class HRTPlugin : IDalamudPlugin
             //Load and update/correct configuration + ConfigUi
             _Configuration.AfterLoad();
             //Ensure core module is loaded first
-            CoreModule core = new();
-            RegisterModule(core, true);
-            ServiceManager.CoreModule = core;
+            RegisterModule(new CoreModule(), true);
             LoadAllModules();
         }
         else
@@ -117,20 +115,24 @@ public sealed class HRTPlugin : IDalamudPlugin
             PluginLog.Error(e, $"Error loading module: {instance.GetType()}");
         }
     }
-
     private void AddCommand(HrtCommand command)
     {
-        if (ServiceManager.CommandManager.AddHandler(command.Command,
-            new CommandInfo((x, y) => command.OnCommand(y))
+        if (command.ShouldExposeToDalamud)
+        {
+            if (ServiceManager.CommandManager.AddHandler(command.Command,
+            new CommandInfo(command.OnCommand)
             {
                 HelpMessage = command.Description,
                 ShowInHelp = command.ShowInHelp
             }))
-        { RegisteredCommands.Add(command.Command); }
+            { DalamudRegisteredCommands.Add(command.Command); }
+        }
+        ServiceManager.CoreModule.AddCommand(command);
     }
     public void Dispose()
     {
-        RegisteredCommands.ForEach(command => ServiceManager.CommandManager.RemoveHandler(command));
+        foreach (string command in DalamudRegisteredCommands)
+            ServiceManager.CommandManager.RemoveHandler(command);
         if (!LoadError)
         {
             _Configuration.Save(false);
