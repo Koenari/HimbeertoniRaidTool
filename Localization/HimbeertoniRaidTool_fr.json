@@ -3,50 +3,6 @@
     "message": "Configuration de HimbeerToni Raid Tool",
     "description": "ConfigUI..ctor"
   },
-  "General": {
-    "message": "Général",
-    "description": "ConfigUI.Draw"
-  },
-  "Ui": {
-    "message": "Interface utilisateur",
-    "description": "ConfigUI.Draw"
-  },
-  "HideInCombat": {
-    "message": "Cacher pendant le combat",
-    "description": "ConfigUI.Draw"
-  },
-  "HideInCombatTooltip": {
-    "message": "Cacher toutes les fenêtres pendant que le personnage est en combat",
-    "description": "ConfigUI.Draw"
-  },
-  "HideOnZoneChange": {
-    "message": "Cacher pendant les fenêtres de chargement",
-    "description": "ConfigUI.Draw"
-  },
-  "HideOnZoneChangeTooltip": {
-    "message": "Cacher toutes les fenêtres pendant les écrans de chargement",
-    "description": "ConfigUI.Draw"
-  },
-  "Auto Save": {
-    "message": "Sauvegarde automatique",
-    "description": "ConfigUI.Draw"
-  },
-  "Save periodically": {
-    "message": "Sauvegarder régulièrement",
-    "description": "ConfigUI.Draw"
-  },
-  "SavePeriodicallyTooltip": {
-    "message": "Sauvegarde toutes les données de ce plugin (Aide à empêcher la perte de données si votre jeu plante)",
-    "description": "ConfigUI.Draw"
-  },
-  "AutoSave_interval_min": {
-    "message": "Intervalle de sauvegarde automatique (min)",
-    "description": "ConfigUI.Draw"
-  },
-  "/hrt": {
-    "message": "Ouvrir la Fenêtre de Bienvenue incluant les explications",
-    "description": "HRTPlugin..ctor"
-  },
   "ItemTableHeader": {
     "message": "En-tête",
     "description": "DrawDataExtension.Draw"
@@ -187,26 +143,6 @@
     "message": "Modifier",
     "description": "EditGearSetWindow..ctor"
   },
-  "Select item": {
-    "message": "Sélectionner un objet",
-    "description": "EditGearSetWindow.DrawSlot"
-  },
-  "HQ": {
-    "message": "HQ",
-    "description": "EditGearSetWindow.DrawSlot"
-  },
-  "Delete": {
-    "message": "Supprimer",
-    "description": "EditGearSetWindow.DrawSlot"
-  },
-  "Remove this materia": {
-    "message": "Retirer cette matéria",
-    "description": "EditGearSetWindow.DrawSlot"
-  },
-  "Select materia": {
-    "message": "Sélectionner une matéria",
-    "description": "EditGearSetWindow.DrawSlot"
-  },
   "Get item for": {
     "message": "Sélection d'un objet pour",
     "description": "SelectGearItemWindow..ctor"
@@ -255,25 +191,37 @@
     "message": "Mettre à jour l'équipement en examinant",
     "description": "ImGuiHelper.GearUpdateButtons"
   },
-  "InspectUnavail": {
-    "message": "Examiner d'ici n'est pas disponible en raison d'incompatibilité avec la version du jeu.\nVous pouvez toujours examiner les personnages manuellement pour mettre à jour leur équipement.",
-    "description": "ImGuiHelper.GearUpdateButtons"
-  },
   "CharacterNotInReach": {
     "message": "Le personnage n'est pas suffisamment à portée pour pouvoir l'examiner",
     "description": "ImGuiHelper.GearUpdateButtons"
   },
   "rightClickHint": {
     "message": "clic droit pour plus d'options",
-    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawInspectButton|5_0"
+    "description": "<>c__DisplayClass5_0.<GearUpdateButtons>g__DrawInspectButton|0"
   },
   "Lodestone Button": {
     "message": "Télécharger l'équipement depuis le Lodestone",
-    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|5_1"
+    "description": "<>c__DisplayClass5_0.<GearUpdateButtons>g__DrawLodestoneButton|1"
   },
   "LodestonUpdateStarted": {
     "message": "Mise à jour de l'équipement initialisée pour",
-    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|5_1"
+    "description": "<>c__DisplayClass5_0.<GearUpdateButtons>g__DrawLodestoneButton|1"
+  },
+  "Select item": {
+    "message": "Sélectionner un objet",
+    "description": "UiHelpers.DrawGearEdit"
+  },
+  "Remove this materia": {
+    "message": "Retirer cette matéria",
+    "description": "UiHelpers.DrawGearEdit"
+  },
+  "Materia": {
+    "message": "Materia",
+    "description": "UiHelpers.DrawGearEdit"
+  },
+  "Select materia": {
+    "message": "Sélectionner une matéria",
+    "description": "UiHelpers.DrawGearEdit"
   },
   "Remove option": {
     "message": "Supprimer l'option",
@@ -282,62 +230,6 @@
   "Add option": {
     "message": "Ajouter l'option",
     "description": "UiSortableList`1.Draw"
-  },
-  "Welcome to HRT": {
-    "message": "Bienvenue dans Himbeertoni Raid Tool",
-    "description": "WelcomeWindowui..ctor"
-  },
-  "WelcomeWindowLine1": {
-    "message": "Bienvenue dans Himbeertoni Raid Tool, votre compagnon de gestion de groupe de raid.",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "WelcomeWindowLine2": {
-    "message": "Débutez votre voyage en ouvrant le LootMaster en tapant \"/lootmaster\" (ou \"/lm\") dans le chat (ou en cliquant sur le bouton ci-dessous). Nous y avons déjà ajouté votre personnage pour vous.",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "WelcomeWindowLine3": {
-    "message": "Ensuite, vous pouvez enregistrer votre équipement actuel soit en utilisant le bouton \"loupe\", soit en examinant votre personnage via un clic droit.",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "WelcomeWindowLine4": {
-    "message": "Le plugin mettra automatiquement à jour les équipements de chaque personnage qui a été ajouté à un onglet solo ou de groupe à chaque fois que vous examinez un de ces personnages en jeu.",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "WelcomeWindowLine5": {
-    "message": "Pour vraiment commencer à utiliser cet outil, vous devrez ajouter votre groupe via le \"bouton +\" à droite de l'onglet Solo. Pour ce faire, deux choix s'offrent à vous. \"À partir de zéro\" vous permet de tout configurer manuellement comme un noob. L'autre option, supérieure, est de réunir votre groupe au sein d'une équipe et de laisser le plugin saisir les données automatiquement en utilisant l'option \"À partir de l'Équipe actuellement formée\". Vous devrez toutefois assigner un nom manuellement, et éventuellement donner un surnom aux autres joueur·se·s.",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "WelcomeWindowLine6": {
-    "message": "Si vous souhaitez, par exemple, que le Loot Master s'ouvre au démarrage, je vous suggère de jeter un coup d'oeil rapide dans les options. Vous pouvez également aller sur le Wiki pour des instructions davantage détaillées :)",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Open LootMaster": {
-    "message": "Ouvrir le LootMaster",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Open LootMaster main window (/lootmaster)": {
-    "message": "Ouvrir la fenêtre principale de LootMaster (/lootmaster)",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Open Options": {
-    "message": "Ouvrir les Options",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Show configuration options (/hrt config)": {
-    "message": "Afficher les options de configuration (/hrt config)",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Open Wiki": {
-    "message": "Ouvrir le Wiki",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Open the wiki in your browser": {
-    "message": "Ouvre le Wiki dans votre navigateur",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Close this window": {
-    "message": "Fermer cette fenêtre",
-    "description": "WelcomeWindowui.Draw"
   },
   "Appearance": {
     "message": "Apparence",
@@ -349,6 +241,10 @@
   },
   "Lootmaster:OpenOnLoginTooltip": {
     "message": "Ouvre la fenêtre d'aperçu du groupe quand vous vous connectez",
+    "description": "ConfigUi.Draw"
+  },
+  "Config:Lootmaster:IconInGroupOverview": {
+    "message": "Show item icon in group overview",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:ColoredItemNames": {
@@ -419,170 +315,6 @@
     "message": "Ouvre la fenêtre du LootMaster (variante courte : /lm)",
     "description": "LootMasterModule.get_Commands"
   },
-  "LootMasterWindowTitle": {
-    "message": "Loot Master",
-    "description": "LootmasterUI..ctor"
-  },
-  "Edit player": {
-    "message": "Édition Joueur·se",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "Current": {
-    "message": "Actuel",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "gear": {
-    "message": "équipement",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "BiS": {
-    "message": "BiS",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "UpdateBis": {
-    "message": "Mettre à jour \"{0}\" depuis Etro.gg",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "StatsUnfinished": {
-    "message": "Les statistiques sont en cours de développement et ne fonctionnent correctement que pour les jobs de niveaux 70/80/90",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "MainStats": {
-    "message": "Stats Principales",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "SecondaryStats": {
-    "message": "Stats secondaires",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "Gear": {
-    "message": "Équipement",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "lootmaster:button:showconfig:tooltip": {
-    "message": "Ouvrir le fichier de configuration",
-    "description": "LootmasterUI.Draw"
-  },
-  "Add Player": {
-    "message": "Ajouter un·e joueur·se",
-    "description": "LootmasterUI.Draw"
-  },
-  "Player": {
-    "message": "Joueur·se",
-    "description": "LootmasterUI.Draw"
-  },
-  "itemLevelShort": {
-    "message": "iLvl",
-    "description": "LootmasterUI.Draw"
-  },
-  "Options": {
-    "message": "Options",
-    "description": "LootmasterUI.Draw"
-  },
-  "GroupTabTooltip": {
-    "message": "Clic droit pour plus d'options",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "Edit group": {
-    "message": "Modifier le groupe",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "Delete group": {
-    "message": "Supprimer le groupe",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "DeleteRaidGroup": {
-    "message": "Voulez-vous vraiment supprimer le groupe suivant :",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "From current Group": {
-    "message": "À partir de l'Équipe actuellement formée",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "AutoCreatedGroupName": {
-    "message": "Créé automatiquement",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "From scratch": {
-    "message": "À partir de zéro",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "Add empty group": {
-    "message": "Ajoute un groupe vide",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "n.A.": {
-    "message": "N/A",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "lootmaster:button:swapposition:tooltip": {
-    "message": "Échanger de position",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "lootmaster:button:inventorytooltip": {
-    "message": "Ouvrir la fenêtre d'inventaire",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "PlayerDetails": {
-    "message": "Afficher les détails du·de la joueur·se pour",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "DeletePlayerConfirmation": {
-    "message": "Voulez-vous vraiment supprimer le·la joueur·se suivant·e ?",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "No Player": {
-    "message": "Aucun·e joueur·se",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "Add": {
-    "message": "Ajouter",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "Add from DB": {
-    "message": "Ajouter depuis la BDD",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "Distribute loot for:": {
-    "message": "Distribuer le butin pour :",
-    "description": "LootmasterUI.DrawLootHandlerButtons"
-  },
-  "Critical Damage": {
-    "message": "Dégâts critiques",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
-  },
-  "SpeedMultiplierName": {
-    "message": "Multiplicateur d'AAs / de DoTs",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
-  },
-  "Dmgper100Tooltip": {
-    "message": "Dégâts médians avec une attaque de 100 de Puissance",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
-  },
-  "Empty": {
-    "message": "Vide",
-    "description": "LootmasterUI.<DrawSlot>g__DrawItem|27_0"
-  },
-  "PlayerDetailsTitle": {
-    "message": "Détail du·de la joueur·se",
-    "description": "PlayerdetailWindow..ctor"
-  },
-  "GetCharacterTitle": {
-    "message": "Obtenir un personnage depuis la BDD",
-    "description": "GetCharacterFromDBWindow..ctor"
-  },
-  "Inventory:AdditionalGear": {
-    "message": "Équipement supplémentaire",
-    "description": "InventoryWindow.Draw"
-  },
-  "Swap Position of": {
-    "message": "Permuter la position de",
-    "description": "SwapPositionWindow..ctor"
-  },
-  "Swap players positions": {
-    "message": "Permuter les positions des joueur·se·s",
-    "description": "SwapPositionWindow.Draw"
-  },
   "BISOverUpgrade": {
     "message": "BIS > Amélioration",
     "description": "LootRule.GetName"
@@ -605,6 +337,10 @@
   },
   "DPS": {
     "message": "DPS",
+    "description": "LootRule.GetName"
+  },
+  "DPSGain": {
+    "message": "% DPS gained",
     "description": "LootRule.GetName"
   },
   "None": {
@@ -674,6 +410,174 @@
   "LootResult:PlayerWonOver": {
     "message": "sur",
     "description": "LootResultContainer.get_ShortResult"
+  },
+  "MainStats": {
+    "message": "Stats Principales",
+    "description": "LmUiHelpers.DrawStatTable"
+  },
+  "SecondaryStats": {
+    "message": "Stats secondaires",
+    "description": "LmUiHelpers.DrawStatTable"
+  },
+  "Empty": {
+    "message": "Vide",
+    "description": "LmUiHelpers.<DrawSlot>g__DrawItem|2_0"
+  },
+  "Critical Damage": {
+    "message": "Dégâts critiques",
+    "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
+  },
+  "SpeedMultiplierName": {
+    "message": "Multiplicateur d'AAs / de DoTs",
+    "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
+  },
+  "Dmgper100Tooltip": {
+    "message": "Dégâts médians avec une attaque de 100 de Puissance",
+    "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
+  },
+  "LootMasterWindowTitle": {
+    "message": "Loot Master",
+    "description": "LootmasterUI..ctor"
+  },
+  "Edit player": {
+    "message": "Édition Joueur·se",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "Current": {
+    "message": "Actuel",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "gear": {
+    "message": "équipement",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "Quick compare": {
+    "message": "Quick compare",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "BiS": {
+    "message": "BiS",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "UpdateBis": {
+    "message": "Mettre à jour \"{0}\" depuis Etro.gg",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "Gear": {
+    "message": "Équipement",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "lootmaster:button:showconfig:tooltip": {
+    "message": "Ouvrir le fichier de configuration",
+    "description": "LootmasterUI.Draw"
+  },
+  "Add Player": {
+    "message": "Ajouter un·e joueur·se",
+    "description": "LootmasterUI.Draw"
+  },
+  "Player": {
+    "message": "Joueur·se",
+    "description": "LootmasterUI.Draw"
+  },
+  "itemLevelShort": {
+    "message": "iLvl",
+    "description": "LootmasterUI.Draw"
+  },
+  "Options": {
+    "message": "Options",
+    "description": "LootmasterUI.Draw"
+  },
+  "GroupTabTooltip": {
+    "message": "Clic droit pour plus d'options",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "Edit group": {
+    "message": "Modifier le groupe",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "Delete group": {
+    "message": "Supprimer le groupe",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "DeleteRaidGroup": {
+    "message": "Voulez-vous vraiment supprimer le groupe suivant :",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "From current Group": {
+    "message": "À partir de l'Équipe actuellement formée",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "AutoCreatedGroupName": {
+    "message": "Créé automatiquement",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "From scratch": {
+    "message": "À partir de zéro",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "Add empty group": {
+    "message": "Ajoute un groupe vide",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "n.A.": {
+    "message": "N/A",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "lootmaster:button:swapposition:tooltip": {
+    "message": "Échanger de position",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "lootmaster:button:inventorytooltip": {
+    "message": "Ouvrir la fenêtre d'inventaire",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "PlayerDetails": {
+    "message": "Afficher les détails du·de la joueur·se pour",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "Delete": {
+    "message": "Supprimer",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "DeletePlayerConfirmation": {
+    "message": "Voulez-vous vraiment supprimer le·la joueur·se suivant·e ?",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "No Player": {
+    "message": "Aucun·e joueur·se",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "Add": {
+    "message": "Ajouter",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "Add from DB": {
+    "message": "Ajouter depuis la BDD",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "Distribute loot for:": {
+    "message": "Distribuer le butin pour :",
+    "description": "LootmasterUI.DrawLootHandlerButtons"
+  },
+  "PlayerDetailsTitle": {
+    "message": "Détail du·de la joueur·se",
+    "description": "PlayerdetailWindow..ctor"
+  },
+  "GetCharacterTitle": {
+    "message": "Obtenir un personnage depuis la BDD",
+    "description": "GetCharacterFromDBWindow..ctor"
+  },
+  "Inventory:AdditionalGear": {
+    "message": "Équipement supplémentaire",
+    "description": "InventoryWindow.Draw"
+  },
+  "Swap Position of": {
+    "message": "Permuter la position de",
+    "description": "SwapPositionWindow..ctor"
+  },
+  "Swap players positions": {
+    "message": "Permuter les positions des joueur·se·s",
+    "description": "SwapPositionWindow.Draw"
   },
   "Loot session for": {
     "message": "Séance de butin pour",
@@ -746,6 +650,114 @@
   "LootResult:AwardButton:Tooltip": {
     "message": "Décerné au joueur",
     "description": "LootSessionUI.DrawResults"
+  },
+  "QuickCompareStatGain": {
+    "message": "Gain",
+    "description": "QuickCompareWindow.Draw"
+  },
+  "New Gear": {
+    "message": "New Gear",
+    "description": "QuickCompareWindow.Draw"
+  },
+  "General": {
+    "message": "Général",
+    "description": "CoreConfig..ctor"
+  },
+  "Core:PeriodicSaveSuccessful": {
+    "message": "Data Saved successfully",
+    "description": "CoreConfig.PeriodicSave"
+  },
+  "Core:PeriodicSaveFailed": {
+    "message": "Data failed to save",
+    "description": "CoreConfig.PeriodicSave"
+  },
+  "Ui": {
+    "message": "Interface utilisateur",
+    "description": "ConfigUi.Draw"
+  },
+  "HideInCombat": {
+    "message": "Cacher pendant le combat",
+    "description": "ConfigUi.Draw"
+  },
+  "HideInCombatTooltip": {
+    "message": "Cacher toutes les fenêtres pendant que le personnage est en combat",
+    "description": "ConfigUi.Draw"
+  },
+  "Auto Save": {
+    "message": "Sauvegarde automatique",
+    "description": "ConfigUi.Draw"
+  },
+  "Save periodically": {
+    "message": "Sauvegarder régulièrement",
+    "description": "ConfigUi.Draw"
+  },
+  "SavePeriodicallyTooltip": {
+    "message": "Sauvegarde toutes les données de ce plugin (Aide à empêcher la perte de données si votre jeu plante)",
+    "description": "ConfigUi.Draw"
+  },
+  "AutoSave_interval_min": {
+    "message": "Intervalle de sauvegarde automatique (min)",
+    "description": "ConfigUi.Draw"
+  },
+  "/hrt": {
+    "message": "Ouvrir la Fenêtre de Bienvenue incluant les explications",
+    "description": "CoreModule.get_Commands"
+  },
+  "Welcome to HRT": {
+    "message": "Bienvenue dans Himbeertoni Raid Tool",
+    "description": "WelcomeWindow..ctor"
+  },
+  "WelcomeWindowLine1": {
+    "message": "Bienvenue dans Himbeertoni Raid Tool, votre compagnon de gestion de groupe de raid.",
+    "description": "WelcomeWindow.Draw"
+  },
+  "WelcomeWindowLine2": {
+    "message": "Débutez votre voyage en ouvrant le LootMaster en tapant \"/lootmaster\" (ou \"/lm\") dans le chat (ou en cliquant sur le bouton ci-dessous). Nous y avons déjà ajouté votre personnage pour vous.",
+    "description": "WelcomeWindow.Draw"
+  },
+  "WelcomeWindowLine3": {
+    "message": "Ensuite, vous pouvez enregistrer votre équipement actuel soit en utilisant le bouton \"loupe\", soit en examinant votre personnage via un clic droit.",
+    "description": "WelcomeWindow.Draw"
+  },
+  "WelcomeWindowLine4": {
+    "message": "Le plugin mettra automatiquement à jour les équipements de chaque personnage qui a été ajouté à un onglet solo ou de groupe à chaque fois que vous examinez un de ces personnages en jeu.",
+    "description": "WelcomeWindow.Draw"
+  },
+  "WelcomeWindowLine5": {
+    "message": "Pour vraiment commencer à utiliser cet outil, vous devrez ajouter votre groupe via le \"bouton +\" à droite de l'onglet Solo. Pour ce faire, deux choix s'offrent à vous. \"À partir de zéro\" vous permet de tout configurer manuellement comme un noob. L'autre option, supérieure, est de réunir votre groupe au sein d'une équipe et de laisser le plugin saisir les données automatiquement en utilisant l'option \"À partir de l'Équipe actuellement formée\". Vous devrez toutefois assigner un nom manuellement, et éventuellement donner un surnom aux autres joueur·se·s.",
+    "description": "WelcomeWindow.Draw"
+  },
+  "WelcomeWindowLine6": {
+    "message": "Si vous souhaitez, par exemple, que le Loot Master s'ouvre au démarrage, je vous suggère de jeter un coup d'oeil rapide dans les options. Vous pouvez également aller sur le Wiki pour des instructions davantage détaillées :)",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Open LootMaster": {
+    "message": "Ouvrir le LootMaster",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Open LootMaster main window (/lootmaster)": {
+    "message": "Ouvrir la fenêtre principale de LootMaster (/lootmaster)",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Open Options": {
+    "message": "Ouvrir les Options",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Show configuration options (/hrt config)": {
+    "message": "Afficher les options de configuration (/hrt config)",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Open Wiki": {
+    "message": "Ouvrir le Wiki",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Open the wiki in your browser": {
+    "message": "Ouvre le Wiki dans votre navigateur",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Close this window": {
+    "message": "Fermer cette fenêtre",
+    "description": "WelcomeWindow.Draw"
   },
   "Strength": {
     "message": "Force",
@@ -1021,18 +1033,22 @@
   },
   "LodestoneConnector:CharNotFound": {
     "message": "Personnage introuvable sur Lodestone.",
-    "description": "<UpdateCharacter>d__5.MoveNext"
+    "description": "<UpdateCharacterAsync>d__6.MoveNext"
   },
   "LodestoneConnector:JobIncompatible": {
     "message": "Impossible de déterminer le job présentement utilisé, ou alors le job présentement affiché sur le Lodestone n'est pas supporté.",
-    "description": "<UpdateCharacter>d__5.MoveNext"
+    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+  },
+  "LodestoneConnector:FailedtoCreateGear": {
+    "message": "Could not create new gear set.",
+    "description": "<UpdateCharacterAsync>d__6.MoveNext"
   },
   "LodestoneConnector:Sucess": {
     "message": "L'équipement {1} de {0} a été mis à jour via les informations du Lodestone.",
-    "description": "<UpdateCharacter>d__5.MoveNext"
+    "description": "<UpdateCharacterAsync>d__6.MoveNext"
   },
   "LodestoneConnector:Failure": {
     "message": "Impossible de mettre à jour l'équipement depuis le Lodestone.",
-    "description": "<UpdateCharacter>d__5.MoveNext"
+    "description": "<UpdateCharacterAsync>d__6.MoveNext"
   }
 }
