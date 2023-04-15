@@ -22,6 +22,13 @@ internal class UiHelpers
         GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {
         //Item Icon with Info
+        if (ImGuiHelper.Button(FontAwesomeIcon.Eraser,
+                $"Delete{slot}", Localize("Remove this item", "Remove this item")))
+        {
+            item = GearItem.Empty;
+            onItemChange(item);
+        }
+        ImGui.SameLine();
         ImGui.Image(ServiceManager.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, new(24, 24));
         if (ImGui.IsItemHovered())
         {
@@ -57,6 +64,14 @@ internal class UiHelpers
             }
             ImGui.SameLine();
             var mat = item.Materia.Skip(i).First();
+            ImGui.Image(ServiceManager.IconCache[mat.Item?.Icon ?? 0].ImGuiHandle, new(24, 24));
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                mat.Draw();
+                ImGui.EndTooltip();
+            }
+            ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
             if (ImGuiHelper.SearchableCombo(
                 $"##mat{slot}{i}",

@@ -22,34 +22,12 @@ public static class DrawDataExtension
             if (item.ItemLevel > 1)
                 DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel);
             DrawRow(Localize("itemSource", "Source"), item.Source);
-            //Shop Data
-            if (Common.Services.ServiceManager.ItemInfo.CanBePurchased(item.ID))
+            //Materia Stats
+            if (item is HrtMateria matItem && matItem.Item is not null)
             {
-                var shopEntry = Common.Services.ServiceManager.ItemInfo.GetShopEntryForItem(item.ID);
-                if (shopEntry != null)
-                {
-                    string content = "";
-                    foreach (var cost in shopEntry.ItemCostEntries)
-                    {
-                        if (cost.Item.Row == 0)
-                            continue;
-                        content += $"{cost.Item.Value?.Name} ({cost.Count})\n";
-                    }
-                    DrawRow(Localize("itemShop", "Shop cost"), content);
-                }
-
-
+                DrawRow(matItem.StatType.FriendlyName(), matItem.GetStat());
             }
-            //Loot Data
-            if (Common.Services.ServiceManager.ItemInfo.CanBeLooted(item.ID))
-            {
-                string content = "";
-                foreach (var instance in Common.Services.ServiceManager.ItemInfo.GetLootSources(item.ID))
-                {
-                    content += $"{instance.Name}\n";
-                }
-                DrawRow(Localize("item:looted:sources", "Looted in"), content);
-            }
+            //Gear Data
             if (item is GearItem gearItem && gearItem.Item is not null)
             {
                 bool isWeapon = gearItem.Slots.Contains(GearSetSlot.MainHand);
@@ -78,6 +56,32 @@ public static class DrawDataExtension
                     foreach (var mat in gearItem.Materia)
                         ImGui.BulletText($"{mat.Name} ({mat.StatType.FriendlyName()} +{mat.GetStat()})");
                 }
+            }
+            //Shop Data
+            if (Common.Services.ServiceManager.ItemInfo.CanBePurchased(item.ID))
+            {
+                DrawRow(Localize("item:shopCosts", "Shop costs"), "");
+                foreach (var (shopName, shopEntry) in Common.Services.ServiceManager.ItemInfo.GetShopEntriesForItem(item.ID))
+                {
+                    string content = "";
+                    foreach (var cost in shopEntry.ItemCostEntries)
+                    {
+                        if (cost.Item.Row == 0)
+                            continue;
+                        content += $"{cost.Item.Value?.Name} ({cost.Count})\n";
+                    }
+                    DrawRow($"    {shopName}", content);
+                }
+            }
+            //Loot Data
+            if (Common.Services.ServiceManager.ItemInfo.CanBeLooted(item.ID))
+            {
+                string content = "";
+                foreach (var instance in Common.Services.ServiceManager.ItemInfo.GetLootSources(item.ID))
+                {
+                    content += $"{instance.Name}\n";
+                }
+                DrawRow(Localize("item:looted:sources", "Looted in"), content);
             }
             ImGui.EndTable();
         }
