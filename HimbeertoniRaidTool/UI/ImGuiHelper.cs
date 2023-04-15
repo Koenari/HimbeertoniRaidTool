@@ -99,10 +99,8 @@ public static class ImGuiHelper
         }
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void AddTooltip(string? tooltip)
+    public static void AddTooltip(string tooltip)
     {
-        if (tooltip == null)
-            return;
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip(tooltip);
     }
@@ -127,10 +125,34 @@ public static class ImGuiHelper
         return result;
     }
     //Credit to UnknownX
-    //Modified to have filtering of Excel sheet and be usable by keayboard only
-    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected, Func<ExcelSheet<T>, string> getPreview, ImGuiComboFlags flags, Func<T, string, bool> searchPredicate, Func<T, string> toName) where T : ExcelRow
-        => ExcelSheetCombo(id, out selected, getPreview, flags, searchPredicate, toName, (t) => true);
-    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected, Func<ExcelSheet<T>, string> getPreview, ImGuiComboFlags flags, Func<T, string, bool> searchPredicate, Func<T, string> toName, Func<T, bool> preFilter) where T : ExcelRow
+    //Modified to have filtering of Excel sheet and be usable by keyboard only
+    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+        Func<ExcelSheet<T>, string> getPreview, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), flags);
+    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+        Func<ExcelSheet<T>, string> getPreview, Func<T, string, bool> searchPredicate, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), searchPredicate, flags);
+    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+        Func<ExcelSheet<T>, string> getPreview, Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), preFilter, flags);
+    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+        Func<ExcelSheet<T>, string> getPreview, Func<T, string, bool> searchPredicate, Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), searchPredicate, preFilter, flags);
+    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+        Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+        => ExcelSheetCombo(id, out selected, getPreview, toName, (t, s) => toName(t).Contains(s, StringComparison.CurrentCultureIgnoreCase), flags);
+    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+        Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
+        Func<T, string, bool> searchPredicate, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+        => ExcelSheetCombo(id, out selected, getPreview, toName, searchPredicate, (t) => true, flags);
+    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+        Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
+        Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+        => ExcelSheetCombo(id, out selected, getPreview, toName,
+            (t, s) => toName(t).Contains(s, StringComparison.CurrentCultureIgnoreCase), preFilter, flags);
+    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+        Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName, Func<T, string, bool> searchPredicate,
+        Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
     {
         var sheet = ServiceManager.DataManager.GetExcelSheet<T>();
         if (sheet is null)
@@ -138,17 +160,21 @@ public static class ImGuiHelper
             selected = null;
             return false;
         }
-        return SearchableCombo(id, out selected, getPreview(sheet), flags, sheet, searchPredicate, toName, preFilter);
+        return SearchableCombo(id, out selected, getPreview(sheet), sheet, toName, searchPredicate, preFilter, flags);
     }
 
     private static string search = string.Empty;
     private static HashSet<object>? filtered;
     private static int hoveredItem = 0;
-    //This is a small hack since to my knowledge there is no way to close and existing combo when not clikced
+    //This is a small hack since to my knowledge there is no way to close and existing combo when not clicking
     private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> comboDic = new();
     public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
-        ImGuiComboFlags flags, IEnumerable<T> possibilities, Func<T, string, bool> searchPredicate,
-        Func<T, string> toName, Func<T, bool> preFilter) where T : notnull
+         IEnumerable<T> possibilities, Func<T, string> toName, Func<T, string, bool> searchPredicate,
+         ImGuiComboFlags flags = ImGuiComboFlags.None) where T : notnull
+        => SearchableCombo(id, out selected, preview, possibilities, toName, searchPredicate, _ => true, flags);
+    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
+         IEnumerable<T> possibilities, Func<T, string> toName, Func<T, string, bool> searchPredicate,
+         Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : notnull
     {
         if (!comboDic.ContainsKey(id))
             comboDic.Add(id, (false, false));

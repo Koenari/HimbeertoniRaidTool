@@ -32,8 +32,7 @@ internal class UiHelpers
         ImGui.SameLine();
         //Quick select
         if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out Item? outItem, x => item.Name,
-            ImGuiComboFlags.NoArrowButton, (i, search) => i.Name.RawString.Contains(search, System.StringComparison.InvariantCultureIgnoreCase),
-            i => i.Name.ToString(), IsApplicable))
+            i => i.Name.RawString, IsApplicable, ImGuiComboFlags.NoArrowButton))
         {
             onItemChange(new(outItem.RowId));
         }
@@ -46,7 +45,7 @@ internal class UiHelpers
                      Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.ItemLevel(slot)));
             ImGui.EndDisabled();
         }
-        byte maxMatLevel = Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
+        MateriaLevel maxMatLevel = Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
         for (int i = 0; i < item.Materia.Count(); i++)
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Eraser,
@@ -63,13 +62,13 @@ internal class UiHelpers
                 $"##mat{slot}{i}",
                 out MateriaCategory cat,
                 mat.Category.PrefixName(),
-                ImGuiComboFlags.NoArrowButton,
                 Enum.GetValues<MateriaCategory>(),
-                (cat, s) =>
-                cat.PrefixName().Contains(s, StringComparison.InvariantCultureIgnoreCase) ||
-                cat.GetStatType().FriendlyName().Contains(s, StringComparison.InvariantCultureIgnoreCase),
                 cat => cat.PrefixName(),
-                _ => true) && cat != MateriaCategory.None)
+                (cat, s) => cat.PrefixName().Contains(s, StringComparison.InvariantCultureIgnoreCase) ||
+                cat.GetStatType().FriendlyName().Contains(s, StringComparison.InvariantCultureIgnoreCase),
+                ImGuiComboFlags.NoArrowButton
+                ) && cat != MateriaCategory.None
+               )
             {
                 item.ReplacecMateria(i, new(cat, mat.Level));
             }
@@ -82,15 +81,14 @@ internal class UiHelpers
                 $"##matlevel{slot}{i}",
                 out MateriaLevel level,
                 mat.Level.ToString(),
-                ImGuiComboFlags.NoArrowButton,
                 Enum.GetValues<MateriaLevel>(),
+                val => val.ToString(),
                 (val, s) => val.ToString().Contains(s, StringComparison.InvariantCultureIgnoreCase)
                         || (byte.TryParse(s, out byte search) && search - 1 == (byte)val),
-                v => v.ToString(),
-                _ => true
+                ImGuiComboFlags.NoArrowButton
                 ))
             {
-                item.ReplacecMateria(i, new(mat.Category, (byte)level));
+                item.ReplacecMateria(i, new(mat.Category, level));
             }
 
         }
@@ -99,7 +97,7 @@ internal class UiHelpers
             MateriaLevel leveltoAdd = item.MaxAffixableMateriaLevel();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}addmat", Localize("Select materia", "Select materia")))
             {
-                parent.AddChild(new SelectMateriaWindow(item.AddMateria, (x) => { }, (byte)leveltoAdd));
+                parent.AddChild(new SelectMateriaWindow(item.AddMateria, (x) => { }, leveltoAdd));
             }
             ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
@@ -107,11 +105,11 @@ internal class UiHelpers
                 $"##matadd{slot}",
                 out MateriaCategory cat,
                 MateriaCategory.None.ToString(),
-                ImGuiComboFlags.NoArrowButton,
                 Enum.GetValues<MateriaCategory>(),
-                (cat, s) => cat.GetStatType().FriendlyName().Contains(s, StringComparison.InvariantCultureIgnoreCase),
                 cat => cat.GetStatType().FriendlyName(),
-                _ => true) && cat != MateriaCategory.None)
+                (cat, s) => cat.GetStatType().FriendlyName().Contains(s, StringComparison.InvariantCultureIgnoreCase),
+                ImGuiComboFlags.NoArrowButton
+                ) && cat != MateriaCategory.None)
             {
                 item.AddMateria(new(cat, leveltoAdd));
             }

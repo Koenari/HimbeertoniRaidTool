@@ -70,8 +70,7 @@ internal class EditPlayerWindow : HrtWindow
             PlayerCopy.MainChar.HomeWorld ??= pc?.HomeWorld.GameData;
         }
         if (ImGuiHelper.ExcelSheetCombo(Localize("Home World", "Home World") + "##" + Title, out World? w,
-            x => PlayerCopy.MainChar.HomeWorld?.Name.RawString ?? "", ImGuiComboFlags.None,
-             (x, y) => x.Name.RawString.Contains(y, StringComparison.CurrentCultureIgnoreCase),
+            x => PlayerCopy.MainChar.HomeWorld?.Name.RawString ?? "",
              x => x.Name.RawString, x => x.IsPublic))
         {
             PlayerCopy.MainChar.HomeWorld = w;
@@ -79,9 +78,7 @@ internal class EditPlayerWindow : HrtWindow
         //ImGuiHelper.Combo(Localize("Gender", "Gender"), ref PlayerCopy.MainChar.Gender);
         string GetGenderedTribeName(Tribe? t) => (PlayerCopy.MainChar.Gender == Gender.Male ? t?.Masculine.RawString : t?.Feminine.RawString) ?? String.Empty;
         if (ImGuiHelper.ExcelSheetCombo(Localize("Tribe", "Tribe") + "##" + Title, out Tribe? t,
-           x => GetGenderedTribeName(PlayerCopy.MainChar.Tribe), ImGuiComboFlags.None,
-            (x, y) => GetGenderedTribeName(x).Contains(y, StringComparison.CurrentCultureIgnoreCase),
-            x => GetGenderedTribeName(x)))
+           _ => GetGenderedTribeName(PlayerCopy.MainChar.Tribe), GetGenderedTribeName))
         {
             PlayerCopy.MainChar.TribeID = t?.RowId ?? 0;
         }
@@ -147,9 +144,10 @@ internal class EditPlayerWindow : HrtWindow
         }
 
         ImGui.Columns(1);
-        if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out var job, newJob.ToString(), ImGuiComboFlags.None,
-            Enum.GetValues<Job>(), (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
-            j => j.ToString(), (t) => !PlayerCopy.MainChar.Classes.Any(y => y.Job == t)))
+        if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out var job, newJob.ToString(),
+            Enum.GetValues<Job>(), j => j.ToString(),
+            (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
+            (t) => !PlayerCopy.MainChar.Classes.Any(y => y.Job == t)))
         {
             newJob = job;
         }
@@ -513,16 +511,27 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
 }
 internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
 {
-    private MateriaCategory Cat;
-    private byte MateriaLevel;
-    private readonly int _numMatLevels;
-    private readonly string longestName;
-    protected override bool CanSave => Cat != MateriaCategory.None;
-    public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, byte maxMatLvl, byte? matLevel = null) : base(onSave, onCancel)
+    private static readonly Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>> AllMateria;
+
+    static SelectMateriaWindow()
     {
-        Cat = MateriaCategory.None;
-        MateriaLevel = matLevel ?? maxMatLvl;
-        _numMatLevels = maxMatLvl + 1;
+        AllMateria = new();
+        foreach (MateriaLevel lvl in Enum.GetValues<MateriaLevel>())
+        {
+            Dictionary<MateriaCategory, HrtMateria> mats = new();
+            foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>())
+            {
+                mats[cat] = new HrtMateria(cat, lvl);
+            }
+            AllMateria[lvl] = mats;
+        }
+    }
+    private readonly MateriaLevel MaxLvl;
+    private readonly string longestName;
+    protected override bool CanSave => false;
+    public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, MateriaLevel maxMatLvl, MateriaLevel? matLevel = null) : base(onSave, onCancel)
+    {
+        MaxLvl = matLevel ?? maxMatLvl;
         Title = Localize("Select Materia", "Select Materia");
         longestName = Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "";
         Size = new(ImGui.CalcTextSize(longestName).X + 200f, 120f);
@@ -530,23 +539,35 @@ internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
 
     protected override void DrawItemSelection()
     {
-        int catSlot = Array.IndexOf(Enum.GetValues<MateriaCategory>(), Cat);
-        ImGui.SetNextItemWidth(ImGui.CalcTextSize(longestName).X + 40f * ScaleFactor);
-        if (ImGui.Combo($"{Localize("Type", "Type")}##Category", ref catSlot, Enum.GetNames<MateriaCategory>(), Enum.GetValues<MateriaCategory>().Length))
+        //1 Row per Level
+        for (MateriaLevel lvl = MaxLvl; lvl != MateriaLevel.None; --lvl)
         {
-            Cat = Enum.GetValues<MateriaCategory>()[catSlot];
-            if (Cat != MateriaCategory.None)
-                Item = new(Cat, MateriaLevel);
+            ImGui.Text($"{lvl}");
+            foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>())
+            {
+                if (cat == MateriaCategory.None) continue;
+                DrawButton(cat, lvl);
+                ImGui.SameLine();
+            }
+            ImGui.NewLine();
+            ImGui.Separator();
         }
-
-        int level = MateriaLevel;
-        ImGui.SetNextItemWidth(ImGui.CalcTextSize(longestName).X + 40f * ScaleFactor);
-        if (ImGui.Combo($"{Localize("Tier", "Tier")}##Level", ref level, Array.ConvertAll(Enumerable.Range(1, _numMatLevels).ToArray(), x => x.ToString()), _numMatLevels))
+        void DrawButton(MateriaCategory cat, MateriaLevel lvl)
         {
-            MateriaLevel = (byte)level;
-            if (Cat != MateriaCategory.None)
-                Item = new(Cat, MateriaLevel);
-        }
+            var mat = AllMateria[lvl][cat];
+            var item = mat.Item;
+            if (item != null)
+            {
+                if (ImGui.ImageButton(ServiceManager.IconCache[item.Icon].ImGuiHandle, new(32)))
+                    Save(mat);
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    mat.Draw();
+                    ImGui.EndTooltip();
+                }
+            }
 
+        }
     }
 }

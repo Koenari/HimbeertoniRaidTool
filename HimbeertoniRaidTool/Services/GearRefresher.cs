@@ -159,7 +159,7 @@ internal static unsafe class GearRefresher
                 {
                     if (slot->Materia[j] == 0)
                         break;
-                    targetClass.Gear[(GearSetSlot)i].AddMateria(new((MateriaCategory)slot->Materia[j], slot->MateriaGrade[j]));
+                    targetClass.Gear[(GearSetSlot)i].AddMateria(new((MateriaCategory)slot->Materia[j], (MateriaLevel)slot->MateriaGrade[j]));
                 }
             }
             targetClass.Gear.TimeStamp = DateTime.UtcNow;

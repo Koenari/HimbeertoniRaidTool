@@ -114,7 +114,7 @@ internal class LodestoneConnector : NetstoneBase
                     if (materiaCategoryId == null)
                         continue;
                     MateriaCategory materiaCategory = (MateriaCategory)materiaCategoryId;
-                    byte materiaLevel = TranslateMateriaLevel(materia.Remove(0, materia.LastIndexOf(" ")).Trim());
+                    MateriaLevel materiaLevel = TranslateMateriaLevel(materia.Remove(0, materia.LastIndexOf(" ")).Trim());
 
                     classToChange.Gear[slot].AddMateria(new(materiaCategory, materiaLevel));
                 }
@@ -157,7 +157,7 @@ internal class LodestoneConnector : NetstoneBase
     /// </summary>
     /// <param name="numeral">The numeral to be translated.</param>
     /// <returns></returns>
-    private byte TranslateMateriaLevel(string numeral)
+    private MateriaLevel TranslateMateriaLevel(string numeral)
     {
         byte sum = 0;
         for (int i = 0; i < numeral.Length; i++)
@@ -170,7 +170,7 @@ internal class LodestoneConnector : NetstoneBase
                 sum += val;
         }
         sum -= 1;
-        return sum;
+        return (MateriaLevel)sum;
     }
 }
 

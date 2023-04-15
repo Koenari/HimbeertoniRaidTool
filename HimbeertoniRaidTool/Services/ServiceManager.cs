@@ -8,6 +8,7 @@ using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
@@ -35,6 +36,8 @@ internal class ServiceManager
     internal static Configuration Config { get; set; }
     internal static CoreModule CoreModule { get; set; }
     internal static CharacterInfoService CharacterInfoService { get; private set; }
+    internal static GameInfo GameInfo => Common.Services.ServiceManager.GameInfo;
+    internal static ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
     internal static bool Init(DalamudPluginInterface pluginInterface)
     {
         pluginInterface.Create<ServiceManager>();
