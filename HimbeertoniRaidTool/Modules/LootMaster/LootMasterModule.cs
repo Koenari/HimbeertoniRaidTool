@@ -255,6 +255,9 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     {
         switch (args)
         {
+            case "toggle":
+                Ui.IsOpen = !Ui.IsOpen;
+                break;
             default:
                 Ui.Show();
                 break;

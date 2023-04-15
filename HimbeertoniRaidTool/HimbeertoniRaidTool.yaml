@@ -15,5 +15,6 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        Loot session: DPS gain accuracy improved for BiS items
-        Performance: sligth improvements
+        Commands: /lm toggle togles the lootmaster window
+        Commands: all commands are available as sub commmnds to /hrt eg. /lm *** can be used like /hrt lm ***
+        DataStorage: reworked data storage as preparation for future features
