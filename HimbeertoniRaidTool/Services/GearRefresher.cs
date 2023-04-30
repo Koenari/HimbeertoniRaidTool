@@ -109,7 +109,10 @@ internal static unsafe class GearRefresher
         }
         //Do not execute on characters not already known
         if (!ServiceManager.HrtDataManager.CharDB.SearchCharacter(target.HomeWorld.Id, target.Name.TextValue, out Character? targetChar))
+        {
+            PluginLog.Debug($"Did not find character in db:{target.Name}@{target.HomeWorld.GameData?.Name}");
             return;
+        }
         //Save characters ContentID if not already known
         if (targetChar.CharID == 0)
         {

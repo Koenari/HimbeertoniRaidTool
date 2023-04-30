@@ -103,6 +103,7 @@ internal class CharacterDB
             c = Data[id];
             return true;
         }
+        PluginLog.Debug($"Did not find character with ID: {charID} in database");
         return false;
     }
     internal bool SearchCharacter(uint worldID, string name, [NotNullWhen(true)] out Character? c)
@@ -117,6 +118,7 @@ internal class CharacterDB
             c = Data[id];
             return true;
         }
+        PluginLog.Debug($"Did not find character {name}@{worldID} in database");
         return false;
     }
     internal bool TryGetCharacter(HrtID id, [NotNullWhen(true)] out Character? c)
