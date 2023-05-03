@@ -104,7 +104,7 @@ internal static unsafe class GearRefresher
         }
         if (!ServiceManager.HrtDataManager.Ready)
         {
-            PluginLog.Error($"Internal database error. Did not update gear for:{target.Name}@{target.HomeWorld.GameData?.Name}");
+            PluginLog.Error($"Database is busy. Did not update gear for:{target.Name}@{target.HomeWorld.GameData?.Name}");
             return;
         }
         //Do not execute on characters not already known
@@ -130,7 +130,7 @@ internal static unsafe class GearRefresher
         {
             if (!ServiceManager.HrtDataManager.Ready)
             {
-                PluginLog.Error($"Internal database error. Did not update gear for:{targetChar.Name}@{targetChar.HomeWorld?.Name}");
+                PluginLog.Error($"Database is busy. Did not update gear for:{targetChar.Name}@{targetChar.HomeWorld?.Name}");
                 return;
             }
             targetClass = targetChar.AddClass(targetJob);
