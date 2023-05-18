@@ -15,9 +15,6 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        Commands: /lm toggle togles the lootmaster window
-        Commands: all commands are available as sub commmnds to /hrt eg. /lm *** can be used like /hrt lm ***
-        DataStorage: reworked data storage as preparation for future features
-        Ui: editing gear should be more uniform and visually clear
-        Ui: you can delete a piece of gear
-        Ui: now shows all shops where an item is available
+        Logging: Messages should be more descriptive
+        Translation: German updated
+
