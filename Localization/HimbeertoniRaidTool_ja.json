@@ -3,50 +3,6 @@
     "message": "HimbeerToni Raid Tool 設定",
     "description": "ConfigUI..ctor"
   },
-  "General": {
-    "message": "全般",
-    "description": "ConfigUI.Draw"
-  },
-  "Ui": {
-    "message": "UI",
-    "description": "ConfigUI.Draw"
-  },
-  "HideInCombat": {
-    "message": "戦闘中に隠す",
-    "description": "ConfigUI.Draw"
-  },
-  "HideInCombatTooltip": {
-    "message": "キャラクターが戦闘時、すべてのウィンドウを非表示にする",
-    "description": "ConfigUI.Draw"
-  },
-  "HideOnZoneChange": {
-    "message": "読み込み中に隠す",
-    "description": "ConfigUI.Draw"
-  },
-  "HideOnZoneChangeTooltip": {
-    "message": "読み込み中はすべてのウィンドウを非表示にします",
-    "description": "ConfigUI.Draw"
-  },
-  "Auto Save": {
-    "message": "自動保存",
-    "description": "ConfigUI.Draw"
-  },
-  "Save periodically": {
-    "message": "定期的に保存する",
-    "description": "ConfigUI.Draw"
-  },
-  "SavePeriodicallyTooltip": {
-    "message": "このプラグインのすべてのデータを定期的に保存します。（ゲームのクラッシュ時、データが失われないようにします）",
-    "description": "ConfigUI.Draw"
-  },
-  "AutoSave_interval_min": {
-    "message": "自動保存の間隔 (分)",
-    "description": "ConfigUI.Draw"
-  },
-  "/hrt": {
-    "message": "説明付きでウェルカムウィンドウを開く",
-    "description": "HRTPlugin..ctor"
-  },
   "ItemTableHeader": {
     "message": "ヘッダ",
     "description": "DrawDataExtension.Draw"
@@ -187,26 +143,6 @@
     "message": "編集",
     "description": "EditGearSetWindow..ctor"
   },
-  "Select item": {
-    "message": "アイテムを選択",
-    "description": "EditGearSetWindow.DrawSlot"
-  },
-  "HQ": {
-    "message": "HQ",
-    "description": "EditGearSetWindow.DrawSlot"
-  },
-  "Delete": {
-    "message": "削除",
-    "description": "EditGearSetWindow.DrawSlot"
-  },
-  "Remove this materia": {
-    "message": "このマテリアを削除",
-    "description": "EditGearSetWindow.DrawSlot"
-  },
-  "Select materia": {
-    "message": "マテリアを選択",
-    "description": "EditGearSetWindow.DrawSlot"
-  },
   "Get item for": {
     "message": "アイテムを取得：",
     "description": "SelectGearItemWindow..ctor"
@@ -255,25 +191,37 @@
     "message": "装備品の検証を更新",
     "description": "ImGuiHelper.GearUpdateButtons"
   },
-  "InspectUnavail": {
-    "message": "Examinining from here is unavailable due to incompatibility with game version.\nYou can still examine characters manually to update their gear.",
-    "description": "ImGuiHelper.GearUpdateButtons"
-  },
   "CharacterNotInReach": {
     "message": "キャラクターを検証できません",
     "description": "ImGuiHelper.GearUpdateButtons"
   },
   "rightClickHint": {
     "message": "右クリックで詳細オプションを開く",
-    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawInspectButton|5_0"
+    "description": "<>c__DisplayClass5_0.<GearUpdateButtons>g__DrawInspectButton|0"
   },
   "Lodestone Button": {
     "message": "Lodestoneから装備をダウンロード",
-    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|5_1"
+    "description": "<>c__DisplayClass5_0.<GearUpdateButtons>g__DrawLodestoneButton|1"
   },
   "LodestonUpdateStarted": {
     "message": "装備品アップデートを開始：",
-    "description": "ImGuiHelper.<GearUpdateButtons>g__DrawLodestoneButton|5_1"
+    "description": "<>c__DisplayClass5_0.<GearUpdateButtons>g__DrawLodestoneButton|1"
+  },
+  "Select item": {
+    "message": "アイテムを選択",
+    "description": "UiHelpers.DrawGearEdit"
+  },
+  "Remove this materia": {
+    "message": "このマテリアを削除",
+    "description": "UiHelpers.DrawGearEdit"
+  },
+  "Materia": {
+    "message": "Materia",
+    "description": "UiHelpers.DrawGearEdit"
+  },
+  "Select materia": {
+    "message": "マテリアを選択",
+    "description": "UiHelpers.DrawGearEdit"
   },
   "Remove option": {
     "message": "オプション削除",
@@ -282,62 +230,6 @@
   "Add option": {
     "message": "オプション追加",
     "description": "UiSortableList`1.Draw"
-  },
-  "Welcome to HRT": {
-    "message": "Himbeertoni Raid Tool へようこそ",
-    "description": "WelcomeWindowui..ctor"
-  },
-  "WelcomeWindowLine1": {
-    "message": "Himbeertoni Raid Tool へようこそ。レイドグループを管理するあなたの仲間です。",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "WelcomeWindowLine2": {
-    "message": "チャットで「/lootmaster」（または「/lm」）と入力し、LootMasterを開いて旅を始めましょう（もしくは下のボタン）。既にあなたのキャラクターが追加されています。",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "WelcomeWindowLine3": {
-    "message": "次に、虫眼鏡アイコンを使用するか、右クリックでキャラクターを調べることで、現在の装備品を取得できます。",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "WelcomeWindowLine4": {
-    "message": "ゲーム内のキャラクターを調べるときに、GroupやSoloのタブに追加されたキャラクターの装備品を常に更新します。",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "WelcomeWindowLine5": {
-    "message": "この機能を実際に使用するには、Soloタブの右側にある「+ボタン」を使ってグループを追加する必要があります。これには2つの選択肢があります。\n\"新規作成\"では、自分ですべてを入力することができます。また、\"現在のグループを編集 \"を選択することで、グループをパーティに集め（または次の集まりを待ち）、プラグインに自動で登録を任せることができます。ただし、グループ名とプレイヤーのニックネームを手動で設定する必要があります。\"",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "WelcomeWindowLine6": {
-    "message": "もし、起動時に戦利品マスタを開くようにしたい場合は、オプションをざっと見てみることをお勧めします。より詳しい説明はwikiを参照してください :)",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Open LootMaster": {
-    "message": "LootMasterを開く",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Open LootMaster main window (/lootmaster)": {
-    "message": "LootMaster のメインウィンドウを開く (/lootmaster)",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Open Options": {
-    "message": "オプションを開く",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Show configuration options (/hrt config)": {
-    "message": "設定オプションを表示 (/hrt config)",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Open Wiki": {
-    "message": "Wikiを開く",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Open the wiki in your browser": {
-    "message": "Wikiをブラウザで開きますか?",
-    "description": "WelcomeWindowui.Draw"
-  },
-  "Close this window": {
-    "message": "このウィンドウを閉じる",
-    "description": "WelcomeWindowui.Draw"
   },
   "Appearance": {
     "message": "外観",
@@ -349,6 +241,10 @@
   },
   "Lootmaster:OpenOnLoginTooltip": {
     "message": "ログインしたグループの概要ウィンドウを開きます",
+    "description": "ConfigUi.Draw"
+  },
+  "Config:Lootmaster:IconInGroupOverview": {
+    "message": "Show item icon in group overview",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:ColoredItemNames": {
@@ -419,170 +315,6 @@
     "message": "LootMaster ウィンドウを開きます ( /lm でも開くことができます)",
     "description": "LootMasterModule.get_Commands"
   },
-  "LootMasterWindowTitle": {
-    "message": "Loot Master",
-    "description": "LootmasterUI..ctor"
-  },
-  "Edit player": {
-    "message": "プレイヤーを編集",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "Current": {
-    "message": "現在",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "gear": {
-    "message": "装備品",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "BiS": {
-    "message": "最適装備",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "UpdateBis": {
-    "message": "Etro.ggから\"{0}\"を更新",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "StatsUnfinished": {
-    "message": "統計は開発中のため、70/80/90 レベルのジョブでのみ正しく動作します。",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "MainStats": {
-    "message": "メインステ",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "SecondaryStats": {
-    "message": "サブステ",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "Gear": {
-    "message": "装備品",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "lootmaster:button:showconfig:tooltip": {
-    "message": "設定を開く",
-    "description": "LootmasterUI.Draw"
-  },
-  "Add Player": {
-    "message": "プレイヤーを追加",
-    "description": "LootmasterUI.Draw"
-  },
-  "Player": {
-    "message": "プレイヤー",
-    "description": "LootmasterUI.Draw"
-  },
-  "itemLevelShort": {
-    "message": "IL",
-    "description": "LootmasterUI.Draw"
-  },
-  "Options": {
-    "message": "設定",
-    "description": "LootmasterUI.Draw"
-  },
-  "GroupTabTooltip": {
-    "message": "右クリックで詳細オプションを開く",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "Edit group": {
-    "message": "グループを編集",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "Delete group": {
-    "message": "グループを削除",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "DeleteRaidGroup": {
-    "message": "このグループを本当に削除しますか？:",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "From current Group": {
-    "message": "現在のグループを編集",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "AutoCreatedGroupName": {
-    "message": "自動作成",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "From scratch": {
-    "message": "新規作成",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "Add empty group": {
-    "message": "空のグループを追加",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
-  },
-  "n.A.": {
-    "message": "n.A.",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "lootmaster:button:swapposition:tooltip": {
-    "message": "位置を入れ替え",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "lootmaster:button:inventorytooltip": {
-    "message": "所持品を開く",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "PlayerDetails": {
-    "message": "プレイヤーの詳細を表示:",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "DeletePlayerConfirmation": {
-    "message": "このプレイヤーを本当に削除しますか？:",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "No Player": {
-    "message": "プレイヤーなし",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "Add": {
-    "message": "追加",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "Add from DB": {
-    "message": "データベースから追加",
-    "description": "LootmasterUI.DrawPlayer"
-  },
-  "Distribute loot for:": {
-    "message": "戦利品の配布先：",
-    "description": "LootmasterUI.DrawLootHandlerButtons"
-  },
-  "Critical Damage": {
-    "message": "クリティカルダメージ",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
-  },
-  "SpeedMultiplierName": {
-    "message": "AA / DoT倍率",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
-  },
-  "Dmgper100Tooltip": {
-    "message": "威力100スキルの平均ダメージ",
-    "description": "LootmasterUI.<DrawDetailedPlayer>g__DrawStatRow|23_1"
-  },
-  "Empty": {
-    "message": "なし",
-    "description": "LootmasterUI.<DrawSlot>g__DrawItem|27_0"
-  },
-  "PlayerDetailsTitle": {
-    "message": "プレイヤー詳細",
-    "description": "PlayerdetailWindow..ctor"
-  },
-  "GetCharacterTitle": {
-    "message": "データベースからキャラクターを取得",
-    "description": "GetCharacterFromDBWindow..ctor"
-  },
-  "Inventory:AdditionalGear": {
-    "message": "追加の装備品",
-    "description": "InventoryWindow.Draw"
-  },
-  "Swap Position of": {
-    "message": "位置を入れ替え：",
-    "description": "SwapPositionWindow..ctor"
-  },
-  "Swap players positions": {
-    "message": "プレイヤーの位置を入れ替え",
-    "description": "SwapPositionWindow.Draw"
-  },
   "BISOverUpgrade": {
     "message": "理想装備 > アップグレード",
     "description": "LootRule.GetName"
@@ -605,6 +337,10 @@
   },
   "DPS": {
     "message": "DPS",
+    "description": "LootRule.GetName"
+  },
+  "DPSGain": {
+    "message": "% DPS gained",
     "description": "LootRule.GetName"
   },
   "None": {
@@ -674,6 +410,174 @@
   "LootResult:PlayerWonOver": {
     "message": "オーバー",
     "description": "LootResultContainer.get_ShortResult"
+  },
+  "MainStats": {
+    "message": "メインステ",
+    "description": "LmUiHelpers.DrawStatTable"
+  },
+  "SecondaryStats": {
+    "message": "サブステ",
+    "description": "LmUiHelpers.DrawStatTable"
+  },
+  "Empty": {
+    "message": "なし",
+    "description": "LmUiHelpers.<DrawSlot>g__DrawItem|2_0"
+  },
+  "Critical Damage": {
+    "message": "クリティカルダメージ",
+    "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
+  },
+  "SpeedMultiplierName": {
+    "message": "AA / DoT倍率",
+    "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
+  },
+  "Dmgper100Tooltip": {
+    "message": "威力100スキルの平均ダメージ",
+    "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
+  },
+  "LootMasterWindowTitle": {
+    "message": "Loot Master",
+    "description": "LootmasterUI..ctor"
+  },
+  "Edit player": {
+    "message": "プレイヤーを編集",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "Current": {
+    "message": "現在",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "gear": {
+    "message": "装備品",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "Quick compare": {
+    "message": "Quick compare",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "BiS": {
+    "message": "最適装備",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "UpdateBis": {
+    "message": "Etro.ggから\"{0}\"を更新",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "Gear": {
+    "message": "装備品",
+    "description": "LootmasterUI.DrawDetailedPlayer"
+  },
+  "lootmaster:button:showconfig:tooltip": {
+    "message": "設定を開く",
+    "description": "LootmasterUI.Draw"
+  },
+  "Add Player": {
+    "message": "プレイヤーを追加",
+    "description": "LootmasterUI.Draw"
+  },
+  "Player": {
+    "message": "プレイヤー",
+    "description": "LootmasterUI.Draw"
+  },
+  "itemLevelShort": {
+    "message": "IL",
+    "description": "LootmasterUI.Draw"
+  },
+  "Options": {
+    "message": "設定",
+    "description": "LootmasterUI.Draw"
+  },
+  "GroupTabTooltip": {
+    "message": "右クリックで詳細オプションを開く",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "Edit group": {
+    "message": "グループを編集",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "Delete group": {
+    "message": "グループを削除",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "DeleteRaidGroup": {
+    "message": "このグループを本当に削除しますか？:",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "From current Group": {
+    "message": "現在のグループを編集",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "AutoCreatedGroupName": {
+    "message": "自動作成",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "From scratch": {
+    "message": "新規作成",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "Add empty group": {
+    "message": "空のグループを追加",
+    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+  },
+  "n.A.": {
+    "message": "n.A.",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "lootmaster:button:swapposition:tooltip": {
+    "message": "位置を入れ替え",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "lootmaster:button:inventorytooltip": {
+    "message": "所持品を開く",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "PlayerDetails": {
+    "message": "プレイヤーの詳細を表示:",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "Delete": {
+    "message": "削除",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "DeletePlayerConfirmation": {
+    "message": "このプレイヤーを本当に削除しますか？:",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "No Player": {
+    "message": "プレイヤーなし",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "Add": {
+    "message": "追加",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "Add from DB": {
+    "message": "データベースから追加",
+    "description": "LootmasterUI.DrawPlayerRow"
+  },
+  "Distribute loot for:": {
+    "message": "戦利品の配布先：",
+    "description": "LootmasterUI.DrawLootHandlerButtons"
+  },
+  "PlayerDetailsTitle": {
+    "message": "プレイヤー詳細",
+    "description": "PlayerdetailWindow..ctor"
+  },
+  "GetCharacterTitle": {
+    "message": "データベースからキャラクターを取得",
+    "description": "GetCharacterFromDBWindow..ctor"
+  },
+  "Inventory:AdditionalGear": {
+    "message": "追加の装備品",
+    "description": "InventoryWindow.Draw"
+  },
+  "Swap Position of": {
+    "message": "位置を入れ替え：",
+    "description": "SwapPositionWindow..ctor"
+  },
+  "Swap players positions": {
+    "message": "プレイヤーの位置を入れ替え",
+    "description": "SwapPositionWindow.Draw"
   },
   "Loot session for": {
     "message": "戦利品セッション",
@@ -746,6 +650,114 @@
   "LootResult:AwardButton:Tooltip": {
     "message": "プレイヤーに与える",
     "description": "LootSessionUI.DrawResults"
+  },
+  "QuickCompareStatGain": {
+    "message": "Gain",
+    "description": "QuickCompareWindow.Draw"
+  },
+  "New Gear": {
+    "message": "New Gear",
+    "description": "QuickCompareWindow.Draw"
+  },
+  "General": {
+    "message": "全般",
+    "description": "CoreConfig..ctor"
+  },
+  "Core:PeriodicSaveSuccessful": {
+    "message": "Data Saved successfully",
+    "description": "CoreConfig.PeriodicSave"
+  },
+  "Core:PeriodicSaveFailed": {
+    "message": "Data failed to save",
+    "description": "CoreConfig.PeriodicSave"
+  },
+  "Ui": {
+    "message": "UI",
+    "description": "ConfigUi.Draw"
+  },
+  "HideInCombat": {
+    "message": "戦闘中に隠す",
+    "description": "ConfigUi.Draw"
+  },
+  "HideInCombatTooltip": {
+    "message": "キャラクターが戦闘時、すべてのウィンドウを非表示にする",
+    "description": "ConfigUi.Draw"
+  },
+  "Auto Save": {
+    "message": "自動保存",
+    "description": "ConfigUi.Draw"
+  },
+  "Save periodically": {
+    "message": "定期的に保存する",
+    "description": "ConfigUi.Draw"
+  },
+  "SavePeriodicallyTooltip": {
+    "message": "このプラグインのすべてのデータを定期的に保存します。（ゲームのクラッシュ時、データが失われないようにします）",
+    "description": "ConfigUi.Draw"
+  },
+  "AutoSave_interval_min": {
+    "message": "自動保存の間隔 (分)",
+    "description": "ConfigUi.Draw"
+  },
+  "/hrt": {
+    "message": "説明付きでウェルカムウィンドウを開く",
+    "description": "CoreModule.get_Commands"
+  },
+  "Welcome to HRT": {
+    "message": "Himbeertoni Raid Tool へようこそ",
+    "description": "WelcomeWindow..ctor"
+  },
+  "WelcomeWindowLine1": {
+    "message": "Himbeertoni Raid Tool へようこそ。レイドグループを管理するあなたの仲間です。",
+    "description": "WelcomeWindow.Draw"
+  },
+  "WelcomeWindowLine2": {
+    "message": "チャットで「/lootmaster」（または「/lm」）と入力し、LootMasterを開いて旅を始めましょう（もしくは下のボタン）。既にあなたのキャラクターが追加されています。",
+    "description": "WelcomeWindow.Draw"
+  },
+  "WelcomeWindowLine3": {
+    "message": "次に、虫眼鏡アイコンを使用するか、右クリックでキャラクターを調べることで、現在の装備品を取得できます。",
+    "description": "WelcomeWindow.Draw"
+  },
+  "WelcomeWindowLine4": {
+    "message": "ゲーム内のキャラクターを調べるときに、GroupやSoloのタブに追加されたキャラクターの装備品を常に更新します。",
+    "description": "WelcomeWindow.Draw"
+  },
+  "WelcomeWindowLine5": {
+    "message": "この機能を実際に使用するには、Soloタブの右側にある「+ボタン」を使ってグループを追加する必要があります。これには2つの選択肢があります。\n\"新規作成\"では、自分ですべてを入力することができます。また、\"現在のグループを編集 \"を選択することで、グループをパーティに集め（または次の集まりを待ち）、プラグインに自動で登録を任せることができます。ただし、グループ名とプレイヤーのニックネームを手動で設定する必要があります。\"",
+    "description": "WelcomeWindow.Draw"
+  },
+  "WelcomeWindowLine6": {
+    "message": "もし、起動時に戦利品マスタを開くようにしたい場合は、オプションをざっと見てみることをお勧めします。より詳しい説明はwikiを参照してください :)",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Open LootMaster": {
+    "message": "LootMasterを開く",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Open LootMaster main window (/lootmaster)": {
+    "message": "LootMaster のメインウィンドウを開く (/lootmaster)",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Open Options": {
+    "message": "オプションを開く",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Show configuration options (/hrt config)": {
+    "message": "設定オプションを表示 (/hrt config)",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Open Wiki": {
+    "message": "Wikiを開く",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Open the wiki in your browser": {
+    "message": "Wikiをブラウザで開きますか?",
+    "description": "WelcomeWindow.Draw"
+  },
+  "Close this window": {
+    "message": "このウィンドウを閉じる",
+    "description": "WelcomeWindow.Draw"
   },
   "Strength": {
     "message": "STR",
@@ -1021,18 +1033,22 @@
   },
   "LodestoneConnector:CharNotFound": {
     "message": "Lodestoneにキャラクターが見つかりません。",
-    "description": "<UpdateCharacter>d__5.MoveNext"
+    "description": "<UpdateCharacterAsync>d__6.MoveNext"
   },
   "LodestoneConnector:JobIncompatible": {
     "message": "使用中のジョブまたは表示中のジョブが Lodestone に対応していません。",
-    "description": "<UpdateCharacter>d__5.MoveNext"
+    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+  },
+  "LodestoneConnector:FailedtoCreateGear": {
+    "message": "Could not create new gear set.",
+    "description": "<UpdateCharacterAsync>d__6.MoveNext"
   },
   "LodestoneConnector:Sucess": {
     "message": "{0} の {1} 装備品をLodestone から更新しました。",
-    "description": "<UpdateCharacter>d__5.MoveNext"
+    "description": "<UpdateCharacterAsync>d__6.MoveNext"
   },
   "LodestoneConnector:Failure": {
     "message": "Lodestoneから装備品を更新できませんでした。",
-    "description": "<UpdateCharacter>d__5.MoveNext"
+    "description": "<UpdateCharacterAsync>d__6.MoveNext"
   }
 }
