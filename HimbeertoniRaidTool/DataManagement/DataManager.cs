@@ -105,6 +105,10 @@ public class HrtDataManager
             RaidGRoupJsonFile.CopyTo(RaidGRoupJsonFile.FullName + ".bak", true);
             Initialized = !migrationError;
             migrationError |= !Save();
+            if (migrationError)
+                PluginLog.Error("Database migration failed");
+            else
+                PluginLog.Information("Database migration ended succesful");
             loadError |= migrationError;
 #pragma warning restore CS0612 // Type or member is obsolete
         }

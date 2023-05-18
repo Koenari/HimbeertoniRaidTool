@@ -66,7 +66,7 @@ internal class CharacterDB
                 Data.Add(c.LocalID, c);
             }
         }
-        PluginLog.Debug($"Migrated {count} characters");
+        PluginLog.Information($"Migrated {count} characters");
     }
     internal ulong GetNextSequence() => NextSequence++;
     internal IEnumerable<uint> GetUsedWorlds() => UsedWorlds;

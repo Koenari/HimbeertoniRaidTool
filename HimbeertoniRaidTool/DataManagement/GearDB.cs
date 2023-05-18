@@ -58,7 +58,7 @@ internal class GearDB
             }
             Data.Add(gearSet.LocalID, gearSet);
         }
-        PluginLog.Debug($"Migrated {count} gear sets");
+        PluginLog.Information($"Migrated {count} gear sets");
     }
     internal ulong GetNextSequence() => NextSequence++;
     internal bool AddSet(GearSet gearSet)

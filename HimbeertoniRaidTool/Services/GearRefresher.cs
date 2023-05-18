@@ -99,7 +99,7 @@ internal static unsafe class GearRefresher
             && !ServiceManager.CharacterInfoService.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
         {
             PluginLog.Debug($"Name + World from examine window didn't match any character in the area: " +
-                $"name1 {charNameFromExamine}, name 2 {charNameFromExamine2}, wolrd {worldFromExamine?.Name}");
+                $"Name1 {charNameFromExamine}, Name2 {charNameFromExamine2}, World {worldFromExamine?.Name}");
             return;
         }
         if (!ServiceManager.HrtDataManager.Ready)
