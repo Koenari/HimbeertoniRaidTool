@@ -1,6 +1,8 @@
 ﻿using System.Numerics;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
+using Dalamud.Logging;
+using Dalamud.Utility;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
@@ -229,6 +231,16 @@ internal class EditPlayerWindow : HrtWindow
                     ServiceManager.TaskManager.RegisterTask(new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(target.BIS), CallBack));
                 }
                 target.BIS = etroSet;
+            }
+            else if (!target.BIS.EtroID.IsNullOrEmpty())
+            {
+                GearSet bis = new()
+                {
+                    ManagedBy = GearSetManager.HRT
+                };
+                if (!gearSetDB.AddSet(bis))
+                    PluginLog.Debug("BiS not saved!");
+                target.BIS = bis;
             }
 
         }
