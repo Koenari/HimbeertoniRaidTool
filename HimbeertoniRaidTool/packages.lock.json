@@ -4,9 +4,9 @@
     "net7.0-windows7.0": {
       "DalamudPackager": {
         "type": "Direct",
-        "requested": "[2.1.10, )",
-        "resolved": "2.1.10",
-        "contentHash": "S6NrvvOnLgT4GDdgwuKVJjbFo+8ZEj+JsEYk9ojjOR/MMfv1dIFpT8aRJQfI24rtDcw1uF+GnSSMN4WW1yt7fw=="
+        "requested": "[2.1.11, )",
+        "resolved": "2.1.11",
+        "contentHash": "9qlAWoRRTiL/geAvuwR/g6Bcbrd/bJJgVnB/RurBiyKs6srsP0bvpoo8IK+Eg8EA6jWeM6/YJWs66w4FIAzqPw=="
       },
       "HtmlAgilityPack": {
         "type": "Transitive",
@@ -41,8 +41,8 @@
       },
       "Lumina.Excel": {
         "type": "Transitive",
-        "resolved": "6.3.2",
-        "contentHash": "tdSIhTDV5Tnh19slA8qRDv8f1ewSY3ujrkwQteFRmIgydBq6kvZO6suC69/3uv9tHpUe7Ec+aiylW530E8nlMg==",
+        "resolved": "6.4.0",
+        "contentHash": "BzkxwTFZC8449GS1dIiK9m+WLsPLykCSfW4nzj2Bx2lpTbBrXk2jUdlQG+iAbHWemfOB/lVWsr8vnspEoFPdEw==",
         "dependencies": {
           "Lumina": "3.10.0"
         }
@@ -56,7 +56,7 @@
         "type": "Project",
         "dependencies": {
           "Koenari.XIVCalc": "[0.1.2, )",
-          "Lumina.Excel": "[6.3.2, )",
+          "Lumina.Excel": "[6.4.0, )",
           "Newtonsoft.Json": "[13.0.3, )"
         }
       },

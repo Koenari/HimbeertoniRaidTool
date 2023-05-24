@@ -15,6 +15,7 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        Logging: Messages should be more descriptive
-        Translation: German updated
+        Updated for 6.4
+        Added Anabaseios Raids
+        Note: Default BiS will be added when available
 
