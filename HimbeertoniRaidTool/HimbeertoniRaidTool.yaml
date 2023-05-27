@@ -15,7 +15,6 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        Updated for 6.4
-        Added Anabaseios Raids
-        Note: Default BiS will be added when available
+        BiS: Added available BiS sets
+        Bugfix: Ring coffer now actually contains rings
 
