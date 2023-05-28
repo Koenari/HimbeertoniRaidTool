@@ -14,7 +14,7 @@ internal class CharacterDB
     private readonly HashSet<uint> UsedWorlds = new();
     private readonly Dictionary<(uint, string), HrtID> NameLookup = new();
     private readonly Dictionary<ulong, HrtID> CharIDLookup = new();
-    private ulong NextSequence = 1;
+    private ulong NextSequence = 0;
 
     internal CharacterDB(HrtDataManager dataManager, string serializedData, GearsetReferenceConverter conv, JsonSerializerSettings settings)
     {

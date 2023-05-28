@@ -17,4 +17,5 @@ image_urls:
 changelog: |-
         Fix: Corrected loot for Anabaseios Savage (Thanks to Zeppy for helping)
         Fix: Dungeon/Trial Gear is now shown correctly
+        Fix: Fixed an issue with potentially overriding gear sets (since 1.2.x.x)
 

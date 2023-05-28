@@ -14,7 +14,7 @@ internal class GearDB
     private readonly Dictionary<HrtID, GearSet> Data = new();
     private readonly Dictionary<string, HrtID> EtroLookup = new();
     private bool EtroHasUpdated = false;
-    private ulong NextSequence = 1;
+    private ulong NextSequence = 0;
     internal GearDB(HrtDataManager dataManager, string gearData, JsonSerializerSettings settings)
     {
         DataManager = dataManager;
@@ -32,6 +32,7 @@ internal class GearDB
             }
         }
         PluginLog.Information($"DB conatins {Data.Count} gearsets");
+        NextSequence++;
     }
     [Obsolete]
     internal GearDB(HrtDataManager dataManager, LegacyGearDB oldDB, LocalIDProvider localIDProvider)
