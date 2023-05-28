@@ -36,7 +36,8 @@ internal class CharacterDB
                 if (Data.TryAdd(c.LocalID, c))
                 {
                     UsedWorlds.Add(c.HomeWorldID);
-                    NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID);
+                    if (!NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID))
+                        PluginLog.Warning($"Database conatains {c.Name} @ {c.HomeWorld?.Name} twice");
                     if (c.CharID > 0)
                         CharIDLookup.TryAdd(c.CharID, c.LocalID);
                     NextSequence = Math.Max(NextSequence, c.LocalID.Sequence);
