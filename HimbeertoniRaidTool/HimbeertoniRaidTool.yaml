@@ -15,6 +15,6 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        BiS: Added available BiS sets
-        Bugfix: Ring coffer now actually contains rings
+        Fix: Corrected loot for Anabaseios Savage (Thanks to Zeppy for helping)
+        Fix: Dungeon/Trial Gear is now shown correctly
 
