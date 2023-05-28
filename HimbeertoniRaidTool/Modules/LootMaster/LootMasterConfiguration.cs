@@ -212,7 +212,7 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
         [JsonIgnore]
         internal static Dictionary<Job, string> DefaultBIS { get; } = new Dictionary<Job, string>
         {
-            { Job.AST, "" },
+            { Job.AST, "83845599-bb32-4539-b829-971501856d7e" },
             { Job.BLM, "1d113f03-16e3-4a47-83a9-c3366a0fff84" },
             { Job.BRD, "f2426d1e-2da8-4151-bf52-74ca67b5f4a2" },
             { Job.DNC, "50746158-5be1-4972-82f4-84a577f4bcce" },
@@ -226,8 +226,8 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
             { Job.RDM, "6d7a091d-52f5-49ec-9b2e-d7b1d4c45733" },
             { Job.RPR, "3c8ec7ad-ccfc-42ce-a129-13bd032e2220" },
             { Job.SAM, "d4b6bfc6-a82f-4732-8e55-7c13e094fc1d" },
-            { Job.SCH, "" },
-            { Job.SGE, "" },
+            { Job.SCH, "d7b63d98-5c7f-4b3a-bc0c-f99eb049a8d4" },
+            { Job.SGE, "efc239cb-6371-4d1e-b645-8dd7600575b5" },
             { Job.SMN, "66f5ec54-c062-467f-811f-5e77a90c7aba" },
             { Job.WAR, "1103c082-1c80-4bf3-bb56-83734971d5ea" },
             { Job.WHM, "aee5c1f4-5e59-47fb-88ff-3eeffbef6231" },
