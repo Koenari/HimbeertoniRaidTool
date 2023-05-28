@@ -45,14 +45,13 @@ internal class CharacterDB
                 }
             }
         }
-        PluginLog.Debug($"DB conatins {Data.Count} characters");
+        PluginLog.Information($"DB conatins {Data.Count} characters");
         NextSequence++;
     }
     [Obsolete]
     internal CharacterDB(HrtDataManager dataManager, LegacyCharacterDB oldDB, LocalIDProvider idProvider)
     {
         //Migration constructor
-        PluginLog.Debug("Called character DB migration constructor");
         DataManager = dataManager;
         Data = new();
         int count = 0;

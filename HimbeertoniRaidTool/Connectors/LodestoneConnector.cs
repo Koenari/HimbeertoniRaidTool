@@ -237,7 +237,7 @@ internal class NetstoneBase
             }
             else
             {
-                PluginLog.Log("Using ID to search...");
+                PluginLog.Information("Using ID to search...");
                 foundCharacter = await _lodestoneClient!.GetCharacter(c.LodestoneID.ToString());
             }
             if (foundCharacter == null)

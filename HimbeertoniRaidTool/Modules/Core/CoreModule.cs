@@ -63,7 +63,7 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
 #endif
                 case string when args.IsNullOrEmpty() || args.Contains("help"): _wcw.Show(); break;
                 default:
-                    PluginLog.LogError($"Argument {args} for command \"/hrt\" not recognized");
+                    PluginLog.Error($"Argument {args} for command \"/hrt\" not recognized");
                     break;
             }
         }

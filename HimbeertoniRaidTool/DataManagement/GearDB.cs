@@ -31,12 +31,11 @@ internal class GearDB
                 NextSequence = Math.Max(NextSequence, set.LocalID.Sequence);
             }
         }
-        PluginLog.Debug($"DB conatins {Data.Count} gearsets");
+        PluginLog.Information($"DB conatins {Data.Count} gearsets");
     }
     [Obsolete]
     internal GearDB(HrtDataManager dataManager, LegacyGearDB oldDB, LocalIDProvider localIDProvider)
     {
-        PluginLog.Debug("Called gear DB migration constructor");
         DataManager = dataManager;
         Data = new();
         int count = 0;

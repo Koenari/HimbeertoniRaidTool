@@ -30,7 +30,7 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
         {
             string msg = "Tried loading a configuration from a newer version of the plugin." +
                 "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
-            PluginLog.LogFatal(msg);
+            PluginLog.Fatal(msg);
             ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
         }

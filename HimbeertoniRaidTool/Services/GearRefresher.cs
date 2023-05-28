@@ -89,7 +89,7 @@ internal static unsafe class GearRefresher
         }
         catch (Exception e)
         {
-            PluginLog.Debug(e, "Exception while reading name / world from examine window");
+            PluginLog.Error(e, "Exception while reading name / world from examine window");
             return;
         }
         if (worldFromExamine is null)
@@ -98,7 +98,7 @@ internal static unsafe class GearRefresher
         if (!ServiceManager.CharacterInfoService.TryGetChar(out var target, charNameFromExamine, worldFromExamine)
             && !ServiceManager.CharacterInfoService.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
         {
-            PluginLog.Debug($"Name + World from examine window didn't match any character in the area: " +
+            PluginLog.Error($"Name + World from examine window didn't match any character in the area: " +
                 $"Name1 {charNameFromExamine}, Name2 {charNameFromExamine2}, World {worldFromExamine?.Name}");
             return;
         }
@@ -142,6 +142,7 @@ internal static unsafe class GearRefresher
             targetClass.Level = target.Level;
         var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
         UpdateGear(container, targetClass);
+        PluginLog.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
     }
     internal static void UpdateGear(InventoryContainer* container, PlayableClass targetClass)
     {

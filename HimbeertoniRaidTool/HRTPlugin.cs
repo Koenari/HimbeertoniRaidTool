@@ -102,7 +102,7 @@ public sealed class HRTPlugin : IDalamudPlugin
                     instance.Configuration.AfterLoad();
             ServiceManager.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
             module.AfterFullyLoaded();
-            PluginLog.Debug($"Succesfully loaded module: {module.Name}");
+            PluginLog.Information($"Succesfully loaded module: {module.Name}");
         }
         catch (Exception e)
         {
