@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Dalamud.Logging;
+using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Security;
@@ -26,6 +27,7 @@ internal class CharacterDB
             PluginLog.Error("Could not load CharacterDB");
         else
         {
+            HashSet<HrtID> KnownGear = new();
             foreach (Character c in data)
             {
                 if (c.LocalID.IsEmpty)
@@ -42,7 +44,21 @@ internal class CharacterDB
                         CharIDLookup.TryAdd(c.CharID, c.LocalID);
                     NextSequence = Math.Max(NextSequence, c.LocalID.Sequence);
                     foreach (var job in c)
+                    {
                         job.SetParent(c);
+                        if (KnownGear.Contains(job.Gear.LocalID))
+                        {
+                            var gearCopy = job.Gear.Clone();
+                            PluginLog.Debug($"Found Gear duplicate with Sequence: {gearCopy.LocalID.Sequence}");
+                            gearCopy.LocalID = HrtID.Empty;
+                            dataManager.GearDB.AddSet(gearCopy);
+                            job.Gear = gearCopy;
+                        }
+                        else
+                        {
+                            KnownGear.Add(job.Gear.LocalID);
+                        }
+                    }
                 }
             }
         }
