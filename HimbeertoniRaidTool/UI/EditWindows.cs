@@ -190,8 +190,13 @@ internal class EditPlayerWindow : HrtWindow
                 return;
         }
         //Copy safe data
-        Player.MainChar.Name = PlayerCopy.MainChar.Name;
-        Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
+        if (Player.MainChar.Name != PlayerCopy.MainChar.Name ||
+            Player.MainChar.HomeWorldID != PlayerCopy.MainChar.HomeWorldID)
+        {
+            Player.MainChar.Name = PlayerCopy.MainChar.Name;
+            Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
+            ServiceManager.HrtDataManager.CharDB.ReindexCharacter(Player.MainChar.LocalID);
+        }
         Player.MainChar.TribeID = PlayerCopy.MainChar.TribeID;
         Player.MainChar.MainJob = PlayerCopy.MainChar.MainJob;
         //Remove classes that were removed in Ui

@@ -124,6 +124,16 @@ internal class CharacterDB
     internal bool TryGetCharacter(HrtID id, [NotNullWhen(true)] out Character? c)
         => Data.TryGetValue(id, out c);
     internal bool Contains(HrtID hrtID) => Data.ContainsKey(hrtID);
+
+    internal void ReindexCharacter(HrtID localID)
+    {
+        if (!TryGetCharacter(localID, out Character? c))
+            return;
+        UsedWorlds.Add(c.HomeWorldID);
+        NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID);
+        if (c.CharID > 0)
+            CharIDLookup.TryAdd(c.CharID, c.LocalID);
+    }
     internal string Serialize(GearsetReferenceConverter conv, JsonSerializerSettings settings)
     {
         settings.Converters.Add(conv);
