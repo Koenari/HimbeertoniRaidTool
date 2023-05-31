@@ -231,7 +231,7 @@ internal class LootmasterUI : HrtWindow
                 {
                     if (slot == GearSetSlot.OffHand)
                         continue;
-                    ImGui.TableSetupColumn(slot.FriendlyName());
+                    ImGui.TableSetupColumn(slot.FriendlyName(true));
                 }
                 ImGui.TableSetupColumn(Localize("Options", "Options"));
                 ImGui.TableHeadersRow();

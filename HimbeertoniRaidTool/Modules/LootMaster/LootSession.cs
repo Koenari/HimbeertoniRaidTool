@@ -125,14 +125,18 @@ public class LootSession
         EvaluateFinished();
         return true;
     }
-    internal bool AwardItem((HrtItem, int) loot, GearItem toAward, int idx)
+    internal bool AwardItem((HrtItem, int) loot, GearItem toAward, int idx, bool altSlot = false)
     {
         if (CurrentState < State.DISTRIBUTION_STARTED)
             CurrentState = State.DISTRIBUTION_STARTED;
         if (Results[loot].IsAwarded || CurrentState == State.FINISHED)
             return false;
         Results[loot].Award(idx, toAward);
-        var slot = toAward.Slots.First();
+        GearSetSlot slot;
+        if (toAward.Slots.Count() > 1 && altSlot)
+            slot = toAward.Slots.Skip(1).First();
+        else
+            slot = toAward.Slots.First();
         var c = Results[loot].AwardedTo?.AplicableJob;
         if (c != null)
         {

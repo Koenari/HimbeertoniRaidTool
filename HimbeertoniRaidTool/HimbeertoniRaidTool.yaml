@@ -16,4 +16,4 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
         Fix: Mutiple characters unintentionally sharing gearsets
-
+        LootSession: Rings can now be assigned to a slot explicitly

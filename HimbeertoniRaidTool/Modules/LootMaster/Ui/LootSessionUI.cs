@@ -213,10 +213,27 @@ internal class LootSessionUI : HrtWindow
                             if (!results.IsAwarded || results.AwardedIdx == i && neededItem.Equals(results[i].AwardedItem))
                             {
                                 ImGui.SameLine();
-                                if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"Award##{i}##{neededItem.ID}",
-                                    Localize("LootResult:AwardButton:Tooltip", "Award to player"), !results.IsAwarded))
+                                if (neededItem.Slots.Count() > 1)
                                 {
-                                    _session.AwardItem((item, nr), neededItem, i);
+                                    if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"Award##{i}##{neededItem.ID}",
+                                    $"{Localize("LootResult:AwardButton:Tooltip", "Award to player")} (R)", !results.IsAwarded))
+                                    {
+                                        _session.AwardItem((item, nr), neededItem, i);
+                                    }
+                                    ImGui.SameLine();
+                                    if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"Award##{i}##{neededItem.ID}",
+                                        $"{Localize("LootResult:AwardButton:Tooltip", "Award to player")} (L)", !results.IsAwarded))
+                                    {
+                                        _session.AwardItem((item, nr), neededItem, i, true);
+                                    }
+                                }
+                                else
+                                {
+                                    if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"Award##{i}##{neededItem.ID}",
+                                    $"{Localize("LootResult:AwardButton:Tooltip", "Award to player")}", !results.IsAwarded))
+                                    {
+                                        _session.AwardItem((item, nr), neededItem, i);
+                                    }
                                 }
                             }
                         }

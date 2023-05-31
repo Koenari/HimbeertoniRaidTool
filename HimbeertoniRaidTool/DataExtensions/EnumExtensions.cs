@@ -68,22 +68,23 @@ public static class EnumExtensions
         _ => Localize("undefined", "undefined")
 
     };
-    public static string FriendlyName(this GearSetSlot slot) => slot switch
+    public static string FriendlyName(this GearSetSlot slot, bool detailed = false) => (slot, detailed) switch
     {
-        GearSetSlot.MainHand => Localize("Weapon", "Weapon"),
-        GearSetSlot.OffHand => Localize("Shield", "Shield"),
-        GearSetSlot.Head => Localize("Head", "Head"),
-        GearSetSlot.Body => Localize("Body", "Body"),
-        GearSetSlot.Hands => Localize("Gloves", "Gloves"),
-        GearSetSlot.Waist => Localize("NoBelts", "There no longer are belts you fuckwit"),
-        GearSetSlot.Legs => Localize("Trousers", "Trousers"),
-        GearSetSlot.Feet => Localize("Shoes", "Shoes"),
-        GearSetSlot.Ear => Localize("Earrings", "Earrings"),
-        GearSetSlot.Neck => Localize("Necklace", "Necklace"),
-        GearSetSlot.Wrist => Localize("Bracelet", "Bracelet"),
-        GearSetSlot.Ring1 => Localize("Ring", "Ring"),
-        GearSetSlot.Ring2 => Localize("Ring", "Ring"),
-        GearSetSlot.SoulCrystal => Localize("Soul Crystal", "Soul Crystal"),
+        (GearSetSlot.MainHand, _) => Localize("Weapon", "Weapon"),
+        (GearSetSlot.OffHand, _) => Localize("Shield", "Shield"),
+        (GearSetSlot.Head, _) => Localize("Head", "Head"),
+        (GearSetSlot.Body, _) => Localize("Body", "Body"),
+        (GearSetSlot.Hands, _) => Localize("Gloves", "Gloves"),
+        (GearSetSlot.Waist, _) => Localize("NoBelts", "There no longer are belts you fuckwit"),
+        (GearSetSlot.Legs, _) => Localize("Trousers", "Trousers"),
+        (GearSetSlot.Feet, _) => Localize("Shoes", "Shoes"),
+        (GearSetSlot.Ear, _) => Localize("Earrings", "Earrings"),
+        (GearSetSlot.Neck, _) => Localize("Necklace", "Necklace"),
+        (GearSetSlot.Wrist, _) => Localize("Bracelet", "Bracelet"),
+        (GearSetSlot.Ring1, true) => Localize("Ring (R)", "Ring (R)"),
+        (GearSetSlot.Ring2, true) => Localize("Ring (L)", "Ring (L)"),
+        (GearSetSlot.Ring1 or GearSetSlot.Ring2, false) => Localize("Ring", "Ring"),
+        (GearSetSlot.SoulCrystal, _) => Localize("Soul Crystal", "Soul Crystal"),
         _ => Localize("undefined", "undefined")
 
     };
