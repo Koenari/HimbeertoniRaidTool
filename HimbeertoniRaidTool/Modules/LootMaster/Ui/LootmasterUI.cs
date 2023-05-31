@@ -338,6 +338,7 @@ internal class LootmasterUI : HrtWindow
                     ImGui.Text(curJob.ToString());
                 }
                 //Gear Column
+                ImGui.PushID("GearButtons");
                 var gear = curJob.Gear;
                 var bis = curJob.BIS;
                 ImGui.TableNextColumn();
@@ -378,6 +379,7 @@ internal class LootmasterUI : HrtWindow
                     string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), bis.Name), bis.EtroID.Length > 0, ButtonSize))
                     ServiceManager.TaskManager.RegisterTask(
                         new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(bis), HandleMessage));
+                ImGui.PopID();
                 foreach ((var slot, var itemTuple) in curJob.ItemTuples)
                 {
                     if (slot == GearSetSlot.OffHand)
