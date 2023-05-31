@@ -17,3 +17,4 @@ image_urls:
 changelog: |-
         Fix: Mutiple characters unintentionally sharing gearsets
         LootSession: Rings can now be assigned to a slot explicitly
+        Ui: Added button to update BiS in group overview

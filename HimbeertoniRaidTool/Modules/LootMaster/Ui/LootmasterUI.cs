@@ -151,7 +151,7 @@ internal class LootmasterUI : HrtWindow
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.BIS.Name}"))
                 AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job));
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Redo, playableClass.BIS.EtroID,
+            if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.BIS.EtroID,
                 string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
                 ServiceManager.TaskManager.RegisterTask(
                     new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS), HandleMessage));
@@ -341,13 +341,20 @@ internal class LootmasterUI : HrtWindow
                 var gear = curJob.Gear;
                 var bis = curJob.BIS;
                 ImGui.TableNextColumn();
+                float curY = ImGui.GetCursorPosY();
+                ImGui.SetCursorPosY(curY + 4 * ScaleFactor);
                 ImGui.Text($"{gear.ItemLevel}");
                 ImGuiHelper.AddTooltip(gear.Name);
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditCurGear", $"Edit {gear.Name}"))
+                ImGui.SetCursorPosY(curY + 3 * ScaleFactor);
+                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditCurGear", $"Edit {gear.Name}", true, ButtonSize))
                     AddChild(new EditGearSetWindow(gear, curJob.Job)); ;
+                ImGui.SameLine();
+                ImGui.SetCursorPosY(curY + 3 * ScaleFactor);
+                ImGuiHelper.GearUpdateButtons(player, _lootMaster, false, ButtonSize);
                 //ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
-                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / 2f);
+                curY = ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / 2f;
+                ImGui.SetCursorPosY(curY + 5 * ScaleFactor);
                 ImGui.Text($"{bis.ItemLevel}");
                 if (ImGui.IsItemClicked())
                     ServiceManager.TaskManager.RegisterTask(new(() =>
@@ -360,9 +367,17 @@ internal class LootmasterUI : HrtWindow
                         return new HrtUiMessage();
                     }, a => { }));
                 ImGuiHelper.AddTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
+
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditBiSGear", $"Edit {bis.Name}"))
+                ImGui.SetCursorPosY(curY);
+                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditBiSGear", $"Edit {bis.Name}", true, ButtonSize))
                     AddChild(new EditGearSetWindow(bis, curJob.Job));
+                ImGui.SameLine();
+                ImGui.SetCursorPosY(curY);
+                if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.EtroID,
+                    string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), bis.Name), bis.EtroID.Length > 0, ButtonSize))
+                    ServiceManager.TaskManager.RegisterTask(
+                        new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(bis), HandleMessage));
                 foreach ((var slot, var itemTuple) in curJob.ItemTuples)
                 {
                     if (slot == GearSetSlot.OffHand)
