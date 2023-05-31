@@ -32,7 +32,7 @@ public class Configuration : IPluginConfiguration, IDisposable
         if (Configurations.ContainsKey(config.GetType()))
             return false;
         Configurations.Add(config.GetType(), config);
-        return ServiceManager.HrtDataManager.ModuleConfigurationManager?.LoadConfiguration(config.ParentInternalName, ref config.Data) ?? false;
+        return ServiceManager.HrtDataManager.ModuleConfigurationManager.LoadConfiguration(config.ParentInternalName, ref config.Data);
     }
     internal void Save(bool saveAll = true)
     {
@@ -145,7 +145,7 @@ public abstract class HRTConfiguration<T, S> where T : new() where S : IHrtConfi
     }
     internal void Save()
     {
-        ServiceManager.HrtDataManager.ModuleConfigurationManager?.SaveConfiguration(ParentInternalName, Data);
+        ServiceManager.HrtDataManager.ModuleConfigurationManager.SaveConfiguration(ParentInternalName, Data);
     }
     public abstract void AfterLoad();
 }

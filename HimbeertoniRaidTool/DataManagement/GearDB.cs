@@ -88,18 +88,18 @@ internal class GearDB
         set = null;
         return false;
     }
-    internal void UpdateEtroSets(int maxAgeInDays)
+    internal void UpdateEtroSets(bool updateAll, int maxAgeInDays)
     {
         if (EtroHasUpdated)
             return;
         EtroHasUpdated = true;
-        ServiceManager.TaskManager.RegisterTask(new(() => UpdateEtroSetsAsync(maxAgeInDays), LogUpdates));
+        ServiceManager.TaskManager.RegisterTask(new(() => UpdateEtroSetsAsync(updateAll, maxAgeInDays), LogUpdates));
     }
     private void LogUpdates(HrtUiMessage hrtUiMessage)
     {
         PluginLog.Information(hrtUiMessage.Message);
     }
-    private HrtUiMessage UpdateEtroSetsAsync(int maxAgeInDays)
+    private HrtUiMessage UpdateEtroSetsAsync(bool updateAll, int maxAgeInDays)
     {
         var OldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
@@ -107,10 +107,11 @@ internal class GearDB
         foreach (var gearSet in Data.Values.Where(set => set.ManagedBy == GearSetManager.Etro))
         {
             totalCount++;
-            if (gearSet.EtroFetchDate >= OldestValid)
-                continue;
-            ServiceManager.ConnectorPool.EtroConnector.GetGearSet(gearSet);
-            updateCount++;
+            if (gearSet.IsEmpty || (gearSet.EtroFetchDate < OldestValid && updateAll))
+            {
+                ServiceManager.ConnectorPool.EtroConnector.GetGearSet(gearSet);
+                updateCount++;
+            }
         }
         return new()
         {

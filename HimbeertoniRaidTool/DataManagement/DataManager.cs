@@ -11,7 +11,7 @@ namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
 public class HrtDataManager
 {
-    public bool Initialized { get; private set; }
+    public readonly bool Initialized;
     private volatile bool Saving = false;
     private volatile bool Serializing = false;
     //Data
@@ -172,7 +172,6 @@ public class HrtDataManager
         }
     }
 
-    public void UpdateEtroSets(int maxAgeDays) => _gearDB?.UpdateEtroSets(maxAgeDays);
     private string SerializeGroupData(CharacterReferenceConverter charRefCon)
     {
         JsonSettings.Converters.Add(charRefCon);
