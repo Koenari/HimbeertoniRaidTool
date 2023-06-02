@@ -15,6 +15,7 @@ internal class CharacterDB
     private readonly HashSet<uint> UsedWorlds = new();
     private readonly Dictionary<(uint, string), HrtID> NameLookup = new();
     private readonly Dictionary<ulong, HrtID> CharIDLookup = new();
+    private readonly Dictionary<HrtID, HrtID> IDReplacement = new();
     private ulong NextSequence = 0;
 
     internal CharacterDB(HrtDataManager dataManager, string serializedData, GearsetReferenceConverter conv, JsonSerializerSettings settings)
@@ -39,7 +40,12 @@ internal class CharacterDB
                 {
                     UsedWorlds.Add(c.HomeWorldID);
                     if (!NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID))
-                        PluginLog.Warning($"Database conatains {c.Name} @ {c.HomeWorld?.Name} twice");
+                    {
+                        PluginLog.Warning($"Database conatains {c.Name} @ {c.HomeWorld?.Name} twice. Characters were merged");
+                        TryGetCharacter(NameLookup[(c.HomeWorldID, c.Name)], out Character? other);
+                        IDReplacement.Add(c.LocalID, other!.LocalID);
+                        other.MergeInfos(c);
+                    }
                     if (c.CharID > 0)
                         CharIDLookup.TryAdd(c.CharID, c.LocalID);
                     NextSequence = Math.Max(NextSequence, c.LocalID.Sequence);
@@ -138,7 +144,12 @@ internal class CharacterDB
         return false;
     }
     internal bool TryGetCharacter(HrtID id, [NotNullWhen(true)] out Character? c)
-        => Data.TryGetValue(id, out c);
+    {
+        if (IDReplacement.ContainsKey(id))
+            id = IDReplacement[id];
+        return Data.TryGetValue(id, out c);
+    }
+
     internal bool Contains(HrtID hrtID) => Data.ContainsKey(hrtID);
 
     internal void ReindexCharacter(HrtID localID)
