@@ -15,7 +15,4 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        Fix: Mutiple characters unintentionally sharing gearsets
-        LootSession: Rings can now be assigned to a slot explicitly
-        Ui: Added button to update BiS in group overview
-        BiS: Always update empty sets (with valid ID) at startup
+        Fix: Merge infos for multiple database entries for one character

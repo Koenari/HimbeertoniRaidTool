@@ -344,7 +344,7 @@ internal class LootmasterUI : HrtWindow
                 ImGui.TableNextColumn();
                 float curY = ImGui.GetCursorPosY();
                 ImGui.SetCursorPosY(curY + 4 * ScaleFactor);
-                ImGui.Text($"{gear.ItemLevel}");
+                ImGui.Text($"{gear.ItemLevel:D3}");
                 ImGuiHelper.AddTooltip(gear.Name);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(curY + 3 * ScaleFactor);
@@ -356,7 +356,7 @@ internal class LootmasterUI : HrtWindow
                 //ImGui.Text($"{bis.ItemLevel - gear.ItemLevel} {Localize("to BIS", "to BIS")}");
                 curY = ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / 2f;
                 ImGui.SetCursorPosY(curY + 5 * ScaleFactor);
-                ImGui.Text($"{bis.ItemLevel}");
+                ImGui.Text($"{bis.ItemLevel:D3}");
                 if (ImGui.IsItemClicked())
                     ServiceManager.TaskManager.RegisterTask(new(() =>
                     {
