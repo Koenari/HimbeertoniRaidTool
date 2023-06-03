@@ -58,9 +58,6 @@ internal class EditPlayerWindow : HrtWindow
         ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Player Data", "Player Data")).X) / 2f);
         ImGui.Text(Localize("Player Data", "Player Data"));
         ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
-        int dps = PlayerCopy.AdditionalData.ManualDPS;
-        if (ImGui.InputInt(Localize("manuallySetDPS", "Predicted DPS"), ref dps, 100, 1000))
-            PlayerCopy.AdditionalData.ManualDPS = dps;
         //Character Data
         ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
         ImGui.Text(Localize("Character Data", "Character Data"));
@@ -177,7 +174,6 @@ internal class EditPlayerWindow : HrtWindow
         List<(Job, Func<bool>)> bisUpdates = new();
         //Player Data
         Player.NickName = PlayerCopy.NickName;
-        Player.AdditionalData.ManualDPS = PlayerCopy.AdditionalData.ManualDPS;
         //Character Data
         if (IsNew)
         {

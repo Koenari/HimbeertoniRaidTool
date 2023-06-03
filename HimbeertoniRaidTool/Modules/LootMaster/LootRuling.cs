@@ -1,8 +1,8 @@
-﻿using System.Data;
-using HimbeertoniRaidTool.Common;
+﻿using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
+using System.Data;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
@@ -57,7 +57,6 @@ public class LootRule : IEquatable<LootRule>
         LootRuleEnum.HighesItemLevelGain => (x.ItemLevelGain(), null),
         LootRuleEnum.BISOverUpgrade => x.IsBiS() ? (1, "y") : (-1, "n"),
         LootRuleEnum.RolePrio => (x.RolePrio(session), x.AplicableJob.Role.ToString()),
-        LootRuleEnum.DPS => (x.Player.AdditionalData.ManualDPS, null),
         LootRuleEnum.DPSGain => (x.DPSGain(), $"{(x.DPSGain() * 100):f1} %%"),
         _ => (0, "none"),
     };
@@ -69,7 +68,6 @@ public class LootRule : IEquatable<LootRule>
         LootRuleEnum.HighesItemLevelGain => Localize("HighesItemLevelGain", "Highest ItemLevel Gain"),
         LootRuleEnum.RolePrio => Localize("ByRole", "Prioritise by role"),
         LootRuleEnum.Random => Localize("Rolling", "Rolling"),
-        LootRuleEnum.DPS => Localize("DPS", "DPS"),
         LootRuleEnum.DPSGain => Localize("DPSGain", "% DPS gained"),
         LootRuleEnum.None => Localize("None", "None"),
         LootRuleEnum.Greed => Localize("Greed", "Greed"),
