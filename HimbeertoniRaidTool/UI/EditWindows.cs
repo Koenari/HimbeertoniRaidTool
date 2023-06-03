@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Logging;
 using Dalamud.Utility;
@@ -8,6 +7,7 @@ using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
+using System.Numerics;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
@@ -35,8 +35,6 @@ internal class EditPlayerWindow : HrtWindow
             PlayerCopy.MainChar.Name = target.Name.TextValue;
             PlayerCopy.MainChar.HomeWorldID = target.HomeWorld.Id;
             PlayerCopy.MainChar.MainJob = target.GetJob();
-            //Ensure Main class is created if applicable
-            var _ = PlayerCopy.MainChar.MainClass;
         }
         else if (Player.Filled)
         {
@@ -119,7 +117,12 @@ internal class EditPlayerWindow : HrtWindow
             ImGui.Text($"{c.Job}  ");
             ImGui.NextColumn();
             ImGui.SetNextItemWidth(250f * ScaleFactor);
+            bool localBis = !c.BIS.IsEmpty && c.BIS.ManagedBy == GearSetManager.HRT;
+            ImGui.BeginDisabled(localBis);
             ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.BIS.EtroID, 50);
+            if (localBis)
+                ImGuiHelper.AddTooltip(Localize("PlayerEdit:Tooltip:LocalBis",
+                    "BiS set for this class is locally managed.\nDelete local set to use a set from etro.gg"));
             if (!c.BIS.EtroID.Equals(GetBisID(c.Job)))
             {
                 ImGui.SameLine();
@@ -127,6 +130,7 @@ internal class EditPlayerWindow : HrtWindow
                     Localize("DefaultBiSTooltip", "Fetch default BiS from configuration")))
                     c.BIS.EtroID = GetBisID(c.Job);
             }
+            ImGui.EndDisabled();
             ImGui.NextColumn();
             ImGui.NextColumn();
             ImGui.SetNextItemWidth(150f * ScaleFactor);
@@ -328,16 +332,39 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
 
     public override void Draw()
     {
+        //Save/Cancel
         if (ImGuiHelper.SaveButton())
             Save();
         ImGui.SameLine();
         if (ImGuiHelper.CancelButton())
             Hide();
-        if (ImGui.BeginTable("SoloGear", 2, ImGuiTableFlags.Borders))
+        //OTher infos
+        bool isFromEtro = _gearSet.ManagedBy == GearSetManager.Etro;
+        ImGui.Text($"{Localize("GearSetEdit:Source", "Source")}: {(isFromEtro ? Localize("GearSet:ManagedBy:Etro", "etro.gg")
+            : Localize("GearSet:ManagedBy:HrtLocal", "Local Database"))}");
+        if (isFromEtro)
         {
-            ImGui.TableSetupColumn("Gear");
-            ImGui.TableSetupColumn("Gear");
-            ImGui.TableHeadersRow();
+            ImGui.SameLine();
+            if (ImGuiHelper.Button(Localize("GearSetEdit:MakeLocal", "Create local copy"),
+                Localize("GearSetEdit:MakeLocal:tooltip",
+                "Create a copy of this set inthe local databasse. Set will not be updated from etro.gg afterwads\n" +
+                "Only local gearsets can be edited")))
+            {
+                //TODO: actual copy
+            }
+            ImGui.Text($"{Localize("Etro ID", "Etro ID")}: {_gearSetCopy.EtroID}");
+            ImGui.Text($"{Localize("GearSetEdit:EtroLastDownload", "Last update check")}: {_gearSetCopy.EtroFetchDate:d}");
+        }
+        ImGui.Text($"{Localize("GearSetEdit:LastChanged", "Last Change")}: {_gearSetCopy.TimeStamp:d}");
+        ImGui.BeginDisabled(isFromEtro);
+        ImGui.Text($"{Localize("GearSetEdit:Name", "Name")}: ");
+        ImGui.SameLine();
+        ImGui.InputText("", ref _gearSetCopy.Name, 100);
+        //Gear slots
+        if (ImGui.BeginTable("GearEditTable", 2, ImGuiTableFlags.Borders))
+        {
+            ImGui.TableSetupColumn("GearL");
+            ImGui.TableSetupColumn("GearR");
             DrawSlot(GearSetSlot.MainHand);
             if (_job.CanHaveShield())
                 DrawSlot(GearSetSlot.OffHand);
@@ -355,6 +382,7 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
             DrawSlot(GearSetSlot.Ring2);
             ImGui.EndTable();
         }
+        ImGui.EndDisabled();
         void DrawSlot(GearSetSlot slot)
         {
             ImGui.BeginDisabled(ChildIsOpen);
