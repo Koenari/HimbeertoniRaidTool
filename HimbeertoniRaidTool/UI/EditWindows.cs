@@ -358,14 +358,14 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
                 _gearSetCopy = _gearSet.Clone();
             }
             ImGui.Text($"{Localize("Etro ID", "Etro ID")}: {_gearSetCopy.EtroID}");
-            ImGui.Text($"{Localize("GearSetEdit:EtroLastDownload", "Last update check")}: {_gearSetCopy.EtroFetchDate:d}");
+            ImGui.Text($"{Localize("GearSetEdit:EtroLastDownload", "Last update check")}: {_gearSetCopy.EtroFetchDate}");
         }
         else
         {
             ImGui.Text($"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:HrtLocal", "Local Database")}");
             ImGui.Text($"{Localize("Local ID", "Local ID")}: {_gearSetCopy.LocalID}");
         }
-        ImGui.Text($"{Localize("GearSetEdit:LastChanged", "Last Change")}: {_gearSetCopy.TimeStamp:d}");
+        ImGui.Text($"{Localize("GearSetEdit:LastChanged", "Last Change")}: {_gearSetCopy.TimeStamp}");
         ImGui.BeginDisabled(isFromEtro);
         ImGui.Text($"{Localize("GearSetEdit:Name", "Name")}: ");
         ImGui.SameLine();
@@ -486,7 +486,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             $" {string.Join(',', Slots.Select((e, _) => e.FriendlyName()))}";
         maxILvl = maxItemLevel;
         minILvl = maxILvl > 30 ? maxILvl - 30 : 0;
-        _items = reevaluateItems();
+        _items = ReevaluateItems();
     }
 
     protected override void DrawItemSelection()
@@ -495,7 +495,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         ImGui.SetNextItemWidth(65f * ScaleFactor);
         ImGui.BeginDisabled(_lockJob);
         if (ImGuiHelper.Combo("##job", ref Job))
-            reevaluateItems();
+            ReevaluateItems();
         ImGui.EndDisabled();
         ImGui.SameLine();
         ImGui.SetNextItemWidth(125f * ScaleFactor);
@@ -504,7 +504,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         if (ImGuiHelper.Combo("##slot", ref slot))
         {
             Slots = new[] { slot };
-            reevaluateItems();
+            ReevaluateItems();
         }
         ImGui.SameLine();
         ImGui.EndDisabled();
@@ -513,7 +513,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         if (ImGui.InputInt("-##min", ref min, 5))
         {
             minILvl = (uint)min;
-            reevaluateItems();
+            ReevaluateItems();
         }
         ImGui.SameLine();
         int max = (int)maxILvl;
@@ -521,7 +521,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         if (ImGui.InputInt("iLvL##Max", ref max, 5))
         {
             maxILvl = (uint)max;
-            reevaluateItems();
+            ReevaluateItems();
         }
         //Draw item list
         foreach (var item in _items)
@@ -552,7 +552,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             }
         }
     }
-    private List<Item> reevaluateItems()
+    private List<Item> ReevaluateItems()
     {
         _items = Sheet.Where(x =>
             x.ClassJobCategory.Row != 0
