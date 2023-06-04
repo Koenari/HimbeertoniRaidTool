@@ -1,10 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Dalamud.Logging;
+﻿using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Security;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -27,7 +27,7 @@ internal class GearDB
             {
                 Data.TryAdd(set.LocalID, set);
                 if (set.ManagedBy == GearSetManager.Etro)
-                    EtroLookup.Add(set.EtroID, set.LocalID);
+                    EtroLookup.TryAdd(set.EtroID, set.LocalID);
                 NextSequence = Math.Max(NextSequence, set.LocalID.Sequence);
             }
         }
