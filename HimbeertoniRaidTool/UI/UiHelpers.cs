@@ -1,10 +1,10 @@
-﻿using System.Numerics;
-using Dalamud.Interface;
+﻿using Dalamud.Interface;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
+using System.Numerics;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
@@ -22,13 +22,6 @@ internal class UiHelpers
         GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {
         //Item Icon with Info
-        if (ImGuiHelper.Button(FontAwesomeIcon.Eraser,
-                $"Delete{slot}", Localize("Remove this item", "Remove this item")))
-        {
-            item = GearItem.Empty;
-            onItemChange(item);
-        }
-        ImGui.SameLine();
         ImGui.Image(ServiceManager.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, new(24, 24));
         if (ImGui.IsItemHovered())
         {
@@ -52,17 +45,32 @@ internal class UiHelpers
                      Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.ItemLevel(slot)));
             ImGui.EndDisabled();
         }
-        MateriaLevel maxMatLevel = Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
-        for (int i = 0; i < item.Materia.Count(); i++)
+        ImGui.SameLine();
+        if (ImGuiHelper.Button(FontAwesomeIcon.Eraser,
+                $"Delete{slot}", Localize("Remove this item", "Remove this item")))
         {
-            if (ImGuiHelper.Button(FontAwesomeIcon.Eraser,
-                $"Delete{slot}mat{i}", Localize("Remove this materia", "Remove this materia")))
+            item = GearItem.Empty;
+            onItemChange(item);
+        }
+        var eraserButtonWidth = ImGui.GetItemRectSize().X;
+        MateriaLevel maxMatLevel = Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxMateriaLevel;
+        int matCount = item.Materia.Count();
+        for (int i = 0; i < matCount; i++)
+        {
+            if (i == matCount - 1)
             {
-                item.RemoveMateria(i);
-                i--;
-                continue;
+                if (ImGuiHelper.Button(FontAwesomeIcon.Eraser,
+                $"Delete{slot}mat{i}", Localize("Remove this materia", "Remove this materia")))
+                {
+                    item.RemoveMateria(i);
+                    i--;
+                    continue;
+                }
+                ImGui.SameLine();
             }
-            ImGui.SameLine();
+            else
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + eraserButtonWidth + (ImGui.GetTextLineHeightWithSpacing() - ImGui.GetTextLineHeight()) * 2);
+
             var mat = item.Materia.Skip(i).First();
             ImGui.Image(ServiceManager.IconCache[mat.Item?.Icon ?? 0].ImGuiHandle, new(24, 24));
             if (ImGui.IsItemHovered())
