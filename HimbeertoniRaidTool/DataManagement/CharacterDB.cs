@@ -1,10 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Dalamud.Logging;
+﻿using Dalamud.Logging;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Security;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -45,6 +45,8 @@ internal class CharacterDB
                         TryGetCharacter(NameLookup[(c.HomeWorldID, c.Name)], out Character? other);
                         IDReplacement.Add(c.LocalID, other!.LocalID);
                         other.MergeInfos(c);
+                        Data.Remove(c.LocalID);
+                        continue;
                     }
                     if (c.CharID > 0)
                         CharIDLookup.TryAdd(c.CharID, c.LocalID);
