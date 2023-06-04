@@ -4,6 +4,7 @@ using Dalamud.Logging;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
@@ -313,15 +314,17 @@ internal class EditGroupWindow : HrtWindow
 }
 internal class EditGearSetWindow : HRTWindowWithModalChild
 {
-    private readonly GearSet _gearSet;
-    private readonly GearSet _gearSetCopy;
+    private GearSet _gearSet;
+    private GearSet _gearSetCopy;
     private readonly Job _job;
+    private readonly Action<GearSet> _onSave;
 
-    internal EditGearSetWindow(GearSet original, Job job) : base()
+    internal EditGearSetWindow(GearSet original, Job job, Action<GearSet> onSave) : base()
     {
         _job = job;
         _gearSet = original;
         _gearSetCopy = original.Clone();
+        _onSave = onSave;
         Title = $"{Localize("Edit", "Edit")} {original.Name}";
         MinSize = new(550, 300);
     }
@@ -336,20 +339,31 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
             Hide();
         //OTher infos
         bool isFromEtro = _gearSet.ManagedBy == GearSetManager.Etro;
-        ImGui.Text($"{Localize("GearSetEdit:Source", "Source")}: {(isFromEtro ? Localize("GearSet:ManagedBy:Etro", "etro.gg")
-            : Localize("GearSet:ManagedBy:HrtLocal", "Local Database"))}");
         if (isFromEtro)
         {
+            ImGui.Text($"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:Etro", "etro.gg")}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(Localize("GearSetEdit:MakeLocal", "Create local copy"),
                 Localize("GearSetEdit:MakeLocal:tooltip",
                 "Create a copy of this set inthe local databasse. Set will not be updated from etro.gg afterwads\n" +
                 "Only local gearsets can be edited")))
             {
-                //TODO: actual copy
+                _gearSet = _gearSet.Clone();
+                _gearSet.LocalID = HrtID.Empty;
+                _gearSet.RemoteIDs = new();
+                _gearSet.ManagedBy = GearSetManager.HRT;
+                _gearSet.EtroID = string.Empty;
+                ServiceManager.HrtDataManager.GearDB.AddSet(_gearSet);
+                _onSave(_gearSet);
+                _gearSetCopy = _gearSet.Clone();
             }
             ImGui.Text($"{Localize("Etro ID", "Etro ID")}: {_gearSetCopy.EtroID}");
             ImGui.Text($"{Localize("GearSetEdit:EtroLastDownload", "Last update check")}: {_gearSetCopy.EtroFetchDate:d}");
+        }
+        else
+        {
+            ImGui.Text($"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:HrtLocal", "Local Database")}");
+            ImGui.Text($"{Localize("Local ID", "Local ID")}: {_gearSetCopy.LocalID}");
         }
         ImGui.Text($"{Localize("GearSetEdit:LastChanged", "Last Change")}: {_gearSetCopy.TimeStamp:d}");
         ImGui.BeginDisabled(isFromEtro);
@@ -397,6 +411,7 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
     {
         _gearSetCopy.TimeStamp = DateTime.Now;
         _gearSet.CopyFrom(_gearSetCopy);
+        _onSave(_gearSet);
         ServiceManager.HrtDataManager.Save();
         Hide();
     }

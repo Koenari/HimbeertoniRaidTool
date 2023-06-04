@@ -1,12 +1,12 @@
-﻿using System.Diagnostics;
-using System.Numerics;
-using Dalamud.Interface;
+﻿using Dalamud.Interface;
 using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
+using System.Diagnostics;
+using System.Numerics;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
@@ -140,7 +140,7 @@ internal class LootmasterUI : HrtWindow
             ImGui.Text($"{Localize("Current", "Current")} {Localize("iLvl", "iLvl")}: {playableClass.Gear.ItemLevel:D3}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.Job} {Localize("gear", "gear")}"))
-                AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job));
+                AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job, g => playableClass.Gear = g));
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, $"QuickCompare{playableClass.Job}", $"{Localize("Quick compare", "Quick compare")}"))
                 AddChild(new QuickCompareWindow(CurConfig, playableClass));
@@ -149,10 +149,11 @@ internal class LootmasterUI : HrtWindow
             ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvl")}: {playableClass.BIS.ItemLevel:D3}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS{playableClass.Job}", $"{Localize("Edit", "Edit")} {playableClass.BIS.Name}"))
-                AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job));
+                AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job, g => playableClass.BIS = g));
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.BIS.EtroID,
-                string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name), playableClass.BIS.EtroID.Length > 0))
+                string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name),
+                playableClass.BIS.ManagedBy == GearSetManager.Etro && playableClass.BIS.EtroID.Length > 0))
                 ServiceManager.TaskManager.RegisterTask(
                     new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS), HandleMessage));
             ImGui.Spacing();
@@ -349,7 +350,7 @@ internal class LootmasterUI : HrtWindow
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(curY + 3 * ScaleFactor);
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditCurGear", $"Edit {gear.Name}", true, ButtonSize))
-                    AddChild(new EditGearSetWindow(gear, curJob.Job)); ;
+                    AddChild(new EditGearSetWindow(gear, curJob.Job, g => curJob.Gear = g)); ;
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(curY + 3 * ScaleFactor);
                 ImGuiHelper.GearUpdateButtons(player, _lootMaster, false, ButtonSize);
@@ -372,11 +373,12 @@ internal class LootmasterUI : HrtWindow
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(curY);
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditBiSGear", $"Edit {bis.Name}", true, ButtonSize))
-                    AddChild(new EditGearSetWindow(bis, curJob.Job));
+                    AddChild(new EditGearSetWindow(bis, curJob.Job, g => curJob.BIS = g));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(curY);
                 if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.EtroID,
-                    string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), bis.Name), bis.EtroID.Length > 0, ButtonSize))
+                    string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), bis.Name),
+                    bis.ManagedBy == GearSetManager.Etro && bis.EtroID.Length > 0, ButtonSize))
                     ServiceManager.TaskManager.RegisterTask(
                         new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(bis), HandleMessage));
                 ImGui.PopID();
