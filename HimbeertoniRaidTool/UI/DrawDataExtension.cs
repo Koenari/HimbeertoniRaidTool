@@ -35,18 +35,21 @@ public static class DrawDataExtension
                 if (isWeapon)
                 {
                     if (gearItem.Item.DamageMag >= gearItem.Item.DamagePhys)
-                        DrawRow(Localize("MagicDamage", "Magic Damage"), gearItem.Item.DamageMag);
+                        DrawRow(Localize("MagicDamage", "Magic Damage"), gearItem.GetStat(StatType.MagicalDamage));
                     else
-                        DrawRow(Localize("PhysicalDamage", "Physical Damage"), gearItem.Item.DamagePhys);
+                        DrawRow(Localize("PhysicalDamage", "Physical Damage"), gearItem.GetStat(StatType.PhysicalDamage));
                 }
                 else
                 {
-                    DrawRow(Localize("PhysicalDefense", "Defense"), gearItem.Item.DefensePhys);
-                    DrawRow(Localize("MagicalDefense", "Magical Defense"), gearItem.Item.DefenseMag);
+                    DrawRow(Localize("PhysicalDefense", "Defense"), gearItem.GetStat(StatType.Defense));
+                    DrawRow(Localize("MagicalDefense", "Magical Defense"), gearItem.GetStat(StatType.MagicDefense));
                 }
-                foreach (var stat in gearItem.Item.UnkData59)
-                    if ((StatType)stat.BaseParam != StatType.None)
-                        DrawRow(((StatType)stat.BaseParam).FriendlyName(), stat.BaseParamValue);
+                foreach (StatType type in gearItem.StatTypesAffected)
+                {
+                    if (type != StatType.None)
+                        DrawRow(type.FriendlyName(), gearItem.GetStat(type));
+                }
+
                 //Materia
                 if (gearItem.Materia.Any())
                 {

@@ -15,4 +15,10 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        Fix: Merge infos for multiple database entries for one character
+        General: Only cap applicable stats on items
+        General: Fix stats shown in tooltips
+        Loot Session: \%DPS gain now properly takes SKS/SPS into account
+        Loot Session: Removed manually curated DPS for players
+        Edit Gear: Properly handle local and etro.gg sets (Etro sets cannot be edited and need to be converted to local to edit)
+        Edit Gear: Slightly reworked Ui
+        Edit Gear: You can now edit the names of sets

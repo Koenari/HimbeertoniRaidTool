@@ -1,9 +1,9 @@
-﻿using System.Numerics;
-using HimbeertoniRaidTool.Common.Calculations;
+﻿using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
+using System.Numerics;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
@@ -225,7 +225,7 @@ internal static class LmUiHelpers
                 ImGui.Text(Val);
             }
             if (type == weaponStat)
-                ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
+                ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill adjusted for faster GCDs"));
             if (doCompare)
             {
                 ImGui.TableNextColumn();
@@ -249,7 +249,7 @@ internal static class LmUiHelpers
                 ImGui.Text(AllaganLibrary.FormatStatValue(rightEvalStat[i], type, i).Val);
             }
             if (type == weaponStat)
-                ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill"));
+                ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill adjusted for faster GCDs"));
             ImGui.TableNextColumn();
             for (int i = 0; i < numEvals; i++)
             {
