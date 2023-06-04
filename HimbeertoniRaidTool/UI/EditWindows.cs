@@ -611,19 +611,14 @@ internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
         void DrawButton(MateriaCategory cat, MateriaLevel lvl)
         {
             var mat = AllMateria[lvl][cat];
-            var item = mat.Item;
-            if (item != null)
+            if (ImGui.ImageButton(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new(32)))
+                Save(mat);
+            if (ImGui.IsItemHovered())
             {
-                if (ImGui.ImageButton(ServiceManager.IconCache[item.Icon].ImGuiHandle, new(32)))
-                    Save(mat);
-                if (ImGui.IsItemHovered())
-                {
-                    ImGui.BeginTooltip();
-                    mat.Draw();
-                    ImGui.EndTooltip();
-                }
+                ImGui.BeginTooltip();
+                mat.Draw();
+                ImGui.EndTooltip();
             }
-
         }
     }
 }

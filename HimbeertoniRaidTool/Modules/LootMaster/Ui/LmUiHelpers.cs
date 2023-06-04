@@ -89,7 +89,7 @@ internal static class LmUiHelpers
                             ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() * 0.3f);
                         iconSize *= multiLine ? 2.4f : 1.4f;
                     }
-                    ImGui.Image(ServiceManager.IconCache.LoadIcon(item.Item!.Icon, item.IsHq).ImGuiHandle, iconSize * HrtWindow.ScaleFactor);
+                    ImGui.Image(ServiceManager.IconCache.LoadIcon(item.Icon, item.IsHq).ImGuiHandle, iconSize * HrtWindow.ScaleFactor);
                     ImGui.SameLine();
                 }
                 string toDraw = string.Format(config.ItemFormatString,

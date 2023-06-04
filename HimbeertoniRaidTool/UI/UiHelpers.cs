@@ -22,7 +22,7 @@ internal class UiHelpers
         GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {
         //Item Icon with Info
-        ImGui.Image(ServiceManager.IconCache[item.Item?.Icon ?? 0].ImGuiHandle, new(24, 24));
+        ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle, new(24, 24));
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
@@ -72,7 +72,7 @@ internal class UiHelpers
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + eraserButtonWidth + (ImGui.GetTextLineHeightWithSpacing() - ImGui.GetTextLineHeight()) * 2);
 
             var mat = item.Materia.Skip(i).First();
-            ImGui.Image(ServiceManager.IconCache[mat.Item?.Icon ?? 0].ImGuiHandle, new(24, 24));
+            ImGui.Image(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new(24, 24));
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
@@ -97,7 +97,7 @@ internal class UiHelpers
             }
             ImGui.SameLine();
             ImGui.Text(Localize("Materia", "Materia"));
-            bool overmeld = i >= item.Item?.MateriaSlotCount;
+            bool overmeld = i >= item.MateriaSlotCount;
             ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
             if (ImGuiHelper.SearchableCombo(

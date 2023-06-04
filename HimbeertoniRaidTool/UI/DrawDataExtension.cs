@@ -11,30 +11,30 @@ public static class DrawDataExtension
     public static void Draw(this Item item) => new GearItem(item.RowId).Draw();
     public static void Draw(this HrtItem item)
     {
-        if (!item.Filled || item.Item is null)
+        if (!item.Filled)
             return;
         if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
         {
             ImGui.TableSetupColumn(Localize("ItemTableHeader", "Header"));
             ImGui.TableSetupColumn(Localize("Value", "Value"));
             //General Data
-            DrawRow(Localize("Name", "Name"), $"{item.Item.Name} {(item is GearItem gear2 && gear2.IsHq ? "(HQ)" : "")}");
+            DrawRow(Localize("Name", "Name"), $"{item.Name} {(item is GearItem gear2 && gear2.IsHq ? "(HQ)" : "")}");
             if (item.ItemLevel > 1)
                 DrawRow(Localize("itemLevelLong", "Item Level"), item.ItemLevel);
             DrawRow(Localize("itemSource", "Source"), item.Source);
             //Materia Stats
-            if (item is HrtMateria matItem && matItem.Item is not null)
+            if (item is HrtMateria matItem)
             {
                 DrawRow(matItem.StatType.FriendlyName(), matItem.GetStat());
             }
             //Gear Data
-            if (item is GearItem gearItem && gearItem.Item is not null)
+            if (item is GearItem gearItem)
             {
                 bool isWeapon = gearItem.Slots.Contains(GearSetSlot.MainHand);
                 //Stats
                 if (isWeapon)
                 {
-                    if (gearItem.Item.DamageMag >= gearItem.Item.DamagePhys)
+                    if (gearItem.GetStat(StatType.MagicalDamage) >= gearItem.GetStat(StatType.PhysicalDamage))
                         DrawRow(Localize("MagicDamage", "Magic Damage"), gearItem.GetStat(StatType.MagicalDamage));
                     else
                         DrawRow(Localize("PhysicalDamage", "Physical Damage"), gearItem.GetStat(StatType.PhysicalDamage));

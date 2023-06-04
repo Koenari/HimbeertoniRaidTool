@@ -575,7 +575,7 @@ internal class InventoryWindow : HRTWindowWithModalChild
         foreach (var boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
             foreach (var item in boss.GuaranteedItems)
             {
-                var icon = ServiceManager.IconCache[item.Item!.Icon];
+                var icon = ServiceManager.IconCache[item.Icon];
                 ImGui.Image(icon.ImGuiHandle, icon.Size());
                 ImGui.SameLine();
                 ImGui.Text(item.Name);
@@ -591,9 +591,9 @@ internal class InventoryWindow : HRTWindowWithModalChild
         foreach ((int idx, var entry) in _inv.Where(e => e.Value.IsGear))
         {
             ImGui.PushID(idx);
-            if (entry.Item is not GearItem item || item.Item is null)
+            if (entry.Item is not GearItem item)
                 continue;
-            var icon = ServiceManager.IconCache[item.Item.Icon];
+            var icon = ServiceManager.IconCache[item.Icon];
             if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "Delete", null, true, iconSize))
                 _inv.Remove(idx);
             ImGui.SameLine();

@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Data;
-using HimbeertoniRaidTool.Common;
+﻿using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
+using System.Collections;
+using System.Data;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
@@ -216,7 +216,7 @@ public class LootResult
         AplicableJob = applicableJob;
         Roll = Random.Next(0, 101);
         //Filter items by job
-        ApplicableItems = new(possibleItems.Where(i => (i.Item?.ClassJobCategory.Value).Contains(Job)));
+        ApplicableItems = new(possibleItems.Where(i => i.Jobs.Contains(Job)));
     }
     public void Evaluate()
     {
@@ -250,7 +250,7 @@ public class LootResult
                 //No need if any of following are true
                 || !(
                     //Player already has this unique item
-                    (item.Item?.IsUnique ?? true) && AplicableJob.Gear.Contains(item)
+                    (item.IsUnique) && AplicableJob.Gear.Contains(item)
                     //Player has Bis or higher/same iLvl for all aplicable slots
                     || AplicableJob.HaveBisOrHigherItemLevel(item.Slots, item)
                 )
