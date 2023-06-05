@@ -1,11 +1,11 @@
-﻿using System.IO;
-using System.Threading;
-using Dalamud.Logging;
+﻿using Dalamud.Logging;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Security;
 using Newtonsoft.Json;
+using System.IO;
+using System.Threading;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -64,14 +64,21 @@ public class HrtDataManager
         LocalIDProvider localIDProvider = new(this);
         IDProvider = localIDProvider;
         RaidGRoupJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{RaidGroupJsonFileName}");
-        if (!RaidGRoupJsonFile.Exists)
-            RaidGRoupJsonFile.Create().Close();
         CharDBJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{CharDBJsonFileName}");
-        if (!CharDBJsonFile.Exists)
-            CharDBJsonFile.Create().Close();
         GearDBJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{GearDBJsonFileName}");
-        if (!GearDBJsonFile.Exists)
-            GearDBJsonFile.Create().Close();
+        try
+        {
+            if (!RaidGRoupJsonFile.Exists)
+                RaidGRoupJsonFile.Create().Close();
+            if (!CharDBJsonFile.Exists)
+                CharDBJsonFile.Create().Close();
+            if (!GearDBJsonFile.Exists)
+                GearDBJsonFile.Create().Close();
+        }
+        catch (IOException)
+        {
+            loadError = true;
+        }
         //Migrate old Data
         if (File.Exists($"{configDirName}{Path.DirectorySeparatorChar}{"HrtGearDB.json"}"))
         {
@@ -145,9 +152,9 @@ public class HrtDataManager
     internal static bool TryRead(FileInfo file, out string data)
     {
         data = "";
-        using var reader = file.OpenText();
         try
         {
+            using var reader = file.OpenText();
             data = reader.ReadToEnd();
             return true;
         }
@@ -159,9 +166,10 @@ public class HrtDataManager
     }
     internal static bool TryWrite(FileInfo file, in string data)
     {
-        using var writer = file.CreateText();
+
         try
         {
+            using var writer = file.CreateText();
             writer.Write(data);
             return true;
         }
