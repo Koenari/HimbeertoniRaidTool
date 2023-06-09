@@ -86,7 +86,8 @@ public static class ImGuiHelper
         {
             string tooltip = Localize("Lodestone Button", "Download Gear from Lodestone");
             if (Button(FontAwesomeIcon.CloudDownloadAlt, "lodestone",
-                $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}", true, size))
+                $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}", 
+                ServiceManager.ConnectorPool.LodestoneConnector.CanBeUsed, size))
             {
                 module.HandleMessage(new HrtUiMessage(
                     $"{Localize("LodestonUpdateStarted", "Started gear update for")} {p.MainChar.Name}", HrtUiMessageType.Info));

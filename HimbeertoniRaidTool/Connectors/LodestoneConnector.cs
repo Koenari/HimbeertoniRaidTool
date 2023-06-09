@@ -18,6 +18,7 @@ internal class LodestoneConnector : NetstoneBase
     private readonly Lumina.Excel.ExcelSheet<Item>? _itemSheet;
     private readonly Lumina.Excel.ExcelSheet<Materia>? _materiaSheet;
     private readonly Dictionary<char, byte> _romanNumerals;
+    public bool CanBeUsed => Initialized;
 
     private const int NoOfAllowedLodestoneRequests = 8;
 
@@ -177,6 +178,7 @@ internal class LodestoneConnector : NetstoneBase
 internal class NetstoneBase
 {
     private readonly LodestoneClient _lodestoneClient;
+    protected readonly bool Initialized;
 
     private readonly RateLimit _rateLimit;
     private readonly TimeSpan _cacheTime;
@@ -185,7 +187,17 @@ internal class NetstoneBase
 
     internal NetstoneBase(RateLimit rateLimit = default, TimeSpan? cacheTime = null)
     {
-        _lodestoneClient = GetLodestoneClient();
+        Initialized = false;
+        try
+        {
+            _lodestoneClient = GetLodestoneClient();
+            Initialized = true;
+        }
+        catch (Exception)
+        {
+            PluginLog.Error("Lodestone Connector could not be initialized");
+            _lodestoneClient = null!;
+        }
         _rateLimit = rateLimit;
         _cacheTime = cacheTime ?? new(0, 15, 0);
         _currentRequests = new();
@@ -267,7 +279,6 @@ internal class NetstoneBase
         result.Wait();
         return result.Result;
     }
-
     private static async Task<LodestoneClient> GetLodestoneClientAsync()
     {
         return await LodestoneClient.GetClientAsync();
