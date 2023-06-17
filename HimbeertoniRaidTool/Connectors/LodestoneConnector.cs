@@ -49,7 +49,7 @@ internal class LodestoneConnector : NetstoneBase
             if (lodestoneCharacter.Gear.Soulcrystal != null)
                 foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Soulcrystal.ItemName, out isHq)?.ClassJobUse.Row;
             else
-                foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand.ItemName, out isHq)?.ClassJobUse.Row;
+                foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand?.ItemName, out isHq)?.ClassJobUse.Row;
             if (foundJob == null || !Enum.IsDefined(typeof(Job), foundJob))
                 return new HrtUiMessage(
                     Localize("LodestoneConnector:JobIncompatible", "Could not resolve currently used job or currently displayed job on " +
@@ -72,7 +72,7 @@ internal class LodestoneConnector : NetstoneBase
             //classToChange.Tribe = (unit)lodestoneCharacter.RaceClanGender;
 
             // Populate GearSet with newGearset
-            var newGearset = lodestoneCharacter.Gear;
+            CharacterGear newGearset = lodestoneCharacter.Gear;
             FillItem(newGearset.Mainhand, GearSetSlot.MainHand);
             FillItem(newGearset.Offhand, GearSetSlot.OffHand);
             FillItem(newGearset.Head, GearSetSlot.Head);
@@ -86,7 +86,7 @@ internal class LodestoneConnector : NetstoneBase
             FillItem(newGearset.Ring1, GearSetSlot.Ring1);
             FillItem(newGearset.Ring2, GearSetSlot.Ring2);
 
-            void FillItem(GearEntry gearPiece, GearSetSlot slot)
+            void FillItem(GearEntry? gearPiece, GearSetSlot slot)
             {
                 if (gearPiece == null)
                 {
@@ -140,9 +140,10 @@ internal class LodestoneConnector : NetstoneBase
     /// <param name="name">Name of the item to be fetched.</param>
     /// <param name="isHq">Decides if the item is HQ.</param>
     /// <returns></returns>
-    private Item? GetItemByName(string name, out bool isHq)
+    private Item? GetItemByName(string? name, out bool isHq)
     {
         isHq = false;
+        if (name == null) return null;
         if (!char.IsLetterOrDigit(name.Last()))
         {
             name = name.Remove(name.Length - 1, 1);
