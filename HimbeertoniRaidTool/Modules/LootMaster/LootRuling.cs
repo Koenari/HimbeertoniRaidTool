@@ -3,7 +3,11 @@ using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 using System.Data;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using HimbeertoniRaidTool.Common.Services;
+using Lumina.Excel.CustomSheets;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
+using ServiceManager = HimbeertoniRaidTool.Plugin.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
@@ -18,7 +22,7 @@ public class LootRuling
         {
             foreach (LootRuleEnum rule in Enum.GetValues(typeof(LootRuleEnum)))
             {
-                if (rule is LootRuleEnum.None)
+                if (rule is LootRuleEnum.None or LootRuleEnum.DPS)
                     continue;
                 //Special Rules only used internally
                 if ((int)rule > 900)
@@ -56,8 +60,9 @@ public class LootRule : IEquatable<LootRule>
         LootRuleEnum.LowestItemLevel => (-x.ItemLevel(), x.ItemLevel().ToString()),
         LootRuleEnum.HighesItemLevelGain => (x.ItemLevelGain(), null),
         LootRuleEnum.BISOverUpgrade => x.IsBiS() ? (1, "y") : (-1, "n"),
-        LootRuleEnum.RolePrio => (x.RolePrio(session), x.AplicableJob.Role.ToString()),
-        LootRuleEnum.DPSGain => (x.DPSGain(), $"{(x.DPSGain() * 100):f1} %%"),
+        LootRuleEnum.RolePrio => (x.RolePriority(session), x.ApplicableJob.Role.ToString()),
+        LootRuleEnum.DPSGain => (x.DpsGain(), $"{x.DpsGain() * 100:f1} %%"),
+        LootRuleEnum.CanUse => x.CanUse() ? (1, "y") : (-1, "n"),
         _ => (0, "none"),
     };
     public override string ToString() => Name;
@@ -66,9 +71,10 @@ public class LootRule : IEquatable<LootRule>
         LootRuleEnum.BISOverUpgrade => Localize("BISOverUpgrade", "BIS > Upgrade"),
         LootRuleEnum.LowestItemLevel => Localize("LowestItemLevel", "Lowest overall ItemLevel"),
         LootRuleEnum.HighesItemLevelGain => Localize("HighesItemLevelGain", "Highest ItemLevel Gain"),
-        LootRuleEnum.RolePrio => Localize("ByRole", "Prioritise by role"),
+        LootRuleEnum.RolePrio => Localize("ByRole", "Prioritize by role"),
         LootRuleEnum.Random => Localize("Rolling", "Rolling"),
         LootRuleEnum.DPSGain => Localize("DPSGain", "% DPS gained"),
+        LootRuleEnum.CanUse => Localize("LootRule:CanUse","Can use item"),
         LootRuleEnum.None => Localize("None", "None"),
         LootRuleEnum.Greed => Localize("Greed", "Greed"),
         LootRuleEnum.NeedGreed => Localize("Need over Greed", "Need over Greed"),
@@ -90,25 +96,25 @@ public class LootRule : IEquatable<LootRule>
 
 public static class LootRulesExtension
 {
-    public static int RolePrio(this LootResult p, LootSession s) => -s.RolePriority.GetPriority(p.AplicableJob.Role);
+    public static int RolePriority(this LootResult p, LootSession s) => -s.RolePriority.GetPriority(p.ApplicableJob.Role);
     public static int Roll(this LootResult p) => p.Roll;
-    public static int ItemLevel(this LootResult p) => p.AplicableJob.Gear.ItemLevel;
+    public static int ItemLevel(this LootResult p) => p.ApplicableJob.Gear.ItemLevel;
     public static int ItemLevelGain(this LootResult p)
     {
         int result = 0;
         foreach (var item in p.NeededItems)
         {
             result = Math.Max(result, (int)item.ItemLevel -
-                p.AplicableJob.Gear.
+                p.ApplicableJob.Gear.
                     Where(i => i.Slots.Intersect(item.Slots).Any()).
                     Aggregate((int)item.ItemLevel, (min, i) => Math.Min((int)i.ItemLevel, min))
                 );
         }
         return result;
     }
-    public static float DPSGain(this LootResult p)
+    public static float DpsGain(this LootResult p)
     {
-        var curClass = p.AplicableJob;
+        var curClass = p.ApplicableJob;
         double baseDPS = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.Gear);
         double newDps = double.NegativeInfinity;
         foreach (var i in p.ApplicableItems)
@@ -131,7 +137,28 @@ public static class LootRulesExtension
         }
         return (float)((newDps - baseDPS) / baseDPS);
     }
-    //IS broken for non unique items
     public static bool IsBiS(this LootResult p) =>
-        p.NeededItems.Any(i => p.AplicableJob.BIS.Contains(i) && !p.AplicableJob.Gear.Contains(i));
+        p.NeededItems.Any(i => p.ApplicableJob.BIS.Count(i) != p.ApplicableJob.Gear.Count(i));
+    public static bool CanUse(this LootResult p) =>
+        //Direct gear or coffer drops are always usable
+        !p.DroppedItem.IsExchangableItem 
+        || p.NeededItems.Any(
+            item =>
+            {
+                var shopEntries = ServiceManager.ItemInfo.GetShopEntriesForItem(item.ID);
+                return shopEntries.Any(shopEntry =>
+                {
+                    for (int i = 0; i < SpecialShop.NUM_COST; i++)
+                    {
+                        SpecialShop.ItemCostEntry cost = shopEntry.entry.ItemCostEntries[i];
+                        if (cost.Item.Row == p.DroppedItem.ID) continue;
+                        if(ItemInfo.IsCurrency(cost.Item.Row)) continue;
+                        if(ItemInfo.IsTomeStone(cost.Item.Row)) continue;
+                        if(p.ApplicableJob.Gear.Contains(new HrtItem(cost.Item.Row))) continue;
+                        return false;
+                    }
+                    return true;
+                });
+            }
+            );
 }

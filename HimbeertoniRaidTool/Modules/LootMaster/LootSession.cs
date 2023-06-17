@@ -80,7 +80,7 @@ public class LootSession
             var player = _group.First();
             foreach (var job in player.MainChar.Where(j => !j.IsEmpty))
             {
-                results.Add(new(this, player, possibleItems, job.Job));
+                results.Add(new(this, player, possibleItems, droppedItem, job.Job));
             }
         }
         else
@@ -89,7 +89,7 @@ public class LootSession
             {
                 if (excluded.Contains(player))
                     continue;
-                results.Add(new(this, player, possibleItems));
+                results.Add(new(this, player, possibleItems, droppedItem));
             }
         }
         return results;
@@ -137,7 +137,7 @@ public class LootSession
             slot = toAward.Slots.Skip(1).First();
         else
             slot = toAward.Slots.First();
-        var c = Results[loot].AwardedTo?.AplicableJob;
+        var c = Results[loot].AwardedTo?.ApplicableJob;
         if (c != null)
         {
             c.Gear[slot] = toAward;
@@ -193,18 +193,20 @@ public class LootResult
     public readonly Player Player;
     public readonly Job Job;
     public readonly int Roll;
-    public readonly PlayableClass AplicableJob;
-    public int RolePrio => _session.RolePriority.GetPriority(AplicableJob.Role);
+    public readonly PlayableClass ApplicableJob;
+    public readonly HrtItem DroppedItem;
+    public int RolePriority => _session.RolePriority.GetPriority(ApplicableJob.Role);
     public bool IsEvaluated { get; private set; } = false;
     public readonly Dictionary<LootRule, (float val, string reason)> EvaluatedRules = new();
     public readonly HashSet<GearItem> ApplicableItems;
     public readonly List<GearItem> NeededItems = new();
     public GearItem? AwardedItem;
-    public LootResult(LootSession session, Player p, IEnumerable<GearItem> possibleItems, Job? job = null)
+    public LootResult(LootSession session, Player p, IEnumerable<GearItem> possibleItems,HrtItem droppedItem, Job? job = null)
     {
         _session = session;
         Player = p;
         Job = job ?? p.MainChar.MainJob ?? Job.ADV;
+        DroppedItem = droppedItem;
         var applicableJob = Player.MainChar[Job];
         if (applicableJob == null)
         {
@@ -213,7 +215,7 @@ public class LootResult
             ServiceManager.HrtDataManager.GearDB.AddSet(applicableJob.Gear);
             ServiceManager.HrtDataManager.GearDB.AddSet(applicableJob.BIS);
         }
-        AplicableJob = applicableJob;
+        ApplicableJob = applicableJob;
         Roll = Random.Next(0, 101);
         //Filter items by job
         ApplicableItems = new(possibleItems.Where(i => i.Jobs.Contains(Job)));
@@ -245,14 +247,14 @@ public class LootResult
         NeededItems.Clear();
         foreach (var item in ApplicableItems)
             if (
-                //Always need if Bis and not aquired
-                AplicableJob.BIS.Contains(item) && !AplicableJob.Gear.Contains(item)
+                //Always need if Bis and not acquired
+                ApplicableJob.BIS.Contains(item) && !ApplicableJob.Gear.Contains(item)
                 //No need if any of following are true
                 || !(
                     //Player already has this unique item
-                    (item.IsUnique) && AplicableJob.Gear.Contains(item)
-                    //Player has Bis or higher/same iLvl for all aplicable slots
-                    || AplicableJob.HaveBisOrHigherItemLevel(item.Slots, item)
+                    (item.IsUnique) && ApplicableJob.Gear.Contains(item)
+                    //Player has Bis or higher/same iLvl for all applicable slots
+                    || ApplicableJob.HaveBisOrHigherItemLevel(item.Slots, item)
                 )
             )
             { NeededItems.Add(item); }
@@ -261,10 +263,10 @@ public class LootResult
 }
 public class LootResultContainer : IReadOnlyList<LootResult>
 {
-    private readonly List<LootResult> Participants = new();
-    public int Count => Participants.Count;
+    private readonly List<LootResult> _participants = new();
+    public int Count => _participants.Count;
     public readonly LootSession Session;
-    public LootResult this[int index] => Participants[index];
+    public LootResult this[int index] => _participants[index];
     public LootResult? AwardedTo => AwardedIdx.HasValue ? this[AwardedIdx.Value] : null;
     public bool IsAwarded => AwardedTo != null;
     public bool Finished => IsAwarded || Count == 0 || this[0].Category != LootCategory.Need;
@@ -280,14 +282,14 @@ public class LootResultContainer : IReadOnlyList<LootResult>
             if (ShortResultCache != null)
                 return ShortResultCache;
             if (IsAwarded)
-                return ShortResultCache = $"{AwardedTo?.AwardedItem?.Name} {Localize("LootResult:ItemAwardedTo", "awarded to")} {AwardedTo?.Player.NickName} ({AwardedTo?.AplicableJob})";
+                return ShortResultCache = $"{AwardedTo?.AwardedItem?.Name} {Localize("LootResult:ItemAwardedTo", "awarded to")} {AwardedTo?.Player.NickName} ({AwardedTo?.ApplicableJob})";
             if (Count == 0 || this[0].Category != LootCategory.Need)
                 return ShortResultCache = Localize("LootResult:GreedOnly", "Greed only");
-            string result = $"{this[0].Player.NickName} ({this[0].AplicableJob.Job}) {Localize("LootResult:PlayerWon", "won")}";
+            string result = $"{this[0].Player.NickName} ({this[0].ApplicableJob.Job}) {Localize("LootResult:PlayerWon", "won")}";
             if (Count > 1)
             {
                 if (this[1].Category == LootCategory.Need)
-                    result += $" {Localize("LootResult:PlayerWonOver", "over")} {this[1].Player.NickName} ({this[1].AplicableJob.Job})";
+                    result += $" {Localize("LootResult:PlayerWonOver", "over")} {this[1].Player.NickName} ({this[1].ApplicableJob.Job})";
                 result += $" ({this[0].DecidingFactor(this[1])})";
             }
             return ShortResultCache = result;
@@ -304,7 +306,7 @@ public class LootResultContainer : IReadOnlyList<LootResult>
             return;
         foreach (var result in this)
             result.Evaluate();
-        Participants.Sort(new LootRulingComparer(Session.RulingOptions.RuleSet));
+        _participants.Sort(new LootRulingComparer(Session.RulingOptions.RuleSet));
         ShortResultCache = null;
     }
     public void Award(int idx, GearItem awarded)
@@ -313,16 +315,16 @@ public class LootResultContainer : IReadOnlyList<LootResult>
         AwardedTo!.AwardedItem = awarded;
         ShortResultCache = null;
     }
-    internal void Add(LootResult result) => Participants.Add(result);
-    public IEnumerator<LootResult> GetEnumerator() => Participants.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => Participants.GetEnumerator();
+    internal void Add(LootResult result) => _participants.Add(result);
+    public IEnumerator<LootResult> GetEnumerator() => _participants.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => _participants.GetEnumerator();
 }
 internal class LootRulingComparer : IComparer<LootResult>
 {
-    private readonly List<LootRule> Rules;
+    private readonly List<LootRule> _rules;
     public LootRulingComparer(List<LootRule> rules)
     {
-        Rules = rules;
+        _rules = rules;
     }
     public int Compare(LootResult? x, LootResult? y)
     {
@@ -330,7 +332,7 @@ internal class LootRulingComparer : IComparer<LootResult>
             return 0;
         if (x.Category - y.Category != 0)
             return x.Category - y.Category;
-        foreach (var rule in Rules)
+        foreach (var rule in _rules)
         {
             float result = y.EvaluatedRules[rule].val - x.EvaluatedRules[rule].val;
             if (result < 0)
