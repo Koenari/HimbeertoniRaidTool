@@ -115,7 +115,7 @@ public class HrtDataManager
             if (migrationError)
                 PluginLog.Error("Database migration failed");
             else
-                PluginLog.Information("Database migration ended succesful");
+                PluginLog.Information("Database migration ended successful");
             loadError |= migrationError;
 #pragma warning restore CS0612 // Type or member is obsolete
         }
@@ -180,6 +180,7 @@ public class HrtDataManager
         }
     }
 
+    // ReSharper disable once SuggestBaseTypeForParameter
     private string SerializeGroupData(CharacterReferenceConverter charRefCon)
     {
         JsonSettings.Converters.Add(charRefCon);

@@ -9,6 +9,7 @@ using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using System.Numerics;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
@@ -74,7 +75,7 @@ internal class EditPlayerWindow : HrtWindow
             PlayerCopy.MainChar.HomeWorld = w;
         }
         //ImGuiHelper.Combo(Localize("Gender", "Gender"), ref PlayerCopy.MainChar.Gender);
-        string GetGenderedTribeName(Tribe? t) => (PlayerCopy.MainChar.Gender == Gender.Male ? t?.Masculine.RawString : t?.Feminine.RawString) ?? String.Empty;
+        string GetGenderedTribeName(Tribe? t) => (PlayerCopy.MainChar.Gender == Gender.Male ? t?.Masculine.RawString : t?.Feminine.RawString) ?? string.Empty;
         if (ImGuiHelper.ExcelSheetCombo(Localize("Tribe", "Tribe") + "##" + Title, out Tribe? t,
            _ => GetGenderedTribeName(PlayerCopy.MainChar.Tribe), GetGenderedTribeName))
         {
@@ -85,7 +86,7 @@ internal class EditPlayerWindow : HrtWindow
         ImGui.Text(Localize("Job Data", "Job Data"));
         if (PlayerCopy.MainChar.Classes.Any())
         {
-            if (!PlayerCopy.MainChar.Classes.Any(x => x.Job == PlayerCopy.MainChar.MainJob))
+            if (PlayerCopy.MainChar.Classes.All(x => x.Job != PlayerCopy.MainChar.MainJob))
                 PlayerCopy.MainChar.MainJob = PlayerCopy.MainChar.Classes.First().Job;
             if (ImGui.BeginCombo(Localize("Main Job", "Main Job"), PlayerCopy.MainChar.MainJob.ToString()))
             {
@@ -107,7 +108,7 @@ internal class EditPlayerWindow : HrtWindow
         ImGui.SetColumnWidth(1, 400f * ScaleFactor);
         ImGui.Separator();
         Job? toDelete = null;
-        foreach (var c in PlayerCopy.MainChar.Classes)
+        foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"delete{c.Job}", $"Delete all data for {c.Job}"))
                 toDelete = c.Job;
@@ -115,7 +116,7 @@ internal class EditPlayerWindow : HrtWindow
             ImGui.Text($"{c.Job}  ");
             ImGui.NextColumn();
             ImGui.SetNextItemWidth(250f * ScaleFactor);
-            bool localBis = !c.BIS.IsEmpty && c.BIS.ManagedBy == GearSetManager.HRT;
+            bool localBis = c.BIS is { IsEmpty: false, ManagedBy: GearSetManager.HRT };
             ImGui.BeginDisabled(localBis);
             ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.BIS.EtroID, 50);
             if (localBis)
@@ -144,21 +145,21 @@ internal class EditPlayerWindow : HrtWindow
         {
             PlayerCopy.MainChar.RemoveClass(toDelete.Value);
             if (Size.HasValue)
-                Size = new(Size.Value.X, Size.Value.Y - ClassHeight);
+                Size = Size.Value with { Y = Size.Value.Y - ClassHeight };
         }
 
         ImGui.Columns(1);
-        if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out var job, newJob.ToString(),
+        if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out Job job, newJob.ToString(),
             Enum.GetValues<Job>(), j => j.ToString(),
             (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
-            (t) => !PlayerCopy.MainChar.Classes.Any(y => y.Job == t)))
+            (j) => PlayerCopy.MainChar.Classes.All(y => y.Job != j)))
         {
             newJob = job;
         }
         ImGui.SameLine();
         if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
         {
-            var newClass = PlayerCopy.MainChar[newJob];
+            PlayableClass? newClass = PlayerCopy.MainChar[newJob];
             if (newClass == null)
             {
                 newClass = PlayerCopy.MainChar.AddClass(newJob);
@@ -167,7 +168,7 @@ internal class EditPlayerWindow : HrtWindow
             }
             newClass.BIS.EtroID = GetBisID(newJob);
             if (Size.HasValue)
-                Size = new(Size.Value.X, Size.Value.Y + ClassHeight);
+                Size = Size.Value with { Y = Size.Value.Y + ClassHeight };
         }
     }
     private void SavePlayer()
@@ -181,7 +182,7 @@ internal class EditPlayerWindow : HrtWindow
             if (!ServiceManager.HrtDataManager.CharDB.SearchCharacter(
                 PlayerCopy.MainChar.HomeWorldID, PlayerCopy.MainChar.Name, out Character? c))
             {
-                c = new(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
+                c = new Character(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
                 if (!ServiceManager.HrtDataManager.CharDB.TryAddCharacter(c))
                     return;
             }
@@ -204,17 +205,15 @@ internal class EditPlayerWindow : HrtWindow
         for (int i = 0; i < Player.MainChar.Classes.Count(); i++)
         {
             var c = Player.MainChar.Classes.ElementAt(i);
-            if (!PlayerCopy.MainChar.Classes.Any(x => x.Job == c.Job))
-            {
+            if (PlayerCopy.MainChar.Classes.Any(x => x.Job == c.Job)) continue;
                 Player.MainChar.RemoveClass(c.Job);
                 i--;
             }
-        }
         //Add missing classes and update Bis/Level for existing ones
         foreach (var c in PlayerCopy.MainChar.Classes)
         {
-            var target = Player.MainChar[c.Job];
-            var gearSetDB = ServiceManager.HrtDataManager.GearDB;
+            PlayableClass? target = Player.MainChar[c.Job];
+            GearDB gearSetDB = ServiceManager.HrtDataManager.GearDB;
             if (target == null)
             {
                 target = Player.MainChar.AddClass(c.Job);
@@ -228,13 +227,13 @@ internal class EditPlayerWindow : HrtWindow
             {
                 if (!gearSetDB.TryGetSetByEtroID(c.BIS.EtroID, out var etroSet))
                 {
-                    etroSet = new()
+                    etroSet = new GearSet
                     {
                         ManagedBy = GearSetManager.Etro,
-                        EtroID = c.BIS.EtroID
+                        EtroID = c.BIS.EtroID,
                     };
                     gearSetDB.AddSet(etroSet);
-                    ServiceManager.TaskManager.RegisterTask(new(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(target.BIS), CallBack));
+                    ServiceManager.TaskManager.RegisterTask(new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(target.BIS), CallBack));
                 }
                 target.BIS = etroSet;
             }
@@ -242,7 +241,7 @@ internal class EditPlayerWindow : HrtWindow
             {
                 GearSet bis = new()
                 {
-                    ManagedBy = GearSetManager.HRT
+                    ManagedBy = GearSetManager.HRT,
                 };
                 if (!gearSetDB.AddSet(bis))
                     PluginLog.Debug("BiS not saved!");
@@ -250,7 +249,7 @@ internal class EditPlayerWindow : HrtWindow
             }
 
         }
-        if (!Player.MainChar.Classes.Any(c => c.Job == Player.MainChar.MainJob))
+        if (Player.MainChar.Classes.All(c => c.Job != Player.MainChar.MainJob))
             Player.MainChar.MainJob = Player.MainChar.Classes.FirstOrDefault()?.Job;
         ServiceManager.HrtDataManager.Save();
     }
@@ -326,7 +325,7 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
         _gearSetCopy = original.Clone();
         _onSave = onSave;
         Title = $"{Localize("Edit", "Edit")} {original.Name}";
-        MinSize = new(550, 300);
+        MinSize = new Vector2(550, 300);
     }
 
     public override void Draw()
@@ -345,12 +344,12 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
             ImGui.SameLine();
             if (ImGuiHelper.Button(Localize("GearSetEdit:MakeLocal", "Create local copy"),
                 Localize("GearSetEdit:MakeLocal:tooltip",
-                "Create a copy of this set inthe local databasse. Set will not be updated from etro.gg afterwads\n" +
-                "Only local gearsets can be edited")))
+                "Create a copy of this set in the local database. Set will not be updated from etro.gg afterwards\n" +
+                "Only local Gear Sets can be edited")))
             {
                 _gearSet = _gearSet.Clone();
                 _gearSet.LocalID = HrtID.Empty;
-                _gearSet.RemoteIDs = new();
+                _gearSet.RemoteIDs = new List<HrtID>();
                 _gearSet.ManagedBy = GearSetManager.HRT;
                 _gearSet.EtroID = string.Empty;
                 ServiceManager.HrtDataManager.GearDB.AddSet(_gearSet);

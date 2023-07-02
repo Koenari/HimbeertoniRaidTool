@@ -74,7 +74,7 @@ public class LootRule : IEquatable<LootRule>
         LootRuleEnum.RolePrio => Localize("ByRole", "Prioritize by role"),
         LootRuleEnum.Random => Localize("Rolling", "Rolling"),
         LootRuleEnum.DPSGain => Localize("DPSGain", "% DPS gained"),
-        LootRuleEnum.CanUse => Localize("LootRule:CanUse","Can use item"),
+        LootRuleEnum.CanUse => Localize("LootRule:CanUse","Can use now"),
         LootRuleEnum.None => Localize("None", "None"),
         LootRuleEnum.Greed => Localize("Greed", "Greed"),
         LootRuleEnum.NeedGreed => Localize("Need over Greed", "Need over Greed"),

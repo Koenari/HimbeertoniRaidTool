@@ -31,7 +31,7 @@ internal class GearDB
                 NextSequence = Math.Max(NextSequence, set.LocalID.Sequence);
             }
         }
-        PluginLog.Information($"DB conatins {Data.Count} gearsets");
+        PluginLog.Information($"DB contains {Data.Count} gear sets");
         NextSequence++;
     }
     [Obsolete]
@@ -113,10 +113,10 @@ internal class GearDB
                 updateCount++;
             }
         }
-        return new()
+        return new HrtUiMessage
         {
             MessageType = HrtUiMessageType.Info,
-            Message = $"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated"
+            Message = $"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated",
         };
     }
     internal string Serialize(JsonSerializerSettings settings)

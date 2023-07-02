@@ -222,7 +222,7 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
             { Job.MCH, "0001cd0d-ee54-4b85-8bb6-8ed79e9e7745" },
             { Job.MNK, "" },
             { Job.NIN, "6556da3a-4514-439e-b4f4-07e0ccc85e93" },
-            { Job.PLD, "" },
+            { Job.PLD, "5d279513-f339-402c-8343-fa910e65a4d4" },
             { Job.RDM, "6d7a091d-52f5-49ec-9b2e-d7b1d4c45733" },
             { Job.RPR, "3c8ec7ad-ccfc-42ce-a129-13bd032e2220" },
             { Job.SAM, "d4b6bfc6-a82f-4732-8e55-7c13e094fc1d" },
