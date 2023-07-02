@@ -15,4 +15,7 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        General: Fix a crash when using wine
+        Gear: You can now delete gear sets
+        Loot session: Added rule "Can use now" (Tome Upgrades)
+        Etro.gg: Import crafted items as HQ again  (broken since 1.2.x)
+        General: Fix extremly rare crash on startup

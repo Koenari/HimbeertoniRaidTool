@@ -69,18 +69,24 @@ internal class EtroConnector : WebConnector
         FillItem(etroSet.fingerL, GearSetSlot.Ring1);
         FillItem(etroSet.fingerR, GearSetSlot.Ring2);
         FillItem(etroSet.offHand, GearSetSlot.OffHand);
-        return new($"Update from Etro for {set.Name} succeeded", HrtUiMessageType.Success);
+        return new HrtUiMessage($"Update from Etro for {set.Name} succeeded", HrtUiMessageType.Success);
         void FillItem(uint id, GearSetSlot slot)
         {
-            set[slot] = new(id)
+            set[slot] = new GearItem(id)
             {
-                IsHq = (set[slot].Source == ItemSource.Crafted)
+                IsHq = ServiceManager.ItemInfo.CanBeCrafted(id),
             };
-            string idString = id.ToString() + (slot == GearSetSlot.Ring1 ? "L" : slot == GearSetSlot.Ring2 ? "R" : "");
-            if (etroSet!.materia?.TryGetValue(idString, out var materia) ?? false)
-                foreach (uint? matId in materia.Values)
-                    if (matId.HasValue)
-                        set[slot].AddMateria(new(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, MateriaLevel)>(matId.Value, (0, 0))));
+            string idString = id + (slot switch
+            {
+                GearSetSlot.Ring1 => "L",
+                GearSetSlot.Ring2 => "R",
+                _ => "",
+            });
+            if (!(etroSet.materia?.TryGetValue(idString, out var materia) ?? false)) return;
+            foreach (uint? matId in materia.Values.Where(matId => matId.HasValue))
+            {
+                set[slot].AddMateria(new HrtMateria(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, MateriaLevel)>(matId!.Value, (0, 0))));
+            }
         }
     }
     private class EtroGearSet
