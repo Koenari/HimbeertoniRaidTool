@@ -195,6 +195,7 @@ public class LootResult
     public readonly int Roll;
     public readonly PlayableClass ApplicableJob;
     public readonly HrtItem DroppedItem;
+    public IEnumerable<HrtItem> GuaranteedLoot => _session.GuaranteedLoot.Keys;
     public int RolePriority => _session.RolePriority.GetPriority(ApplicableJob.Role);
     public bool IsEvaluated { get; private set; } = false;
     public readonly Dictionary<LootRule, (float val, string reason)> EvaluatedRules = new();

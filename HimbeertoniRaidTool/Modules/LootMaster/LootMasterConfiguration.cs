@@ -278,7 +278,7 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
                         new(LootRuleEnum.BISOverUpgrade),
                         new(LootRuleEnum.RolePrio),
                         new(LootRuleEnum.DPSGain),
-                        new(LootRuleEnum.HighesItemLevelGain),
+                        new(LootRuleEnum.HighestItemLevelGain),
                         new(LootRuleEnum.LowestItemLevel),
                         new(LootRuleEnum.Random)
                     }
