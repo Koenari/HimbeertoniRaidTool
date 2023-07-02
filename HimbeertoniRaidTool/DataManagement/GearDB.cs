@@ -15,6 +15,7 @@ internal class GearDB
     private readonly Dictionary<string, HrtID> EtroLookup = new();
     private bool EtroHasUpdated = false;
     private ulong NextSequence = 0;
+
     internal GearDB(HrtDataManager dataManager, string gearData, JsonSerializerSettings settings)
     {
         DataManager = dataManager;
@@ -70,9 +71,7 @@ internal class GearDB
     internal bool TryGetSet(HrtID id, [NotNullWhen(true)] out GearSet? gearSet)
     {
         gearSet = null;
-        if (id.IsEmpty)
-            return false;
-        return Data.TryGetValue(id, out gearSet);
+        return !id.IsEmpty && Data.TryGetValue(id, out gearSet);
     }
     internal bool TryGetSetByEtroID(string etroID, [NotNullWhen(true)] out GearSet? set)
     {
@@ -95,19 +94,31 @@ internal class GearDB
         EtroHasUpdated = true;
         ServiceManager.TaskManager.RegisterTask(new(() => UpdateEtroSetsAsync(updateAll, maxAgeInDays), LogUpdates));
     }
-    private void LogUpdates(HrtUiMessage hrtUiMessage)
+
+    internal void Prune(CharacterDB charDb)
+    {
+        PluginLog.Debug("Begin pruning of gear database.");
+        foreach (HrtID toPrune in charDb.FindOrphanedGearSets(Data.Keys))
+        { 
+            if(!Data.TryGetValue(toPrune, out GearSet? set)) continue;
+            PluginLog.Information($"Removed {set.Name} ({set.LocalID}) from DB");
+            Data.Remove(toPrune);
+        }
+        PluginLog.Debug("Finished pruning of gear database.");
+    }
+    private static void LogUpdates(HrtUiMessage hrtUiMessage)
     {
         PluginLog.Information(hrtUiMessage.Message);
     }
     private HrtUiMessage UpdateEtroSetsAsync(bool updateAll, int maxAgeInDays)
     {
-        var OldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
+        var oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
         foreach (var gearSet in Data.Values.Where(set => set.ManagedBy == GearSetManager.Etro))
         {
             totalCount++;
-            if (gearSet.IsEmpty || (gearSet.EtroFetchDate < OldestValid && updateAll))
+            if (gearSet.IsEmpty || (gearSet.EtroFetchDate < oldestValid && updateAll))
             {
                 ServiceManager.ConnectorPool.EtroConnector.GetGearSet(gearSet);
                 updateCount++;

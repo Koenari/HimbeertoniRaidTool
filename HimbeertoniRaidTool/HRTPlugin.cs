@@ -43,7 +43,7 @@ public sealed class HRTPlugin : IDalamudPlugin
     private void LoadAllModules()
     {
         string moduleNamespace = $"{GetType().Namespace}.Modules";
-        //Look for all classes in Modules namespace that imlement the IHrtModule interface
+        //Look for all classes in Modules namespace that implement the IHrtModule interface
         foreach (var moduleType in GetType().Assembly.GetTypes().Where(
             t => (t.Namespace?.StartsWith(moduleNamespace) ?? false)
             && !t.IsInterface && !t.IsAbstract

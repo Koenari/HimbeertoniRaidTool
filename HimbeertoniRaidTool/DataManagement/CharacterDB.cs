@@ -163,11 +163,36 @@ internal class CharacterDB
         if (c.CharID > 0)
             CharIDLookup.TryAdd(c.CharID, c.LocalID);
     }
+
+    internal IEnumerable<HrtID> FindOrphanedGearSets(IEnumerable<HrtID> possibleOrphans)
+    {
+        HashSet<HrtID> orphanSets = new(possibleOrphans);
+        foreach (PlayableClass job in Data.Values.SelectMany(character => character.Classes))
+        {
+            orphanSets.Remove(job.Gear.LocalID);
+            orphanSets.Remove(job.BIS.LocalID);
+        }
+        PluginLog.Information($"Found {orphanSets.Count} orphaned gear sets.");
+        return orphanSets;
+    }
+
     internal string Serialize(GearsetReferenceConverter conv, JsonSerializerSettings settings)
     {
         settings.Converters.Add(conv);
         string result = JsonConvert.SerializeObject(Data.Values, settings);
         settings.Converters.Remove(conv);
         return result;
+    }
+
+    internal void Prune(HrtDataManager hrtDataManager)
+    {
+        PluginLog.Debug("Begin pruning of character database.");
+        foreach (HrtID toPrune in hrtDataManager.FindOrphanedCharacters(Data.Keys))
+        {
+            if (!Data.TryGetValue(toPrune, out Character? character)) continue;
+            PluginLog.Information($"Removed {character.Name} @ {character.HomeWorld?.Name} ({character.LocalID}) from DB");
+            Data.Remove(toPrune);
+        }
+        PluginLog.Debug("Finished pruning of character database.");
     }
 }

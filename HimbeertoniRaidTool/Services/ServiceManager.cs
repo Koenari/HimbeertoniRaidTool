@@ -12,6 +12,8 @@ using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
+using HimbeertoniRaidTool.Plugin.UI;
+
 #pragma warning disable CS8618
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -38,18 +40,28 @@ internal class ServiceManager
     internal static CharacterInfoService CharacterInfoService { get; private set; }
     internal static GameInfo GameInfo => Common.Services.ServiceManager.GameInfo;
     internal static ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
+
     internal static bool Init(DalamudPluginInterface pluginInterface)
     {
         pluginInterface.Create<ServiceManager>();
         Common.Services.ServiceManager.Init(DataManager.Excel);
         IconCache ??= new IconCache(PluginInterface, DataManager);
-        HrtDataManager ??= new(PluginInterface);
-        TaskManager ??= new();
-        ConnectorPool ??= new();
-        CharacterInfoService ??= new(ObjectTable, PartyList);
+        HrtDataManager ??= new HrtDataManager(PluginInterface);
+        TaskManager ??= new TaskManager();
+        ConnectorPool ??= new ConnectorPool();
+        CharacterInfoService ??= new CharacterInfoService(ObjectTable, PartyList);
+        //TODO: Move somewhere else
+        TaskManager.RegisterTask(
+            new HrtTask(() =>
+            {
+                HrtDataManager.PruneDatabase();
+                return new HrtUiMessage();
+            }, m => { })
+        );
         GearRefresher.Enable();
         return HrtDataManager.Initialized;
     }
+
     internal static void Dispose()
     {
         GearRefresher.Dispose();
@@ -57,8 +69,11 @@ internal class ServiceManager
         IconCache.Dispose();
     }
 }
+
 public class FailedToLoadException : Exception
 {
-    public FailedToLoadException(string? message) : base(message) { }
+    public FailedToLoadException(string? message) : base(message)
+    {
+    }
 }
 #pragma warning restore CS8618
