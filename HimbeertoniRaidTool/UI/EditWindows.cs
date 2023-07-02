@@ -206,9 +206,9 @@ internal class EditPlayerWindow : HrtWindow
         {
             var c = Player.MainChar.Classes.ElementAt(i);
             if (PlayerCopy.MainChar.Classes.Any(x => x.Job == c.Job)) continue;
-                Player.MainChar.RemoveClass(c.Job);
-                i--;
-            }
+            Player.MainChar.RemoveClass(c.Job);
+            i--;
+        }
         //Add missing classes and update Bis/Level for existing ones
         foreach (var c in PlayerCopy.MainChar.Classes)
         {
@@ -336,8 +336,20 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
         ImGui.SameLine();
         if (ImGuiHelper.CancelButton())
             Hide();
-        //OTher infos
         bool isFromEtro = _gearSet.ManagedBy == GearSetManager.Etro;
+        ImGui.SameLine();
+        if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "deleteSet", Localize("GearsetEdit:Delete", "Remove set from this character (Hold Shift)"),
+                ImGui.IsKeyDown(ImGuiKey.ModShift),new Vector2(50,25)))
+        {
+            GearSet newSet = new();
+            if (ServiceManager.HrtDataManager.GearDB.AddSet(newSet))
+            {
+                _gearSetCopy = newSet;
+                Save();
+            }
+        }
+        //Other infos
+        
         if (isFromEtro)
         {
             ImGui.Text($"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:Etro", "etro.gg")}");
