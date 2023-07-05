@@ -15,9 +15,4 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        Loot session: Added rule "Can use now" (Tome Upgrades)
-        Loot session: Added rule "Can buy" (for books)
-        Gear: You can now delete gear sets
-        Database: Remove unused entries (old gear sets and characters)
-        Etro.gg: Import crafted items as HQ again  (broken since 1.2.x)
-        General: Fix extremly rare crash on startup
+        General: /hrt help: Prints a quick help in chat

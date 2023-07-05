@@ -9,6 +9,7 @@ public interface IHrtModule<T, S> : IHrtModule where T : new() where S : IHrtCon
 {
     HRTConfiguration<T, S> Configuration { get; }
 }
+
 public interface IHrtModule
 {
     string Name { get; }
@@ -21,14 +22,27 @@ public interface IHrtModule
     void Update(Framework fw);
     void Dispose();
 }
+
 public struct HrtCommand
 {
     /// <summary>
-    /// Needs to start with a "/"
+    /// Command user needs to use in chat. Needs to start with a "/"
     /// </summary>
-    internal string Command;
-    internal string Description;
-    internal bool ShowInHelp;
-    internal CommandInfo.HandlerDelegate OnCommand;
-    internal bool ShouldExposeToDalamud;
+    internal string Command = string.Empty;
+
+    internal IEnumerable<string> AltCommands = Array.Empty<string>();
+    internal string Description = string.Empty;
+    internal bool ShowInHelp = false;
+    internal CommandInfo.HandlerDelegate OnCommand = (_, _) => { };
+    internal bool ShouldExposeToDalamud = false;
+    internal bool ShouldExposeAltsToDalamud = false;
+
+    public HrtCommand()
+    {
+    }
+
+    internal readonly bool HandlesCommand(string command)
+    {
+        return Command.Equals(command) || AltCommands.Any(c => c.Equals(command));
+    }
 }
