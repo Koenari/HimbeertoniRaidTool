@@ -216,7 +216,7 @@
     "description": "UiHelpers.DrawGearEdit"
   },
   "Materia": {
-    "message": "Materia",
+    "message": "Matéria",
     "description": "UiHelpers.DrawGearEdit"
   },
   "Select materia": {
@@ -244,7 +244,7 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IconInGroupOverview": {
-    "message": "Show item icon in group overview",
+    "message": "Montrer l'icône de l'objet dans l'aperçu général du groupe",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:ColoredItemNames": {
@@ -340,7 +340,7 @@
     "description": "LootRule.GetName"
   },
   "DPSGain": {
-    "message": "% DPS gained",
+    "message": "% de DPS gagnés",
     "description": "LootRule.GetName"
   },
   "None": {
@@ -452,7 +452,7 @@
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "Quick compare": {
-    "message": "Quick compare",
+    "message": "Comparaison rapide",
     "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "BiS": {
@@ -652,11 +652,11 @@
     "description": "LootSessionUI.DrawResults"
   },
   "QuickCompareStatGain": {
-    "message": "Gain",
+    "message": "Augmentation",
     "description": "QuickCompareWindow.Draw"
   },
   "New Gear": {
-    "message": "New Gear",
+    "message": "Nouvelle tenue",
     "description": "QuickCompareWindow.Draw"
   },
   "General": {
@@ -664,11 +664,11 @@
     "description": "CoreConfig..ctor"
   },
   "Core:PeriodicSaveSuccessful": {
-    "message": "Data Saved successfully",
+    "message": "Données sauvegardées avec succès",
     "description": "CoreConfig.PeriodicSave"
   },
   "Core:PeriodicSaveFailed": {
-    "message": "Data failed to save",
+    "message": "Échec de la sauvegarde de données",
     "description": "CoreConfig.PeriodicSave"
   },
   "Ui": {
@@ -1040,7 +1040,7 @@
     "description": "<UpdateCharacterAsync>d__6.MoveNext"
   },
   "LodestoneConnector:FailedtoCreateGear": {
-    "message": "Could not create new gear set.",
+    "message": "Impossible de créer une nouvelle tenue.",
     "description": "<UpdateCharacterAsync>d__6.MoveNext"
   },
   "LodestoneConnector:Sucess": {
