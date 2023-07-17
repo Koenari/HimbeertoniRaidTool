@@ -8,12 +8,13 @@ using Lumina.Excel.GeneratedSheets;
 using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Model.Parseables.Character.Gear;
+using NetStone.Model.Parseables.Search.Character;
 using NetStone.Search.Character;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
-internal class LodestoneConnector : NetstoneBase
+internal class LodestoneConnector : NetStoneBase
 {
     private readonly Lumina.Excel.ExcelSheet<Item>? _itemSheet;
     private readonly Lumina.Excel.ExcelSheet<Materia>? _materiaSheet;
@@ -22,11 +23,12 @@ internal class LodestoneConnector : NetstoneBase
 
     private const int NoOfAllowedLodestoneRequests = 8;
 
-    internal LodestoneConnector() : base(new(NoOfAllowedLodestoneRequests, new(0, 0, 30)))
+    internal LodestoneConnector() : base(new RateLimit(NoOfAllowedLodestoneRequests, new TimeSpan(0, 1, 30)))
     {
         _itemSheet = ServiceManager.DataManager.GetExcelSheet<Item>(Dalamud.ClientLanguage.English);
         _materiaSheet = ServiceManager.DataManager.GetExcelSheet<Materia>(Dalamud.ClientLanguage.English);
-        _romanNumerals = new() {
+        _romanNumerals = new Dictionary<char, byte>
+        {
             { 'I', 1 }, { 'V', 5 }, { 'X', 10 }, { 'L', 50 }
         };
     }
@@ -38,14 +40,14 @@ internal class LodestoneConnector : NetstoneBase
     }
     public async Task<HrtUiMessage> UpdateCharacterAsync(Player p)
     {
-        Job? foundJob = null;
-        bool isHq = false;
+        bool isHq;
 
         try
         {
-            var lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
+            LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
             if (lodestoneCharacter == null)
                 return new HrtUiMessage(Localize("LodestoneConnector:CharNotFound", "Character not found on Lodestone."), HrtUiMessageType.Failure);
+            Job? foundJob;
             if (lodestoneCharacter.Gear.Soulcrystal != null)
                 foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Soulcrystal.ItemName, out isHq)?.ClassJobUse.Row;
             else
@@ -55,7 +57,7 @@ internal class LodestoneConnector : NetstoneBase
                     Localize("LodestoneConnector:JobIncompatible", "Could not resolve currently used job or currently displayed job on " +
                     "Lodestone is not supported."), HrtUiMessageType.Failure);
 
-            var classToChange = p.MainChar[foundJob.Value];
+            PlayableClass? classToChange = p.MainChar[foundJob.Value];
             if (classToChange == null)
             {
                 classToChange = p.MainChar.AddClass(foundJob.Value);
@@ -64,12 +66,12 @@ internal class LodestoneConnector : NetstoneBase
                 hasError |= !ServiceManager.HrtDataManager.GearDB.AddSet(classToChange.BIS);
                 if (hasError)
                     return new HrtUiMessage(
-                        Localize("LodestoneConnector:FailedtoCreateGear", "Could not create new gear set."),
+                        Localize("LodestoneConnector:FailedToCreateGear", "Could not create new gear set."),
                         HrtUiMessageType.Failure);
             }
             classToChange.Level = lodestoneCharacter.ActiveClassJobLevel;
-            //Getting Race, Clan and Gender is not yet correctly implemented in Netstone 1.0.0
-            //classToChange.Tribe = (unit)lodestoneCharacter.RaceClanGender;
+            //Getting Race, Clan and Gender is not yet correctly implemented in NetStone 1.0.0
+            //classToChange.Parent.TribeID = (uint)lodestoneCharacter.RaceClanGender;
 
             // Populate GearSet with newGearset
             CharacterGear newGearset = lodestoneCharacter.Gear;
@@ -90,21 +92,21 @@ internal class LodestoneConnector : NetstoneBase
             {
                 if (gearPiece == null)
                 {
-                    classToChange.Gear[slot] = new();
+                    classToChange.Gear[slot] = new GearItem();
                     return;
                 }
-                var itemEntry = GetItemByName(gearPiece.ItemName, out isHq);
+                Item? itemEntry = GetItemByName(gearPiece.ItemName, out isHq);
                 if (itemEntry == null)
                 {
                     PluginLog.Warning($"Tried parsing the item <{gearPiece.ItemName}> but found nothing.");
-                    classToChange.Gear[slot] = new();
+                    classToChange.Gear[slot] = new GearItem();
                     return;
                 }
 
                 uint gearId = itemEntry.RowId;
-                classToChange.Gear[slot] = new(gearId)
+                classToChange.Gear[slot] = new GearItem(gearId)
                 {
-                    IsHq = isHq
+                    IsHq = isHq,
                 };
                 foreach (string materia in gearPiece.Materia)
                 {
@@ -114,15 +116,15 @@ internal class LodestoneConnector : NetstoneBase
                         Array.Exists(el.Item, item => item.Value?.Name.RawString == materia))?.RowId;
                     if (materiaCategoryId == null)
                         continue;
-                    MateriaCategory materiaCategory = (MateriaCategory)materiaCategoryId;
-                    MateriaLevel materiaLevel = TranslateMateriaLevel(materia.Remove(0, materia.LastIndexOf(" ")).Trim());
+                    var materiaCategory = (MateriaCategory)materiaCategoryId;
+                    MateriaLevel materiaLevel = TranslateMateriaLevel(materia.Remove(0, materia.LastIndexOf(" ", StringComparison.Ordinal)).Trim());
 
-                    classToChange.Gear[slot].AddMateria(new(materiaCategory, materiaLevel));
+                    classToChange.Gear[slot].AddMateria(new HrtMateria(materiaCategory, materiaLevel));
                 }
             }
             return new HrtUiMessage(
                 string.Format(
-                    Localize("LodestoneConnector:Sucess", "Updated {0}'s {1} gear from Lodestone."),
+                    Localize("LodestoneConnector:Success", "Updated {0}'s {1} gear from Lodestone."),
                     p.MainChar.Name, classToChange.Job),
                 HrtUiMessageType.Success);
         }
@@ -135,7 +137,7 @@ internal class LodestoneConnector : NetstoneBase
 
     /// <summary>
     /// Get an item from Lumina sheet by name.
-    /// Also sets an Item to HQ if the last char in the itemname is the HQ-Symbol.
+    /// Also sets an Item to HQ if the last char in the item name is the HQ-Symbol.
     /// </summary>
     /// <param name="name">Name of the item to be fetched.</param>
     /// <param name="isHq">Decides if the item is HQ.</param>
@@ -154,7 +156,7 @@ internal class LodestoneConnector : NetstoneBase
     }
 
     /// <summary>
-    /// Translate the last part of a Materias Name (i.e the "X" in "Savage Might Materia X") into a the materia's level.
+    /// Translate the last part of a Materia name (i.e the "X" in "Savage Might Materia X") into a the Materia level.
     /// We subtract 1 because materia levels start at 0 internally.
     /// </summary>
     /// <param name="numeral">The numeral to be translated.</param>
@@ -176,7 +178,7 @@ internal class LodestoneConnector : NetstoneBase
     }
 }
 
-internal class NetstoneBase
+internal class NetStoneBase
 {
     private readonly LodestoneClient _lodestoneClient;
     protected readonly bool Initialized;
@@ -186,7 +188,7 @@ internal class NetstoneBase
     private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
     private readonly ConcurrentDictionary<string, (DateTime time, LodestoneCharacter response)> _cachedRequests;
 
-    internal NetstoneBase(RateLimit rateLimit = default, TimeSpan? cacheTime = null)
+    internal NetStoneBase(RateLimit rateLimit = default, TimeSpan? cacheTime = null)
     {
         Initialized = false;
         try
@@ -200,9 +202,9 @@ internal class NetstoneBase
             _lodestoneClient = null!;
         }
         _rateLimit = rateLimit;
-        _cacheTime = cacheTime ?? new(0, 15, 0);
-        _currentRequests = new();
-        _cachedRequests = new();
+        _cacheTime = cacheTime ?? new TimeSpan(1, 30, 0);
+        _currentRequests = new ConcurrentDictionary<string, DateTime>();
+        _cachedRequests = new ConcurrentDictionary<string, (DateTime time, LodestoneCharacter response)>();
     }
 
     private void UpdateCache()
@@ -214,7 +216,7 @@ internal class NetstoneBase
     }
 
     /// <summary>
-    /// Fetch a given character from lodestone either by it's name and homeworld or by it's lodestone id.
+    /// Fetch a given character from lodestone either by it's name and home world or by it's lodestone id.
     /// Returns null if no character by that id or name could be found.
     /// </summary>
     /// <param name="c">Character to be fetched.</param>
@@ -230,19 +232,19 @@ internal class NetstoneBase
         _currentRequests.TryAdd(c.Name, DateTime.Now);
         try
         {
-            var homeWorld = c.HomeWorld;
+            World? homeWorld = c.HomeWorld;
             LodestoneCharacter? foundCharacter;
             if (c.LodestoneID == 0)
             {
                 if (c.HomeWorldID == 0 || homeWorld == null)
                     return null;
-                PluginLog.Log("Using name and homeworld to search...");
-                var netstoneResponse = await _lodestoneClient!.SearchCharacter(new CharacterSearchQuery()
+                PluginLog.Log("Using name and home world to search...");
+                CharacterSearchPage? netStoneResponse = await _lodestoneClient.SearchCharacter(new CharacterSearchQuery()
                 {
                     CharacterName = c.Name,
                     World = homeWorld.Name.RawString
                 });
-                var characterEntry = netstoneResponse?.Results.FirstOrDefault(
+                CharacterSearchEntry? characterEntry = netStoneResponse?.Results.FirstOrDefault(
                     (res) => res.Name == c.Name);
                 if (!int.TryParse(characterEntry?.Id, out c.LodestoneID))
                     PluginLog.Warning("Tried parsing LodestoneID but failed.");
@@ -251,7 +253,7 @@ internal class NetstoneBase
             else
             {
                 PluginLog.Information("Using ID to search...");
-                foundCharacter = await _lodestoneClient!.GetCharacter(c.LodestoneID.ToString());
+                foundCharacter = await _lodestoneClient.GetCharacter(c.LodestoneID.ToString());
             }
             if (foundCharacter == null)
                 return null;
