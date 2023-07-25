@@ -156,7 +156,7 @@ public static class LootRulesExtension
 
     public static bool CanBuy(this LootResult p)
     {
-        return p.NeededItems.Any(i => ServiceManager.ItemInfo.GetShopEntriesForItem(i.ID).Any(
+        return ServiceManager.ItemInfo.GetShopEntriesForItem(p.DroppedItem.ID).Any(
             shopEntry =>
             {
                 for (int i = 0; i < SpecialShop.NUM_COST; i++)
@@ -173,7 +173,6 @@ public static class LootRulesExtension
                 }
                 return true;
             }
-        )
         );
     }
 }

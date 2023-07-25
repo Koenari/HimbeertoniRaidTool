@@ -16,3 +16,4 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
         Translation: Updated French translation (Thanks to Arganier)
+        LootRule: Fixed "Can Buy"
