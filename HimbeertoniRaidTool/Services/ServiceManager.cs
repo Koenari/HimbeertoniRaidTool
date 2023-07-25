@@ -1,13 +1,10 @@
-﻿using Dalamud.Data;
-using Dalamud.Game;
-using Dalamud.Game.ClientState;
+﻿using Dalamud.Game;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects;
-using Dalamud.Game.ClientState.Party;
-using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
@@ -19,17 +16,17 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class ServiceManager
 {
-    [PluginService] public static SigScanner SigScanner { get; private set; }
-    [PluginService] public static CommandManager CommandManager { get; private set; }
+    [PluginService] public static ISigScanner SigScanner { get; private set; }
+    [PluginService] public static ICommandManager CommandManager { get; private set; }
     [PluginService] public static ChatGui ChatGui { get; private set; }
-    [PluginService] public static DataManager DataManager { get; private set; }
-    [PluginService] public static GameGui GameGui { get; private set; }
-    [PluginService] public static TargetManager TargetManager { get; private set; }
+    [PluginService] public static IDataManager DataManager { get; private set; }
+    [PluginService] public static IGameGui GameGui { get; private set; }
+    [PluginService] public static ITargetManager TargetManager { get; private set; }
     [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
-    [PluginService] public static ClientState ClientState { get; private set; }
+    [PluginService] public static IClientState ClientState { get; private set; }
     [PluginService] public static Framework Framework { get; private set; }
-    [PluginService] public static ObjectTable ObjectTable { get; private set; }
-    [PluginService] public static PartyList PartyList { get; private set; }
+    [PluginService] public static IObjectTable ObjectTable { get; private set; }
+    [PluginService] public static IPartyList PartyList { get; private set; }
     [PluginService] public static Condition Condition { get; private set; }
     public static IconCache IconCache { get; private set; }
     public static HrtDataManager HrtDataManager { get; private set; }
@@ -56,15 +53,15 @@ internal class ServiceManager
             {
                 HrtDataManager.PruneDatabase();
                 return new HrtUiMessage();
-            }, m => { })
+            }, _ => { })
         );
-        GearRefresher.Enable();
+        GearRefresher.Instance.Enable();
         return HrtDataManager.Initialized;
     }
 
     internal static void Dispose()
     {
-        GearRefresher.Dispose();
+        GearRefresher.Instance.Dispose();
         TaskManager.Dispose();
         IconCache.Dispose();
     }

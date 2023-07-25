@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
-using Dalamud.Data;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using ImGuiScene;
+using Lumina.Data.Files;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -10,40 +11,54 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 public class IconCache : IDisposable
 {
     private readonly DalamudPluginInterface _pi;
-    private readonly DataManager _gameData;
+    private readonly IDataManager _gameData;
     private readonly Dictionary<uint, TextureWrap> _icons;
-    public IconCache(DalamudPluginInterface pi, DataManager gameData, int size = 0)
+
+    public IconCache(DalamudPluginInterface pi, IDataManager gameData, int size = 0)
     {
         _pi = pi;
         _gameData = gameData;
         _icons = new Dictionary<uint, TextureWrap>(size);
     }
+
     public TextureWrap this[uint id]
-    => LoadIcon(id);
+        => LoadIcon(id);
+
     public TextureWrap LoadIcon(int id)
-    => LoadIcon((uint)id);
+    {
+        return LoadIcon((uint)id);
+    }
+
     public TextureWrap LoadIcon(uint id, bool hq = false)
     {
-        if (_icons.TryGetValue(id, out var ret))
+        if (_icons.TryGetValue(id, out TextureWrap? ret))
             return ret;
 
-        var icon = _gameData.GetIcon(hq, id)!;
-        var iconData = icon.GetRgbaImageData();
+        TexFile icon = _gameData.GetIcon(hq, id)!;
+        byte[] iconData = icon.GetRgbaImageData();
 
         ret = _pi.UiBuilder.LoadImageRaw(iconData, icon.Header.Width, icon.Header.Height, 4);
         _icons[id] = ret;
         return ret;
     }
+
     public void Dispose()
     {
-        foreach (var icon in _icons.Values)
+        foreach (TextureWrap icon in _icons.Values)
             icon.Dispose();
         _icons.Clear();
     }
+
     ~IconCache()
-    => Dispose();
+    {
+        Dispose();
+    }
 }
+
 public static class IconExtensions
 {
-    public static Vector2 Size(this TextureWrap tex) => new(tex.Width, tex.Height);
+    public static Vector2 Size(this TextureWrap tex)
+    {
+        return new Vector2(tex.Width, tex.Height);
+    }
 }

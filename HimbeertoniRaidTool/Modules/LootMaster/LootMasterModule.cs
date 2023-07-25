@@ -88,7 +88,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         else
         {
             ServiceManager.CharacterInfoService.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
-            contentId = ServiceManager.CharacterInfoService.GetContentID(character);
+            contentId = ServiceManager.CharacterInfoService.GetContentId(character);
         }
 
         if (character == null)
