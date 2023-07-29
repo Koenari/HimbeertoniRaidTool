@@ -23,14 +23,6 @@
     "message": "Fuente",
     "description": "DrawDataExtension.Draw"
   },
-  "itemShop": {
-    "message": "Shop cost",
-    "description": "DrawDataExtension.Draw"
-  },
-  "item:looted:sources": {
-    "message": "Looted in",
-    "description": "DrawDataExtension.Draw"
-  },
   "MagicDamage": {
     "message": "Daño mágico",
     "description": "DrawDataExtension.Draw"
@@ -47,6 +39,14 @@
     "message": "Defensa mágica",
     "description": "DrawDataExtension.Draw"
   },
+  "item:shopCosts": {
+    "message": "Shop costs",
+    "description": "DrawDataExtension.Draw"
+  },
+  "item:looted:sources": {
+    "message": "Looted in",
+    "description": "DrawDataExtension.Draw"
+  },
   "Edit Player": {
     "message": "Editar personaje",
     "description": "EditPlayerWindow..ctor"
@@ -61,10 +61,6 @@
   },
   "Player Name": {
     "message": "Nombre del jugador",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "manuallySetDPS": {
-    "message": "DPS previsto",
     "description": "EditPlayerWindow.Draw"
   },
   "Character Data": {
@@ -97,6 +93,10 @@
   },
   "BIS": {
     "message": "BiS",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "PlayerEdit:Tooltip:LocalBis": {
+    "message": "BiS set for this class is locally managed.\nDelete local set to use a set from etro.gg",
     "description": "EditPlayerWindow.Draw"
   },
   "Set to default": {
@@ -143,6 +143,50 @@
     "message": "Editar",
     "description": "EditGearSetWindow..ctor"
   },
+  "GearsetEdit:Delete": {
+    "message": "Remove set from this character (Hold Shift)",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:Source": {
+    "message": "Source",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSet:ManagedBy:Etro": {
+    "message": "etro.gg",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:MakeLocal": {
+    "message": "Create local copy",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:MakeLocal:tooltip": {
+    "message": "Create a copy of this set in the local database. Set will not be updated from etro.gg afterwards\nOnly local Gear Sets can be edited",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "Etro ID": {
+    "message": "Etro ID",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:EtroLastDownload": {
+    "message": "Last update check",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSet:ManagedBy:HrtLocal": {
+    "message": "Local Database",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "Local ID": {
+    "message": "Local ID",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:LastChanged": {
+    "message": "Last Change",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:Name": {
+    "message": "Name",
+    "description": "EditGearSetWindow.Draw"
+  },
   "Get item for": {
     "message": "Obtener objeto para",
     "description": "SelectGearItemWindow..ctor"
@@ -154,14 +198,6 @@
   "Select Materia": {
     "message": "Seleccionar materia",
     "description": "SelectMateriaWindow..ctor"
-  },
-  "Type": {
-    "message": "Tipo",
-    "description": "SelectMateriaWindow.DrawItemSelection"
-  },
-  "Tier": {
-    "message": "Tier",
-    "description": "SelectMateriaWindow.DrawItemSelection"
   },
   "Confirmation": {
     "message": "Confirmación",
@@ -211,6 +247,10 @@
     "message": "Elegir objeto",
     "description": "UiHelpers.DrawGearEdit"
   },
+  "Remove this item": {
+    "message": "Remove this item",
+    "description": "UiHelpers.DrawGearEdit"
+  },
   "Remove this materia": {
     "message": "Eliminar esta materia",
     "description": "UiHelpers.DrawGearEdit"
@@ -223,12 +263,20 @@
     "message": "Elegir materia",
     "description": "UiHelpers.DrawGearEdit"
   },
-  "Remove option": {
-    "message": "Eliminar opción",
+  "ui:sortable_list:move_up": {
+    "message": "Move up",
     "description": "UiSortableList`1.Draw"
   },
-  "Add option": {
-    "message": "Añadir opción",
+  "ui:sortable_list:move_down": {
+    "message": "Move down",
+    "description": "UiSortableList`1.Draw"
+  },
+  "ui:sortable_list:remove": {
+    "message": "Remove entry",
+    "description": "UiSortableList`1.Draw"
+  },
+  "ui:sortable_list::add": {
+    "message": "Add entry",
     "description": "UiSortableList`1.Draw"
   },
   "Appearance": {
@@ -240,7 +288,7 @@
     "description": "ConfigUi.Draw"
   },
   "Lootmaster:OpenOnLoginTooltip": {
-    "message": "Opens group overview window whean you log in",
+    "message": "Opens group overview window when you log in",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IconInGroupOverview": {
@@ -263,11 +311,11 @@
     "message": "iLvl",
     "description": "ConfigUi.Draw"
   },
-  "Config:Lootmaster:Itemformat": {
+  "Config:Lootmaster:ItemFormat": {
     "message": "Item format",
     "description": "ConfigUi.Draw"
   },
-  "Config:Lootmaster:Itemformat:Available": {
+  "Config:Lootmaster:ItemFormat:Available": {
     "message": "Available options",
     "description": "ConfigUi.Draw"
   },
@@ -275,12 +323,12 @@
     "message": "Examples",
     "description": "ConfigUi.Draw"
   },
-  "Config:Lootmaster:IgnoreMateriaforBis": {
-    "message": "Ignore Materia",
+  "Config:Lootmaster:IgnoreMateriaForBis": {
+    "message": "ShouldIgnore Materia",
     "description": "ConfigUi.Draw"
   },
-  "Config:Lootmaster:IgnoreMateriaforBisTooltip": {
-    "message": "Ignore Materia when determining if an item is equivalent to BiS",
+  "Config:Lootmaster:IgnoreMateriaForBisTooltip": {
+    "message": "ShouldIgnore Materia when determining if an item is equivalent to BiS",
     "description": "ConfigUi.Draw"
   },
   "UpdateBisONStartUp": {
@@ -296,7 +344,7 @@
     "description": "ConfigUi.Draw"
   },
   "DefaultBiSDisclaimer": {
-    "message": "These sets are used when creating a new characer or adding a new job. These do not affect already created characters and jobs.",
+    "message": "These sets are used when creating a new character or adding a new job. These do not affect already created characters and jobs.",
     "description": "ConfigUi.Draw"
   },
   "Reset to default": {
@@ -315,6 +363,30 @@
     "message": "Abre la ventana de LootMaster (o \"/lm\")",
     "description": "LootMasterModule.get_Commands"
   },
+  "ui:loot_rule:active:tooltip": {
+    "message": "Activated",
+    "description": "LootRule.Draw"
+  },
+  "ui:loot_rule:ignore": {
+    "message": "Ignore",
+    "description": "LootRule.Draw"
+  },
+  "loot_rule:ignore:tooltip:bis": {
+    "message": "Ignore players/jobs not using this in BiS ",
+    "description": "LootRule.get_IgnoreTooltip"
+  },
+  "loot_rule:ignore:tooltip:can_use": {
+    "message": "Ignore players/jobs not able to use",
+    "description": "LootRule.get_IgnoreTooltip"
+  },
+  "loot_rule:ignore:tooltip:can_buy": {
+    "message": "Ignore players/jobs that could buy these",
+    "description": "LootRule.get_IgnoreTooltip"
+  },
+  "loot_rule:ignore:tooltip:need_greed": {
+    "message": "Ignore players that have no need",
+    "description": "LootRule.get_IgnoreTooltip"
+  },
   "BISOverUpgrade": {
     "message": "BIS > Mejora",
     "description": "LootRule.GetName"
@@ -323,24 +395,28 @@
     "message": "Nivel de objetos menor",
     "description": "LootRule.GetName"
   },
-  "HighesItemLevelGain": {
-    "message": "Nivel de objetos mayor",
+  "HighestItemLevelGain": {
+    "message": "Highest ItemLevel Gain",
     "description": "LootRule.GetName"
   },
   "ByRole": {
-    "message": "Priorizar por rol",
+    "message": "Prioritize by role",
     "description": "LootRule.GetName"
   },
   "Rolling": {
     "message": "Rollear",
     "description": "LootRule.GetName"
   },
-  "DPS": {
-    "message": "DPS",
-    "description": "LootRule.GetName"
-  },
   "DPSGain": {
     "message": "% DPS gained",
+    "description": "LootRule.GetName"
+  },
+  "LootRule:CanUse": {
+    "message": "Can use now",
+    "description": "LootRule.GetName"
+  },
+  "LootRule:CanBuy": {
+    "message": "Can buy",
     "description": "LootRule.GetName"
   },
   "None": {
@@ -360,7 +436,7 @@
     "description": "LootRule.GetName"
   },
   "LootSession:State:STARTED": {
-    "message": "Chosing Loot",
+    "message": "Choosing Loot",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootSession:State:LOOT_CHOSEN": {
@@ -375,8 +451,8 @@
     "message": "Finished",
     "description": "LootSessionExtensions.FriendlyName"
   },
-  "undefinded": {
-    "message": "undefinded",
+  "undefined": {
+    "message": "indefinido",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootCategory:Need": {
@@ -432,140 +508,164 @@
     "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
   },
   "Dmgper100Tooltip": {
-    "message": "Daño promedio con una habilidad de 100 de potencia",
+    "message": "Average Dmg with a 100 potency skill adjusted for faster GCDs",
     "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
-  },
-  "LootMasterWindowTitle": {
-    "message": "Loot Master",
-    "description": "LootmasterUI..ctor"
-  },
-  "Edit player": {
-    "message": "Editar personaje",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "Current": {
-    "message": "Actual",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "gear": {
-    "message": "equipo",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "Quick compare": {
-    "message": "Quick compare",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "BiS": {
-    "message": "BiS",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "UpdateBis": {
-    "message": "Actualizar \"{0}\" desde Etro.gg",
-    "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "Gear": {
     "message": "Gear",
-    "description": "LootmasterUI.DrawDetailedPlayer"
+    "description": "QuickCompareWindow.Draw"
+  },
+  "Current": {
+    "message": "Actual",
+    "description": "QuickCompareWindow.Draw"
+  },
+  "QuickCompareStatGain": {
+    "message": "Gain",
+    "description": "QuickCompareWindow.Draw"
+  },
+  "New Gear": {
+    "message": "New Gear",
+    "description": "QuickCompareWindow.Draw"
+  },
+  "LootMasterWindowTitle": {
+    "message": "Loot Master",
+    "description": "LootmasterUi..ctor"
+  },
+  "Edit player": {
+    "message": "Editar personaje",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "lootmaster:detail:deleteJob:tooltip": {
+    "message": "Delete job (hold Shift)",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "lootmaster:detail:jobUp:tooltip": {
+    "message": "Move job up",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "lootmaster:detail:jobDown:tooltip": {
+    "message": "Move job down",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "gear": {
+    "message": "equipo",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "Quick compare": {
+    "message": "Quick compare",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "BiS": {
+    "message": "BiS",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "UpdateBis": {
+    "message": "Actualizar \"{0}\" desde Etro.gg",
+    "description": "LootmasterUi.DrawDetailedPlayer"
   },
   "lootmaster:button:showconfig:tooltip": {
     "message": "Open Configuration",
-    "description": "LootmasterUI.Draw"
+    "description": "LootmasterUi.Draw"
   },
   "Add Player": {
     "message": "Añadir personaje",
-    "description": "LootmasterUI.Draw"
+    "description": "LootmasterUi.Draw"
   },
   "Player": {
     "message": "Jugador",
-    "description": "LootmasterUI.Draw"
+    "description": "LootmasterUi.Draw"
   },
   "itemLevelShort": {
     "message": "nivel de objetos",
-    "description": "LootmasterUI.Draw"
+    "description": "LootmasterUi.Draw"
   },
   "Options": {
     "message": "Opciones",
-    "description": "LootmasterUI.Draw"
+    "description": "LootmasterUi.Draw"
   },
   "GroupTabTooltip": {
     "message": "Right click for more options",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "Edit group": {
     "message": "Editar grupo",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "Delete group": {
     "message": "Eliminar grupo",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "DeleteRaidGroup": {
     "message": "¿Estás seguro de querer eliminar este grupo:",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "From current Group": {
     "message": "Del grupo",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "AutoCreatedGroupName": {
     "message": "Auto Created",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "From scratch": {
     "message": "Desde cero",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "Add empty group": {
     "message": "Añadir grupo vacío",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "n.A.": {
     "message": "n.A.",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
+  },
+  "lootmaster:button:quickCompare:tooltip": {
+    "message": "Quickly compare gear",
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "lootmaster:button:swapposition:tooltip": {
     "message": "Swap Position",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "lootmaster:button:inventorytooltip": {
     "message": "Open inventory window",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "PlayerDetails": {
     "message": "Mostar detalles del jugador para",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "Delete": {
     "message": "Borrar",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "DeletePlayerConfirmation": {
     "message": "¿De verdad quieres eliminar el siguiente personaje?",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "No Player": {
     "message": "Sin jugadores",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "Add": {
     "message": "Añadir",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "Add from DB": {
     "message": "Añadir desde BD",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "Distribute loot for:": {
     "message": "Distribuir el botín para:",
-    "description": "LootmasterUI.DrawLootHandlerButtons"
+    "description": "LootmasterUi.DrawLootHandlerButtons"
   },
   "PlayerDetailsTitle": {
     "message": "Detalles de jugador",
-    "description": "PlayerdetailWindow..ctor"
+    "description": "PlayerDetailWindow..ctor"
   },
   "GetCharacterTitle": {
     "message": "Obtener un personaje desde la BD",
-    "description": "GetCharacterFromDBWindow..ctor"
+    "description": "GetCharacterFromDbWindow..ctor"
   },
   "Inventory:AdditionalGear": {
     "message": "Additional Gear",
@@ -581,83 +681,75 @@
   },
   "Loot session for": {
     "message": "Sesión de loot para",
-    "description": "LootSessionUI..ctor"
+    "description": "LootSessionUi..ctor"
   },
   "Lootsession:State": {
     "message": "Current State",
-    "description": "LootSessionUI.Draw"
+    "description": "LootSessionUi.Draw"
   },
   "LootSession:RulesButton:Tooltip": {
     "message": "Override ruling options",
-    "description": "LootSessionUI.Draw"
+    "description": "LootSessionUi.Draw"
   },
-  "LootSesseion:CalcButton:Text": {
+  "LootSession:CalcButton:Text": {
     "message": "Calculate",
-    "description": "LootSessionUI.Draw"
+    "description": "LootSessionUi.Draw"
   },
-  "LootSesseion:CalcButton:Tooltip": {
+  "LootSession:CalcButton:Tooltip": {
     "message": "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection",
-    "description": "LootSessionUI.Draw"
+    "description": "LootSessionUi.Draw"
   },
   "Role priority": {
     "message": "Prioridad de rol",
-    "description": "LootSessionUI.DrawRulingOptions"
+    "description": "LootSessionUi.DrawRulingOptions"
   },
-  "ChangesOnlyForThisLootSesseion": {
-    "message": "Los cambios realizados solo afectan al botín de esta sesión",
-    "description": "LootSessionUI.DrawRulingOptions"
+  "ChangesOnlyForThisLootSession": {
+    "message": "Changes made here only affect this loot session",
+    "description": "LootSessionUi.DrawRulingOptions"
   },
   "Results for": {
     "message": "Results for",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResults:AbortButton:Text": {
     "message": "Abort",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResults:AbortButton:Tooltip": {
     "message": "Abort distribution to change loot or rules",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResultWindow:GuaranteedItems": {
     "message": "Guaranteed Items (per player)",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed": {
     "message": "Award to all",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed:Tooltip": {
     "message": "Award 1 to each player",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResult:PossibleItems": {
     "message": "Items to distribute:",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "Pos": {
     "message": "Draw",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "Needed items": {
     "message": "Needed items",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "Rule": {
     "message": "Regla",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResult:AwardButton:Tooltip": {
     "message": "Award to player",
-    "description": "LootSessionUI.DrawResults"
-  },
-  "QuickCompareStatGain": {
-    "message": "Gain",
-    "description": "QuickCompareWindow.Draw"
-  },
-  "New Gear": {
-    "message": "New Gear",
-    "description": "QuickCompareWindow.Draw"
+    "description": "LootSessionUi.DrawResults"
   },
   "General": {
     "message": "General",
@@ -700,8 +792,24 @@
     "description": "ConfigUi.Draw"
   },
   "/hrt": {
-    "message": "Abrir la ventana de bienvenida con explicaciones",
+    "message": "Show help",
     "description": "CoreModule.get_Commands"
+  },
+  "command:hrt:options": {
+    "message": "Shows the Configuration window",
+    "description": "CoreModule.get_InternalCommands"
+  },
+  "command:hrt:welcome": {
+    "message": "Open Welcome Window with explanations on how to use",
+    "description": "CoreModule.get_InternalCommands"
+  },
+  "command:hrt:help": {
+    "message": "Prints usage information to chat",
+    "description": "CoreModule.get_InternalCommands"
+  },
+  "hrt:usage:heading": {
+    "message": " Commands used for Himbeertoni Raid Tool:",
+    "description": "CoreModule.PrintUsage"
   },
   "Welcome to HRT": {
     "message": "Bienvenida a Himbeertoni Raid Tool",
@@ -903,10 +1011,6 @@
     "message": "etro.gg",
     "description": "EnumExtensions.FriendlyName"
   },
-  "undefined": {
-    "message": "indefinido",
-    "description": "EnumExtensions.FriendlyName"
-  },
   "Solo": {
     "message": "Solo",
     "description": "EnumExtensions.FriendlyName"
@@ -961,6 +1065,14 @@
   },
   "Bracelet": {
     "message": "Brazalete",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Ring (R)": {
+    "message": "Ring (R)",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Ring (L)": {
+    "message": "Ring (L)",
     "description": "EnumExtensions.FriendlyName"
   },
   "Ring": {
@@ -1033,22 +1145,22 @@
   },
   "LodestoneConnector:CharNotFound": {
     "message": "Character not found on Lodestone.",
-    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+    "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
   "LodestoneConnector:JobIncompatible": {
     "message": "Could not resolve currently used job or currently displayed job on Lodestone is not supported.",
-    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+    "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
-  "LodestoneConnector:FailedtoCreateGear": {
+  "LodestoneConnector:FailedToCreateGear": {
     "message": "Could not create new gear set.",
-    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+    "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
-  "LodestoneConnector:Sucess": {
+  "LodestoneConnector:Success": {
     "message": "Updated {0}'s {1} gear from Lodestone.",
-    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+    "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
   "LodestoneConnector:Failure": {
     "message": "Could not update gear from Lodestone.",
-    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+    "description": "<UpdateCharacterAsync>d__8.MoveNext"
   }
 }
