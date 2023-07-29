@@ -45,7 +45,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     private bool _fillSoloOnLogin;
     public LootMasterModule()
     {
-        if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
+        if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo)
         {
             RaidGroups.Insert(0, new RaidGroup("Solo", GroupType.Solo)
             {
