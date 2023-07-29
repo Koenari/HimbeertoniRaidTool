@@ -168,7 +168,7 @@
     "description": "EditGearSetWindow.Draw"
   },
   "GearSetEdit:EtroLastDownload": {
-    "message": "Last update check",
+    "message": "Dernière vérification de mise à jour",
     "description": "EditGearSetWindow.Draw"
   },
   "GearSet:ManagedBy:HrtLocal": {
@@ -184,7 +184,7 @@
     "description": "EditGearSetWindow.Draw"
   },
   "GearSetEdit:Name": {
-    "message": "Name",
+    "message": "Nom",
     "description": "EditGearSetWindow.Draw"
   },
   "Get item for": {
@@ -288,7 +288,7 @@
     "description": "ConfigUi.Draw"
   },
   "Lootmaster:OpenOnLoginTooltip": {
-    "message": "Opens group overview window when you log in",
+    "message": "Ouvre la fenêtre d'aperçu du groupe quand vous vous connectez",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IconInGroupOverview": {
@@ -312,11 +312,11 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:ItemFormat": {
-    "message": "Item format",
+    "message": "Format d'objet",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:ItemFormat:Available": {
-    "message": "Available options",
+    "message": "Options disponibles",
     "description": "ConfigUi.Draw"
   },
   "Examples": {
@@ -324,11 +324,11 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaForBis": {
-    "message": "Ignore Materia",
+    "message": "Ignorer les Materia",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaForBisTooltip": {
-    "message": "Ignore Materia when determining if an item is equivalent to BiS",
+    "message": "Ignorer les Materia lorsqu'il est déterminé si un objet est équivalent au BiS",
     "description": "ConfigUi.Draw"
   },
   "UpdateBisONStartUp": {
@@ -344,7 +344,7 @@
     "description": "ConfigUi.Draw"
   },
   "DefaultBiSDisclaimer": {
-    "message": "These sets are used when creating a new character or adding a new job. These do not affect already created characters and jobs.",
+    "message": "Ces sets sont utilisés lors de la création d'un nouveau personnage ou de l'ajout d'un nouveau job. Ils n'affectent pas les personnages déjà créés ni leurs jobs.",
     "description": "ConfigUi.Draw"
   },
   "Reset to default": {
@@ -364,11 +364,11 @@
     "description": "LootMasterModule.get_Commands"
   },
   "ui:loot_rule:active:tooltip": {
-    "message": "Activated",
+    "message": "Activé",
     "description": "LootRule.Draw"
   },
   "ui:loot_rule:ignore": {
-    "message": "Ignore",
+    "message": "Ignorer",
     "description": "LootRule.Draw"
   },
   "loot_rule:ignore:tooltip:bis": {
@@ -400,7 +400,7 @@
     "description": "LootRule.GetName"
   },
   "ByRole": {
-    "message": "Prioritize by role",
+    "message": "Prioriser par rôle",
     "description": "LootRule.GetName"
   },
   "Rolling": {
@@ -436,7 +436,7 @@
     "description": "LootRule.GetName"
   },
   "LootSession:State:STARTED": {
-    "message": "Choosing Loot",
+    "message": "Choix du butin",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootSession:State:LOOT_CHOSEN": {
@@ -692,11 +692,11 @@
     "description": "LootSessionUi.Draw"
   },
   "LootSession:CalcButton:Text": {
-    "message": "Calculate",
+    "message": "Calculer",
     "description": "LootSessionUi.Draw"
   },
   "LootSession:CalcButton:Tooltip": {
-    "message": "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection",
+    "message": "Calcule les résultats de la distribution du butin selon les règles et l'équipement actuel des joueurs\n Verrouille la sélection du butin",
     "description": "LootSessionUi.Draw"
   },
   "Role priority": {
@@ -704,7 +704,7 @@
     "description": "LootSessionUi.DrawRulingOptions"
   },
   "ChangesOnlyForThisLootSession": {
-    "message": "Changes made here only affect this loot session",
+    "message": "Les modifications apportées ici n'affectent que cette session de butin",
     "description": "LootSessionUi.DrawRulingOptions"
   },
   "Results for": {
@@ -1068,11 +1068,11 @@
     "description": "EnumExtensions.FriendlyName"
   },
   "Ring (R)": {
-    "message": "Ring (R)",
+    "message": "Bague (D)",
     "description": "EnumExtensions.FriendlyName"
   },
   "Ring (L)": {
-    "message": "Ring (L)",
+    "message": "Bague (G)",
     "description": "EnumExtensions.FriendlyName"
   },
   "Ring": {
@@ -1152,11 +1152,11 @@
     "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
   "LodestoneConnector:FailedToCreateGear": {
-    "message": "Could not create new gear set.",
+    "message": "Impossible de créer une nouvelle tenue.",
     "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
   "LodestoneConnector:Success": {
-    "message": "Updated {0}'s {1} gear from Lodestone.",
+    "message": "L'équipement {1} de {0} a été mis à jour via les informations du Lodestone.",
     "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
   "LodestoneConnector:Failure": {
