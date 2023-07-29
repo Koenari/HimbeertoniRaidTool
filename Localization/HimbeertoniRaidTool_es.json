@@ -324,11 +324,11 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaForBis": {
-    "message": "ShouldIgnore Materia",
+    "message": "Ignore Materia",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaForBisTooltip": {
-    "message": "ShouldIgnore Materia when determining if an item is equivalent to BiS",
+    "message": "Ignore Materia when determining if an item is equivalent to BiS",
     "description": "ConfigUi.Draw"
   },
   "UpdateBisONStartUp": {
