@@ -131,12 +131,27 @@ internal class LootmasterUi : HrtWindow
         ImGui.BeginChild("JobList");
         foreach (PlayableClass playableClass in p.MainChar.Classes)
         {
+            ImGui.PushID($"{playableClass.Job}");
             ImGui.Separator();
             ImGui.Spacing();
+            if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "Delete",
+                    Localize("lootmaster:detail:deleteJob:tooltip", "Delete job (hold Shift)"),
+                    ImGui.IsKeyDown(ImGuiKey.ModShift)))
+                p.MainChar.RemoveClass(playableClass.Job);
+            ImGui.SameLine();
+            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "JobUp",
+                    Localize("lootmaster:detail:jobUp:tooltip", "Move job up"), p.MainChar.CanMoveUp(playableClass)))
+                p.MainChar.MoveClassUp(playableClass);
+            ImGui.SameLine();
+            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "JobDown",
+                    Localize("lootmaster:detail:jobDown:tooltip", "Move job down"),
+                    p.MainChar.CanMoveDown(playableClass)))
+                p.MainChar.MoveClassDown(playableClass);
             bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
             if (isMainJob)
                 ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
+            ImGui.SameLine();
             if (ImGuiHelper.Button(playableClass.Job.ToString(), null, true, new Vector2(38f * ScaleFactor, 0f)))
                 p.MainChar.MainJob = playableClass.Job;
             if (isMainJob)
@@ -148,28 +163,29 @@ internal class LootmasterUi : HrtWindow
             ImGui.Text(
                 $"{Localize("Current", "Current")} {Localize("iLvl", "iLvl")}: {playableClass.Gear.ItemLevel:D3}");
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear{playableClass.Job}",
+            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear",
                     $"{Localize("Edit", "Edit")} {playableClass.Job} {Localize("gear", "gear")}"))
                 AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job, g => playableClass.Gear = g));
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, $"QuickCompare{playableClass.Job}",
+            if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, $"QuickCompare",
                     $"{Localize("Quick compare", "Quick compare")}"))
                 AddChild(new QuickCompareWindow(CurConfig, playableClass));
             //BiS
             ImGui.SameLine();
             ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvl")}: {playableClass.BIS.ItemLevel:D3}");
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS{playableClass.Job}",
+            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS",
                     $"{Localize("Edit", "Edit")} {playableClass.BIS.Name}"))
                 AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job, g => playableClass.BIS = g));
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.BIS.EtroID,
                     string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name),
-                    playableClass.BIS.ManagedBy == GearSetManager.Etro && playableClass.BIS.EtroID.Length > 0))
+                    playableClass.BIS is { ManagedBy: GearSetManager.Etro, EtroID.Length: > 0 }))
                 ServiceManager.TaskManager.RegisterTask(
                     new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS),
                         HandleMessage));
             ImGui.Spacing();
+            ImGui.PopID();
         }
 
         ImGui.EndChild();

@@ -74,7 +74,7 @@ public class LootRule : IEquatable<LootRule>, IDrawable
         if (CanIgnore)
         {
             ImGui.SameLine();
-            ImGui.Checkbox($"{Localize("ui:loot_rule:ignore","ShouldIgnore")}##ignore", ref IgnorePlayers);
+            ImGui.Checkbox($"{Localize("ui:loot_rule:ignore","Ignore")}##ignore", ref IgnorePlayers);
             ImGuiHelper.AddTooltip(IgnoreTooltip);
         }
         ImGui.EndDisabled();
@@ -83,10 +83,10 @@ public class LootRule : IEquatable<LootRule>, IDrawable
     private string IgnoreTooltip =>
         Rule switch
         {
-            LootRuleEnum.BISOverUpgrade => Localize("loot_rule:ignore:tooltip:bis","ShouldIgnore players/jobs not using this in BiS "),
-            LootRuleEnum.CanUse => Localize("loot_rule:ignore:tooltip:can_use","ShouldIgnore players/jobs not able to use"),
-            LootRuleEnum.CanBuy => Localize("loot_rule:ignore:tooltip:can_buy","ShouldIgnore players/jobs that could buy these"),
-            LootRuleEnum.NeedGreed => Localize("loot_rule:ignore:tooltip:need_greed","ShouldIgnore players that have no need"),
+            LootRuleEnum.BISOverUpgrade => Localize("loot_rule:ignore:tooltip:bis","Ignore players/jobs not using this in BiS "),
+            LootRuleEnum.CanUse => Localize("loot_rule:ignore:tooltip:can_use","Ignore players/jobs not able to use"),
+            LootRuleEnum.CanBuy => Localize("loot_rule:ignore:tooltip:can_buy","Ignore players/jobs that could buy these"),
+            LootRuleEnum.NeedGreed => Localize("loot_rule:ignore:tooltip:need_greed","Ignore players that have no need"),
             _ => "",
         };
 
