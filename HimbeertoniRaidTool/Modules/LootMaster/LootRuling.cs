@@ -1,8 +1,11 @@
-﻿using HimbeertoniRaidTool.Common;
+﻿using System.Globalization;
+using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
 using Newtonsoft.Json;
 using HimbeertoniRaidTool.Common.Services;
+using HimbeertoniRaidTool.Plugin.UI;
+using ImGuiNET;
 using Lumina.Excel.CustomSheets;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 using ServiceManager = HimbeertoniRaidTool.Plugin.Services.ServiceManager;
@@ -18,46 +21,102 @@ public class LootRuling
     {
         get
         {
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (LootRuleEnum rule in Enum.GetValues(typeof(LootRuleEnum)))
             {
+#pragma warning disable CS0618
                 if (rule is LootRuleEnum.None or LootRuleEnum.DPS)
+#pragma warning restore CS0618
                     continue;
                 //Special Rules only used internally
                 if ((int)rule > 900)
                     continue;
-                yield return new(rule);
+                yield return new LootRule(rule);
             }
         }
     }
     [JsonProperty("RuleSet")]
     public List<LootRule> RuleSet = new();
+    
+    [JsonIgnore]
+    public IEnumerable<LootRule> ActiveRules => RuleSet.Where(r => r.Active);
 }
 
 
 [JsonObject(MemberSerialization.OptIn)]
-public class LootRule : IEquatable<LootRule>
+public class LootRule : IEquatable<LootRule>, IDrawable
 {
-    [JsonProperty("Rule")]
-    public readonly LootRuleEnum Rule;
+    [JsonProperty("Rule")] public readonly LootRuleEnum Rule;
+
+    [JsonProperty("Active")] public bool Active = true;
+
+    [JsonProperty("IgnoreActive")] public bool IgnorePlayers;
+
+    public bool CanIgnore=>
+        Rule switch
+        {
+            LootRuleEnum.BISOverUpgrade => true,
+            LootRuleEnum.CanUse => true,
+            LootRuleEnum.CanBuy => true,
+            LootRuleEnum.NeedGreed => true,
+            _ => false,
+        };
+
     public string Name => GetName();
+
+    public void Draw()
+    {
+        ImGui.Checkbox("##active", ref Active);
+        ImGuiHelper.AddTooltip(Localize("ui:loot_rule:active:tooltip","Activated"));
+        ImGui.SameLine();
+        ImGui.BeginDisabled(!Active);
+        ImGui.Text(Name);
+        if (CanIgnore)
+        {
+            ImGui.SameLine();
+            ImGui.Checkbox($"{Localize("ui:loot_rule:ignore","ShouldIgnore")}##ignore", ref IgnorePlayers);
+            ImGuiHelper.AddTooltip(IgnoreTooltip);
+        }
+        ImGui.EndDisabled();
+    }
+
+    private string IgnoreTooltip =>
+        Rule switch
+        {
+            LootRuleEnum.BISOverUpgrade => Localize("loot_rule:ignore:tooltip:bis","ShouldIgnore players/jobs not using this in BiS "),
+            LootRuleEnum.CanUse => Localize("loot_rule:ignore:tooltip:can_use","ShouldIgnore players/jobs not able to use"),
+            LootRuleEnum.CanBuy => Localize("loot_rule:ignore:tooltip:can_buy","ShouldIgnore players/jobs that could buy these"),
+            LootRuleEnum.NeedGreed => Localize("loot_rule:ignore:tooltip:need_greed","ShouldIgnore players that have no need"),
+            _ => "",
+        };
+
     /// <summary>
     /// Evaluates this LootRule for given player
     /// </summary>
     /// <param name="x">The player to evaluate for</param>
-    /// <param name="session">Loot session to evaluate for</param>
     /// <returns>A tuple of int (can be used for Compare like (right - left)) and a string describing the value</returns>
-    public (float, string) Eval(LootResult x, LootSession session)
+    public (float, string) Eval(LootResult x)
     {
-        (float val, string? reason) = InternalEval(x, session);
-        return (val, reason ?? val.ToString());
+        (float val, string? reason) = InternalEval(x);
+        return (val, reason ?? val.ToString(CultureInfo.CurrentCulture));
     }
-    private (float, string?) InternalEval(LootResult x, LootSession session) => Rule switch
+
+    public bool ShouldIgnore(LootResult x) => CanIgnore && IgnorePlayers && Rule switch
+    {
+        LootRuleEnum.BISOverUpgrade => !x.IsBiS(),
+        LootRuleEnum.CanUse => !x.CanUse(),
+        LootRuleEnum.CanBuy => x.CanBuy(), 
+        LootRuleEnum.Greed => true,
+        _ => false,
+    };
+
+    private (float, string?) InternalEval(LootResult x) => Rule switch
     {
         LootRuleEnum.Random => (x.Roll(), null),
         LootRuleEnum.LowestItemLevel => (-x.ItemLevel(), x.ItemLevel().ToString()),
         LootRuleEnum.HighestItemLevelGain => (x.ItemLevelGain(), null),
         LootRuleEnum.BISOverUpgrade => x.IsBiS() ? (1, "y") : (-1, "n"),
-        LootRuleEnum.RolePrio => (x.RolePriority(session), x.ApplicableJob.Role.ToString()),
+        LootRuleEnum.RolePrio => (x.RolePriority(), x.ApplicableJob.Role.ToString()),
         LootRuleEnum.DPSGain => (x.DpsGain(), $"{x.DpsGain() * 100:f1} %%"),
         LootRuleEnum.CanUse => x.CanUse() ? (1, "y") : (-1, "n"),
         LootRuleEnum.CanBuy => x.CanBuy() ? (-1, "y") : (1, "n"),
@@ -68,7 +127,7 @@ public class LootRule : IEquatable<LootRule>
     {
         LootRuleEnum.BISOverUpgrade => Localize("BISOverUpgrade", "BIS > Upgrade"),
         LootRuleEnum.LowestItemLevel => Localize("LowestItemLevel", "Lowest overall ItemLevel"),
-        LootRuleEnum.HighestItemLevelGain => Localize("HighesItemLevelGain", "Highest ItemLevel Gain"),
+        LootRuleEnum.HighestItemLevelGain => Localize("HighestItemLevelGain", "Highest ItemLevel Gain"),
         LootRuleEnum.RolePrio => Localize("ByRole", "Prioritize by role"),
         LootRuleEnum.Random => Localize("Rolling", "Rolling"),
         LootRuleEnum.DPSGain => Localize("DPSGain", "% DPS gained"),
@@ -95,7 +154,7 @@ public class LootRule : IEquatable<LootRule>
 
 public static class LootRulesExtension
 {
-    public static int RolePriority(this LootResult p, LootSession s) => -s.RolePriority.GetPriority(p.ApplicableJob.Role);
+    public static int RolePriority(this LootResult p) => -p.RolePriority;
     public static int Roll(this LootResult p) => p.Roll;
     public static int ItemLevel(this LootResult p) => p.ApplicableJob.Gear.ItemLevel;
     public static int ItemLevelGain(this LootResult p)
@@ -146,7 +205,7 @@ public static class LootRulesExtension
                                if (ItemInfo.IsCurrency(cost.Item.Row)) continue;
                                if (ItemInfo.IsTomeStone(cost.Item.Row)) continue;
                                if (p.ApplicableJob.Gear.Contains(new HrtItem(cost.Item.Row))) continue;
-                               if(p.ApplicableJob.Parent.MainInventory.ItemCount(cost.Item.Row) >= cost.Count) continue;
+                               if(p.ApplicableJob.Parent!.MainInventory.ItemCount(cost.Item.Row) >= cost.Count) continue;
                                return false;
                            }
                            return true;
@@ -166,7 +225,7 @@ public static class LootRulesExtension
                     if (ItemInfo.IsCurrency(cost.Item.Row)) continue;
                     if (ItemInfo.IsTomeStone(cost.Item.Row)) continue;
                     if (p.ApplicableJob.Gear.Contains(new HrtItem(cost.Item.Row))) continue;
-                    if (p.ApplicableJob.Parent.MainInventory.ItemCount(cost.Item.Row)
+                    if (p.ApplicableJob.Parent!.MainInventory.ItemCount(cost.Item.Row)
                         + (p.GuaranteedLoot.Any(loot => loot.ID == cost.Item.Row) ? 1 :0)
                         >= cost.Count) continue;
                     return false;

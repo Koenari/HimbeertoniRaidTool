@@ -1,20 +1,20 @@
-﻿using Dalamud.Interface;
+﻿using System.Numerics;
+using Dalamud.Interface;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using System.Numerics;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
-namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
+namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
-internal class LootSessionUI : HrtWindow
+internal class LootSessionUi : HrtWindow
 {
-    private const string RulesPopupID = "RulesButtonPopup";
+    private const string RulesPopupId = "RulesButtonPopup";
     private readonly LootSession _session;
     private readonly UiSortableList<LootRule> _ruleListUi;
 
-    internal LootSessionUI(InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling,
-        RolePriority defaultRolePriority) : base()
+    internal LootSessionUi(InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling,
+        RolePriority defaultRolePriority)
     {
         _session = new LootSession(group, lootRuling, defaultRolePriority, lootSource);
         _ruleListUi = new UiSortableList<LootRule>(LootRuling.PossibleRules, lootRuling.RuleSet);
@@ -35,10 +35,11 @@ internal class LootSessionUI : HrtWindow
         ImGui.SameLine();
         ImGui.Text($"{Localize("Lootsession:State", "Current State")}: {_session.CurrentState.FriendlyName()}");
         ImGui.SameLine();
+
         if (ImGuiHelper.Button(FontAwesomeIcon.Cogs, "RulesButton",
                 Localize("LootSession:RulesButton:Tooltip", "Override ruling options")))
-            ImGui.OpenPopup(RulesPopupID);
-        if (ImGui.BeginPopup(RulesPopupID))
+            ImGui.OpenPopup(RulesPopupId);
+        if (ImGui.BeginPopup(RulesPopupId))
         {
             if (ImGuiHelper.CloseButton())
                 ImGui.CloseCurrentPopup();
@@ -46,11 +47,12 @@ internal class LootSessionUI : HrtWindow
             ImGui.EndPopup();
         }
 
-        ImGui.BeginDisabled(_session.CurrentState >= LootSession.State.LOOT_CHOSEN);
+        ImGui.BeginDisabled(_session.CurrentState >= LootSession.State.LootChosen);
         ImGui.SameLine();
         ImGui.SetNextItemWidth(ScaleFactor * 200f);
         if (ImGui.BeginCombo("##RaidGroup", _session.Group.Name))
         {
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (RaidGroup group in ServiceManager.HrtDataManager.Groups)
                 if (ImGui.Selectable(group.Name) && group != _session.Group)
                     _session.Group = group;
@@ -58,8 +60,8 @@ internal class LootSessionUI : HrtWindow
         }
 
         ImGui.SameLine();
-        if (ImGuiHelper.Button(Localize("LootSesseion:CalcButton:Text", "Calculate"),
-                Localize("LootSesseion:CalcButton:Tooltip",
+        if (ImGuiHelper.Button(Localize("LootSession:CalcButton:Text", "Calculate"),
+                Localize("LootSession:CalcButton:Tooltip",
                     "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection")))
             _session.Evaluate();
         ImGui.EndDisabled();
@@ -68,35 +70,35 @@ internal class LootSessionUI : HrtWindow
         DrawLootSelection();
         ImGui.NewLine();
 
-        if (_session.CurrentState >= LootSession.State.LOOT_CHOSEN)
+        if (_session.CurrentState >= LootSession.State.LootChosen)
             DrawResults();
     }
 
     private void DrawLootSelection()
     {
-        const float ItemSize = 80f;
-        const int ItemsPerRow = 7;
-        int rows = (int)Math.Ceiling(_session.Loot.Count / (float)ItemsPerRow);
-        ImGui.BeginDisabled(_session.CurrentState >= LootSession.State.LOOT_CHOSEN);
+        const float itemSize = 80f;
+        const int itemsPerRow = 7;
+        int rows = (int)Math.Ceiling(_session.Loot.Count / (float)itemsPerRow);
+        ImGui.BeginDisabled(_session.CurrentState >= LootSession.State.LootChosen);
         for (int row = 0; row < rows; row++)
         {
             ImGui.PushID(row);
-            if (ImGui.BeginTable("LootSelection", ItemsPerRow,
+            if (ImGui.BeginTable("LootSelection", itemsPerRow,
                     ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.SizingFixedFit))
             {
-                for (int col = 0; col < ItemsPerRow; col++)
+                for (int col = 0; col < itemsPerRow; col++)
                 {
-                    if (row * ItemsPerRow + col >= _session.Loot.Count)
+                    if (row * itemsPerRow + col >= _session.Loot.Count)
                     {
                         ImGui.TableNextRow();
                         break;
                     }
 
-                    HrtItem item = _session.Loot[row * ItemsPerRow + col].item;
+                    HrtItem item = _session.Loot[row * itemsPerRow + col].item;
                     ImGui.TableNextColumn();
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
                     ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle,
-                        Vector2.One * ScaleFactor * (ItemSize - 30f));
+                        Vector2.One * ScaleFactor * (itemSize - 30f));
                     if (ImGui.IsItemHovered())
                     {
                         ImGui.BeginTooltip();
@@ -105,23 +107,23 @@ internal class LootSessionUI : HrtWindow
                     }
                 }
 
-                for (int col = 0; col < ItemsPerRow; col++)
+                for (int col = 0; col < itemsPerRow; col++)
                 {
-                    if (row * ItemsPerRow + col >= _session.Loot.Count)
+                    if (row * itemsPerRow + col >= _session.Loot.Count)
                     {
                         ImGui.TableNextRow();
                         break;
                     }
 
-                    (HrtItem item, int count) = _session.Loot[row * ItemsPerRow + col];
+                    (HrtItem item, int count) = _session.Loot[row * itemsPerRow + col];
                     ImGui.TableNextColumn();
                     int count2 = count;
-                    ImGui.SetNextItemWidth(ScaleFactor * (ItemSize - 10f));
+                    ImGui.SetNextItemWidth(ScaleFactor * (itemSize - 10f));
                     if (ImGui.InputInt($"##Input{item.ID}", ref count2))
                     {
                         if (count2 < 0)
                             count2 = 0;
-                        _session.Loot[row * ItemsPerRow + col] = (item, count2);
+                        _session.Loot[row * itemsPerRow + col] = (item, count2);
                     }
                 }
 
@@ -141,9 +143,9 @@ internal class LootSessionUI : HrtWindow
         {
             ImGui.TextWrapped($"{Localize("Role priority", "Role priority")}:\n{_session.RolePriority}");
             if (_ruleListUi.Draw())
-                _session.RulingOptions.RuleSet = _ruleListUi.List;
+                _session.RulingOptions.RuleSet = new List<LootRule>(_ruleListUi.List);
             ImGui.NewLine();
-            ImGui.TextWrapped(Localize("ChangesOnlyForThisLootSesseion",
+            ImGui.TextWrapped(Localize("ChangesOnlyForThisLootSession",
                 "Changes made here only affect this loot session"));
             ImGui.EndChild();
         }
@@ -156,14 +158,14 @@ internal class LootSessionUI : HrtWindow
         ImGui.SameLine();
         if (ImGuiHelper.Button(Localize("LootResults:AbortButton:Text", "Abort"),
                 Localize("LootResults:AbortButton:Tooltip", "Abort distribution to change loot or rules"),
-                _session.CurrentState < LootSession.State.DISTRIBUTION_STARTED))
+                _session.CurrentState < LootSession.State.DistributionStarted))
             _session.RevertToChooseLoot();
         ImGui.Separator();
         //Guaranteed Item
         ImGui.Text(Localize("LootResultWindow:GuaranteedItems", "Guaranteed Items (per player)"));
         if (_session.GuaranteedLoot.Count == 0)
             ImGui.Text(Localize("None", "None"));
-        foreach ((HrtItem item, bool awareded) in _session.GuaranteedLoot)
+        foreach ((HrtItem item, bool awarded) in _session.GuaranteedLoot)
         {
             ImGui.BeginGroup();
             ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle,
@@ -180,7 +182,7 @@ internal class LootSessionUI : HrtWindow
 
             ImGui.SameLine();
             if (ImGuiHelper.Button($"{Localize("LootResultWindow:Button:AwardGuaranteed", "Award to all")}##{item.ID}",
-                    Localize("LootResultWindow:Button:AwardGuaranteed:Tooltip", "Award 1 to each player"), !awareded))
+                    Localize("LootResultWindow:Button:AwardGuaranteed:Tooltip", "Award 1 to each player"), !awarded))
                 _session.AwardGuaranteedLoot(item);
         }
 
@@ -195,14 +197,14 @@ internal class LootSessionUI : HrtWindow
             ImGui.PushID($"{item.ID}##{nr}");
             if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n {results.ShortResult}",
                     ImGuiTreeNodeFlags.DefaultOpen))
-                if (ImGui.BeginTable($"LootTable", 4 + _session.RulingOptions.RuleSet.Count,
+                if (ImGui.BeginTable($"LootTable", 4 + _session.RulingOptions.ActiveRules.Count(),
                         ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg))
                 {
                     ImGui.TableSetupColumn(Localize("Pos", "Pos"));
                     ImGui.TableSetupColumn(Localize("Player", "Player"));
                     ImGui.TableSetupColumn(Localize("Needed items", "Needed items"));
                     ImGui.TableSetupColumn(Localize("Rule", "Rule"));
-                    foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                    foreach (LootRule rule in _session.RulingOptions.ActiveRules)
                         ImGui.TableSetupColumn(rule.Name);
                     ImGui.TableHeadersRow();
 
@@ -211,6 +213,7 @@ internal class LootSessionUI : HrtWindow
                     for (int i = 0; i < results.Count; i++)
                     {
                         LootResult singleResult = results[i];
+                        if (singleResult.ShouldIgnore) continue;
                         LootResult? nextResult = i + 1 < results.Count ? results[i + 1] : null;
                         ImGui.TableNextColumn();
                         ImGui.Text(place.ToString());
@@ -258,7 +261,7 @@ internal class LootSessionUI : HrtWindow
                         {
                             LootRule decidingFactor = singleResult.DecidingFactor(nextResult);
                             ImGui.Text(decidingFactor.Name);
-                            foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                            foreach (LootRule rule in _session.RulingOptions.ActiveRules)
                             {
                                 ImGui.TableNextColumn();
                                 string toPrint =
@@ -280,7 +283,7 @@ internal class LootSessionUI : HrtWindow
                         else
                         {
                             ImGui.Text(singleResult.Category.FriendlyName());
-                            foreach (LootRule rule in _session.RulingOptions.RuleSet)
+                            foreach (LootRule _ in _session.RulingOptions.ActiveRules)
                             {
                                 ImGui.TableNextColumn();
                                 ImGui.Text("-");

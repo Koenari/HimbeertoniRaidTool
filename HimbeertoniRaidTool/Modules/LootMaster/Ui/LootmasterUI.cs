@@ -490,7 +490,7 @@ internal class LootmasterUi : HrtWindow
         foreach (InstanceWithLoot lootSource in CurConfig.SelectedRaidTier.Bosses)
         {
             if (ImGuiHelper.Button(lootSource.Name, null))
-                AddChild(new LootSessionUI(lootSource, CurrentGroup, CurConfig.LootRuling, CurConfig.RolePriority));
+                AddChild(new LootSessionUi(lootSource, CurrentGroup, CurConfig.LootRuling, CurConfig.RolePriority));
             ImGui.SameLine();
         }
 
