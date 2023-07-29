@@ -23,14 +23,6 @@
     "message": "変換元",
     "description": "DrawDataExtension.Draw"
   },
-  "itemShop": {
-    "message": "ショップ価格",
-    "description": "DrawDataExtension.Draw"
-  },
-  "item:looted:sources": {
-    "message": "獲得された",
-    "description": "DrawDataExtension.Draw"
-  },
   "MagicDamage": {
     "message": "魔法攻撃力",
     "description": "DrawDataExtension.Draw"
@@ -47,6 +39,14 @@
     "message": "魔法防御力",
     "description": "DrawDataExtension.Draw"
   },
+  "item:shopCosts": {
+    "message": "Shop costs",
+    "description": "DrawDataExtension.Draw"
+  },
+  "item:looted:sources": {
+    "message": "獲得された",
+    "description": "DrawDataExtension.Draw"
+  },
   "Edit Player": {
     "message": "プレイヤーを編集",
     "description": "EditPlayerWindow..ctor"
@@ -61,10 +61,6 @@
   },
   "Player Name": {
     "message": "プレイヤー名",
-    "description": "EditPlayerWindow.Draw"
-  },
-  "manuallySetDPS": {
-    "message": "予測DPS",
     "description": "EditPlayerWindow.Draw"
   },
   "Character Data": {
@@ -97,6 +93,10 @@
   },
   "BIS": {
     "message": "最適装備",
+    "description": "EditPlayerWindow.Draw"
+  },
+  "PlayerEdit:Tooltip:LocalBis": {
+    "message": "BiS set for this class is locally managed.\nDelete local set to use a set from etro.gg",
     "description": "EditPlayerWindow.Draw"
   },
   "Set to default": {
@@ -143,6 +143,50 @@
     "message": "編集",
     "description": "EditGearSetWindow..ctor"
   },
+  "GearsetEdit:Delete": {
+    "message": "Remove set from this character (Hold Shift)",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:Source": {
+    "message": "Source",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSet:ManagedBy:Etro": {
+    "message": "etro.gg",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:MakeLocal": {
+    "message": "Create local copy",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:MakeLocal:tooltip": {
+    "message": "Create a copy of this set in the local database. Set will not be updated from etro.gg afterwards\nOnly local Gear Sets can be edited",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "Etro ID": {
+    "message": "Etro ID",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:EtroLastDownload": {
+    "message": "Last update check",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSet:ManagedBy:HrtLocal": {
+    "message": "Local Database",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "Local ID": {
+    "message": "Local ID",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:LastChanged": {
+    "message": "Last Change",
+    "description": "EditGearSetWindow.Draw"
+  },
+  "GearSetEdit:Name": {
+    "message": "Name",
+    "description": "EditGearSetWindow.Draw"
+  },
   "Get item for": {
     "message": "アイテムを取得：",
     "description": "SelectGearItemWindow..ctor"
@@ -154,14 +198,6 @@
   "Select Materia": {
     "message": "マテリアを選択",
     "description": "SelectMateriaWindow..ctor"
-  },
-  "Type": {
-    "message": "種別",
-    "description": "SelectMateriaWindow.DrawItemSelection"
-  },
-  "Tier": {
-    "message": "Tier",
-    "description": "SelectMateriaWindow.DrawItemSelection"
   },
   "Confirmation": {
     "message": "確認",
@@ -211,6 +247,10 @@
     "message": "アイテムを選択",
     "description": "UiHelpers.DrawGearEdit"
   },
+  "Remove this item": {
+    "message": "Remove this item",
+    "description": "UiHelpers.DrawGearEdit"
+  },
   "Remove this materia": {
     "message": "このマテリアを削除",
     "description": "UiHelpers.DrawGearEdit"
@@ -223,12 +263,20 @@
     "message": "マテリアを選択",
     "description": "UiHelpers.DrawGearEdit"
   },
-  "Remove option": {
-    "message": "オプション削除",
+  "ui:sortable_list:move_up": {
+    "message": "Move up",
     "description": "UiSortableList`1.Draw"
   },
-  "Add option": {
-    "message": "オプション追加",
+  "ui:sortable_list:move_down": {
+    "message": "Move down",
+    "description": "UiSortableList`1.Draw"
+  },
+  "ui:sortable_list:remove": {
+    "message": "Remove entry",
+    "description": "UiSortableList`1.Draw"
+  },
+  "ui:sortable_list::add": {
+    "message": "Add entry",
     "description": "UiSortableList`1.Draw"
   },
   "Appearance": {
@@ -240,7 +288,7 @@
     "description": "ConfigUi.Draw"
   },
   "Lootmaster:OpenOnLoginTooltip": {
-    "message": "ログインしたグループの概要ウィンドウを開きます",
+    "message": "Opens group overview window when you log in",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IconInGroupOverview": {
@@ -263,24 +311,24 @@
     "message": "IL",
     "description": "ConfigUi.Draw"
   },
-  "Config:Lootmaster:Itemformat": {
-    "message": "アイテムの形式",
+  "Config:Lootmaster:ItemFormat": {
+    "message": "Item format",
     "description": "ConfigUi.Draw"
   },
-  "Config:Lootmaster:Itemformat:Available": {
-    "message": "利用可能なオプション",
+  "Config:Lootmaster:ItemFormat:Available": {
+    "message": "Available options",
     "description": "ConfigUi.Draw"
   },
   "Examples": {
     "message": "例",
     "description": "ConfigUi.Draw"
   },
-  "Config:Lootmaster:IgnoreMateriaforBis": {
-    "message": "マテリアを無視",
+  "Config:Lootmaster:IgnoreMateriaForBis": {
+    "message": "ShouldIgnore Materia",
     "description": "ConfigUi.Draw"
   },
-  "Config:Lootmaster:IgnoreMateriaforBisTooltip": {
-    "message": "最適装備と同等のアイテムかどうかを比較する際、マテリアを無視する",
+  "Config:Lootmaster:IgnoreMateriaForBisTooltip": {
+    "message": "ShouldIgnore Materia when determining if an item is equivalent to BiS",
     "description": "ConfigUi.Draw"
   },
   "UpdateBisONStartUp": {
@@ -296,7 +344,7 @@
     "description": "ConfigUi.Draw"
   },
   "DefaultBiSDisclaimer": {
-    "message": "これらのセットは、新しいキャラクターを作成するときや、新しいジョブを追加するときに使用されます。すでに作成されたキャラクターやジョブには影響しません。",
+    "message": "These sets are used when creating a new character or adding a new job. These do not affect already created characters and jobs.",
     "description": "ConfigUi.Draw"
   },
   "Reset to default": {
@@ -315,6 +363,30 @@
     "message": "LootMaster ウィンドウを開きます ( /lm でも開くことができます)",
     "description": "LootMasterModule.get_Commands"
   },
+  "ui:loot_rule:active:tooltip": {
+    "message": "Activated",
+    "description": "LootRule.Draw"
+  },
+  "ui:loot_rule:ignore": {
+    "message": "Ignore",
+    "description": "LootRule.Draw"
+  },
+  "loot_rule:ignore:tooltip:bis": {
+    "message": "Ignore players/jobs not using this in BiS ",
+    "description": "LootRule.get_IgnoreTooltip"
+  },
+  "loot_rule:ignore:tooltip:can_use": {
+    "message": "Ignore players/jobs not able to use",
+    "description": "LootRule.get_IgnoreTooltip"
+  },
+  "loot_rule:ignore:tooltip:can_buy": {
+    "message": "Ignore players/jobs that could buy these",
+    "description": "LootRule.get_IgnoreTooltip"
+  },
+  "loot_rule:ignore:tooltip:need_greed": {
+    "message": "Ignore players that have no need",
+    "description": "LootRule.get_IgnoreTooltip"
+  },
   "BISOverUpgrade": {
     "message": "理想装備 > アップグレード",
     "description": "LootRule.GetName"
@@ -323,24 +395,28 @@
     "message": "最も低いアイテムレベル",
     "description": "LootRule.GetName"
   },
-  "HighesItemLevelGain": {
-    "message": "最も高いアイテムレベル獲得",
+  "HighestItemLevelGain": {
+    "message": "Highest ItemLevel Gain",
     "description": "LootRule.GetName"
   },
   "ByRole": {
-    "message": "ロールによる優先度",
+    "message": "Prioritize by role",
     "description": "LootRule.GetName"
   },
   "Rolling": {
     "message": "ローリング",
     "description": "LootRule.GetName"
   },
-  "DPS": {
-    "message": "DPS",
-    "description": "LootRule.GetName"
-  },
   "DPSGain": {
     "message": "% DPS gained",
+    "description": "LootRule.GetName"
+  },
+  "LootRule:CanUse": {
+    "message": "Can use now",
+    "description": "LootRule.GetName"
+  },
+  "LootRule:CanBuy": {
+    "message": "Can buy",
     "description": "LootRule.GetName"
   },
   "None": {
@@ -360,7 +436,7 @@
     "description": "LootRule.GetName"
   },
   "LootSession:State:STARTED": {
-    "message": "戦利品を選択",
+    "message": "Choosing Loot",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootSession:State:LOOT_CHOSEN": {
@@ -375,8 +451,8 @@
     "message": "完了",
     "description": "LootSessionExtensions.FriendlyName"
   },
-  "undefinded": {
-    "message": "未確定",
+  "undefined": {
+    "message": "未定義",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootCategory:Need": {
@@ -432,140 +508,164 @@
     "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
   },
   "Dmgper100Tooltip": {
-    "message": "威力100スキルの平均ダメージ",
+    "message": "Average Dmg with a 100 potency skill adjusted for faster GCDs",
     "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
-  },
-  "LootMasterWindowTitle": {
-    "message": "Loot Master",
-    "description": "LootmasterUI..ctor"
-  },
-  "Edit player": {
-    "message": "プレイヤーを編集",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "Current": {
-    "message": "現在",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "gear": {
-    "message": "装備品",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "Quick compare": {
-    "message": "Quick compare",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "BiS": {
-    "message": "最適装備",
-    "description": "LootmasterUI.DrawDetailedPlayer"
-  },
-  "UpdateBis": {
-    "message": "Etro.ggから\"{0}\"を更新",
-    "description": "LootmasterUI.DrawDetailedPlayer"
   },
   "Gear": {
     "message": "装備品",
-    "description": "LootmasterUI.DrawDetailedPlayer"
+    "description": "QuickCompareWindow.Draw"
+  },
+  "Current": {
+    "message": "現在",
+    "description": "QuickCompareWindow.Draw"
+  },
+  "QuickCompareStatGain": {
+    "message": "Gain",
+    "description": "QuickCompareWindow.Draw"
+  },
+  "New Gear": {
+    "message": "New Gear",
+    "description": "QuickCompareWindow.Draw"
+  },
+  "LootMasterWindowTitle": {
+    "message": "Loot Master",
+    "description": "LootmasterUi..ctor"
+  },
+  "Edit player": {
+    "message": "プレイヤーを編集",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "lootmaster:detail:deleteJob:tooltip": {
+    "message": "Delete job (hold Shift)",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "lootmaster:detail:jobUp:tooltip": {
+    "message": "Move job up",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "lootmaster:detail:jobDown:tooltip": {
+    "message": "Move job down",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "gear": {
+    "message": "装備品",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "Quick compare": {
+    "message": "Quick compare",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "BiS": {
+    "message": "最適装備",
+    "description": "LootmasterUi.DrawDetailedPlayer"
+  },
+  "UpdateBis": {
+    "message": "Etro.ggから\"{0}\"を更新",
+    "description": "LootmasterUi.DrawDetailedPlayer"
   },
   "lootmaster:button:showconfig:tooltip": {
     "message": "設定を開く",
-    "description": "LootmasterUI.Draw"
+    "description": "LootmasterUi.Draw"
   },
   "Add Player": {
     "message": "プレイヤーを追加",
-    "description": "LootmasterUI.Draw"
+    "description": "LootmasterUi.Draw"
   },
   "Player": {
     "message": "プレイヤー",
-    "description": "LootmasterUI.Draw"
+    "description": "LootmasterUi.Draw"
   },
   "itemLevelShort": {
     "message": "IL",
-    "description": "LootmasterUI.Draw"
+    "description": "LootmasterUi.Draw"
   },
   "Options": {
     "message": "設定",
-    "description": "LootmasterUI.Draw"
+    "description": "LootmasterUi.Draw"
   },
   "GroupTabTooltip": {
     "message": "右クリックで詳細オプションを開く",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "Edit group": {
     "message": "グループを編集",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "Delete group": {
     "message": "グループを削除",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "DeleteRaidGroup": {
     "message": "このグループを本当に削除しますか？:",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "From current Group": {
     "message": "現在のグループを編集",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "AutoCreatedGroupName": {
     "message": "自動作成",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "From scratch": {
     "message": "新規作成",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "Add empty group": {
     "message": "空のグループを追加",
-    "description": "LootmasterUI.DrawRaidGroupSwitchBar"
+    "description": "LootmasterUi.DrawRaidGroupSwitchBar"
   },
   "n.A.": {
     "message": "n.A.",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
+  },
+  "lootmaster:button:quickCompare:tooltip": {
+    "message": "Quickly compare gear",
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "lootmaster:button:swapposition:tooltip": {
     "message": "位置を入れ替え",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "lootmaster:button:inventorytooltip": {
     "message": "所持品を開く",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "PlayerDetails": {
     "message": "プレイヤーの詳細を表示:",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "Delete": {
     "message": "削除",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "DeletePlayerConfirmation": {
     "message": "このプレイヤーを本当に削除しますか？:",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "No Player": {
     "message": "プレイヤーなし",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "Add": {
     "message": "追加",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "Add from DB": {
     "message": "データベースから追加",
-    "description": "LootmasterUI.DrawPlayerRow"
+    "description": "LootmasterUi.DrawPlayerRow"
   },
   "Distribute loot for:": {
     "message": "戦利品の配布先：",
-    "description": "LootmasterUI.DrawLootHandlerButtons"
+    "description": "LootmasterUi.DrawLootHandlerButtons"
   },
   "PlayerDetailsTitle": {
     "message": "プレイヤー詳細",
-    "description": "PlayerdetailWindow..ctor"
+    "description": "PlayerDetailWindow..ctor"
   },
   "GetCharacterTitle": {
     "message": "データベースからキャラクターを取得",
-    "description": "GetCharacterFromDBWindow..ctor"
+    "description": "GetCharacterFromDbWindow..ctor"
   },
   "Inventory:AdditionalGear": {
     "message": "追加の装備品",
@@ -581,83 +681,75 @@
   },
   "Loot session for": {
     "message": "戦利品セッション",
-    "description": "LootSessionUI..ctor"
+    "description": "LootSessionUi..ctor"
   },
   "Lootsession:State": {
     "message": "現在のステータス",
-    "description": "LootSessionUI.Draw"
+    "description": "LootSessionUi.Draw"
   },
   "LootSession:RulesButton:Tooltip": {
     "message": "設定を上書き",
-    "description": "LootSessionUI.Draw"
+    "description": "LootSessionUi.Draw"
   },
-  "LootSesseion:CalcButton:Text": {
-    "message": "計算する",
-    "description": "LootSessionUI.Draw"
+  "LootSession:CalcButton:Text": {
+    "message": "Calculate",
+    "description": "LootSessionUi.Draw"
   },
-  "LootSesseion:CalcButton:Tooltip": {
-    "message": "プレイヤーのルールと現在の装備に従って戦利品分布の結果を計算します。\n 戦利品の選択をロックします。",
-    "description": "LootSessionUI.Draw"
+  "LootSession:CalcButton:Tooltip": {
+    "message": "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection",
+    "description": "LootSessionUi.Draw"
   },
   "Role priority": {
     "message": "ロールの優先度",
-    "description": "LootSessionUI.DrawRulingOptions"
+    "description": "LootSessionUi.DrawRulingOptions"
   },
-  "ChangesOnlyForThisLootSesseion": {
-    "message": "ここで行われた変更はこの戦利品セッションにのみ影響します",
-    "description": "LootSessionUI.DrawRulingOptions"
+  "ChangesOnlyForThisLootSession": {
+    "message": "Changes made here only affect this loot session",
+    "description": "LootSessionUi.DrawRulingOptions"
   },
   "Results for": {
     "message": "結果:",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResults:AbortButton:Text": {
     "message": "中断",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResults:AbortButton:Tooltip": {
     "message": "戦利品やルールを変更するために、分布を中止します",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResultWindow:GuaranteedItems": {
     "message": "保証アイテム（プレイヤー毎）",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed": {
     "message": "全員に与える",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResultWindow:Button:AwardGuaranteed:Tooltip": {
     "message": "各プレイヤーに1つずつ与える",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResult:PossibleItems": {
     "message": "配布するアイテム:",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "Pos": {
     "message": "位置",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "Needed items": {
     "message": "必須アイテム",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "Rule": {
     "message": "ルール",
-    "description": "LootSessionUI.DrawResults"
+    "description": "LootSessionUi.DrawResults"
   },
   "LootResult:AwardButton:Tooltip": {
     "message": "プレイヤーに与える",
-    "description": "LootSessionUI.DrawResults"
-  },
-  "QuickCompareStatGain": {
-    "message": "Gain",
-    "description": "QuickCompareWindow.Draw"
-  },
-  "New Gear": {
-    "message": "New Gear",
-    "description": "QuickCompareWindow.Draw"
+    "description": "LootSessionUi.DrawResults"
   },
   "General": {
     "message": "全般",
@@ -700,8 +792,24 @@
     "description": "ConfigUi.Draw"
   },
   "/hrt": {
-    "message": "説明付きでウェルカムウィンドウを開く",
+    "message": "Show help",
     "description": "CoreModule.get_Commands"
+  },
+  "command:hrt:options": {
+    "message": "Shows the Configuration window",
+    "description": "CoreModule.get_InternalCommands"
+  },
+  "command:hrt:welcome": {
+    "message": "Open Welcome Window with explanations on how to use",
+    "description": "CoreModule.get_InternalCommands"
+  },
+  "command:hrt:help": {
+    "message": "Prints usage information to chat",
+    "description": "CoreModule.get_InternalCommands"
+  },
+  "hrt:usage:heading": {
+    "message": " Commands used for Himbeertoni Raid Tool:",
+    "description": "CoreModule.PrintUsage"
   },
   "Welcome to HRT": {
     "message": "Himbeertoni Raid Tool へようこそ",
@@ -903,10 +1011,6 @@
     "message": "etro.gg",
     "description": "EnumExtensions.FriendlyName"
   },
-  "undefined": {
-    "message": "未定義",
-    "description": "EnumExtensions.FriendlyName"
-  },
   "Solo": {
     "message": "Solo",
     "description": "EnumExtensions.FriendlyName"
@@ -961,6 +1065,14 @@
   },
   "Bracelet": {
     "message": "ブレスレット",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Ring (R)": {
+    "message": "Ring (R)",
+    "description": "EnumExtensions.FriendlyName"
+  },
+  "Ring (L)": {
+    "message": "Ring (L)",
     "description": "EnumExtensions.FriendlyName"
   },
   "Ring": {
@@ -1033,22 +1145,22 @@
   },
   "LodestoneConnector:CharNotFound": {
     "message": "Lodestoneにキャラクターが見つかりません。",
-    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+    "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
   "LodestoneConnector:JobIncompatible": {
     "message": "使用中のジョブまたは表示中のジョブが Lodestone に対応していません。",
-    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+    "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
-  "LodestoneConnector:FailedtoCreateGear": {
+  "LodestoneConnector:FailedToCreateGear": {
     "message": "Could not create new gear set.",
-    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+    "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
-  "LodestoneConnector:Sucess": {
-    "message": "{0} の {1} 装備品をLodestone から更新しました。",
-    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+  "LodestoneConnector:Success": {
+    "message": "Updated {0}'s {1} gear from Lodestone.",
+    "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
   "LodestoneConnector:Failure": {
     "message": "Lodestoneから装備品を更新できませんでした。",
-    "description": "<UpdateCharacterAsync>d__6.MoveNext"
+    "description": "<UpdateCharacterAsync>d__8.MoveNext"
   }
 }
