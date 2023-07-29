@@ -108,9 +108,9 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
             if (ImGui.BeginTabItem("BiS"))
             {
                 ImGui.Checkbox(Localize("Config:Lootmaster:IgnoreMateriaForBis",
-                    "ShouldIgnore Materia"), ref _dataCopy.IgnoreMateriaForBiS);
+                    "Ignore Materia"), ref _dataCopy.IgnoreMateriaForBiS);
                 ImGuiHelper.AddTooltip(Localize("Config:Lootmaster:IgnoreMateriaForBisTooltip",
-                    "ShouldIgnore Materia when determining if an item is equivalent to BiS"));
+                    "Ignore Materia when determining if an item is equivalent to BiS"));
                 ImGui.Checkbox(Localize("UpdateBisONStartUp", "Update sets from etro.gg periodically"), ref _dataCopy.UpdateEtroBisOnStartup);
                 ImGui.SetNextItemWidth(150f * ScaleFactor);
                 if (ImGui.InputInt(Localize("BisUpdateInterval", "Update interval (days)"), ref _dataCopy.EtroUpdateIntervalDays))
