@@ -40,7 +40,7 @@
     "description": "DrawDataExtension.Draw"
   },
   "item:shopCosts": {
-    "message": "Shop costs",
+    "message": "Händlerkosten",
     "description": "DrawDataExtension.Draw"
   },
   "item:looted:sources": {
@@ -96,7 +96,7 @@
     "description": "EditPlayerWindow.Draw"
   },
   "PlayerEdit:Tooltip:LocalBis": {
-    "message": "BiS set for this class is locally managed.\nDelete local set to use a set from etro.gg",
+    "message": "BiS-Set für diese Klasse wird lokal verwaltet.\nLokales Set löschen, um ein Set von etro.gg zu verwenden",
     "description": "EditPlayerWindow.Draw"
   },
   "Set to default": {
@@ -148,7 +148,7 @@
     "description": "EditGearSetWindow.Draw"
   },
   "GearSetEdit:Source": {
-    "message": "Source",
+    "message": "Ursprung",
     "description": "EditGearSetWindow.Draw"
   },
   "GearSet:ManagedBy:Etro": {
@@ -156,11 +156,11 @@
     "description": "EditGearSetWindow.Draw"
   },
   "GearSetEdit:MakeLocal": {
-    "message": "Create local copy",
+    "message": "Lokale Kopie erstellen",
     "description": "EditGearSetWindow.Draw"
   },
   "GearSetEdit:MakeLocal:tooltip": {
-    "message": "Create a copy of this set in the local database. Set will not be updated from etro.gg afterwards\nOnly local Gear Sets can be edited",
+    "message": "Erstellen Sie eine Kopie dieses Set in der lokalen Datenbank. Der Set wird nicht von etro.gg aktualisiert.\nNur lokale Ausrüstungssets können bearbeitet werden",
     "description": "EditGearSetWindow.Draw"
   },
   "Etro ID": {
@@ -168,19 +168,19 @@
     "description": "EditGearSetWindow.Draw"
   },
   "GearSetEdit:EtroLastDownload": {
-    "message": "Last update check",
+    "message": "Letzte Update-Prüfung",
     "description": "EditGearSetWindow.Draw"
   },
   "GearSet:ManagedBy:HrtLocal": {
-    "message": "Local Database",
+    "message": "Lokale Datenbank",
     "description": "EditGearSetWindow.Draw"
   },
   "Local ID": {
-    "message": "Local ID",
+    "message": "Lokale ID",
     "description": "EditGearSetWindow.Draw"
   },
   "GearSetEdit:LastChanged": {
-    "message": "Last Change",
+    "message": "Letzte Änderung",
     "description": "EditGearSetWindow.Draw"
   },
   "GearSetEdit:Name": {
@@ -248,7 +248,7 @@
     "description": "UiHelpers.DrawGearEdit"
   },
   "Remove this item": {
-    "message": "Remove this item",
+    "message": "Dieses Element entfernen",
     "description": "UiHelpers.DrawGearEdit"
   },
   "Remove this materia": {
@@ -264,19 +264,19 @@
     "description": "UiHelpers.DrawGearEdit"
   },
   "ui:sortable_list:move_up": {
-    "message": "Move up",
+    "message": "Nach oben",
     "description": "UiSortableList`1.Draw"
   },
   "ui:sortable_list:move_down": {
-    "message": "Move down",
+    "message": "Nach unten",
     "description": "UiSortableList`1.Draw"
   },
   "ui:sortable_list:remove": {
-    "message": "Remove entry",
+    "message": "Eintrag entfernen",
     "description": "UiSortableList`1.Draw"
   },
   "ui:sortable_list::add": {
-    "message": "Add entry",
+    "message": "Eintrag hinzufügen",
     "description": "UiSortableList`1.Draw"
   },
   "Appearance": {
@@ -288,7 +288,7 @@
     "description": "ConfigUi.Draw"
   },
   "Lootmaster:OpenOnLoginTooltip": {
-    "message": "Opens group overview window when you log in",
+    "message": "Öffnet die Gruppenübersicht nach dem Einloggen",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IconInGroupOverview": {
@@ -312,11 +312,11 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:ItemFormat": {
-    "message": "Item format",
+    "message": "Item Format",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:ItemFormat:Available": {
-    "message": "Available options",
+    "message": "Verfügbare Optionen",
     "description": "ConfigUi.Draw"
   },
   "Examples": {
@@ -324,11 +324,11 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaForBis": {
-    "message": "ShouldIgnore Materia",
+    "message": "Ignore Materia",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaForBisTooltip": {
-    "message": "ShouldIgnore Materia when determining if an item is equivalent to BiS",
+    "message": "Ignore Materia when determining if an item is equivalent to BiS",
     "description": "ConfigUi.Draw"
   },
   "UpdateBisONStartUp": {
@@ -344,7 +344,7 @@
     "description": "ConfigUi.Draw"
   },
   "DefaultBiSDisclaimer": {
-    "message": "These sets are used when creating a new character or adding a new job. These do not affect already created characters and jobs.",
+    "message": "Diese Sets werden beim Erstellen eines neuen Charakters oder beim Hinzufügen eines neuen Jobs verwendet. Diese ändern nicht die bereits erstellten Charaktere und Jobs.",
     "description": "ConfigUi.Draw"
   },
   "Reset to default": {
@@ -364,27 +364,27 @@
     "description": "LootMasterModule.get_Commands"
   },
   "ui:loot_rule:active:tooltip": {
-    "message": "Activated",
+    "message": "Aktiviert",
     "description": "LootRule.Draw"
   },
   "ui:loot_rule:ignore": {
-    "message": "Ignore",
+    "message": "Ignorieren",
     "description": "LootRule.Draw"
   },
   "loot_rule:ignore:tooltip:bis": {
-    "message": "Ignore players/jobs not using this in BiS ",
+    "message": "Spieler/Jobs ignorieren, die dies nicht als BiS verwenden ",
     "description": "LootRule.get_IgnoreTooltip"
   },
   "loot_rule:ignore:tooltip:can_use": {
-    "message": "Ignore players/jobs not able to use",
+    "message": "Spieler/Jobs ignorieren, die das nicht verwenden können",
     "description": "LootRule.get_IgnoreTooltip"
   },
   "loot_rule:ignore:tooltip:can_buy": {
-    "message": "Ignore players/jobs that could buy these",
+    "message": "Spieler/Jobs ignorieren, die das kaufen könnten",
     "description": "LootRule.get_IgnoreTooltip"
   },
   "loot_rule:ignore:tooltip:need_greed": {
-    "message": "Ignore players that have no need",
+    "message": "Spieler ignorieren, die keinen Bedarf haben",
     "description": "LootRule.get_IgnoreTooltip"
   },
   "BISOverUpgrade": {
@@ -396,11 +396,11 @@
     "description": "LootRule.GetName"
   },
   "HighestItemLevelGain": {
-    "message": "Highest ItemLevel Gain",
+    "message": "Gegenstandsstufen Gewinn",
     "description": "LootRule.GetName"
   },
   "ByRole": {
-    "message": "Prioritize by role",
+    "message": "Rollenpriorität",
     "description": "LootRule.GetName"
   },
   "Rolling": {
@@ -412,11 +412,11 @@
     "description": "LootRule.GetName"
   },
   "LootRule:CanUse": {
-    "message": "Can use now",
+    "message": "Kann jetzt verwenden",
     "description": "LootRule.GetName"
   },
   "LootRule:CanBuy": {
-    "message": "Can buy",
+    "message": "Kann kaufen",
     "description": "LootRule.GetName"
   },
   "None": {
@@ -436,7 +436,7 @@
     "description": "LootRule.GetName"
   },
   "LootSession:State:STARTED": {
-    "message": "Choosing Loot",
+    "message": "Beute auswählen",
     "description": "LootSessionExtensions.FriendlyName"
   },
   "LootSession:State:LOOT_CHOSEN": {
@@ -508,7 +508,7 @@
     "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
   },
   "Dmgper100Tooltip": {
-    "message": "Average Dmg with a 100 potency skill adjusted for faster GCDs",
+    "message": "Durchschnittlicher Schaden mit einer 100 Potenz Fähigkeiten angepasst für schnellere GCDs",
     "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
   },
   "Gear": {
@@ -536,15 +536,15 @@
     "description": "LootmasterUi.DrawDetailedPlayer"
   },
   "lootmaster:detail:deleteJob:tooltip": {
-    "message": "Delete job (hold Shift)",
+    "message": "Job löschen (Shift halten)",
     "description": "LootmasterUi.DrawDetailedPlayer"
   },
   "lootmaster:detail:jobUp:tooltip": {
-    "message": "Move job up",
+    "message": "Job nach oben bewegen",
     "description": "LootmasterUi.DrawDetailedPlayer"
   },
   "lootmaster:detail:jobDown:tooltip": {
-    "message": "Move job down",
+    "message": "Job nach unten bewegen",
     "description": "LootmasterUi.DrawDetailedPlayer"
   },
   "gear": {
@@ -620,7 +620,7 @@
     "description": "LootmasterUi.DrawPlayerRow"
   },
   "lootmaster:button:quickCompare:tooltip": {
-    "message": "Quickly compare gear",
+    "message": "Ausrüstung schnell vergleichen",
     "description": "LootmasterUi.DrawPlayerRow"
   },
   "lootmaster:button:swapposition:tooltip": {
@@ -692,11 +692,11 @@
     "description": "LootSessionUi.Draw"
   },
   "LootSession:CalcButton:Text": {
-    "message": "Calculate",
+    "message": "Berechnen",
     "description": "LootSessionUi.Draw"
   },
   "LootSession:CalcButton:Tooltip": {
-    "message": "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection",
+    "message": "Berechnet die Ergebnisse der Beuteverteilung entsprechend den Regeln und der aktuellen Ausrüstung der Spieler.\n Sperrt die Beuteauswahl",
     "description": "LootSessionUi.Draw"
   },
   "Role priority": {
@@ -704,7 +704,7 @@
     "description": "LootSessionUi.DrawRulingOptions"
   },
   "ChangesOnlyForThisLootSession": {
-    "message": "Changes made here only affect this loot session",
+    "message": "Änderungen hier gelten nur für die aktuelle Loot Sitzung",
     "description": "LootSessionUi.DrawRulingOptions"
   },
   "Results for": {
@@ -792,23 +792,23 @@
     "description": "ConfigUi.Draw"
   },
   "/hrt": {
-    "message": "Show help",
+    "message": "Hilfe anzeigen",
     "description": "CoreModule.get_Commands"
   },
   "command:hrt:options": {
-    "message": "Shows the Configuration window",
+    "message": "Zeigt das Konfigurationsfenster an",
     "description": "CoreModule.get_InternalCommands"
   },
   "command:hrt:welcome": {
-    "message": "Open Welcome Window with explanations on how to use",
+    "message": "Begrüßungsfenster mit Erklärungen öffnen",
     "description": "CoreModule.get_InternalCommands"
   },
   "command:hrt:help": {
-    "message": "Prints usage information to chat",
+    "message": "Zeigt Informationen zur Nutzung im Chat",
     "description": "CoreModule.get_InternalCommands"
   },
   "hrt:usage:heading": {
-    "message": " Commands used for Himbeertoni Raid Tool:",
+    "message": " Befehle für Himbeertoni Raid Tool:",
     "description": "CoreModule.PrintUsage"
   },
   "Welcome to HRT": {
@@ -1152,11 +1152,11 @@
     "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
   "LodestoneConnector:FailedToCreateGear": {
-    "message": "Could not create new gear set.",
+    "message": "Neues Ausrüstungsset konnte nicht angelegt werden.",
     "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
   "LodestoneConnector:Success": {
-    "message": "Updated {0}'s {1} gear from Lodestone.",
+    "message": "{0}'s {1} Ausrüstung vom Lodestone aktualisiert.",
     "description": "<UpdateCharacterAsync>d__8.MoveNext"
   },
   "LodestoneConnector:Failure": {
