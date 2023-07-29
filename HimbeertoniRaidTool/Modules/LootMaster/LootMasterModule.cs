@@ -6,6 +6,7 @@ using Dalamud.Logging;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.DataManagement;
+using HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
@@ -39,20 +40,23 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     };
     //Properties
     private static List<RaidGroup> RaidGroups => ServiceManager.HrtDataManager.Groups;
-    private readonly LootmasterUI _ui;
+    private readonly LootmasterUi _ui;
     private readonly LootMasterConfiguration _config;
     private bool _fillSoloOnLogin;
     public LootMasterModule()
     {
         if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo || !RaidGroups[0].Name.Equals("Solo"))
         {
-            RaidGroups.Insert(0, new RaidGroup("Solo", GroupType.Solo));
+            RaidGroups.Insert(0, new RaidGroup("Solo", GroupType.Solo)
+            {
+                TypeLocked = true,
+            });
             _fillSoloOnLogin = true;
         }
 
         _config = new LootMasterConfiguration(this);
         WindowSystem = new WindowSystem(InternalName);
-        _ui = new LootmasterUI(this);
+        _ui = new LootmasterUi(this);
         WindowSystem.AddWindow(_ui);
         ServiceManager.ClientState.Login += OnLogin;
     }
@@ -261,7 +265,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     }
     public void Dispose()
     {
-        Configuration.Data.LastGroupIndex = _ui._CurrenGroupIndex;
+        Configuration.Data.LastGroupIndex = _ui.CurrentGroupIndex;
         Configuration.Save();
     }
 

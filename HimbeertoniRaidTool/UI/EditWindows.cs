@@ -291,10 +291,12 @@ internal class EditGroupWindow : HrtWindow
         //Name + Type
         ImGui.InputText(Localize("Group Name", "Group Name"), ref GroupCopy.Name, 100);
         int groupType = (int)GroupCopy.Type;
+        ImGui.BeginDisabled(Group.TypeLocked);
         if (ImGui.Combo(Localize("Group Type", "Group Type"), ref groupType, Enum.GetNames(typeof(GroupType)), Enum.GetNames(typeof(GroupType)).Length))
         {
             GroupCopy.Type = (GroupType)groupType;
         }
+        ImGui.EndDisabled();
         //Role priority
         bool overrideRolePriority = GroupCopy.RolePriority != null;
         if (ImGui.Checkbox(Localize("Override role priority", "Override role priority"), ref overrideRolePriority))

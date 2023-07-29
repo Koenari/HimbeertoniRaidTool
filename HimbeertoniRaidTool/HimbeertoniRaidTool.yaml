@@ -17,3 +17,4 @@ image_urls:
 changelog: |-
         Translation: Updated French translation (Thanks to Arganier)
         LootRule: Fixed "Can Buy"
+        LootMaster: you can now edit name + role priority for the Solo group        
