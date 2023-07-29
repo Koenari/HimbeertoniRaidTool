@@ -395,7 +395,7 @@ internal class LootmasterUi : HrtWindow
                 ImGui.SetCursorPosY(curY);
                 if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.EtroID,
                         string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), bis.Name),
-                        bis.ManagedBy == GearSetManager.Etro && bis.EtroID.Length > 0, ButtonSize))
+                        bis is { ManagedBy: GearSetManager.Etro, EtroID.Length: > 0 }, ButtonSize))
                     ServiceManager.TaskManager.RegisterTask(
                         new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(bis), HandleMessage));
                 ImGui.PopID();
@@ -418,26 +418,28 @@ internal class LootmasterUi : HrtWindow
              */
             {
                 ImGui.TableNextColumn();
-                ImGuiHelper.GearUpdateButtons(player, _lootMaster, false, ButtonSize);
-                Vector2 buttonSize = ImGui.GetItemRectSize();
+                if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, $"QuickCompare",
+                        $"{Localize("lootmaster:button:quickCompare:tooltip", "Quickly compare gear")}", curJob != null,
+                        ButtonSize))
+                    AddChild(new QuickCompareWindow(CurConfig, curJob!));
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.ArrowsAltV, $"Rearrange",
                         Localize("lootmaster:button:swapposition:tooltip", "Swap Position"), true, ButtonSize))
                     AddChild(new SwapPositionWindow(pos, CurrentGroup));
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Edit",
-                        $"{Localize("Edit", "Edit")} {player.NickName}", true, buttonSize))
+                        $"{Localize("Edit", "Edit")} {player.NickName}", true, ButtonSize))
                     AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player, CurConfig.GetDefaultBiS));
                 if (ImGuiHelper.Button(FontAwesomeIcon.Wallet, "Inventory",
-                        Localize("lootmaster:button:inventorytooltip", "Open inventory window"), true, buttonSize))
+                        Localize("lootmaster:button:inventorytooltip", "Open inventory window"), true, ButtonSize))
                     AddChild(new InventoryWindow(player.MainChar.MainInventory, $"{player.MainChar.Name}'s Inventory"));
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, "Details",
-                        $"{Localize("PlayerDetails", "Show player details for")} {player.NickName}", true, buttonSize))
+                        $"{Localize("PlayerDetails", "Show player details for")} {player.NickName}", true, ButtonSize))
                     AddChild(new PlayerDetailWindow(this, player));
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.TrashAlt, "Delete",
-                        $"{Localize("Delete", "Delete")} {player.NickName}", true, buttonSize))
+                        $"{Localize("Delete", "Delete")} {player.NickName}", true, ButtonSize))
                     AddChild(new ConfimationDialog(
                         () => player.Reset(),
                         $"{Localize("DeletePlayerConfirmation", "Do you really want to delete following player?")} : {player.NickName}"));
