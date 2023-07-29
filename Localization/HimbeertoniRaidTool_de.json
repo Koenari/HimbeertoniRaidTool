@@ -144,7 +144,7 @@
     "description": "EditGearSetWindow..ctor"
   },
   "GearsetEdit:Delete": {
-    "message": "Remove set from this character (Hold Shift)",
+    "message": "Set von diesem Charakter entfernen (Shift halten)",
     "description": "EditGearSetWindow.Draw"
   },
   "GearSetEdit:Source": {
@@ -324,11 +324,11 @@
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaForBis": {
-    "message": "Ignore Materia",
+    "message": "Materia ignorieren",
     "description": "ConfigUi.Draw"
   },
   "Config:Lootmaster:IgnoreMateriaForBisTooltip": {
-    "message": "Ignore Materia when determining if an item is equivalent to BiS",
+    "message": "Beim Vergleich von Items zu BiS die gesockelten Materia ignorieren",
     "description": "ConfigUi.Draw"
   },
   "UpdateBisONStartUp": {
