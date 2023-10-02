@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
-using Dalamud.Logging;
+
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
@@ -30,7 +30,7 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
         {
             const string msg = "Tried loading a configuration from a newer version of the plugin." +
                                "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
-            PluginLog.Fatal(msg);
+            ServiceManager.PluginLog.Fatal(msg);
             ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
         }

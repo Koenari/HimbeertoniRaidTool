@@ -1,8 +1,6 @@
-﻿using Dalamud.Game;
-using Dalamud.Game.Text.SeStringHandling;
+﻿using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.Windowing;
-using Dalamud.Logging;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -91,9 +89,9 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
     public void HandleMessage(HrtUiMessage message)
     {
         if (message.MessageType is HrtUiMessageType.Failure or HrtUiMessageType.Error)
-            PluginLog.Warning(message.Message);
+            ServiceManager.PluginLog.Warning(message.Message);
         else
-            PluginLog.Information(message.Message);
+            ServiceManager.PluginLog.Information(message.Message);
     }
 
     internal void AddCommand(HrtCommand command)
@@ -109,7 +107,7 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
         if (_registeredCommands.Any(x => x.HandlesCommand(subCommand)))
             _registeredCommands.First(x => x.HandlesCommand(subCommand)).OnCommand(subCommand, newArgs);
         else
-            PluginLog.Error($"Argument {args} for command \"/hrt\" not recognized");
+            ServiceManager.PluginLog.Error($"Argument {args} for command \"/hrt\" not recognized");
     }
 
     private void PrintUsage(string command, string args)
@@ -145,7 +143,7 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
             _wcw.Show();
     }
 
-    public void Update(Framework fw)
+    public void Update()
     {
     }
 

@@ -19,7 +19,7 @@ public interface IHrtModule
     IEnumerable<HrtCommand> Commands { get; }
     void HandleMessage(HrtUiMessage message);
     void AfterFullyLoaded();
-    void Update(Framework fw);
+    void Update();
     void Dispose();
 }
 

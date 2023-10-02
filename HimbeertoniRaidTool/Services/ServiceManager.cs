@@ -16,18 +16,18 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class ServiceManager
 {
-    [PluginService] public static ISigScanner SigScanner { get; private set; }
     [PluginService] public static ICommandManager CommandManager { get; private set; }
-    [PluginService] public static ChatGui ChatGui { get; private set; }
+    [PluginService] public static IChatGui ChatGui { get; private set; }
     [PluginService] public static IDataManager DataManager { get; private set; }
-    [PluginService] public static IGameGui GameGui { get; private set; }
     [PluginService] public static ITargetManager TargetManager { get; private set; }
     [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
     [PluginService] public static IClientState ClientState { get; private set; }
-    [PluginService] public static Framework Framework { get; private set; }
     [PluginService] public static IObjectTable ObjectTable { get; private set; }
     [PluginService] public static IPartyList PartyList { get; private set; }
-    [PluginService] public static Condition Condition { get; private set; }
+    [PluginService] public static ICondition Condition { get; private set; }
+    [PluginService] public static IPluginLog PluginLog { get; private set; }
+    [PluginService] public static IGameInteropProvider GameInteropProvider { get; private set; }
+    [PluginService] public static ITextureProvider TextureProvider { get; private set; }
     public static IconCache IconCache { get; private set; }
     public static HrtDataManager HrtDataManager { get; private set; }
     internal static TaskManager TaskManager { get; private set; }
@@ -42,7 +42,7 @@ internal class ServiceManager
     {
         pluginInterface.Create<ServiceManager>();
         Common.Services.ServiceManager.Init(DataManager.Excel);
-        IconCache ??= new IconCache(PluginInterface, DataManager);
+        IconCache ??= new IconCache(PluginInterface, DataManager, TextureProvider);
         HrtDataManager ??= new HrtDataManager(PluginInterface);
         TaskManager ??= new TaskManager();
         ConnectorPool ??= new ConnectorPool();

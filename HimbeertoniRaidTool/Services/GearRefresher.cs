@@ -1,7 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Hooking;
-using Dalamud.Logging;
 using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -37,10 +36,10 @@ internal unsafe class GearRefresher
 
     internal void Enable()
     {
-        SignatureHelper.Initialise(this);
+        ServiceManager.GameInteropProvider.InitializeFromAttributes(this);
         if (_hook is null)
         {
-            PluginLog.Error("Failed to hook into examine window");
+            ServiceManager.PluginLog.Error("Failed to hook into examine window");
             return;
         }
 
@@ -57,7 +56,7 @@ internal unsafe class GearRefresher
         }
         catch (Exception e)
         {
-            PluginLog.Error(e, $"Could not inspect character {@object.Name}");
+            ServiceManager.PluginLog.Error(e, $"Could not inspect character {@object.Name}");
         }
     }
 
@@ -88,7 +87,7 @@ internal unsafe class GearRefresher
         }
         catch (Exception e)
         {
-            PluginLog.Error(e, "Exception while reading name / world from examine window");
+            ServiceManager.PluginLog.Error(e, "Exception while reading name / world from examine window");
             return;
         }
 
@@ -99,14 +98,15 @@ internal unsafe class GearRefresher
                 worldFromExamine)
             && !ServiceManager.CharacterInfoService.TryGetChar(out target, charNameFromExamine2, worldFromExamine))
         {
-            PluginLog.Error($"Name + World from examine window didn't match any character in the area: " +
-                            $"Name1 {charNameFromExamine}, Name2 {charNameFromExamine2}, World {worldFromExamine?.Name}");
+            ServiceManager.PluginLog.Error(
+                $"Name + World from examine window didn't match any character in the area: " +
+                $"Name1 {charNameFromExamine}, Name2 {charNameFromExamine2}, World {worldFromExamine?.Name}");
             return;
         }
 
         if (!ServiceManager.HrtDataManager.Ready)
         {
-            PluginLog.Error(
+            ServiceManager.PluginLog.Error(
                 $"Database is busy. Did not update gear for:{target.Name}@{target.HomeWorld.GameData?.Name}");
             return;
         }
@@ -115,7 +115,8 @@ internal unsafe class GearRefresher
         if (!ServiceManager.HrtDataManager.CharDB.SearchCharacter(target.HomeWorld.Id, target.Name.TextValue,
                 out Character? targetChar))
         {
-            PluginLog.Debug($"Did not find character in db:{target.Name}@{target.HomeWorld.GameData?.Name}");
+            ServiceManager.PluginLog.Debug(
+                $"Did not find character in db:{target.Name}@{target.HomeWorld.GameData?.Name}");
             return;
         }
 
@@ -134,7 +135,7 @@ internal unsafe class GearRefresher
         {
             if (!ServiceManager.HrtDataManager.Ready)
             {
-                PluginLog.Error(
+                ServiceManager.PluginLog.Error(
                     $"Database is busy. Did not update gear for:{targetChar.Name}@{targetChar.HomeWorld?.Name}");
                 return;
             }
@@ -149,7 +150,7 @@ internal unsafe class GearRefresher
             targetClass.Level = target.Level;
         var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
         UpdateGear(container, targetClass);
-        PluginLog.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
+        ServiceManager.PluginLog.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
     }
 
     internal static void UpdateGear(InventoryContainer* container, PlayableClass targetClass)
@@ -180,7 +181,7 @@ internal unsafe class GearRefresher
         }
         catch (Exception e)
         {
-            PluginLog.Error(e, $"Something went wrong getting gear for:{targetClass.Parent?.Name}");
+            ServiceManager.PluginLog.Error(e, $"Something went wrong getting gear for:{targetClass.Parent?.Name}");
         }
     }
 

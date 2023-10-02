@@ -2,7 +2,7 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
-using Dalamud.Logging;
+
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.DataManagement;
@@ -63,11 +63,11 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     public void AfterFullyLoaded()
     {
         if (ServiceManager.ClientState.IsLoggedIn)
-            OnLogin(null, EventArgs.Empty);
+            OnLogin();
         ServiceManager.HrtDataManager.GearDB.UpdateEtroSets(Configuration.Data.UpdateEtroBisOnStartup,
             Configuration.Data.EtroUpdateIntervalDays);
     }
-    public void OnLogin(object? sender, EventArgs e)
+    public void OnLogin()
     {
         if (_fillSoloOnLogin)
             FillSoloChar(RaidGroups[0][0], true);
@@ -76,7 +76,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
             _ui.Show();
     }
 
-    public void Update(Framework fw)
+    public void Update()
     {
 
     }
@@ -272,9 +272,9 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     public void HandleMessage(HrtUiMessage message)
     {
         if (message.MessageType is HrtUiMessageType.Failure or HrtUiMessageType.Error)
-            PluginLog.Warning(message.Message);
+            ServiceManager.PluginLog.Warning(message.Message);
         else
-            PluginLog.Information(message.Message);
+            ServiceManager.PluginLog.Information(message.Message);
         _ui.HandleMessage(message);
     }
 }

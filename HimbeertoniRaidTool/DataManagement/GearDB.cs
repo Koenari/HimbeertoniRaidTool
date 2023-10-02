@@ -1,4 +1,4 @@
-﻿using Dalamud.Logging;
+﻿
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Security;
@@ -21,7 +21,7 @@ internal class GearDB
         DataManager = dataManager;
         var data = JsonConvert.DeserializeObject<List<GearSet>>(gearData, settings);
         if (data is null)
-            PluginLog.Error("Could not load GearDB");
+            ServiceManager.PluginLog.Error("Could not load GearDB");
         else
         {
             foreach (var set in data)
@@ -32,7 +32,7 @@ internal class GearDB
                 NextSequence = Math.Max(NextSequence, set.LocalID.Sequence);
             }
         }
-        PluginLog.Information($"DB contains {Data.Count} gear sets");
+        ServiceManager.PluginLog.Information($"DB contains {Data.Count} gear sets");
         NextSequence++;
     }
     [Obsolete]
@@ -59,7 +59,7 @@ internal class GearDB
             }
             Data.Add(gearSet.LocalID, gearSet);
         }
-        PluginLog.Information($"Migrated {count} gear sets");
+        ServiceManager.PluginLog.Information($"Migrated {count} gear sets");
     }
     internal ulong GetNextSequence() => NextSequence++;
     internal bool AddSet(GearSet gearSet)
@@ -97,18 +97,18 @@ internal class GearDB
 
     internal void Prune(CharacterDB charDb)
     {
-        PluginLog.Debug("Begin pruning of gear database.");
+        ServiceManager.PluginLog.Debug("Begin pruning of gear database.");
         foreach (HrtID toPrune in charDb.FindOrphanedGearSets(Data.Keys))
         { 
             if(!Data.TryGetValue(toPrune, out GearSet? set)) continue;
-            PluginLog.Information($"Removed {set.Name} ({set.LocalID}) from DB");
+            ServiceManager.PluginLog.Information($"Removed {set.Name} ({set.LocalID}) from DB");
             Data.Remove(toPrune);
         }
-        PluginLog.Debug("Finished pruning of gear database.");
+        ServiceManager.PluginLog.Debug("Finished pruning of gear database.");
     }
     private static void LogUpdates(HrtUiMessage hrtUiMessage)
     {
-        PluginLog.Information(hrtUiMessage.Message);
+        ServiceManager.PluginLog.Information(hrtUiMessage.Message);
     }
     private HrtUiMessage UpdateEtroSetsAsync(bool updateAll, int maxAgeInDays)
     {

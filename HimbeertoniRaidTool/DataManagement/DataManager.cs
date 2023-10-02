@@ -1,4 +1,4 @@
-﻿using Dalamud.Logging;
+﻿
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
@@ -57,7 +57,7 @@ public class HrtDataManager
         }
         catch (IOException ioe)
         {
-            PluginLog.Error(ioe, "Could not create data directory");
+            ServiceManager.PluginLog.Error(ioe, "Could not create data directory");
             loadError = true;
         }
         ModuleConfigurationManager = new ModuleConfigurationManager(pluginInterface);
@@ -84,7 +84,7 @@ public class HrtDataManager
         {
 #pragma warning disable CS0612 // Type or member is obsolete
             bool migrationError = false;
-            PluginLog.Information("Started Migration of Data");
+            ServiceManager.PluginLog.Information("Started Migration of Data");
             //Fully load old data
             FileInfo HrtGearDBJsonFile = new($"{configDirName}{Path.DirectorySeparatorChar}{"HrtGearDB.json"}");
             FileInfo EtroGearDBJsonFile = new($"{configDirName}{Path.DirectorySeparatorChar}{"EtroGearDB.json"}");
@@ -113,9 +113,9 @@ public class HrtDataManager
             Initialized = !migrationError;
             migrationError |= !Save();
             if (migrationError)
-                PluginLog.Error("Database migration failed");
+                ServiceManager.PluginLog.Error("Database migration failed");
             else
-                PluginLog.Information("Database migration ended successful");
+                ServiceManager.PluginLog.Information("Database migration ended successful");
             loadError |= migrationError;
 #pragma warning restore CS0612 // Type or member is obsolete
         }
@@ -149,7 +149,7 @@ public class HrtDataManager
         {
             orphans.Remove(character.LocalID);
         }
-        PluginLog.Information($"Found {orphans.Count} orphaned characters.");
+        ServiceManager.PluginLog.Information($"Found {orphans.Count} orphaned characters.");
         return orphans;
     }
     private CharacterDB GetCharacterDb()
@@ -180,7 +180,7 @@ public class HrtDataManager
         }
         catch (Exception e)
         {
-            PluginLog.Error(e, "Could not load data file");
+            ServiceManager.PluginLog.Error(e, "Could not load data file");
             return false;
         }
     }
@@ -195,7 +195,7 @@ public class HrtDataManager
         }
         catch (Exception e)
         {
-            PluginLog.Error(e, "Could not write data file");
+            ServiceManager.PluginLog.Error(e, "Could not write data file");
             return false;
         }
     }
@@ -232,8 +232,8 @@ public class HrtDataManager
             hasError |= !TryWrite(_raidGroupJsonFile, groupData);
         _saving = false;
         DateTime time3 = DateTime.Now;
-        PluginLog.Debug($"Serializing time: {time2 - time1}");
-        PluginLog.Debug($"IO time: {time3 - time2}");
+        ServiceManager.PluginLog.Debug($"Serializing time: {time2 - time1}");
+        ServiceManager.PluginLog.Debug($"IO time: {time3 - time2}");
         return !hasError;
     }
     public class NullIdProvider : IIDProvider

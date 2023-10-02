@@ -54,7 +54,7 @@ internal unsafe class CharacterInfoService
             if (entry->HomeWorld != character.HomeWorld.Id) continue;
             string name = System.Text.Encoding.Default.GetString(entry->Name, 32);
             if (name.Equals(character.Name.TextValue))
-                return entry->ContentId;
+                return (long)entry->ContentId;
         }
 
         return 0;

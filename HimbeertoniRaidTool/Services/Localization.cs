@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Dalamud.Logging;
 using Dalamud.Plugin;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
@@ -33,7 +32,7 @@ internal static class Localization
     private static void OnLanguageChanged(string langCode)
     {
         FallBack = langCode.Equals("en");
-        PluginLog.Information($"Loading localization for {langCode}");
+        ServiceManager.PluginLog.Information($"Loading localization for {langCode}");
         Loc?.SetupWithLangCode(langCode);
         LocalizationCache.Clear();
     }

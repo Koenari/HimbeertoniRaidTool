@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using Dalamud.Interface;
-using Dalamud.Logging;
+using Dalamud.Interface.Internal;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
@@ -62,7 +62,7 @@ internal class LootmasterUi : HrtWindow
             toRemove.Enqueue(w);
         foreach (HrtWindow w in toRemove.Where(w => !w.Equals(this)))
         {
-            PluginLog.Debug($"Cleaning Up Window: {w.WindowName}");
+            ServiceManager.PluginLog.Debug($"Cleaning Up Window: {w.WindowName}");
             _lootMaster.WindowSystem.RemoveWindow(w);
         }
     }
@@ -617,8 +617,8 @@ internal class InventoryWindow : HRTWindowWithModalChild
         foreach (InstanceWithLoot boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
         foreach (HrtItem item in boss.GuaranteedItems)
         {
-            TextureWrap icon = ServiceManager.IconCache[item.Icon];
-            ImGui.Image(icon.ImGuiHandle, icon.Size());
+            IDalamudTextureWrap icon = ServiceManager.IconCache[item.Icon];
+            ImGui.Image(icon.ImGuiHandle, icon.Size);
             ImGui.SameLine();
             ImGui.Text(item.Name);
             ImGui.SameLine();
@@ -636,7 +636,7 @@ internal class InventoryWindow : HRTWindowWithModalChild
             ImGui.PushID(idx);
             if (entry.Item is not GearItem item)
                 continue;
-            TextureWrap icon = ServiceManager.IconCache[item.Icon];
+            IDalamudTextureWrap icon = ServiceManager.IconCache[item.Icon];
             if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "Delete", null, true, iconSize))
                 _inv.Remove(idx);
             ImGui.SameLine();

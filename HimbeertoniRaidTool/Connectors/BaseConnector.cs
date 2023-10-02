@@ -2,50 +2,51 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Dalamud.Logging;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
 internal abstract class WebConnector
 {
-    private readonly RateLimit _rateLimit;
-    private readonly TimeSpan _cacheTime;
     private readonly ConcurrentDictionary<string, (DateTime time, string response)> _cachedRequests;
+    private readonly TimeSpan _cacheTime;
     private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
+    private readonly RateLimit _rateLimit;
+
     internal WebConnector(RateLimit rateLimit = default, TimeSpan? cacheTime = null)
     {
         _rateLimit = rateLimit;
-        _cachedRequests = new();
-        _currentRequests = new();
-        _cacheTime = cacheTime ?? new(0, 15, 0);
+        _cachedRequests = new ConcurrentDictionary<string, (DateTime time, string response)>();
+        _currentRequests = new ConcurrentDictionary<string, DateTime>();
+        _cacheTime = cacheTime ?? new TimeSpan(0, 15, 0);
     }
+
     private void UpdateCache()
     {
         foreach (var req in _cachedRequests.Where(e => e.Value.time + _cacheTime < DateTime.Now))
-        {
             _cachedRequests.TryRemove(req.Key, out _);
-        }
     }
+
     protected string? MakeWebRequest(string URL)
     {
         UpdateCache();
-        if (_cachedRequests.TryGetValue(URL, out var result))
+        if (_cachedRequests.TryGetValue(URL, out (DateTime time, string response) result))
             return result.response;
         var requestTask = MakeAsyncWebRequest(URL);
         requestTask.Wait();
         return requestTask.Result;
     }
+
     private async Task<string?> MakeAsyncWebRequest(string URL)
     {
         while (RateLimitHit() || _currentRequests.ContainsKey(URL))
             Thread.Sleep(1000);
-        if (_cachedRequests.TryGetValue(URL, out var cached))
+        if (_cachedRequests.TryGetValue(URL, out (DateTime time, string response) cached))
             return cached.response;
         _currentRequests.TryAdd(URL, DateTime.Now);
         try
         {
             HttpClient client = new();
-            var response = await client.GetAsync(URL);
+            HttpResponseMessage response = await client.GetAsync(URL);
             response.EnsureSuccessStatusCode();
             string result = await response.Content.ReadAsStringAsync();
             _cachedRequests.TryAdd(URL, (DateTime.Now, result));
@@ -53,7 +54,7 @@ internal abstract class WebConnector
         }
         catch (Exception e)
         {
-            PluginLog.LogError(e.Message);
+            ServiceManager.PluginLog.Error(e.Message);
             return null;
         }
         finally
@@ -61,8 +62,10 @@ internal abstract class WebConnector
             _currentRequests.TryRemove(URL, out _);
         }
     }
+
     private bool RateLimitHit()
     {
-        return _currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now) > _rateLimit.MaxRequests;
+        return _currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now) >
+               _rateLimit.MaxRequests;
     }
 }

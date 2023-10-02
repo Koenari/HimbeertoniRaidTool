@@ -1,6 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
-using Dalamud.Logging;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
@@ -23,14 +22,15 @@ internal class EditPlayerWindow : HrtWindow
     private Job newJob = Job.ADV;
     private readonly Func<Job, string> GetBisID;
     private const int ClassHeight = 27 * 2 + 4;
+
     internal EditPlayerWindow(Action<HrtUiMessage> callBack, Player p, Func<Job, string> getBisID)
         : base()
     {
         GetBisID = getBisID;
         CallBack = callBack;
         Player = p;
-        PlayerCopy = new();
-        PlayerCharacter? target = ServiceManager.TargetManager.Target as PlayerCharacter;
+        PlayerCopy = new Player();
+        var target = ServiceManager.TargetManager.Target as PlayerCharacter;
         IsNew = !Player.Filled;
         if (IsNew && target is not null)
         {
@@ -42,9 +42,11 @@ internal class EditPlayerWindow : HrtWindow
         {
             PlayerCopy = Player.Clone();
         }
+
         Size = new Vector2(450, 330 + ClassHeight * PlayerCopy.MainChar.Classes.Count());
         Title = $"{Localize("Edit Player", "Edit Player")} {Player.NickName}";
     }
+
     public override void Draw()
     {
         //Buttons
@@ -53,34 +55,37 @@ internal class EditPlayerWindow : HrtWindow
             SavePlayer();
             Hide();
         }
+
         ImGui.SameLine();
         if (ImGuiHelper.CancelButton())
             Hide();
         //Player Data
-        ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Player Data", "Player Data")).X) / 2f);
+        ImGui.SetCursorPosX(
+            (ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Player Data", "Player Data")).X) / 2f);
         ImGui.Text(Localize("Player Data", "Player Data"));
         ImGui.InputText(Localize("Player Name", "Player Name"), ref PlayerCopy.NickName, 50);
         //Character Data
-        ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
+        ImGui.SetCursorPosX(
+            (ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
         ImGui.Text(Localize("Character Data", "Character Data"));
         if (ImGui.InputText(Localize("Character Name", "Character Name"), ref PlayerCopy.MainChar.Name, 50)
-             && ServiceManager.CharacterInfoService.TryGetChar(out var pc, PlayerCopy.MainChar.Name))
-        {
+            && ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, PlayerCopy.MainChar.Name))
             PlayerCopy.MainChar.HomeWorld ??= pc?.HomeWorld.GameData;
-        }
         if (ImGuiHelper.ExcelSheetCombo(Localize("Home World", "Home World") + "##" + Title, out World? w,
-            x => PlayerCopy.MainChar.HomeWorld?.Name.RawString ?? "",
-             x => x.Name.RawString, x => x.IsPublic))
-        {
+                x => PlayerCopy.MainChar.HomeWorld?.Name.RawString ?? "",
+                x => x.Name.RawString, x => x.IsPublic))
             PlayerCopy.MainChar.HomeWorld = w;
-        }
+
         //ImGuiHelper.Combo(Localize("Gender", "Gender"), ref PlayerCopy.MainChar.Gender);
-        string GetGenderedTribeName(Tribe? t) => (PlayerCopy.MainChar.Gender == Gender.Male ? t?.Masculine.RawString : t?.Feminine.RawString) ?? string.Empty;
-        if (ImGuiHelper.ExcelSheetCombo(Localize("Tribe", "Tribe") + "##" + Title, out Tribe? t,
-           _ => GetGenderedTribeName(PlayerCopy.MainChar.Tribe), GetGenderedTribeName))
+        string GetGenderedTribeName(Tribe? t)
         {
-            PlayerCopy.MainChar.TribeID = t?.RowId ?? 0;
+            return (PlayerCopy.MainChar.Gender == Gender.Male ? t?.Masculine.RawString : t?.Feminine.RawString) ??
+                   string.Empty;
         }
+
+        if (ImGuiHelper.ExcelSheetCombo(Localize("Tribe", "Tribe") + "##" + Title, out Tribe? t,
+                _ => GetGenderedTribeName(PlayerCopy.MainChar.Tribe), GetGenderedTribeName))
+            PlayerCopy.MainChar.TribeID = t?.RowId ?? 0;
         //Class Data
         ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Job Data", "Job Data")).X) / 2f);
         ImGui.Text(Localize("Job Data", "Job Data"));
@@ -89,13 +94,9 @@ internal class EditPlayerWindow : HrtWindow
             if (PlayerCopy.MainChar.Classes.All(x => x.Job != PlayerCopy.MainChar.MainJob))
                 PlayerCopy.MainChar.MainJob = PlayerCopy.MainChar.Classes.First().Job;
             if (ImGui.BeginCombo(Localize("Main Job", "Main Job"), PlayerCopy.MainChar.MainJob.ToString()))
-            {
-                foreach (var curJob in PlayerCopy.MainChar)
-                {
+                foreach (PlayableClass curJob in PlayerCopy.MainChar)
                     if (ImGui.Selectable(curJob.Job.ToString()))
                         PlayerCopy.MainChar.MainJob = curJob.Job;
-                }
-            }
         }
         else
         {
@@ -103,6 +104,7 @@ internal class EditPlayerWindow : HrtWindow
             ImGui.NewLine();
             ImGui.Text(Localize("NoClasses", "Character does not have any classes created"));
         }
+
         ImGui.Columns(2, "Classes", false);
         ImGui.SetColumnWidth(0, 70f * ScaleFactor);
         ImGui.SetColumnWidth(1, 400f * ScaleFactor);
@@ -126,21 +128,21 @@ internal class EditPlayerWindow : HrtWindow
             {
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"{Localize("Set to default", "Set to default")}##BIS#{c.Job}",
-                    Localize("DefaultBiSTooltip", "Fetch default BiS from configuration")))
+                        Localize("DefaultBiSTooltip", "Fetch default BiS from configuration")))
                     c.BIS.EtroID = GetBisID(c.Job);
             }
+
             ImGui.EndDisabled();
             ImGui.NextColumn();
             ImGui.NextColumn();
             ImGui.SetNextItemWidth(150f * ScaleFactor);
             if (ImGui.InputInt($"{Localize("Level", "Level")}##{c.Job}", ref c.Level))
-            {
                 c.Level = Math.Clamp(c.Level, 1, Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxLevel);
-            }
 
             ImGui.Separator();
             ImGui.NextColumn();
         }
+
         if (toDelete is not null)
         {
             PlayerCopy.MainChar.RemoveClass(toDelete.Value);
@@ -150,12 +152,10 @@ internal class EditPlayerWindow : HrtWindow
 
         ImGui.Columns(1);
         if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out Job job, newJob.ToString(),
-            Enum.GetValues<Job>(), j => j.ToString(),
-            (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
-            (j) => PlayerCopy.MainChar.Classes.All(y => y.Job != j)))
-        {
+                Enum.GetValues<Job>(), j => j.ToString(),
+                (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
+                (j) => PlayerCopy.MainChar.Classes.All(y => y.Job != j)))
             newJob = job;
-        }
         ImGui.SameLine();
         if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
         {
@@ -166,11 +166,13 @@ internal class EditPlayerWindow : HrtWindow
                 ServiceManager.HrtDataManager.GearDB.AddSet(newClass.Gear);
                 ServiceManager.HrtDataManager.GearDB.AddSet(newClass.BIS);
             }
+
             newClass.BIS.EtroID = GetBisID(newJob);
             if (Size.HasValue)
                 Size = Size.Value with { Y = Size.Value.Y + ClassHeight };
         }
     }
+
     private void SavePlayer()
     {
         List<(Job, Func<bool>)> bisUpdates = new();
@@ -180,17 +182,19 @@ internal class EditPlayerWindow : HrtWindow
         if (IsNew)
         {
             if (!ServiceManager.HrtDataManager.CharDB.SearchCharacter(
-                PlayerCopy.MainChar.HomeWorldID, PlayerCopy.MainChar.Name, out Character? c))
+                    PlayerCopy.MainChar.HomeWorldID, PlayerCopy.MainChar.Name, out Character? c))
             {
                 c = new Character(PlayerCopy.MainChar.Name, PlayerCopy.MainChar.HomeWorldID);
                 if (!ServiceManager.HrtDataManager.CharDB.TryAddCharacter(c))
                     return;
             }
+
             Player.MainChar = c;
             //Do not silently override existing characters
             if (c.Classes.Any())
                 return;
         }
+
         //Copy safe data
         if (Player.MainChar.Name != PlayerCopy.MainChar.Name ||
             Player.MainChar.HomeWorldID != PlayerCopy.MainChar.HomeWorldID)
@@ -199,18 +203,20 @@ internal class EditPlayerWindow : HrtWindow
             Player.MainChar.HomeWorldID = PlayerCopy.MainChar.HomeWorldID;
             ServiceManager.HrtDataManager.CharDB.ReindexCharacter(Player.MainChar.LocalID);
         }
+
         Player.MainChar.TribeID = PlayerCopy.MainChar.TribeID;
         Player.MainChar.MainJob = PlayerCopy.MainChar.MainJob;
         //Remove classes that were removed in Ui
         for (int i = 0; i < Player.MainChar.Classes.Count(); i++)
         {
-            var c = Player.MainChar.Classes.ElementAt(i);
+            PlayableClass c = Player.MainChar.Classes.ElementAt(i);
             if (PlayerCopy.MainChar.Classes.Any(x => x.Job == c.Job)) continue;
             Player.MainChar.RemoveClass(c.Job);
             i--;
         }
+
         //Add missing classes and update Bis/Level for existing ones
-        foreach (var c in PlayerCopy.MainChar.Classes)
+        foreach (PlayableClass c in PlayerCopy.MainChar.Classes)
         {
             PlayableClass? target = Player.MainChar[c.Job];
             GearDB gearSetDB = ServiceManager.HrtDataManager.GearDB;
@@ -220,12 +226,13 @@ internal class EditPlayerWindow : HrtWindow
                 gearSetDB.AddSet(target.Gear);
                 gearSetDB.AddSet(target.BIS);
             }
+
             target.Level = c.Level;
             if (target.BIS.EtroID.Equals(c.BIS.EtroID))
                 continue;
             if (!c.BIS.EtroID.Equals(""))
             {
-                if (!gearSetDB.TryGetSetByEtroID(c.BIS.EtroID, out var etroSet))
+                if (!gearSetDB.TryGetSetByEtroID(c.BIS.EtroID, out GearSet? etroSet))
                 {
                     etroSet = new GearSet
                     {
@@ -233,8 +240,10 @@ internal class EditPlayerWindow : HrtWindow
                         EtroID = c.BIS.EtroID,
                     };
                     gearSetDB.AddSet(etroSet);
-                    ServiceManager.TaskManager.RegisterTask(new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(target.BIS), CallBack));
+                    ServiceManager.TaskManager.RegisterTask(
+                        new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(target.BIS), CallBack));
                 }
+
                 target.BIS = etroSet;
             }
             else if (!target.BIS.EtroID.IsNullOrEmpty())
@@ -244,16 +253,17 @@ internal class EditPlayerWindow : HrtWindow
                     ManagedBy = GearSetManager.HRT,
                 };
                 if (!gearSetDB.AddSet(bis))
-                    PluginLog.Debug("BiS not saved!");
+                    ServiceManager.PluginLog.Debug("BiS not saved!");
                 target.BIS = bis;
             }
-
         }
+
         if (Player.MainChar.Classes.All(c => c.Job != Player.MainChar.MainJob))
             Player.MainChar.MainJob = Player.MainChar.Classes.FirstOrDefault()?.Job;
         ServiceManager.HrtDataManager.Save();
     }
 }
+
 internal class EditGroupWindow : HrtWindow
 {
     private readonly RaidGroup Group;
@@ -282,20 +292,20 @@ internal class EditGroupWindow : HrtWindow
             OnSave(Group);
             Hide();
         }
+
         ImGui.SameLine();
         if (ImGuiHelper.CancelButton())
         {
             OnCancel(Group);
             Hide();
         }
+
         //Name + Type
         ImGui.InputText(Localize("Group Name", "Group Name"), ref GroupCopy.Name, 100);
         int groupType = (int)GroupCopy.Type;
         ImGui.BeginDisabled(Group.TypeLocked);
-        if (ImGui.Combo(Localize("Group Type", "Group Type"), ref groupType, Enum.GetNames(typeof(GroupType)), Enum.GetNames(typeof(GroupType)).Length))
-        {
-            GroupCopy.Type = (GroupType)groupType;
-        }
+        if (ImGui.Combo(Localize("Group Type", "Group Type"), ref groupType, Enum.GetNames(typeof(GroupType)),
+                Enum.GetNames(typeof(GroupType)).Length)) GroupCopy.Type = (GroupType)groupType;
         ImGui.EndDisabled();
         //Role priority
         bool overrideRolePriority = GroupCopy.RolePriority != null;
@@ -303,8 +313,9 @@ internal class EditGroupWindow : HrtWindow
         {
             GroupCopy.RolePriority = overrideRolePriority ? new RolePriority() : null;
             if (Size.HasValue)
-                Size = new(Size.Value.X, Size.Value.Y + (overrideRolePriority ? 1 : -1) * 180f * ScaleFactor);
+                Size = new Vector2(Size.Value.X, Size.Value.Y + (overrideRolePriority ? 1 : -1) * 180f * ScaleFactor);
         }
+
         if (overrideRolePriority)
         {
             ImGui.Text(Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
@@ -313,6 +324,7 @@ internal class EditGroupWindow : HrtWindow
         }
     }
 }
+
 internal class EditGearSetWindow : HRTWindowWithModalChild
 {
     private GearSet _gearSet;
@@ -340,8 +352,9 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
             Hide();
         bool isFromEtro = _gearSet.ManagedBy == GearSetManager.Etro;
         ImGui.SameLine();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "deleteSet", Localize("GearsetEdit:Delete", "Remove set from this character (Hold Shift)"),
-                ImGui.IsKeyDown(ImGuiKey.ModShift),new Vector2(50,25)))
+        if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "deleteSet",
+                Localize("GearsetEdit:Delete", "Remove set from this character (Hold Shift)"),
+                ImGui.IsKeyDown(ImGuiKey.ModShift), new Vector2(50, 25)))
         {
             GearSet newSet = new();
             if (ServiceManager.HrtDataManager.GearDB.AddSet(newSet))
@@ -351,15 +364,15 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
             }
         }
         //Other infos
-        
+
         if (isFromEtro)
         {
             ImGui.Text($"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:Etro", "etro.gg")}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(Localize("GearSetEdit:MakeLocal", "Create local copy"),
-                Localize("GearSetEdit:MakeLocal:tooltip",
-                "Create a copy of this set in the local database. Set will not be updated from etro.gg afterwards\n" +
-                "Only local Gear Sets can be edited")))
+                    Localize("GearSetEdit:MakeLocal:tooltip",
+                        "Create a copy of this set in the local database. Set will not be updated from etro.gg afterwards\n" +
+                        "Only local Gear Sets can be edited")))
             {
                 _gearSet = _gearSet.Clone();
                 _gearSet.LocalID = HrtID.Empty;
@@ -370,14 +383,18 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
                 _onSave(_gearSet);
                 _gearSetCopy = _gearSet.Clone();
             }
+
             ImGui.Text($"{Localize("Etro ID", "Etro ID")}: {_gearSetCopy.EtroID}");
-            ImGui.Text($"{Localize("GearSetEdit:EtroLastDownload", "Last update check")}: {_gearSetCopy.EtroFetchDate}");
+            ImGui.Text(
+                $"{Localize("GearSetEdit:EtroLastDownload", "Last update check")}: {_gearSetCopy.EtroFetchDate}");
         }
         else
         {
-            ImGui.Text($"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:HrtLocal", "Local Database")}");
+            ImGui.Text(
+                $"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:HrtLocal", "Local Database")}");
             ImGui.Text($"{Localize("Local ID", "Local ID")}: {_gearSetCopy.LocalID}");
         }
+
         ImGui.Text($"{Localize("GearSetEdit:LastChanged", "Last Change")}: {_gearSetCopy.TimeStamp}");
         ImGui.BeginDisabled(isFromEtro);
         ImGui.Text($"{Localize("GearSetEdit:Name", "Name")}: ");
@@ -405,21 +422,23 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
             DrawSlot(GearSetSlot.Ring2);
             ImGui.EndTable();
         }
+
         ImGui.EndDisabled();
+
         void DrawSlot(GearSetSlot slot)
         {
             ImGui.BeginDisabled(ChildIsOpen);
             ImGui.TableNextColumn();
             UiHelpers.DrawGearEdit(this, slot, _gearSetCopy[slot], i =>
             {
-                foreach (var mat in _gearSetCopy[slot].Materia)
+                foreach (HrtMateria mat in _gearSetCopy[slot].Materia)
                     i.AddMateria(mat);
                 _gearSetCopy[slot] = i;
-
             }, _job);
             ImGui.EndDisabled();
         }
     }
+
     private void Save()
     {
         _gearSetCopy.TimeStamp = DateTime.Now;
@@ -429,6 +448,7 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
         Hide();
     }
 }
+
 internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
 {
     protected static readonly Lumina.Excel.ExcelSheet<Item> Sheet = ServiceManager.DataManager.GetExcelSheet<Item>()!;
@@ -436,6 +456,7 @@ internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
     private readonly Action<T> OnSave;
     private readonly Action<T?> OnCancel;
     protected virtual bool CanSave { get; set; } = true;
+
     internal SelectItemWindow(Action<T> onSave, Action<T?> onCancel)
     {
         (OnSave, OnCancel) = (onSave, onCancel);
@@ -453,6 +474,7 @@ internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
         DrawItemSelection();
         ImGui.End();
     }
+
     protected void Save(T? item = null)
     {
         if (item != null)
@@ -463,6 +485,7 @@ internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
             OnCancel(Item);
         Hide();
     }
+
     protected void Cancel()
     {
         OnCancel(Item);
@@ -471,6 +494,7 @@ internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
 
     protected abstract void DrawItemSelection();
 }
+
 internal class SelectGearItemWindow : SelectItemWindow<GearItem>
 {
     private readonly bool _lockSlot = false;
@@ -481,7 +505,9 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
     private uint maxILvl;
     private List<Item> _items;
     protected override bool CanSave => false;
-    public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? curentItem = null, GearSetSlot? slot = null, Job? job = null, uint maxItemLevel = 0) : base(onSave, onCancel)
+
+    public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? curentItem = null,
+        GearSetSlot? slot = null, Job? job = null, uint maxItemLevel = 0) : base(onSave, onCancel)
     {
         Item = curentItem;
         if (slot.HasValue)
@@ -493,10 +519,11 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         {
             Slots = Item?.Slots ?? Array.Empty<GearSetSlot>();
         }
+
         _lockJob = job.HasValue;
         Job = job;
         Title = $"{Localize("Get item for", "Get item for")}" +
-            $" {string.Join(',', Slots.Select((e, _) => e.FriendlyName()))}";
+                $" {string.Join(',', Slots.Select((e, _) => e.FriendlyName()))}";
         maxILvl = maxItemLevel;
         minILvl = maxILvl > 30 ? maxILvl - 30 : 0;
         _items = ReevaluateItems();
@@ -513,12 +540,13 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         ImGui.SameLine();
         ImGui.SetNextItemWidth(125f * ScaleFactor);
         ImGui.BeginDisabled(_lockSlot);
-        var slot = Slots.FirstOrDefault(GearSetSlot.None);
+        GearSetSlot slot = Slots.FirstOrDefault(GearSetSlot.None);
         if (ImGuiHelper.Combo("##slot", ref slot))
         {
             Slots = new[] { slot };
             ReevaluateItems();
         }
+
         ImGui.SameLine();
         ImGui.EndDisabled();
         ImGui.SetNextItemWidth(100f * ScaleFactor);
@@ -528,6 +556,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             minILvl = (uint)min;
             ReevaluateItems();
         }
+
         ImGui.SameLine();
         int max = (int)maxILvl;
         ImGui.SetNextItemWidth(100f * ScaleFactor);
@@ -536,19 +565,22 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             maxILvl = (uint)max;
             ReevaluateItems();
         }
+
         //Draw item list
-        foreach (var item in _items)
+        foreach (Item item in _items)
         {
             bool isCurrentItem = item.RowId == Item?.ID;
             if (isCurrentItem)
                 ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
-            if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", Localize("Use this item", "Use this item"), true, new Vector2(32f, 32f)))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", Localize("Use this item", "Use this item"),
+                    true, new Vector2(32f, 32f)))
             {
                 if (isCurrentItem)
                     Cancel();
                 else
-                    Save(new(item.RowId) { IsHq = item.CanBeHq });
+                    Save(new GearItem(item.RowId) { IsHq = item.CanBeHq });
             }
+
             if (isCurrentItem)
                 ImGui.PopStyleColor();
             ImGui.SameLine();
@@ -565,6 +597,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             }
         }
     }
+
     private List<Item> ReevaluateItems()
     {
         _items = Sheet.Where(x =>
@@ -573,37 +606,38 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             && (maxILvl == 0 || x.LevelItem.Row <= maxILvl)
             && x.LevelItem.Row >= minILvl
             && (Job.GetValueOrDefault(0) == 0 || x.ClassJobCategory.Value.Contains(Job.GetValueOrDefault()))
-            ).Take(50).ToList();
+        ).Take(50).ToList();
         _items.Sort((x, y) => (int)y.LevelItem.Row - (int)x.LevelItem.Row);
         return _items;
     }
 }
+
 internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
 {
     private static readonly Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>> AllMateria;
 
     static SelectMateriaWindow()
     {
-        AllMateria = new();
+        AllMateria = new Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>>();
         foreach (MateriaLevel lvl in Enum.GetValues<MateriaLevel>())
         {
             Dictionary<MateriaCategory, HrtMateria> mats = new();
-            foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>())
-            {
-                mats[cat] = new HrtMateria(cat, lvl);
-            }
+            foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>()) mats[cat] = new HrtMateria(cat, lvl);
             AllMateria[lvl] = mats;
         }
     }
+
     private readonly MateriaLevel MaxLvl;
     private readonly string longestName;
     protected override bool CanSave => false;
-    public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, MateriaLevel maxMatLvl, MateriaLevel? matLevel = null) : base(onSave, onCancel)
+
+    public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, MateriaLevel maxMatLvl,
+        MateriaLevel? matLevel = null) : base(onSave, onCancel)
     {
         MaxLvl = matLevel ?? maxMatLvl;
         Title = Localize("Select Materia", "Select Materia");
         longestName = Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "";
-        Size = new(ImGui.CalcTextSize(longestName).X + 200f, 120f);
+        Size = new Vector2(ImGui.CalcTextSize(longestName).X + 200f, 120f);
     }
 
     protected override void DrawItemSelection()
@@ -618,13 +652,15 @@ internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
                 DrawButton(cat, lvl);
                 ImGui.SameLine();
             }
+
             ImGui.NewLine();
             ImGui.Separator();
         }
+
         void DrawButton(MateriaCategory cat, MateriaLevel lvl)
         {
-            var mat = AllMateria[lvl][cat];
-            if (ImGui.ImageButton(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new(32)))
+            HrtMateria mat = AllMateria[lvl][cat];
+            if (ImGui.ImageButton(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new Vector2(32)))
                 Save(mat);
             if (ImGui.IsItemHovered())
             {

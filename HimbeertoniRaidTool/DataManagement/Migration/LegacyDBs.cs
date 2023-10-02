@@ -1,4 +1,4 @@
-﻿using Dalamud.Logging;
+﻿
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
@@ -64,7 +64,7 @@ internal class LegacyGearDB
     }
     private void LogUpdates(HrtUiMessage hrtUiMessage)
     {
-        PluginLog.Information(hrtUiMessage.Message);
+        ServiceManager.PluginLog.Information(hrtUiMessage.Message);
     }
     private HrtUiMessage UpdateEtroSetsAsync(int maxAgeInDays)
     {

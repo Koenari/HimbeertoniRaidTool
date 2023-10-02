@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Dalamud.Interface.Internal;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility;
@@ -12,29 +13,32 @@ public class IconCache : IDisposable
 {
     private readonly DalamudPluginInterface _pi;
     private readonly IDataManager _gameData;
-    private readonly Dictionary<uint, TextureWrap> _icons;
+    private readonly ITextureProvider _textureProvider;
+    private readonly Dictionary<uint, IDalamudTextureWrap> _icons;
 
-    public IconCache(DalamudPluginInterface pi, IDataManager gameData, int size = 0)
+    public IconCache(DalamudPluginInterface pi, IDataManager gameData, ITextureProvider textureProvider, int size = 0)
     {
         _pi = pi;
         _gameData = gameData;
-        _icons = new Dictionary<uint, TextureWrap>(size);
+        _textureProvider = textureProvider;
+        _icons = new Dictionary<uint, IDalamudTextureWrap>(size);
     }
 
-    public TextureWrap this[uint id]
+    public IDalamudTextureWrap this[uint id]
         => LoadIcon(id);
 
-    public TextureWrap LoadIcon(int id)
+    public IDalamudTextureWrap LoadIcon(int id)
     {
         return LoadIcon((uint)id);
     }
 
-    public TextureWrap LoadIcon(uint id, bool hq = false)
+    public IDalamudTextureWrap LoadIcon(uint id, bool hq = false)
     {
-        if (_icons.TryGetValue(id, out TextureWrap? ret))
+        if (_icons.TryGetValue(id, out IDalamudTextureWrap? ret))
             return ret;
 
-        TexFile icon = _gameData.GetIcon(hq, id)!;
+        var icon = _gameData.GetFile<TexFile>(_textureProvider.GetIconPath(id,
+            ITextureProvider.IconFlags.HiRes | (hq ? ITextureProvider.IconFlags.ItemHighQuality : 0))!)!;
         byte[] iconData = icon.GetRgbaImageData();
 
         ret = _pi.UiBuilder.LoadImageRaw(iconData, icon.Header.Width, icon.Header.Height, 4);

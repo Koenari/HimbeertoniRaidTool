@@ -1,7 +1,6 @@
 ﻿using Dalamud.Game.Command;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.IoC;
-using Dalamud.Logging;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
@@ -26,7 +25,8 @@ public sealed class HRTPlugin : IDalamudPlugin
         _loadError = !ServiceManager.Init(pluginInterface);
         //Init Localization
         Localization.Init(pluginInterface);
-        ServiceManager.Config = _configuration = ServiceManager.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        ServiceManager.Config = _configuration =
+            ServiceManager.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         if (!_loadError)
         {
             //Load and update/correct configuration + ConfigUi
@@ -37,34 +37,39 @@ public sealed class HRTPlugin : IDalamudPlugin
         }
         else
         {
-            pluginInterface.UiBuilder.AddNotification(Name + " did not load correctly. Please disable/enable to try again", "Error in HRT", NotificationType.Error, 10000);
+            pluginInterface.UiBuilder.AddNotification(
+                Name + " did not load correctly. Please disable/enable to try again", "Error in HRT",
+                NotificationType.Error, 10000);
             ServiceManager.ChatGui.PrintError(Name + " did not load correctly. Please disable/enable to try again");
         }
     }
+
     private void LoadAllModules()
     {
         string moduleNamespace = $"{GetType().Namespace}.Modules";
         //Look for all classes in Modules namespace that implement the IHrtModule interface
         foreach (Type moduleType in GetType().Assembly.GetTypes().Where(
-            t => (t.Namespace?.StartsWith(moduleNamespace) ?? false)
-                 && t is { IsInterface: false, IsAbstract: false } 
-                 && t.GetInterfaces().Any(i => i == typeof(IHrtModule))))
+                     t => (t.Namespace?.StartsWith(moduleNamespace) ?? false)
+                          && t is { IsInterface: false, IsAbstract: false }
+                          && t.GetInterfaces().Any(i => i == typeof(IHrtModule))))
         {
             if (moduleType == typeof(CoreModule)) continue;
-            bool hasConfig = moduleType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHrtModule<,>));
+            bool hasConfig = moduleType.GetInterfaces()
+                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHrtModule<,>));
             try
             {
                 dynamic? module = Activator.CreateInstance(moduleType);
                 if (module is null)
                 {
-                    PluginLog.Error($"Could not create module: {moduleType.Name}");
+                    ServiceManager.PluginLog.Error($"Could not create module: {moduleType.Name}");
                     continue;
                 }
+
                 RegisterModule(module, hasConfig);
             }
             catch (Exception e)
             {
-                PluginLog.Error(e, $"Failed to load module: {moduleType.Name}");
+                ServiceManager.PluginLog.Error(e, $"Failed to load module: {moduleType.Name}");
             }
         }
     }
@@ -73,9 +78,10 @@ public sealed class HRTPlugin : IDalamudPlugin
     {
         if (_registeredModules.ContainsKey(instance.GetType()))
         {
-            PluginLog.Error($"Tried to register module \"{instance.GetType()}\" twice");
+            ServiceManager.PluginLog.Error($"Tried to register module \"{instance.GetType()}\" twice");
             return;
         }
+
         try
         {
             if (instance is not IHrtModule module)
@@ -83,17 +89,18 @@ public sealed class HRTPlugin : IDalamudPlugin
                 HandleError();
                 return;
             }
+
             _registeredModules.Add(module.GetType(), module);
             foreach (HrtCommand command in instance.Commands)
                 AddCommand(command);
             if (hasConfig)
                 if (!_configuration.RegisterConfig(instance.Configuration))
-                    PluginLog.Error($"Configuration load error:{module.Name}");
+                    ServiceManager.PluginLog.Error($"Configuration load error:{module.Name}");
                 else
                     instance.Configuration.AfterLoad();
             ServiceManager.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
             module.AfterFullyLoaded();
-            PluginLog.Information($"Successfully loaded module: {module.Name}");
+            ServiceManager.PluginLog.Information($"Successfully loaded module: {module.Name}");
         }
         catch (Exception e)
         {
@@ -101,39 +108,39 @@ public sealed class HRTPlugin : IDalamudPlugin
                 _registeredModules.Remove(instance.GetType());
             HandleError(e);
         }
+
         void HandleError(Exception? e = null)
         {
-            PluginLog.Error(e, $"Error loading module: {instance.GetType()}");
+            ServiceManager.PluginLog.Error(e, $"Error loading module: {instance.GetType()}");
         }
     }
+
     private void AddCommand(HrtCommand command)
     {
         if (command.ShouldExposeToDalamud)
         {
             if (ServiceManager.CommandManager.AddHandler(command.Command,
-                new CommandInfo(command.OnCommand)
-                {
-                    HelpMessage = command.Description,
-                    ShowInHelp = command.ShowInHelp,
-                }))
-            { _dalamudRegisteredCommands.Add(command.Command); }
+                    new CommandInfo(command.OnCommand)
+                    {
+                        HelpMessage = command.Description,
+                        ShowInHelp = command.ShowInHelp,
+                    }))
+                _dalamudRegisteredCommands.Add(command.Command);
 
             if (command.ShouldExposeAltsToDalamud)
-            {
                 foreach (string alt in command.AltCommands)
-                {
-                    if(ServiceManager.CommandManager.AddHandler(alt,
-                           new CommandInfo(command.OnCommand)
-                           {
-                               HelpMessage = command.Description,
-                               ShowInHelp = false,
-                           }))
-                    { _dalamudRegisteredCommands.Add(alt); }
-                }
-            }
+                    if (ServiceManager.CommandManager.AddHandler(alt,
+                            new CommandInfo(command.OnCommand)
+                            {
+                                HelpMessage = command.Description,
+                                ShowInHelp = false,
+                            }))
+                        _dalamudRegisteredCommands.Add(alt);
         }
+
         ServiceManager.CoreModule.AddCommand(command);
     }
+
     public void Dispose()
     {
         foreach (string command in _dalamudRegisteredCommands)
@@ -143,8 +150,8 @@ public sealed class HRTPlugin : IDalamudPlugin
             _configuration.Save(false);
             ServiceManager.HrtDataManager.Save();
         }
+
         foreach ((Type type, IHrtModule module) in _registeredModules)
-        {
             try
             {
                 ServiceManager.PluginInterface.UiBuilder.Draw -= module.WindowSystem.Draw;
@@ -153,9 +160,9 @@ public sealed class HRTPlugin : IDalamudPlugin
             }
             catch (Exception e)
             {
-                PluginLog.Fatal($"Unable to Dispose module \"{type}\"\n{e}");
+                ServiceManager.PluginLog.Fatal($"Unable to Dispose module \"{type}\"\n{e}");
             }
-        }
+
         Localization.Dispose();
         _configuration.Dispose();
         ServiceManager.Dispose();

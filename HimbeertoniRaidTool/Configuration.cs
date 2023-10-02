@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Dalamud.Configuration;
-using Dalamud.Logging;
+using Dalamud.Interface.Windowing;
+using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
@@ -14,10 +15,12 @@ public class Configuration : IPluginConfiguration, IDisposable
     public int Version { get; set; } = 5;
     private readonly Dictionary<Type, dynamic> Configurations = new();
     private readonly ConfigUI Ui;
+
     public Configuration()
     {
         Ui = new ConfigUI(this);
     }
+
     internal void AfterLoad()
     {
         if (FullyLoaded)
@@ -26,38 +29,49 @@ public class Configuration : IPluginConfiguration, IDisposable
             Version = 5;
         FullyLoaded = true;
     }
-    internal void Show() => Ui.Show();
+
+    internal void Show()
+    {
+        Ui.Show();
+    }
+
     internal bool RegisterConfig<T, S>(HRTConfiguration<T, S> config) where T : new() where S : IHrtConfigUi
     {
         if (Configurations.ContainsKey(config.GetType()))
             return false;
         Configurations.Add(config.GetType(), config);
-        return ServiceManager.HrtDataManager.ModuleConfigurationManager.LoadConfiguration(config.ParentInternalName, ref config.Data);
+        return ServiceManager.HrtDataManager.ModuleConfigurationManager.LoadConfiguration(config.ParentInternalName,
+            ref config.Data);
     }
+
     internal void Save(bool saveAll = true)
     {
         if (Version == TargetVersion)
         {
             ServiceManager.PluginInterface.SavePluginConfig(this);
             if (saveAll)
-                foreach (var config in Configurations.Values)
+                foreach (dynamic? config in Configurations.Values)
                     config.Save();
         }
         else
-            PluginLog.LogError("Configuration Version mismatch. Did not Save!");
+        {
+            ServiceManager.PluginLog.Error("Configuration Version mismatch. Did not Save!");
+        }
     }
 
     public void Dispose()
     {
         Ui.Dispose();
     }
+
     public class ConfigUI : HrtWindow, IDisposable
     {
-        private readonly Dalamud.Interface.Windowing.WindowSystem _windowSystem;
+        private readonly WindowSystem _windowSystem;
         private readonly Configuration _configuration;
+
         public ConfigUI(Configuration configuration) : base("HimbeerToniRaidToolConfiguration")
         {
-            _windowSystem = new("HRTConfig");
+            _windowSystem = new WindowSystem("HRTConfig");
             _windowSystem.AddWindow(this);
             _configuration = configuration;
             ServiceManager.PluginInterface.UiBuilder.OpenConfigUi += Show;
@@ -68,11 +82,13 @@ public class Configuration : IPluginConfiguration, IDisposable
             Title = Localize("ConfigWindowTitle", "HimbeerToni Raid Tool Configuration");
             IsOpen = false;
         }
+
         public void Dispose()
         {
             ServiceManager.PluginInterface.UiBuilder.OpenConfigUi -= Show;
             ServiceManager.PluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
         }
+
         public override void OnOpen()
         {
             foreach (dynamic config in _configuration.Configurations.Values)
@@ -80,8 +96,11 @@ public class Configuration : IPluginConfiguration, IDisposable
                 {
                     config.Ui?.OnShow();
                 }
-                catch (Exception) { }
+                catch (Exception)
+                {
+                }
         }
+
         public override void OnClose()
         {
             foreach (dynamic config in _configuration.Configurations.Values)
@@ -89,8 +108,11 @@ public class Configuration : IPluginConfiguration, IDisposable
                 {
                     config.Ui?.OnHide();
                 }
-                catch (Exception) { }
+                catch (Exception)
+                {
+                }
         }
+
         public override void Draw()
         {
             if (ImGuiHelper.SaveButton())
@@ -100,7 +122,6 @@ public class Configuration : IPluginConfiguration, IDisposable
                 Cancel();
             ImGui.BeginTabBar("Modules");
             foreach (dynamic c in _configuration.Configurations.Values)
-            {
                 try
                 {
                     if (c.Ui == null)
@@ -111,11 +132,13 @@ public class Configuration : IPluginConfiguration, IDisposable
                         ImGui.EndTabItem();
                     }
                 }
-                catch (Exception) { }
+                catch (Exception)
+                {
+                }
 
-            }
             ImGui.EndTabBar();
         }
+
         private void Save()
         {
             foreach (dynamic c in _configuration.Configurations.Values)
@@ -123,6 +146,7 @@ public class Configuration : IPluginConfiguration, IDisposable
             _configuration.Save();
             Hide();
         }
+
         private void Cancel()
         {
             foreach (dynamic c in _configuration.Configurations.Values)
@@ -131,6 +155,7 @@ public class Configuration : IPluginConfiguration, IDisposable
         }
     }
 }
+
 public abstract class HRTConfiguration<T, S> where T : new() where S : IHrtConfigUi
 {
     public readonly string ParentInternalName;
@@ -143,12 +168,15 @@ public abstract class HRTConfiguration<T, S> where T : new() where S : IHrtConfi
         ParentInternalName = parentInternalName;
         ParentName = parentName;
     }
+
     internal void Save()
     {
         ServiceManager.HrtDataManager.ModuleConfigurationManager.SaveConfiguration(ParentInternalName, Data);
     }
+
     public abstract void AfterLoad();
 }
+
 public interface IHrtConfigUi
 {
     public void OnShow();
