@@ -48,7 +48,7 @@ public class IconCache : IDisposable
 
     public void Dispose()
     {
-        foreach (TextureWrap icon in _icons.Values)
+        foreach (IDalamudTextureWrap icon in _icons.Values)
             icon.Dispose();
         _icons.Clear();
     }
