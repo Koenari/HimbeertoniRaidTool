@@ -33,6 +33,7 @@ internal class LootmasterUi : HrtWindow
         _buttonSize = new Vector2(30f, 25f);
         SizeCondition = ImGuiCond.FirstUseEver;
         Title = Localize("LootMasterWindowTitle", "Loot Master");
+        ServiceManager.PluginInterface.UiBuilder.OpenMainUi += Show;
     }
 
     // ReSharper disable once UnusedMethodReturnValue.Local
