@@ -120,7 +120,9 @@ internal class GearDB
             totalCount++;
             if (gearSet.IsEmpty || (gearSet.EtroFetchDate < oldestValid && updateAll))
             {
-                ServiceManager.ConnectorPool.EtroConnector.GetGearSet(gearSet);
+                var message = ServiceManager.ConnectorPool.EtroConnector.GetGearSet(gearSet);
+                if(message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
+                    ServiceManager.PluginLog.Error(message.Message);
                 updateCount++;
             }
         }

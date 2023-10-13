@@ -47,11 +47,11 @@ internal class EtroConnector : WebConnector
         HrtUiMessage errorMessage = new($"Could not update set {set.Name}", HrtUiMessageType.Failure);
         if (set.EtroID.Equals(""))
             return errorMessage;
-        EtroGearSet? etroSet;
+        errorMessage.Message = $"{errorMessage.Message} ({set.EtroID})";
         string? jsonResponse = MakeWebRequest(GearsetApiBaseUrl + set.EtroID);
         if (jsonResponse == null)
             return errorMessage;
-        etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);
+        var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);
         if (etroSet == null)
             return errorMessage;
         set.Name = etroSet.name ?? "";
