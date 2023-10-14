@@ -55,7 +55,8 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     protected Vector2 MaxSize = ImGui.GetIO().DisplaySize * 0.9f;
     protected bool OpenCentered = false;
     public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
-    public HrtWindow(string? id = null) : base(id ?? Guid.NewGuid().ToString())
+
+    protected HrtWindow(string? id = null) : base(id ?? Guid.NewGuid().ToString())
     {
         _id = WindowName;
         Title = "";

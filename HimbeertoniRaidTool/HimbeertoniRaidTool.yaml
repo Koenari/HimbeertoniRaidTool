@@ -15,5 +15,4 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        General: Updated for Dalamud API 9
-        General: Updated for FFXIV 6.5
+        General: Can create BiS from etro link as well as the etro id

@@ -8,6 +8,7 @@ using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using System.Numerics;
+using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
@@ -120,7 +121,9 @@ internal class EditPlayerWindow : HrtWindow
             ImGui.SetNextItemWidth(250f * ScaleFactor);
             bool localBis = c.BIS is { IsEmpty: false, ManagedBy: GearSetManager.HRT };
             ImGui.BeginDisabled(localBis);
-            ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.BIS.EtroID, 50);
+            if (ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.BIS.EtroID, 60))
+                c.BIS.EtroID = c.BIS.EtroID.Replace(EtroConnector.GearsetWebBaseUrl, "");
+
             if (localBis)
                 ImGuiHelper.AddTooltip(Localize("PlayerEdit:Tooltip:LocalBis",
                     "BiS set for this class is locally managed.\nDelete local set to use a set from etro.gg"));
