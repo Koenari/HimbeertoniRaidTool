@@ -120,11 +120,11 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         {
             c.MainClass.Level = character.Level;
             GearDB gearDb = ServiceManager.HrtDataManager.GearDB;
-            if (!gearDb.TryGetSetByEtroID(_config.Data.GetDefaultBiS(c.MainClass.Job), out var etroSet))
+            if (!gearDb.TryGetSetByEtroID(ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job), out var etroSet))
             {
                 etroSet = new GearSet(GearSetManager.Etro)
                 {
-                    EtroID = _config.Data.GetDefaultBiS(c.MainClass.Job)
+                    EtroID = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job)
                 };
                 gearDb.AddSet(etroSet);
             }
@@ -241,7 +241,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
                     GearSet bis = new()
                     {
                         ManagedBy = GearSetManager.Etro,
-                        EtroID = _config.Data.GetDefaultBiS(c),
+                        EtroID = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c),
                     };
                     ServiceManager.HrtDataManager.GearDB.AddSet(bis);
                     p.MainChar.MainClass.BIS = bis;

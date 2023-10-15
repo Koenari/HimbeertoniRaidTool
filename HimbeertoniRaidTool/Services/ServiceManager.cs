@@ -45,15 +45,15 @@ internal class ServiceManager
         IconCache ??= new IconCache(PluginInterface, DataManager, TextureProvider);
         HrtDataManager ??= new HrtDataManager(PluginInterface);
         TaskManager ??= new TaskManager();
-        ConnectorPool ??= new ConnectorPool();
+        ConnectorPool ??= new ConnectorPool(TaskManager);
         CharacterInfoService ??= new CharacterInfoService(ObjectTable, PartyList);
         //TODO: Move somewhere else
         TaskManager.RegisterTask(
             new HrtTask(() =>
             {
                 HrtDataManager.PruneDatabase();
-                return new HrtUiMessage();
-            }, _ => { })
+                return new HrtUiMessage("");
+            }, _ => { }, "Prune database")
         );
         GearRefresher.Instance.Enable();
         return HrtDataManager.Initialized;

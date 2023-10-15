@@ -52,7 +52,7 @@ internal abstract class WebConnector
             _cachedRequests.TryAdd(URL, (DateTime.Now, result));
             return result;
         }
-        catch (Exception e)
+        catch (Exception e) when (e is HttpRequestException or UriFormatException or TaskCanceledException)
         {
             ServiceManager.PluginLog.Error(e.Message);
             return null;

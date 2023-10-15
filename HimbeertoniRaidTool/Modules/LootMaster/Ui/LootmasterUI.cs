@@ -90,7 +90,7 @@ internal class LootmasterUi : HrtWindow
             _currentMessage.Value.time + MessageTimeByMessageType(_currentMessage.Value.message.MessageType) <
             DateTime.Now)
             _currentMessage = null;
-        if (!_currentMessage.HasValue && _messageQueue.TryDequeue(out HrtUiMessage message))
+        if (!_currentMessage.HasValue && _messageQueue.TryDequeue(out HrtUiMessage? message))
             _currentMessage = (message, DateTime.Now);
         if (!_currentMessage.HasValue) return;
         switch (_currentMessage.Value.message.MessageType)
@@ -128,7 +128,7 @@ internal class LootmasterUi : HrtWindow
         ImGui.SameLine();
         if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}",
                 $"{Localize("Edit player", "Edit player")} {p.NickName}"))
-            AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, p, _lootMaster.Configuration.Data.GetDefaultBiS));
+            AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, p));
         ImGui.BeginChild("JobList");
         foreach (PlayableClass playableClass in p.MainChar.Classes)
         {
@@ -184,7 +184,7 @@ internal class LootmasterUi : HrtWindow
                     playableClass.BIS is { ManagedBy: GearSetManager.Etro, EtroID.Length: > 0 }))
                 ServiceManager.TaskManager.RegisterTask(
                     new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS),
-                        HandleMessage));
+                        HandleMessage, $"Update {playableClass.BIS.Name} ({playableClass.BIS.EtroID}) from etro"));
             ImGui.Spacing();
             ImGui.PopID();
         }
@@ -251,7 +251,7 @@ internal class LootmasterUi : HrtWindow
             else
             {
                 if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
-                    AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup[0], CurConfig.GetDefaultBiS));
+                    AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, CurrentGroup[0]));
             }
         }
         else
@@ -400,8 +400,8 @@ internal class LootmasterUi : HrtWindow
                             FileName = EtroConnector.GearsetWebBaseUrl + bis.EtroID,
                             UseShellExecute = true,
                         });
-                        return new HrtUiMessage();
-                    }, _ => { }));
+                        return new HrtUiMessage("");
+                    }, _ => { }, "Open Etro"));
                 ImGuiHelper.AddTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
 
                 ImGui.SameLine();
@@ -414,7 +414,8 @@ internal class LootmasterUi : HrtWindow
                         string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), bis.Name),
                         bis is { ManagedBy: GearSetManager.Etro, EtroID.Length: > 0 }, ButtonSize))
                     ServiceManager.TaskManager.RegisterTask(
-                        new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(bis), HandleMessage));
+                        new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(bis), HandleMessage,
+                            $"Update {bis.Name} ({bis.EtroID}) from etro"));
                 ImGui.PopID();
                 foreach ((GearSetSlot slot, (GearItem, GearItem) itemTuple) in curJob.ItemTuples)
                 {
@@ -446,7 +447,7 @@ internal class LootmasterUi : HrtWindow
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "Edit",
                         $"{Localize("Edit", "Edit")} {player.NickName}", true, ButtonSize))
-                    AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player, CurConfig.GetDefaultBiS));
+                    AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player));
                 if (ImGuiHelper.Button(FontAwesomeIcon.Wallet, "Inventory",
                         Localize("lootmaster:button:inventorytooltip", "Open inventory window"), true, ButtonSize))
                     AddChild(new InventoryWindow(player.MainChar.MainInventory, $"{player.MainChar.Name}'s Inventory"));
@@ -470,7 +471,7 @@ internal class LootmasterUi : HrtWindow
                 ImGui.TableNextColumn();
             ImGui.TableNextColumn();
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddNew", Localize("Add", "Add")))
-                AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player, CurConfig.GetDefaultBiS));
+                AddChild(new EditPlayerWindow(_lootMaster.HandleMessage, player));
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "AddFromDB", Localize("Add from DB", "Add from DB")))
                 AddChild(new GetCharacterFromDbWindow(ref player));

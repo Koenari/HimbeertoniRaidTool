@@ -136,11 +136,11 @@ public class ConfimationDialog : HrtWindow
         }
     }
 }
-public struct HrtUiMessage
+public class HrtUiMessage
 {
     public HrtUiMessageType MessageType;
     public string Message;
-    public HrtUiMessage(string msg, HrtUiMessageType msgType)
+    public HrtUiMessage(string msg, HrtUiMessageType msgType = HrtUiMessageType.Info)
     {
         MessageType = msgType;
         Message = msg;

@@ -92,7 +92,7 @@ internal class GearDB
         if (EtroHasUpdated)
             return;
         EtroHasUpdated = true;
-        ServiceManager.TaskManager.RegisterTask(new(() => UpdateEtroSetsAsync(updateAll, maxAgeInDays), LogUpdates));
+        ServiceManager.TaskManager.RegisterTask(new(() => UpdateEtroSetsAsync(updateAll, maxAgeInDays), LogUpdates,"Update etro sets"));
     }
 
     internal void Prune(CharacterDB charDb)
@@ -126,11 +126,9 @@ internal class GearDB
                 updateCount++;
             }
         }
-        return new HrtUiMessage
-        {
-            MessageType = HrtUiMessageType.Info,
-            Message = $"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated",
-        };
+
+        return new HrtUiMessage($"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated");
+    
     }
     internal string Serialize(JsonSerializerSettings settings)
     {

@@ -93,7 +93,7 @@ public static class ImGuiHelper
                     $"{Localize("LodestonUpdateStarted", "Started gear update for")} {p.MainChar.Name}", HrtUiMessageType.Info));
                 ServiceManager.TaskManager.RegisterTask(
                     new(() => ServiceManager.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
-                    module.HandleMessage));
+                    module.HandleMessage,$"Update {p.MainChar.Name} from Lodestone"));
                 return true;
             }
             return false;

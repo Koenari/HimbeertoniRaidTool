@@ -119,57 +119,6 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
                 ImGui.Text(Localize("DefaultBiSHeading", "Default BiS sets (as etro.gg ID)"));
                 ImGui.TextWrapped(Localize("DefaultBiSDisclaimer",
                     "These sets are used when creating a new character or adding a new job. These do not affect already created characters and jobs."));
-                var jobs = Enum.GetValues<Job>().Where(j => j.IsCombatJob()).ToArray();
-                Array.Sort(jobs, (a, b) =>
-                {
-                    bool aFilled = !_dataCopy.GetDefaultBiS(a).IsNullOrEmpty();
-                    bool aOverriden = _dataCopy.BisUserOverride.ContainsKey(a);
-                    bool bFilled = !_dataCopy.GetDefaultBiS(b).IsNullOrEmpty();
-                    bool bOverriden = _dataCopy.BisUserOverride.ContainsKey(b);
-                    if (aOverriden && !bOverriden)
-                        return -1;
-                    if (!aOverriden && bOverriden)
-                        return 1;
-                    if (aFilled && !bFilled)
-                        return -1;
-                    if (!aFilled && bFilled)
-                        return 1;
-                    return string.Compare(a.ToString(), b.ToString(), StringComparison.Ordinal);
-
-                });
-                foreach (Job c in jobs)
-                {
-                    bool isOverriden = _dataCopy.BisUserOverride.ContainsKey(c);
-                    string value = _dataCopy.GetDefaultBiS(c);
-                    if (ImGui.InputText(c.ToString(), ref value, 100))
-                    {
-                        if (value != ConfigData.DefaultBis[c])
-                        {
-                            if (isOverriden)
-                                _dataCopy.BisUserOverride[c] = value;
-                            else
-                                _dataCopy.BisUserOverride.Add(c, value);
-                        }
-                        else
-                        {
-                            if (isOverriden)
-                                _dataCopy.BisUserOverride.Remove(c);
-                        }
-
-                    }
-                    if (isOverriden)
-                    {
-                        ImGui.SameLine();
-                        if (ImGuiHelper.Button(Dalamud.Interface.FontAwesomeIcon.Undo,
-                            $"Reset{c}", Localize("Reset to default", "Reset to default")))
-                            _dataCopy.BisUserOverride.Remove(c);
-                    }
-                    else
-                    {
-                        ImGui.SameLine();
-                        ImGui.TextDisabled($"({Localize("default", "default")})");
-                    }
-                }
                 ImGui.EndTabItem();
             }
             if (ImGui.BeginTabItem("Loot"))
@@ -203,32 +152,6 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
     [SuppressMessage("ReSharper", "RedundantDefaultMemberInitializer")]
     internal sealed class ConfigData
     {
-        /// <summary>
-        /// Holds a list of Etro IDs to use as BiS sets if users did not enter a preferred BiS
-        /// </summary>
-        [JsonIgnore]
-        internal static Dictionary<Job, string> DefaultBis { get; } = new Dictionary<Job, string>
-        {
-            { Job.AST, "83845599-bb32-4539-b829-971501856d7e" },
-            { Job.BLM, "1d113f03-16e3-4a47-83a9-c3366a0fff84" },
-            { Job.BRD, "f2426d1e-2da8-4151-bf52-74ca67b5f4a2" },
-            { Job.DNC, "50746158-5be1-4972-82f4-84a577f4bcce" },
-            { Job.DRG, "8a907f52-75a4-4085-9deb-6a63ffa2abd8" },
-            { Job.DRK, "dcd2eb34-7c43-4840-a17b-2eb790f19cf4" },
-            { Job.GNB, "1dee5389-9906-4690-88b7-55419a342932" },
-            { Job.MCH, "0001cd0d-ee54-4b85-8bb6-8ed79e9e7745" },
-            { Job.MNK, "" },
-            { Job.NIN, "6556da3a-4514-439e-b4f4-07e0ccc85e93" },
-            { Job.PLD, "5d279513-f339-402c-8343-fa910e65a4d4" },
-            { Job.RDM, "6d7a091d-52f5-49ec-9b2e-d7b1d4c45733" },
-            { Job.RPR, "3c8ec7ad-ccfc-42ce-a129-13bd032e2220" },
-            { Job.SAM, "d4b6bfc6-a82f-4732-8e55-7c13e094fc1d" },
-            { Job.SCH, "d7b63d98-5c7f-4b3a-bc0c-f99eb049a8d4" },
-            { Job.SGE, "efc239cb-6371-4d1e-b645-8dd7600575b5" },
-            { Job.SMN, "66f5ec54-c062-467f-811f-5e77a90c7aba" },
-            { Job.WAR, "1103c082-1c80-4bf3-bb56-83734971d5ea" },
-            { Job.WHM, "aee5c1f4-5e59-47fb-88ff-3eeffbef6231" },
-        };
         public int Version { get; set; } = 1;
         /*
          * Appearance
@@ -258,8 +181,6 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
         /*
          * BiS
          */
-        [JsonProperty("UserBiS")]
-        public Dictionary<Job, string> BisUserOverride = new();
         [JsonProperty]
         public bool UpdateEtroBisOnStartup = false;
         [JsonProperty]
@@ -277,8 +198,8 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
                         new(LootRuleEnum.DPSGain),
                         new(LootRuleEnum.HighestItemLevelGain),
                         new(LootRuleEnum.LowestItemLevel),
-                        new(LootRuleEnum.Random)
-                    }
+                        new(LootRuleEnum.Random),
+                    },
         };
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public RolePriority RolePriority = new()
@@ -312,9 +233,6 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
         public int? RaidTierOverride = null;
         [JsonIgnore]
         public RaidTier SelectedRaidTier => Common.Services.ServiceManager.GameInfo.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
-        public string GetDefaultBiS(Job c) => BisUserOverride.TryGetValue(c, out string? userOverride)
-            ? userOverride
-            : DefaultBis.TryGetValue(c, out string? defaultBis) ? defaultBis : "";
         private static string ParseItemFormatString(string input)
         {
             List<string> result = new();

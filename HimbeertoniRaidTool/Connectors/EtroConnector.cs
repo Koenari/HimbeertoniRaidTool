@@ -1,6 +1,9 @@
-﻿using HimbeertoniRaidTool.Common.Data;
+﻿using System.Collections.Concurrent;
+using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
@@ -11,8 +14,12 @@ internal class EtroConnector : WebConnector
     public const string GearsetApiBaseUrl = ApiBaseUrl + "gearsets/";
     public const string GearsetWebBaseUrl = WebBaseUrl + "gearset/";
     public const string MateriaApiBaseUrl = ApiBaseUrl + "materia/";
-    private readonly Lazy<Dictionary<uint, (MateriaCategory, MateriaLevel)>> LazyMateriaCache;
-    private Dictionary<uint, (MateriaCategory, MateriaLevel)> MateriaCache => LazyMateriaCache.Value;
+    public const string BisApiBaseUrl = GearsetApiBaseUrl + "bis/";
+    private readonly Lazy<Dictionary<uint, (MateriaCategory, MateriaLevel)>> _lazyMateriaCache;
+    private readonly Dictionary<Job,Dictionary<string,string>> _bisCache;
+    public IReadOnlyDictionary<string,string> GetBiS(Job  job) => _bisCache[job];
+    public string GetDefaultBiS(Job  job) => _bisCache[job].Keys.FirstOrDefault("");
+    private Dictionary<uint, (MateriaCategory, MateriaLevel)> MateriaCache => _lazyMateriaCache.Value;
     private static JsonSerializerSettings JsonSettings => new()
     {
         StringEscapeHandling = StringEscapeHandling.Default,
@@ -24,21 +31,49 @@ internal class EtroConnector : WebConnector
         NullValueHandling = NullValueHandling.Ignore,
         MissingMemberHandling = MissingMemberHandling.Ignore,
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-
     };
-    internal EtroConnector() : base(new(4, new(0, 0, 30)))
+    internal EtroConnector(TaskManager tm) : base(new(4, new(0, 0, 30)))
     {
-        LazyMateriaCache = new(CreateMateriaCache, true);
+        _lazyMateriaCache = new Lazy<Dictionary<uint, (MateriaCategory, MateriaLevel)>>(CreateMateriaCache, true);
+        _bisCache = new Dictionary<Job, Dictionary<string,string>>();
+        foreach(Job job in Enum.GetValues<Job>())
+            _bisCache.Add(job,new Dictionary<string, string>());
+        tm.RegisterTask(new HrtTask(FillBisList,
+            (msg) =>
+            {
+                if(msg.MessageType == HrtUiMessageType.Failure)
+                    ServiceManager.PluginLog.Error(msg.Message);
+                else
+                    ServiceManager.PluginLog.Info(msg.Message);
+            },"Load BiS list from etro"));
     }
+
+    private HrtUiMessage FillBisList()
+    {
+        HrtUiMessage failureMessage = new("Error fetching BiS list from etro", HrtUiMessageType.Failure);
+        string? jsonResponse = MakeWebRequest(BisApiBaseUrl);
+        if (jsonResponse == null)
+            return failureMessage;
+        var sets = JsonConvert.DeserializeObject<EtroGearSet[]>(jsonResponse, JsonSettings);
+        if(sets == null) return failureMessage;
+        foreach (EtroGearSet set in sets)
+        {
+            if(set.id != null)
+                _bisCache[set.job][set.id] = set.name ?? set.id;
+        }
+        return new HrtUiMessage("Successfully loaded BiS list from Etro",HrtUiMessageType.Success);
+    }
+
     private Dictionary<uint, (MateriaCategory, MateriaLevel)> CreateMateriaCache()
     {
         Dictionary<uint, (MateriaCategory, MateriaLevel)> materiaCache = new();
         string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
-        var matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse ?? "", JsonSettings);
-        if (matList != null)
-            foreach (var mat in matList)
-                for (byte i = 0; i < mat.tiers.Length; i++)
-                    materiaCache.Add(mat.tiers[i].id, ((MateriaCategory)mat.id, (MateriaLevel)i));
+        if(jsonResponse == null) return materiaCache;
+        var matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse, JsonSettings);
+        if (matList == null) return materiaCache;
+        foreach (var mat in matList)
+            for (byte i = 0; i < mat.tiers.Length; i++)
+                materiaCache.Add(mat.tiers[i].id, ((MateriaCategory)mat.id, (MateriaLevel)i));
         return materiaCache;
     }
 
@@ -89,11 +124,32 @@ internal class EtroConnector : WebConnector
             }
         }
     }
-    private class EtroGearSet
+    
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("Style", "IDE1006:Naming Styles")]
+    internal class EtroGearSet
     {
 
         public string? id { get; set; }
+       
         public string? jobAbbrev { get; set; }
+
+        public Job job
+        {
+            get
+            {
+                try
+                {
+                    return Enum.Parse<Job>(jobAbbrev ?? "ADV");
+                }
+                catch (Exception e) when (e is ArgumentException or ArgumentNullException)
+                {
+                    return Job.ADV;
+                }
+                
+            }
+        }
+
         public string? name { get; set; }
         public DateTime lastUpdate { get; set; }
         public Dictionary<string, Dictionary<uint, uint?>>? materia { get; set; }
