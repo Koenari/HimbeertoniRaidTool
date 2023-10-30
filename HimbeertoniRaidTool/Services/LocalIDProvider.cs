@@ -6,6 +6,7 @@ using HimbeertoniRaidTool.Plugin.DataManagement;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Security;
+
 internal class LocalIDProvider : IIDProvider
 {
     private static readonly RandomNumberGenerator NumberGenerator = RandomNumberGenerator.Create();
@@ -31,18 +32,18 @@ internal class LocalIDProvider : IIDProvider
     }
     //Public Funtions
     public uint GetAuthorityIdentifier() => Data.Authority;
-    public bool SignID(HrtID id)
+    public bool SignID(HrtId id)
     {
         if (!IsinMyAuthority(id))
             return false;
         id.Signature = CalcSignature(id);
         return true;
     }
-    public HrtID CreateID(HrtID.IDType type) =>
+    public HrtId CreateID(HrtId.IdType type) =>
         new(Data.Authority, type, CreateUniqueSequence(type));
-    public HrtID CreateGearID(ulong seq) => new(Data.Authority, HrtID.IDType.Gear, seq);
-    internal HrtID CreateCharID(ulong seq) => new(Data.Authority, HrtID.IDType.Character, seq);
-    public bool VerifySignature(HrtID id)
+    public HrtId CreateGearID(ulong seq) => new(Data.Authority, HrtId.IdType.Gear, seq);
+    internal HrtId CreateCharID(ulong seq) => new(Data.Authority, HrtId.IdType.Character, seq);
+    public bool VerifySignature(HrtId id)
     {
         if (!IsinMyAuthority(id))
             return false;
@@ -52,17 +53,17 @@ internal class LocalIDProvider : IIDProvider
         return correctSig.SequenceEqual(id.Signature);
 
     }
-    private bool IsinMyAuthority(HrtID id) => id.Authority == Data.Authority;
-    private ulong CreateUniqueSequence(HrtID.IDType type)
+    private bool IsinMyAuthority(HrtId id) => id.Authority == Data.Authority;
+    private ulong CreateUniqueSequence(HrtId.IdType type)
     {
-        if (type == HrtID.IDType.Gear)
+        if (type == HrtId.IdType.Gear)
             return DataManager.GearDB.GetNextSequence();
-        else if (type == HrtID.IDType.Character)
+        else if (type == HrtId.IdType.Character)
             return DataManager.CharDB.GetNextSequence();
         else
             return Data.Counter++;
     }
-    private byte[] CalcSignature(HrtID id)
+    private byte[] CalcSignature(HrtId id)
     {
         byte[] input = Encoding.UTF8.GetBytes(id.ToString());
         return SigningProvider.ComputeHash(input);
@@ -74,6 +75,7 @@ internal class LocalIDProvider : IIDProvider
         NumberGenerator.GetBytes(buffer);
         num = T.ReadLittleEndian(buffer, true);
     }
+
     public class ConfigData
     {
         [JsonProperty] public uint Authority = 0;

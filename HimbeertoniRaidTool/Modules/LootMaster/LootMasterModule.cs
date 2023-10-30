@@ -2,7 +2,6 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
-
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.DataManagement;
@@ -101,14 +100,14 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         ulong charId = Character.CalcCharID(contentId);
         Character? c = null;
         if (charId > 0)
-            characterDb.TryGetCharacterByCharID(charId, out c);
+            characterDb.TryGetCharacterByCharId(charId, out c);
         if (c == null)
             characterDb.SearchCharacter(character.HomeWorld.Id, character.Name.TextValue, out c);
         if (c is null)
         {
             c = new Character(character.Name.TextValue, character.HomeWorld.Id)
             {
-                CharID = charId
+                CharID = charId,
             };
             if (!characterDb.TryAddCharacter(c))
                 return;
@@ -120,11 +119,11 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         {
             c.MainClass.Level = character.Level;
             GearDB gearDb = ServiceManager.HrtDataManager.GearDB;
-            if (!gearDb.TryGetSetByEtroID(ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job), out var etroSet))
+            if (!gearDb.TryGetSetByEtroID(ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job), out GearSet? etroSet))
             {
                 etroSet = new GearSet(GearSetManager.Etro)
                 {
-                    EtroID = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job)
+                    EtroID = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job),
                 };
                 gearDb.AddSet(etroSet);
             }
@@ -225,10 +224,10 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         {
             Player p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
-            if (!ServiceManager.HrtDataManager.CharDB.TryGetCharacterByCharID
-                (Character.CalcCharID(pm.ContentId), out Character? character))
+            if (!ServiceManager.HrtDataManager.CharDB.TryGetCharacterByCharId
+                    (Character.CalcCharID(pm.ContentId), out Character? character))
                 ServiceManager.HrtDataManager.CharDB.SearchCharacter
-                (pm.World.Id, pm.Name.TextValue, out character);
+                    (pm.World.Id, pm.Name.TextValue, out character);
             if (character is null)
             {
                 character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);

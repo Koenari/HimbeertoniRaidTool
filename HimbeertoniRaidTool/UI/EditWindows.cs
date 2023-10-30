@@ -34,7 +34,7 @@ internal class EditPlayerWindow : HrtWindow
         if (_isNew && target is not null)
         {
             _playerCopy.MainChar.Name = target.Name.TextValue;
-            _playerCopy.MainChar.HomeWorldID = target.HomeWorld.Id;
+            _playerCopy.MainChar.HomeWorldId = target.HomeWorld.Id;
             _playerCopy.MainChar.MainJob = target.GetJob();
         }
         else if (_player.Filled)
@@ -85,7 +85,7 @@ internal class EditPlayerWindow : HrtWindow
 
         if (ImGuiHelper.ExcelSheetCombo(Localize("Tribe", "Tribe") + "##" + Title, out Tribe? t,
                 _ => GetGenderedTribeName(_playerCopy.MainChar.Tribe), GetGenderedTribeName))
-            _playerCopy.MainChar.TribeID = t?.RowId ?? 0;
+            _playerCopy.MainChar.TribeId = t?.RowId ?? 0;
         //Class Data
         ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Job Data", "Job Data")).X) / 2f);
         ImGui.Text(Localize("Job Data", "Job Data"));
@@ -178,9 +178,9 @@ internal class EditPlayerWindow : HrtWindow
         if (_isNew)
         {
             if (!ServiceManager.HrtDataManager.CharDB.SearchCharacter(
-                    _playerCopy.MainChar.HomeWorldID, _playerCopy.MainChar.Name, out Character? c))
+                    _playerCopy.MainChar.HomeWorldId, _playerCopy.MainChar.Name, out Character? c))
             {
-                c = new Character(_playerCopy.MainChar.Name, _playerCopy.MainChar.HomeWorldID);
+                c = new Character(_playerCopy.MainChar.Name, _playerCopy.MainChar.HomeWorldId);
                 if (!ServiceManager.HrtDataManager.CharDB.TryAddCharacter(c))
                     return;
             }
@@ -193,14 +193,14 @@ internal class EditPlayerWindow : HrtWindow
 
         //Copy safe data
         if (_player.MainChar.Name != _playerCopy.MainChar.Name ||
-            _player.MainChar.HomeWorldID != _playerCopy.MainChar.HomeWorldID)
+            _player.MainChar.HomeWorldId != _playerCopy.MainChar.HomeWorldId)
         {
             _player.MainChar.Name = _playerCopy.MainChar.Name;
-            _player.MainChar.HomeWorldID = _playerCopy.MainChar.HomeWorldID;
-            ServiceManager.HrtDataManager.CharDB.ReindexCharacter(_player.MainChar.LocalID);
+            _player.MainChar.HomeWorldId = _playerCopy.MainChar.HomeWorldId;
+            ServiceManager.HrtDataManager.CharDB.ReindexCharacter(_player.MainChar.LocalId);
         }
 
-        _player.MainChar.TribeID = _playerCopy.MainChar.TribeID;
+        _player.MainChar.TribeId = _playerCopy.MainChar.TribeId;
         _player.MainChar.MainJob = _playerCopy.MainChar.MainJob;
         //Remove classes that were removed in Ui
         for (int i = 0; i < _player.MainChar.Classes.Count(); i++)
@@ -373,8 +373,8 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
                         "Only local Gear Sets can be edited")))
             {
                 _gearSet = _gearSet.Clone();
-                _gearSet.LocalID = HrtID.Empty;
-                _gearSet.RemoteIDs = new List<HrtID>();
+                _gearSet.LocalId = HrtId.Empty;
+                _gearSet.RemoteIDs = new List<HrtId>();
                 _gearSet.ManagedBy = GearSetManager.HRT;
                 _gearSet.EtroID = string.Empty;
                 ServiceManager.HrtDataManager.GearDB.AddSet(_gearSet);
@@ -390,7 +390,7 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
         {
             ImGui.Text(
                 $"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:HrtLocal", "Local Database")}");
-            ImGui.Text($"{Localize("Local ID", "Local ID")}: {_gearSetCopy.LocalID}");
+            ImGui.Text($"{Localize("Local ID", "Local ID")}: {_gearSetCopy.LocalId}");
         }
 
         ImGui.Text($"{Localize("GearSetEdit:LastChanged", "Last Change")}: {_gearSetCopy.TimeStamp}");

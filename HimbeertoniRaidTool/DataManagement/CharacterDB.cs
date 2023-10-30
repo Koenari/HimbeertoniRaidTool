@@ -7,17 +7,17 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class CharacterDB
+internal class CharacterDB : IDataBaseTable<Character>
 {
-    private readonly Dictionary<ulong, HrtID> CharIDLookup = new();
-    private readonly Dictionary<HrtID, Character> Data = new();
+    private readonly Dictionary<ulong, HrtId> CharIDLookup = new();
+    private readonly Dictionary<HrtId, Character> Data = new();
     private readonly HrtDataManager DataManager;
-    private readonly Dictionary<HrtID, HrtID> IDReplacement = new();
-    private readonly Dictionary<(uint, string), HrtID> NameLookup = new();
+    private readonly Dictionary<HrtId, HrtId> IDReplacement = new();
+    private readonly Dictionary<(uint, string), HrtId> NameLookup = new();
     private readonly HashSet<uint> UsedWorlds = new();
     private ulong NextSequence;
 
-    internal CharacterDB(HrtDataManager dataManager, string serializedData, GearsetReferenceConverter conv,
+    internal CharacterDB(HrtDataManager dataManager, string serializedData, HrtIdReferenceConverter<GearSet> conv,
         JsonSerializerSettings settings)
     {
         DataManager = dataManager;
@@ -30,116 +30,91 @@ internal class CharacterDB
         }
         else
         {
-            HashSet<HrtID> KnownGear = new();
+            HashSet<HrtId> KnownGear = new();
             foreach (Character c in data)
             {
-                if (c.LocalID.IsEmpty)
+                if (c.LocalId.IsEmpty)
                 {
                     ServiceManager.PluginLog.Error(
                         $"Character {c.Name} was missing an ID and was removed from the database");
                     continue;
                 }
 
-                if (Data.TryAdd(c.LocalID, c))
+                if (Data.TryAdd(c.LocalId, c))
                 {
-                    UsedWorlds.Add(c.HomeWorldID);
-                    if (!NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID))
+                    UsedWorlds.Add(c.HomeWorldId);
+                    if (!NameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId))
                     {
                         ServiceManager.PluginLog.Warning(
                             $"Database conatains {c.Name} @ {c.HomeWorld?.Name} twice. Characters were merged");
-                        TryGetCharacter(NameLookup[(c.HomeWorldID, c.Name)], out Character? other);
-                        IDReplacement.Add(c.LocalID, other!.LocalID);
+                        TryGet(NameLookup[(c.HomeWorldId, c.Name)], out Character? other);
+                        IDReplacement.Add(c.LocalId, other!.LocalId);
                         other.MergeInfos(c);
-                        Data.Remove(c.LocalID);
+                        Data.Remove(c.LocalId);
                         continue;
                     }
 
                     if (c.CharID > 0)
-                        CharIDLookup.TryAdd(c.CharID, c.LocalID);
-                    NextSequence = Math.Max(NextSequence, c.LocalID.Sequence);
+                        CharIDLookup.TryAdd(c.CharID, c.LocalId);
+                    NextSequence = Math.Max(NextSequence, c.LocalId.Sequence);
                     foreach (PlayableClass job in c)
                     {
                         job.SetParent(c);
-                        if (KnownGear.Contains(job.Gear.LocalID))
+                        if (KnownGear.Contains(job.Gear.LocalId))
                         {
                             GearSet gearCopy = job.Gear.Clone();
                             ServiceManager.PluginLog.Debug(
-                                $"Found Gear duplicate with Sequence: {gearCopy.LocalID.Sequence}");
-                            gearCopy.LocalID = HrtID.Empty;
+                                $"Found Gear duplicate with Sequence: {gearCopy.LocalId.Sequence}");
+                            gearCopy.LocalId = HrtId.Empty;
                             dataManager.GearDB.AddSet(gearCopy);
                             job.Gear = gearCopy;
                         }
                         else
                         {
-                            KnownGear.Add(job.Gear.LocalID);
+                            KnownGear.Add(job.Gear.LocalId);
                         }
                     }
                 }
             }
         }
 
-        ServiceManager.PluginLog.Information($"DB conatins {Data.Count} characters");
+        ServiceManager.PluginLog.Information($"DB contains {Data.Count} characters");
         NextSequence++;
     }
 
-    [Obsolete]
-    internal CharacterDB(HrtDataManager dataManager, LegacyCharacterDB oldDB, LocalIDProvider idProvider)
-    {
-        //Migration constructor
-        DataManager = dataManager;
-        Data = new Dictionary<HrtID, Character>();
-        int count = 0;
-        foreach (var db in oldDB.CharDB.Values)
-        foreach (Character c in db.Values)
-        {
-            count++;
-            if (c.LocalID.IsEmpty)
-                c.LocalID = idProvider.CreateCharID(NextSequence++);
-            Data.Add(c.LocalID, c);
-        }
+    internal ulong GetNextSequence() => NextSequence++;
 
-        ServiceManager.PluginLog.Information($"Migrated {count} characters");
-    }
+    internal IEnumerable<uint> GetUsedWorlds() => UsedWorlds;
 
-    internal ulong GetNextSequence()
-    {
-        return NextSequence++;
-    }
-
-    internal IEnumerable<uint> GetUsedWorlds()
-    {
-        return UsedWorlds;
-    }
-
-    internal IReadOnlyList<string> GetKnownChracters(uint worldID)
+    internal IReadOnlyList<string> GetKnownCharacters(uint worldID)
     {
         List<string> result = new();
-        foreach (Character character in Data.Values.Where(c => c.HomeWorldID == worldID))
+        foreach (Character character in Data.Values.Where(c => c.HomeWorldId == worldID))
             result.Add(character.Name);
         return result;
     }
 
     internal bool TryAddCharacter(in Character c)
     {
-        if (c.LocalID.IsEmpty)
-            c.LocalID = DataManager.IDProvider.CreateID(HrtID.IDType.Character);
-        if (Data.TryAdd(c.LocalID, c))
+        if (c.LocalId.IsEmpty)
+            c.LocalId = DataManager.IDProvider.CreateID(HrtId.IdType.Character);
+        if (Data.TryAdd(c.LocalId, c))
         {
-            UsedWorlds.Add(c.HomeWorldID);
-            NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID);
+            UsedWorlds.Add(c.HomeWorldId);
+            NameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId);
             if (c.CharID > 0)
-                CharIDLookup.TryAdd(c.CharID, c.LocalID);
+                CharIDLookup.TryAdd(c.CharID, c.LocalId);
             return true;
         }
 
         return false;
     }
 
-    internal bool TryGetCharacterByCharID(ulong charID, [NotNullWhen(true)] out Character? c)
+    internal bool TryGetCharacterByCharId(ulong charID, [NotNullWhen(true)] out Character? c)
     {
         c = null;
-        if (CharIDLookup.TryGetValue(charID, out HrtID? id))
-            return TryGetCharacter(id, out c);
+        if (CharIDLookup.TryGetValue(charID, out HrtId? id))
+            return TryGet(id, out c);
         id = Data.FirstOrDefault(x => x.Value.CharID == charID).Key;
         if (id is not null)
         {
@@ -155,9 +130,9 @@ internal class CharacterDB
     internal bool SearchCharacter(uint worldID, string name, [NotNullWhen(true)] out Character? c)
     {
         c = null;
-        if (NameLookup.TryGetValue((worldID, name), out HrtID? id))
-            return TryGetCharacter(id, out c);
-        id = Data.FirstOrDefault(x => x.Value.HomeWorldID == worldID && x.Value.Name.Equals(name)).Key;
+        if (NameLookup.TryGetValue((worldID, name), out HrtId? id))
+            return TryGet(id, out c);
+        id = Data.FirstOrDefault(x => x.Value.HomeWorldId == worldID && x.Value.Name.Equals(name)).Key;
         if (id is not null)
         {
             NameLookup.Add((worldID, name), id);
@@ -169,42 +144,39 @@ internal class CharacterDB
         return false;
     }
 
-    internal bool TryGetCharacter(HrtID id, [NotNullWhen(true)] out Character? c)
+    public bool TryGet(HrtId id, [NotNullWhen(true)] out Character? c)
     {
         if (IDReplacement.ContainsKey(id))
             id = IDReplacement[id];
         return Data.TryGetValue(id, out c);
     }
 
-    internal bool Contains(HrtID hrtID)
-    {
-        return Data.ContainsKey(hrtID);
-    }
+    internal bool Contains(HrtId hrtID) => Data.ContainsKey(hrtID);
 
-    internal void ReindexCharacter(HrtID localID)
+    internal void ReindexCharacter(HrtId localID)
     {
-        if (!TryGetCharacter(localID, out Character? c))
+        if (!TryGet(localID, out Character? c))
             return;
-        UsedWorlds.Add(c.HomeWorldID);
-        NameLookup.TryAdd((c.HomeWorldID, c.Name), c.LocalID);
+        UsedWorlds.Add(c.HomeWorldId);
+        NameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId);
         if (c.CharID > 0)
-            CharIDLookup.TryAdd(c.CharID, c.LocalID);
+            CharIDLookup.TryAdd(c.CharID, c.LocalId);
     }
 
-    internal IEnumerable<HrtID> FindOrphanedGearSets(IEnumerable<HrtID> possibleOrphans)
+    internal IEnumerable<HrtId> FindOrphanedGearSets(IEnumerable<HrtId> possibleOrphans)
     {
-        HashSet<HrtID> orphanSets = new(possibleOrphans);
+        HashSet<HrtId> orphanSets = new(possibleOrphans);
         foreach (PlayableClass job in Data.Values.SelectMany(character => character.Classes))
         {
-            orphanSets.Remove(job.Gear.LocalID);
-            orphanSets.Remove(job.BIS.LocalID);
+            orphanSets.Remove(job.Gear.LocalId);
+            orphanSets.Remove(job.BIS.LocalId);
         }
 
         ServiceManager.PluginLog.Information($"Found {orphanSets.Count} orphaned gear sets.");
         return orphanSets;
     }
 
-    internal string Serialize(GearsetReferenceConverter conv, JsonSerializerSettings settings)
+    internal string Serialize(HrtIdReferenceConverter<GearSet> conv, JsonSerializerSettings settings)
     {
         settings.Converters.Add(conv);
         string result = JsonConvert.SerializeObject(Data.Values, settings);
@@ -215,11 +187,11 @@ internal class CharacterDB
     internal void Prune(HrtDataManager hrtDataManager)
     {
         ServiceManager.PluginLog.Debug("Begin pruning of character database.");
-        foreach (HrtID toPrune in hrtDataManager.FindOrphanedCharacters(Data.Keys))
+        foreach (HrtId toPrune in hrtDataManager.FindOrphanedCharacters(Data.Keys))
         {
             if (!Data.TryGetValue(toPrune, out Character? character)) continue;
             ServiceManager.PluginLog.Information(
-                $"Removed {character.Name} @ {character.HomeWorld?.Name} ({character.LocalID}) from DB");
+                $"Removed {character.Name} @ {character.HomeWorld?.Name} ({character.LocalId}) from DB");
             Data.Remove(toPrune);
         }
 

@@ -1,4 +1,4 @@
-﻿
+﻿using System.Diagnostics.CodeAnalysis;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
@@ -27,8 +27,8 @@ public class HrtDataManager
     private readonly FileInfo _charDbJsonFile;
     private readonly FileInfo _raidGroupJsonFile;
     //Converters
-    private readonly GearsetReferenceConverter? _gearSetRefConv;
-    private readonly CharacterReferenceConverter? _charRefConv;
+    private readonly HrtIdReferenceConverter<GearSet>? _gearSetRefConv;
+    private readonly HrtIdReferenceConverter<Character>? _charRefConv;
     //Directly Accessed Members
     public bool Ready => Initialized && !_serializing;
     internal List<RaidGroup> Groups => _groups ?? new List<RaidGroup>();
@@ -43,7 +43,7 @@ public class HrtDataManager
         TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
         TypeNameHandling = TypeNameHandling.None,
         NullValueHandling = NullValueHandling.Ignore,
-        ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
+        ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
     };
     public HrtDataManager(DalamudPluginInterface pluginInterface)
     {
@@ -61,8 +61,8 @@ public class HrtDataManager
             loadError = true;
         }
         ModuleConfigurationManager = new ModuleConfigurationManager(pluginInterface);
-        LocalIDProvider localIDProvider = new(this);
-        IDProvider = localIDProvider;
+        LocalIDProvider localIdProvider = new(this);
+        IDProvider = localIdProvider;
         _raidGroupJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{RaidGroupJsonFileName}");
         _charDbJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{CharDbJsonFileName}");
         _gearDbJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{GearDbJsonFileName}");
@@ -79,75 +79,34 @@ public class HrtDataManager
         {
             loadError = true;
         }
-        //Migrate old Data
-        if (File.Exists($"{configDirName}{Path.DirectorySeparatorChar}{"HrtGearDB.json"}"))
-        {
-#pragma warning disable CS0612 // Type or member is obsolete
-            bool migrationError = false;
-            ServiceManager.PluginLog.Information("Started Migration of Data");
-            //Fully load old data
-            FileInfo HrtGearDBJsonFile = new($"{configDirName}{Path.DirectorySeparatorChar}{"HrtGearDB.json"}");
-            FileInfo EtroGearDBJsonFile = new($"{configDirName}{Path.DirectorySeparatorChar}{"EtroGearDB.json"}");
-            migrationError |= !TryRead(HrtGearDBJsonFile, out string hrtGearJson);
-            migrationError |= !TryRead(EtroGearDBJsonFile, out string etroGearJson);
-            migrationError |= !TryRead(_charDbJsonFile, out string oldCharDBJson);
-            migrationError |= !TryRead(_raidGroupJsonFile, out string oldRaidGRoupJson);
-            LegacyGearDB oldGearDB = new(hrtGearJson, etroGearJson, JsonSettings);
-            LegacyGearSetReferenceConverter gsRefConv = new(oldGearDB);
-            LegacyCharacterDB oldCharacterDB = new(oldCharDBJson, gsRefConv, JsonSettings);
-            LegacyCharacterReferenceConverter charRefConv = new(oldCharacterDB);
-            JsonSettings.Converters.Add(charRefConv);
-            var groups = JsonConvert.DeserializeObject<List<RaidGroup>>(oldRaidGRoupJson, JsonSettings) ?? new();
-            JsonSettings.Converters.Remove(charRefConv);
-            //Real migration
-            _gearDb = new(this, oldGearDB, localIDProvider);
-            _gearSetRefConv = new GearsetReferenceConverter(_gearDb);
-            _characterDb = new(this, oldCharacterDB, localIDProvider);
-            _charRefConv = new CharacterReferenceConverter(_characterDb);
-            _groups = groups;
-            //Save new data and backup old
-            HrtGearDBJsonFile.MoveTo(HrtGearDBJsonFile.FullName + ".bak", true);
-            EtroGearDBJsonFile.MoveTo(EtroGearDBJsonFile.FullName + ".bak", true);
-            _charDbJsonFile.CopyTo(_charDbJsonFile.FullName + ".bak", true);
-            _raidGroupJsonFile.CopyTo(_raidGroupJsonFile.FullName + ".bak", true);
-            Initialized = !migrationError;
-            migrationError |= !Save();
-            if (migrationError)
-                ServiceManager.PluginLog.Error("Database migration failed");
-            else
-                ServiceManager.PluginLog.Information("Database migration ended successful");
-            loadError |= migrationError;
-#pragma warning restore CS0612 // Type or member is obsolete
-        }
         //Read files
         loadError |= !TryRead(_gearDbJsonFile, out string gearJson);
-        loadError |= !TryRead(_charDbJsonFile, out string charDBJson);
-        loadError |= !TryRead(_raidGroupJsonFile, out string RaidGRoupJson);
-        _gearDb = new(this, gearJson, JsonSettings);
-        _gearSetRefConv = new GearsetReferenceConverter(_gearDb);
-        _characterDb = new(this, charDBJson, _gearSetRefConv, JsonSettings);
-        _charRefConv = new CharacterReferenceConverter(_characterDb);
+        loadError |= !TryRead(_charDbJsonFile, out string charDbJson);
+        loadError |= !TryRead(_raidGroupJsonFile, out string raidGroupJson);
+        _gearDb = new GearDB(this, gearJson, JsonSettings);
+        _gearSetRefConv = new HrtIdReferenceConverter<GearSet>(_gearDb);
+        _characterDb = new CharacterDB(this, charDbJson, _gearSetRefConv, JsonSettings);
+        _charRefConv = new HrtIdReferenceConverter<Character>(_characterDb);
         JsonSettings.Converters.Add(_charRefConv);
-        _groups = JsonConvert.DeserializeObject<List<RaidGroup>>(RaidGRoupJson, JsonSettings) ?? new();
+        _groups = JsonConvert.DeserializeObject<List<RaidGroup>>(raidGroupJson, JsonSettings) ?? new List<RaidGroup>();
         JsonSettings.Converters.Remove(_charRefConv);
         Initialized = !loadError;
-
     }
 
     internal void PruneDatabase()
     {
-        if(!Initialized) return;
+        if (!Initialized) return;
         CharDB.Prune(this);
         GearDB.Prune(CharDB);
     }
 
-    internal IEnumerable<HrtID> FindOrphanedCharacters(IEnumerable<HrtID> possibleOrphans)
+    internal IEnumerable<HrtId> FindOrphanedCharacters(IEnumerable<HrtId> possibleOrphans)
     {
-        HashSet<HrtID> orphans = new(possibleOrphans);
-        if (_groups is null) return Array.Empty<HrtID>();
+        HashSet<HrtId> orphans = new(possibleOrphans);
+        if (_groups is null) return Array.Empty<HrtId>();
         foreach (Character character in _groups.SelectMany(g => g).SelectMany(p => p.Chars))
         {
-            orphans.Remove(character.LocalID);
+            orphans.Remove(character.LocalId);
         }
         ServiceManager.PluginLog.Information($"Found {orphans.Count} orphaned characters.");
         return orphans;
@@ -201,7 +160,7 @@ public class HrtDataManager
     }
 
     // ReSharper disable once SuggestBaseTypeForParameter
-    private string SerializeGroupData(CharacterReferenceConverter charRefCon)
+    private string SerializeGroupData(HrtIdReferenceConverter<Character> charRefCon)
     {
         JsonSettings.Converters.Add(charRefCon);
         string result = JsonConvert.SerializeObject(_groups, JsonSettings);
@@ -236,11 +195,20 @@ public class HrtDataManager
         ServiceManager.PluginLog.Debug($"IO time: {time3 - time2}");
         return !hasError;
     }
+
     public class NullIdProvider : IIDProvider
     {
-        public HrtID CreateID(HrtID.IDType type) => HrtID.Empty;
+        public HrtId CreateID(HrtId.IdType type) => HrtId.Empty;
         public uint GetAuthorityIdentifier() => 0;
-        public bool SignID(HrtID id) => false;
-        public bool VerifySignature(HrtID id) => false;
+        public bool SignID(HrtId id) => false;
+        public bool VerifySignature(HrtId id) => false;
     }
+
+
+}
+
+public interface IDataBaseTable<T>
+{
+    public bool TryGet(HrtId id, [NotNullWhen(true)] out T? value);
+
 }

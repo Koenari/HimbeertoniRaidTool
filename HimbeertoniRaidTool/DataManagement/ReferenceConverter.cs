@@ -4,71 +4,34 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
-internal class CharacterReferenceConverter : JsonConverter<Character>
-{
-    private readonly CharacterDB _charDB;
-    public CharacterReferenceConverter(CharacterDB charDB)
-    {
-        _charDB = charDB;
-    }
 
-    public override void WriteJson(JsonWriter writer, Character? value, JsonSerializer serializer)
+internal class HrtIdReferenceConverter<T> : JsonConverter<T> where T : IHasHrtId
+{
+    private readonly IDataBaseTable<T> _db;
+
+    internal HrtIdReferenceConverter(IDataBaseTable<T> db)
+    {
+        _db = db;
+    }
+    public override void WriteJson(JsonWriter writer, T? value, JsonSerializer serializer)
     {
         if (value == null)
         {
             writer.WriteNull();
             return;
         }
-        serializer.Serialize(writer, value.LocalID, typeof(HrtID));
+        serializer.Serialize(writer, value.LocalId, typeof(HrtId));
     }
 
-    public override Character? ReadJson(JsonReader reader, Type objectType, Character? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override T? ReadJson(JsonReader reader, Type objectType, T? existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        if (reader.TokenType == JsonToken.Null || objectType != typeof(Character))
-            return null;
-        HrtID? id = JObject.Load(reader).ToObject<HrtID>();
+        if (reader.TokenType == JsonToken.Null || objectType != typeof(T))
+            return default;
+
+        var id = JObject.Load(reader).ToObject<HrtId>();
         if (id is null)
-            return null;
-        _charDB.TryGetCharacter(id, out Character? result);
+            return default;
+        _db.TryGet(id, out T? result);
         return result;
     }
 }
-internal class GearsetReferenceConverter : JsonConverter<GearSet>
-{
-    private readonly GearDB _gearDB;
-
-    internal GearsetReferenceConverter(GearDB gearDB)
-    {
-        _gearDB = gearDB;
-    }
-    public override void WriteJson(JsonWriter writer, GearSet? value, JsonSerializer serializer)
-    {
-        if (value == null)
-        {
-            writer.WriteNull();
-            return;
-        }
-        serializer.Serialize(writer, value.LocalID, typeof(HrtID));
-    }
-
-    public override GearSet? ReadJson(JsonReader reader, Type objectType, GearSet? existingValue, bool hasExistingValue, JsonSerializer serializer)
-    {
-        if (reader.TokenType == JsonToken.Null)
-            return null;
-        JObject jt = JObject.Load(reader);
-
-        HrtID? id = jt.ToObject<HrtID>();
-        if (id is null)
-            return null;
-        if (!_gearDB.TryGetSet(id, out GearSet? result))
-        {
-            result = new()
-            {
-                LocalID = id,
-            };
-            _gearDB.AddSet(result);
-        }
-        return result;
-    }
-}
-

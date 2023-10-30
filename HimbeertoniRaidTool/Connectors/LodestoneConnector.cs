@@ -250,7 +250,7 @@ internal class NetStoneBase
             LodestoneCharacter? foundCharacter;
             if (c.LodestoneID == 0)
             {
-                if (c.HomeWorldID == 0 || homeWorld == null)
+                if (c.HomeWorldId == 0 || homeWorld == null)
                     return null;
                 ServiceManager.PluginLog.Info("Using name and home world to search...");
                 CharacterSearchPage? netStoneResponse = await _lodestoneClient.SearchCharacter(new CharacterSearchQuery
@@ -299,8 +299,5 @@ internal class NetStoneBase
         return result.Result;
     }
 
-    private static async Task<LodestoneClient> GetLodestoneClientAsync()
-    {
-        return await LodestoneClient.GetClientAsync();
-    }
+    private static async Task<LodestoneClient> GetLodestoneClientAsync() => await LodestoneClient.GetClientAsync();
 }

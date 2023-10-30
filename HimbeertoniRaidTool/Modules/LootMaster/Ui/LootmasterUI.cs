@@ -570,7 +570,7 @@ internal class GetCharacterFromDbWindow : HrtWindow
         ImGui.InputText(Localize("Player Name", "Player Name"), ref _nickName, 50);
         if (ImGui.ListBox("World", ref _worldSelectIndex, _worldNames, _worldNames.Length))
         {
-            var list = ServiceManager.HrtDataManager.CharDB.GetKnownChracters(_worlds[_worldSelectIndex]);
+            var list = ServiceManager.HrtDataManager.CharDB.GetKnownCharacters(_worlds[_worldSelectIndex]);
             _characterNames = list.ToArray();
             Array.Sort(_characterNames);
         }
@@ -581,8 +581,8 @@ internal class GetCharacterFromDbWindow : HrtWindow
             _p.NickName = _nickName;
             Character? c = _p.MainChar;
             c.Name = _characterNames[_characterNameIndex];
-            c.HomeWorldID = _worlds[_worldSelectIndex];
-            if (ServiceManager.HrtDataManager.CharDB.SearchCharacter(c.HomeWorldID, c.Name, out c))
+            c.HomeWorldId = _worlds[_worldSelectIndex];
+            if (ServiceManager.HrtDataManager.CharDB.SearchCharacter(c.HomeWorldId, c.Name, out c))
                 _p.MainChar = c;
             Hide();
         }
