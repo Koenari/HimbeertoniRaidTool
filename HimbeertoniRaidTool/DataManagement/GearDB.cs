@@ -7,17 +7,17 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class GearDB : IDataBaseTable<GearSet>
+internal class GearDb : IDataBaseTable<GearSet>
 {
-    private readonly HrtDataManager DataManager;
-    private readonly Dictionary<HrtId, GearSet> Data = new();
-    private readonly Dictionary<string, HrtId> EtroLookup = new();
-    private bool EtroHasUpdated = false;
-    private ulong NextSequence = 0;
+    private readonly HrtDataManager _dataManager;
+    private readonly Dictionary<HrtId, GearSet> _data = new();
+    private readonly Dictionary<string, HrtId> _etroLookup = new();
+    private bool _etroHasUpdated = false;
+    private ulong _nextSequence = 0;
 
-    internal GearDB(HrtDataManager dataManager, string gearData, JsonSerializerSettings settings)
+    internal GearDb(HrtDataManager dataManager, string gearData, JsonSerializerSettings settings)
     {
-        DataManager = dataManager;
+        _dataManager = dataManager;
         var data = JsonConvert.DeserializeObject<List<GearSet>>(gearData, settings);
         if (data is null)
             ServiceManager.PluginLog.Error("Could not load GearDB");
@@ -25,36 +25,36 @@ internal class GearDB : IDataBaseTable<GearSet>
         {
             foreach (GearSet set in data)
             {
-                Data.TryAdd(set.LocalId, set);
+                _data.TryAdd(set.LocalId, set);
                 if (set.ManagedBy == GearSetManager.Etro)
-                    EtroLookup.TryAdd(set.EtroID, set.LocalId);
-                NextSequence = Math.Max(NextSequence, set.LocalId.Sequence);
+                    _etroLookup.TryAdd(set.EtroId, set.LocalId);
+                _nextSequence = Math.Max(_nextSequence, set.LocalId.Sequence);
             }
         }
-        ServiceManager.PluginLog.Information($"DB contains {Data.Count} gear sets");
-        NextSequence++;
+        ServiceManager.PluginLog.Information($"DB contains {_data.Count} gear sets");
+        _nextSequence++;
     }
-    internal ulong GetNextSequence() => NextSequence++;
+    internal ulong GetNextSequence() => _nextSequence++;
     internal bool AddSet(GearSet gearSet)
     {
         if (gearSet.LocalId.IsEmpty)
-            gearSet.LocalId = DataManager.IDProvider.CreateID(HrtId.IdType.Gear);
-        return Data.TryAdd(gearSet.LocalId, gearSet);
+            gearSet.LocalId = _dataManager.IdProvider.CreateId(HrtId.IdType.Gear);
+        return _data.TryAdd(gearSet.LocalId, gearSet);
     }
     public bool TryGet(HrtId id, [NotNullWhen(true)] out GearSet? gearSet)
     {
         gearSet = null;
-        return !id.IsEmpty && Data.TryGetValue(id, out gearSet);
+        return !id.IsEmpty && _data.TryGetValue(id, out gearSet);
     }
-    internal bool TryGetSetByEtroID(string etroID, [NotNullWhen(true)] out GearSet? set)
+    internal bool TryGetSetByEtroId(string etroId, [NotNullWhen(true)] out GearSet? set)
     {
-        if (EtroLookup.TryGetValue(etroID, out HrtId? id))
+        if (_etroLookup.TryGetValue(etroId, out HrtId? id))
             return TryGet(id, out set);
-        id = Data.FirstOrDefault(s => s.Value.EtroID == etroID).Key;
+        id = _data.FirstOrDefault(s => s.Value.EtroId == etroId).Key;
         if (id is not null)
         {
-            EtroLookup.Add(etroID, id);
-            set = Data[id];
+            _etroLookup.Add(etroId, id);
+            set = _data[id];
             return true;
         }
         set = null;
@@ -62,20 +62,20 @@ internal class GearDB : IDataBaseTable<GearSet>
     }
     internal void UpdateEtroSets(bool updateAll, int maxAgeInDays)
     {
-        if (EtroHasUpdated)
+        if (_etroHasUpdated)
             return;
-        EtroHasUpdated = true;
+        _etroHasUpdated = true;
         ServiceManager.TaskManager.RegisterTask(new HrtTask(() => UpdateEtroSetsAsync(updateAll, maxAgeInDays), LogUpdates, "Update etro sets"));
     }
 
-    internal void Prune(CharacterDB charDb)
+    internal void Prune(CharacterDb charDb)
     {
         ServiceManager.PluginLog.Debug("Begin pruning of gear database.");
-        foreach (HrtId toPrune in charDb.FindOrphanedGearSets(Data.Keys))
+        foreach (HrtId toPrune in charDb.FindOrphanedGearSets(_data.Keys))
         {
-            if (!Data.TryGetValue(toPrune, out GearSet? set)) continue;
+            if (!_data.TryGetValue(toPrune, out GearSet? set)) continue;
             ServiceManager.PluginLog.Information($"Removed {set.Name} ({set.LocalId}) from DB");
-            Data.Remove(toPrune);
+            _data.Remove(toPrune);
         }
         ServiceManager.PluginLog.Debug("Finished pruning of gear database.");
     }
@@ -88,7 +88,7 @@ internal class GearDB : IDataBaseTable<GearSet>
         DateTime oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
-        foreach (GearSet gearSet in Data.Values.Where(set => set.ManagedBy == GearSetManager.Etro))
+        foreach (GearSet gearSet in _data.Values.Where(set => set.ManagedBy == GearSetManager.Etro))
         {
             totalCount++;
             if (gearSet.IsEmpty || gearSet.EtroFetchDate < oldestValid && updateAll)
@@ -103,5 +103,5 @@ internal class GearDB : IDataBaseTable<GearSet>
         return new HrtUiMessage($"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated");
 
     }
-    internal string Serialize(JsonSerializerSettings settings) => JsonConvert.SerializeObject(Data.Values, settings);
+    internal string Serialize(JsonSerializerSettings settings) => JsonConvert.SerializeObject(_data.Values, settings);
 }

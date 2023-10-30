@@ -173,18 +173,18 @@ internal class LootmasterUi : HrtWindow
                 AddChild(new QuickCompareWindow(CurConfig, playableClass));
             //BiS
             ImGui.SameLine();
-            ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvl")}: {playableClass.BIS.ItemLevel:D3}");
+            ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvl")}: {playableClass.Bis.ItemLevel:D3}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS",
-                    $"{Localize("Edit", "Edit")} {playableClass.BIS.Name}"))
-                AddChild(new EditGearSetWindow(playableClass.BIS, playableClass.Job, g => playableClass.BIS = g));
+                    $"{Localize("Edit", "Edit")} {playableClass.Bis.Name}"))
+                AddChild(new EditGearSetWindow(playableClass.Bis, playableClass.Job, g => playableClass.Bis = g));
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.BIS.EtroID,
-                    string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.BIS.Name),
-                    playableClass.BIS is { ManagedBy: GearSetManager.Etro, EtroID.Length: > 0 }))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.Bis.EtroId,
+                    string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.Bis.Name),
+                    playableClass.Bis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }))
                 ServiceManager.TaskManager.RegisterTask(
-                    new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(playableClass.BIS),
-                        HandleMessage, $"Update {playableClass.BIS.Name} ({playableClass.BIS.EtroID}) from etro"));
+                    new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(playableClass.Bis),
+                        HandleMessage, $"Update {playableClass.Bis.Name} ({playableClass.Bis.EtroId}) from etro"));
             ImGui.Spacing();
             ImGui.PopID();
         }
@@ -195,7 +195,7 @@ internal class LootmasterUi : HrtWindow
          */
         ImGui.NextColumn();
         if (curClass is not null)
-            LmUiHelpers.DrawStatTable(curClass, curClass.Gear, curClass.BIS,
+            LmUiHelpers.DrawStatTable(curClass, curClass.Gear, curClass.Bis,
                 Localize("Current", "Current"), " ", Localize("BiS", "BiS"),
                 LmUiHelpers.StatTableCompareMode.DoCompare | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
 
@@ -332,13 +332,13 @@ internal class LootmasterUi : HrtWindow
         {
             if (ImGuiHelper.Button(Localize("From current Group", "From current Group"), null))
             {
-                _lootMaster.AddGroup(new RaidGroup(Localize("AutoCreatedGroupName", "Auto Created")), true);
+                LootMasterModule.AddGroup(new RaidGroup(Localize("AutoCreatedGroupName", "Auto Created")), true);
                 ImGui.CloseCurrentPopup();
             }
 
             if (ImGuiHelper.Button(Localize("From scratch", "From scratch"),
                     Localize("Add empty group", "Add empty group")))
-                AddChild(new EditGroupWindow(new RaidGroup(), group => _lootMaster.AddGroup(group, false)));
+                AddChild(new EditGroupWindow(new RaidGroup(), group => LootMasterModule.AddGroup(group, false)));
             ImGui.EndPopup();
         }
 
@@ -375,7 +375,7 @@ internal class LootmasterUi : HrtWindow
                 //Gear Column
                 ImGui.PushID("GearButtons");
                 GearSet gear = curJob.Gear;
-                GearSet bis = curJob.BIS;
+                GearSet bis = curJob.Bis;
                 ImGui.TableNextColumn();
                 float curY = ImGui.GetCursorPosY();
                 ImGui.SetCursorPosY(curY + 4 * ScaleFactor);
@@ -397,25 +397,25 @@ internal class LootmasterUi : HrtWindow
                     {
                         Process.Start(new ProcessStartInfo
                         {
-                            FileName = EtroConnector.GearsetWebBaseUrl + bis.EtroID,
+                            FileName = EtroConnector.GEARSET_WEB_BASE_URL + bis.EtroId,
                             UseShellExecute = true,
                         });
                         return new HrtUiMessage("");
                     }, _ => { }, "Open Etro"));
-                ImGuiHelper.AddTooltip(EtroConnector.GearsetWebBaseUrl + bis.EtroID);
+                ImGuiHelper.AddTooltip(EtroConnector.GEARSET_WEB_BASE_URL + bis.EtroId);
 
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(curY);
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditBiSGear", $"Edit {bis.Name}", true, ButtonSize))
-                    AddChild(new EditGearSetWindow(bis, curJob.Job, g => curJob.BIS = g));
+                    AddChild(new EditGearSetWindow(bis, curJob.Job, g => curJob.Bis = g));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(curY);
-                if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.EtroID,
+                if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.EtroId,
                         string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), bis.Name),
-                        bis is { ManagedBy: GearSetManager.Etro, EtroID.Length: > 0 }, ButtonSize))
+                        bis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }, ButtonSize))
                     ServiceManager.TaskManager.RegisterTask(
                         new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(bis), HandleMessage,
-                            $"Update {bis.Name} ({bis.EtroID}) from etro"));
+                            $"Update {bis.Name} ({bis.EtroId}) from etro"));
                 ImGui.PopID();
                 foreach ((GearSetSlot slot, (GearItem, GearItem) itemTuple) in curJob.ItemTuples)
                 {
@@ -556,7 +556,7 @@ internal class GetCharacterFromDbWindow : HrtWindow
     internal GetCharacterFromDbWindow(ref Player p) : base($"GetCharacterFromDBWindow{p.NickName}")
     {
         _p = p;
-        _worlds = ServiceManager.HrtDataManager.CharDB.GetUsedWorlds().ToArray();
+        _worlds = ServiceManager.HrtDataManager.CharDb.GetUsedWorlds().ToArray();
         _worldNames = Array.ConvertAll(_worlds,
             x => ServiceManager.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name
                 .RawString ?? "");
@@ -570,7 +570,7 @@ internal class GetCharacterFromDbWindow : HrtWindow
         ImGui.InputText(Localize("Player Name", "Player Name"), ref _nickName, 50);
         if (ImGui.ListBox("World", ref _worldSelectIndex, _worldNames, _worldNames.Length))
         {
-            var list = ServiceManager.HrtDataManager.CharDB.GetKnownCharacters(_worlds[_worldSelectIndex]);
+            var list = ServiceManager.HrtDataManager.CharDb.GetKnownCharacters(_worlds[_worldSelectIndex]);
             _characterNames = list.ToArray();
             Array.Sort(_characterNames);
         }
@@ -582,7 +582,7 @@ internal class GetCharacterFromDbWindow : HrtWindow
             Character? c = _p.MainChar;
             c.Name = _characterNames[_characterNameIndex];
             c.HomeWorldId = _worlds[_worldSelectIndex];
-            if (ServiceManager.HrtDataManager.CharDB.SearchCharacter(c.HomeWorldId, c.Name, out c))
+            if (ServiceManager.HrtDataManager.CharDb.SearchCharacter(c.HomeWorldId, c.Name, out c))
                 _p.MainChar = c;
             Hide();
         }
@@ -593,7 +593,7 @@ internal class GetCharacterFromDbWindow : HrtWindow
     }
 }
 
-internal class InventoryWindow : HRTWindowWithModalChild
+internal class InventoryWindow : HrtWindowWithModalChild
 {
     private readonly Inventory _inv;
 
@@ -605,10 +605,10 @@ internal class InventoryWindow : HRTWindowWithModalChild
         _inv = inv;
         foreach (InstanceWithLoot boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
         foreach (HrtItem item in boss.GuaranteedItems)
-            if (!_inv.Contains(item.ID))
+            if (!_inv.Contains(item.Id))
                 _inv[_inv.FirstFreeSlot()] = new InventoryEntry(item)
                 {
-                    quantity = 0,
+                    Quantity = 0,
                 };
     }
 
@@ -624,10 +624,10 @@ internal class InventoryWindow : HRTWindowWithModalChild
             ImGui.SameLine();
             ImGui.Text(item.Name);
             ImGui.SameLine();
-            InventoryEntry entry = _inv[_inv.IndexOf(item.ID)];
+            InventoryEntry entry = _inv[_inv.IndexOf(item.Id)];
             ImGui.SetNextItemWidth(150f * ScaleFactor);
-            ImGui.InputInt($"##{item.Name}", ref entry.quantity);
-            _inv[_inv.IndexOf(item.ID)] = entry;
+            ImGui.InputInt($"##{item.Name}", ref entry.Quantity);
+            _inv[_inv.IndexOf(item.Id)] = entry;
         }
 
         ImGui.Separator();

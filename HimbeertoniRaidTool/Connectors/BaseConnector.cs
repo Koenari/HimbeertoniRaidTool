@@ -26,30 +26,30 @@ internal abstract class WebConnector
             _cachedRequests.TryRemove(req.Key, out _);
     }
 
-    protected string? MakeWebRequest(string URL)
+    protected string? MakeWebRequest(string url)
     {
         UpdateCache();
-        if (_cachedRequests.TryGetValue(URL, out (DateTime time, string response) result))
+        if (_cachedRequests.TryGetValue(url, out (DateTime time, string response) result))
             return result.response;
-        var requestTask = MakeAsyncWebRequest(URL);
+        var requestTask = MakeAsyncWebRequest(url);
         requestTask.Wait();
         return requestTask.Result;
     }
 
-    private async Task<string?> MakeAsyncWebRequest(string URL)
+    private async Task<string?> MakeAsyncWebRequest(string url)
     {
-        while (RateLimitHit() || _currentRequests.ContainsKey(URL))
+        while (RateLimitHit() || _currentRequests.ContainsKey(url))
             Thread.Sleep(1000);
-        if (_cachedRequests.TryGetValue(URL, out (DateTime time, string response) cached))
+        if (_cachedRequests.TryGetValue(url, out (DateTime time, string response) cached))
             return cached.response;
-        _currentRequests.TryAdd(URL, DateTime.Now);
+        _currentRequests.TryAdd(url, DateTime.Now);
         try
         {
             HttpClient client = new();
-            HttpResponseMessage response = await client.GetAsync(URL);
+            HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode();
             string result = await response.Content.ReadAsStringAsync();
-            _cachedRequests.TryAdd(URL, (DateTime.Now, result));
+            _cachedRequests.TryAdd(url, (DateTime.Now, result));
             return result;
         }
         catch (Exception e) when (e is HttpRequestException or UriFormatException or TaskCanceledException)
@@ -59,7 +59,7 @@ internal abstract class WebConnector
         }
         finally
         {
-            _currentRequests.TryRemove(URL, out _);
+            _currentRequests.TryRemove(url, out _);
         }
     }
 

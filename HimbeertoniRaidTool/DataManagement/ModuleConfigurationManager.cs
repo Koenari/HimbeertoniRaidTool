@@ -3,15 +3,17 @@ using Dalamud.Plugin;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
+
 internal interface IModuleConfigurationManager
 {
     bool SaveConfiguration<T>(string internalName, T configData) where T : new();
     bool LoadConfiguration<T>(string internalName, ref T configData) where T : new();
 }
+
 internal class ModuleConfigurationManager : IModuleConfigurationManager
 {
-    private readonly DirectoryInfo ModuleConfigDir;
-    private static readonly JsonSerializerSettings JsonSerializerSettings = new()
+    private readonly DirectoryInfo _moduleConfigDir;
+    private static readonly JsonSerializerSettings _jsonSerializerSettings = new()
     {
         Formatting = Formatting.Indented,
         TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
@@ -21,29 +23,29 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
     };
     internal ModuleConfigurationManager(DalamudPluginInterface pluginInterface)
     {
-        ModuleConfigDir = new(pluginInterface.ConfigDirectory.FullName + "\\moduleConfigs\\");
+        _moduleConfigDir = new DirectoryInfo(pluginInterface.ConfigDirectory.FullName + "\\moduleConfigs\\");
         try
         {
-            if (!ModuleConfigDir.Exists)
-                ModuleConfigDir.Create();
+            if (!_moduleConfigDir.Exists)
+                _moduleConfigDir.Create();
         }
         catch (Exception) { }
     }
 
     public bool SaveConfiguration<T>(string internalName, T configData) where T : new()
     {
-        FileInfo file = new(ModuleConfigDir.FullName + internalName + ".json");
-        string json = JsonConvert.SerializeObject(configData, JsonSerializerSettings);
+        FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
+        string json = JsonConvert.SerializeObject(configData, _jsonSerializerSettings);
         return HrtDataManager.TryWrite(file, json);
     }
     public bool LoadConfiguration<T>(string internalName, ref T configData) where T : new()
     {
-        FileInfo file = new(ModuleConfigDir.FullName + internalName + ".json");
+        FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
         if (file.Exists)
         {
             if (!HrtDataManager.TryRead(file, out string json))
                 return false;
-            var fromJson = JsonConvert.DeserializeObject<T>(json, JsonSerializerSettings);
+            var fromJson = JsonConvert.DeserializeObject<T>(json, _jsonSerializerSettings);
             if (fromJson != null)
             {
                 configData = fromJson;
@@ -55,11 +57,12 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
         return true;
     }
 }
+
 internal class NotLoadedModuleConfigurationManager : IModuleConfigurationManager
 {
     public bool LoadConfiguration<T>(string internalName, ref T configData) where T : new()
-     => false;
+        => false;
 
     public bool SaveConfiguration<T>(string internalName, T configData) where T : new()
-     => false;
+        => false;
 }

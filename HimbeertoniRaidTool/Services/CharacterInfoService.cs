@@ -17,7 +17,7 @@ internal unsafe class CharacterInfoService
     private readonly Dictionary<string, uint> _cache = new();
     private readonly HashSet<string> _notFound = new();
     private DateTime _lastPrune;
-    private static readonly TimeSpan PruneInterval = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan _pruneInterval = TimeSpan.FromSeconds(10);
 
     internal CharacterInfoService(IObjectTable gameObjects, IPartyList partyList)
     {
@@ -27,10 +27,7 @@ internal unsafe class CharacterInfoService
         _infoModule = Framework.Instance()->GetUiModule()->GetInfoModule();
     }
 
-    public long GetLocalPlayerContentId()
-    {
-        return (long)_infoModule->LocalContentId;
-    }
+    public long GetLocalPlayerContentId() => (long)_infoModule->LocalContentId;
 
     public long GetContentId(PlayerCharacter? character)
     {
@@ -40,7 +37,7 @@ internal unsafe class CharacterInfoService
         {
             bool found =
                 partyMember.ObjectId == character.ObjectId
-                || (partyMember.Name.Equals(character.Name) && partyMember.World.Id == character.CurrentWorld.Id);
+                || partyMember.Name.Equals(character.Name) && partyMember.World.Id == character.CurrentWorld.Id;
             if (found)
                 return partyMember.ContentId;
         }
@@ -102,7 +99,7 @@ internal unsafe class CharacterInfoService
 
     private void Update()
     {
-        if (DateTime.Now - _lastPrune <= PruneInterval) return;
+        if (DateTime.Now - _lastPrune <= _pruneInterval) return;
         _lastPrune = DateTime.Now;
         if (_notFound.Count == 0) return;
         _notFound.Clear();

@@ -9,16 +9,16 @@ namespace HimbeertoniRaidTool.Plugin.Connectors;
 
 internal class EtroConnector : WebConnector
 {
-    public const string WebBaseUrl = "https://etro.gg/";
-    public const string ApiBaseUrl = WebBaseUrl + "api/";
-    public const string GearsetApiBaseUrl = ApiBaseUrl + "gearsets/";
-    public const string GearsetWebBaseUrl = WebBaseUrl + "gearset/";
-    public const string MateriaApiBaseUrl = ApiBaseUrl + "materia/";
-    public const string BisApiBaseUrl = GearsetApiBaseUrl + "bis/";
+    public const string WEB_BASE_URL = "https://etro.gg/";
+    public const string API_BASE_URL = WEB_BASE_URL + "api/";
+    public const string GEARSET_API_BASE_URL = API_BASE_URL + "gearsets/";
+    public const string GEARSET_WEB_BASE_URL = WEB_BASE_URL + "gearset/";
+    public const string MATERIA_API_BASE_URL = API_BASE_URL + "materia/";
+    public const string BIS_API_BASE_URL = GEARSET_API_BASE_URL + "bis/";
     private readonly Lazy<Dictionary<uint, (MateriaCategory, MateriaLevel)>> _lazyMateriaCache;
-    private readonly Dictionary<Job,Dictionary<string,string>> _bisCache;
-    public IReadOnlyDictionary<string,string> GetBiS(Job  job) => _bisCache[job];
-    public string GetDefaultBiS(Job  job) => _bisCache[job].Keys.FirstOrDefault("");
+    private readonly Dictionary<Job, Dictionary<string, string>> _bisCache;
+    public IReadOnlyDictionary<string, string> GetBiS(Job job) => _bisCache[job];
+    public string GetDefaultBiS(Job job) => _bisCache[job].Keys.FirstOrDefault("");
     private Dictionary<uint, (MateriaCategory, MateriaLevel)> MateriaCache => _lazyMateriaCache.Value;
     private static JsonSerializerSettings JsonSettings => new()
     {
@@ -32,58 +32,58 @@ internal class EtroConnector : WebConnector
         MissingMemberHandling = MissingMemberHandling.Ignore,
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
     };
-    internal EtroConnector(TaskManager tm) : base(new(4, new(0, 0, 30)))
+    internal EtroConnector(TaskManager tm) : base(new RateLimit(4, new TimeSpan(0, 0, 30)))
     {
         _lazyMateriaCache = new Lazy<Dictionary<uint, (MateriaCategory, MateriaLevel)>>(CreateMateriaCache, true);
-        _bisCache = new Dictionary<Job, Dictionary<string,string>>();
-        foreach(Job job in Enum.GetValues<Job>())
-            _bisCache.Add(job,new Dictionary<string, string>());
+        _bisCache = new Dictionary<Job, Dictionary<string, string>>();
+        foreach (Job job in Enum.GetValues<Job>())
+            _bisCache.Add(job, new Dictionary<string, string>());
         tm.RegisterTask(new HrtTask(FillBisList,
             (msg) =>
             {
-                if(msg.MessageType == HrtUiMessageType.Failure)
+                if (msg.MessageType == HrtUiMessageType.Failure)
                     ServiceManager.PluginLog.Error(msg.Message);
                 else
                     ServiceManager.PluginLog.Info(msg.Message);
-            },"Load BiS list from etro"));
+            }, "Load BiS list from etro"));
     }
 
     private HrtUiMessage FillBisList()
     {
         HrtUiMessage failureMessage = new("Error fetching BiS list from etro", HrtUiMessageType.Failure);
-        string? jsonResponse = MakeWebRequest(BisApiBaseUrl);
+        string? jsonResponse = MakeWebRequest(BIS_API_BASE_URL);
         if (jsonResponse == null)
             return failureMessage;
         var sets = JsonConvert.DeserializeObject<EtroGearSet[]>(jsonResponse, JsonSettings);
-        if(sets == null) return failureMessage;
+        if (sets == null) return failureMessage;
         foreach (EtroGearSet set in sets)
         {
-            if(set.id != null)
+            if (set.id != null)
                 _bisCache[set.job][set.id] = set.name ?? set.id;
         }
-        return new HrtUiMessage("Successfully loaded BiS list from Etro",HrtUiMessageType.Success);
+        return new HrtUiMessage("Successfully loaded BiS list from Etro", HrtUiMessageType.Success);
     }
 
     private Dictionary<uint, (MateriaCategory, MateriaLevel)> CreateMateriaCache()
     {
         Dictionary<uint, (MateriaCategory, MateriaLevel)> materiaCache = new();
-        string? jsonResponse = MakeWebRequest(MateriaApiBaseUrl);
-        if(jsonResponse == null) return materiaCache;
+        string? jsonResponse = MakeWebRequest(MATERIA_API_BASE_URL);
+        if (jsonResponse == null) return materiaCache;
         var matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse, JsonSettings);
         if (matList == null) return materiaCache;
-        foreach (var mat in matList)
-            for (byte i = 0; i < mat.tiers.Length; i++)
-                materiaCache.Add(mat.tiers[i].id, ((MateriaCategory)mat.id, (MateriaLevel)i));
+        foreach (EtroMateria? mat in matList)
+            for (byte i = 0; i < mat.Tiers.Length; i++)
+                materiaCache.Add(mat.Tiers[i].Id, ((MateriaCategory)mat.Id, (MateriaLevel)i));
         return materiaCache;
     }
 
     public HrtUiMessage GetGearSet(GearSet set)
     {
         HrtUiMessage errorMessage = new($"Could not update set {set.Name}", HrtUiMessageType.Failure);
-        if (set.EtroID.Equals(""))
+        if (set.EtroId.Equals(""))
             return errorMessage;
-        errorMessage.Message = $"{errorMessage.Message} ({set.EtroID})";
-        string? jsonResponse = MakeWebRequest(GearsetApiBaseUrl + set.EtroID);
+        errorMessage.Message = $"{errorMessage.Message} ({set.EtroId})";
+        string? jsonResponse = MakeWebRequest(GEARSET_API_BASE_URL + set.EtroId);
         if (jsonResponse == null)
             return errorMessage;
         var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);
@@ -111,12 +111,12 @@ internal class EtroConnector : WebConnector
             {
                 IsHq = ServiceManager.ItemInfo.CanBeCrafted(id),
             };
-            string idString = id + (slot switch
+            string idString = id + slot switch
             {
                 GearSetSlot.Ring1 => "L",
                 GearSetSlot.Ring2 => "R",
                 _ => "",
-            });
+            };
             if (!(etroSet.materia?.TryGetValue(idString, out var materia) ?? false)) return;
             foreach (uint? matId in materia.Values.Where(matId => matId.HasValue))
             {
@@ -124,14 +124,14 @@ internal class EtroConnector : WebConnector
             }
         }
     }
-    
+
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("Style", "IDE1006:Naming Styles")]
     internal class EtroGearSet
     {
 
         public string? id { get; set; }
-       
+
         public string? jobAbbrev { get; set; }
 
         public Job job
@@ -146,7 +146,7 @@ internal class EtroConnector : WebConnector
                 {
                     return Job.ADV;
                 }
-                
+
             }
         }
 
@@ -166,27 +166,28 @@ internal class EtroConnector : WebConnector
         public uint fingerL { get; set; }
         public uint fingerR { get; set; }
     }
+
     private class EtroMateriaTier
     {
-        public ushort id { get; set; }
+        public ushort Id { get; set; }
     }
 
 
 
     private class EtroMateria
     {
-        public uint id { get; set; }
-        public EtroMateriaTier tier1 { get => tiers[0]; set => tiers[0] = value; }
-        public EtroMateriaTier tier2 { get => tiers[1]; set => tiers[1] = value; }
-        public EtroMateriaTier tier3 { get => tiers[2]; set => tiers[2] = value; }
-        public EtroMateriaTier tier4 { get => tiers[3]; set => tiers[3] = value; }
-        public EtroMateriaTier tier5 { get => tiers[4]; set => tiers[4] = value; }
-        public EtroMateriaTier tier6 { get => tiers[5]; set => tiers[5] = value; }
-        public EtroMateriaTier tier7 { get => tiers[6]; set => tiers[6] = value; }
-        public EtroMateriaTier tier8 { get => tiers[7]; set => tiers[7] = value; }
-        public EtroMateriaTier tier9 { get => tiers[8]; set => tiers[8] = value; }
-        public EtroMateriaTier tier10 { get => tiers[9]; set => tiers[9] = value; }
+        public uint Id { get; set; }
+        public EtroMateriaTier Tier1 { get => Tiers[0]; set => Tiers[0] = value; }
+        public EtroMateriaTier Tier2 { get => Tiers[1]; set => Tiers[1] = value; }
+        public EtroMateriaTier Tier3 { get => Tiers[2]; set => Tiers[2] = value; }
+        public EtroMateriaTier Tier4 { get => Tiers[3]; set => Tiers[3] = value; }
+        public EtroMateriaTier Tier5 { get => Tiers[4]; set => Tiers[4] = value; }
+        public EtroMateriaTier Tier6 { get => Tiers[5]; set => Tiers[5] = value; }
+        public EtroMateriaTier Tier7 { get => Tiers[6]; set => Tiers[6] = value; }
+        public EtroMateriaTier Tier8 { get => Tiers[7]; set => Tiers[7] = value; }
+        public EtroMateriaTier Tier9 { get => Tiers[8]; set => Tiers[8] = value; }
+        public EtroMateriaTier Tier10 { get => Tiers[9]; set => Tiers[9] = value; }
         [JsonIgnore]
-        public EtroMateriaTier[] tiers = new EtroMateriaTier[10];
+        public EtroMateriaTier[] Tiers = new EtroMateriaTier[10];
     }
 }

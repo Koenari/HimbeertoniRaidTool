@@ -10,47 +10,47 @@ namespace HimbeertoniRaidTool.Plugin;
 
 public class Configuration : IPluginConfiguration, IDisposable
 {
-    private bool FullyLoaded = false;
-    private readonly int TargetVersion = 5;
+    private bool _fullyLoaded = false;
+    private readonly int _targetVersion = 5;
     public int Version { get; set; } = 5;
-    private readonly Dictionary<Type, dynamic> Configurations = new();
-    private readonly ConfigUI Ui;
+    private readonly Dictionary<Type, dynamic> _configurations = new();
+    private readonly ConfigUi _ui;
 
     public Configuration()
     {
-        Ui = new ConfigUI(this);
+        _ui = new ConfigUi(this);
     }
 
     internal void AfterLoad()
     {
-        if (FullyLoaded)
+        if (_fullyLoaded)
             return;
         if (Version < 5)
             Version = 5;
-        FullyLoaded = true;
+        _fullyLoaded = true;
     }
 
     internal void Show()
     {
-        Ui.Show();
+        _ui.Show();
     }
 
-    internal bool RegisterConfig<T, S>(HRTConfiguration<T, S> config) where T : new() where S : IHrtConfigUi
+    internal bool RegisterConfig<T, S>(HrtConfiguration<T, S> config) where T : new() where S : IHrtConfigUi
     {
-        if (Configurations.ContainsKey(config.GetType()))
+        if (_configurations.ContainsKey(config.GetType()))
             return false;
-        Configurations.Add(config.GetType(), config);
+        _configurations.Add(config.GetType(), config);
         return ServiceManager.HrtDataManager.ModuleConfigurationManager.LoadConfiguration(config.ParentInternalName,
             ref config.Data);
     }
 
     internal void Save(bool saveAll = true)
     {
-        if (Version == TargetVersion)
+        if (Version == _targetVersion)
         {
             ServiceManager.PluginInterface.SavePluginConfig(this);
             if (saveAll)
-                foreach (dynamic? config in Configurations.Values)
+                foreach (dynamic? config in _configurations.Values)
                     config.Save();
         }
         else
@@ -61,15 +61,15 @@ public class Configuration : IPluginConfiguration, IDisposable
 
     public void Dispose()
     {
-        Ui.Dispose();
+        _ui.Dispose();
     }
 
-    public class ConfigUI : HrtWindow, IDisposable
+    public class ConfigUi : HrtWindow, IDisposable
     {
         private readonly WindowSystem _windowSystem;
         private readonly Configuration _configuration;
 
-        public ConfigUI(Configuration configuration) : base("HimbeerToniRaidToolConfiguration")
+        public ConfigUi(Configuration configuration) : base("HimbeerToniRaidToolConfiguration")
         {
             _windowSystem = new WindowSystem("HRTConfig");
             _windowSystem.AddWindow(this);
@@ -91,7 +91,7 @@ public class Configuration : IPluginConfiguration, IDisposable
 
         public override void OnOpen()
         {
-            foreach (dynamic config in _configuration.Configurations.Values)
+            foreach (dynamic config in _configuration._configurations.Values)
                 try
                 {
                     config.Ui?.OnShow();
@@ -103,7 +103,7 @@ public class Configuration : IPluginConfiguration, IDisposable
 
         public override void OnClose()
         {
-            foreach (dynamic config in _configuration.Configurations.Values)
+            foreach (dynamic config in _configuration._configurations.Values)
                 try
                 {
                     config.Ui?.OnHide();
@@ -121,7 +121,7 @@ public class Configuration : IPluginConfiguration, IDisposable
             if (ImGuiHelper.CancelButton())
                 Cancel();
             ImGui.BeginTabBar("Modules");
-            foreach (dynamic c in _configuration.Configurations.Values)
+            foreach (dynamic c in _configuration._configurations.Values)
                 try
                 {
                     if (c.Ui == null)
@@ -141,7 +141,7 @@ public class Configuration : IPluginConfiguration, IDisposable
 
         private void Save()
         {
-            foreach (dynamic c in _configuration.Configurations.Values)
+            foreach (dynamic c in _configuration._configurations.Values)
                 c.Ui?.Save();
             _configuration.Save();
             Hide();
@@ -149,21 +149,21 @@ public class Configuration : IPluginConfiguration, IDisposable
 
         private void Cancel()
         {
-            foreach (dynamic c in _configuration.Configurations.Values)
+            foreach (dynamic c in _configuration._configurations.Values)
                 c.Ui?.Cancel();
             Hide();
         }
     }
 }
 
-public abstract class HRTConfiguration<T, S> where T : new() where S : IHrtConfigUi
+public abstract class HrtConfiguration<T, S> where T : new() where S : IHrtConfigUi
 {
     public readonly string ParentInternalName;
     public readonly string ParentName;
     public T Data = new();
     public abstract S? Ui { get; }
 
-    public HRTConfiguration(string parentInternalName, string parentName)
+    public HrtConfiguration(string parentInternalName, string parentName)
     {
         ParentInternalName = parentInternalName;
         ParentName = parentName;

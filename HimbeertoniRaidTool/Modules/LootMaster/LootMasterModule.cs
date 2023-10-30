@@ -16,7 +16,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     //Interface Properties
     public string Name => "Loot Master";
     public string InternalName => "LootMaster";
-    public HRTConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi> Configuration => _config;
+    public HrtConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi> Configuration => _config;
     public string Description => "";
     public WindowSystem WindowSystem { get; }
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
@@ -63,7 +63,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     {
         if (ServiceManager.ClientState.IsLoggedIn)
             OnLogin();
-        ServiceManager.HrtDataManager.GearDB.UpdateEtroSets(Configuration.Data.UpdateEtroBisOnStartup,
+        ServiceManager.HrtDataManager.GearDb.UpdateEtroSets(Configuration.Data.UpdateEtroBisOnStartup,
             Configuration.Data.EtroUpdateIntervalDays);
     }
     public void OnLogin()
@@ -79,7 +79,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     {
 
     }
-    private void FillSoloChar(Player p, bool useSelf = false)
+    private static void FillSoloChar(Player p, bool useSelf = false)
     {
         PlayerCharacter? character;
         long contentId;
@@ -96,8 +96,8 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
 
         if (character == null)
             return;
-        CharacterDB characterDb = ServiceManager.HrtDataManager.CharDB;
-        ulong charId = Character.CalcCharID(contentId);
+        CharacterDb characterDb = ServiceManager.HrtDataManager.CharDb;
+        ulong charId = Character.CalcCharId(contentId);
         Character? c = null;
         if (charId > 0)
             characterDb.TryGetCharacterByCharId(charId, out c);
@@ -107,7 +107,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         {
             c = new Character(character.Name.TextValue, character.HomeWorld.Id)
             {
-                CharID = charId,
+                CharId = charId,
             };
             if (!characterDb.TryAddCharacter(c))
                 return;
@@ -118,20 +118,20 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         if (c.MainClass != null)
         {
             c.MainClass.Level = character.Level;
-            GearDB gearDb = ServiceManager.HrtDataManager.GearDB;
-            if (!gearDb.TryGetSetByEtroID(ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job), out GearSet? etroSet))
+            GearDb gearDb = ServiceManager.HrtDataManager.GearDb;
+            if (!gearDb.TryGetSetByEtroId(ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job), out GearSet? etroSet))
             {
                 etroSet = new GearSet(GearSetManager.Etro)
                 {
-                    EtroID = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job),
+                    EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job),
                 };
                 gearDb.AddSet(etroSet);
             }
-            c.MainClass.BIS = etroSet;
+            c.MainClass.Bis = etroSet;
         }
         ServiceManager.HrtDataManager.Save();
     }
-    internal void AddGroup(RaidGroup group, bool getGroupInfos)
+    internal static void AddGroup(RaidGroup group, bool getGroupInfos)
     {
         RaidGroups.Add(group);
         if (!getGroupInfos)
@@ -224,14 +224,14 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         {
             Player p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
-            if (!ServiceManager.HrtDataManager.CharDB.TryGetCharacterByCharId
-                    (Character.CalcCharID(pm.ContentId), out Character? character))
-                ServiceManager.HrtDataManager.CharDB.SearchCharacter
+            if (!ServiceManager.HrtDataManager.CharDb.TryGetCharacterByCharId
+                    (Character.CalcCharId(pm.ContentId), out Character? character))
+                ServiceManager.HrtDataManager.CharDb.SearchCharacter
                     (pm.World.Id, pm.Name.TextValue, out character);
             if (character is null)
             {
                 character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
-                ServiceManager.HrtDataManager.CharDB.TryAddCharacter(character);
+                ServiceManager.HrtDataManager.CharDb.TryAddCharacter(character);
                 bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
                 if (ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                 {
@@ -240,10 +240,10 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
                     GearSet bis = new()
                     {
                         ManagedBy = GearSetManager.Etro,
-                        EtroID = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c),
+                        EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c),
                     };
-                    ServiceManager.HrtDataManager.GearDB.AddSet(bis);
-                    p.MainChar.MainClass.BIS = bis;
+                    ServiceManager.HrtDataManager.GearDb.AddSet(bis);
+                    p.MainChar.MainClass.Bis = bis;
                 }
             }
             p.MainChar = character;

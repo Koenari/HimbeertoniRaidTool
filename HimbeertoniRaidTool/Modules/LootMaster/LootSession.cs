@@ -69,7 +69,7 @@ public class LootSession
             excluded.AddRange(excludeAddition);
         List<GearItem> possibleItems;
         if (droppedItem.IsGear)
-            possibleItems = new List<GearItem> { new(droppedItem.ID) };
+            possibleItems = new List<GearItem> { new(droppedItem.Id) };
         else if (droppedItem.IsContainerItem || droppedItem.IsExchangableItem)
             possibleItems = droppedItem.PossiblePurchases.ToList();
         else
@@ -109,17 +109,17 @@ public class LootSession
         {
             Inventory inv = p.MainChar.MainInventory;
             int idx;
-            if (inv.Contains(item.ID))
-                idx = inv.IndexOf(item.ID);
+            if (inv.Contains(item.Id))
+                idx = inv.IndexOf(item.Id);
             else
             {
                 idx = inv.FirstFreeSlot();
                 inv[idx] = new InventoryEntry(item)
                 {
-                    quantity = 0,
+                    Quantity = 0,
                 };
             }
-            inv[idx].quantity++;
+            inv[idx].Quantity++;
         }
         EvaluateFinished();
         return true;
@@ -140,7 +140,7 @@ public class LootSession
         if (c != null)
         {
             c.Gear[slot] = toAward;
-            foreach (HrtMateria m in c.BIS[slot].Materia)
+            foreach (HrtMateria m in c.Bis[slot].Materia)
                 c.Gear[slot].AddMateria(m);
         }
         EvaluateFinished();
@@ -157,6 +157,7 @@ public class LootSession
         Finished,
     }
 }
+
 public static class LootSessionExtensions
 {
     public static string FriendlyName(this LootSession.State state) => state switch
@@ -177,6 +178,7 @@ public static class LootSessionExtensions
     };
 
 }
+
 public enum LootCategory
 {
     Need = 0,
@@ -184,9 +186,10 @@ public enum LootCategory
     Pass = 20,
     Undecided = 30,
 }
+
 public class LootResult
 {
-    private static readonly Random Random = new(Guid.NewGuid().GetHashCode());
+    private static readonly Random _random = new(Guid.NewGuid().GetHashCode());
     private readonly LootSession _session;
     public LootCategory Category = LootCategory.Undecided;
     public readonly Player Player;
@@ -202,7 +205,7 @@ public class LootResult
     public readonly List<GearItem> NeededItems = new();
     public GearItem? AwardedItem;
     public bool ShouldIgnore => IsEvaluated && _session.RulingOptions.ActiveRules.Any(x => x.ShouldIgnore(this));
-    public LootResult(LootSession session, Player p, IEnumerable<GearItem> possibleItems,HrtItem droppedItem, Job? job = null)
+    public LootResult(LootSession session, Player p, IEnumerable<GearItem> possibleItems, HrtItem droppedItem, Job? job = null)
     {
         _session = session;
         Player = p;
@@ -213,11 +216,11 @@ public class LootResult
         {
             applicableJob = Player.MainChar.AddClass(Job);
 
-            ServiceManager.HrtDataManager.GearDB.AddSet(applicableJob.Gear);
-            ServiceManager.HrtDataManager.GearDB.AddSet(applicableJob.BIS);
+            ServiceManager.HrtDataManager.GearDb.AddSet(applicableJob.Gear);
+            ServiceManager.HrtDataManager.GearDb.AddSet(applicableJob.Bis);
         }
         ApplicableJob = applicableJob;
-        Roll = Random.Next(0, 101);
+        Roll = _random.Next(0, 101);
         //Filter items by job
         ApplicableItems = new HashSet<GearItem>(possibleItems.Where(i => i.Jobs.Contains(Job)));
     }
@@ -250,19 +253,22 @@ public class LootResult
         foreach (GearItem item in ApplicableItems)
             if (
                 //Always need if Bis and not acquired
-                ApplicableJob.BIS.Contains(item) && !ApplicableJob.Gear.Contains(item)
+                ApplicableJob.Bis.Contains(item) && !ApplicableJob.Gear.Contains(item)
                 //No need if any of following are true
                 || !(
                     //Player already has this unique item
-                    (item.IsUnique) && ApplicableJob.Gear.Contains(item)
+                    item.IsUnique && ApplicableJob.Gear.Contains(item)
                     //Player has Bis or higher/same iLvl for all applicable slots
                     || ApplicableJob.HaveBisOrHigherItemLevel(item.Slots, item)
                 )
             )
-            { NeededItems.Add(item); }
+            {
+                NeededItems.Add(item);
+            }
         Category = NeededItems.Count > 0 ? LootCategory.Need : LootCategory.Greed;
     }
 }
+
 public class LootResultContainer : IReadOnlyList<LootResult>
 {
     private readonly List<LootResult> _participants = new();
@@ -321,6 +327,7 @@ public class LootResultContainer : IReadOnlyList<LootResult>
     public IEnumerator<LootResult> GetEnumerator() => _participants.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => _participants.GetEnumerator();
 }
+
 internal class LootRulingComparer : IComparer<LootResult>
 {
     private readonly IEnumerable<LootRule> _rules;
@@ -348,4 +355,3 @@ internal class LootRulingComparer : IComparer<LootResult>
         return 0;
     }
 }
-

@@ -16,21 +16,21 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 //https://github.com/Caraxi/SimpleTweaksPlugin/blob/main/Tweaks/UiAdjustment/ExamineItemLevel.cs
 internal unsafe class GearRefresher
 {
-    public static GearRefresher Instance => InstanceImpl.Value;
-    private static readonly Lazy<GearRefresher> InstanceImpl = new(() => new GearRefresher());
+    public static GearRefresher Instance => _instanceImpl.Value;
+    private static readonly Lazy<GearRefresher> _instanceImpl = new(() => new GearRefresher());
     private bool HookLoadSuccessful => _hook is not null;
 
     [Signature("48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2",
         DetourName = nameof(OnExamineRefresh))]
     private readonly Hook<CharacterInspectOnRefresh>? _hook = null;
 
-    private static readonly ExcelSheet<World>? WorldSheet;
+    private static readonly ExcelSheet<World>? _worldSheet;
 
     private delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
 
     static GearRefresher()
     {
-        WorldSheet = ServiceManager.DataManager.GetExcelSheet<World>();
+        _worldSheet = ServiceManager.DataManager.GetExcelSheet<World>();
     }
 
 
@@ -83,7 +83,7 @@ internal unsafe class GearRefresher
             charNameFromExamine = examineWindow->UldManager.NodeList[60]->GetAsAtkTextNode()->NodeText.ToString();
             charNameFromExamine2 = examineWindow->UldManager.NodeList[59]->GetAsAtkTextNode()->NodeText.ToString();
             string worldString = examineWindow->UldManager.NodeList[57]->GetAsAtkTextNode()->NodeText.ToString();
-            worldFromExamine = WorldSheet?.FirstOrDefault(x => x?.Name.RawString == worldString, null);
+            worldFromExamine = _worldSheet?.FirstOrDefault(x => x?.Name.RawString == worldString, null);
         }
         catch (Exception e)
         {
@@ -112,7 +112,7 @@ internal unsafe class GearRefresher
         }
 
         //Do not execute on characters not already known
-        if (!ServiceManager.HrtDataManager.CharDB.SearchCharacter(target.HomeWorld.Id, target.Name.TextValue,
+        if (!ServiceManager.HrtDataManager.CharDb.SearchCharacter(target.HomeWorld.Id, target.Name.TextValue,
                 out Character? targetChar))
         {
             ServiceManager.PluginLog.Debug(
@@ -121,10 +121,10 @@ internal unsafe class GearRefresher
         }
 
         //Save characters ContentID if not already known
-        if (targetChar.CharID == 0)
+        if (targetChar.CharId == 0)
         {
             PartyMember? p = ServiceManager.PartyList.FirstOrDefault(p => p?.ObjectId == target.ObjectId, null);
-            if (p != null) targetChar.CharID = Character.CalcCharID(p.ContentId);
+            if (p != null) targetChar.CharId = Character.CalcCharId(p.ContentId);
         }
 
         Job targetJob = target.GetJob();
@@ -141,8 +141,8 @@ internal unsafe class GearRefresher
             }
 
             targetClass = targetChar.AddClass(targetJob);
-            ServiceManager.HrtDataManager.GearDB.AddSet(targetClass.Gear);
-            ServiceManager.HrtDataManager.GearDB.AddSet(targetClass.BIS);
+            ServiceManager.HrtDataManager.GearDb.AddSet(targetClass.Gear);
+            ServiceManager.HrtDataManager.GearDb.AddSet(targetClass.Bis);
         }
 
         //Getting level does not work in level synced content

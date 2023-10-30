@@ -6,18 +6,18 @@ using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
-internal sealed class CoreConfig : HRTConfiguration<CoreConfig.ConfigData, CoreConfig.ConfigUi>
+internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData, CoreConfig.ConfigUi>
 {
     private readonly ConfigUi _ui;
-    private readonly CoreModule Parent;
-    private readonly PeriodicTask SaveTask;
+    private readonly CoreModule _parent;
+    private readonly PeriodicTask _saveTask;
     public override ConfigUi? Ui => _ui;
 
     public CoreConfig(CoreModule module) : base(module.InternalName, Localize("General", "General"))
     {
         _ui = new ConfigUi(this);
-        Parent = module;
-        SaveTask = new PeriodicTask(PeriodicSave, Parent.HandleMessage, "Automatic Save",
+        _parent = module;
+        _saveTask = new PeriodicTask(PeriodicSave, _parent.HandleMessage, "Automatic Save",
             TimeSpan.FromMinutes(Data.SaveIntervalMinutes))
         {
             ShouldRun = false,
@@ -26,9 +26,9 @@ internal sealed class CoreConfig : HRTConfiguration<CoreConfig.ConfigData, CoreC
 
     public override void AfterLoad()
     {
-        SaveTask.Repeat = TimeSpan.FromMinutes(Data.SaveIntervalMinutes);
-        SaveTask.ShouldRun = Data.SavePeriodically;
-        ServiceManager.TaskManager.RegisterTask(SaveTask);
+        _saveTask.Repeat = TimeSpan.FromMinutes(Data.SaveIntervalMinutes);
+        _saveTask.ShouldRun = Data.SavePeriodically;
+        ServiceManager.TaskManager.RegisterTask(_saveTask);
     }
 
     private HrtUiMessage PeriodicSave()
@@ -52,11 +52,11 @@ internal sealed class CoreConfig : HRTConfiguration<CoreConfig.ConfigData, CoreC
     internal class ConfigUi : IHrtConfigUi
     {
         private ConfigData _dataCopy;
-        private readonly CoreConfig Parent;
+        private readonly CoreConfig _parent;
 
         public ConfigUi(CoreConfig parent)
         {
-            Parent = parent;
+            _parent = parent;
             _dataCopy = parent.Data.Clone();
         }
 
@@ -87,16 +87,16 @@ internal sealed class CoreConfig : HRTConfiguration<CoreConfig.ConfigData, CoreC
 
         public void OnShow()
         {
-            _dataCopy = Parent.Data.Clone();
+            _dataCopy = _parent.Data.Clone();
         }
 
         public void Save()
         {
-            if (_dataCopy.SaveIntervalMinutes != Parent.Data.SaveIntervalMinutes)
-                Parent.SaveTask.Repeat = TimeSpan.FromMinutes(_dataCopy.SaveIntervalMinutes);
-            if (_dataCopy.SavePeriodically != Parent.Data.SavePeriodically)
-                Parent.SaveTask.ShouldRun = _dataCopy.SavePeriodically;
-            Parent.Data = _dataCopy;
+            if (_dataCopy.SaveIntervalMinutes != _parent.Data.SaveIntervalMinutes)
+                _parent._saveTask.Repeat = TimeSpan.FromMinutes(_dataCopy.SaveIntervalMinutes);
+            if (_dataCopy.SavePeriodically != _parent.Data.SavePeriodically)
+                _parent._saveTask.ShouldRun = _dataCopy.SavePeriodically;
+            _parent.Data = _dataCopy;
         }
     }
 }

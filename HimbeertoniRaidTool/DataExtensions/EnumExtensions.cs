@@ -22,8 +22,8 @@ public static class EnumExtensions
             StatType.Intelligence => Localize("Intelligence", "Intelligence"),
             StatType.Mind => Localize("Mind", "Mind"),
             StatType.Piety => Localize("Piety", "Piety"),
-            StatType.HP => Localize("HP", "HP"),
-            StatType.MP => Localize("MP", "MP"),
+            StatType.Hp => Localize("HP", "HP"),
+            StatType.Mp => Localize("MP", "MP"),
             StatType.PhysicalDamage => Localize("Physical Damage", "Physical Damage"),
             StatType.MagicalDamage => Localize("Magical Damage", "Magical Damage"),
             StatType.Tenacity => Localize("Tenacity", "Tenacity"),
@@ -66,7 +66,7 @@ public static class EnumExtensions
     {
         return manager switch
         {
-            GearSetManager.HRT => Localize("HimbeerToni Raid Tool", "HimbeerToni Raid Tool"),
+            GearSetManager.Hrt => Localize("HimbeerToni Raid Tool", "HimbeerToni Raid Tool"),
             GearSetManager.Etro => Localize("etro.gg", "etro.gg"),
             _ => Localize("undefined", "undefined"),
         };
@@ -149,8 +149,5 @@ public static class EnumExtensions
         };
     }
 
-    public static Job GetJob(this PlayerCharacter target)
-    {
-        return (Job)target.ClassJob.Id;
-    }
+    public static Job GetJob(this PlayerCharacter target) => (Job)target.ClassJob.Id;
 }

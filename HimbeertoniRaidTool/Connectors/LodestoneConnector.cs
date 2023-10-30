@@ -17,12 +17,12 @@ namespace HimbeertoniRaidTool.Plugin.Connectors;
 
 internal class LodestoneConnector : NetStoneBase
 {
-    private const int NoOfAllowedLodestoneRequests = 8;
+    private const int NO_OF_ALLOWED_LODESTONE_REQUESTS = 8;
     private readonly ExcelSheet<Item>? _itemSheet;
     private readonly ExcelSheet<Materia>? _materiaSheet;
     private readonly Dictionary<char, byte> _romanNumerals;
 
-    internal LodestoneConnector() : base(new RateLimit(NoOfAllowedLodestoneRequests, new TimeSpan(0, 1, 30)))
+    internal LodestoneConnector() : base(new RateLimit(NO_OF_ALLOWED_LODESTONE_REQUESTS, new TimeSpan(0, 1, 30)))
     {
         _itemSheet = ServiceManager.DataManager.GetExcelSheet<Item>(ClientLanguage.English);
         _materiaSheet = ServiceManager.DataManager.GetExcelSheet<Materia>(ClientLanguage.English);
@@ -68,8 +68,8 @@ internal class LodestoneConnector : NetStoneBase
             {
                 classToChange = p.MainChar.AddClass(foundJob.Value);
                 bool hasError = false;
-                hasError |= !ServiceManager.HrtDataManager.GearDB.AddSet(classToChange.Gear);
-                hasError |= !ServiceManager.HrtDataManager.GearDB.AddSet(classToChange.BIS);
+                hasError |= !ServiceManager.HrtDataManager.GearDb.AddSet(classToChange.Gear);
+                hasError |= !ServiceManager.HrtDataManager.GearDb.AddSet(classToChange.Bis);
                 if (hasError)
                     return new HrtUiMessage(
                         Localize("LodestoneConnector:FailedToCreateGear", "Could not create new gear set."),
@@ -248,7 +248,7 @@ internal class NetStoneBase
         {
             World? homeWorld = c.HomeWorld;
             LodestoneCharacter? foundCharacter;
-            if (c.LodestoneID == 0)
+            if (c.LodestoneId == 0)
             {
                 if (c.HomeWorldId == 0 || homeWorld == null)
                     return null;
@@ -260,14 +260,14 @@ internal class NetStoneBase
                 });
                 CharacterSearchEntry? characterEntry = netStoneResponse?.Results.FirstOrDefault(
                     res => res.Name == c.Name);
-                if (!int.TryParse(characterEntry?.Id, out c.LodestoneID))
+                if (!int.TryParse(characterEntry?.Id, out c.LodestoneId))
                     ServiceManager.PluginLog.Warning("Tried parsing LodestoneID but failed.");
                 foundCharacter = characterEntry?.GetCharacter().Result;
             }
             else
             {
                 ServiceManager.PluginLog.Information("Using ID to search...");
-                foundCharacter = await _lodestoneClient.GetCharacter(c.LodestoneID.ToString());
+                foundCharacter = await _lodestoneClient.GetCharacter(c.LodestoneId.ToString());
             }
 
             if (foundCharacter == null)

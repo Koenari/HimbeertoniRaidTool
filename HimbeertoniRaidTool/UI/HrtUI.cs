@@ -5,7 +5,7 @@ using Loc = HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-public abstract class HRTWindowWithModalChild : HrtWindow
+public abstract class HrtWindowWithModalChild : HrtWindow
 {
     private HrtWindow? _modalChild;
     protected HrtWindow? ModalChild
@@ -30,14 +30,14 @@ public abstract class HRTWindowWithModalChild : HrtWindow
     {
         if (ModalChild == null)
             return;
-        bool Open = ModalChild.IsOpen;
-        if (ImGui.Begin(ModalChild.WindowName, ref Open, ModalChild.Flags))
+        bool open = ModalChild.IsOpen;
+        if (ImGui.Begin(ModalChild.WindowName, ref open, ModalChild.Flags))
         {
             ModalChild.Draw();
             ImGui.End();
         }
-        if (!Open)
-            ModalChild.IsOpen = Open;
+        if (!open)
+            ModalChild.IsOpen = open;
     }
     public bool AddChild(HrtWindow child)
     {
@@ -47,6 +47,7 @@ public abstract class HRTWindowWithModalChild : HrtWindow
         return true;
     }
 }
+
 public abstract class HrtWindow : Window, IEquatable<HrtWindow>
 {
     private readonly string _id;
@@ -72,18 +73,15 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     public override void Update()
     {
         WindowName = $"{Title}##{_id}";
-        SizeConstraints = new()
+        SizeConstraints = new WindowSizeConstraints
         {
             MinimumSize = MinSize,
-            MaximumSize = MaxSize
+            MaximumSize = MaxSize,
         };
     }
-    public override bool DrawConditions()
-    {
-        return !(ServiceManager.CoreModule.Configuration.Data.HideInCombat && ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
-            && !ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas]
-            && base.DrawConditions();
-    }
+    public override bool DrawConditions() => !(ServiceManager.CoreModule.Configuration.Data.HideInCombat && ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
+                                             && !ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas]
+                                             && base.DrawConditions();
     public override void PreDraw()
     {
         if (OpenCentered)
@@ -99,34 +97,35 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
 
     public override int GetHashCode() => _id.GetHashCode();
 }
+
 public class ConfimationDialog : HrtWindow
 {
-    private readonly Action _Action;
-    private readonly string _Title;
-    private readonly string _Text;
-    private bool Visible = true;
+    private readonly Action _action;
+    private readonly string _title;
+    private readonly string _text;
+    private bool _visible = true;
 
     public ConfimationDialog(Action action, string text, string title = "") : base()
     {
         title = title.Equals("") ? Loc.Localize("Confirmation", "Confirmation") : title;
-        _Text = text;
-        _Title = title;
-        _Action = action;
+        _text = text;
+        _title = title;
+        _action = action;
         Show();
     }
     public override void Draw()
     {
-        ImGui.OpenPopup(_Title);
+        ImGui.OpenPopup(_title);
         ImGui.SetNextWindowPos(
             new Vector2(ImGui.GetMainViewport().Size.X * 0.5f, ImGui.GetMainViewport().Size.Y * 0.5f),
             ImGuiCond.Appearing, new Vector2(0.5f, 0.5f));
 
-        if (ImGui.BeginPopupModal(_Title, ref Visible, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar))
+        if (ImGui.BeginPopupModal(_title, ref _visible, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar))
         {
-            ImGui.Text(_Text);
+            ImGui.Text(_text);
             if (ImGuiHelper.Button(Loc.Localize("OK", "OK"), Loc.Localize("Confirm action", "OK")))
             {
-                _Action();
+                _action();
                 Hide();
             }
             ImGui.SameLine();
@@ -136,6 +135,7 @@ public class ConfimationDialog : HrtWindow
         }
     }
 }
+
 public class HrtUiMessage
 {
     public HrtUiMessageType MessageType;
@@ -146,6 +146,7 @@ public class HrtUiMessage
         Message = msg;
     }
 }
+
 public enum HrtUiMessageType
 {
     Info,
@@ -153,5 +154,5 @@ public enum HrtUiMessageType
     Failure,
     Error,
     Important,
-    Warning
+    Warning,
 }

@@ -7,6 +7,7 @@ using System.Numerics;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
+
 [Flags]
 public enum SlotDrawFlags
 {
@@ -18,9 +19,10 @@ public enum SlotDrawFlags
     Default = ItemCompare | SimpleView,
     DetailedSingle = SingleItem | ExtendedView,
 }
+
 internal static class LmUiHelpers
 {
-    public static Vector4 ILevelColor(LootMasterConfiguration.ConfigData config, GearItem item)
+    public static Vector4 LevelColor(LootMasterConfiguration.ConfigData config, GearItem item)
     {
         return (config.SelectedRaidTier.ItemLevel(item.Slots.First()) - (int)item.ItemLevel) switch
         {
@@ -38,11 +40,11 @@ internal static class LmUiHelpers
         bool singleItem = style.HasFlag(SlotDrawFlags.SingleItem);
         ItemComparisonMode comparisonMode = config.IgnoreMateriaForBiS
             ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full;
-        (var item, var bis) = itemTuple;
+        (GearItem? item, GearItem? bis) = itemTuple;
         ImGui.TableNextColumn();
         if (!item.Filled && !bis.Filled)
             return;
-        if (singleItem || (item.Filled && bis.Filled && item.Equals(bis, comparisonMode)))
+        if (singleItem || item.Filled && bis.Filled && item.Equals(bis, comparisonMode))
         {
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / (extended ? 2 : 1));
             ImGui.BeginGroup();
@@ -96,14 +98,14 @@ internal static class LmUiHelpers
                     item.ItemLevel,
                     item.Source.FriendlyName(),
                     item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
-                var cursorPos = ImGui.GetCursorPos();
+                Vector2 cursorPos = ImGui.GetCursorPos();
                 if (extended)
                 {
                     cursorPos.Y += ImGui.GetTextLineHeightWithSpacing() * 0.2f;
                     ImGui.SetCursorPos(cursorPos);
                 }
                 if (config.ColoredItemNames)
-                    ImGui.TextColored(ILevelColor(config, item), toDraw);
+                    ImGui.TextColored(LevelColor(config, item), toDraw);
                 else
                     ImGui.Text(toDraw);
                 if (extended)
@@ -136,14 +138,15 @@ internal static class LmUiHelpers
         DiffRightToLeft = 4,
         Default = DoCompare | DiffLeftToRight,
     }
+
     public static void DrawStatTable(PlayableClass curClass, IReadOnlyGearSet left, IReadOnlyGearSet right, string leftHeader, string diffHeader, string rightHeader,
         StatTableCompareMode compareMode = StatTableCompareMode.Default)
     {
         bool doCompare = compareMode.HasFlag(StatTableCompareMode.DoCompare);
-        var curJob = curClass.Job;
-        var curRole = curJob.GetRole();
-        var mainStat = curJob.MainStat();
-        var weaponStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.MagicalDamage : StatType.PhysicalDamage;
+        Job curJob = curClass.Job;
+        Role curRole = curJob.GetRole();
+        StatType mainStat = curJob.MainStat();
+        StatType weaponStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.MagicalDamage : StatType.PhysicalDamage;
         BeginAndSetupTable("MainStats", Localize("MainStats", "Main Stats"));
         DrawStatRow(weaponStat);
         DrawStatRow(StatType.Vitality);
@@ -179,7 +182,7 @@ internal static class LmUiHelpers
                     negative = diff > 0;
                 else
                     negative = diff < 0;
-                return negative ? new(0.85f, 0.17f, 0.17f, 1f) : new(0.17f, 0.85f, 0.17f, 1f);
+                return negative ? new Vector4(0.85f, 0.17f, 0.17f, 1f) : new Vector4(0.17f, 0.85f, 0.17f, 1f);
             }
             int numEvals = 1;
             if (type == StatType.CriticalHit || type == StatType.Tenacity || type == StatType.SpellSpeed || type == StatType.SkillSpeed)
@@ -220,9 +223,9 @@ internal static class LmUiHelpers
             string[] units = new string[numEvals];
             for (int i = 0; i < numEvals; i++)
             {
-                var (Val, Unit) = AllaganLibrary.FormatStatValue(leftEvalStat[i], type, i);
-                units[i] = Unit;
-                ImGui.Text(Val);
+                (string? val, string? unit) = AllaganLibrary.FormatStatValue(leftEvalStat[i], type, i);
+                units[i] = unit;
+                ImGui.Text(val);
             }
             if (type == weaponStat)
                 ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip", "Average Dmg with a 100 potency skill adjusted for faster GCDs"));

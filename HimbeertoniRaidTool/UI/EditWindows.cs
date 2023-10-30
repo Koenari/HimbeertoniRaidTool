@@ -21,7 +21,7 @@ internal class EditPlayerWindow : HrtWindow
     private readonly Action<HrtUiMessage> _callBack;
     private readonly bool _isNew;
     private Job _newJob = Job.ADV;
-    private const int ClassHeight = 27 * 2 + 4;
+    private const int CLASS_HEIGHT = 27 * 2 + 4;
 
     internal EditPlayerWindow(Action<HrtUiMessage> callBack, Player p)
         : base()
@@ -42,7 +42,7 @@ internal class EditPlayerWindow : HrtWindow
             _playerCopy = _player.Clone();
         }
 
-        Size = new Vector2(750, 330 + ClassHeight * _playerCopy.MainChar.Classes.Count());
+        Size = new Vector2(750, 330 + CLASS_HEIGHT * _playerCopy.MainChar.Classes.Count());
         SizeCondition = ImGuiCond.Appearing;
         Title = $"{Localize("Edit Player", "Edit Player")} {_player.NickName}";
     }
@@ -118,10 +118,10 @@ internal class EditPlayerWindow : HrtWindow
             ImGui.Text($"{c.Job}  ");
             ImGui.NextColumn();
             ImGui.SetNextItemWidth(250f * ScaleFactor);
-            bool localBis = c.BIS is { IsEmpty: false, ManagedBy: GearSetManager.HRT };
+            bool localBis = c.Bis is { IsEmpty: false, ManagedBy: GearSetManager.Hrt };
             ImGui.BeginDisabled(localBis);
-            if (ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.BIS.EtroID, 60))
-                c.BIS.EtroID = c.BIS.EtroID.Replace(EtroConnector.GearsetWebBaseUrl, "");
+            if (ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.Bis.EtroId, 60))
+                c.Bis.EtroId = c.Bis.EtroId.Replace(EtroConnector.GEARSET_WEB_BASE_URL, "");
 
             if (localBis)
                 ImGuiHelper.AddTooltip(Localize("PlayerEdit:Tooltip:LocalBis",
@@ -130,8 +130,8 @@ internal class EditPlayerWindow : HrtWindow
             {
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"{Localize("character_bis_set_to", "Set to")} {name}##BIS#{c.Job}",
-                        $"{etroId}", c.BIS.EtroID != etroId))
-                    c.BIS.EtroID = etroId;
+                        $"{etroId}", c.Bis.EtroId != etroId))
+                    c.Bis.EtroId = etroId;
             }
 
             ImGui.EndDisabled();
@@ -160,12 +160,12 @@ internal class EditPlayerWindow : HrtWindow
             if (newClass == null)
             {
                 newClass = _playerCopy.MainChar.AddClass(_newJob);
-                ServiceManager.HrtDataManager.GearDB.AddSet(newClass.Gear);
-                ServiceManager.HrtDataManager.GearDB.AddSet(newClass.BIS);
+                ServiceManager.HrtDataManager.GearDb.AddSet(newClass.Gear);
+                ServiceManager.HrtDataManager.GearDb.AddSet(newClass.Bis);
             }
 
-            newClass.BIS.ManagedBy = GearSetManager.Etro;
-            newClass.BIS.EtroID = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(_newJob);
+            newClass.Bis.ManagedBy = GearSetManager.Etro;
+            newClass.Bis.EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(_newJob);
         }
     }
 
@@ -177,11 +177,11 @@ internal class EditPlayerWindow : HrtWindow
         //Character Data
         if (_isNew)
         {
-            if (!ServiceManager.HrtDataManager.CharDB.SearchCharacter(
+            if (!ServiceManager.HrtDataManager.CharDb.SearchCharacter(
                     _playerCopy.MainChar.HomeWorldId, _playerCopy.MainChar.Name, out Character? c))
             {
                 c = new Character(_playerCopy.MainChar.Name, _playerCopy.MainChar.HomeWorldId);
-                if (!ServiceManager.HrtDataManager.CharDB.TryAddCharacter(c))
+                if (!ServiceManager.HrtDataManager.CharDb.TryAddCharacter(c))
                     return;
             }
 
@@ -197,7 +197,7 @@ internal class EditPlayerWindow : HrtWindow
         {
             _player.MainChar.Name = _playerCopy.MainChar.Name;
             _player.MainChar.HomeWorldId = _playerCopy.MainChar.HomeWorldId;
-            ServiceManager.HrtDataManager.CharDB.ReindexCharacter(_player.MainChar.LocalId);
+            ServiceManager.HrtDataManager.CharDb.ReindexCharacter(_player.MainChar.LocalId);
         }
 
         _player.MainChar.TribeId = _playerCopy.MainChar.TribeId;
@@ -215,44 +215,44 @@ internal class EditPlayerWindow : HrtWindow
         foreach (PlayableClass c in _playerCopy.MainChar.Classes)
         {
             PlayableClass? target = _player.MainChar[c.Job];
-            GearDB gearSetDb = ServiceManager.HrtDataManager.GearDB;
+            GearDb gearSetDb = ServiceManager.HrtDataManager.GearDb;
 
             if (target == null)
             {
                 target = _player.MainChar.AddClass(c.Job);
                 gearSetDb.AddSet(target.Gear);
-                gearSetDb.AddSet(target.BIS);
+                gearSetDb.AddSet(target.Bis);
             }
 
             target.Level = c.Level;
-            if (target.BIS.EtroID.Equals(c.BIS.EtroID))
+            if (target.Bis.EtroId.Equals(c.Bis.EtroId))
                 continue;
-            if (!c.BIS.EtroID.Equals(""))
+            if (!c.Bis.EtroId.Equals(""))
             {
-                if (!gearSetDb.TryGetSetByEtroID(c.BIS.EtroID, out GearSet? etroSet))
+                if (!gearSetDb.TryGetSetByEtroId(c.Bis.EtroId, out GearSet? etroSet))
                 {
                     etroSet = new GearSet
                     {
                         ManagedBy = GearSetManager.Etro,
-                        EtroID = c.BIS.EtroID,
+                        EtroId = c.Bis.EtroId,
                     };
                     gearSetDb.AddSet(etroSet);
                     ServiceManager.TaskManager.RegisterTask(
                         new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(etroSet), _callBack,
-                            $"Update {etroSet.Name} ({etroSet.EtroID}) from etro"));
+                            $"Update {etroSet.Name} ({etroSet.EtroId}) from etro"));
                 }
 
-                target.BIS = etroSet;
+                target.Bis = etroSet;
             }
-            else if (!target.BIS.EtroID.IsNullOrEmpty())
+            else if (!target.Bis.EtroId.IsNullOrEmpty())
             {
                 GearSet bis = new()
                 {
-                    ManagedBy = GearSetManager.HRT,
+                    ManagedBy = GearSetManager.Hrt,
                 };
                 if (!gearSetDb.AddSet(bis))
                     ServiceManager.PluginLog.Debug("BiS not saved!");
-                target.BIS = bis;
+                target.Bis = bis;
             }
         }
 
@@ -323,7 +323,7 @@ internal class EditGroupWindow : HrtWindow
     }
 }
 
-internal class EditGearSetWindow : HRTWindowWithModalChild
+internal class EditGearSetWindow : HrtWindowWithModalChild
 {
     private GearSet _gearSet;
     private GearSet _gearSetCopy;
@@ -355,7 +355,7 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
                 ImGui.IsKeyDown(ImGuiKey.ModShift), new Vector2(50, 25)))
         {
             GearSet newSet = new();
-            if (ServiceManager.HrtDataManager.GearDB.AddSet(newSet))
+            if (ServiceManager.HrtDataManager.GearDb.AddSet(newSet))
             {
                 _gearSetCopy = newSet;
                 Save();
@@ -375,14 +375,14 @@ internal class EditGearSetWindow : HRTWindowWithModalChild
                 _gearSet = _gearSet.Clone();
                 _gearSet.LocalId = HrtId.Empty;
                 _gearSet.RemoteIDs = new List<HrtId>();
-                _gearSet.ManagedBy = GearSetManager.HRT;
-                _gearSet.EtroID = string.Empty;
-                ServiceManager.HrtDataManager.GearDB.AddSet(_gearSet);
+                _gearSet.ManagedBy = GearSetManager.Hrt;
+                _gearSet.EtroId = string.Empty;
+                ServiceManager.HrtDataManager.GearDb.AddSet(_gearSet);
                 _onSave(_gearSet);
                 _gearSetCopy = _gearSet.Clone();
             }
 
-            ImGui.Text($"{Localize("Etro ID", "Etro ID")}: {_gearSetCopy.EtroID}");
+            ImGui.Text($"{Localize("Etro ID", "Etro ID")}: {_gearSetCopy.EtroId}");
             ImGui.Text(
                 $"{Localize("GearSetEdit:EtroLastDownload", "Last update check")}: {_gearSetCopy.EtroFetchDate}");
         }
@@ -567,7 +567,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         //Draw item list
         foreach (Item item in _items)
         {
-            bool isCurrentItem = item.RowId == Item?.ID;
+            bool isCurrentItem = item.RowId == Item?.Id;
             if (isCurrentItem)
                 ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
             if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", Localize("Use this item", "Use this item"),
@@ -613,16 +613,16 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
 
 internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
 {
-    private static readonly Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>> AllMateria;
+    private static readonly Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>> _allMateria;
 
     static SelectMateriaWindow()
     {
-        AllMateria = new Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>>();
+        _allMateria = new Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>>();
         foreach (MateriaLevel lvl in Enum.GetValues<MateriaLevel>())
         {
             Dictionary<MateriaCategory, HrtMateria> mats = new();
             foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>()) mats[cat] = new HrtMateria(cat, lvl);
-            AllMateria[lvl] = mats;
+            _allMateria[lvl] = mats;
         }
     }
 
@@ -658,7 +658,7 @@ internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
 
         void DrawButton(MateriaCategory cat, MateriaLevel lvl)
         {
-            HrtMateria mat = AllMateria[lvl][cat];
+            HrtMateria mat = _allMateria[lvl][cat];
             if (ImGui.ImageButton(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new Vector2(32)))
                 Save(mat);
             if (ImGui.IsItemHovered())

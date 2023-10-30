@@ -1,26 +1,28 @@
-﻿using HimbeertoniRaidTool.Common.Data;
+﻿using System.Numerics;
+using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
-internal class QuickCompareWindow : HRTWindowWithModalChild
+
+internal class QuickCompareWindow : HrtWindowWithModalChild
 {
     //private readonly LootmasterUI _lmui;
-    private readonly LootMasterConfiguration.ConfigData CurrentConfig;
-    private readonly PlayableClass CurClass;
-    private IReadOnlyGearSet CurGear => CurClass.Gear;
+    private readonly LootMasterConfiguration.ConfigData _currentConfig;
+    private readonly PlayableClass _curClass;
+    private IReadOnlyGearSet CurGear => _curClass.Gear;
 
-    private readonly GearSet NewGear;
-    internal QuickCompareWindow(LootMasterConfiguration.ConfigData _lmConfig, PlayableClass job) : base()
+    private readonly GearSet _newGear;
+    internal QuickCompareWindow(LootMasterConfiguration.ConfigData lmConfig, PlayableClass job) : base()
     {
-        CurrentConfig = _lmConfig;
-        CurClass = job;
-        NewGear = new();
-        NewGear.CopyFrom(CurClass.Gear);
+        _currentConfig = lmConfig;
+        _curClass = job;
+        _newGear = new GearSet();
+        _newGear.CopyFrom(_curClass.Gear);
         Title = $"Compare";
         OpenCentered = true;
-        (Size, SizeCondition) = (new(1600, 600), ImGuiCond.Appearing);
+        (Size, SizeCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
 
     }
     public override void Draw()
@@ -31,30 +33,30 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
          * Current gear
          */
         {
-            var SlotDraw = (GearItem i) => LmUiHelpers.DrawSlot(CurrentConfig, i, SlotDrawFlags.DetailedSingle);
+            var slotDraw = (GearItem i) => LmUiHelpers.DrawSlot(_currentConfig, i, SlotDrawFlags.DetailedSingle);
             ImGui.BeginTable("GearCompareCurrent", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
             ImGui.TableSetupColumn(Localize("Gear", "Gear"));
             ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
-            SlotDraw(CurGear[GearSetSlot.MainHand]);
-            SlotDraw(CurGear[GearSetSlot.OffHand]);
-            SlotDraw(CurGear[GearSetSlot.Head]);
-            SlotDraw(CurGear[GearSetSlot.Ear]);
-            SlotDraw(CurGear[GearSetSlot.Body]);
-            SlotDraw(CurGear[GearSetSlot.Neck]);
-            SlotDraw(CurGear[GearSetSlot.Hands]);
-            SlotDraw(CurGear[GearSetSlot.Wrist]);
-            SlotDraw(CurGear[GearSetSlot.Legs]);
-            SlotDraw(CurGear[GearSetSlot.Ring1]);
-            SlotDraw(CurGear[GearSetSlot.Feet]);
-            SlotDraw(CurGear[GearSetSlot.Ring2]);
+            slotDraw(CurGear[GearSetSlot.MainHand]);
+            slotDraw(CurGear[GearSetSlot.OffHand]);
+            slotDraw(CurGear[GearSetSlot.Head]);
+            slotDraw(CurGear[GearSetSlot.Ear]);
+            slotDraw(CurGear[GearSetSlot.Body]);
+            slotDraw(CurGear[GearSetSlot.Neck]);
+            slotDraw(CurGear[GearSetSlot.Hands]);
+            slotDraw(CurGear[GearSetSlot.Wrist]);
+            slotDraw(CurGear[GearSetSlot.Legs]);
+            slotDraw(CurGear[GearSetSlot.Ring1]);
+            slotDraw(CurGear[GearSetSlot.Feet]);
+            slotDraw(CurGear[GearSetSlot.Ring2]);
             ImGui.EndTable();
         }
         /**
          * Stat Table
          */
         ImGui.NextColumn();
-        LmUiHelpers.DrawStatTable(CurClass, CurGear, NewGear,
+        LmUiHelpers.DrawStatTable(_curClass, CurGear, _newGear,
             Localize("Current", "Current"), Localize("QuickCompareStatGain", "Gain"), Localize("New Gear", "New Gear"));
         /**
          * New Gear
@@ -67,7 +69,7 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
             ImGui.TableHeadersRow();
 
             DrawEditSlot(GearSetSlot.MainHand);
-            if (CurClass.Job.CanHaveShield())
+            if (_curClass.Job.CanHaveShield())
                 DrawEditSlot(GearSetSlot.OffHand);
             else
                 ImGui.TableNextColumn();
@@ -87,14 +89,14 @@ internal class QuickCompareWindow : HRTWindowWithModalChild
         void DrawEditSlot(GearSetSlot slot)
         {
             ImGui.TableNextColumn();
-            UiHelpers.DrawGearEdit(this, slot, NewGear[slot], ItemChangeCallback(slot), CurClass.Job);
+            UiHelpers.DrawGearEdit(this, slot, _newGear[slot], ItemChangeCallback(slot), _curClass.Job);
         }
     }
     private Action<GearItem> ItemChangeCallback(GearSetSlot slot)
         => newItem =>
         {
-            foreach (var mat in NewGear[slot].Materia)
+            foreach (HrtMateria? mat in _newGear[slot].Materia)
                 newItem.AddMateria(mat);
-            NewGear[slot] = newItem;
+            _newGear[slot] = newItem;
         };
 }

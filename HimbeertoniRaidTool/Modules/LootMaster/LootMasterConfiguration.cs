@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
-
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
@@ -12,12 +11,12 @@ using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
-internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
+internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
 {
     public override ConfigUi Ui { get; }
 
     private bool _fullyLoaded;
-    private const int TargetVersion = 1;
+    private const int TARGET_VERSION = 1;
     public LootMasterConfiguration(LootMasterModule hrtModule) : base(hrtModule.InternalName, hrtModule.Name)
     {
         Ui = new ConfigUi(this);
@@ -26,7 +25,7 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
     {
         if (_fullyLoaded)
             return;
-        if (Data.Version > TargetVersion)
+        if (Data.Version > TARGET_VERSION)
         {
             const string msg = "Tried loading a configuration from a newer version of the plugin." +
                                "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
@@ -36,6 +35,7 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
         }
         _fullyLoaded = true;
     }
+
     internal sealed class ConfigUi : IHrtConfigUi
     {
         private readonly LootMasterConfiguration _config;
@@ -148,6 +148,7 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
             _config.Data = _dataCopy;
         }
     }
+
     [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
     [SuppressMessage("ReSharper", "RedundantDefaultMemberInitializer")]
     internal sealed class ConfigData
@@ -170,13 +171,13 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
         public Vector4[] ItemLevelColors = new Vector4[]
         {
             //At or above cur max iLvl
-            new Vector4(0.17f,0.85f,0.17f,1f),
+            new(0.17f, 0.85f, 0.17f, 1f),
             //10 below
-            new Vector4(0.5f,0.83f,0.72f,1f),
+            new(0.5f, 0.83f, 0.72f, 1f),
             //20 below
-            new Vector4(0.85f,0.85f,0.17f,1f),
+            new(0.85f, 0.85f, 0.17f, 1f),
             //30 or more below
-            new Vector4(0.85f,0.17f,0.17f,1f),
+            new(0.85f, 0.17f, 0.17f, 1f),
         };
         /*
          * BiS
@@ -192,23 +193,23 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
         public LootRuling LootRuling = new()
         {
             RuleSet = new List<LootRule>()
-                    {
-                        new(LootRuleEnum.BISOverUpgrade),
-                        new(LootRuleEnum.RolePrio),
-                        new(LootRuleEnum.DPSGain),
-                        new(LootRuleEnum.HighestItemLevelGain),
-                        new(LootRuleEnum.LowestItemLevel),
-                        new(LootRuleEnum.Random),
-                    },
+            {
+                new(LootRuleEnum.BisOverUpgrade),
+                new(LootRuleEnum.RolePrio),
+                new(LootRuleEnum.DpsGain),
+                new(LootRuleEnum.HighestItemLevelGain),
+                new(LootRuleEnum.LowestItemLevel),
+                new(LootRuleEnum.Random),
+            },
         };
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public RolePriority RolePriority = new()
         {
-            { Role.Melee,   0 },
-            { Role.Caster,  1 },
-            { Role.Ranged,  1 },
-            { Role.Tank,    3 },
-            { Role.Healer,  4 },
+            { Role.Melee, 0 },
+            { Role.Caster, 1 },
+            { Role.Ranged, 1 },
+            { Role.Tank, 3 },
+            { Role.Healer, 4 },
         };
         /*
          * Internal
@@ -241,9 +242,15 @@ internal class LootMasterConfiguration : HRTConfiguration<LootMasterConfiguratio
             {
                 switch (item.ToLower())
                 {
-                    case "{ilvl}": result.Add("{0}"); break;
-                    case "{source}": result.Add("{1}"); break;
-                    case "{slot}": result.Add("{2}"); break;
+                    case "{ilvl}":
+                        result.Add("{0}");
+                        break;
+                    case "{source}":
+                        result.Add("{1}");
+                        break;
+                    case "{slot}":
+                        result.Add("{2}");
+                        break;
                 }
             }
             return string.Join(' ', result);

@@ -7,7 +7,7 @@ namespace HimbeertoniRaidTool.Plugin.Modules;
 
 public interface IHrtModule<T, S> : IHrtModule where T : new() where S : IHrtConfigUi
 {
-    HRTConfiguration<T, S> Configuration { get; }
+    HrtConfiguration<T, S> Configuration { get; }
 }
 
 public interface IHrtModule

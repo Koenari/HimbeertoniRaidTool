@@ -15,13 +15,13 @@ public class HrtDataManager
     private volatile bool _saving = false;
     private volatile bool _serializing = false;
     //Data
-    private readonly GearDB _gearDb;
-    private readonly CharacterDB _characterDb;
+    private readonly GearDb _gearDb;
+    private readonly CharacterDb _characterDb;
     private readonly List<RaidGroup>? _groups;
     //File names
-    private const string GearDbJsonFileName = "GearDB.json";
-    private const string CharDbJsonFileName = "CharacterDB.json";
-    private const string RaidGroupJsonFileName = "RaidGroups.json";
+    private const string GEAR_DB_JSON_FILE_NAME = "GearDB.json";
+    private const string CHAR_DB_JSON_FILE_NAME = "CharacterDB.json";
+    private const string RAID_GROUP_JSON_FILE_NAME = "RaidGroups.json";
     //Files
     private readonly FileInfo _gearDbJsonFile;
     private readonly FileInfo _charDbJsonFile;
@@ -32,12 +32,12 @@ public class HrtDataManager
     //Directly Accessed Members
     public bool Ready => Initialized && !_serializing;
     internal List<RaidGroup> Groups => _groups ?? new List<RaidGroup>();
-    internal CharacterDB CharDB => GetCharacterDb();
-    internal GearDB GearDB => GetGearSetDb();
+    internal CharacterDb CharDb => GetCharacterDb();
+    internal GearDb GearDb => GetGearSetDb();
     internal readonly IModuleConfigurationManager ModuleConfigurationManager
         = new NotLoadedModuleConfigurationManager();
-    internal readonly IIDProvider IDProvider = new NullIdProvider();
-    private static readonly JsonSerializerSettings JsonSettings = new()
+    internal readonly IIdProvider IdProvider = new NullIdProvider();
+    private static readonly JsonSerializerSettings _jsonSettings = new()
     {
         Formatting = Formatting.Indented,
         TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
@@ -61,11 +61,11 @@ public class HrtDataManager
             loadError = true;
         }
         ModuleConfigurationManager = new ModuleConfigurationManager(pluginInterface);
-        LocalIDProvider localIdProvider = new(this);
-        IDProvider = localIdProvider;
-        _raidGroupJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{RaidGroupJsonFileName}");
-        _charDbJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{CharDbJsonFileName}");
-        _gearDbJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{GearDbJsonFileName}");
+        LocalIdProvider localIdProvider = new(this);
+        IdProvider = localIdProvider;
+        _raidGroupJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{RAID_GROUP_JSON_FILE_NAME}");
+        _charDbJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{CHAR_DB_JSON_FILE_NAME}");
+        _gearDbJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{GEAR_DB_JSON_FILE_NAME}");
         try
         {
             if (!_raidGroupJsonFile.Exists)
@@ -83,21 +83,21 @@ public class HrtDataManager
         loadError |= !TryRead(_gearDbJsonFile, out string gearJson);
         loadError |= !TryRead(_charDbJsonFile, out string charDbJson);
         loadError |= !TryRead(_raidGroupJsonFile, out string raidGroupJson);
-        _gearDb = new GearDB(this, gearJson, JsonSettings);
+        _gearDb = new GearDb(this, gearJson, _jsonSettings);
         _gearSetRefConv = new HrtIdReferenceConverter<GearSet>(_gearDb);
-        _characterDb = new CharacterDB(this, charDbJson, _gearSetRefConv, JsonSettings);
+        _characterDb = new CharacterDb(this, charDbJson, _gearSetRefConv, _jsonSettings);
         _charRefConv = new HrtIdReferenceConverter<Character>(_characterDb);
-        JsonSettings.Converters.Add(_charRefConv);
-        _groups = JsonConvert.DeserializeObject<List<RaidGroup>>(raidGroupJson, JsonSettings) ?? new List<RaidGroup>();
-        JsonSettings.Converters.Remove(_charRefConv);
+        _jsonSettings.Converters.Add(_charRefConv);
+        _groups = JsonConvert.DeserializeObject<List<RaidGroup>>(raidGroupJson, _jsonSettings) ?? new List<RaidGroup>();
+        _jsonSettings.Converters.Remove(_charRefConv);
         Initialized = !loadError;
     }
 
     internal void PruneDatabase()
     {
         if (!Initialized) return;
-        CharDB.Prune(this);
-        GearDB.Prune(CharDB);
+        CharDb.Prune(this);
+        GearDb.Prune(CharDb);
     }
 
     internal IEnumerable<HrtId> FindOrphanedCharacters(IEnumerable<HrtId> possibleOrphans)
@@ -111,7 +111,7 @@ public class HrtDataManager
         ServiceManager.PluginLog.Information($"Found {orphans.Count} orphaned characters.");
         return orphans;
     }
-    private CharacterDB GetCharacterDb()
+    private CharacterDb GetCharacterDb()
     {
         while (_serializing)
         {
@@ -119,7 +119,7 @@ public class HrtDataManager
         }
         return _characterDb;
     }
-    private GearDB GetGearSetDb()
+    private GearDb GetGearSetDb()
     {
         while (_serializing)
         {
@@ -162,9 +162,9 @@ public class HrtDataManager
     // ReSharper disable once SuggestBaseTypeForParameter
     private string SerializeGroupData(HrtIdReferenceConverter<Character> charRefCon)
     {
-        JsonSettings.Converters.Add(charRefCon);
-        string result = JsonConvert.SerializeObject(_groups, JsonSettings);
-        JsonSettings.Converters.Remove(charRefCon);
+        _jsonSettings.Converters.Add(charRefCon);
+        string result = JsonConvert.SerializeObject(_groups, _jsonSettings);
+        _jsonSettings.Converters.Remove(charRefCon);
         return result;
     }
     public bool Save()
@@ -178,8 +178,8 @@ public class HrtDataManager
         DateTime time1 = DateTime.Now;
         //Serialize all data (functions are locked while this happens)
         _serializing = true;
-        string characterData = _characterDb.Serialize(_gearSetRefConv, JsonSettings);
-        string gearData = _gearDb.Serialize(JsonSettings);
+        string characterData = _characterDb.Serialize(_gearSetRefConv, _jsonSettings);
+        string gearData = _gearDb.Serialize(_jsonSettings);
         string groupData = SerializeGroupData(_charRefConv);
         _serializing = false;
         //Write serialized data
@@ -196,11 +196,11 @@ public class HrtDataManager
         return !hasError;
     }
 
-    public class NullIdProvider : IIDProvider
+    public class NullIdProvider : IIdProvider
     {
-        public HrtId CreateID(HrtId.IdType type) => HrtId.Empty;
+        public HrtId CreateId(HrtId.IdType type) => HrtId.Empty;
         public uint GetAuthorityIdentifier() => 0;
-        public bool SignID(HrtId id) => false;
+        public bool SignId(HrtId id) => false;
         public bool VerifySignature(HrtId id) => false;
     }
 

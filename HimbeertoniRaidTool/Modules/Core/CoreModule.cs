@@ -72,7 +72,7 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
     };
 
     public string InternalName => "Core";
-    public HRTConfiguration<CoreConfig.ConfigData, CoreConfig.ConfigUi> Configuration => _config;
+    public HrtConfiguration<CoreConfig.ConfigData, CoreConfig.ConfigUi> Configuration => _config;
     public WindowSystem WindowSystem { get; }
 
     public CoreModule()

@@ -5,36 +5,36 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal static class Localization
 {
-    private static bool FallBack = true;
-    private static Dalamud.Localization? Loc;
-    private static readonly Dictionary<string, string> LocalizationCache = new();
+    private static bool _fallBack = true;
+    private static Dalamud.Localization? _loc;
+    private static readonly Dictionary<string, string> _localizationCache = new();
 
     internal static void Init(DalamudPluginInterface pluginInterface)
     {
-        if (Loc is not null)
+        if (_loc is not null)
             return;
         string localePath = Path.Combine(pluginInterface.AssemblyLocation.DirectoryName!, @"locale");
-        Loc = new Dalamud.Localization(localePath, "HimbeertoniRaidTool_");
-        Loc.SetupWithLangCode(pluginInterface.UiLanguage);
+        _loc = new Dalamud.Localization(localePath, "HimbeertoniRaidTool_");
+        _loc.SetupWithLangCode(pluginInterface.UiLanguage);
         pluginInterface.LanguageChanged += OnLanguageChanged;
     }
 
     public static string Localize(string id, string fallBack)
     {
-        if (FallBack || Loc is null)
+        if (_fallBack || _loc is null)
             return fallBack;
-        if (LocalizationCache.TryGetValue(id, out string? val))
+        if (_localizationCache.TryGetValue(id, out string? val))
             return val;
         else
-            return LocalizationCache[id] = Dalamud.Localization.Localize(id, fallBack);
+            return _localizationCache[id] = Dalamud.Localization.Localize(id, fallBack);
     }
 
     private static void OnLanguageChanged(string langCode)
     {
-        FallBack = langCode.Equals("en");
+        _fallBack = langCode.Equals("en");
         ServiceManager.PluginLog.Information($"Loading localization for {langCode}");
-        Loc?.SetupWithLangCode(langCode);
-        LocalizationCache.Clear();
+        _loc?.SetupWithLangCode(langCode);
+        _localizationCache.Clear();
     }
 
     public static void Dispose()
@@ -44,6 +44,6 @@ internal static class Localization
 
     internal static void ExportLocalizable(bool ignore = true)
     {
-        Loc?.ExportLocalizable(ignore);
+        _loc?.ExportLocalizable(ignore);
     }
 }
