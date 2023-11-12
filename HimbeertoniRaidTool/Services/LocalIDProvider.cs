@@ -5,7 +5,7 @@ using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using Newtonsoft.Json;
 
-namespace HimbeertoniRaidTool.Plugin.Security;
+namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class LocalIdProvider : IIdProvider
 {
@@ -30,11 +30,11 @@ internal class LocalIdProvider : IIdProvider
                 throw new FailedToLoadException("Could not create ID Authority");
         }
     }
-    //Public Funtions
+    //Public Functions
     public uint GetAuthorityIdentifier() => _data.Authority;
     public bool SignId(HrtId id)
     {
-        if (!IsinMyAuthority(id))
+        if (!IsInMyAuthority(id))
             return false;
         id.Signature = CalcSignature(id);
         return true;
@@ -45,7 +45,7 @@ internal class LocalIdProvider : IIdProvider
     internal HrtId CreateCharId(ulong seq) => new(_data.Authority, HrtId.IdType.Character, seq);
     public bool VerifySignature(HrtId id)
     {
-        if (!IsinMyAuthority(id))
+        if (!IsInMyAuthority(id))
             return false;
         if (id.Signature.Length != SIGNATURE_SIZE)
             return false;
@@ -53,15 +53,17 @@ internal class LocalIdProvider : IIdProvider
         return correctSig.SequenceEqual(id.Signature);
 
     }
-    private bool IsinMyAuthority(HrtId id) => id.Authority == _data.Authority;
+    private bool IsInMyAuthority(HrtId id) => id.Authority == _data.Authority;
     private ulong CreateUniqueSequence(HrtId.IdType type)
     {
-        if (type == HrtId.IdType.Gear)
-            return _dataManager.GearDb.GetNextSequence();
-        else if (type == HrtId.IdType.Character)
-            return _dataManager.CharDb.GetNextSequence();
-        else
-            return _data.Counter++;
+        return type switch
+        {
+            HrtId.IdType.Gear => _dataManager.GearDb.GetNextSequence(),
+            HrtId.IdType.Character => _dataManager.CharDb.GetNextSequence(),
+            HrtId.IdType.Player => _dataManager.PlayerDb.GetNextSequence(),
+            HrtId.IdType.Group => _dataManager.RaidGroupDb.GetNextSequence(),
+            _ => _data.Counter++,
+        };
     }
     private byte[] CalcSignature(HrtId id)
     {
@@ -76,10 +78,14 @@ internal class LocalIdProvider : IIdProvider
         num = T.ReadLittleEndian(buffer, true);
     }
 
-    public class ConfigData
+    public class ConfigData : IHrtConfigData
     {
         [JsonProperty] public uint Authority = 0;
         [JsonProperty] public byte[] Key = new byte[KEY_SIZE_BYTES];
         [JsonProperty] public ulong Counter = 1;
+
+        public void AfterLoad() { }
+
+        public void BeforeSave() { }
     }
 }

@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class HrtIdReferenceConverter<T> : JsonConverter<T> where T : IHasHrtId
+public class HrtIdReferenceConverter<T> : JsonConverter<T> where T : IHasHrtId
 {
     private readonly IDataBaseTable<T> _db;
 

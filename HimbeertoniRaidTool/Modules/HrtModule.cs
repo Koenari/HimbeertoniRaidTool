@@ -5,7 +5,7 @@ using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules;
 
-public interface IHrtModule<T, S> : IHrtModule where T : new() where S : IHrtConfigUi
+public interface IHrtModule<T, S> : IHrtModule where T : IHrtConfigData, new() where S : IHrtConfigUi
 {
     HrtConfiguration<T, S> Configuration { get; }
 }

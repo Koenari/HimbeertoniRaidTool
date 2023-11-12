@@ -3,6 +3,7 @@ using System.Numerics;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
@@ -16,10 +17,11 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
     public override ConfigUi Ui { get; }
 
     private bool _fullyLoaded;
-    private const int TARGET_VERSION = 1;
-    public LootMasterConfiguration(LootMasterModule hrtModule) : base(hrtModule.InternalName, hrtModule.Name)
+    private const int TARGET_VERSION = 2;
+    public LootMasterConfiguration(IHrtModule hrtModule) : base(hrtModule.InternalName, hrtModule.Name)
     {
         Ui = new ConfigUi(this);
+        
     }
     public override void AfterLoad()
     {
@@ -33,7 +35,39 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
             ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
         }
+        Upgrade();
         _fullyLoaded = true;
+    }
+
+    private void Upgrade()
+    {
+        while (Data.Version < TARGET_VERSION)
+        {
+            int oldVersion = Data.Version;
+            DoUpgradeStep();
+            if (Data.Version > oldVersion)
+                continue;
+            string msg = $"Error upgrading Lootmaster configuration from version {oldVersion}";
+            ServiceManager.PluginLog.Fatal(msg);
+            ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            throw new InvalidOperationException(msg);
+
+
+        }
+    }
+
+    private void DoUpgradeStep()
+    {
+        switch (Data.Version)
+        {
+            case 1:
+                Data.RaidGroups.Clear();
+#pragma warning disable CS0612
+                Data.RaidGroups = ServiceManager.HrtDataManager.Groups;
+#pragma warning restore CS0612
+                Data.Version = 2;
+                break;
+        }
     }
 
     internal sealed class ConfigUi : IHrtConfigUi
@@ -138,21 +172,26 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
 
         public void OnShow()
         {
+            _config.Data.BeforeSave();
             _dataCopy = _config.Data.Clone();
+            _dataCopy.AfterLoad();
             _lootList = new UiSortableList<LootRule>(LootRuling.PossibleRules, _dataCopy.LootRuling.RuleSet);
         }
 
         public void Save()
         {
             _dataCopy.LootRuling.RuleSet = new List<LootRule>(_lootList.List);
+            _dataCopy.BeforeSave();
             _config.Data = _dataCopy;
+            _config.Data.AfterLoad();
         }
     }
 
     [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
     [SuppressMessage("ReSharper", "RedundantDefaultMemberInitializer")]
-    internal sealed class ConfigData
+    internal sealed class ConfigData : IHrtConfigData
     {
+        [JsonProperty]
         public int Version { get; set; } = 1;
         /*
          * Appearance
@@ -230,6 +269,10 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
         public string ItemFormatString => _itemFormatStringCache ??= ParseItemFormatString(UserItemFormat);
         [JsonProperty]
         public int LastGroupIndex = 0;
+        [JsonIgnore]
+        public List<RaidGroup> RaidGroups = new();
+        [JsonProperty("RaidGroupIds",ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        private List<HrtId> _raidGroupIds = new();
         [JsonProperty("RaidTierIndex")]
         public int? RaidTierOverride = null;
         [JsonIgnore]
@@ -254,6 +297,21 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
                 }
             }
             return string.Join(' ', result);
+        }
+
+        public void AfterLoad()
+        {
+            RaidGroups.Clear();
+            foreach (HrtId id in _raidGroupIds)
+            {
+                if(ServiceManager.HrtDataManager.RaidGroupDb.TryGet(id,out RaidGroup? group))
+                    RaidGroups.Add(group);
+            }
+        }
+
+        public void BeforeSave()
+        {
+            _raidGroupIds = RaidGroups.ConvertAll(g => g.LocalId);
         }
     }
 }

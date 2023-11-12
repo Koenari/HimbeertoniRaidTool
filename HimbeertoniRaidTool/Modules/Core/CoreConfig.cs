@@ -41,12 +41,16 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData, CoreC
                 HrtUiMessageType.Failure);
     }
 
-    internal sealed class ConfigData
+    internal sealed class ConfigData : IHrtConfigData
     {
         [JsonProperty] internal bool ShowWelcomeWindow = true;
         [JsonProperty] public bool SavePeriodically = true;
         [JsonProperty] public int SaveIntervalMinutes = 30;
         [JsonProperty] public bool HideInCombat = true;
+
+        public void AfterLoad() { }
+
+        public void BeforeSave() { }
     }
 
     internal class ConfigUi : IHrtConfigUi

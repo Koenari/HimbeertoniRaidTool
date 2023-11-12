@@ -38,21 +38,12 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         },
     };
     //Properties
-    private static List<RaidGroup> RaidGroups => ServiceManager.HrtDataManager.Groups;
+    internal List<RaidGroup> RaidGroups => Configuration.Data.RaidGroups;
     private readonly LootmasterUi _ui;
     private readonly LootMasterConfiguration _config;
     private bool _fillSoloOnLogin;
     public LootMasterModule()
     {
-        if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo)
-        {
-            RaidGroups.Insert(0, new RaidGroup("Solo", GroupType.Solo)
-            {
-                TypeLocked = true,
-            });
-            _fillSoloOnLogin = true;
-        }
-
         _config = new LootMasterConfiguration(this);
         WindowSystem = new WindowSystem(InternalName);
         _ui = new LootmasterUi(this);
@@ -61,6 +52,21 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     }
     public void AfterFullyLoaded()
     {
+        if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo)
+        {
+            
+            var solo =  new RaidGroup("Solo", GroupType.Solo)
+            {
+                TypeLocked = true,
+            };
+            if(ServiceManager.HrtDataManager.RaidGroupDb.TryAdd(solo))
+            {
+                ServiceManager.PluginLog.Info("Add solo group");
+                RaidGroups.Insert(0,solo);
+                _fillSoloOnLogin = true;
+            }
+            
+        }
         if (ServiceManager.ClientState.IsLoggedIn)
             OnLogin();
         ServiceManager.HrtDataManager.GearDb.UpdateEtroSets(Configuration.Data.UpdateEtroBisOnStartup,
@@ -109,7 +115,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
             {
                 CharId = charId,
             };
-            if (!characterDb.TryAddCharacter(c))
+            if (!characterDb.TryAdd(c))
                 return;
         }
         p.NickName = c.Name.Split(' ')[0];
@@ -125,14 +131,16 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
                 {
                     EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job),
                 };
-                gearDb.AddSet(etroSet);
+                gearDb.TryAdd(etroSet);
             }
             c.MainClass.Bis = etroSet;
         }
         ServiceManager.HrtDataManager.Save();
     }
-    internal static void AddGroup(RaidGroup group, bool getGroupInfos)
+    internal void AddGroup(RaidGroup group, bool getGroupInfos)
     {
+        if (group.LocalId.IsEmpty)
+            ServiceManager.HrtDataManager.RaidGroupDb.TryAdd(group);
         RaidGroups.Add(group);
         if (!getGroupInfos)
             return;
@@ -231,7 +239,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
             if (character is null)
             {
                 character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
-                ServiceManager.HrtDataManager.CharDb.TryAddCharacter(character);
+                ServiceManager.HrtDataManager.CharDb.TryAdd(character);
                 bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
                 if (ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                 {
@@ -242,7 +250,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
                         ManagedBy = GearSetManager.Etro,
                         EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c),
                     };
-                    ServiceManager.HrtDataManager.GearDb.AddSet(bis);
+                    ServiceManager.HrtDataManager.GearDb.TryAdd(bis);
                     p.MainChar.MainClass.Bis = bis;
                 }
             }

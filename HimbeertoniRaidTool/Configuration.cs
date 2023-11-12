@@ -35,7 +35,7 @@ public class Configuration : IPluginConfiguration, IDisposable
         _ui.Show();
     }
 
-    internal bool RegisterConfig<T, S>(HrtConfiguration<T, S> config) where T : new() where S : IHrtConfigUi
+    internal bool RegisterConfig<T, S>(HrtConfiguration<T, S> config) where T : IHrtConfigData, new() where S : IHrtConfigUi
     {
         if (_configurations.ContainsKey(config.GetType()))
             return false;
@@ -156,14 +156,14 @@ public class Configuration : IPluginConfiguration, IDisposable
     }
 }
 
-public abstract class HrtConfiguration<T, S> where T : new() where S : IHrtConfigUi
+public abstract class HrtConfiguration<T, S> where T : IHrtConfigData, new() where S : IHrtConfigUi
 {
     public readonly string ParentInternalName;
     public readonly string ParentName;
     public T Data = new();
     public abstract S? Ui { get; }
 
-    public HrtConfiguration(string parentInternalName, string parentName)
+    protected HrtConfiguration(string parentInternalName, string parentName)
     {
         ParentInternalName = parentInternalName;
         ParentName = parentName;
@@ -184,4 +184,10 @@ public interface IHrtConfigUi
     public void OnHide();
     public void Save();
     public void Cancel();
+}
+
+public interface IHrtConfigData
+{
+    public void AfterLoad();
+    public void BeforeSave();
 }

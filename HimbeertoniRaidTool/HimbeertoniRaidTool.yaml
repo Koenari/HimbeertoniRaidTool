@@ -15,7 +15,4 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        BiS: Can create BiS from etro link as well as the etro id
-        BiS: Fixed an issue with BiS being empty for new jobs
-        BiS: Switched to using BiS sets curated by etro.gg
-        BiS: Removed user curated defaults from config
+        Internals: Changed how groups and players are saved

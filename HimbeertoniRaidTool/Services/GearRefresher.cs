@@ -141,8 +141,8 @@ internal unsafe class GearRefresher
             }
 
             targetClass = targetChar.AddClass(targetJob);
-            ServiceManager.HrtDataManager.GearDb.AddSet(targetClass.Gear);
-            ServiceManager.HrtDataManager.GearDb.AddSet(targetClass.Bis);
+            ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.Gear);
+            ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.Bis);
         }
 
         //Getting level does not work in level synced content

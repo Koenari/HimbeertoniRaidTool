@@ -6,8 +6,8 @@ namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
 internal interface IModuleConfigurationManager
 {
-    bool SaveConfiguration<T>(string internalName, T configData) where T : new();
-    bool LoadConfiguration<T>(string internalName, ref T configData) where T : new();
+    bool SaveConfiguration<T>(string internalName, T configData) where T : IHrtConfigData, new();
+    bool LoadConfiguration<T>(string internalName, ref T configData) where T : IHrtConfigData, new();
 }
 
 internal class ModuleConfigurationManager : IModuleConfigurationManager
@@ -29,16 +29,19 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
             if (!_moduleConfigDir.Exists)
                 _moduleConfigDir.Create();
         }
-        catch (Exception) { }
+        catch (IOException)
+        {
+        }
     }
 
-    public bool SaveConfiguration<T>(string internalName, T configData) where T : new()
+    public bool SaveConfiguration<T>(string internalName, T configData) where T : IHrtConfigData, new()
     {
+        configData.BeforeSave();
         FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
         string json = JsonConvert.SerializeObject(configData, _jsonSerializerSettings);
         return HrtDataManager.TryWrite(file, json);
     }
-    public bool LoadConfiguration<T>(string internalName, ref T configData) where T : new()
+    public bool LoadConfiguration<T>(string internalName, ref T configData) where T : IHrtConfigData, new()
     {
         FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
         if (file.Exists)
@@ -49,6 +52,7 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
             if (fromJson != null)
             {
                 configData = fromJson;
+                configData.AfterLoad();
                 return true;
             }
             else
@@ -60,9 +64,9 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
 
 internal class NotLoadedModuleConfigurationManager : IModuleConfigurationManager
 {
-    public bool LoadConfiguration<T>(string internalName, ref T configData) where T : new()
+    public bool LoadConfiguration<T>(string internalName, ref T configData) where T : IHrtConfigData, new()
         => false;
 
-    public bool SaveConfiguration<T>(string internalName, T configData) where T : new()
+    public bool SaveConfiguration<T>(string internalName, T configData) where T : IHrtConfigData, new()
         => false;
 }

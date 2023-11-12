@@ -17,9 +17,8 @@ internal class LootmasterUi : HrtWindow
     private readonly LootMasterModule _lootMaster;
     private LootMasterConfiguration.ConfigData CurConfig => _lootMaster.Configuration.Data;
     internal int CurrentGroupIndex { get; private set; }
-    private RaidGroup CurrentGroup => RaidGroups[CurrentGroupIndex];
+    private RaidGroup CurrentGroup => _lootMaster.RaidGroups[CurrentGroupIndex];
     private static GameExpansion CurrentExpansion => Common.Services.ServiceManager.GameInfo.CurrentExpansion;
-    private static List<RaidGroup> RaidGroups => ServiceManager.HrtDataManager.Groups;
     private readonly Queue<HrtUiMessage> _messageQueue = new();
     private (HrtUiMessage message, DateTime time)? _currentMessage;
     private readonly Vector2 _buttonSize;
@@ -233,7 +232,7 @@ internal class LootmasterUi : HrtWindow
 
     public override void Draw()
     {
-        if (CurrentGroupIndex > RaidGroups.Count - 1 || CurrentGroupIndex < 0)
+        if (CurrentGroupIndex > _lootMaster.RaidGroups.Count - 1 || CurrentGroupIndex < 0)
             CurrentGroupIndex = 0;
         DrawUiMessages();
         if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "showconfig",
@@ -286,12 +285,12 @@ internal class LootmasterUi : HrtWindow
     {
         ImGui.BeginTabBar("RaidGroupSwitchBar");
 
-        for (int tabBarIdx = 0; tabBarIdx < RaidGroups.Count; tabBarIdx++)
+        for (int tabBarIdx = 0; tabBarIdx < _lootMaster.RaidGroups.Count; tabBarIdx++)
         {
             bool isActiveGroup = tabBarIdx == CurrentGroupIndex;
             //0 is reserved for Solo on current Character (only partially editable)
             bool isPredefinedSolo = tabBarIdx == 0;
-            RaidGroup g = RaidGroups[tabBarIdx];
+            RaidGroup g = _lootMaster.RaidGroups[tabBarIdx];
             if (isActiveGroup) ImGui.PushStyleColor(ImGuiCol.Tab, Colors.RedWood);
 
             if (ImGui.TabItemButton($"{g.Name}##{tabBarIdx}"))
@@ -314,7 +313,7 @@ internal class LootmasterUi : HrtWindow
                             Localize("Delete group", "Delete group")))
                     {
                         AddChild(new ConfimationDialog(
-                            () => RaidGroups.Remove(g),
+                            () => _lootMaster.RaidGroups.Remove(g),
                             $"{Localize("DeleteRaidGroup", "Do you really want to delete following group:")} {g.Name}"));
                         ImGui.CloseCurrentPopup();
                     }
@@ -332,13 +331,13 @@ internal class LootmasterUi : HrtWindow
         {
             if (ImGuiHelper.Button(Localize("From current Group", "From current Group"), null))
             {
-                LootMasterModule.AddGroup(new RaidGroup(Localize("AutoCreatedGroupName", "Auto Created")), true);
+                _lootMaster.AddGroup(new RaidGroup(Localize("AutoCreatedGroupName", "Auto Created")), true);
                 ImGui.CloseCurrentPopup();
             }
 
             if (ImGuiHelper.Button(Localize("From scratch", "From scratch"),
                     Localize("Add empty group", "Add empty group")))
-                AddChild(new EditGroupWindow(new RaidGroup(), group => LootMasterModule.AddGroup(group, false)));
+                AddChild(new EditGroupWindow(new RaidGroup(), group => _lootMaster.AddGroup(group, false)));
             ImGui.EndPopup();
         }
 

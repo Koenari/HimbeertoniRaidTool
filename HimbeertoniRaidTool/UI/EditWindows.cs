@@ -160,8 +160,8 @@ internal class EditPlayerWindow : HrtWindow
             if (newClass == null)
             {
                 newClass = _playerCopy.MainChar.AddClass(_newJob);
-                ServiceManager.HrtDataManager.GearDb.AddSet(newClass.Gear);
-                ServiceManager.HrtDataManager.GearDb.AddSet(newClass.Bis);
+                ServiceManager.HrtDataManager.GearDb.TryAdd(newClass.Gear);
+                ServiceManager.HrtDataManager.GearDb.TryAdd(newClass.Bis);
             }
 
             newClass.Bis.ManagedBy = GearSetManager.Etro;
@@ -181,7 +181,7 @@ internal class EditPlayerWindow : HrtWindow
                     _playerCopy.MainChar.HomeWorldId, _playerCopy.MainChar.Name, out Character? c))
             {
                 c = new Character(_playerCopy.MainChar.Name, _playerCopy.MainChar.HomeWorldId);
-                if (!ServiceManager.HrtDataManager.CharDb.TryAddCharacter(c))
+                if (!ServiceManager.HrtDataManager.CharDb.TryAdd(c))
                     return;
             }
 
@@ -220,8 +220,8 @@ internal class EditPlayerWindow : HrtWindow
             if (target == null)
             {
                 target = _player.MainChar.AddClass(c.Job);
-                gearSetDb.AddSet(target.Gear);
-                gearSetDb.AddSet(target.Bis);
+                gearSetDb.TryAdd(target.Gear);
+                gearSetDb.TryAdd(target.Bis);
             }
 
             target.Level = c.Level;
@@ -236,7 +236,7 @@ internal class EditPlayerWindow : HrtWindow
                         ManagedBy = GearSetManager.Etro,
                         EtroId = c.Bis.EtroId,
                     };
-                    gearSetDb.AddSet(etroSet);
+                    gearSetDb.TryAdd(etroSet);
                     ServiceManager.TaskManager.RegisterTask(
                         new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(etroSet), _callBack,
                             $"Update {etroSet.Name} ({etroSet.EtroId}) from etro"));
@@ -250,7 +250,7 @@ internal class EditPlayerWindow : HrtWindow
                 {
                     ManagedBy = GearSetManager.Hrt,
                 };
-                if (!gearSetDb.AddSet(bis))
+                if (!gearSetDb.TryAdd(bis))
                     ServiceManager.PluginLog.Debug("BiS not saved!");
                 target.Bis = bis;
             }
@@ -355,7 +355,7 @@ internal class EditGearSetWindow : HrtWindowWithModalChild
                 ImGui.IsKeyDown(ImGuiKey.ModShift), new Vector2(50, 25)))
         {
             GearSet newSet = new();
-            if (ServiceManager.HrtDataManager.GearDb.AddSet(newSet))
+            if (ServiceManager.HrtDataManager.GearDb.TryAdd(newSet))
             {
                 _gearSetCopy = newSet;
                 Save();
@@ -377,7 +377,7 @@ internal class EditGearSetWindow : HrtWindowWithModalChild
                 _gearSet.RemoteIDs = new List<HrtId>();
                 _gearSet.ManagedBy = GearSetManager.Hrt;
                 _gearSet.EtroId = string.Empty;
-                ServiceManager.HrtDataManager.GearDb.AddSet(_gearSet);
+                ServiceManager.HrtDataManager.GearDb.TryAdd(_gearSet);
                 _onSave(_gearSet);
                 _gearSetCopy = _gearSet.Clone();
             }
