@@ -188,7 +188,6 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
     }
 
     [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
-    [SuppressMessage("ReSharper", "RedundantDefaultMemberInitializer")]
     internal sealed class ConfigData : IHrtConfigData
     {
         [JsonProperty]

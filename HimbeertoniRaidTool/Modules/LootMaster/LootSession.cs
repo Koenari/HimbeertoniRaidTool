@@ -21,6 +21,7 @@ public class LootSession
             Results.Clear();
         }
     }
+    
     public Dictionary<(HrtItem, int), LootResultContainer> Results { get; } = new();
     public List<Player> Excluded = new();
     public readonly RolePriority RolePriority;

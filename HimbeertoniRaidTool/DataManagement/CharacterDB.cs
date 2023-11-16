@@ -154,18 +154,4 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
         settings.Converters.Remove(conv);
         return result;
     }
-
-    internal void Prune(HrtDataManager hrtDataManager)
-    {
-        ServiceManager.PluginLog.Debug("Begin pruning of character database.");
-        foreach (HrtId toPrune in hrtDataManager.FindOrphanedCharacters(Data.Keys))
-        {
-            if (!Data.TryGetValue(toPrune, out Character? character)) continue;
-            ServiceManager.PluginLog.Information(
-                $"Removed {character.Name} @ {character.HomeWorld?.Name} ({character.LocalId}) from DB");
-            Data.Remove(toPrune);
-        }
-
-        ServiceManager.PluginLog.Debug("Finished pruning of character database.");
-    }
 }

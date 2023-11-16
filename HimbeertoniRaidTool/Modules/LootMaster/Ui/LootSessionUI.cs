@@ -12,8 +12,9 @@ internal class LootSessionUi : HrtWindow
     private const string RULES_POPUP_ID = "RulesButtonPopup";
     private readonly LootSession _session;
     private readonly UiSortableList<LootRule> _ruleListUi;
+    private readonly IEnumerable<RaidGroup> _possibleGroups;
 
-    internal LootSessionUi(InstanceWithLoot lootSource, RaidGroup group, LootRuling lootRuling,
+    internal LootSessionUi(InstanceWithLoot lootSource, RaidGroup group, IEnumerable<RaidGroup> possibleGroups, LootRuling lootRuling,
         RolePriority defaultRolePriority)
     {
         _session = new LootSession(group, lootRuling, defaultRolePriority, lootSource);
@@ -25,6 +26,7 @@ internal class LootSessionUi : HrtWindow
         Title = $"{Localize("Loot session for", "Loot session for")} {lootSource.Name}";
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         OpenCentered = true;
+        _possibleGroups = possibleGroups;
     }
 
     public override void Draw()
@@ -53,7 +55,7 @@ internal class LootSessionUi : HrtWindow
         if (ImGui.BeginCombo("##RaidGroup", _session.Group.Name))
         {
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (RaidGroup group in ServiceManager.HrtDataManager.Groups)
+            foreach (RaidGroup group in _possibleGroups)
                 if (ImGui.Selectable(group.Name) && group != _session.Group)
                     _session.Group = group;
             ImGui.EndCombo();

@@ -151,7 +151,7 @@ public class HrtDataManager
                 {
                     raidGroupJsonFile.MoveTo($"{configDirName}{Path.DirectorySeparatorChar}{RAID_GROUP_JSON_FILE_NAME}.bak",true);
                 }
-                catch (Exception _)
+                catch (Exception)
                 {
                     // ignored
                 }
