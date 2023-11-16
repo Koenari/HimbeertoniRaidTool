@@ -10,7 +10,4 @@ public static class Colors
 
     public static Vector4 RedWood => new(0.4f, 0.15f, 0.15f, 1f);
 
-    public static Vector4 WithAlpha(this Vector4 old, float alpha) =>
-        new(old.X, old.Y, old.Z, alpha);
-
 }

@@ -18,7 +18,7 @@ internal static class Localization
         _loc.SetupWithLangCode(pluginInterface.UiLanguage);
         pluginInterface.LanguageChanged += OnLanguageChanged;
     }
-
+    public static string Localize(string id) => Localize(id, id);
     public static string Localize(string id, string fallBack)
     {
         if (_fallBack || _loc is null)

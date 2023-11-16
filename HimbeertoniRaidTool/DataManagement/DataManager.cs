@@ -35,10 +35,42 @@ public class HrtDataManager
     [Obsolete]
     internal List<RaidGroup> Groups => _groups ?? new List<RaidGroup>();
 
-    internal RaidGroupDb RaidGroupDb => GetRaidGroupDb();
-    internal PlayerDb PlayerDb => GetPlayerDb();
-    internal CharacterDb CharDb => GetCharacterDb();
-    internal GearDb GearDb => GetGearSetDb();
+    internal IDataBaseTable<RaidGroup> RaidGroupDb
+    {
+        get
+        {
+            while (_serializing)
+                Thread.Sleep(1);
+            return _raidGroupDb;
+        }
+    }
+    internal IDataBaseTable<Player> PlayerDb
+    {
+        get
+        {
+            while (_serializing)
+                Thread.Sleep(1);
+            return _playerDb;
+        }
+    }
+    internal CharacterDb CharDb
+    {
+        get
+        {
+            while (_serializing)
+                Thread.Sleep(1);
+            return _characterDb;
+        }
+    }
+    internal GearDb GearDb
+    {
+        get
+        {
+            while (_serializing)
+                Thread.Sleep(1);
+            return _gearDb;
+        }
+    }
     internal readonly IModuleConfigurationManager ModuleConfigurationManager;
     internal readonly IIdProvider IdProvider;
     private static readonly JsonSerializerSettings _jsonSettings = new()
@@ -144,51 +176,6 @@ public class HrtDataManager
         //GearDb.Prune(CharDb);
     }
 
-    internal IEnumerable<HrtId> FindOrphanedCharacters(IEnumerable<HrtId> possibleOrphans)
-    {
-        HashSet<HrtId> orphans = new(possibleOrphans);
-        if (_groups is null) return Array.Empty<HrtId>();
-        foreach (Character character in _groups.SelectMany(g => g).SelectMany(p => p.Chars))
-        {
-            orphans.Remove(character.LocalId);
-        }
-        ServiceManager.PluginLog.Information($"Found {orphans.Count} orphaned characters.");
-        return orphans;
-    }
-    private RaidGroupDb GetRaidGroupDb()
-    {
-        while (_serializing)
-        {
-            Thread.Sleep(1);
-        }
-        return _raidGroupDb;
-    }
-    private PlayerDb GetPlayerDb()
-    {
-        while (_serializing)
-        {
-            Thread.Sleep(1);
-        }
-        return _playerDb;
-    }
-
-    private CharacterDb GetCharacterDb()
-    {
-        while (_serializing)
-        {
-            Thread.Sleep(1);
-        }
-        return _characterDb;
-    }
-    private GearDb GetGearSetDb()
-    {
-        while (_serializing)
-        {
-            Thread.Sleep(1);
-        }
-        return _gearDb;
-    }
-
     internal static bool TryRead(FileInfo file, out string data)
     {
         data = "";
@@ -218,15 +205,6 @@ public class HrtDataManager
             ServiceManager.PluginLog.Error(e, "Could not write data file");
             return false;
         }
-    }
-
-    // ReSharper disable once SuggestBaseTypeForParameter
-    private string SerializeGroupData(HrtIdReferenceConverter<Character> charRefCon)
-    {
-        _jsonSettings.Converters.Add(charRefCon);
-        string result = JsonConvert.SerializeObject(_groups, _jsonSettings);
-        _jsonSettings.Converters.Remove(charRefCon);
-        return result;
     }
     public bool Save()
     {
