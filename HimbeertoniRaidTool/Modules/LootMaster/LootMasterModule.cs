@@ -256,6 +256,11 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         }
         ServiceManager.HrtDataManager.Save();
     }
+    public void FillPlayerFromTarget(Player player)
+    {
+        //Todo: Implement
+        throw new NotImplementedException();
+    }
     public void OnCommand(string command, string args)
     {
         switch (args)

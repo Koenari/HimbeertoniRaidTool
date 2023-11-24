@@ -137,6 +137,10 @@ internal class EditPlayerWindow : EditWindow<Player>
 
     protected override void Save(Player destination)
     {
+        if (destination.LocalId.IsEmpty)
+        {
+            ServiceManager.HrtDataManager.PlayerDb.TryAdd(destination);
+        }
         //Player Data
         destination.NickName = DataCopy.NickName;
     }

@@ -483,14 +483,26 @@ internal class LootmasterUi : HrtWindow
             for (int i = 0; i < 12; i++)
                 ImGui.TableNextColumn();
             ImGui.TableNextColumn();
-            ImGui.NewLine();
-            //Todo: Does not work
-            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddNew", Localize("Add", "Add"), true, ButtonSize))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddNew", Localize("LmUi:Button:NewPlayerEmpty", "Add empty"), true, ButtonSize))
                 AddChild(new EditPlayerWindow(player));
             ImGui.SameLine();
             //Todo: Does not work
-            if (ImGuiHelper.Button(FontAwesomeIcon.Search, "AddFromDB", Localize("Add from DB", "Add from DB"), true, ButtonSize))
-                AddChild(new GetCharacterFromDbWindow(ref player));
+            if (ImGuiHelper.Button(FontAwesomeIcon.Search, "AddPlayerFromDB", Localize("LmUi:Button:PLayerFromDb", "Add player from DB"), true, ButtonSize))
+                AddChild(ServiceManager.HrtDataManager.PlayerDb.OpenSearchWindow(selected => player = selected));
+
+            //Todo: Does not work
+            if (ImGuiHelper.Button(FontAwesomeIcon.SearchLocation, "AddTarget", Localize("LmUi:Button:PLayerFromTarget", "Fill with target"), ServiceManager.TargetManager.Target is not null, ButtonSize))
+                _lootMaster.FillPlayerFromTarget(player);
+            ImGui.SameLine();
+            //Todo: Does not work
+            if (ImGuiHelper.Button(FontAwesomeIcon.Search, "AddCharFromDB", Localize("LmUi:Button:CharacterFromDb", "Add character from DB"), true, ButtonSize))
+                AddChild(ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(selected =>
+                {
+                    if (!ServiceManager.HrtDataManager.PlayerDb.TryAdd(player))
+                        return;
+                    player.NickName = selected.Name.Split(' ')[0];
+                    player.MainChar = selected;
+                }));
         }
     }
 
@@ -556,56 +568,6 @@ internal class LootmasterUi : HrtWindow
         {
             _drawPlayer(_player);
         }
-    }
-}
-
-internal class GetCharacterFromDbWindow : HrtWindow
-{
-    private readonly Player _p;
-    private readonly uint[] _worlds;
-    private readonly string[] _worldNames;
-    private int _worldSelectIndex;
-    private string[] _characterNames = Array.Empty<string>();
-    private int _characterNameIndex;
-    private string _nickName = " ";
-
-    internal GetCharacterFromDbWindow(ref Player p) : base($"GetCharacterFromDBWindow{p.NickName}")
-    {
-        _p = p;
-        _worlds = ServiceManager.HrtDataManager.CharDb.GetUsedWorlds().ToArray();
-        _worldNames = Array.ConvertAll(_worlds,
-            x => ServiceManager.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name
-                .RawString ?? "");
-        Title = Localize("GetCharacterTitle", "Get character from DB");
-        Size = new Vector2(350, 420);
-        Flags = ImGuiWindowFlags.NoScrollbar;
-    }
-
-    public override void Draw()
-    {
-        ImGui.InputText(Localize("Player Name", "Player Name"), ref _nickName, 50);
-        if (ImGui.ListBox("World", ref _worldSelectIndex, _worldNames, _worldNames.Length))
-        {
-            var list = ServiceManager.HrtDataManager.CharDb.GetKnownCharacters(_worlds[_worldSelectIndex]);
-            _characterNames = list.ToArray();
-            Array.Sort(_characterNames);
-        }
-
-        ImGui.ListBox("Name", ref _characterNameIndex, _characterNames, _characterNames.Length);
-        if (ImGuiHelper.Button(FontAwesomeIcon.Save, "save", Localize("Save", "Save")))
-        {
-            _p.NickName = _nickName;
-            Character? c = _p.MainChar;
-            c.Name = _characterNames[_characterNameIndex];
-            c.HomeWorldId = _worlds[_worldSelectIndex];
-            if (ServiceManager.HrtDataManager.CharDb.SearchCharacter(c.HomeWorldId, c.Name, out c))
-                _p.MainChar = c;
-            Hide();
-        }
-
-        ImGui.SameLine();
-        if (ImGuiHelper.Button(FontAwesomeIcon.WindowClose, "cancel", Localize("Cancel", "Cancel")))
-            Hide();
     }
 }
 
