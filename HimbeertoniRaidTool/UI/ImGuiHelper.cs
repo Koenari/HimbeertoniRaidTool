@@ -170,28 +170,31 @@ public static class ImGuiHelper
     private static int _hoveredItem = 0;
     //This is a small hack since to my knowledge there is no way to close and existing combo when not clicking
     private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> _comboDic = new();
+
+    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
+        IEnumerable<T> possibilities, Func<T, string> toName,ImGuiComboFlags flags = ImGuiComboFlags.None) where T : notnull =>
+        SearchableCombo(id, out selected, preview, possibilities, toName, (p,s)=>toName.Invoke(p).Contains(s,StringComparison.InvariantCultureIgnoreCase), flags);
     public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
         IEnumerable<T> possibilities, Func<T, string> toName, Func<T, string, bool> searchPredicate,
-        ImGuiComboFlags flags = ImGuiComboFlags.None) where T : notnull
-        => SearchableCombo(id, out selected, preview, possibilities, toName, searchPredicate, _ => true, flags);
+        ImGuiComboFlags flags = ImGuiComboFlags.None) where T : notnull => SearchableCombo(id, out selected, preview, possibilities, toName, searchPredicate, _ => true, flags);
     public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
         IEnumerable<T> possibilities, Func<T, string> toName, Func<T, string, bool> searchPredicate,
         Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : notnull
     {
-        if (!_comboDic.ContainsKey(id))
-            _comboDic.Add(id, (false, false));
-        (bool toogle, bool wasEnterClickedLastTime) = _comboDic[id];
+        
+        _comboDic.TryAdd(id, (false, false));
+        (bool toggle, bool wasEnterClickedLastTime) = _comboDic[id];
         selected = default;
-        if (!ImGui.BeginCombo(id + (toogle ? "##x" : ""), preview, flags)) return false;
+        if (!ImGui.BeginCombo(id + (toggle ? "##x" : ""), preview, flags)) return false;
         if (wasEnterClickedLastTime || ImGui.IsKeyPressed(ImGuiKey.Escape))
         {
-            toogle = !toogle;
+            toggle = !toggle;
             _search = string.Empty;
             _filtered = null;
         }
-        bool enterClicked = ImGui.IsKeyPressed(ImGuiKey.Enter);
+        bool enterClicked = ImGui.IsKeyPressed(ImGuiKey.Enter) || ImGui.IsKeyPressed(ImGuiKey.KeypadEnter);
         wasEnterClickedLastTime = enterClicked;
-        _comboDic[id] = (toogle, wasEnterClickedLastTime);
+        _comboDic[id] = (toggle, wasEnterClickedLastTime);
         if (ImGui.IsKeyPressed(ImGuiKey.UpArrow))
             _hoveredItem--;
         if (ImGui.IsKeyPressed(ImGuiKey.DownArrow))

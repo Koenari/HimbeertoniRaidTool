@@ -1,8 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Plugin.UI;
+using ImGuiNET;
 using Newtonsoft.Json;
+using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -153,5 +157,44 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
         string result = JsonConvert.SerializeObject(Data.Values, settings);
         settings.Converters.Remove(conv);
         return result;
+    }
+
+    public override HrtWindow OpenSearchWindow(Action<Character> onSelect, Action? onCancel = null)
+    {
+        return new CharacterSearchWindow(this,onSelect, onCancel);
+    }
+    private class CharacterSearchWindow : SearchWindow<Character, CharacterDb>
+    {
+        private readonly uint[] _worlds;
+        private readonly string[] _worldNames;
+        private int _worldSelectIndex;
+        private string[] _characterNames = Array.Empty<string>();
+        private int _characterNameIndex;
+
+            
+
+        public CharacterSearchWindow(CharacterDb dataBase,Action<Character> onSelect, Action? onCancel) : base(dataBase,onSelect, onCancel)
+        {
+            _worlds = ServiceManager.HrtDataManager.CharDb.GetUsedWorlds().ToArray();
+            _worldNames = Array.ConvertAll(_worlds,
+                x => ServiceManager.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name
+                    .RawString ?? "");
+            Title = Localize("GetCharacterTitle", "Get character from DB");
+            Size = new Vector2(350, 420);
+            Flags = ImGuiWindowFlags.NoScrollbar;
+        }
+
+        protected override void DrawContent()
+        {
+            if (ImGui.ListBox("World", ref _worldSelectIndex, _worldNames, _worldNames.Length))
+            {
+                var list = ServiceManager.HrtDataManager.CharDb.GetKnownCharacters(_worlds[_worldSelectIndex]);
+                _characterNames = list.ToArray();
+                Array.Sort(_characterNames);
+            }
+
+            if (ImGui.ListBox("Name", ref _characterNameIndex, _characterNames, _characterNames.Length))
+                Database.SearchCharacter(_worlds[_worldSelectIndex],_characterNames[_characterNameIndex],out Selected);
+        }
     }
 }

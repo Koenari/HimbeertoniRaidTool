@@ -36,7 +36,7 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
         set = null;
         return false;
     }
-
+    
     internal void Prune(CharacterDb charDb)
     {
         ServiceManager.PluginLog.Debug("Begin pruning of gear database.");
@@ -48,28 +48,21 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
         }
         ServiceManager.PluginLog.Debug("Finished pruning of gear database.");
     }
-    private static void LogUpdates(HrtUiMessage hrtUiMessage)
+
+    public override HrtWindow OpenSearchWindow(Action<GearSet> onSelect, Action? onCancel = null)
     {
-        ServiceManager.PluginLog.Information(hrtUiMessage.Message);
+        return new GearSearchWindow(this,onSelect,onCancel);
     }
-    private HrtUiMessage UpdateEtroSetsAsync(bool updateAll, int maxAgeInDays)
+
+    private class GearSearchWindow : SearchWindow<GearSet, GearDb>
     {
-        DateTime oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
-        int totalCount = 0;
-        int updateCount = 0;
-        foreach (GearSet gearSet in Data.Values.Where(set => set.ManagedBy == GearSetManager.Etro))
+        public GearSearchWindow(GearDb dataBase,Action<GearSet> onSelect, Action? onCancel) : base(dataBase,onSelect, onCancel)
         {
-            totalCount++;
-            if (gearSet.IsEmpty || gearSet.EtroFetchDate < oldestValid && updateAll)
-            {
-                HrtUiMessage message = ServiceManager.ConnectorPool.EtroConnector.GetGearSet(gearSet);
-                if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
-                    ServiceManager.PluginLog.Error(message.Message);
-                updateCount++;
-            }
         }
 
-        return new HrtUiMessage($"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated");
-
+        protected override void DrawContent()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

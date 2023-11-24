@@ -5,6 +5,8 @@ using HimbeertoniRaidTool.Common.Security;
 using Newtonsoft.Json;
 using System.IO;
 using System.Threading;
+using HimbeertoniRaidTool.Plugin.UI;
+using ImGuiNET;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -253,6 +255,7 @@ public interface IDataBaseTable<T> where T : IHasHrtId
     internal bool Contains(HrtId hrtId);
     internal ulong GetNextSequence();
     internal IEnumerable<T> GetValues();
+    internal HrtWindow OpenSearchWindow(Action<T> onSelect, Action? onCancel = null);
 }
 
 public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, IHasHrtId where S : IHasHrtId 
@@ -304,11 +307,50 @@ public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, I
     public bool Contains(HrtId hrtId) => Data.ContainsKey(hrtId);
     public IEnumerable<T> GetValues() => Data.Values;
     public ulong GetNextSequence() => NextSequence++;
+    public abstract HrtWindow OpenSearchWindow(Action<T> onSelect, Action? onCancel = null);
     internal string Serialize(JsonSerializerSettings settings)
     {
         if(RefConv is not null) settings.Converters.Add(RefConv);
         string result = JsonConvert.SerializeObject(Data.Values, settings);
         if(RefConv is not null) settings.Converters.Remove(RefConv);
         return result;
+    }
+    internal abstract class SearchWindow<Q,R> : HrtWindow where R : IDataBaseTable<Q> where Q : IHasHrtId
+    {
+        protected readonly R Database;
+        private readonly Action<Q> _onSelect;
+        private readonly Action? _onCancel;
+
+        protected Q? Selected;
+        protected SearchWindow(R dataBase, Action<Q> onSelect, Action? onCancel)
+        {
+            this._onSelect = onSelect;
+            this._onCancel = onCancel;
+            Database = dataBase;
+        }
+
+        protected void Save()
+        {
+            if (Selected == null)
+                return;
+            _onSelect.Invoke(Selected!);
+            Hide();
+        }
+
+        public override void Draw()
+        {
+            if (ImGuiHelper.SaveButton(null, Selected is not null))
+            {
+                Save();
+            }
+            ImGui.SameLine();
+            if (ImGuiHelper.CancelButton())
+            {
+                _onCancel?.Invoke();
+                Hide();
+            }
+            DrawContent();
+        }
+        protected abstract void DrawContent();
     }
 }
