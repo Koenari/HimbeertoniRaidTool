@@ -138,6 +138,7 @@ public class ConfimationDialog : HrtWindow
 
 public class HrtUiMessage
 {
+    public static HrtUiMessage Empty => new("", HrtUiMessageType.Discard);
     public HrtUiMessageType MessageType;
     public string Message;
     public HrtUiMessage(string msg, HrtUiMessageType msgType = HrtUiMessageType.Info)
@@ -149,6 +150,7 @@ public class HrtUiMessage
 
 public enum HrtUiMessageType
 {
+    Discard,
     Info,
     Success,
     Failure,

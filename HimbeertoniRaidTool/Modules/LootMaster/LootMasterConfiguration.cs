@@ -75,7 +75,6 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
         private readonly LootMasterConfiguration _config;
         private ConfigData _dataCopy;
         private UiSortableList<LootRule> _lootList;
-        private static float ScaleFactor => HrtWindow.ScaleFactor;
 
         internal ConfigUi(LootMasterConfiguration config)
         {
@@ -97,11 +96,16 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
                 ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"), ref _dataCopy.OpenOnStartup);
                 ImGuiHelper.AddTooltip(Localize("Lootmaster:OpenOnLoginTooltip",
                     "Opens group overview window when you log in"));
+                ImGui.Checkbox(Localize("Config:Lootmaster:IgnoreMateriaForBis",
+                    "Ignore Materia"), ref _dataCopy.IgnoreMateriaForBiS);
+                ImGuiHelper.AddTooltip(Localize("Config:Lootmaster:IgnoreMateriaForBisTooltip",
+                    "Ignore Materia when determining if an item is equivalent to BiS"));
                 ImGui.Checkbox(Localize("Config:Lootmaster:IconInGroupOverview", "Show item icon in group overview"),
                     ref _dataCopy.ShowIconInGroupOverview);
                 ImGui.Checkbox(Localize("Config:Lootmaster:ColoredItemNames", "Color items by item level"), ref _dataCopy.ColoredItemNames);
                 ImGuiHelper.AddTooltip(Localize("Lootmaster:ColoredItemNamesTooltip",
                     "Color items according to the item level"));
+                ImGui.BeginDisabled(!_dataCopy.ColoredItemNames);
                 ImGui.Text($"{Localize("Config:Lootmaster:Colors", "Configured colors")}:");
                 ImGui.NewLine();
                 uint iLvL = _config.Data.SelectedRaidTier.ArmorItemLevel;
@@ -119,6 +123,7 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
                 ImGui.SameLine();
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.CalcTextSize($" >= {iLvL - 20}").X);
                 ImGui.ColorEdit4("##Color3", ref _dataCopy.ItemLevelColors[3]);
+                ImGui.EndDisabled();
                 ImGui.Separator();
                 ImGui.Text($"{Localize("Config:Lootmaster:ItemFormat", "Item format")}:");
                 ImGui.SameLine();
@@ -137,22 +142,6 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
                         ImGui.Text(string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
                     ImGui.SameLine();
                 }
-                ImGui.EndTabItem();
-            }
-            if (ImGui.BeginTabItem("BiS"))
-            {
-                ImGui.Checkbox(Localize("Config:Lootmaster:IgnoreMateriaForBis",
-                    "Ignore Materia"), ref _dataCopy.IgnoreMateriaForBiS);
-                ImGuiHelper.AddTooltip(Localize("Config:Lootmaster:IgnoreMateriaForBisTooltip",
-                    "Ignore Materia when determining if an item is equivalent to BiS"));
-                ImGui.Checkbox(Localize("UpdateBisONStartUp", "Update sets from etro.gg periodically"), ref _dataCopy.UpdateEtroBisOnStartup);
-                ImGui.SetNextItemWidth(150f * ScaleFactor);
-                if (ImGui.InputInt(Localize("BisUpdateInterval", "Update interval (days)"), ref _dataCopy.EtroUpdateIntervalDays))
-                    if (_dataCopy.EtroUpdateIntervalDays < 1)
-                        _dataCopy.EtroUpdateIntervalDays = 1;
-                ImGui.Text(Localize("DefaultBiSHeading", "Default BiS sets (as etro.gg ID)"));
-                ImGui.TextWrapped(Localize("DefaultBiSDisclaimer",
-                    "These sets are used when creating a new character or adding a new job. These do not affect already created characters and jobs."));
                 ImGui.EndTabItem();
             }
             if (ImGui.BeginTabItem("Loot"))
@@ -220,10 +209,14 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
         /*
          * BiS
          */
-        [JsonProperty]
-        public bool UpdateEtroBisOnStartup = false;
-        [JsonProperty]
-        public int EtroUpdateIntervalDays = 14;
+        [JsonProperty][Obsolete("Moved to Core Module",true)]
+        public bool UpdateEtroBisOnStartup {
+            set => ServiceManager.CoreModule.Configuration.Data.UpdateEtroBisOnStartup = value;
+        }
+        [JsonProperty][Obsolete("Moved to Core Module",true)]
+        public int EtroUpdateIntervalDays {
+            set => ServiceManager.CoreModule.Configuration.Data.EtroUpdateIntervalDays = value;
+        }
         /*
          * Loot
          */

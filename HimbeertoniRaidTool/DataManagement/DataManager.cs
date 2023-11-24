@@ -252,6 +252,7 @@ public interface IDataBaseTable<T> where T : IHasHrtId
     internal bool TryAdd(in T value);
     internal bool Contains(HrtId hrtId);
     internal ulong GetNextSequence();
+    internal IEnumerable<T> GetValues();
 }
 
 public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, IHasHrtId where S : IHasHrtId 
@@ -262,7 +263,6 @@ public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, I
     protected readonly IIdProvider IdProvider;
     protected ulong NextSequence = 0;
     protected bool LoadError = false;
-    // ReSharper disable once SuggestBaseTypeForParameterInConstructor
     protected DataBaseTable(IIdProvider idProvider, string serializedData, HrtIdReferenceConverter<S>? conv, JsonSerializerSettings settings)
     {
         IdProvider = idProvider;
@@ -302,7 +302,7 @@ public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, I
     }
 
     public bool Contains(HrtId hrtId) => Data.ContainsKey(hrtId);
-    
+    public IEnumerable<T> GetValues() => Data.Values;
     public ulong GetNextSequence() => NextSequence++;
     internal string Serialize(JsonSerializerSettings settings)
     {

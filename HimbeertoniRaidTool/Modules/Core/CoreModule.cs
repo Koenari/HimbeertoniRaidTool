@@ -88,10 +88,17 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
 
     public void HandleMessage(HrtUiMessage message)
     {
-        if (message.MessageType is HrtUiMessageType.Failure or HrtUiMessageType.Error)
-            ServiceManager.PluginLog.Warning(message.Message);
-        else
-            ServiceManager.PluginLog.Information(message.Message);
+        switch (message.MessageType)
+        {
+            case HrtUiMessageType.Discard:
+                return;
+            case HrtUiMessageType.Failure or HrtUiMessageType.Error:
+                ServiceManager.PluginLog.Warning(message.Message);
+                break;
+            default:
+                ServiceManager.PluginLog.Information(message.Message);
+                break;
+        }
     }
 
     internal void AddCommand(HrtCommand command)
@@ -139,6 +146,18 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
 
     public void AfterFullyLoaded()
     {
+        ServiceManager.TaskManager.RegisterTask(
+            new HrtTask(() =>
+            {
+                ServiceManager.HrtDataManager.PruneDatabase();
+                return HrtUiMessage.Empty;
+            }, HandleMessage, "Prune database")
+        );
+        ServiceManager.TaskManager.RegisterTask(
+            new HrtTask(
+                () => Connectors.EtroConnector.UpdateEtroSets(Configuration.Data.UpdateEtroBisOnStartup, Configuration.Data.EtroUpdateIntervalDays),
+                HandleMessage, "Update etro sets")
+        );
         if (_config.Data.ShowWelcomeWindow)
             _wcw.Show();
     }

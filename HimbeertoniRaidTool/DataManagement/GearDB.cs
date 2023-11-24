@@ -9,7 +9,6 @@ namespace HimbeertoniRaidTool.Plugin.DataManagement;
 internal class GearDb : DataBaseTable<GearSet, GearSet>
 {
     private readonly Dictionary<string, HrtId> _etroLookup = new();
-    private bool _etroHasUpdated = false;
 
     internal GearDb(IIdProvider idProvider, string gearData, JsonSerializerSettings settings) : base(idProvider, gearData, null, settings)
     {
@@ -36,13 +35,6 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
         }
         set = null;
         return false;
-    }
-    internal void UpdateEtroSets(bool updateAll, int maxAgeInDays)
-    {
-        if (_etroHasUpdated)
-            return;
-        _etroHasUpdated = true;
-        ServiceManager.TaskManager.RegisterTask(new HrtTask(() => UpdateEtroSetsAsync(updateAll, maxAgeInDays), LogUpdates, "Update etro sets"));
     }
 
     internal void Prune(CharacterDb charDb)

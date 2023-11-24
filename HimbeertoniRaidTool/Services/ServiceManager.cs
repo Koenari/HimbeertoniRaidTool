@@ -1,7 +1,4 @@
-﻿using Dalamud.Game;
-using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState.Objects;
-using Dalamud.Game.Gui;
+﻿using Dalamud.Game.ClientState.Objects;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -9,7 +6,6 @@ using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
-using HimbeertoniRaidTool.Plugin.UI;
 
 #pragma warning disable CS8618
 namespace HimbeertoniRaidTool.Plugin.Services;
@@ -47,14 +43,6 @@ internal class ServiceManager
         TaskManager ??= new TaskManager();
         ConnectorPool ??= new ConnectorPool(TaskManager);
         CharacterInfoService ??= new CharacterInfoService(ObjectTable, PartyList);
-        //TODO: Move somewhere else
-        TaskManager.RegisterTask(
-            new HrtTask(() =>
-            {
-                HrtDataManager.PruneDatabase();
-                return new HrtUiMessage("");
-            }, _ => { }, "Prune database")
-        );
         GearRefresher.Instance.Enable();
         return HrtDataManager.Initialized;
     }

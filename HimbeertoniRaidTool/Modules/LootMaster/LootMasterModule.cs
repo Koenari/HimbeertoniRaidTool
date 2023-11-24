@@ -69,8 +69,6 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         }
         if (ServiceManager.ClientState.IsLoggedIn)
             OnLogin();
-        ServiceManager.HrtDataManager.GearDb.UpdateEtroSets(Configuration.Data.UpdateEtroBisOnStartup,
-            Configuration.Data.EtroUpdateIntervalDays);
     }
     public void OnLogin()
     {

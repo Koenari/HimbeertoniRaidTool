@@ -1,8 +1,6 @@
-﻿using System.Collections.Concurrent;
-using HimbeertoniRaidTool.Common.Data;
+﻿using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
@@ -123,6 +121,26 @@ internal class EtroConnector : WebConnector
                 set[slot].AddMateria(new HrtMateria(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, MateriaLevel)>(matId!.Value, (0, 0))));
             }
         }
+    }
+    internal static HrtUiMessage UpdateEtroSets(bool updateAll, int maxAgeInDays)
+    {
+        DateTime oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
+        int totalCount = 0;
+        int updateCount = 0;
+        foreach (GearSet gearSet in ServiceManager.HrtDataManager.GearDb.GetValues().Where(set => set.ManagedBy == GearSetManager.Etro))
+        {
+            totalCount++;
+            if (gearSet.IsEmpty || gearSet.EtroFetchDate < oldestValid && updateAll)
+            {
+                HrtUiMessage message = ServiceManager.ConnectorPool.EtroConnector.GetGearSet(gearSet);
+                if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
+                    ServiceManager.PluginLog.Error(message.Message);
+                updateCount++;
+            }
+        }
+
+        return new HrtUiMessage($"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated");
+
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
