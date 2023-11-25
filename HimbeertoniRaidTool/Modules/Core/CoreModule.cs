@@ -107,7 +107,7 @@ internal class CoreModule : IHrtModule
         _registeredCommands.Add(command);
     }
 
-    private void OnCommand(string command, string args)
+    internal void OnCommand(string command, string args)
     {
         if (!command.Equals("/hrt")) return;
         string subCommand = '/' + (args.IsNullOrEmpty() ? "help" : args.Split(' ')[0]);

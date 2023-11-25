@@ -1,6 +1,7 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Hooking;
+using Dalamud.Plugin.Services;
 using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -34,9 +35,9 @@ internal unsafe class GearRefresher
     }
 
 
-    internal void Enable()
+    internal void Enable(IGameInteropProvider iopProvider)
     {
-        ServiceManager.GameInteropProvider.InitializeFromAttributes(this);
+        iopProvider.InitializeFromAttributes(this);
         if (_hook is null)
         {
             ServiceManager.PluginLog.Error("Failed to hook into examine window");

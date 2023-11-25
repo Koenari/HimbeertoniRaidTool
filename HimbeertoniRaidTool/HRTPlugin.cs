@@ -2,6 +2,7 @@
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
 
@@ -12,6 +13,7 @@ namespace HimbeertoniRaidTool.Plugin;
 public sealed class HRTPlugin : IDalamudPlugin
 {
     private readonly Configuration _configuration;
+    private readonly ICommandManager _commandManager;
     private const string NAME = "Himbeertoni Raid Tool";
 
     private readonly bool _loadError;
@@ -19,8 +21,9 @@ public sealed class HRTPlugin : IDalamudPlugin
     private readonly List<string> _dalamudRegisteredCommands = new();
     private readonly Dictionary<Type, IHrtModule> _registeredModules = new();
 
-    public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface)
+    public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
+        _commandManager = commandManager;
         //Init all services
         _loadError = !ServiceManager.Init(pluginInterface);
         //Init Localization
@@ -110,7 +113,7 @@ public sealed class HRTPlugin : IDalamudPlugin
     {
         if (command.ShouldExposeToDalamud)
         {
-            if (ServiceManager.CommandManager.AddHandler(command.Command,
+            if (_commandManager.AddHandler(command.Command,
                     new CommandInfo(command.OnCommand)
                     {
                         HelpMessage = command.Description,
@@ -120,7 +123,7 @@ public sealed class HRTPlugin : IDalamudPlugin
 
             if (command.ShouldExposeAltsToDalamud)
                 foreach (string alt in command.AltCommands)
-                    if (ServiceManager.CommandManager.AddHandler(alt,
+                    if (_commandManager.AddHandler(alt,
                             new CommandInfo(command.OnCommand)
                             {
                                 HelpMessage = command.Description,
@@ -135,7 +138,7 @@ public sealed class HRTPlugin : IDalamudPlugin
     public void Dispose()
     {
         foreach (string command in _dalamudRegisteredCommands)
-            ServiceManager.CommandManager.RemoveHandler(command);
+            _commandManager.RemoveHandler(command);
         if (!_loadError)
         {
             _configuration.Save(false);

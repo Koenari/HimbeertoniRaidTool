@@ -31,13 +31,13 @@ internal class WelcomeWindow : HrtWindow
         if (ImGuiHelper.Button(Localize("Open LootMaster", "Open LootMaster"),
                 Localize("Open LootMaster main window (/lootmaster)", "Open LootMaster main window (/lootmaster)")))
         {
-            ServiceManager.CommandManager.ProcessCommand("/lootmaster");
+            ServiceManager.CoreModule.OnCommand("/hrt", "lootmaster");
         }
         ImGui.SameLine();
         if (ImGuiHelper.Button(Localize("Open Options", "Open Options"),
                 Localize("Show configuration options (/hrt config)", "Show configuration options (/hrt config)")))
         {
-            ServiceManager.CommandManager.ProcessCommand("/hrt config");
+            ServiceManager.CoreModule.OnCommand("/hrt", "config");
 
         }
         ImGui.SameLine();

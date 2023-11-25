@@ -12,7 +12,7 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class ServiceManager
 {
-    [PluginService] public static ICommandManager CommandManager { get; private set; }
+    private static bool _initialized = false;
     [PluginService] public static IChatGui ChatGui { get; private set; }
     [PluginService] public static IDataManager DataManager { get; private set; }
     [PluginService] public static ITargetManager TargetManager { get; private set; }
@@ -22,8 +22,8 @@ internal class ServiceManager
     [PluginService] public static IPartyList PartyList { get; private set; }
     [PluginService] public static ICondition Condition { get; private set; }
     [PluginService] public static IPluginLog PluginLog { get; private set; }
-    [PluginService] public static IGameInteropProvider GameInteropProvider { get; private set; }
-    [PluginService] public static ITextureProvider TextureProvider { get; private set; }
+    [PluginService] private static IGameInteropProvider GameInteropProvider { get; set; }
+    [PluginService] private static ITextureProvider TextureProvider { get; set; }
     public static IconCache IconCache { get; private set; }
     public static HrtDataManager HrtDataManager { get; private set; }
     internal static TaskManager TaskManager { get; private set; }
@@ -31,19 +31,20 @@ internal class ServiceManager
     internal static Configuration Config { get; set; }
     internal static CoreModule CoreModule { get; set; }
     internal static CharacterInfoService CharacterInfoService { get; private set; }
-    internal static GameInfo GameInfo => Common.Services.ServiceManager.GameInfo;
     internal static ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
 
     internal static bool Init(DalamudPluginInterface pluginInterface)
     {
+        if (_initialized) return false;
+        _initialized = true;
         pluginInterface.Create<ServiceManager>();
         Common.Services.ServiceManager.Init(DataManager.Excel);
-        IconCache ??= new IconCache(PluginInterface, DataManager, TextureProvider);
-        HrtDataManager ??= new HrtDataManager(PluginInterface);
-        TaskManager ??= new TaskManager();
-        ConnectorPool ??= new ConnectorPool(TaskManager);
-        CharacterInfoService ??= new CharacterInfoService(ObjectTable, PartyList);
-        GearRefresher.Instance.Enable();
+        IconCache = new IconCache(PluginInterface, DataManager, TextureProvider);
+        HrtDataManager = new HrtDataManager(PluginInterface);
+        TaskManager = new TaskManager();
+        ConnectorPool = new ConnectorPool(TaskManager);
+        CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList);
+        GearRefresher.Instance.Enable(GameInteropProvider);
         return HrtDataManager.Initialized;
     }
 

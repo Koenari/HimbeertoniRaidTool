@@ -1,12 +1,12 @@
-﻿using HimbeertoniRaidTool.Common.Calculations;
+﻿using System.Numerics;
+using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using System.Numerics;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
-namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
+namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
 [Flags]
 public enum SlotDrawFlags
