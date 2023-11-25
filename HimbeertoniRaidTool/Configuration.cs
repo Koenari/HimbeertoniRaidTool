@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using Dalamud.Configuration;
 using Dalamud.Interface.Windowing;
-using Dalamud.Plugin.Services;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
@@ -13,7 +13,7 @@ public class Configuration : IPluginConfiguration, IDisposable
     private bool _fullyLoaded = false;
     private readonly int _targetVersion = 5;
     public int Version { get; set; } = 5;
-    private readonly Dictionary<Type, dynamic> _configurations = new();
+    private readonly Dictionary<Type, IHrtConfiguration> _configurations = new();
     private readonly ConfigUi _ui;
 
     public Configuration()
@@ -35,13 +35,12 @@ public class Configuration : IPluginConfiguration, IDisposable
         _ui.Show();
     }
 
-    internal bool RegisterConfig<T, S>(HrtConfiguration<T, S> config) where T : IHrtConfigData, new() where S : IHrtConfigUi
+    internal bool RegisterConfig(IHrtConfiguration config)
     {
         if (_configurations.ContainsKey(config.GetType()))
             return false;
         _configurations.Add(config.GetType(), config);
-        return ServiceManager.HrtDataManager.ModuleConfigurationManager.LoadConfiguration(config.ParentInternalName,
-            ref config.Data);
+        return config.Load(ServiceManager.HrtDataManager.ModuleConfigurationManager);
     }
 
     internal void Save(bool saveAll = true)
@@ -49,9 +48,10 @@ public class Configuration : IPluginConfiguration, IDisposable
         if (Version == _targetVersion)
         {
             ServiceManager.PluginInterface.SavePluginConfig(this);
-            if (saveAll)
-                foreach (dynamic? config in _configurations.Values)
-                    config.Save();
+            if (!saveAll)
+                return;
+            foreach (IHrtConfiguration? config in _configurations.Values)
+                config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
         }
         else
         {
@@ -91,26 +91,14 @@ public class Configuration : IPluginConfiguration, IDisposable
 
         public override void OnOpen()
         {
-            foreach (dynamic config in _configuration._configurations.Values)
-                try
-                {
-                    config.Ui?.OnShow();
-                }
-                catch (Exception)
-                {
-                }
+            foreach (IHrtConfiguration config in _configuration._configurations.Values)
+                config.Ui?.OnShow();
         }
 
         public override void OnClose()
         {
-            foreach (dynamic config in _configuration._configurations.Values)
-                try
-                {
-                    config.Ui?.OnHide();
-                }
-                catch (Exception)
-                {
-                }
+            foreach (IHrtConfiguration config in _configuration._configurations.Values)
+                config.Ui?.OnHide();
         }
 
         public override void Draw()
@@ -121,7 +109,7 @@ public class Configuration : IPluginConfiguration, IDisposable
             if (ImGuiHelper.CancelButton())
                 Cancel();
             ImGui.BeginTabBar("Modules");
-            foreach (dynamic c in _configuration._configurations.Values)
+            foreach (IHrtConfiguration c in _configuration._configurations.Values)
                 try
                 {
                     if (c.Ui == null)
@@ -141,7 +129,7 @@ public class Configuration : IPluginConfiguration, IDisposable
 
         private void Save()
         {
-            foreach (dynamic c in _configuration._configurations.Values)
+            foreach (IHrtConfiguration c in _configuration._configurations.Values)
                 c.Ui?.Save();
             _configuration.Save();
             Hide();
@@ -149,19 +137,29 @@ public class Configuration : IPluginConfiguration, IDisposable
 
         private void Cancel()
         {
-            foreach (dynamic c in _configuration._configurations.Values)
+            foreach (IHrtConfiguration c in _configuration._configurations.Values)
                 c.Ui?.Cancel();
             Hide();
         }
     }
 }
 
-public abstract class HrtConfiguration<T, S> where T : IHrtConfigData, new() where S : IHrtConfigUi
+public interface IHrtConfiguration
 {
-    public readonly string ParentInternalName;
-    public readonly string ParentName;
+    public string ParentInternalName { get; }
+    public string ParentName { get; }
+    public IHrtConfigUi? Ui { get; }
+    internal bool Load(IModuleConfigurationManager configManager);
+    internal bool Save(IModuleConfigurationManager configManager);
+    public void AfterLoad();
+}
+
+internal abstract class HrtConfiguration<T> : IHrtConfiguration where T : IHrtConfigData, new()
+{
+    public string ParentInternalName { get; }
+    public string ParentName { get; }
     public T Data = new();
-    public abstract S? Ui { get; }
+    public abstract IHrtConfigUi? Ui { get; }
 
     protected HrtConfiguration(string parentInternalName, string parentName)
     {
@@ -169,10 +167,9 @@ public abstract class HrtConfiguration<T, S> where T : IHrtConfigData, new() whe
         ParentName = parentName;
     }
 
-    internal void Save()
-    {
-        ServiceManager.HrtDataManager.ModuleConfigurationManager.SaveConfiguration(ParentInternalName, Data);
-    }
+    public bool Load(IModuleConfigurationManager configManager) => configManager.LoadConfiguration(ParentInternalName, ref Data);
+
+    public bool Save(IModuleConfigurationManager configManager) => configManager.SaveConfiguration(ParentInternalName, Data);
 
     public abstract void AfterLoad();
 }

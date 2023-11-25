@@ -12,7 +12,7 @@ using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
-internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
+internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguration.ConfigData>, IHrtConfiguration
 {
     public override ConfigUi Ui { get; }
 
@@ -210,12 +210,13 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
          * BiS
          */
         [JsonProperty][Obsolete("Moved to Core Module",true)]
-        public bool UpdateEtroBisOnStartup {
-            set => ServiceManager.CoreModule.Configuration.Data.UpdateEtroBisOnStartup = value;
+        public bool UpdateEtroBisOnStartup
+        {
+            set => ServiceManager.CoreModule.MigrateBisUpdateConfig(value);
         }
         [JsonProperty][Obsolete("Moved to Core Module",true)]
         public int EtroUpdateIntervalDays {
-            set => ServiceManager.CoreModule.Configuration.Data.EtroUpdateIntervalDays = value;
+            set => ServiceManager.CoreModule.MigrateBisUpdateInterval(value);
         }
         /*
          * Loot

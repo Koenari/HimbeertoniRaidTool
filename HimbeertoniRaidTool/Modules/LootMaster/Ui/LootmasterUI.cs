@@ -14,7 +14,7 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 internal class LootmasterUi : HrtWindow
 {
     private readonly LootMasterModule _lootMaster;
-    private LootMasterConfiguration.ConfigData CurConfig => _lootMaster.Configuration.Data;
+    private LootMasterConfiguration.ConfigData CurConfig => _lootMaster.ConfigImpl.Data;
     internal int CurrentGroupIndex { get; private set; }
     private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurrentGroupIndex];
     private static GameExpansion CurrentExpansion => Common.Services.ServiceManager.GameInfo.CurrentExpansion;
@@ -319,7 +319,7 @@ internal class LootmasterUi : HrtWindow
                     if (ImGuiHelper.Button(FontAwesomeIcon.TrashAlt, "DeleteGroup",
                             Localize("Delete group", "Delete group")))
                     {
-                        AddChild(new ConfimationDialog(
+                        AddChild(new ConfirmationDialog(
                             () => _lootMaster.RaidGroups.Remove(g),
                             $"{Localize("DeleteRaidGroup", "Do you really want to delete following group:")} {g.Name}"));
                         ImGui.CloseCurrentPopup();
@@ -469,7 +469,7 @@ internal class LootmasterUi : HrtWindow
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.TrashAlt, "Delete",
                         $"{Localize("Delete", "Delete")} {player.NickName}", true, ButtonSize))
-                    AddChild(new ConfimationDialog(
+                    AddChild(new ConfirmationDialog(
                         () => player.Reset(),
                         $"{Localize("DeletePlayerConfirmation", "Do you really want to delete following player?")} : {player.NickName}"));
             }

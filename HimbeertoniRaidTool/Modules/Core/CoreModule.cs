@@ -7,7 +7,7 @@ using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
-internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigUi>
+internal class CoreModule : IHrtModule
 {
     private readonly CoreConfig _config;
     private readonly WelcomeWindow _wcw;
@@ -72,13 +72,14 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
     };
 
     public string InternalName => "Core";
-    public HrtConfiguration<CoreConfig.ConfigData, CoreConfig.ConfigUi> Configuration => _config;
+    public IHrtConfiguration Configuration => _config;
     public WindowSystem WindowSystem { get; }
+    public bool HideInCombat => _config.Data.HideInCombat;
 
     public CoreModule()
     {
         WindowSystem = new WindowSystem(InternalName);
-        _wcw = new WelcomeWindow(this);
+        _wcw = new WelcomeWindow();
         WindowSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
         ServiceManager.CoreModule = this;
@@ -155,13 +156,18 @@ internal class CoreModule : IHrtModule<CoreConfig.ConfigData, CoreConfig.ConfigU
         );
         ServiceManager.TaskManager.RegisterTask(
             new HrtTask(
-                () => Connectors.EtroConnector.UpdateEtroSets(Configuration.Data.UpdateEtroBisOnStartup, Configuration.Data.EtroUpdateIntervalDays),
+                () => Connectors.EtroConnector.UpdateEtroSets(_config.Data.UpdateEtroBisOnStartup, _config.Data.EtroUpdateIntervalDays),
                 HandleMessage, "Update etro sets")
         );
         if (_config.Data.ShowWelcomeWindow)
+        {
+            _config.Data.ShowWelcomeWindow = false;
+            _config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
             _wcw.Show();
+        }
     }
-
+    internal void MigrateBisUpdateConfig(bool shouldUpdate) => _config.Data.UpdateEtroBisOnStartup = shouldUpdate;
+    internal void MigrateBisUpdateInterval(int interval) => _config.Data.EtroUpdateIntervalDays = interval;
     public void Update()
     {
     }

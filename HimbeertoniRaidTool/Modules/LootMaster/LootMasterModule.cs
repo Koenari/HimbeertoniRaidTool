@@ -11,12 +11,12 @@ using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
-internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi>
+internal sealed class LootMasterModule : IHrtModule
 {
     //Interface Properties
     public string Name => "Loot Master";
     public string InternalName => "LootMaster";
-    public HrtConfiguration<LootMasterConfiguration.ConfigData, LootMasterConfiguration.ConfigUi> Configuration => _config;
+    public IHrtConfiguration Configuration => ConfigImpl;
     public string Description => "";
     public WindowSystem WindowSystem { get; }
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
@@ -38,13 +38,13 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         },
     };
     //Properties
-    internal List<RaidGroup> RaidGroups => Configuration.Data.RaidGroups;
+    internal List<RaidGroup> RaidGroups => ConfigImpl.Data.RaidGroups;
     private readonly LootmasterUi _ui;
-    private readonly LootMasterConfiguration _config;
+    internal readonly LootMasterConfiguration ConfigImpl;
     private bool _fillSoloOnLogin;
     public LootMasterModule()
     {
-        _config = new LootMasterConfiguration(this);
+        ConfigImpl = new LootMasterConfiguration(this);
         WindowSystem = new WindowSystem(InternalName);
         _ui = new LootmasterUi(this);
         WindowSystem.AddWindow(_ui);
@@ -75,7 +75,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
         if (_fillSoloOnLogin)
             FillSoloChar(RaidGroups[0][0], true);
         _fillSoloOnLogin = false;
-        if (_config.Data.OpenOnStartup)
+        if (ConfigImpl.Data.OpenOnStartup)
             _ui.Show();
     }
 
@@ -275,8 +275,8 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterConfiguration.Conf
     }
     public void Dispose()
     {
-        Configuration.Data.LastGroupIndex = _ui.CurrentGroupIndex;
-        Configuration.Save();
+        ConfigImpl.Data.LastGroupIndex = _ui.CurrentGroupIndex;
+        ConfigImpl.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
     }
 
     public void HandleMessage(HrtUiMessage message)

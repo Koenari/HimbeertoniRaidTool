@@ -9,13 +9,11 @@ namespace HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 internal class WelcomeWindow : HrtWindow
 {
     private const string WIKI_URL = "https://github.com/Koenari/HimbeertoniRaidTool/wiki";
-    private readonly CoreModule _parent;
-    public WelcomeWindow(CoreModule parent) : base()
+    public WelcomeWindow() : base()
     {
         (Size, SizeCondition) = (new Vector2(520, 345), ImGuiCond.Always);
         Title = Localize("Welcome to HRT", "Welcome to Himbeertoni Raid Tool");
         Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize;
-        _parent = parent;
     }
     public override void Draw()
     {
@@ -56,10 +54,5 @@ internal class WelcomeWindow : HrtWindow
         ImGui.SameLine();
         if (ImGuiHelper.Button(Localize("Close", "Close"), Localize("Close this window", "Close this window")))
             Hide();
-    }
-    public override void OnClose()
-    {
-        _parent.Configuration.Data.ShowWelcomeWindow = false;
-        _parent.Configuration.Save();
     }
 }

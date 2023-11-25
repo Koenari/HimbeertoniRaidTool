@@ -5,16 +5,12 @@ using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules;
 
-public interface IHrtModule<T, S> : IHrtModule where T : IHrtConfigData, new() where S : IHrtConfigUi
-{
-    HrtConfiguration<T, S> Configuration { get; }
-}
-
 public interface IHrtModule
 {
     string Name { get; }
     string InternalName { get; }
     string Description { get; }
+    IHrtConfiguration Configuration { get; }
     WindowSystem WindowSystem { get; }
     IEnumerable<HrtCommand> Commands { get; }
     void HandleMessage(HrtUiMessage message);

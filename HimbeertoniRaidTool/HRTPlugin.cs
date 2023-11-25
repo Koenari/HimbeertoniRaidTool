@@ -12,7 +12,7 @@ namespace HimbeertoniRaidTool.Plugin;
 public sealed class HRTPlugin : IDalamudPlugin
 {
     private readonly Configuration _configuration;
-    public string Name => "Himbeertoni Raid Tool";
+    private const string NAME = "Himbeertoni Raid Tool";
 
     private readonly bool _loadError;
 
@@ -31,21 +31,21 @@ public sealed class HRTPlugin : IDalamudPlugin
         {
             //Load and update/correct configuration + ConfigUi
             _configuration.AfterLoad();
-            //Ensure core module is loaded first
-            RegisterModule(new CoreModule(), true);
             LoadAllModules();
         }
         else
         {
             pluginInterface.UiBuilder.AddNotification(
-                Name + " did not load correctly. Please disable/enable to try again", "Error in HRT",
+                NAME + " did not load correctly. Please disable/enable to try again", "Error in HRT",
                 NotificationType.Error, 10000);
-            ServiceManager.ChatGui.PrintError(Name + " did not load correctly. Please disable/enable to try again");
+            ServiceManager.ChatGui.PrintError(NAME + " did not load correctly. Please disable/enable to try again");
         }
     }
 
     private void LoadAllModules()
     {
+        //Ensure core module is loaded first
+        RegisterModule(new CoreModule());
         string moduleNamespace = $"{GetType().Namespace}.Modules";
         //Look for all classes in Modules namespace that implement the IHrtModule interface
         foreach (Type moduleType in GetType().Assembly.GetTypes().Where(
@@ -54,18 +54,16 @@ public sealed class HRTPlugin : IDalamudPlugin
                           && t.GetInterfaces().Any(i => i == typeof(IHrtModule))))
         {
             if (moduleType == typeof(CoreModule)) continue;
-            bool hasConfig = moduleType.GetInterfaces()
-                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHrtModule<,>));
             try
             {
-                dynamic? module = Activator.CreateInstance(moduleType);
+                var module = (IHrtModule?)Activator.CreateInstance(moduleType);
                 if (module is null)
                 {
                     ServiceManager.PluginLog.Error($"Could not create module: {moduleType.Name}");
                     continue;
                 }
 
-                RegisterModule(module, hasConfig);
+                RegisterModule(module);
             }
             catch (Exception e)
             {
@@ -74,44 +72,37 @@ public sealed class HRTPlugin : IDalamudPlugin
         }
     }
 
-    private void RegisterModule(dynamic instance, bool hasConfig)
+    private void RegisterModule(IHrtModule module)
     {
-        if (_registeredModules.ContainsKey(instance.GetType()))
+        if (_registeredModules.ContainsKey(module.GetType()))
         {
-            ServiceManager.PluginLog.Error($"Tried to register module \"{instance.GetType()}\" twice");
+            ServiceManager.PluginLog.Error($"Tried to register module \"{module.Name}\" twice");
             return;
         }
 
         try
         {
-            if (instance is not IHrtModule module)
-            {
-                HandleError();
-                return;
-            }
 
             _registeredModules.Add(module.GetType(), module);
-            foreach (HrtCommand command in instance.Commands)
+            foreach (HrtCommand command in module.Commands)
                 AddCommand(command);
-            if (hasConfig)
-                if (!_configuration.RegisterConfig(instance.Configuration))
-                    ServiceManager.PluginLog.Error($"Configuration load error:{module.Name}");
-                else
-                    instance.Configuration.AfterLoad();
+            if (_configuration.RegisterConfig(module.Configuration))
+                module.Configuration.AfterLoad();
+            else
+                ServiceManager.PluginLog.Error($"Configuration load error:{module.Name}");
             ServiceManager.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
             module.AfterFullyLoaded();
             ServiceManager.PluginLog.Information($"Successfully loaded module: {module.Name}");
         }
         catch (Exception e)
         {
-            if (_registeredModules.ContainsKey(instance.GetType()))
-                _registeredModules.Remove(instance.GetType());
+            _registeredModules.Remove(module.GetType());
             HandleError(e);
         }
 
         void HandleError(Exception? e = null)
         {
-            ServiceManager.PluginLog.Error(e, $"Error loading module: {instance.GetType()}");
+            ServiceManager.PluginLog.Error(e, $"Error loading module: {module.GetType()}");
         }
     }
 

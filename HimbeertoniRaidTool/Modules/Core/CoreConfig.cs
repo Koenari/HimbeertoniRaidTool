@@ -6,7 +6,7 @@ using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
-internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData, CoreConfig.ConfigUi>
+internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
 {
     private readonly PeriodicTask _saveTask;
     public override ConfigUi Ui { get; }

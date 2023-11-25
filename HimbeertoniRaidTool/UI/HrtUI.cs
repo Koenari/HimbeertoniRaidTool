@@ -79,7 +79,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
             MaximumSize = MaxSize,
         };
     }
-    public override bool DrawConditions() => !(ServiceManager.CoreModule.Configuration.Data.HideInCombat && ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
+    public override bool DrawConditions() => !(ServiceManager.CoreModule.HideInCombat && ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
                                              && !ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas]
                                              && base.DrawConditions();
     public override void PreDraw()
@@ -98,14 +98,14 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     public override int GetHashCode() => _id.GetHashCode();
 }
 
-public class ConfimationDialog : HrtWindow
+public class ConfirmationDialog : HrtWindow
 {
     private readonly Action _action;
     private readonly string _title;
     private readonly string _text;
     private bool _visible = true;
 
-    public ConfimationDialog(Action action, string text, string title = "") : base()
+    public ConfirmationDialog(Action action, string text, string title = "") : base()
     {
         title = title.Equals("") ? Loc.Localize("Confirmation", "Confirmation") : title;
         _text = text;
