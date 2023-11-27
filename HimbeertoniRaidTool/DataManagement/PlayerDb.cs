@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using HimbeertoniRaidTool.Common.Data;
@@ -23,13 +24,19 @@ internal class PlayerDb : DataBaseTable<Player, Character>
 
     internal class PlayerSearchWindow : SearchWindow<Player, PlayerDb>
     {
-        public PlayerSearchWindow(PlayerDb dataBase, Action<Player> onSelect, Action? onCancel) : base(dataBase, onSelect, onCancel) { }
+        public PlayerSearchWindow(PlayerDb dataBase, Action<Player> onSelect, Action? onCancel) : base(dataBase, onSelect, onCancel)
+        {
+            Size = new Vector2(300, 150);
+            SizeCondition = ImGuiCond.Appearing;
+        }
 
         protected override void DrawContent()
         {
+            ImGui.Text($"{Localization.Localize("Currently selected")}: {(Selected is null ? $"{Localization.Localize("None")}" : $"{Selected.NickName} ({Selected.MainChar.Name})")}");
+            ImGui.Separator();
             ImGui.Text(Localization.Localize("Select player:"));
-            if (ImGuiHelper.SearchableCombo("search", out Player?
-                    newSelected, string.Empty, Database.GetValues(), p => p.NickName))
+            if (ImGuiHelper.SearchableCombo("##search", out Player?
+                    newSelected, string.Empty, Database.GetValues(), p => $"{p.NickName} ({p.MainChar.Name})"))
             {
                 Selected = newSelected;
             }

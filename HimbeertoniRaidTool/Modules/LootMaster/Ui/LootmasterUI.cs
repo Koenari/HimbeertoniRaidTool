@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Internal;
 using HimbeertoniRaidTool.Common.Data;
@@ -279,7 +280,8 @@ internal class LootmasterUi : HrtWindow
                 for (int position = 0; position < CurrentGroup.Count; position++)
                 {
                     ImGui.PushID(position.ToString());
-                    DrawPlayerRow(CurrentGroup[position], position);
+                    Player player = CurrentGroup[position];
+                    DrawPlayerRow(CurrentGroup, position);
                     ImGui.PopID();
                 }
 
@@ -317,11 +319,9 @@ internal class LootmasterUi : HrtWindow
                 {
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.TrashAlt, "DeleteGroup",
-                            Localize("Delete group", "Delete group")))
+                            Localize("Delete group (hold shift)"), ImGui.IsKeyDown(ImGuiKey.ModShift)))
                     {
-                        AddChild(new ConfirmationDialog(
-                            () => _lootMaster.RaidGroups.Remove(g),
-                            $"{Localize("DeleteRaidGroup", "Do you really want to delete following group:")} {g.Name}"));
+                        _lootMaster.RaidGroups.Remove(g);
                         ImGui.CloseCurrentPopup();
                     }
                 }
@@ -351,8 +351,9 @@ internal class LootmasterUi : HrtWindow
         ImGui.EndTabBar();
     }
 
-    private void DrawPlayerRow(Player player, int pos)
+    private void DrawPlayerRow(RaidGroup group, int pos)
     {
+        Player? player = group[pos];
         //Sort Row
         ImGui.TableNextColumn();
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 5);
@@ -468,10 +469,8 @@ internal class LootmasterUi : HrtWindow
                     AddChild(new PlayerDetailWindow(this, player));
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.TrashAlt, "Delete",
-                        $"{Localize("Delete", "Delete")} {player.NickName}", true, ButtonSize))
-                    AddChild(new ConfirmationDialog(
-                        () => player.Reset(),
-                        $"{Localize("DeletePlayerConfirmation", "Do you really want to delete following player?")} : {player.NickName}"));
+                        $"{Localize("Remove")} {player.NickName} {Localize("from this group")} ({Localize("hold shift")})", ImGui.IsKeyDown(ImGuiKey.ModShift), ButtonSize))
+                    group[pos] = new Player();
             }
         }
         else
@@ -483,18 +482,20 @@ internal class LootmasterUi : HrtWindow
             for (int i = 0; i < 12; i++)
                 ImGui.TableNextColumn();
             ImGui.TableNextColumn();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddNew", Localize("LmUi:Button:NewPlayerEmpty", "Add empty"), true, ButtonSize))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddNew", Localize("LmUi:Button:NewPlayerEmpty", Localize("Add empty")), true, ButtonSize))
                 AddChild(new EditPlayerWindow(player));
             ImGui.SameLine();
-            //Todo: Does not work
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "AddPlayerFromDB", Localize("LmUi:Button:PLayerFromDb", "Add player from DB"), true, ButtonSize))
-                AddChild(ServiceManager.HrtDataManager.PlayerDb.OpenSearchWindow(selected => player = selected));
-
-            //Todo: Does not work
-            if (ImGuiHelper.Button(FontAwesomeIcon.SearchLocation, "AddTarget", Localize("LmUi:Button:PLayerFromTarget", "Fill with target"), ServiceManager.TargetManager.Target is not null, ButtonSize))
+                AddChild(ServiceManager.HrtDataManager.PlayerDb.OpenSearchWindow(selected => group[pos] = selected));
+            if (ImGuiHelper.Button(FontAwesomeIcon.LocationCrosshairs, "AddTarget", $"{Localize("LmUi:Button:PLayerFromTarget", "Fill with target")} "
+                                                                                    + $"({ServiceManager.TargetManager.Target?.Name ?? Localize("None")})",
+                    ServiceManager.TargetManager.Target is not null, ButtonSize))
+            {
                 _lootMaster.FillPlayerFromTarget(player);
+                if (ServiceManager.TargetManager.Target is PlayerCharacter target)
+                    GearRefresher.RefreshGearInfos(target);
+            }
             ImGui.SameLine();
-            //Todo: Does not work
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "AddCharFromDB", Localize("LmUi:Button:CharacterFromDb", "Add character from DB"), true, ButtonSize))
                 AddChild(ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(selected =>
                 {

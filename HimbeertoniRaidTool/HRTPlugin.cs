@@ -9,8 +9,7 @@ using HimbeertoniRaidTool.Plugin.Modules.Core;
 namespace HimbeertoniRaidTool.Plugin;
 
 // ReSharper disable once UnusedMember.Global
-// ReSharper disable once InconsistentNaming
-public sealed class HRTPlugin : IDalamudPlugin
+public sealed class HrtPlugin : IDalamudPlugin
 {
     private readonly Configuration _configuration;
     private readonly ICommandManager _commandManager;
@@ -21,7 +20,7 @@ public sealed class HRTPlugin : IDalamudPlugin
     private readonly List<string> _dalamudRegisteredCommands = new();
     private readonly Dictionary<Type, IHrtModule> _registeredModules = new();
 
-    public HRTPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface, ICommandManager commandManager)
+    public HrtPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
         _commandManager = commandManager;
         //Init all services

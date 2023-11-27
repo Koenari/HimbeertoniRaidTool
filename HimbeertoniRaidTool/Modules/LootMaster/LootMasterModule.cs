@@ -1,13 +1,16 @@
 ﻿using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
+using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
+using Character = HimbeertoniRaidTool.Common.Data.Character;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
@@ -63,17 +66,18 @@ internal sealed class LootMasterModule : IHrtModule
             {
                 ServiceManager.PluginLog.Info("Add solo group");
                 RaidGroups.Insert(0,solo);
-                _fillSoloOnLogin = true;
             }
             
         }
+        if(!RaidGroups[0][0].Filled || !RaidGroups[0][0].MainChar.Filled)
+            _fillSoloOnLogin = true;
         if (ServiceManager.ClientState.IsLoggedIn)
             OnLogin();
     }
     public void OnLogin()
     {
         if (_fillSoloOnLogin)
-            FillSoloChar(RaidGroups[0][0], true);
+            FillPlayerFromSelf(RaidGroups[0][0]);
         _fillSoloOnLogin = false;
         if (ConfigImpl.Data.OpenOnStartup)
             _ui.Show();
@@ -83,55 +87,64 @@ internal sealed class LootMasterModule : IHrtModule
     {
 
     }
-    private static void FillSoloChar(Player p, bool useSelf = false)
+    public bool FillPlayerFromTarget(Player player)
     {
-        PlayerCharacter? character;
-        long contentId;
-        if (useSelf)
-        {
-            character = ServiceManager.ClientState.LocalPlayer;
-            contentId = ServiceManager.CharacterInfoService.GetLocalPlayerContentId();
-        }
-        else
-        {
-            ServiceManager.CharacterInfoService.TryGetChar(out character, p.MainChar.Name, p.MainChar.HomeWorld);
-            contentId = ServiceManager.CharacterInfoService.GetContentId(character);
-        }
 
-        if (character == null)
-            return;
+        GameObject? target = ServiceManager.TargetManager.Target;
+        return target is PlayerCharacter character && FillPlayer(player,character);
+    }
+    public bool FillPlayerFromSelf(Player player)
+    {
+        PlayerCharacter? character = ServiceManager.ClientState.LocalPlayer;
+        return character != null && FillPlayer(player,character);
+    }
+    private bool FillPlayer(Player player, PlayerCharacter source)
+    {
+        if (player.LocalId.IsEmpty && !ServiceManager.HrtDataManager.PlayerDb.TryAdd(player)) return false;
+        if(player.NickName.IsNullOrEmpty())
+            player.NickName = source.Name.TextValue.Split(' ')[0];
+        long contentId = ServiceManager.CharacterInfoService.GetContentId(source);
         CharacterDb characterDb = ServiceManager.HrtDataManager.CharDb;
         ulong charId = Character.CalcCharId(contentId);
         Character? c = null;
         if (charId > 0)
             characterDb.TryGetCharacterByCharId(charId, out c);
         if (c == null)
-            characterDb.SearchCharacter(character.HomeWorld.Id, character.Name.TextValue, out c);
+            characterDb.SearchCharacter(source.HomeWorld.Id, source.Name.TextValue, out c);
         if (c is null)
         {
-            c = new Character(character.Name.TextValue, character.HomeWorld.Id)
+            c = new Character(source.Name.TextValue, source.HomeWorld.Id)
             {
                 CharId = charId,
             };
             if (!characterDb.TryAdd(c))
-                return;
+                return false;
         }
-        p.NickName = c.Name.Split(' ')[0];
-        p.MainChar = c;
-        c.MainJob ??= character.GetJob();
-        if (c.MainClass != null)
+        player.MainChar = c;
+        FillCharacter(c,source);
+        return true;
+    }
+
+    private void FillCharacter(Character destination, PlayerCharacter source)
+    {
+        Job curJob = source.GetJob();
+        bool isNew = destination[curJob] is null;
+        PlayableClass curClass = destination[curJob] ?? destination.AddClass(curJob);
+        if (isNew)
         {
-            c.MainClass.Level = character.Level;
+            curClass.Level = source.Level;
             GearDb gearDb = ServiceManager.HrtDataManager.GearDb;
-            if (!gearDb.TryGetSetByEtroId(ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job), out GearSet? etroSet))
+            if (!gearDb.TryGetSetByEtroId(ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job), out GearSet? etroSet))
             {
                 etroSet = new GearSet(GearSetManager.Etro)
                 {
-                    EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c.MainClass.Job),
+                    EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
                 };
                 gearDb.TryAdd(etroSet);
+                ServiceManager.TaskManager.RegisterTask(new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(etroSet), HandleMessage,"GetBiS"));
             }
-            c.MainClass.Bis = etroSet;
+            curClass.Bis = etroSet;
+            gearDb.TryAdd(curClass.Gear);
         }
         ServiceManager.HrtDataManager.Save();
     }
@@ -157,10 +170,10 @@ internal sealed class LootMasterModule : IHrtModule
                 group[0].NickName = target.Name.TextValue;
                 group[0].MainChar.Name = target.Name.TextValue;
                 group[0].MainChar.HomeWorld = target.HomeWorld.GameData;
-                FillSoloChar(group[0]);
+                FillPlayer(group[0],target);
             }
             else
-                FillSoloChar(group[0], true);
+                FillPlayerFromSelf(group[0]);
             return;
         }
 
@@ -256,11 +269,7 @@ internal sealed class LootMasterModule : IHrtModule
         }
         ServiceManager.HrtDataManager.Save();
     }
-    public void FillPlayerFromTarget(Player player)
-    {
-        //Todo: Implement
-        throw new NotImplementedException();
-    }
+    
     public void OnCommand(string command, string args)
     {
         switch (args)

@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using Loc = HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -17,10 +16,10 @@ public abstract class HrtWindowWithModalChild : HrtWindow
             _modalChild?.Show();
         }
     }
-    public bool ChildIsOpen => _modalChild != null && _modalChild.IsOpen;
+    public bool ChildIsOpen => _modalChild is { IsOpen: true };
     public override void Update()
     {
-        if (ModalChild != null && !ModalChild.IsOpen)
+        if (ModalChild is { IsOpen: false })
         {
             ModalChild = null;
         }
@@ -96,44 +95,6 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     public bool Equals(HrtWindow? other) => _id.Equals(other?._id);
 
     public override int GetHashCode() => _id.GetHashCode();
-}
-
-public class ConfirmationDialog : HrtWindow
-{
-    private readonly Action _action;
-    private readonly string _title;
-    private readonly string _text;
-    private bool _visible = true;
-
-    public ConfirmationDialog(Action action, string text, string title = "") : base()
-    {
-        title = title.Equals("") ? Loc.Localize("Confirmation", "Confirmation") : title;
-        _text = text;
-        _title = title;
-        _action = action;
-        Show();
-    }
-    public override void Draw()
-    {
-        ImGui.OpenPopup(_title);
-        ImGui.SetNextWindowPos(
-            new Vector2(ImGui.GetMainViewport().Size.X * 0.5f, ImGui.GetMainViewport().Size.Y * 0.5f),
-            ImGuiCond.Appearing, new Vector2(0.5f, 0.5f));
-
-        if (ImGui.BeginPopupModal(_title, ref _visible, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar))
-        {
-            ImGui.Text(_text);
-            if (ImGuiHelper.Button(Loc.Localize("OK", "OK"), Loc.Localize("Confirm action", "OK")))
-            {
-                _action();
-                Hide();
-            }
-            ImGui.SameLine();
-            if (ImGuiHelper.CancelButton())
-                Hide();
-            ImGui.End();
-        }
-    }
 }
 
 public class HrtUiMessage

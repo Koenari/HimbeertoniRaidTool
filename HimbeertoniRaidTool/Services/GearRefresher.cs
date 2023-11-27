@@ -154,7 +154,7 @@ internal unsafe class GearRefresher
         ServiceManager.PluginLog.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
     }
 
-    internal static void UpdateGear(InventoryContainer* container, PlayableClass targetClass)
+    private static void UpdateGear(InventoryContainer* container, PlayableClass targetClass)
     {
         try
         {
