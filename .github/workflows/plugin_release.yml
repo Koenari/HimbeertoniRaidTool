@@ -1,0 +1,52 @@
+name: Distribute Update
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    outputs: 
+      version-changed: ${{steps.newver.outputs.info != steps.newver.outputs.info}}
+      version: ${{steps.newver.outputs.info}}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+    - name: Get new version
+      id: newver
+      uses: mavrosxristoforos/get-xml-info@1.2.1
+      with:
+        xml-file: '$ProjFile'
+        xpath: '/Project/Version'
+    - name: checkout previos commit
+      run: git checkout HEAD^
+    - name: Get old version
+      id: oldver
+      uses: mavrosxristoforos/get-xml-info@1.2.1
+      with:
+        xml-file: '$ProjFile'
+        xpath: '/Project/Version'
+  build:
+    runs-on: windows-latest
+    needs: version-check
+    if: ${{needs.version-check.version-changed}}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+    - name: Download Dalamud
+      run: |
+        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile latest.zip
+        Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
