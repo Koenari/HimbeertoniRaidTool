@@ -65,9 +65,11 @@ internal abstract class EditWindow<T> : HrtWindowWithModalChild where T : IHasHr
 internal class EditGroupWindow : EditWindow<RaidGroup>
 {
 
-    internal EditGroupWindow(RaidGroup group, Action<RaidGroup>? onSave = null, Action<RaidGroup>? onCancel = null) : base(group, onSave, onCancel)
+    internal EditGroupWindow(RaidGroup group, Action<RaidGroup>? onSave = null, Action<RaidGroup>? onCancel = null) :
+        base(group, onSave, onCancel)
     {
-        Size = new Vector2(500, 150 + (group.RolePriority != null ? 180 : 0));
+        Size = new Vector2(500, 170 + (group.RolePriority != null ? 180 : 0));
+        SizeCondition = ImGuiCond.Appearing;
         Title = $"{Localize("Edit Group", "Edit Group")} {DataCopy.Name}";
     }
 
@@ -93,11 +95,11 @@ internal class EditGroupWindow : EditWindow<RaidGroup>
         if (ImGui.Checkbox(Localize("Override role priority", "Override role priority"), ref overrideRolePriority))
         {
             DataCopy.RolePriority = overrideRolePriority ? new RolePriority() : null;
-            if (Size.HasValue)
-                Size = Size.Value with
+            Vector2 curSize = ImGui.GetWindowSize();
+            Resize(curSize with
                 {
-                    Y = Size.Value.Y + (overrideRolePriority ? 1 : -1) * 180f * ScaleFactor,
-                };
+                Y = curSize.Y + (overrideRolePriority ? 1 : -1) * 180f * ScaleFactor,
+            });
         }
 
         if (overrideRolePriority)
@@ -151,7 +153,8 @@ internal class EditCharacterWindow : EditWindow<Character>
     private readonly bool _isNew;
     private Job _newJob = Job.ADV;
     private const int CLASS_HEIGHT = 27 * 2 + 4;
-    internal EditCharacterWindow(Character character, Action<Character>? onSave = null, Action<Character>? onCancel = null, bool isNew = false) : base(character, onSave, onCancel)
+    internal EditCharacterWindow(Character character, Action<Character>? onSave = null,
+        Action<Character>? onCancel = null, bool isNew = false) : base(character, onSave, onCancel)
     {
         _isNew = isNew;
         Size = new Vector2(750, 120 + CLASS_HEIGHT * DataCopy.Classes.Count());
@@ -324,9 +327,8 @@ internal class EditCharacterWindow : EditWindow<Character>
             {
                 if (!gearSetDb.TryGetSetByEtroId(c.Bis.EtroId, out GearSet? etroSet))
                 {
-                    etroSet = new GearSet
+                    etroSet = new GearSet(GearSetManager.Etro)
                     {
-                        ManagedBy = GearSetManager.Etro,
                         EtroId = c.Bis.EtroId,
                     };
                     gearSetDb.TryAdd(etroSet);
@@ -339,10 +341,7 @@ internal class EditCharacterWindow : EditWindow<Character>
             }
             else if (!target.Bis.EtroId.IsNullOrEmpty())
             {
-                GearSet bis = new()
-                {
-                    ManagedBy = GearSetManager.Hrt,
-                };
+                GearSet bis = new(GearSetManager.Hrt, "BiS");
                 if (!gearSetDb.TryAdd(bis))
                     ServiceManager.PluginLog.Debug("BiS not saved!");
                 target.Bis = bis;
@@ -393,7 +392,8 @@ internal class EditGearSetWindow : EditWindow<GearSet>
             ImGui.SameLine();
             if (ImGuiHelper.Button(Localize("GearSetEdit:MakeLocal", "Create local copy"),
                     Localize("GearSetEdit:MakeLocal:tooltip",
-                        "Create a copy of this set in the local database. Set will not be updated from etro.gg afterwards\n" +
+                        "Create a copy of this set in the local database. Set will not be updated from etro.gg afterwards\n"
+                        +
                         "Only local Gear Sets can be edited")))
             {
                 GearSet newSet = DataCopy.Clone();
