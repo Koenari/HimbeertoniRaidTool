@@ -150,40 +150,41 @@ internal unsafe class GearRefresher
         if (target.Level > targetClass.Level)
             targetClass.Level = target.Level;
         var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
-        UpdateGear(container, targetClass);
-        ServiceManager.PluginLog.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
+        try
+        {
+            UpdateGear(container, targetClass);
+            ServiceManager.PluginLog.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
+        }
+        catch (Exception e)
+        {
+            ServiceManager.PluginLog.Error(e,
+                $"Something went wrong while updating gear for:{targetChar.Name} @ {targetChar.HomeWorld?.Name}");
+        }
     }
 
     private static void UpdateGear(InventoryContainer* container, PlayableClass targetClass)
     {
-        try
+        for (int i = 0; i < 13; i++)
         {
-            for (int i = 0; i < 13; i++)
+            if (i == (int)GearSetSlot.Waist)
+                continue;
+            var slot = container->GetInventorySlot(i);
+            if (slot->ItemID == 0)
+                continue;
+            targetClass.Gear[(GearSetSlot)i] = new GearItem(slot->ItemID)
             {
-                if (i == (int)GearSetSlot.Waist)
-                    continue;
-                var slot = container->GetInventorySlot(i);
-                if (slot->ItemID == 0)
-                    continue;
-                targetClass.Gear[(GearSetSlot)i] = new GearItem(slot->ItemID)
-                {
-                    IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ),
-                };
-                for (int j = 0; j < 5; j++)
-                {
-                    if (slot->Materia[j] == 0)
-                        break;
-                    targetClass.Gear[(GearSetSlot)i].AddMateria(new HrtMateria((MateriaCategory)slot->Materia[j],
-                        (MateriaLevel)slot->MateriaGrade[j]));
-                }
+                IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ),
+            };
+            for (int j = 0; j < 5; j++)
+            {
+                if (slot->Materia[j] == 0)
+                    break;
+                targetClass.Gear[(GearSetSlot)i].AddMateria(new HrtMateria((MateriaCategory)slot->Materia[j],
+                    (MateriaLevel)slot->MateriaGrade[j]));
             }
+        }
 
-            targetClass.Gear.TimeStamp = DateTime.UtcNow;
-        }
-        catch (Exception e)
-        {
-            ServiceManager.PluginLog.Error(e, $"Something went wrong getting gear for:{targetClass.Parent?.Name}");
-        }
+        targetClass.Gear.TimeStamp = DateTime.UtcNow;
     }
 
     internal void Dispose()

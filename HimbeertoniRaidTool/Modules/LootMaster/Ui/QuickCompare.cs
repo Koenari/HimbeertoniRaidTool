@@ -2,6 +2,7 @@
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
+using Lumina.Excel.GeneratedSheets;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
@@ -10,15 +11,16 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
 {
     private readonly LootMasterConfiguration.ConfigData _currentConfig;
     private readonly PlayableClass _curClass;
+    private readonly Tribe? _curTribe;
     private IReadOnlyGearSet CurGear => _curClass.Gear;
 
     private readonly GearSet _newGear;
-    internal QuickCompareWindow(LootMasterConfiguration.ConfigData lmConfig, PlayableClass job) : base()
+    internal QuickCompareWindow(LootMasterConfiguration.ConfigData lmConfig, PlayableClass job, Tribe? tribe) : base()
     {
         _currentConfig = lmConfig;
         _curClass = job;
-        _newGear = new GearSet();
-        _newGear.CopyFrom(_curClass.Gear);
+        _curTribe = tribe;
+        _newGear = new GearSet(_curClass.Gear);
         Title = $"Compare";
         OpenCentered = true;
         (Size, SizeCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
@@ -58,7 +60,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
          * Stat Table
          */
         ImGui.NextColumn();
-        LmUiHelpers.DrawStatTable(_curClass, CurGear, _newGear,
+        LmUiHelpers.DrawStatTable(_curClass, _curTribe, CurGear, _newGear,
             Localize("Current", "Current"), Localize("QuickCompareStatGain", "Gain"), Localize("New Gear", "New Gear"));
         /*
          * New Gear

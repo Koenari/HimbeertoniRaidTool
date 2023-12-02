@@ -256,9 +256,8 @@ internal sealed class LootMasterModule : IHrtModule
                 {
                     p.MainChar.MainJob = c;
                     p.MainChar.MainClass!.Level = pc.Level;
-                    GearSet bis = new()
+                    GearSet bis = new(GearSetManager.Etro)
                     {
-                        ManagedBy = GearSetManager.Etro,
                         EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c),
                     };
                     ServiceManager.HrtDataManager.GearDb.TryAdd(bis);

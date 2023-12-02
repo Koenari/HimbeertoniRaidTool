@@ -41,7 +41,6 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
                     _charIdLookup.TryAdd(c.CharId, c.LocalId);
                 foreach (PlayableClass job in c)
                 {
-                    job.SetParent(c);
                     if (knownGear.Contains(job.Gear.LocalId))
                     {
                         //Only BiS gearset are meant to be shared
