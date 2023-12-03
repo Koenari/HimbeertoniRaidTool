@@ -14,7 +14,7 @@ jobs:
     name: 'Check for version change'
     runs-on: ubuntu-latest
     outputs: 
-      version-changed: ${{steps.newver.outputs.info != steps.newver.outputs.info}}
+      version-changed: ${{steps.newver.outputs.info != steps.oldver.outputs.info}}
       version: ${{steps.newver.outputs.info}}
     steps:
     - uses: actions/checkout@v4
