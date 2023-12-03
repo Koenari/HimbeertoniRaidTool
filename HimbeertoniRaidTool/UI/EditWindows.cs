@@ -239,7 +239,7 @@ internal class EditCharacterWindow : EditWindow<Character>
     internal EditCharacterWindow(Character character, Action<Character>? onSave = null,
         Action<Character>? onCancel = null) : base(character, onSave, onCancel)
     {
-        Size = new Vector2(750, 120 + CLASS_HEIGHT * DataCopy.Classes.Count());
+        Size = new Vector2(750, 270 + CLASS_HEIGHT * DataCopy.Classes.Count());
         SizeCondition = ImGuiCond.Appearing;
         Title = $"{Localize("Edit")} {Localize("character")} {DataCopy.Name}";
     }
