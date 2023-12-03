@@ -15,4 +15,10 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        Internals: Changed how groups and players are saved
+        New Feature: You can now track multiple characters per player
+        Lootmaster: Reworked group view to improve user experience this includes:
+            One click reordering of players
+            Create new player from target
+            Quickly add existing players or characters from the database
+        Ui: New windows for editing players and characters
+        Bugfix: corrected behaviour when deleting main job
