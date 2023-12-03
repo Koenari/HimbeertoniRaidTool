@@ -195,6 +195,22 @@ internal class EditPlayerWindow : EditWindow<Player>
             ImGui.Text($"{character.Name} @ {character.HomeWorld?.Name}");
             ImGui.PopID();
         }
+        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "addEmpty",
+                Localize("edit:player:button:addEmptyChar:tooltip", "Add custom character")))
+        {
+            var character = new Character();
+            AddChild(new EditCharacterWindow(character, c =>
+            {
+                if (ServiceManager.HrtDataManager.CharDb.TryAdd(c))
+                    DataCopy.AddCharacter(c);
+            }));
+        }
+        ImGui.SameLine();
+        if (ImGuiHelper.Button(FontAwesomeIcon.Search, "addFromDb",
+                Localize("edit:player:button:addCharFRomDb:tooltip", "Add existing character")))
+        {
+            AddChild(ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(c => DataCopy.AddCharacter(c)));
+        }
     }
 
     protected override void Save(Player destination)
@@ -218,13 +234,11 @@ internal class EditPlayerWindow : EditWindow<Player>
 
 internal class EditCharacterWindow : EditWindow<Character>
 {
-    private readonly bool _isNew;
     private Job _newJob = Job.ADV;
     private const int CLASS_HEIGHT = 27 * 2 + 4;
     internal EditCharacterWindow(Character character, Action<Character>? onSave = null,
-        Action<Character>? onCancel = null, bool isNew = false) : base(character, onSave, onCancel)
+        Action<Character>? onCancel = null) : base(character, onSave, onCancel)
     {
-        _isNew = isNew;
         Size = new Vector2(750, 120 + CLASS_HEIGHT * DataCopy.Classes.Count());
         SizeCondition = ImGuiCond.Appearing;
         Title = $"{Localize("Edit")} {Localize("character")} {DataCopy.Name}";
@@ -339,22 +353,6 @@ internal class EditCharacterWindow : EditWindow<Character>
 
     protected override void Save(Character destination)
     {
-        if (_isNew)
-        {
-            if (!ServiceManager.HrtDataManager.CharDb.SearchCharacter(
-                    DataCopy.HomeWorldId, DataCopy.Name, out Character? c))
-            {
-                c = new Character(DataCopy.Name, DataCopy.HomeWorldId);
-                if (!ServiceManager.HrtDataManager.CharDb.TryAdd(c))
-                    return;
-            }
-
-            destination = c;
-            //Do not silently override existing characters
-            if (c.Classes.Any())
-                return;
-        }
-
         //Copy safe data
         if (destination.Name != DataCopy.Name ||
             destination.HomeWorldId != DataCopy.HomeWorldId)
