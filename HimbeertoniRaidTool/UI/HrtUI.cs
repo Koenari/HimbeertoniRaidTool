@@ -55,7 +55,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     protected Vector2 MaxSize = ImGui.GetIO().DisplaySize * 0.9f;
     protected bool OpenCentered = false;
     private bool _shouldResize = false;
-    private bool _hasResizedLAstFrame = false;
+    private bool _hasResizedLastFrame = false;
     private ImGuiCond _savedSizingCond = ImGuiCond.None;
     private Vector2 _newSize;
     public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
@@ -94,17 +94,17 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
             OpenCentered = false;
 
         }
-        if (_hasResizedLAstFrame)
+        if (_hasResizedLastFrame)
         {
             SizeCondition = _savedSizingCond;
-            _hasResizedLAstFrame = false;
+            _hasResizedLastFrame = false;
         }
         if (_shouldResize)
         {
             Size = _newSize;
             _savedSizingCond = SizeCondition;
             SizeCondition = ImGuiCond.Always;
-            _hasResizedLAstFrame = true;
+            _hasResizedLastFrame = true;
             _shouldResize = false;
             ServiceManager.PluginLog.Debug($"Tried Resizing to: {Size.Value.X}x{Size.Value.Y}");
         }

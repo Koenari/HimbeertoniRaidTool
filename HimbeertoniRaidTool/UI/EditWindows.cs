@@ -16,6 +16,39 @@ namespace HimbeertoniRaidTool.Plugin.UI;
 
 internal abstract class EditWindow<T> : HrtWindowWithModalChild where T : IHasHrtId
 {
+    private static HrtDataManager DataManager => ServiceManager.HrtDataManager;
+    public static EditWindow<S>? GetEditWindow<S>(HrtId id, Action<S>? onSave = null, Action<S>? onCancel = null)
+        where S : IHasHrtId
+    {
+        Type type = typeof(S);
+        switch (type)
+        {
+            case not null when type == typeof(RaidGroup):
+                if (DataManager.RaidGroupDb.TryGet(id, out RaidGroup? group))
+                    return new EditGroupWindow(group, onSave as Action<RaidGroup>, onCancel as Action<RaidGroup>) as
+                        EditWindow<S>;
+                break;
+            case not null when type == typeof(Player):
+                if (DataManager.PlayerDb.TryGet(id, out Player? player))
+                    return new EditPlayerWindow(player, onSave as Action<Player>, onCancel as Action<Player>) as
+                        EditWindow<S>;
+                break;
+            case not null when type == typeof(Character):
+                if (DataManager.CharDb.TryGet(id, out Character? character))
+                    return new EditCharacterWindow(character, onSave as Action<Character>,
+                        onCancel as Action<Character>) as EditWindow<S>;
+                break;
+            case not null when type == typeof(GearSet):
+                if (DataManager.GearDb.TryGet(id, out GearSet? gearSet))
+                    return new EditGearSetWindow(gearSet, null, onSave as Action<GearSet>, onCancel as Action<GearSet>)
+                        as EditWindow<S>;
+                break;
+            default:
+                return null;
+        }
+        return null;
+    }
+
     private T _original;
     protected T DataCopy;
 
@@ -97,7 +130,7 @@ internal class EditGroupWindow : EditWindow<RaidGroup>
             DataCopy.RolePriority = overrideRolePriority ? new RolePriority() : null;
             Vector2 curSize = ImGui.GetWindowSize();
             Resize(curSize with
-                {
+            {
                 Y = curSize.Y + (overrideRolePriority ? 1 : -1) * 180f * ScaleFactor,
             });
         }
@@ -113,10 +146,10 @@ internal class EditGroupWindow : EditWindow<RaidGroup>
 
 internal class EditPlayerWindow : EditWindow<Player>
 {
-    internal EditPlayerWindow(Player p)
-        : base(p, null, null)
+    internal EditPlayerWindow(Player p, Action<Player>? onSave = null, Action<Player>? onCancel = null)
+        : base(p, onSave, onCancel)
     {
-        Size = new Vector2(750, 330);
+        Size = new Vector2(450, 250);
         SizeCondition = ImGuiCond.Appearing;
         Title = $"{Localize("Edit Player", "Edit Player")} {DataCopy.NickName}";
     }
@@ -134,7 +167,34 @@ internal class EditPlayerWindow : EditWindow<Player>
         ImGui.SetCursorPosX(
             (ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
         ImGui.Text(Localize("Character Data", "Character Data"));
-
+        Character mainChar = DataCopy.MainChar;
+        foreach (Character character in DataCopy.Characters)
+        {
+            ImGui.PushID(character.LocalId.ToString());
+            if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "delete",
+                    $"{Localize("Remove")} {character.Name} from {DataCopy.NickName}",
+                    ImGui.IsKeyDown(ImGuiKey.ModShift)))
+                DataCopy.RemoveCharacter(character);
+            ImGui.SameLine();
+            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "edit",
+                    $"{Localize("Edit")} {character.Name} @ {character.HomeWorld?.Name}"))
+            {
+                var window = GetEditWindow<Character>(character.LocalId);
+                if (window != null)
+                    AddChild(window);
+            }
+            ImGui.SameLine();
+            bool isMain = mainChar.Equals(character);
+            if (isMain) ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
+            if (ImGuiHelper.Button(
+                    isMain ? Localize("edit:player:button:charIsMain", "Is Main")
+                        : Localize("edit:player:button:charMakeMain", "Make Main"), null))
+                DataCopy.MainChar = character;
+            if (isMain) ImGui.PopStyleColor();
+            ImGui.SameLine();
+            ImGui.Text($"{character.Name} @ {character.HomeWorld?.Name}");
+            ImGui.PopID();
+        }
     }
 
     protected override void Save(Player destination)
@@ -145,6 +205,14 @@ internal class EditPlayerWindow : EditWindow<Player>
         }
         //Player Data
         destination.NickName = DataCopy.NickName;
+        //Characters
+        var toRemove = destination.Characters.Where(c => !DataCopy.Characters.Contains(c));
+        foreach (Character c in toRemove)
+            destination.RemoveCharacter(c);
+        var toAdd = DataCopy.Characters.Where(c => !destination.Characters.Contains(c));
+        foreach (Character c in toAdd)
+            destination.AddCharacter(c);
+        destination.MainChar = DataCopy.MainChar;
     }
 }
 
@@ -171,22 +239,22 @@ internal class EditCharacterWindow : EditWindow<Character>
         ImGui.Text(Localize("Character Data", "Character Data"));
         if (ImGui.InputText(Localize("Character Name", "Character Name"), ref DataCopy.Name, 50)
             && ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, DataCopy.Name))
-            DataCopy.HomeWorld ??= pc?.HomeWorld.GameData;
+            DataCopy.HomeWorld ??= pc.HomeWorld.GameData;
         if (ImGuiHelper.ExcelSheetCombo(Localize("Home World", "Home World") + "##" + Title, out World? w,
-                x => DataCopy.HomeWorld?.Name.RawString ?? "",
+                _ => DataCopy.HomeWorld?.Name.RawString ?? "",
                 x => x.Name.RawString, x => x.IsPublic))
             DataCopy.HomeWorld = w;
 
         //ImGuiHelper.Combo(Localize("Gender", "Gender"), ref PlayerCopy.MainChar.Gender);
-        string GetGenderedTribeName(Tribe? t)
+        string GetGenderedTribeName(Tribe? tribe)
         {
-            return (DataCopy.Gender == Gender.Male ? t?.Masculine.RawString : t?.Feminine.RawString) ??
+            return (DataCopy.Gender == Gender.Male ? tribe?.Masculine.RawString : tribe?.Feminine.RawString) ??
                    string.Empty;
         }
 
         if (ImGuiHelper.ExcelSheetCombo(Localize("Tribe", "Tribe") + "##" + Title, out Tribe? t,
                 _ => GetGenderedTribeName(DataCopy.Tribe), GetGenderedTribeName))
-            DataCopy.TribeId = t?.RowId ?? 0;
+            DataCopy.TribeId = t.RowId;
         //Class Data
         ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Job Data", "Job Data")).X) / 2f);
         ImGui.Text(Localize("Job Data", "Job Data"));
@@ -359,9 +427,11 @@ internal class EditGearSetWindow : EditWindow<GearSet>
 {
     private readonly Job _job;
 
-    internal EditGearSetWindow(GearSet original, Job job, Action<GearSet> onSave) : base(original, onSave, null)
+    internal EditGearSetWindow(GearSet original, Job? job = null, Action<GearSet>? onSave = null,
+        Action<GearSet>? onCancel = null) :
+        base(original, onSave, onCancel)
     {
-        _job = job;
+        _job = job ?? original[GearSetSlot.MainHand].Jobs.First();
         Title = $"{Localize("GearsetEdit:Title", "Edit gear set")}: {original.Name}";
         MinSize = new Vector2(550, 300);
     }
@@ -470,6 +540,7 @@ internal class EditGearSetWindow : EditWindow<GearSet>
 
 internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
 {
+    // ReSharper disable once StaticMemberInGenericType
     protected static readonly Lumina.Excel.ExcelSheet<Item> Sheet = ServiceManager.DataManager.GetExcelSheet<Item>()!;
     protected T? Item = null;
     private readonly Action<T> _onSave;
