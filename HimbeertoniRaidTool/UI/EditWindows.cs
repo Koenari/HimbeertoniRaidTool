@@ -229,6 +229,7 @@ internal class EditPlayerWindow : EditWindow<Player>
         foreach (Character c in toAdd)
             destination.AddCharacter(c);
         destination.MainChar = DataCopy.MainChar;
+        if (destination.MainChar.LocalId.IsEmpty) ServiceManager.HrtDataManager.CharDb.TryAdd(destination.MainChar);
     }
 }
 
