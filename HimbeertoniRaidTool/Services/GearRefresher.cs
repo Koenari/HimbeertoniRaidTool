@@ -149,10 +149,9 @@ internal unsafe class GearRefresher
         //Getting level does not work in level synced content
         if (target.Level > targetClass.Level)
             targetClass.Level = target.Level;
-        var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Examine);
         try
         {
-            UpdateGear(container, targetClass);
+            Helpers.UpdateGearFromInventoryContainer(InventoryType.Examine, targetClass);
             ServiceManager.PluginLog.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
         }
         catch (Exception e)
@@ -160,31 +159,6 @@ internal unsafe class GearRefresher
             ServiceManager.PluginLog.Error(e,
                 $"Something went wrong while updating gear for:{targetChar.Name} @ {targetChar.HomeWorld?.Name}");
         }
-    }
-
-    private static void UpdateGear(InventoryContainer* container, PlayableClass targetClass)
-    {
-        for (int i = 0; i < 13; i++)
-        {
-            if (i == (int)GearSetSlot.Waist)
-                continue;
-            var slot = container->GetInventorySlot(i);
-            if (slot->ItemID == 0)
-                continue;
-            targetClass.CurGear[(GearSetSlot)i] = new GearItem(slot->ItemID)
-            {
-                IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ),
-            };
-            for (int j = 0; j < 5; j++)
-            {
-                if (slot->Materia[j] == 0)
-                    break;
-                targetClass.CurGear[(GearSetSlot)i].AddMateria(new HrtMateria((MateriaCategory)slot->Materia[j],
-                    (MateriaLevel)slot->MateriaGrade[j]));
-            }
-        }
-
-        targetClass.CurGear.TimeStamp = DateTime.UtcNow;
     }
 
     internal void Dispose()

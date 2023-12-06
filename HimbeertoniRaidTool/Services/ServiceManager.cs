@@ -44,6 +44,7 @@ internal class ServiceManager
         TaskManager = new TaskManager();
         ConnectorPool = new ConnectorPool(TaskManager);
         CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList);
+        OwnCharacterDataProvider.Enable();
         GearRefresher.Instance.Enable(GameInteropProvider);
         return HrtDataManager.Initialized;
     }
