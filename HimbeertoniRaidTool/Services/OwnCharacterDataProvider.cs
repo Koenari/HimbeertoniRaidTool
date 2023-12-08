@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using HimbeertoniRaidTool.Common.Data;
 
@@ -9,25 +11,52 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 internal static class OwnCharacterDataProvider
 {
     private static Character? _curChar = null;
-    private static bool _ready = _curChar != null;
-    public static readonly HashSet<Currency> TrackedCurrencies = new()
+    private static PlayerCharacter? _self = null;
+
+    private static readonly HashSet<Currency> _trackedCurrencies = new()
     {
         Currency.Gil,
         Currency.TomestoneOfCausality,
         Currency.TomestoneOfComedy,
     };
-    public static readonly HashSet<uint> TrackedItems = new()
+    private static TimeSpan _timeSinceLastWalletUpdate;
+    private static readonly TimeSpan _timeBetweenWalletUpdates = new(30 * TimeSpan.TicksPerSecond);
+
+    private static TimeSpan _timeSinceLastGearUpdate;
+    private static readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
+
+    public static void Enable(IClientState clientState, IFramework framework)
     {
-
-    };
-
-    public static void Enable()
+        clientState.Login += OnLogin;
+        clientState.Logout += OnLogout;
+        if (clientState.IsLoggedIn)
+            OnLogin();
+        framework.Update += OnFrameworkUpdate;
+    }
+    internal static void Disable(IClientState clientState, IFramework framework)
     {
-
+        clientState.Login -= OnLogin;
+        clientState.Logout -= OnLogout;
+        framework.Update -= OnFrameworkUpdate;
+        OnLogout();
     }
     private static void OnLogin()
     {
-        //_curChar = ServiceManager.ClientState.LocalPlayer;
+        GetChar(out _curChar, out _self);
+    }
+    private static void OnLogout()
+    {
+        _curChar = null;
+        _self = null;
+    }
+    private static void OnFrameworkUpdate(IFramework framework)
+    {
+        _timeSinceLastWalletUpdate += framework.UpdateDelta;
+        _timeSinceLastGearUpdate += framework.UpdateDelta;
+        if (_timeSinceLastWalletUpdate > _timeBetweenWalletUpdates)
+            UpdateWallet();
+        if (_timeSinceLastGearUpdate > _timeBetweenGearUpdates)
+            UpdateGear();
     }
     private static bool GetChar([NotNullWhen(true)] out Character? target,
         [NotNullWhen(true)] out PlayerCharacter? source)
@@ -37,31 +66,41 @@ internal static class OwnCharacterDataProvider
         if (source == null)
             return false;
 
-        return ServiceManager.HrtDataManager.CharDb.SearchCharacter(source.HomeWorld.Id, source.Name.TextValue,
-            out target);
+        ulong charId = Character.CalcCharId(ServiceManager.ClientState.LocalContentId);
+        if (ServiceManager.HrtDataManager.CharDb.TryGetCharacterByCharId(charId, out target))
+            return true;
+        if (ServiceManager.HrtDataManager.CharDb.SearchCharacter(source.HomeWorld.Id, source.Name.TextValue,
+                out target))
+        {
+            target.CharId = charId;
+            return true;
+        }
+        return false;
     }
 
     private static unsafe void UpdateWallet()
     {
-        if (!GetChar(out Character? target, out PlayerCharacter? source))
-            return;
+        if (_curChar == null) return;
         var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Currency);
         for (int i = 0; i < container->Size; i++)
         {
             InventoryItem item = container->Items[i];
             var type = (Currency)item.ItemID;
-            if (TrackedCurrencies.Contains(type))
+            if (_trackedCurrencies.Contains(type))
             {
-                target.Wallet[type] = item.Quantity;
+                _curChar.Wallet[type] = item.Quantity;
             }
         }
+        _timeSinceLastWalletUpdate = TimeSpan.Zero;
     }
     private static void UpdateGear()
     {
-        if (!GetChar(out Character? target, out PlayerCharacter? source))
-            return;
-        var job = (Job)source.ClassJob.Id;
-        PlayableClass targetClass = target[job] ?? target.AddClass(job);
+        if (_curChar == null || _self == null) return;
+        var job = (Job)_self.ClassJob.Id;
+        PlayableClass targetClass = _curChar[job] ?? _curChar.AddClass(job);
         Helpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass);
+        _timeSinceLastGearUpdate = TimeSpan.Zero;
     }
+
+
 }

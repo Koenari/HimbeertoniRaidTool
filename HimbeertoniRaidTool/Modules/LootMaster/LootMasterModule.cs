@@ -105,7 +105,7 @@ internal sealed class LootMasterModule : IHrtModule
         if (player.LocalId.IsEmpty && !ServiceManager.HrtDataManager.PlayerDb.TryAdd(player)) return false;
         if(player.NickName.IsNullOrEmpty())
             player.NickName = source.Name.TextValue.Split(' ')[0];
-        long contentId = ServiceManager.CharacterInfoService.GetContentId(source);
+        ulong contentId = ServiceManager.CharacterInfoService.GetContentId(source);
         CharacterDb characterDb = ServiceManager.HrtDataManager.CharDb;
         ulong charId = Character.CalcCharId((ulong)contentId);
         Character? c = null;
