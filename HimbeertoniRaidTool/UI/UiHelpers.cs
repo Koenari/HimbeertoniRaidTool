@@ -16,8 +16,10 @@ internal class UiHelpers
 
     static UiHelpers()
     {
-        _maxMateriaCatSize = ImGui.CalcTextSize(Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
-        _maxMateriaLevelSize = ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
+        _maxMateriaCatSize =
+            ImGui.CalcTextSize(Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
+        _maxMateriaLevelSize =
+            ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
     }
     public static void DrawGearEdit(HrtWindowWithModalChild parent, GearSetSlot slot,
         GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
@@ -70,7 +72,9 @@ internal class UiHelpers
                 ImGui.SameLine();
             }
             else
-                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + eraserButtonWidth + (ImGui.GetTextLineHeightWithSpacing() - ImGui.GetTextLineHeight()) * 2);
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + eraserButtonWidth
+                                                          + (ImGui.GetTextLineHeightWithSpacing()
+                                                             - ImGui.GetTextLineHeight()) * 2);
 
             HrtMateria mat = item.Materia.Skip(i).First();
             ImGui.Image(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new Vector2(24, 24));
@@ -89,12 +93,13 @@ internal class UiHelpers
                     Enum.GetValues<MateriaCategory>(),
                     cat => cat.PrefixName(),
                     (cat, s) => cat.PrefixName().Contains(s, StringComparison.InvariantCultureIgnoreCase) ||
-                                cat.GetStatType().FriendlyName().Contains(s, StringComparison.InvariantCultureIgnoreCase),
+                                cat.GetStatType().FriendlyName()
+                                    .Contains(s, StringComparison.InvariantCultureIgnoreCase),
                     ImGuiComboFlags.NoArrowButton
                 ) && cat != MateriaCategory.None
                )
             {
-                item.ReplacecMateria(i, new HrtMateria(cat, mat.Level));
+                item.ReplaceMateria(i, new HrtMateria(cat, mat.Level));
             }
             ImGui.SameLine();
             ImGui.Text(Localize("Materia", "Materia"));
@@ -111,14 +116,15 @@ internal class UiHelpers
                     ImGuiComboFlags.NoArrowButton
                 ))
             {
-                item.ReplacecMateria(i, new HrtMateria(mat.Category, level));
+                item.ReplaceMateria(i, new HrtMateria(mat.Category, level));
             }
 
         }
         if (item.CanAffixMateria())
         {
             MateriaLevel levelToAdd = item.MaxAffixableMateriaLevel();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}addMat", Localize("Select materia", "Select materia")))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}addMat",
+                    Localize("Select materia", "Select materia")))
             {
                 parent.AddChild(new SelectMateriaWindow(item.AddMateria, (x) => { }, levelToAdd));
             }
@@ -130,7 +136,8 @@ internal class UiHelpers
                     MateriaCategory.None.ToString(),
                     Enum.GetValues<MateriaCategory>(),
                     cat => cat.GetStatType().FriendlyName(),
-                    (cat, s) => cat.GetStatType().FriendlyName().Contains(s, StringComparison.InvariantCultureIgnoreCase),
+                    (cat, s) => cat.GetStatType().FriendlyName()
+                        .Contains(s, StringComparison.InvariantCultureIgnoreCase),
                     ImGuiComboFlags.NoArrowButton
                 ) && cat != MateriaCategory.None)
             {

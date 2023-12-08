@@ -15,5 +15,4 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        Bugfix: Lootmaster crashing and spamming log
-        Bugfix: Newly created players were potentially not saved correctly
+        Bugfix: Lootmaster crashing and spamming log again

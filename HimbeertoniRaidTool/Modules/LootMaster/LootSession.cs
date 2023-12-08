@@ -254,11 +254,11 @@ public class LootResult
         foreach (GearItem item in ApplicableItems)
             if (
                 //Always need if Bis and not acquired
-                ApplicableJob.Bis.Contains(item) && !ApplicableJob.Gear.Contains(item)
+                ApplicableJob.Bis.Any(x => item.Equals(x,ItemComparisonMode.IdOnly)) && !ApplicableJob.Gear.Any(x => item.Equals(x,ItemComparisonMode.IdOnly))
                 //No need if any of following are true
                 || !(
                     //Player already has this unique item
-                    item.IsUnique && ApplicableJob.Gear.Contains(item)
+                    item.IsUnique && ApplicableJob.Gear.Any(x => item.Equals(x, ItemComparisonMode.IdOnly))
                     //Player has Bis or higher/same iLvl for all applicable slots
                     || ApplicableJob.HaveBisOrHigherItemLevel(item.Slots, item)
                 )

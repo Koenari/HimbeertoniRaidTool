@@ -1,12 +1,12 @@
-﻿using System.Globalization;
-using HimbeertoniRaidTool.Common;
+﻿using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
-using Newtonsoft.Json;
 using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Lumina.Excel.CustomSheets;
+using Newtonsoft.Json;
+using System.Globalization;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 using ServiceManager = HimbeertoniRaidTool.Plugin.Services.ServiceManager;
 
@@ -164,8 +164,8 @@ public static class LootRulesExtension
     }
     public static float DpsGain(this LootResult result)
     {
-        PlayableClass? curClass = result.ApplicableJob;
-        double baseDps = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.Gear,result.Player.MainChar.Tribe);
+        PlayableClass curClass = result.ApplicableJob;
+        double baseDps = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.Gear, result.Player.MainChar.Tribe);
         double newDps = double.NegativeInfinity;
         foreach (GearItem? i in result.ApplicableItems)
         {
@@ -181,14 +181,14 @@ public static class LootRulesExtension
                 foreach (HrtMateria? mat in curClass.Gear[i.Slots.First()].Materia)
                     item.AddMateria(mat);
             }
-            double cur = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.Gear.With(item),result.Player.MainChar.Tribe);
+            double cur = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.Gear.With(item), result.Player.MainChar.Tribe);
             if (cur > newDps)
                 newDps = cur;
         }
         return (float)((newDps - baseDps) / baseDps);
     }
     public static bool IsBiS(this LootResult result) =>
-        result.NeededItems.Any(i => result.ApplicableJob.Bis.Count(i) != result.ApplicableJob.Gear.Count(i));
+        result.NeededItems.Any(i => result.ApplicableJob.Bis.Count(x => x.Equals(i, ItemComparisonMode.IdOnly)) != result.ApplicableJob.Gear.Count(x => x.Equals(i, ItemComparisonMode.IdOnly)));
     public static bool CanUse(this LootResult result)
     {
         //Direct gear or coffer drops are always usable
