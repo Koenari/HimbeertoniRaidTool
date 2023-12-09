@@ -1,4 +1,6 @@
-﻿using HimbeertoniRaidTool.Common;
+﻿using System.Diagnostics;
+using System.Reflection;
+using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
@@ -78,6 +80,11 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
          */
         [JsonProperty] public bool UpdateEtroBisOnStartup = true;
         [JsonProperty] public int EtroUpdateIntervalDays = 7;
+        /*
+         * ChangeLog
+         */
+        [JsonProperty] public Version LastSeenChangelog = new(0, 0, 0, 0);
+        [JsonProperty] public ChangelogShowOptions ChangelogShowOptions = ChangelogShowOptions.ShowAll;
 
         public void AfterLoad() { }
 
@@ -117,11 +124,16 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
                     _dataCopy.SaveIntervalMinutes = 1;
             ImGui.EndDisabled();
             ImGui.Separator();
+            ImGui.Text(Localize("config:core:changelog:title", "Changelog Options"));
+            ImGuiHelper.Combo("##showChangelog", ref _dataCopy.ChangelogShowOptions);
+            ImGui.Separator();
             ImGui.Text(Localize("Etro Gear Updates"));
-            ImGui.Checkbox(Localize("UpdateBisONStartUp", "Update sets from etro.gg periodically"), ref _dataCopy.UpdateEtroBisOnStartup);
+            ImGui.Checkbox(Localize("UpdateBisONStartUp", "Update sets from etro.gg periodically"),
+                ref _dataCopy.UpdateEtroBisOnStartup);
             ImGui.BeginDisabled(!_dataCopy.UpdateEtroBisOnStartup);
             ImGui.SetNextItemWidth(150f * HrtWindow.ScaleFactor);
-            if (ImGui.InputInt(Localize("BisUpdateInterval", "Update interval (days)"), ref _dataCopy.EtroUpdateIntervalDays))
+            if (ImGui.InputInt(Localize("BisUpdateInterval", "Update interval (days)"),
+                    ref _dataCopy.EtroUpdateIntervalDays))
                 if (_dataCopy.EtroUpdateIntervalDays < 1)
                     _dataCopy.EtroUpdateIntervalDays = 1;
             ImGui.EndDisabled();
@@ -131,10 +143,7 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
         {
         }
 
-        public void OnShow()
-        {
-            _dataCopy = _parent.Data.Clone();
-        }
+        public void OnShow() => _dataCopy = _parent.Data.Clone();
 
         public void Save()
         {

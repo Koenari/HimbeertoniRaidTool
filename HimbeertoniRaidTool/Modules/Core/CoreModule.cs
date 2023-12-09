@@ -11,6 +11,7 @@ internal class CoreModule : IHrtModule
 {
     private readonly CoreConfig _config;
     private readonly WelcomeWindow _wcw;
+    private readonly ChangeLog _changelog;
     private readonly List<HrtCommand> _registeredCommands = new();
     public string Name => "Core Functions";
     public string Description => "Core functionality of Himbeertoni Raid Tool";
@@ -69,6 +70,14 @@ internal class CoreModule : IHrtModule
             OnCommand = PrintUsage,
             ShowInHelp = true,
         },
+        new()
+        {
+            Command = "/changelog",
+            AltCommands = Array.Empty<string>(),
+            Description = Localization.Localize("command:hrt:changelog", "Shows the changelog"),
+            OnCommand = (_, _) => _changelog.Ui.Show(),
+            ShowInHelp = true,
+        },
     };
 
     public string InternalName => "Core";
@@ -82,9 +91,12 @@ internal class CoreModule : IHrtModule
         _wcw = new WelcomeWindow();
         WindowSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
+        _changelog = new ChangeLog(this, _config);
         ServiceManager.CoreModule = this;
         foreach (HrtCommand command in InternalCommands)
+        {
             AddCommand(command);
+        }
     }
 
     public void HandleMessage(HrtUiMessage message)
@@ -102,10 +114,7 @@ internal class CoreModule : IHrtModule
         }
     }
 
-    internal void AddCommand(HrtCommand command)
-    {
-        _registeredCommands.Add(command);
-    }
+    internal void AddCommand(HrtCommand command) => _registeredCommands.Add(command);
 
     internal void OnCommand(string command, string args)
     {
@@ -137,10 +146,12 @@ internal class CoreModule : IHrtModule
             .AddText(Localization.Localize("hrt:usage:heading", " Commands used for Himbeertoni Raid Tool:"))
             .Add(new NewLinePayload());
         foreach (HrtCommand c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
+        {
             stringBuilder
                 .AddUiForeground($"/hrt {c.Command[1..]}", 37)
                 .AddText($" - {c.Description}")
                 .Add(new NewLinePayload());
+        }
 
         ServiceManager.ChatGui.Print(stringBuilder.BuiltString);
     }
@@ -156,7 +167,8 @@ internal class CoreModule : IHrtModule
         );
         ServiceManager.TaskManager.RegisterTask(
             new HrtTask(
-                () => Connectors.EtroConnector.UpdateEtroSets(_config.Data.UpdateEtroBisOnStartup, _config.Data.EtroUpdateIntervalDays),
+                () => Connectors.EtroConnector.UpdateEtroSets(_config.Data.UpdateEtroBisOnStartup,
+                    _config.Data.EtroUpdateIntervalDays),
                 HandleMessage, "Update etro sets")
         );
         if (_config.Data.ShowWelcomeWindow)
