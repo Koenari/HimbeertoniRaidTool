@@ -22,6 +22,8 @@ internal sealed class LootMasterModule : IHrtModule
     public IHrtConfiguration Configuration => ConfigImpl;
     public string Description => "";
     public WindowSystem WindowSystem { get; }
+
+    public event Action? UiReady; 
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
     {
         new()
@@ -81,6 +83,7 @@ internal sealed class LootMasterModule : IHrtModule
         _fillSoloOnLogin = false;
         if (ConfigImpl.Data.OpenOnStartup)
             _ui.Show();
+        UiReady?.Invoke();
     }
 
     public void Update()

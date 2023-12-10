@@ -16,6 +16,7 @@ internal class CoreModule : IHrtModule
     public string Name => "Core Functions";
     public string Description => "Core functionality of Himbeertoni Raid Tool";
 
+    public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
     {
         new()
@@ -174,9 +175,12 @@ internal class CoreModule : IHrtModule
         if (_config.Data.ShowWelcomeWindow)
         {
             _config.Data.ShowWelcomeWindow = false;
+            _config.Data.LastSeenChangelog = _changelog.CurrentVersion;
             _config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
             _wcw.Show();
         }
+        if (ServiceManager.ClientState.IsLoggedIn)
+            UiReady?.Invoke();
     }
     internal void MigrateBisUpdateConfig(bool shouldUpdate) => _config.Data.UpdateEtroBisOnStartup = shouldUpdate;
     internal void MigrateBisUpdateInterval(int interval) => _config.Data.EtroUpdateIntervalDays = interval;
@@ -184,7 +188,5 @@ internal class CoreModule : IHrtModule
     {
     }
 
-    public void Dispose()
-    {
-    }
+    public void Dispose() => _changelog.Dispose(this);
 }
