@@ -108,7 +108,7 @@ internal sealed class LootMasterModule : IHrtModule
             player.NickName = source.Name.TextValue.Split(' ')[0];
         long contentId = ServiceManager.CharacterInfoService.GetContentId(source);
         CharacterDb characterDb = ServiceManager.HrtDataManager.CharDb;
-        ulong charId = Character.CalcCharId(contentId);
+        ulong charId = Character.CalcCharId((ulong)contentId);
         Character? c = null;
         if (charId > 0)
             characterDb.TryGetCharacterByCharId(charId, out c);
@@ -247,7 +247,7 @@ internal sealed class LootMasterModule : IHrtModule
             Player p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
             if (!ServiceManager.HrtDataManager.CharDb.TryGetCharacterByCharId
-                    (Character.CalcCharId(pm.ContentId), out Character? character))
+                    (Character.CalcCharId((ulong)pm.ContentId), out Character? character))
                 ServiceManager.HrtDataManager.CharDb.SearchCharacter
                     (pm.World.Id, pm.Name.TextValue, out character);
             if (character is null)

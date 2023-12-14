@@ -87,7 +87,9 @@ public sealed class HrtPlugin : IDalamudPlugin
 
             _registeredModules.Add(module.GetType(), module);
             foreach (HrtCommand command in module.Commands)
+            {
                 AddCommand(command);
+            }
             if (_configuration.RegisterConfig(module.Configuration))
                 module.Configuration.AfterLoad();
             else
@@ -122,6 +124,7 @@ public sealed class HrtPlugin : IDalamudPlugin
 
             if (command.ShouldExposeAltsToDalamud)
                 foreach (string alt in command.AltCommands)
+                {
                     if (_commandManager.AddHandler(alt,
                             new CommandInfo(command.OnCommand)
                             {
@@ -129,6 +132,7 @@ public sealed class HrtPlugin : IDalamudPlugin
                                 ShowInHelp = false,
                             }))
                         _dalamudRegisteredCommands.Add(alt);
+                }
         }
 
         ServiceManager.CoreModule.AddCommand(command);
@@ -137,14 +141,17 @@ public sealed class HrtPlugin : IDalamudPlugin
     public void Dispose()
     {
         foreach (string command in _dalamudRegisteredCommands)
+        {
             _commandManager.RemoveHandler(command);
+        }
         if (!_loadError)
         {
-            _configuration.Save(false);
+            _configuration.Save();
             ServiceManager.HrtDataManager.Save();
         }
 
         foreach ((Type type, IHrtModule module) in _registeredModules)
+        {
             try
             {
                 ServiceManager.PluginInterface.UiBuilder.Draw -= module.WindowSystem.Draw;
@@ -155,6 +162,7 @@ public sealed class HrtPlugin : IDalamudPlugin
             {
                 ServiceManager.PluginLog.Fatal($"Unable to Dispose module \"{type}\"\n{e}");
             }
+        }
 
         Localization.Dispose();
         _configuration.Dispose();

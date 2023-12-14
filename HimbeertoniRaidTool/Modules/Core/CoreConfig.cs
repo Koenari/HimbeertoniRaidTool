@@ -1,4 +1,5 @@
 ﻿using HimbeertoniRaidTool.Common;
+using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
@@ -84,6 +85,7 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
         [JsonProperty] public Version LastSeenChangelog = new(0, 0, 0, 0);
         [JsonProperty] public ChangelogShowOptions ChangelogNotificationOptions = ChangelogShowOptions.ShowAll;
 
+
         public void AfterLoad() { }
 
         public void BeforeSave() { }
@@ -123,7 +125,8 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
             ImGui.EndDisabled();
             ImGui.Separator();
             ImGui.Text(Localize("config:core:changelog:title", "Changelog Options"));
-            ImGuiHelper.Combo("##showChangelog", ref _dataCopy.ChangelogNotificationOptions);
+            ImGuiHelper.Combo("##showChangelog", ref _dataCopy.ChangelogNotificationOptions,
+                t => t.LocalizedDescription());
             ImGui.Separator();
             ImGui.Text(Localize("Etro Gear Updates"));
             ImGui.Checkbox(Localize("UpdateBisONStartUp", "Update sets from etro.gg periodically"),

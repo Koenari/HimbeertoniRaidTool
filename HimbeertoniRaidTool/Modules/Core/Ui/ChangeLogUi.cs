@@ -12,69 +12,85 @@ namespace HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 internal class ChangeLogUi : HrtWindow
 {
     private readonly ChangeLog _log;
-    public ChangeLogUi(ChangeLog log) : base(null,
-        ImGuiWindowFlags.NoCollapse)
+    private ChangelogShowOptions _options;
+    public ChangeLogUi(ChangeLog log) : base(null, ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize)
     {
         _log = log;
-        Size = new Vector2(500, 300);
+        Size = new Vector2(600, 500);
         SizeCondition = ImGuiCond.Appearing;
         OpenCentered = true;
-        Title = Localization.Localize("window:changelog:title", "Changelog");
-
+        Title = Localization.Localize("window:changelog:title", "Himbeertoni Raid Tool Changelog");
+        _options = _log.Config.Data.ChangelogNotificationOptions;
     }
     public override void Draw()
     {
-        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (SingleVersionChangelog versionEntry in _log.UnseenChangeLogs)
+        if (ImGui.BeginChildFrame(1, Size!.Value with { Y = Size.Value.Y - 100 }))
         {
-            DrawVersionEntry(versionEntry);
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+            foreach (SingleVersionChangelog versionEntry in _log.UnseenChangeLogs)
+            {
+                DrawVersionEntry(versionEntry, true);
+            }
+            ImGui.Separator();
+            ImGui.TextColored(Colors.TextWhite,
+                $"{Localization.Localize("changelog:seen:header", "Previous changelogs")}:");
+            foreach (SingleVersionChangelog versionEntry in _log.SeenChangeLogs)
+            {
+                DrawVersionEntry(versionEntry);
+            }
+            ImGui.EndChildFrame();
         }
-        ImGui.Separator();
-        foreach (SingleVersionChangelog versionEntry in _log.SeenChangeLogs)
+        int comboWidth = 200;
+        ImGui.SetNextItemWidth(comboWidth * ScaleFactor);
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (Size.Value.X - comboWidth) / 2);
+        ImGuiHelper.Combo("##opt", ref _options, t => t.LocalizedDescription());
+        float buttonWidth = ImGui.CalcTextSize(Localization.Localize("changelog:button:haveRead", "Yeah, I read it!"))
+            .X + 20;
+        ImGui.SetNextItemWidth(buttonWidth);
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (Size.Value.X - buttonWidth) / 2);
+        if (ImGuiHelper.Button(Localization.Localize("changelog:button:haveRead", "Yeah, I read it!"),
+                null))
         {
-            DrawVersionEntry(versionEntry);
+            _log.Config.Data.ChangelogNotificationOptions = _options;
+            _log.Config.Data.LastSeenChangelog = _log.CurrentVersion;
+            Hide();
         }
     }
-    private static void DrawVersionEntry(SingleVersionChangelog versionEntry)
+    private static void DrawVersionEntry(SingleVersionChangelog versionEntry, bool defaultOpen = false)
     {
         ImGui.PushID(versionEntry.Version.ToString());
         if (versionEntry.HasNotableFeatures)
-            ImGui.PushStyleColor(ImGuiCol.Header, Colors.RedWood);
+            ImGui.PushStyleColor(ImGuiCol.Header, Colors.PetrolDark);
         if (ImGui.CollapsingHeader(
-                $"{Localization.Localize("changelog:versionHeader", "Version")} {versionEntry.Version}"))
+                $"{Localization.Localize("changelog:versionHeader", "Version")} {versionEntry.Version}",
+                defaultOpen ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None))
         {
-            ImGui.Text(Localization.Localize("changelog:major:header", "Notable Changes"));
-            if (versionEntry.HasNotableFeatures)
+
+            foreach (ChangeLogEntry entry in versionEntry.NotableFeatures)
             {
-                foreach (ChangeLogEntry entry in versionEntry.NotableFeatures)
-                {
-                    DrawLogEntry(entry);
-                }
+                DrawLogEntry(entry, true);
             }
-            else
+            foreach (ChangeLogEntry entry in versionEntry.MinorFeatures)
             {
-                ImGui.Text(Localization.Localize("None", "None"));
-            }
-            if (versionEntry.HasMinorFeatures)
-            {
-                ImGui.Separator();
-                ImGui.Text(Localization.Localize("changelog:minor:header", "Minor Changes"));
-                foreach (ChangeLogEntry entry in versionEntry.MinorFeatures)
-                {
-                    DrawLogEntry(entry);
-                }
+                DrawLogEntry(entry);
             }
         }
         if (versionEntry.HasNotableFeatures)
             ImGui.PopStyleColor();
         ImGui.PopID();
     }
-    private static void DrawLogEntry(ChangeLogEntry entry)
+    private static void DrawLogEntry(ChangeLogEntry entry, bool important = false)
     {
-        ImGui.Text($"{entry.Category.Localized()}: {entry.Description}");
+        Action<string> drawText = important ? s => ImGui.TextColored(Colors.TextPetrol, s) : ImGui.Text;
+        ImGui.Bullet();
+        ImGui.SameLine();
+        drawText($"{entry.Category.Localized()}: {entry.Description}");
         foreach (string entryBulletPoint in entry.BulletPoints)
         {
-            ImGui.BulletText(entryBulletPoint);
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 15);
+            ImGui.Bullet();
+            ImGui.SameLine();
+            drawText(entryBulletPoint);
         }
     }
 }
@@ -94,5 +110,16 @@ internal static class ChangelogEnumExtensions
         ChangeLogEntryCategory.System => Localization.Localize("changelog:category:system", "System"),
         ChangeLogEntryCategory.Translation => Localization.Localize("changelog:category:translation", "Localization"),
         _ => Localization.Localize("changelog:category:unknown", "Unknown"),
+    };
+    public static string LocalizedDescription(this ChangelogShowOptions showOption) => showOption switch
+    {
+
+        ChangelogShowOptions.ShowAll => Localization.Localize("enum:ChangelogShowOptions:ShowAll:description",
+            "Show me all changes"),
+        ChangelogShowOptions.ShowNotable => Localization.Localize("enum:ChangelogShowOptions:ShowNotable:description",
+            "Show me notable changes"),
+        ChangelogShowOptions.ShowNone => Localization.Localize("enum:ChangelogShowOptions:ShowNone:description",
+            "Do NOT show changes"),
+        _ => Localization.Localize("enum:ChangelogShowOptions:unknown:description", "Unknown"),
     };
 }

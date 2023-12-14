@@ -30,16 +30,14 @@ public class Configuration : IPluginConfiguration, IDisposable
         _fullyLoaded = true;
     }
 
-    internal void Show()
-    {
-        _ui.Show();
-    }
+    internal void Show() => _ui.Show();
 
     internal bool RegisterConfig(IHrtConfiguration config)
     {
         if (_configurations.ContainsKey(config.GetType()))
             return false;
         _configurations.Add(config.GetType(), config);
+        ServiceManager.PluginLog.Debug($"Registered {config.ParentInternalName} config");
         return config.Load(ServiceManager.HrtDataManager.ModuleConfigurationManager);
     }
 
@@ -50,8 +48,11 @@ public class Configuration : IPluginConfiguration, IDisposable
             ServiceManager.PluginInterface.SavePluginConfig(this);
             if (!saveAll)
                 return;
-            foreach (IHrtConfiguration? config in _configurations.Values)
+            foreach (IHrtConfiguration config in _configurations.Values)
+            {
+                ServiceManager.PluginLog.Debug($"Saved {config.ParentInternalName} config");
                 config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
+            }
         }
         else
         {
@@ -59,10 +60,7 @@ public class Configuration : IPluginConfiguration, IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        _ui.Dispose();
-    }
+    public void Dispose() => _ui.Dispose();
 
     public class ConfigUi : HrtWindow, IDisposable
     {
@@ -92,13 +90,17 @@ public class Configuration : IPluginConfiguration, IDisposable
         public override void OnOpen()
         {
             foreach (IHrtConfiguration config in _configuration._configurations.Values)
+            {
                 config.Ui?.OnShow();
+            }
         }
 
         public override void OnClose()
         {
             foreach (IHrtConfiguration config in _configuration._configurations.Values)
+            {
                 config.Ui?.OnHide();
+            }
         }
 
         public override void Draw()
@@ -110,6 +112,7 @@ public class Configuration : IPluginConfiguration, IDisposable
                 Cancel();
             ImGui.BeginTabBar("Modules");
             foreach (IHrtConfiguration c in _configuration._configurations.Values)
+            {
                 try
                 {
                     if (c.Ui == null)
@@ -123,6 +126,7 @@ public class Configuration : IPluginConfiguration, IDisposable
                 catch (Exception)
                 {
                 }
+            }
 
             ImGui.EndTabBar();
         }
@@ -130,7 +134,9 @@ public class Configuration : IPluginConfiguration, IDisposable
         private void Save()
         {
             foreach (IHrtConfiguration c in _configuration._configurations.Values)
+            {
                 c.Ui?.Save();
+            }
             _configuration.Save();
             Hide();
         }
@@ -138,7 +144,9 @@ public class Configuration : IPluginConfiguration, IDisposable
         private void Cancel()
         {
             foreach (IHrtConfiguration c in _configuration._configurations.Values)
+            {
                 c.Ui?.Cancel();
+            }
             Hide();
         }
     }
@@ -167,9 +175,11 @@ internal abstract class HrtConfiguration<T> : IHrtConfiguration where T : IHrtCo
         ParentName = parentName;
     }
 
-    public bool Load(IModuleConfigurationManager configManager) => configManager.LoadConfiguration(ParentInternalName, ref Data);
+    public bool Load(IModuleConfigurationManager configManager) =>
+        configManager.LoadConfiguration(ParentInternalName, ref Data);
 
-    public bool Save(IModuleConfigurationManager configManager) => configManager.SaveConfiguration(ParentInternalName, Data);
+    public bool Save(IModuleConfigurationManager configManager) =>
+        configManager.SaveConfiguration(ParentInternalName, Data);
 
     public abstract void AfterLoad();
 }

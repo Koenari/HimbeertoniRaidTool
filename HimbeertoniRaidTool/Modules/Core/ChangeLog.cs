@@ -4,31 +4,31 @@ namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
 internal class ChangeLog
 {
-    public readonly CoreConfig.ConfigData ConfigData;
+    public readonly CoreConfig Config;
     public readonly ChangeLogUi Ui;
-    public Version CurrentVersion => _entries[0].Version;
-    public Version LastMinor => _entries.First(e => e.Version.Minor == CurrentVersion.Minor).Version;
+    public Version CurrentVersion => Entries[0].Version;
+    public Version LastMinor => Entries.First(e => e.Version.Minor != CurrentVersion.Minor).Version;
     public IEnumerable<SingleVersionChangelog> UnseenChangeLogs =>
-        _entries.Where(e => e.Version > ConfigData.LastSeenChangelog);
+        Entries.Where(e => e.Version > Config.Data.LastSeenChangelog);
     public IEnumerable<SingleVersionChangelog> SeenChangeLogs =>
-        _entries.Where(e => e.Version <= ConfigData.LastSeenChangelog);
-    private readonly List<SingleVersionChangelog> _entries = new()
+        Entries.Where(e => e.Version <= Config.Data.LastSeenChangelog);
+    public readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>()
     {
-        new SingleVersionChangelog(new Version(1, 4, 2, 0))
+        new(new Version(1, 4, 2, 0))
         {
             NotableFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.NewFeature, "Added in-game changelog"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 4, 1, 2))
+        new(new Version(1, 4, 1, 2))
         {
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Lootmaster Ui crashing or being partly empty", 130),
             },
         },
-        new SingleVersionChangelog(new Version(1, 4, 1, 1))
+        new(new Version(1, 4, 1, 1))
         {
             MinorFeatures =
             {
@@ -37,7 +37,7 @@ internal class ChangeLog
                     "Newly created players were potentially not saved correctly"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 4, 1, 0))
+        new(new Version(1, 4, 1, 0))
         {
             NotableFeatures =
             {
@@ -59,14 +59,14 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Corrected behaviour when deleting main job"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 4, 0, 0))
+        new(new Version(1, 4, 0, 0))
         {
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.System, "Changed how groups and players are stored"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 4, 1))
+        new(new Version(1, 3, 4, 1))
         {
             NotableFeatures =
             {
@@ -79,7 +79,7 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Bis, "Removed user curated defaults from config"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 4, 0))
+        new(new Version(1, 3, 4, 0))
         {
             NotableFeatures =
             {
@@ -87,7 +87,7 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.General, "Updated for Dalamud API 9"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 3, 0))
+        new(new Version(1, 3, 3, 0))
         {
             NotableFeatures =
             {
@@ -108,7 +108,7 @@ internal class ChangeLog
                     "Updated French translation (Thanks to Arganier)"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 2, 0))
+        new(new Version(1, 3, 2, 0))
         {
             NotableFeatures =
             {
@@ -131,14 +131,14 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Fix extremely rare crash on startup"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 1, 2))
+        new(new Version(1, 3, 1, 2))
         {
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Fix a crash when using wine"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 1, 0))
+        new(new Version(1, 3, 1, 0))
         {
             NotableFeatures =
             {
@@ -157,7 +157,7 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.General, "You can now edit the names of gear sets"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 0, 5))
+        new(new Version(1, 3, 0, 5))
         {
             MinorFeatures =
             {
@@ -165,7 +165,7 @@ internal class ChangeLog
                     "Merge infos for multiple database entries for one character", 123),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 0, 4))
+        new(new Version(1, 3, 0, 4))
         {
             MinorFeatures =
             {
@@ -177,7 +177,7 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Bis, "Always update empty sets (with valid ID) at startup"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 0, 2))
+        new(new Version(1, 3, 0, 2))
         {
             MinorFeatures =
             {
@@ -189,7 +189,7 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Bis, "Added more BiS (AST, SCH, SGE)"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 0, 1))
+        new(new Version(1, 3, 0, 1))
         {
             MinorFeatures =
             {
@@ -197,7 +197,7 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Ring coffer now actually contains rings"),
             },
         },
-        new SingleVersionChangelog(new Version(1, 3, 0, 0))
+        new(new Version(1, 3, 0, 0))
         {
             NotableFeatures =
             {
@@ -207,16 +207,16 @@ internal class ChangeLog
     };
     internal ChangeLog(IHrtModule module, CoreConfig config)
     {
-        ConfigData = config.Data;
+        Config = config;
         Ui = new ChangeLogUi(this);
         module.WindowSystem.AddWindow(Ui);
         module.UiReady += ShowChanges;
     }
     private void ShowChanges()
     {
-        if (ConfigData.LastSeenChangelog == new Version(0, 0, 0, 0))
-            ConfigData.LastSeenChangelog = LastMinor;
-        switch (ConfigData.ChangelogNotificationOptions)
+        if (Config.Data.LastSeenChangelog is { Major: 0, Minor: 0, Revision: 0, Build: 0 })
+            Config.Data.LastSeenChangelog = LastMinor;
+        switch (Config.Data.ChangelogNotificationOptions)
         {
             case ChangelogShowOptions.ShowAll when UnseenChangeLogs.Any():
             case ChangelogShowOptions.ShowNotable
@@ -224,7 +224,7 @@ internal class ChangeLog
                 Ui.Show();
                 break;
             case ChangelogShowOptions.ShowNone:
-                ConfigData.LastSeenChangelog = CurrentVersion;
+                Config.Data.LastSeenChangelog = CurrentVersion;
                 break;
         }
     }
