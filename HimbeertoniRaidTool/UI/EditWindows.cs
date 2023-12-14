@@ -224,10 +224,14 @@ internal class EditPlayerWindow : EditWindow<Player>
         //Characters
         var toRemove = destination.Characters.Where(c => !DataCopy.Characters.Contains(c));
         foreach (Character c in toRemove)
+        {
             destination.RemoveCharacter(c);
+        }
         var toAdd = DataCopy.Characters.Where(c => !destination.Characters.Contains(c));
         foreach (Character c in toAdd)
+        {
             destination.AddCharacter(c);
+        }
         destination.MainChar = DataCopy.MainChar;
         if (destination.MainChar.LocalId.IsEmpty) ServiceManager.HrtDataManager.CharDb.TryAdd(destination.MainChar);
     }
@@ -279,8 +283,10 @@ internal class EditCharacterWindow : EditWindow<Character>
                 DataCopy.MainJob = DataCopy.Classes.First().Job;
             if (ImGui.BeginCombo(Localize("Main Job", "Main Job"), DataCopy.MainJob.ToString()))
                 foreach (PlayableClass curJob in DataCopy)
+                {
                     if (ImGui.Selectable(curJob.Job.ToString()))
                         DataCopy.MainJob = curJob.Job;
+                }
         }
         else
         {
@@ -522,7 +528,9 @@ internal class EditGearSetWindow : EditWindow<GearSet>
             UiHelpers.DrawGearEdit(this, slot, DataCopy[slot], i =>
             {
                 foreach (HrtMateria mat in DataCopy[slot].Materia)
+                {
                     i.AddMateria(mat);
+                }
                 DataCopy[slot] = i;
             }, _job);
             ImGui.EndDisabled();
@@ -630,7 +638,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         ImGui.SetNextItemWidth(125f * ScaleFactor);
         ImGui.BeginDisabled(_lockSlot);
         GearSetSlot slot = _slots.FirstOrDefault(GearSetSlot.None);
-        if (ImGuiHelper.Combo("##slot", ref slot))
+        if (ImGuiHelper.Combo("##slot", ref slot, t => t.FriendlyName()))
         {
             _slots = new[] { slot };
             ReevaluateItems();
@@ -712,7 +720,10 @@ internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
         foreach (MateriaLevel lvl in Enum.GetValues<MateriaLevel>())
         {
             Dictionary<MateriaCategory, HrtMateria> mats = new();
-            foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>()) mats[cat] = new HrtMateria(cat, lvl);
+            foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>())
+            {
+                mats[cat] = new HrtMateria(cat, lvl);
+            }
             _allMateria[lvl] = mats;
         }
     }

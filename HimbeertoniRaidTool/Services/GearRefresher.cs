@@ -125,7 +125,7 @@ internal unsafe class GearRefresher
         if (targetChar.CharId == 0)
         {
             PartyMember? p = ServiceManager.PartyList.FirstOrDefault(p => p?.ObjectId == target.ObjectId, null);
-            if (p != null) targetChar.CharId = Character.CalcCharId(p.ContentId);
+            if (p != null) targetChar.CharId = Character.CalcCharId((ulong)p.ContentId);
         }
 
         Job targetJob = target.GetJob();

@@ -8,6 +8,7 @@ using HimbeertoniRaidTool.Plugin.Modules;
 using ImGuiNET;
 using Lumina.Excel;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
+// ReSharper disable UnusedMember.Global
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -91,7 +92,7 @@ public static class ImGuiHelper
                     ServiceManager.ConnectorPool.LodestoneConnector.CanBeUsed, size))
             {
                 module.HandleMessage(new HrtUiMessage(
-                    $"{Localize("LodestonUpdateStarted", "Started gear update for")} {p.MainChar.Name}", HrtUiMessageType.Info));
+                    $"{Localize("LodestoneUpdateStarted", "Started gear update for")} {p.MainChar.Name}"));
                 ServiceManager.TaskManager.RegisterTask(
                     new HrtTask(() => ServiceManager.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
                         module.HandleMessage, $"Update {p.MainChar.Name} from Lodestone"));
@@ -108,22 +109,34 @@ public static class ImGuiHelper
     }
 
 
-    public static bool Combo<T>(string label, ref T value) where T : struct
+    public static bool Combo<T>(string label, ref T value,Func<T,string>? toName = null) where T : struct,Enum
     {
         T? value2 = value;
-        bool result = Combo(label, ref value2);
+        Func<T?, string>? toNameInternal = toName is null ? null : t => t.HasValue ? toName(t.Value): "";
+        bool result = Combo(label, ref value2,toNameInternal);
         if (result && value2.HasValue)
             value = value2.Value;
         return result;
     }
 
 
-    public static bool Combo<T>(string label, ref T? value) where T : struct
+    public static bool Combo<T>(string label, ref T? value, Func<T?,string>? toName = null) where T : struct,Enum
     {
-        int id = value.HasValue ? Array.IndexOf(Enum.GetValues(typeof(T)), value) : 0;
-        bool result = ImGui.Combo(label, ref id, Enum.GetNames(typeof(T)).ToArray(), Enum.GetNames(typeof(T)).Length);
-        if (result)
-            value = (T?)Enum.GetValues(typeof(T)).GetValue(id);
+        string[] names = Enum.GetNames(typeof(T));
+        toName ??= t => names[t.HasValue ? Array.IndexOf(Enum.GetValues(typeof(T)), t) : 0];
+        bool result = false;
+        if (ImGui.BeginCombo(label, toName(value)))
+        {
+            foreach (T choice in Enum.GetValues<T>())
+            {
+                if (ImGui.Selectable(toName(choice)))
+                {
+                    value = choice;
+                    result = true;
+                }
+            }
+            ImGui.EndCombo();
+        }
         return result;
     }
     //Credit to UnknownX
@@ -146,7 +159,7 @@ public static class ImGuiHelper
     public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
         Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
         Func<T, string, bool> searchPredicate, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
-        => ExcelSheetCombo(id, out selected, getPreview, toName, searchPredicate, (t) => true, flags);
+        => ExcelSheetCombo(id, out selected, getPreview, toName, searchPredicate, _ => true, flags);
     public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
         Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
         Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow

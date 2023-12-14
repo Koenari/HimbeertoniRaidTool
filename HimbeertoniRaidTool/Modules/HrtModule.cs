@@ -13,6 +13,7 @@ public interface IHrtModule
     IHrtConfiguration Configuration { get; }
     WindowSystem WindowSystem { get; }
     IEnumerable<HrtCommand> Commands { get; }
+    event Action UiReady;
     void HandleMessage(HrtUiMessage message);
     void AfterFullyLoaded();
     void Update();
@@ -37,8 +38,6 @@ public struct HrtCommand
     {
     }
 
-    internal readonly bool HandlesCommand(string command)
-    {
-        return Command.Equals(command) || AltCommands.Any(c => c.Equals(command));
-    }
+    internal readonly bool HandlesCommand(string command) =>
+        Command.Equals(command) || AltCommands.Any(c => c.Equals(command));
 }

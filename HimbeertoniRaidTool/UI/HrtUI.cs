@@ -60,7 +60,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     private Vector2 _newSize;
     public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
 
-    protected HrtWindow(string? id = null) : base(id ?? $"##{Guid.NewGuid()}")
+    protected HrtWindow(string? id = null, ImGuiWindowFlags flags = ImGuiWindowFlags.None) : base(id ?? $"##{Guid.NewGuid()}",flags)
     {
         _id = WindowName;
         Title = "";
