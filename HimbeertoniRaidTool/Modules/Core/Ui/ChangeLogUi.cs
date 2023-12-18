@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 
@@ -40,7 +36,7 @@ internal class ChangeLogUi : HrtWindow
             }
             ImGui.EndChildFrame();
         }
-        int comboWidth = 200;
+        const int comboWidth = 200;
         ImGui.SetNextItemWidth(comboWidth * ScaleFactor);
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (Size.Value.X - comboWidth) / 2);
         ImGuiHelper.Combo("##opt", ref _options, t => t.LocalizedDescription());
@@ -85,6 +81,22 @@ internal class ChangeLogUi : HrtWindow
         ImGui.Bullet();
         ImGui.SameLine();
         drawText($"{entry.Category.Localized()}: {entry.Description}");
+        if (entry.HasGitHubIssue)
+        {
+            ImGui.SameLine();
+            ImGui.TextColored(Colors.TextLink, $"Fixes issue #{entry.GitHubIssueNumber}");
+            if (ImGui.IsItemClicked())
+                ServiceManager.TaskManager.RegisterTask(new HrtTask(() =>
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "https://github.com/Koenari/HimbeertoniRaidTool/issues/" + entry.GitHubIssueNumber,
+                        UseShellExecute = true,
+                    });
+                    return new HrtUiMessage("");
+                }, _ => { }, "Open Issue"));
+            ImGuiHelper.AddTooltip(Localization.Localize("changelog:issueLink:tooltip", "Open on GitHub"));
+        }
         foreach (string entryBulletPoint in entry.BulletPoints)
         {
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 15);

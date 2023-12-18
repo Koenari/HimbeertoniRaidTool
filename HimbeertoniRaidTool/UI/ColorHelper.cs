@@ -15,5 +15,6 @@ public static class Colors
     public static readonly Vector4 TextRed = new(0.85f, 0.17f, 0.17f, 1f);
     public static readonly Vector4 TextSoftRed = new(0.85f, 0.27f, 0.27f, 1f);
     public static readonly Vector4 TextWhite = new(1f);
-    public static readonly Vector4 TextPetrol = new(0.0f, 0.75f, 0.83f, 1f);
+    public static readonly Vector4 TextPetrol = new(0f, 0.75f, 0.83f, 1f);
+    public static readonly Vector4 TextLink = new(0.35f, 0.35f, 1f, 1f);
 }

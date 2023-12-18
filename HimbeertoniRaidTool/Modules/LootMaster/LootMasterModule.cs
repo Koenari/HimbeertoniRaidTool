@@ -112,7 +112,7 @@ internal sealed class LootMasterModule : IHrtModule
         Character? c = null;
         if (charId > 0)
             characterDb.TryGetCharacterByCharId(charId, out c);
-        if (c == null)
+        if (c is null)
             characterDb.SearchCharacter(source.HomeWorld.Id, source.Name.TextValue, out c);
         if (c is null)
         {
@@ -124,13 +124,15 @@ internal sealed class LootMasterModule : IHrtModule
                 return false;
         }
         player.MainChar = c;
-        FillCharacter(c,source);
-        return true;
+        return FillCharacter(c,source);
     }
 
-    private void FillCharacter(Character destination, PlayerCharacter source)
+    private bool FillCharacter(Character destination, PlayerCharacter source)
     {
+        ServiceManager.PluginLog.Debug($"Filling Player for character: {source.Name}");
         Job curJob = source.GetJob();
+        ServiceManager.PluginLog.Debug($"Found job: {curJob}");
+        if(!curJob.IsCombatJob()) return false;
         bool isNew = destination[curJob] is null;
         PlayableClass curClass = destination[curJob] ?? destination.AddClass(curJob);
         if (isNew)
@@ -150,6 +152,7 @@ internal sealed class LootMasterModule : IHrtModule
             gearDb.TryAdd(curClass.Gear);
         }
         ServiceManager.HrtDataManager.Save();
+        return true;
     }
     internal void AddGroup(RaidGroup group, bool getGroupInfos)
     {

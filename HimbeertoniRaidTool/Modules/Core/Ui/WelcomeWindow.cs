@@ -20,7 +20,7 @@ internal class WelcomeWindow : HrtWindow
         ImGui.TextWrapped(Localize("WelcomeWindowLine1",
             "Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group."));
         ImGui.TextWrapped(Localize("WelcomeWindowLine2",
-            "Start your journey by opening LootMaster by typing \"/lootmaster\" (or \"/lm\") in chat (or the button below). There we already added your character for you."));
+            "Start your journey by opening LootMaster by typing \"/lootmaster\" (or \"/hrt lm\") in chat (or the button below). There we already added your character for you."));
         ImGui.TextWrapped(Localize("WelcomeWindowLine3",
             $"Next you can get your current gear either by using the \"magnifying glass\" button or by examining your character via right clicking."));
         ImGui.TextWrapped(Localize("WelcomeWindowLine4",

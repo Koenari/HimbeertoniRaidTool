@@ -14,6 +14,15 @@ internal class ChangeLog
         Entries.Where(e => e.Version <= Config.Data.LastSeenChangelog);
     public readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>()
     {
+        new(new Version(1, 4, 2, 1))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
+                    "Adding new players from target resulted in an empty player"),
+                new ChangeLogEntry(ChangeLogEntryCategory.General, "Changed command in new user window", 127),
+            },
+        },
         new(new Version(1, 4, 2, 0))
         {
             NotableFeatures =
@@ -250,6 +259,7 @@ internal readonly struct ChangeLogEntry
     public string Description { get; init; }
     public IList<string> BulletPoints { get; } = new List<string>();
     public int GitHubIssueNumber { get; }
+    public bool HasGitHubIssue => GitHubIssueNumber > 0;
     public ChangeLogEntry(ChangeLogEntryCategory category, string description, int issueNr = 0)
     {
         Category = category;
