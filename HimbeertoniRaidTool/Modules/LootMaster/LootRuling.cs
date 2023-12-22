@@ -155,22 +155,22 @@ public static class LootRulesExtension
 {
     public static int RolePriority(this LootResult result) => -result.RolePriority;
     public static int Roll(this LootResult result) => result.Roll;
-    public static int ItemLevel(this LootResult result) => result.ApplicableJob.Gear.ItemLevel;
+    public static int ItemLevel(this LootResult result) => result.ApplicableJob.CurGear.ItemLevel;
     public static int ItemLevelGain(this LootResult result)
     {
-        return result.NeededItems.Select(item => (int)item.ItemLevel - result.ApplicableJob.Gear
+        return result.NeededItems.Select(item => (int)item.ItemLevel - result.ApplicableJob.CurGear
             .Where(i => i.Slots.Intersect(item.Slots).Any())
             .Aggregate((int)item.ItemLevel, (min, i) => Math.Min((int)i.ItemLevel, min))).Prepend(0).Max();
     }
     public static float DpsGain(this LootResult result)
     {
         PlayableClass curClass = result.ApplicableJob;
-        double baseDps = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.Gear, result.Player.MainChar.Tribe);
+        double baseDps = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.CurGear, result.Player.MainChar.Tribe);
         double newDps = double.NegativeInfinity;
         foreach (GearItem? i in result.ApplicableItems)
         {
             GearItem? item = null;
-            foreach (GearItem? bisItem in curClass.Bis)
+            foreach (GearItem? bisItem in curClass.CurBis)
             {
                 if (bisItem.Equals(i, ItemComparisonMode.IdOnly))
                     item = bisItem.Clone();
@@ -178,17 +178,17 @@ public static class LootRulesExtension
             if (item is null)
             {
                 item ??= i.Clone();
-                foreach (HrtMateria? mat in curClass.Gear[i.Slots.First()].Materia)
+                foreach (HrtMateria? mat in curClass.CurGear[i.Slots.First()].Materia)
                     item.AddMateria(mat);
             }
-            double cur = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.Gear.With(item), result.Player.MainChar.Tribe);
+            double cur = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.CurGear.With(item), result.Player.MainChar.Tribe);
             if (cur > newDps)
                 newDps = cur;
         }
         return (float)((newDps - baseDps) / baseDps);
     }
     public static bool IsBiS(this LootResult result) =>
-        result.NeededItems.Any(i => result.ApplicableJob.Bis.Count(x => x.Equals(i, ItemComparisonMode.IdOnly)) != result.ApplicableJob.Gear.Count(x => x.Equals(i, ItemComparisonMode.IdOnly)));
+        result.NeededItems.Any(i => result.ApplicableJob.CurBis.Count(x => x.Equals(i, ItemComparisonMode.IdOnly)) != result.ApplicableJob.CurGear.Count(x => x.Equals(i, ItemComparisonMode.IdOnly)));
     public static bool CanUse(this LootResult result)
     {
         //Direct gear or coffer drops are always usable
@@ -203,7 +203,7 @@ public static class LootRulesExtension
                            if (cost.Item.Row == result.DroppedItem.Id) continue;
                            if (ItemInfo.IsCurrency(cost.Item.Row)) continue;
                            if (ItemInfo.IsTomeStone(cost.Item.Row)) continue;
-                           if (result.ApplicableJob.Gear.Contains(new HrtItem(cost.Item.Row))) continue;
+                           if (result.ApplicableJob.CurGear.Contains(new HrtItem(cost.Item.Row))) continue;
                            if (result.Player.MainChar.MainInventory.ItemCount(cost.Item.Row) >= cost.Count) continue;
                            return false;
                        }
@@ -223,7 +223,7 @@ public static class LootRulesExtension
                     if (cost.Count == 0) continue;
                     if (ItemInfo.IsCurrency(cost.Item.Row)) continue;
                     if (ItemInfo.IsTomeStone(cost.Item.Row)) continue;
-                    if (result.ApplicableJob.Gear.Contains(new HrtItem(cost.Item.Row))) continue;
+                    if (result.ApplicableJob.CurGear.Contains(new HrtItem(cost.Item.Row))) continue;
                     if (result.Player.MainChar.MainInventory.ItemCount(cost.Item.Row)
                         + (result.GuaranteedLoot.Any(loot => loot.Id == cost.Item.Row) ? 1 : 0)
                         >= cost.Count) continue;

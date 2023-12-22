@@ -140,9 +140,9 @@ public class LootSession
         PlayableClass? c = Results[loot].AwardedTo?.ApplicableJob;
         if (c != null)
         {
-            c.Gear[slot] = toAward;
-            foreach (HrtMateria m in c.Bis[slot].Materia)
-                c.Gear[slot].AddMateria(m);
+            c.CurGear[slot] = toAward;
+            foreach (HrtMateria m in c.CurBis[slot].Materia)
+                c.CurGear[slot].AddMateria(m);
         }
         EvaluateFinished();
         if (CurrentState != State.Finished)
@@ -217,8 +217,8 @@ public class LootResult
         {
             applicableJob = Player.MainChar.AddClass(Job);
 
-            ServiceManager.HrtDataManager.GearDb.TryAdd(applicableJob.Gear);
-            ServiceManager.HrtDataManager.GearDb.TryAdd(applicableJob.Bis);
+            ServiceManager.HrtDataManager.GearDb.TryAdd(applicableJob.CurGear);
+            ServiceManager.HrtDataManager.GearDb.TryAdd(applicableJob.CurBis);
         }
         ApplicableJob = applicableJob;
         Roll = _random.Next(0, 101);
@@ -254,11 +254,11 @@ public class LootResult
         foreach (GearItem item in ApplicableItems)
             if (
                 //Always need if Bis and not acquired
-                ApplicableJob.Bis.Any(x => item.Equals(x,ItemComparisonMode.IdOnly)) && !ApplicableJob.Gear.Any(x => item.Equals(x,ItemComparisonMode.IdOnly))
+                ApplicableJob.CurBis.Any(x => item.Equals(x,ItemComparisonMode.IdOnly)) && !ApplicableJob.CurGear.Any(x => item.Equals(x,ItemComparisonMode.IdOnly))
                 //No need if any of following are true
                 || !(
                     //Player already has this unique item
-                    item.IsUnique && ApplicableJob.Gear.Any(x => item.Equals(x, ItemComparisonMode.IdOnly))
+                    item.IsUnique && ApplicableJob.CurGear.Any(x => item.Equals(x, ItemComparisonMode.IdOnly))
                     //Player has Bis or higher/same iLvl for all applicable slots
                     || ApplicableJob.HaveBisOrHigherItemLevel(item.Slots, item)
                 )

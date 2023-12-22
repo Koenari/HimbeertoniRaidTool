@@ -307,10 +307,10 @@ internal class EditCharacterWindow : EditWindow<Character>
             ImGui.Text($"{c.Job}  ");
             ImGui.NextColumn();
             ImGui.SetNextItemWidth(250f * ScaleFactor);
-            bool localBis = c.Bis is { IsEmpty: false, ManagedBy: GearSetManager.Hrt };
+            bool localBis = c.CurBis is { IsEmpty: false, ManagedBy: GearSetManager.Hrt };
             ImGui.BeginDisabled(localBis);
-            if (ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.Bis.EtroId, 60))
-                c.Bis.EtroId = c.Bis.EtroId.Replace(EtroConnector.GEARSET_WEB_BASE_URL, "");
+            if (ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.CurBis.EtroId, 60))
+                c.CurBis.EtroId = c.CurBis.EtroId.Replace(EtroConnector.GEARSET_WEB_BASE_URL, "");
 
             if (localBis)
                 ImGuiHelper.AddTooltip(Localize("PlayerEdit:Tooltip:LocalBis",
@@ -319,8 +319,8 @@ internal class EditCharacterWindow : EditWindow<Character>
             {
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"{Localize("character_bis_set_to", "Set to")} {name}##BIS#{c.Job}",
-                        $"{etroId}", c.Bis.EtroId != etroId))
-                    c.Bis.EtroId = etroId;
+                        $"{etroId}", c.CurBis.EtroId != etroId))
+                    c.CurBis.EtroId = etroId;
             }
 
             ImGui.EndDisabled();
@@ -349,12 +349,12 @@ internal class EditCharacterWindow : EditWindow<Character>
             if (newClass == null)
             {
                 newClass = DataCopy.AddClass(_newJob);
-                ServiceManager.HrtDataManager.GearDb.TryAdd(newClass.Gear);
-                ServiceManager.HrtDataManager.GearDb.TryAdd(newClass.Bis);
+                ServiceManager.HrtDataManager.GearDb.TryAdd(newClass.CurGear);
+                ServiceManager.HrtDataManager.GearDb.TryAdd(newClass.CurBis);
             }
 
-            newClass.Bis.ManagedBy = GearSetManager.Etro;
-            newClass.Bis.EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(_newJob);
+            newClass.CurBis.ManagedBy = GearSetManager.Etro;
+            newClass.CurBis.EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(_newJob);
         }
     }
 
@@ -389,20 +389,20 @@ internal class EditCharacterWindow : EditWindow<Character>
             if (target == null)
             {
                 target = destination.AddClass(c.Job);
-                gearSetDb.TryAdd(target.Gear);
-                gearSetDb.TryAdd(target.Bis);
+                gearSetDb.TryAdd(target.CurGear);
+                gearSetDb.TryAdd(target.CurBis);
             }
 
             target.Level = c.Level;
-            if (target.Bis.EtroId.Equals(c.Bis.EtroId))
+            if (target.CurBis.EtroId.Equals(c.CurBis.EtroId))
                 continue;
-            if (!c.Bis.EtroId.Equals(""))
+            if (!c.CurBis.EtroId.Equals(""))
             {
-                if (!gearSetDb.TryGetSetByEtroId(c.Bis.EtroId, out GearSet? etroSet))
+                if (!gearSetDb.TryGetSetByEtroId(c.CurBis.EtroId, out GearSet? etroSet))
                 {
                     etroSet = new GearSet(GearSetManager.Etro)
                     {
-                        EtroId = c.Bis.EtroId,
+                        EtroId = c.CurBis.EtroId,
                     };
                     gearSetDb.TryAdd(etroSet);
                     ServiceManager.TaskManager.RegisterTask(
@@ -410,14 +410,14 @@ internal class EditCharacterWindow : EditWindow<Character>
                             $"Update {etroSet.Name} ({etroSet.EtroId}) from etro"));
                 }
 
-                target.Bis = etroSet;
+                target.CurBis = etroSet;
             }
-            else if (!target.Bis.EtroId.IsNullOrEmpty())
+            else if (!target.CurBis.EtroId.IsNullOrEmpty())
             {
                 GearSet bis = new(GearSetManager.Hrt, "BiS");
                 if (!gearSetDb.TryAdd(bis))
                     ServiceManager.PluginLog.Debug("BiS not saved!");
-                target.Bis = bis;
+                target.CurBis = bis;
             }
         }
 
@@ -489,6 +489,9 @@ internal class EditGearSetWindow : EditWindow<GearSet>
             ImGui.Text(
                 $"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:HrtLocal", "Local Database")}");
             ImGui.Text($"{Localize("Local ID", "Local ID")}: {DataCopy.LocalId}");
+            if (DataCopy.IsSystemManaged)
+                ImGui.TextColored(Colors.TextRed,
+                    Localize("GearSetEdit:SystemManagedWarning", "This set will be automatically overwritten!"));
         }
 
         ImGui.Text($"{Localize("GearSetEdit:LastChanged", "Last Change")}: {DataCopy.TimeStamp}");

@@ -41,19 +41,19 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
                     _charIdLookup.TryAdd(c.CharId, c.LocalId);
                 foreach (PlayableClass job in c)
                 {
-                    if (knownGear.Contains(job.Gear.LocalId))
+                    if (knownGear.Contains(job.CurGear.LocalId))
                     {
                         //Only BiS gearset are meant to be shared
-                        GearSet gearCopy = job.Gear.Clone();
+                        GearSet gearCopy = job.CurGear.Clone();
                         ServiceManager.PluginLog.Debug(
                             $"Found Gear duplicate with Sequence: {gearCopy.LocalId.Sequence}");
                         gearCopy.LocalId = HrtId.Empty;
                         gearDb.TryAdd(gearCopy);
-                        job.Gear = gearCopy;
+                        job.CurGear = gearCopy;
                     }
                     else
                     {
-                        knownGear.Add(job.Gear.LocalId);
+                        knownGear.Add(job.CurGear.LocalId);
                     }
                 }
                 
@@ -142,8 +142,8 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
         HashSet<HrtId> orphanSets = new(possibleOrphans);
         foreach (PlayableClass job in Data.Values.SelectMany(character => character.Classes))
         {
-            orphanSets.Remove(job.Gear.LocalId);
-            orphanSets.Remove(job.Bis.LocalId);
+            orphanSets.Remove(job.CurGear.LocalId);
+            orphanSets.Remove(job.CurBis.LocalId);
         }
 
         ServiceManager.PluginLog.Information($"Found {orphanSets.Count} orphaned gear sets.");

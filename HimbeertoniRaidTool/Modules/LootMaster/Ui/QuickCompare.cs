@@ -12,7 +12,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
     private readonly LootMasterConfiguration.ConfigData _currentConfig;
     private readonly PlayableClass _curClass;
     private readonly Tribe? _curTribe;
-    private IReadOnlyGearSet CurGear => _curClass.Gear;
+    private IReadOnlyGearSet CurGear => _curClass.CurGear;
 
     private readonly GearSet _newGear;
     internal QuickCompareWindow(LootMasterConfiguration.ConfigData lmConfig, PlayableClass job, Tribe? tribe) : base()
@@ -20,7 +20,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
         _currentConfig = lmConfig;
         _curClass = job;
         _curTribe = tribe;
-        _newGear = new GearSet(_curClass.Gear);
+        _newGear = new GearSet(_curClass.CurGear);
         Title = $"Compare";
         OpenCentered = true;
         (Size, SizeCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
@@ -100,7 +100,9 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
         => newItem =>
         {
             foreach (HrtMateria? mat in _newGear[slot].Materia)
+            {
                 newItem.AddMateria(mat);
+            }
             _newGear[slot] = newItem;
         };
 }

@@ -52,17 +52,16 @@ internal class LootmasterUi : HrtWindow
         return true;
     }
 
-    public override void OnOpen()
-    {
-        CurrentGroupIndex = CurConfig.LastGroupIndex;
-    }
+    public override void OnOpen() => CurrentGroupIndex = CurConfig.LastGroupIndex;
 
     public override void Update()
     {
         base.Update();
         Queue<HrtWindow> toRemove = new();
         foreach (HrtWindow? w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen).Cast<HrtWindow>())
+        {
             toRemove.Enqueue(w);
+        }
         foreach (HrtWindow w in toRemove.Where(w => !w.Equals(this)))
         {
             ServiceManager.PluginLog.Debug($"Cleaning Up Window: {w.WindowName}");
@@ -70,15 +69,12 @@ internal class LootmasterUi : HrtWindow
         }
     }
 
-    private static TimeSpan MessageTimeByMessageType(HrtUiMessageType type)
+    private static TimeSpan MessageTimeByMessageType(HrtUiMessageType type) => type switch
     {
-        return type switch
-        {
-            HrtUiMessageType.Info => TimeSpan.FromSeconds(3),
-            HrtUiMessageType.Success or HrtUiMessageType.Warning => TimeSpan.FromSeconds(5),
-            _ => TimeSpan.FromSeconds(10),
-        };
-    }
+        HrtUiMessageType.Info => TimeSpan.FromSeconds(3),
+        HrtUiMessageType.Success or HrtUiMessageType.Warning => TimeSpan.FromSeconds(5),
+        _ => TimeSpan.FromSeconds(10),
+    };
 
     private void DrawUiMessages()
     {
@@ -87,7 +83,9 @@ internal class LootmasterUi : HrtWindow
             DateTime.Now)
             _currentMessage = null;
         while (!_currentMessage.HasValue && _messageQueue.TryDequeue(out HrtUiMessage? message))
+        {
             _currentMessage = message.MessageType != HrtUiMessageType.Discard ? (message, DateTime.Now) : null;
+        }
         if (!_currentMessage.HasValue) return;
         Vector4 color = _currentMessage.Value.message.MessageType switch
         {
@@ -151,31 +149,59 @@ internal class LootmasterUi : HrtWindow
             ImGui.SameLine();
             ImGui.Text("Level: " + playableClass.Level);
             //Current Gear
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 50 * ScaleFactor);
+            GearSet? newCur = null;
+            ImGui.SetNextItemWidth(80 * ScaleFactor);
+            if (ImGui.BeginCombo("##CurGear", playableClass.CurGear.Name))
+            {
+                foreach (GearSet gearSet in playableClass.GearSets)
+                {
+                    if (ImGui.Selectable($"{gearSet.Name} ({gearSet.ItemLevel})"))
+                        newCur = gearSet;
+                }
+                ImGui.EndCombo();
+            }
             ImGui.SameLine();
             ImGui.Text(
-                $"{Localize("Current", "Current")} {Localize("iLvl", "iLvl")}: {playableClass.Gear.ItemLevel:D3}");
+                $"{Localize("iLvl", "iLvl")}: {playableClass.CurGear.ItemLevel:D3}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear",
                     $"{Localize("Edit", "Edit")} {playableClass.Job} {Localize("gear", "gear")}"))
-                AddChild(new EditGearSetWindow(playableClass.Gear, playableClass.Job, g => playableClass.Gear = g));
+                AddChild(
+                    new EditGearSetWindow(playableClass.CurGear, playableClass.Job, g => playableClass.CurGear = g));
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, $"QuickCompare",
                     $"{Localize("Quick compare", "Quick compare")}"))
                 AddChild(new QuickCompareWindow(CurConfig, playableClass, p.MainChar.Tribe));
+            if (newCur is not null) { playableClass.CurGear = newCur; }
             //BiS
+            GearSet? newBis = null;
             ImGui.SameLine();
-            ImGui.Text($"{Localize("BiS", "BiS")} {Localize("iLvl", "iLvl")}: {playableClass.Bis.ItemLevel:D3}");
+            ImGui.SetNextItemWidth(80 * ScaleFactor);
+            if (ImGui.BeginCombo("##BisGear", playableClass.CurBis.Name))
+            {
+                foreach (GearSet gearSet in playableClass.BisSets)
+                {
+                    if (ImGui.Selectable($"{gearSet.Name} ({gearSet.ItemLevel})"))
+                        newBis = gearSet;
+                }
+                ImGui.EndCombo();
+            }
+            ImGui.SameLine();
+            ImGui.Text($"{Localize("iLvl", "iLvl")}: {playableClass.CurBis.ItemLevel:D3}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS",
-                    $"{Localize("Edit", "Edit")} {playableClass.Bis.Name}"))
-                AddChild(new EditGearSetWindow(playableClass.Bis, playableClass.Job, g => playableClass.Bis = g));
+                    $"{Localize("Edit", "Edit")} {playableClass.CurBis.Name}"))
+                AddChild(new EditGearSetWindow(playableClass.CurBis, playableClass.Job, g => playableClass.CurBis = g));
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.Bis.EtroId,
-                    string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.Bis.Name),
-                    playableClass.Bis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.CurBis.EtroId,
+                    string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.CurBis.Name),
+                    playableClass.CurBis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }))
                 ServiceManager.TaskManager.RegisterTask(
-                    new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(playableClass.Bis),
-                        HandleMessage, $"Update {playableClass.Bis.Name} ({playableClass.Bis.EtroId}) from etro"));
+                    new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(playableClass.CurBis),
+                        HandleMessage,
+                        $"Update {playableClass.CurBis.Name} ({playableClass.CurBis.EtroId}) from etro"));
+            if (newBis is not null) playableClass.CurBis = newBis;
             ImGui.Spacing();
             ImGui.PopID();
         }
@@ -186,7 +212,7 @@ internal class LootmasterUi : HrtWindow
          */
         ImGui.NextColumn();
         if (curClass is not null)
-            LmUiHelpers.DrawStatTable(curClass, p.MainChar.Tribe, curClass.Gear, curClass.Bis,
+            LmUiHelpers.DrawStatTable(curClass, p.MainChar.Tribe, curClass.CurGear, curClass.CurBis,
                 Localize("Current", "Current"), " ", Localize("BiS", "BiS"),
                 LmUiHelpers.StatTableCompareMode.DoCompare | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
 
@@ -215,7 +241,10 @@ internal class LootmasterUi : HrtWindow
         }
         else
         {
-            for (int i = 0; i < GearSet.NUM_SLOTS; i++) ImGui.TableNextColumn();
+            for (int i = 0; i < GearSet.NUM_SLOTS; i++)
+            {
+                ImGui.TableNextColumn();
+            }
         }
 
         ImGui.EndTable();
@@ -379,8 +408,10 @@ internal class LootmasterUi : HrtWindow
                 if (ImGui.BeginCombo($"##Class", curJob?.ToString()))
                 {
                     foreach (PlayableClass job in player.MainChar)
+                    {
                         if (ImGui.Selectable(job.ToString()))
                             player.MainChar.MainJob = job.Job;
+                    }
                     ImGui.EndCombo();
                 }
             }
@@ -391,7 +422,9 @@ internal class LootmasterUi : HrtWindow
             if (curJob is null)
             {
                 for (int i = 0; i < GearSet.NUM_SLOTS; i++)
+                {
                     ImGui.TableNextColumn();
+                }
             }
             else
             {
@@ -399,8 +432,8 @@ internal class LootmasterUi : HrtWindow
 
                 //Gear Column
                 ImGui.PushID("GearButtons");
-                GearSet gear = curJob.Gear;
-                GearSet bis = curJob.Bis;
+                GearSet gear = curJob.CurGear;
+                GearSet bis = curJob.CurBis;
                 ImGui.TableNextColumn();
                 float curY = ImGui.GetCursorPosY();
                 ImGui.SetCursorPosY(curY + 4 * ScaleFactor);
@@ -411,7 +444,7 @@ internal class LootmasterUi : HrtWindow
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditCurGear",
                         string.Format(Localize("lootmaster:button:editGearSet:tooltip", "Edit gearset: {0}"),
                             gear.Name), true, ButtonSize))
-                    AddChild(new EditGearSetWindow(gear, curJob.Job, g => curJob.Gear = g));
+                    AddChild(new EditGearSetWindow(gear, curJob.Job, g => curJob.CurGear = g));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(curY + 3 * ScaleFactor);
                 ImGuiHelper.GearUpdateButtons(player, _lootMaster, false, ButtonSize);
@@ -436,7 +469,7 @@ internal class LootmasterUi : HrtWindow
                 if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditBiSGear",
                         string.Format(Localize("lootmaster:button:editGearSet:tooltip", "Edit gearset: {0}"),
                             gear.Name), true, ButtonSize))
-                    AddChild(new EditGearSetWindow(bis, curJob.Job, g => curJob.Bis = g));
+                    AddChild(new EditGearSetWindow(bis, curJob.Job, g => curJob.CurBis = g));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(curY);
                 if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.EtroId,
@@ -491,7 +524,9 @@ internal class LootmasterUi : HrtWindow
             ImGui.Text(Localize("lootmaster:emptyPlayer", "No Player"));
             ImGui.Text(" ");
             for (int i = 0; i < GearSet.NUM_SLOTS; i++)
+            {
                 ImGui.TableNextColumn();
+            }
             ImGui.TableNextColumn();
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddNew",
                     Localize("lootmaster:button:NewPlayerEmpty:tooltip", "Add empty"), true, ButtonSize))
@@ -522,10 +557,8 @@ internal class LootmasterUi : HrtWindow
         }
     }
 
-    private void DrawSlot((GearItem, GearItem) itemTuple, SlotDrawFlags style = SlotDrawFlags.Default)
-    {
+    private void DrawSlot((GearItem, GearItem) itemTuple, SlotDrawFlags style = SlotDrawFlags.Default) =>
         LmUiHelpers.DrawSlot(CurConfig, itemTuple, style);
-    }
 
     private void DrawLootHandlerButtons()
     {
@@ -562,10 +595,7 @@ internal class LootmasterUi : HrtWindow
         ImGui.NewLine();
     }
 
-    internal void HandleMessage(HrtUiMessage message)
-    {
-        _messageQueue.Enqueue(message);
-    }
+    internal void HandleMessage(HrtUiMessage message) => _messageQueue.Enqueue(message);
 
     private class PlayerDetailWindow : HrtWindow
     {
@@ -581,10 +611,7 @@ internal class LootmasterUi : HrtWindow
             (Size, SizeCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
         }
 
-        public override void Draw()
-        {
-            _drawPlayer(_player);
-        }
+        public override void Draw() => _drawPlayer(_player);
     }
 }
 
@@ -598,32 +625,40 @@ internal class InventoryWindow : HrtWindowWithModalChild
         SizeCondition = ImGuiCond.Appearing;
         Title = title;
         _inv = inv;
-        foreach (InstanceWithLoot boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
-        foreach (HrtItem item in boss.GuaranteedItems)
-            if (!_inv.Contains(item.Id))
-                _inv[_inv.FirstFreeSlot()] = new InventoryEntry(item)
-                {
-                    Quantity = 0,
-                };
+        if (Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage is null)
+            return;
+        foreach (HrtItem item in from boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage
+                     .Bosses
+                 from item in boss.GuaranteedItems
+                 where !_inv.Contains(item.Id)
+                 select item)
+        {
+            _inv[_inv.FirstFreeSlot()] = new InventoryEntry(item)
+            {
+                Quantity = 0,
+            };
+        }
     }
 
     public override void Draw()
     {
         if (ImGuiHelper.CloseButton())
             Hide();
-        foreach (InstanceWithLoot boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.Bosses)
-        foreach (HrtItem item in boss.GuaranteedItems)
-        {
-            IDalamudTextureWrap icon = ServiceManager.IconCache[item.Icon];
-            ImGui.Image(icon.ImGuiHandle, icon.Size);
-            ImGui.SameLine();
-            ImGui.Text(item.Name);
-            ImGui.SameLine();
-            InventoryEntry entry = _inv[_inv.IndexOf(item.Id)];
-            ImGui.SetNextItemWidth(150f * ScaleFactor);
-            ImGui.InputInt($"##{item.Name}", ref entry.Quantity);
-            _inv[_inv.IndexOf(item.Id)] = entry;
-        }
+        if (Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage is not null)
+            foreach (InstanceWithLoot boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage
+                         .Bosses)
+            foreach (HrtItem item in boss.GuaranteedItems)
+            {
+                IDalamudTextureWrap icon = ServiceManager.IconCache[item.Icon];
+                ImGui.Image(icon.ImGuiHandle, icon.Size);
+                ImGui.SameLine();
+                ImGui.Text(item.Name);
+                ImGui.SameLine();
+                InventoryEntry entry = _inv[_inv.IndexOf(item.Id)];
+                ImGui.SetNextItemWidth(150f * ScaleFactor);
+                ImGui.InputInt($"##{item.Name}", ref entry.Quantity);
+                _inv[_inv.IndexOf(item.Id)] = entry;
+            }
 
         ImGui.Separator();
         ImGui.Text(Localize("Inventory:AdditionalGear", "Additional Gear"));
@@ -655,7 +690,7 @@ internal class InventoryWindow : HrtWindowWithModalChild
         ImGui.BeginDisabled(ChildIsOpen);
         if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"Add", null, true, iconSize))
             ModalChild = new SelectGearItemWindow(i => _inv.Add(_inv.FirstFreeSlot(), i), _ => { }, null, null, null,
-                Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage.ArmorItemLevel);
+                Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel ?? 0);
         ImGui.EndDisabled();
     }
 }

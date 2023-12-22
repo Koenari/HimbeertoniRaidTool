@@ -142,8 +142,8 @@ internal unsafe class GearRefresher
             }
 
             targetClass = targetChar.AddClass(targetJob);
-            ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.Gear);
-            ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.Bis);
+            ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.CurGear);
+            ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.CurBis);
         }
 
         //Getting level does not work in level synced content
@@ -171,7 +171,7 @@ internal unsafe class GearRefresher
             var slot = container->GetInventorySlot(i);
             if (slot->ItemID == 0)
                 continue;
-            targetClass.Gear[(GearSetSlot)i] = new GearItem(slot->ItemID)
+            targetClass.CurGear[(GearSetSlot)i] = new GearItem(slot->ItemID)
             {
                 IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ),
             };
@@ -179,12 +179,12 @@ internal unsafe class GearRefresher
             {
                 if (slot->Materia[j] == 0)
                     break;
-                targetClass.Gear[(GearSetSlot)i].AddMateria(new HrtMateria((MateriaCategory)slot->Materia[j],
+                targetClass.CurGear[(GearSetSlot)i].AddMateria(new HrtMateria((MateriaCategory)slot->Materia[j],
                     (MateriaLevel)slot->MateriaGrade[j]));
             }
         }
 
-        targetClass.Gear.TimeStamp = DateTime.UtcNow;
+        targetClass.CurGear.TimeStamp = DateTime.UtcNow;
     }
 
     internal void Dispose()
