@@ -24,6 +24,7 @@ internal class ServiceManager
     [PluginService] public static IPluginLog PluginLog { get; private set; }
     [PluginService] private static IGameInteropProvider GameInteropProvider { get; set; }
     [PluginService] private static ITextureProvider TextureProvider { get; set; }
+    [PluginService] private static IFramework Framework { get; set; }
     public static IconCache IconCache { get; private set; }
     public static HrtDataManager HrtDataManager { get; private set; }
     internal static TaskManager TaskManager { get; private set; }
@@ -47,10 +48,12 @@ internal class ServiceManager
         GearRefresher.Instance.Enable(GameInteropProvider);
         return HrtDataManager.Initialized;
     }
+    internal static void EnableOwnCharacterDataProvider() => OwnCharacterDataProvider.Enable(ClientState, Framework);
 
     internal static void Dispose()
     {
         GearRefresher.Instance.Dispose();
+        OwnCharacterDataProvider.Disable(ClientState, Framework);
         TaskManager.Dispose();
         IconCache.Dispose();
     }

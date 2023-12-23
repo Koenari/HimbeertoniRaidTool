@@ -29,7 +29,7 @@ internal unsafe class CharacterInfoService
 
     public long GetLocalPlayerContentId() => (long)_infoModule->LocalContentId;
 
-    public long GetContentId(PlayerCharacter? character)
+    public ulong GetContentId(PlayerCharacter? character)
     {
         if (character == null)
             return 0;
@@ -39,7 +39,7 @@ internal unsafe class CharacterInfoService
                 partyMember.ObjectId == character.ObjectId
                 || partyMember.Name.Equals(character.Name) && partyMember.World.Id == character.CurrentWorld.Id;
             if (found)
-                return partyMember.ContentId;
+                return (ulong)partyMember.ContentId;
         }
 
         if (PartyInfo == null)
@@ -51,7 +51,7 @@ internal unsafe class CharacterInfoService
             if (entry->HomeWorld != character.HomeWorld.Id) continue;
             string name = System.Text.Encoding.Default.GetString(entry->Name, 32);
             if (name.Equals(character.Name.TextValue))
-                return (long)entry->ContentId;
+                return entry->ContentId;
         }
 
         return 0;

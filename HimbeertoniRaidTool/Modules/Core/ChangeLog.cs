@@ -19,10 +19,14 @@ internal class ChangeLog
             NotableFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.NewFeature, "Manage multiple gear/bis sets per job", 132),
+                new ChangeLogEntry(ChangeLogEntryCategory.NewFeature,
+                    "Automatically updates own characters data (can be disabled in the config)"),
             },
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Made it more pretty"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui,
+                    "You can now hide jobs (select classes when editing a character)"),
                 new ChangeLogEntry(ChangeLogEntryCategory.General, "Correctly handle materia for previous expansions"),
             },
         },

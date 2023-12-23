@@ -98,6 +98,8 @@ internal class CoreModule : IHrtModule
         {
             AddCommand(command);
         }
+        if (_config.Data.UpdateOwnData)
+            ServiceManager.EnableOwnCharacterDataProvider();
     }
 
     public void HandleMessage(HrtUiMessage message)

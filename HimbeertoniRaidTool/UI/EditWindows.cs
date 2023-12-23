@@ -306,16 +306,19 @@ internal class EditCharacterWindow : EditWindow<Character>
         Job? toDelete = null;
         foreach (PlayableClass c in DataCopy.Classes)
         {
-            if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"delete{c.Job}", $"Delete all data for {c.Job}"))
+            ImGui.PushID(c.Job.ToString());
+            if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"delete", $"Delete all data for {c.Job}"))
                 toDelete = c.Job;
             ImGui.SameLine();
             ImGui.Text($"{c.Job}  ");
             ImGui.SameLine();
             ImGui.SetNextItemWidth(150f * ScaleFactor);
-            if (ImGui.InputInt($"{Localize("Level", "Level")}##{c.Job}", ref c.Level))
+            if (ImGui.InputInt($"{Localize("Level", "Level")}", ref c.Level))
                 c.Level = Math.Clamp(c.Level, 1, Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxLevel);
-
+            ImGui.SameLine();
+            ImGui.Checkbox(Localize("EditCharacter:Job:Hide", "Do not show this job"), ref c.HideInUi);
             ImGui.Separator();
+            ImGui.PopID();
         }
         if (toDelete is not null) DataCopy.RemoveClass(toDelete.Value);
         if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out Job job, _newJob.ToString(),
@@ -375,30 +378,7 @@ internal class EditCharacterWindow : EditWindow<Character>
             }
 
             target.Level = c.Level;
-            if (target.CurBis.EtroId.Equals(c.CurBis.EtroId))
-                continue;
-            if (!c.CurBis.EtroId.Equals(""))
-            {
-                if (!gearSetDb.TryGetSetByEtroId(c.CurBis.EtroId, out GearSet? etroSet))
-                {
-                    etroSet = new GearSet(GearSetManager.Etro)
-                    {
-                        EtroId = c.CurBis.EtroId,
-                    };
-                    gearSetDb.TryAdd(etroSet);
-                    ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(etroSet, _ => { },
-                        $"Update {etroSet.Name} ({etroSet.EtroId}) from etro");
-                }
-
-                target.CurBis = etroSet;
-            }
-            else if (!target.CurBis.EtroId.IsNullOrEmpty())
-            {
-                GearSet bis = new(GearSetManager.Hrt, "BiS");
-                if (!gearSetDb.TryAdd(bis))
-                    ServiceManager.PluginLog.Debug("BiS not saved!");
-                target.CurBis = bis;
-            }
+            target.HideInUi = c.HideInUi;
         }
         if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.CharDb.TryAdd(destination);
         ServiceManager.HrtDataManager.Save();
