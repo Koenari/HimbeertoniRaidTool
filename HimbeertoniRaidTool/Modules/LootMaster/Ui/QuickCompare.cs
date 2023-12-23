@@ -23,7 +23,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
         _newGear = new GearSet(_curClass.CurGear);
         Title = $"Compare";
         OpenCentered = true;
-        (Size, SizeCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
+        (Size, SizeCondition) = (new Vector2(1600, 650), ImGuiCond.Appearing);
 
     }
     public override void Draw()
@@ -42,17 +42,29 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
             ImGui.TableSetupColumn(Localize("Gear", "Gear"));
             ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.MainHand]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.OffHand]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.Head]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.Ear]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.Body]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.Neck]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.Hands]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.Wrist]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.Legs]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.Ring1]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.Feet]);
+            ImGui.TableNextColumn();
             DrawSlot(CurGear[GearSetSlot.Ring2]);
             ImGui.EndTable();
         }
