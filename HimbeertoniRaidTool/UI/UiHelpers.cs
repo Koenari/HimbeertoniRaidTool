@@ -1,4 +1,5 @@
-﻿using Dalamud.Interface;
+﻿using System.Diagnostics;
+using Dalamud.Interface;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
@@ -21,6 +22,15 @@ internal class UiHelpers
         _maxMateriaLevelSize =
             ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
     }
+    public static void OpenLink(string url) => ServiceManager.TaskManager.RegisterTask(new HrtTask(() =>
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = url,
+            UseShellExecute = true,
+        });
+        return HrtUiMessage.Empty;
+    }, _ => { }, "Open Link"));
     public static void DrawGearEdit(HrtWindowWithModalChild parent, GearSetSlot slot,
         GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {

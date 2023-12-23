@@ -23,15 +23,35 @@ public enum SlotDrawFlags
 
 internal static class LmUiHelpers
 {
-    public static Vector4 LevelColor(LootMasterConfiguration.ConfigData config, GearItem item)
-    {
-        return (config.SelectedRaidTier.ItemLevel(item.Slots.First()) - (int)item.ItemLevel) switch
+    public static Vector4 LevelColor(LootMasterConfiguration.ConfigData config, GearItem item) =>
+        (config.SelectedRaidTier.ItemLevel(item.Slots.First()) - (int)item.ItemLevel) switch
         {
             <= 0 => config.ItemLevelColors[0],
             <= 10 => config.ItemLevelColors[1],
             <= 20 => config.ItemLevelColors[2],
             _ => config.ItemLevelColors[3],
         };
+    internal static void DrawGearSetCombo(string id, GearSet current, IEnumerable<GearSet> list,
+        Action<GearSet> changeCallback,
+        Func<HrtWindow, bool> addWindow, Job job = Job.ADV,
+        float width = 85f)
+    {
+        ImGui.SetNextItemWidth(width);
+        if (ImGui.BeginCombo($"##{id}", $"{current}", ImGuiComboFlags.NoArrowButton))
+        {
+            foreach (GearSet curJobGearSet in list)
+            {
+                if (ImGui.Selectable($"{curJobGearSet}"))
+                    changeCallback(curJobGearSet);
+            }
+            if (ImGui.Selectable(Localize("LootMaster:CurGear:AddNew", "+ Add new")))
+            {
+                addWindow(new EditGearSetWindow(new GearSet(), job, changeCallback));
+            }
+            ImGui.EndCombo();
+        }
+        if (ImGui.CalcTextSize(current.Name).X > width)
+            ImGuiHelper.AddTooltip(current.Name);
     }
     internal static void DrawSlot(LootMasterConfiguration.ConfigData config, GearItem item,
         SlotDrawFlags style = SlotDrawFlags.SingleItem | SlotDrawFlags.SimpleView)
@@ -39,17 +59,23 @@ internal static class LmUiHelpers
     internal static void DrawSlot(LootMasterConfiguration.ConfigData config, (GearItem, GearItem) itemTuple,
         SlotDrawFlags style = SlotDrawFlags.Default)
     {
+        float originalY = ImGui.GetCursorPosY();
+        float fullLineHeight = ImGui.GetTextLineHeightWithSpacing();
+        float lineSpacing = fullLineHeight - ImGui.GetTextLineHeight();
+        float cursorDualTopY = originalY + lineSpacing * 2f;
+        float cursorDualBottomY = cursorDualTopY + fullLineHeight * 1.7f;
+        float cursorSingleSmall = originalY + fullLineHeight + lineSpacing;
+        float cursorSingleLarge = originalY + fullLineHeight * 0.7f + lineSpacing;
         bool extended = style.HasFlag(SlotDrawFlags.ExtendedView);
         bool singleItem = style.HasFlag(SlotDrawFlags.SingleItem);
         ItemComparisonMode comparisonMode = config.IgnoreMateriaForBiS
             ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full;
         (GearItem? item, GearItem? bis) = itemTuple;
-        ImGui.TableNextColumn();
         if (!item.Filled && !bis.Filled)
             return;
         if (singleItem || item.Filled && bis.Filled && item.Equals(bis, comparisonMode))
         {
-            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() / (extended ? 2 : 1));
+            ImGui.SetCursorPosY(extended ? cursorSingleLarge : cursorSingleSmall);
             ImGui.BeginGroup();
             DrawItem(item, true);
             ImGui.EndGroup();
@@ -59,13 +85,16 @@ internal static class LmUiHelpers
                 item.Draw();
                 ImGui.EndTooltip();
             }
+            ImGui.NewLine();
         }
         else
         {
             ImGui.BeginGroup();
+            ImGui.SetCursorPosY(cursorDualTopY);
             DrawItem(item);
             if (!extended)
                 ImGui.NewLine();
+            ImGui.SetCursorPosY(cursorDualBottomY);
             DrawItem(bis);
             ImGui.EndGroup();
             if (ImGui.IsItemHovered())
@@ -81,52 +110,33 @@ internal static class LmUiHelpers
                 ImGui.EndTooltip();
             }
         }
-        void DrawItem(GearItem item, bool multiLine = false)
+        void DrawItem(GearItem itemToDraw, bool multiLine = false)
         {
-            if (item.Filled)
+            if (itemToDraw.Filled)
             {
                 if (extended || config.ShowIconInGroupOverview)
                 {
-                    Vector2 iconSize = new(ImGui.GetTextLineHeightWithSpacing());
-                    if (extended)
-                    {
-                        if (!multiLine)
-                            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() * 0.3f);
-                        iconSize *= multiLine ? 2.4f : 1.4f;
-                    }
-                    ImGui.Image(ServiceManager.IconCache.LoadIcon(item.Icon, item.IsHq).ImGuiHandle,
+                    Vector2 iconSize = new(ImGui.GetTextLineHeightWithSpacing()
+                                           * (extended ? multiLine ? 2.4f : 1.4f : 1f));
+                    ImGui.Image(ServiceManager.IconCache.LoadIcon(itemToDraw.Icon, itemToDraw.IsHq).ImGuiHandle,
                         iconSize * HrtWindow.ScaleFactor);
                     ImGui.SameLine();
                 }
                 string toDraw = string.Format(config.ItemFormatString,
-                    item.ItemLevel,
-                    item.Source.FriendlyName(),
-                    item.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
-                Vector2 cursorPos = ImGui.GetCursorPos();
-                if (extended)
-                {
-                    cursorPos.Y += ImGui.GetTextLineHeightWithSpacing() * 0.2f;
-                    ImGui.SetCursorPos(cursorPos);
-                }
-                if (config.ColoredItemNames)
-                    ImGui.TextColored(LevelColor(config, item), toDraw);
-                else
-                    ImGui.Text(toDraw);
-                if (extended)
-                {
-                    ImGui.SameLine();
-                    if (multiLine)
-                        cursorPos.Y += ImGui.GetTextLineHeightWithSpacing();
-                    else
-                        cursorPos.X = ImGui.GetCursorPosX();
-                    ImGui.SetCursorPos(cursorPos);
-                    ImGui.Text(
-                        $"( {string.Join(" | ", item.Materia.ToList().ConvertAll(mat => $"{mat.StatType.Abbrev()} +{mat.GetStat()}"))} )");
-                    if (multiLine)
-                        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() * 0.25f);
-                    else
-                        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() * 0.3f);
-                }
+                    itemToDraw.ItemLevel,
+                    itemToDraw.Source.FriendlyName(),
+                    itemToDraw.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
+                if (extended) ImGui.SetCursorPosY(ImGui.GetCursorPosY() + fullLineHeight * (multiLine ? 0.7f : 0.2f));
+                Action<string> drawText = config.ColoredItemNames
+                    ? t => ImGui.TextColored(LevelColor(config, itemToDraw), t)
+                    : ImGui.Text;
+                drawText(toDraw);
+                if (!extended)
+                    return;
+                ImGui.SameLine();
+                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + fullLineHeight * (multiLine ? 0.7f : 0.2f));
+                ImGui.Text(
+                    $"( {string.Join(" | ", itemToDraw.Materia.ToList().ConvertAll(mat => $"{mat.StatType.Abbrev()} +{mat.GetStat()}"))} )");
             }
             else
                 ImGui.Text(Localize("Empty", "Empty"));
