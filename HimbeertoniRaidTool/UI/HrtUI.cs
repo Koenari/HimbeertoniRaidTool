@@ -65,14 +65,8 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
         _id = WindowName;
         Title = "";
     }
-    public void Show()
-    {
-        IsOpen = true;
-    }
-    public void Hide()
-    {
-        IsOpen = false;
-    }
+    public void Show() => IsOpen = true;
+    public void Hide() => IsOpen = false;
     public override void Update()
     {
         WindowName = $"{Title}##{_id}";

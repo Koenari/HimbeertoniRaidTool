@@ -68,8 +68,8 @@ internal class LodestoneConnector : NetStoneBase
             {
                 classToChange = p.MainChar.AddClass(foundJob.Value);
                 bool hasError = false;
-                hasError |= !ServiceManager.HrtDataManager.GearDb.TryAdd(classToChange.Gear);
-                hasError |= !ServiceManager.HrtDataManager.GearDb.TryAdd(classToChange.Bis);
+                hasError |= !ServiceManager.HrtDataManager.GearDb.TryAdd(classToChange.CurGear);
+                hasError |= !ServiceManager.HrtDataManager.GearDb.TryAdd(classToChange.CurBis);
                 if (hasError)
                     return new HrtUiMessage(
                         Localize("LodestoneConnector:FailedToCreateGear", "Could not create new gear set."),
@@ -99,7 +99,7 @@ internal class LodestoneConnector : NetStoneBase
             {
                 if (gearPiece == null)
                 {
-                    classToChange.Gear[slot] = new GearItem();
+                    classToChange.CurGear[slot] = new GearItem();
                     return;
                 }
 
@@ -108,12 +108,12 @@ internal class LodestoneConnector : NetStoneBase
                 {
                     ServiceManager.PluginLog.Warning(
                         $"Tried parsing the item <{gearPiece.ItemName}> but found nothing.");
-                    classToChange.Gear[slot] = new GearItem();
+                    classToChange.CurGear[slot] = new GearItem();
                     return;
                 }
 
                 uint gearId = itemEntry.RowId;
-                classToChange.Gear[slot] = new GearItem(gearId)
+                classToChange.CurGear[slot] = new GearItem(gearId)
                 {
                     IsHq = isHq,
                 };
@@ -130,7 +130,7 @@ internal class LodestoneConnector : NetStoneBase
                         TranslateMateriaLevel(materia.Remove(0, materia.LastIndexOf(" ", StringComparison.Ordinal))
                             .Trim());
 
-                    classToChange.Gear[slot].AddMateria(new HrtMateria(materiaCategory, materiaLevel));
+                    classToChange.CurGear[slot].AddMateria(new HrtMateria(materiaCategory, materiaLevel));
                 }
             }
 

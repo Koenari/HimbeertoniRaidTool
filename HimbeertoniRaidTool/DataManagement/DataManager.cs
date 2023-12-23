@@ -291,12 +291,9 @@ public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, I
                 NextSequence = Math.Max(NextSequence, value.LocalId.Sequence);
         }
         NextSequence++;
-        ServiceManager.PluginLog.Information($"Database contains {Data.Count} entries of type {typeof(T)}");
+        ServiceManager.PluginLog.Information($"Database contains {Data.Count} entries of type {typeof(T).Name}");
     }
-    public virtual bool TryGet(HrtId id, [NotNullWhen(true)] out T? value)
-    {
-        return Data.TryGetValue(id, out value);
-    }
+    public virtual bool TryGet(HrtId id, [NotNullWhen(true)] out T? value) => Data.TryGetValue(id, out value);
     public virtual bool TryAdd(in T c)
     {
         if (c.LocalId.IsEmpty)

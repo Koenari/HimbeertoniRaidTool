@@ -1,5 +1,4 @@
-﻿using Dalamud.Game;
-using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
@@ -148,8 +147,8 @@ internal sealed class LootMasterModule : IHrtModule
                 gearDb.TryAdd(etroSet);
                 ServiceManager.TaskManager.RegisterTask(new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(etroSet), HandleMessage,"GetBiS"));
             }
-            curClass.Bis = etroSet;
-            gearDb.TryAdd(curClass.Gear);
+            curClass.CurBis = etroSet;
+            gearDb.TryAdd(curClass.CurGear);
         }
         ServiceManager.HrtDataManager.Save();
         return true;
@@ -267,7 +266,7 @@ internal sealed class LootMasterModule : IHrtModule
                         EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c),
                     };
                     ServiceManager.HrtDataManager.GearDb.TryAdd(bis);
-                    p.MainChar.MainClass.Bis = bis;
+                    p.MainChar.MainClass.CurBis = bis;
                 }
             }
             p.MainChar = character;
