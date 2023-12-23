@@ -45,10 +45,10 @@ internal class ServiceManager
         TaskManager = new TaskManager();
         ConnectorPool = new ConnectorPool(TaskManager);
         CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList);
-        OwnCharacterDataProvider.Enable(ClientState, Framework);
         GearRefresher.Instance.Enable(GameInteropProvider);
         return HrtDataManager.Initialized;
     }
+    internal static void EnableOwnCharacterDataProvider() => OwnCharacterDataProvider.Enable(ClientState, Framework);
 
     internal static void Dispose()
     {

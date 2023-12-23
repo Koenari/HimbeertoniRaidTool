@@ -151,7 +151,7 @@ internal unsafe class GearRefresher
             targetClass.Level = target.Level;
         try
         {
-            Helpers.UpdateGearFromInventoryContainer(InventoryType.Examine, targetClass);
+            CsHelpers.UpdateGearFromInventoryContainer(InventoryType.Examine, targetClass);
             ServiceManager.PluginLog.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
         }
         catch (Exception e)

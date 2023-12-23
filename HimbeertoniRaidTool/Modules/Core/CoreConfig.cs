@@ -74,6 +74,7 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
         [JsonProperty] public bool SavePeriodically = true;
         [JsonProperty] public int SaveIntervalMinutes = 30;
         [JsonProperty] public bool HideInCombat = true;
+        [JsonProperty] public bool UpdateOwnData = true;
         /**
          * BiS
          */
@@ -108,6 +109,12 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
 
         public void Draw()
         {
+            ImGui.Text(Localize("options:core:automation", "Automation"));
+            ImGui.Checkbox(Localize("options:core:checkbox:ownGear", "Automatically update own data"),
+                ref _dataCopy.UpdateOwnData);
+            ImGuiHelper.AddTooltip(Localize("options:core:checkbox:ownGear:tooltip",
+                "Keeps gear and classes of current character up to date"));
+            ImGui.Separator();
             ImGui.Text(Localize("Ui", "User Interface"));
             ImGui.Checkbox(Localize("HideInCombat", "Hide in combat"), ref _dataCopy.HideInCombat);
             ImGuiHelper.AddTooltip(Localize("HideInCombatTooltip", "Hides all windows while character is in combat"));

@@ -1,10 +1,9 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Plugin.DataExtensions;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -24,9 +23,13 @@ internal static class OwnCharacterDataProvider
 
     private static TimeSpan _timeSinceLastGearUpdate;
     private static readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
+    private static uint _lastSeenJob = 0;
 
+    private static bool _enabled = false;
     public static void Enable(IClientState clientState, IFramework framework)
     {
+        if (_enabled) return;
+        _enabled = true;
         clientState.Login += OnLogin;
         clientState.Logout += OnLogout;
         if (clientState.IsLoggedIn)
@@ -35,15 +38,14 @@ internal static class OwnCharacterDataProvider
     }
     internal static void Disable(IClientState clientState, IFramework framework)
     {
+        if (!_enabled) return;
+        _enabled = false;
         clientState.Login -= OnLogin;
         clientState.Logout -= OnLogout;
         framework.Update -= OnFrameworkUpdate;
         OnLogout();
     }
-    private static void OnLogin()
-    {
-        GetChar(out _curChar, out _self);
-    }
+    private static void OnLogin() => GetChar(out _curChar, out _self);
     private static void OnLogout()
     {
         _curChar = null;
@@ -55,8 +57,9 @@ internal static class OwnCharacterDataProvider
         _timeSinceLastGearUpdate += framework.UpdateDelta;
         if (_timeSinceLastWalletUpdate > _timeBetweenWalletUpdates)
             UpdateWallet();
-        if (_timeSinceLastGearUpdate > _timeBetweenGearUpdates)
+        if (_timeSinceLastGearUpdate > _timeBetweenGearUpdates || _lastSeenJob != (_self?.ClassJob.Id ?? 0))
             UpdateGear();
+        _lastSeenJob = _self?.ClassJob.Id ?? 0;
     }
     private static bool GetChar([NotNullWhen(true)] out Character? target,
         [NotNullWhen(true)] out PlayerCharacter? source)
@@ -96,9 +99,10 @@ internal static class OwnCharacterDataProvider
     private static void UpdateGear()
     {
         if (_curChar == null || _self == null) return;
-        var job = (Job)_self.ClassJob.Id;
+        Job job = _self.GetJob();
         PlayableClass targetClass = _curChar[job] ?? _curChar.AddClass(job);
-        Helpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass);
+        if (targetClass.Level < _self.Level) targetClass.Level = _self.Level;
+        CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass);
         _timeSinceLastGearUpdate = TimeSpan.Zero;
     }
 
