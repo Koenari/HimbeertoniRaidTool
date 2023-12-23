@@ -111,6 +111,8 @@ internal class EditGroupWindow : EditWindow<RaidGroup>
         destination.Name = DataCopy.Name;
         destination.Type = DataCopy.Type;
         destination.RolePriority = DataCopy.RolePriority;
+        if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.RaidGroupDb.TryAdd(destination);
+        ServiceManager.HrtDataManager.Save();
     }
     protected override void Cancel() { }
 
@@ -420,9 +422,7 @@ internal class EditCharacterWindow : EditWindow<Character>
                 target.CurBis = bis;
             }
         }
-
-        if (destination.Classes.All(c => c.Job != destination.MainJob))
-            destination.MainJob = destination.Classes.FirstOrDefault()?.Job;
+        if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.CharDb.TryAdd(destination);
         ServiceManager.HrtDataManager.Save();
     }
 
@@ -542,6 +542,7 @@ internal class EditGearSetWindow : EditWindow<GearSet>
 
     protected override void Save(GearSet destination)
     {
+        if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.GearDb.TryAdd(destination);
         DataCopy.TimeStamp = DateTime.Now;
         destination.CopyFrom(DataCopy);
         ServiceManager.HrtDataManager.Save();
