@@ -117,7 +117,7 @@ internal class LootmasterUi : HrtWindow
                 $"{Localize("Edit character")} {p.MainChar.Name}"))
             AddChild(new EditCharacterWindow(p.MainChar));
         ImGui.BeginChild("JobList");
-        foreach (PlayableClass playableClass in p.MainChar.Classes)
+        foreach (PlayableClass playableClass in p.MainChar.Classes.Where(c => !c.HideInUi))
         {
             ImGui.PushID($"{playableClass.Job}");
             ImGui.Separator();
@@ -408,7 +408,7 @@ internal class LootmasterUi : HrtWindow
                 ImGui.SetNextItemWidth(110 * ScaleFactor);
                 if (ImGui.BeginCombo($"##Class", curJob?.ToString()))
                 {
-                    foreach (PlayableClass job in player.MainChar)
+                    foreach (PlayableClass job in player.MainChar.Where(c => !c.HideInUi))
                     {
                         if (ImGui.Selectable(job.ToString()))
                             player.MainChar.MainJob = job.Job;
