@@ -44,9 +44,13 @@ internal static class LmUiHelpers
                 if (ImGui.Selectable($"{curJobGearSet}"))
                     changeCallback(curJobGearSet);
             }
-            if (ImGui.Selectable(Localize("LootMaster:CurGear:AddNew", "+ Add new")))
+            if (ImGui.Selectable(Localize("LootMaster:GearSwitch:AddNew", "+ Add new")))
             {
                 addWindow(new EditGearSetWindow(new GearSet(), job, changeCallback));
+            }
+            if (ImGui.Selectable(Localize("LootMaster:GearSwitch:AddFromDb", "+ Search known sets")))
+            {
+                addWindow(ServiceManager.HrtDataManager.GearDb.OpenSearchWindow(changeCallback));
             }
             ImGui.EndCombo();
         }

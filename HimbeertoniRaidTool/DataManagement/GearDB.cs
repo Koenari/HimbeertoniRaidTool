@@ -3,6 +3,10 @@ using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
+using Dalamud.Interface;
+using ImGuiNET;
+using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -49,20 +53,57 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
         ServiceManager.PluginLog.Debug("Finished pruning of gear database.");
     }
 
-    public override HrtWindow OpenSearchWindow(Action<GearSet> onSelect, Action? onCancel = null)
-    {
-        return new GearSearchWindow(this,onSelect,onCancel);
-    }
+    public override HrtWindow OpenSearchWindow(Action<GearSet> onSelect, Action? onCancel = null) => new GearSearchWindow(this,onSelect,onCancel);
 
     private class GearSearchWindow : SearchWindow<GearSet, GearDb>
     {
+        private string _name = string.Empty;
+        private Job _job = Job.ADV;
+        private int _iLvlMin = 0;
+        private int _iLvlMax = 0;
+
         public GearSearchWindow(GearDb dataBase,Action<GearSet> onSelect, Action? onCancel) : base(dataBase,onSelect, onCancel)
         {
+            Size = new Vector2(500, 400);
+            SizeCondition = ImGuiCond.Appearing;
         }
 
         protected override void DrawContent()
         {
-            throw new NotImplementedException();
+            /*
+             * Selection
+             */
+            ImGui.Text(Localization.Localize("GearDB:Search:Name", "Name"));
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(150*ScaleFactor);
+            ImGui.InputText("##Name", ref _name, 50);
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(55*ScaleFactor);
+            ImGuiHelper.Combo("##Job", ref _job);
+            ImGui.SameLine();
+            ImGui.Text(Localization.Localize("GearDB:Search:iLvl","iLvl range:"));
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(50*ScaleFactor);
+            ImGui.InputInt("##minLvl", ref _iLvlMin,0);
+            ImGui.SameLine();
+            ImGui.Text("-");
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(50*ScaleFactor);
+            ImGui.InputInt("##maxLvl", ref _iLvlMax,0);
+            /*
+             * List
+             */
+            foreach (GearSet gearSet in Database.Data.Values.Where(set =>
+                         (_job == Job.ADV || set[GearSetSlot.MainHand].Jobs.Contains(_job))
+                         && (_iLvlMin == 0 || set.ItemLevel > _iLvlMin)
+                         && (_iLvlMax == 0 || set.ItemLevel < _iLvlMax)
+                         && (_name.Length == 0 || set.Name.Contains(_name))))
+            {
+                ImGuiHelper.Button(FontAwesomeIcon.Check,$"{gearSet.LocalId}",Localization.Localize("GearDB:Search:Select","Select gearset"));
+                ImGui.SameLine();
+                ImGui.Text($"{gearSet.Name} ({gearSet.ItemLevel}) {(gearSet.ManagedBy==GearSetManager.Etro?" from Etro":"")}");
+                Save();
+            }
         }
     }
 }
