@@ -14,6 +14,18 @@ internal class ChangeLog
         Entries.Where(e => e.Version <= Config.Data.LastSeenChangelog);
     public readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>()
     {
+        new(new Version(1, 5, 0, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.NewFeature, "Manage multiple gear/bis sets per job", 132),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Made it more pretty"),
+                new ChangeLogEntry(ChangeLogEntryCategory.General, "Correctly handle materia for previous expansions"),
+            },
+        },
         new(new Version(1, 4, 2, 1))
         {
             MinorFeatures =
