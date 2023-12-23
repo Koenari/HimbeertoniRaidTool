@@ -182,10 +182,9 @@ internal class LootmasterUi : HrtWindow
             if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.CurBis.EtroId,
                     string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.CurBis.Name),
                     playableClass.CurBis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }))
-                ServiceManager.TaskManager.RegisterTask(
-                    new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(playableClass.CurBis),
-                        HandleMessage,
-                        $"Update {playableClass.CurBis.Name} ({playableClass.CurBis.EtroId}) from etro"));
+                ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(playableClass.CurBis,
+                    HandleMessage,
+                    $"Update {playableClass.CurBis.Name} ({playableClass.CurBis.EtroId}) from etro");
             if (newBis is not null) playableClass.CurBis = newBis;
             ImGui.Spacing();
             ImGui.PopID();
@@ -373,12 +372,15 @@ internal class LootmasterUi : HrtWindow
         Player player = group[pos];
         //Sort Row
         ImGui.TableNextColumn();
-        float dualTopRowY = ImGui.GetCursorPosY() + 8 * ScaleFactor;
-        float dualBottomRowY = ImGui.GetCursorPosY() + ImGui.GetTextLineHeightWithSpacing() * 2f;
-        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 5);
+        float fullLineHeight = ImGui.GetTextLineHeightWithSpacing();
+        float lineSpacing = fullLineHeight - ImGui.GetTextLineHeight();
+        float dualTopRowY = ImGui.GetCursorPosY() + lineSpacing * 2.1f;
+        float dualBottomRowY = ImGui.GetCursorPosY() + fullLineHeight * 2.1f;
+        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + lineSpacing * 1.5f);
         if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "sortUp", Localize("LootMaster:SortButton:up", "Move up"),
                 pos > 0, ButtonSizeVertical))
             CurrentGroup.SwapPlayers(pos - 1, pos);
+        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + lineSpacing * 0.5f);
         if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "sortDown",
                 Localize("LootMaster:SortButton:down", "Move down"), pos < CurrentGroup.Count - 1, ButtonSizeVertical))
             CurrentGroup.SwapPlayers(pos, pos + 1);
@@ -474,9 +476,8 @@ internal class LootmasterUi : HrtWindow
                             Localize("lootmaster:button:etroUpdate:tooltip", "Update gear set \"{0}\" from Etro.gg"),
                             bis.Name),
                         bis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }, ButtonSize))
-                    ServiceManager.TaskManager.RegisterTask(
-                        new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(bis), HandleMessage,
-                            $"Update {bis.Name} ({bis.EtroId}) from etro"));
+                    ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(bis, HandleMessage,
+                        $"Update {bis.Name} ({bis.EtroId}) from etro");
                 ImGui.PopID();
                 foreach ((GearSetSlot slot, (GearItem, GearItem) itemTuple) in curJob.ItemTuples)
                 {

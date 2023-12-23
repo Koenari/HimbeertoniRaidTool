@@ -242,11 +242,11 @@ internal class EditPlayerWindow : EditWindow<Player>
 internal class EditCharacterWindow : EditWindow<Character>
 {
     private Job _newJob = Job.ADV;
-    private const int CLASS_HEIGHT = 27 * 2 + 4;
+    private const int CLASS_HEIGHT = 27 + 4;
     internal EditCharacterWindow(Character character, Action<Character>? onSave = null,
         Action<Character>? onCancel = null) : base(character, onSave, onCancel)
     {
-        Size = new Vector2(750, 270 + CLASS_HEIGHT * DataCopy.Classes.Count());
+        Size = new Vector2(500, 295 + CLASS_HEIGHT * DataCopy.Classes.Count());
         SizeCondition = ImGuiCond.Appearing;
         Title = $"{Localize("Edit")} {Localize("character")} {DataCopy.Name}";
     }
@@ -281,6 +281,7 @@ internal class EditCharacterWindow : EditWindow<Character>
         ImGui.Text(Localize("Job Data", "Job Data"));
         if (DataCopy.Classes.Any())
         {
+
             if (DataCopy.Classes.All(x => x.Job != DataCopy.MainJob))
                 DataCopy.MainJob = DataCopy.Classes.First().Job;
             if (ImGui.BeginCombo(Localize("Main Job", "Main Job"), DataCopy.MainJob.ToString()))
@@ -289,6 +290,10 @@ internal class EditCharacterWindow : EditWindow<Character>
                     if (ImGui.Selectable(curJob.Job.ToString()))
                         DataCopy.MainJob = curJob.Job;
                 }
+            ImGui.Separator();
+            ImGui.TextColored(Colors.TextSoftRed,
+                Localize("EditCharacter:Jobs:BisNotice",
+                    "BiS sets are now changed by editing the respective BiS set directly"));
         }
         else
         {
@@ -297,8 +302,6 @@ internal class EditCharacterWindow : EditWindow<Character>
             ImGui.Text(Localize("NoClasses", "Character does not have any classes created"));
         }
 
-        ImGui.Columns(2, "Classes", false);
-        ImGui.SetColumnWidth(0, 70f * ScaleFactor);
         ImGui.Separator();
         Job? toDelete = null;
         foreach (PlayableClass c in DataCopy.Classes)
@@ -307,38 +310,14 @@ internal class EditCharacterWindow : EditWindow<Character>
                 toDelete = c.Job;
             ImGui.SameLine();
             ImGui.Text($"{c.Job}  ");
-            ImGui.NextColumn();
-            ImGui.SetNextItemWidth(250f * ScaleFactor);
-            bool localBis = c.CurBis is { IsEmpty: false, ManagedBy: GearSetManager.Hrt };
-            ImGui.BeginDisabled(localBis);
-            if (ImGui.InputText($"{Localize("BIS", "BIS")}##{c.Job}", ref c.CurBis.EtroId, 60))
-                c.CurBis.EtroId = c.CurBis.EtroId.Replace(EtroConnector.GEARSET_WEB_BASE_URL, "");
-
-            if (localBis)
-                ImGuiHelper.AddTooltip(Localize("PlayerEdit:Tooltip:LocalBis",
-                    "BiS set for this class is locally managed.\nDelete local set to use a set from etro.gg"));
-            foreach ((string etroId, string name) in ServiceManager.ConnectorPool.EtroConnector.GetBiS(c.Job))
-            {
-                ImGui.SameLine();
-                if (ImGuiHelper.Button($"{Localize("character_bis_set_to", "Set to")} {name}##BIS#{c.Job}",
-                        $"{etroId}", c.CurBis.EtroId != etroId))
-                    c.CurBis.EtroId = etroId;
-            }
-
-            ImGui.EndDisabled();
-            ImGui.NextColumn();
-            ImGui.NextColumn();
+            ImGui.SameLine();
             ImGui.SetNextItemWidth(150f * ScaleFactor);
             if (ImGui.InputInt($"{Localize("Level", "Level")}##{c.Job}", ref c.Level))
                 c.Level = Math.Clamp(c.Level, 1, Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxLevel);
 
             ImGui.Separator();
-            ImGui.NextColumn();
         }
-
         if (toDelete is not null) DataCopy.RemoveClass(toDelete.Value);
-
-        ImGui.Columns(1);
         if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out Job job, _newJob.ToString(),
                 Enum.GetValues<Job>(), j => j.ToString(),
                 (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
@@ -407,9 +386,8 @@ internal class EditCharacterWindow : EditWindow<Character>
                         EtroId = c.CurBis.EtroId,
                     };
                     gearSetDb.TryAdd(etroSet);
-                    ServiceManager.TaskManager.RegisterTask(
-                        new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(etroSet), _ => { },
-                            $"Update {etroSet.Name} ({etroSet.EtroId}) from etro"));
+                    ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(etroSet, _ => { },
+                        $"Update {etroSet.Name} ({etroSet.EtroId}) from etro");
                 }
 
                 target.CurBis = etroSet;
@@ -431,7 +409,7 @@ internal class EditCharacterWindow : EditWindow<Character>
 internal class EditGearSetWindow : EditWindow<GearSet>
 {
     private readonly Job _job;
-
+    private string _etroIdInput = "";
     internal EditGearSetWindow(GearSet original, Job? job = null, Action<GearSet>? onSave = null,
         Action<GearSet>? onCancel = null) :
         base(original, onSave, onCancel)
@@ -460,6 +438,57 @@ internal class EditGearSetWindow : EditWindow<GearSet>
             }
         }
         //Other infos
+        ImGui.Text(Localize("GearSetEdit:UseSetFromEtro", "Replace with set from etro:"));
+        foreach ((string etroId, string name) in ServiceManager.ConnectorPool.EtroConnector.GetBiS(_job))
+        {
+            ImGui.SameLine();
+            if (ImGuiHelper.Button($"{name}##BIS#{etroId}", $"{etroId}"))
+            {
+                if (ServiceManager.HrtDataManager.GearDb.TryGetSetByEtroId(etroId, out GearSet? newSet))
+                {
+                    ReplaceOriginal(newSet);
+                    return;
+                }
+                ReplaceOriginal(new GearSet(GearSetManager.Etro, name)
+                {
+                    EtroId = etroId,
+                });
+                ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(DataCopy);
+                return;
+            }
+        }
+        const string customEtroPopupId = "customEtroPopupID";
+        ImGui.SameLine();
+        if (ImGuiHelper.Button(Localize("GearSetEdit:Button:CustomEtro", "Custom"),
+                Localize("GearSetEdit:Button:CustomEtro:tooltip", "Provide custom id")))
+        {
+            _etroIdInput = "";
+            ImGui.OpenPopup(customEtroPopupId);
+        }
+
+        if (ImGui.BeginPopupContextItem(customEtroPopupId))
+        {
+            ImGui.InputText("CustomEtroID", ref _etroIdInput, 200);
+            if (ImGuiHelper.Button(Localize("GearSetEdit:Button:CustomEtro:Get", "Get"),
+                    Localize("GearSetEdit:Button:CustomEtro:Get:Tooltip", "Download set")))
+            {
+                if (_etroIdInput.StartsWith(EtroConnector.GEARSET_WEB_BASE_URL))
+                    _etroIdInput = _etroIdInput[EtroConnector.GEARSET_WEB_BASE_URL.Length..];
+                if (ServiceManager.HrtDataManager.GearDb.TryGetSetByEtroId(_etroIdInput, out GearSet? newSet))
+                {
+                    ReplaceOriginal(newSet);
+                    return;
+                }
+                ReplaceOriginal(new GearSet(GearSetManager.Etro)
+                {
+                    EtroId = _etroIdInput,
+                });
+                ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(DataCopy);
+                ImGui.CloseCurrentPopup();
+                return;
+            }
+            ImGui.EndPopup();
+        }
 
         if (isFromEtro)
         {
@@ -488,10 +517,10 @@ internal class EditGearSetWindow : EditWindow<GearSet>
         {
             ImGui.Text(
                 $"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:HrtLocal", "Local Database")}");
-            ImGui.Text($"{Localize("Local ID", "Local ID")}: {DataCopy.LocalId}");
             if (DataCopy.IsSystemManaged)
                 ImGui.TextColored(Colors.TextRed,
-                    Localize("GearSetEdit:SystemManagedWarning", "This set will be automatically overwritten!"));
+                    Localize("GearSetEdit:SystemManagedWarning",
+                        "This set is manged by the plugin and will be automatically overwritten with characters current gear!"));
         }
 
         ImGui.Text($"{Localize("GearSetEdit:LastChanged", "Last Change")}: {DataCopy.TimeStamp}");

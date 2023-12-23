@@ -145,7 +145,7 @@ internal sealed class LootMasterModule : IHrtModule
                     EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
                 };
                 gearDb.TryAdd(etroSet);
-                ServiceManager.TaskManager.RegisterTask(new HrtTask(() => ServiceManager.ConnectorPool.EtroConnector.GetGearSet(etroSet), HandleMessage,"GetBiS"));
+                ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(etroSet, HandleMessage);
             }
             curClass.CurBis = etroSet;
             gearDb.TryAdd(curClass.CurGear);

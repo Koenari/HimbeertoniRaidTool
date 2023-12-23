@@ -75,7 +75,13 @@ internal class EtroConnector : WebConnector
         return materiaCache;
     }
 
-    public HrtUiMessage GetGearSet(GearSet set)
+    public void GetGearSetAsync(GearSet set,Action<HrtUiMessage>? messageCallback = null,string taskName = "Etro Update")
+    {
+        messageCallback ??= _ => { };
+        ServiceManager.TaskManager.RegisterTask(new HrtTask(()=> GetGearSet(set), messageCallback,taskName));
+    }
+
+    private HrtUiMessage GetGearSet(GearSet set)
     {
         HrtUiMessage errorMessage = new($"Could not update set {set.Name}", HrtUiMessageType.Failure);
         if (set.EtroId.Equals(""))
