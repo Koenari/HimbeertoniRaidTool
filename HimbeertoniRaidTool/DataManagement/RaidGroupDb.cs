@@ -12,21 +12,30 @@ namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
 internal class RaidGroupDb : DataBaseTable<RaidGroup, Player>
 {
-    public RaidGroupDb(IIdProvider idProvider, string serializedData, HrtIdReferenceConverter<Player>? conv, JsonSerializerSettings settings) : base(idProvider, serializedData, conv, settings)
+    public RaidGroupDb(IIdProvider idProvider, string serializedData, HrtIdReferenceConverter<Player>? conv,
+        JsonSerializerSettings settings) : base(idProvider, serializedData, conv, settings)
     {
     }
 
-    public override HrtWindow OpenSearchWindow(Action<RaidGroup> onSelect, Action? onCancel = null) => new GroupSearchWindow(this, onSelect, onCancel);
+    public override HashSet<HrtId> GetReferencedIds()
+    {
+        HashSet<HrtId> referencedIds = new();
+        foreach (Player p in from g in Data.Values from player in g select player)
+        {
+            referencedIds.Add(p.LocalId);
+        }
+        return referencedIds;
+    }
+    public override HrtWindow OpenSearchWindow(Action<RaidGroup> onSelect, Action? onCancel = null) =>
+        new GroupSearchWindow(this, onSelect, onCancel);
 
     internal class GroupSearchWindow : SearchWindow<RaidGroup, RaidGroupDb>
     {
-        public GroupSearchWindow(RaidGroupDb dataBase, Action<RaidGroup> onSelect, Action? onCancel) : base(dataBase, onSelect, onCancel)
+        public GroupSearchWindow(RaidGroupDb dataBase, Action<RaidGroup> onSelect, Action? onCancel) : base(dataBase,
+            onSelect, onCancel)
         {
         }
 
-        protected override void DrawContent()
-        {
-            throw new NotImplementedException();
-        }
+        protected override void DrawContent() => throw new NotImplementedException();
     }
 }

@@ -128,7 +128,7 @@ public class HrtDataManager
         loadedSuccessful &= TryRead(_charDbJsonFile, out string charDbJson);
         
         _gearDb = new GearDb(IdProvider, gearJson, _jsonSettings);
-        _characterDb = new CharacterDb(IdProvider, charDbJson,  new HrtIdReferenceConverter<GearSet>(_gearDb), _jsonSettings,_gearDb);
+        _characterDb = new CharacterDb(IdProvider, charDbJson,  new HrtIdReferenceConverter<GearSet>(_gearDb), _jsonSettings);
         var charRefConv = new HrtIdReferenceConverter<Character>(_characterDb);
         //Migration
         if (raidGroupJsonFile.Exists)
@@ -170,12 +170,20 @@ public class HrtDataManager
         Initialized = loadedSuccessful;
     }
 
-    internal void PruneDatabase()
+    internal void CleanupDatabase()
     {
         if (!Initialized) return;
-        //TODO: Redo
-        //CharDb.Prune(this);
-        //GearDb.Prune(CharDb);
+        /*
+         * Keeping characters and players in DB for users to add again later
+         *
+         * PlayerDb.RemoveUnused(RaidGroupDb.GetReferencedIds());
+         * CharDb.RemoveUnused(PlayerDb.GetReferencedIds());
+         */
+        GearDb.RemoveUnused(CharDb.GetReferencedIds());
+        RaidGroupDb.FixEntries();
+        PlayerDb.FixEntries();
+        CharDb.FixEntries();
+        GearDb.FixEntries();
     }
 
     internal static bool TryRead(FileInfo file, out string data)
@@ -236,29 +244,21 @@ public class HrtDataManager
         ServiceManager.PluginLog.Debug($"Database saving IO time: {time3 - time2}");
         return !hasError;
     }
-
-    public class NullIdProvider : IIdProvider
-    {
-        public HrtId CreateId(HrtId.IdType type) => HrtId.Empty;
-        public uint GetAuthorityIdentifier() => 0;
-        public bool SignId(HrtId id) => false;
-        public bool VerifySignature(HrtId id) => false;
-    }
-
-
 }
-
 public interface IDataBaseTable<T> where T : IHasHrtId
 {
     internal bool TryGet(HrtId id, [NotNullWhen(true)] out T? value);
     internal bool TryAdd(in T value);
-    internal bool Contains(HrtId hrtId);
-    internal ulong GetNextSequence();
     internal IEnumerable<T> GetValues();
     internal HrtWindow OpenSearchWindow(Action<T> onSelect, Action? onCancel = null);
+    public HashSet<HrtId> GetReferencedIds();
+    internal ulong GetNextSequence();
+    internal bool Contains(HrtId hrtId);
+    public void RemoveUnused(HashSet<HrtId> referencedIds);
+    public void FixEntries();
 }
 
-public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, IHasHrtId where S : IHasHrtId 
+public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, IHasHrtId where S : IHasHrtId ,new()
 {
 
     protected readonly Dictionary<HrtId, T> Data = new();
@@ -284,7 +284,7 @@ public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, I
             if (value.LocalId.IsEmpty)
             {
                 ServiceManager.PluginLog.Error(
-                    $"{typeof(T)} {value} was missing an ID and was removed from the database");
+                    $"{typeof(T).Name} {value} was missing an ID and was removed from the database");
                 continue;
             }
             if(Data.TryAdd(value.LocalId, value))
@@ -300,7 +300,17 @@ public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, I
             c.LocalId = IdProvider.CreateId(c.IdType);
         return Data.TryAdd(c.LocalId, c);
     }
-
+    public void RemoveUnused(HashSet<HrtId> referencedIds)
+    {
+        ServiceManager.PluginLog.Debug($"Begin pruning of {typeof(T).Name} database.");
+        IEnumerable<HrtId> keyList = new List<HrtId>(Data.Keys);
+        foreach (HrtId id in keyList.Where(id => !referencedIds.Contains(id)))
+        {
+            Data.Remove(id);
+            ServiceManager.PluginLog.Information($"Removed {id} from {typeof(T).Name} database");
+        }
+        ServiceManager.PluginLog.Debug($"Finished pruning of {typeof(T).Name} database.");
+    }
     public bool Contains(HrtId hrtId) => Data.ContainsKey(hrtId);
     public IEnumerable<T> GetValues() => Data.Values;
     public ulong GetNextSequence() => NextSequence++;
@@ -312,6 +322,9 @@ public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, I
         if(RefConv is not null) settings.Converters.Remove(RefConv);
         return result;
     }
+    public abstract HashSet<HrtId> GetReferencedIds();
+    public virtual void FixEntries() {}
+
     internal abstract class SearchWindow<Q,R> : HrtWindow where R : IDataBaseTable<Q> where Q : IHasHrtId
     {
         protected readonly R Database;

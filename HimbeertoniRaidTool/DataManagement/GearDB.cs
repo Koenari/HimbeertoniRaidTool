@@ -40,19 +40,15 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
         set = null;
         return false;
     }
-    
-    internal void Prune(CharacterDb charDb)
+    public override void FixEntries()
     {
-        ServiceManager.PluginLog.Debug("Begin pruning of gear database.");
-        foreach (HrtId toPrune in charDb.FindOrphanedGearSets(Data.Keys))
+        foreach (GearSet dataValue in Data.Values.Where(dataValue => dataValue is { ManagedBy: GearSetManager.Etro, EtroId: "" }))
         {
-            if (!Data.TryGetValue(toPrune, out GearSet? set)) continue;
-            ServiceManager.PluginLog.Information($"Removed {set.Name} ({set.LocalId}) from DB");
-            Data.Remove(toPrune);
+            dataValue.ManagedBy = GearSetManager.Hrt;
         }
-        ServiceManager.PluginLog.Debug("Finished pruning of gear database.");
     }
 
+    public override HashSet<HrtId> GetReferencedIds() => new (Data.Keys);
     public override HrtWindow OpenSearchWindow(Action<GearSet> onSelect, Action? onCancel = null) => new GearSearchWindow(this,onSelect,onCancel);
 
     private class GearSearchWindow : SearchWindow<GearSet, GearDb>

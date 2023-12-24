@@ -164,9 +164,9 @@ internal class CoreModule : IHrtModule
         ServiceManager.TaskManager.RegisterTask(
             new HrtTask(() =>
             {
-                ServiceManager.HrtDataManager.PruneDatabase();
+                ServiceManager.HrtDataManager.CleanupDatabase();
                 return HrtUiMessage.Empty;
-            }, HandleMessage, "Prune database")
+            }, HandleMessage, "Cleanup database")
         );
         ServiceManager.TaskManager.RegisterTask(
             new HrtTask(

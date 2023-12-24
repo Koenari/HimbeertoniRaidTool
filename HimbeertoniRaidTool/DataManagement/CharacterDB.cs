@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
-using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -18,67 +17,41 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
     private readonly HashSet<uint> _usedWorlds = new();
 
     internal CharacterDb(IIdProvider idProvider, string serializedData, HrtIdReferenceConverter<GearSet> conv,
-        JsonSerializerSettings settings,GearDb gearDb) : base(idProvider,serializedData,conv,settings)
+        JsonSerializerSettings settings) : base(idProvider, serializedData, conv, settings)
     {
-        if(!LoadError)
+        if (LoadError) return;
+        foreach (Character c in Data.Values)
         {
-            HashSet<HrtId> knownGear = new();
-            foreach ((HrtId id,Character c) in Data)
+            /*
+             * Fill up indices
+             */
+            _usedWorlds.Add(c.HomeWorldId);
+            if (!_nameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId))
             {
-                _usedWorlds.Add(c.HomeWorldId);
-                if (!_nameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId))
+                ServiceManager.PluginLog.Warning(
+                    $"Database contained {c.Name} @ {c.HomeWorld?.Name} twice. Characters were merged");
+                if (Data.TryGetValue(_nameLookup[(c.HomeWorldId, c.Name)], out Character? other))
                 {
-                    ServiceManager.PluginLog.Warning(
-                        $"Database contains {c.Name} @ {c.HomeWorld?.Name} twice. Characters were merged");
-                    Data.TryGetValue(_nameLookup[(c.HomeWorldId, c.Name)], out Character? other);
-                    _idReplacement.Add(c.LocalId, other!.LocalId);
+                    _idReplacement.Add(c.LocalId, other.LocalId);
                     other.MergeInfos(c);
                     Data.Remove(c.LocalId);
-                    continue;
                 }
-
-                if (c.CharId > 0)
-                    _charIdLookup.TryAdd(c.CharId, c.LocalId);
-                foreach (PlayableClass job in c)
-                {
-                    if (knownGear.Contains(job.CurGear.LocalId))
-                    {
-                        //Only BiS gearset are meant to be shared
-                        GearSet gearCopy = job.CurGear.Clone();
-                        ServiceManager.PluginLog.Debug(
-                            $"Found Gear duplicate with Sequence: {gearCopy.LocalId.Sequence}");
-                        gearCopy.LocalId = HrtId.Empty;
-                        gearDb.TryAdd(gearCopy);
-                        job.CurGear = gearCopy;
-                    }
-                    else
-                    {
-                        knownGear.Add(job.CurGear.LocalId);
-                    }
-                }
-                
+                continue;
             }
+            if (c.CharId > 0)
+                _charIdLookup.TryAdd(c.CharId, c.LocalId);
         }
-
-        
-        
     }
 
     internal IEnumerable<uint> GetUsedWorlds() => _usedWorlds;
 
-    internal IReadOnlyList<string> GetKnownCharacters(uint worldId)
-    {
-        List<string> result = new();
-        foreach (Character character in Data.Values.Where(c => c.HomeWorldId == worldId))
-            result.Add(character.Name);
-        return result;
-    }
+    internal IReadOnlyList<string> GetKnownCharacters(uint worldId) => Data.Values.Where(c => c.HomeWorldId == worldId).Select(character => character.Name).ToList();
 
     public override bool TryAdd(in Character c)
     {
         if (!base.TryAdd(c))
             return false;
-
+        //Add to indices
         _usedWorlds.Add(c.HomeWorldId);
         _nameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId);
         if (c.CharId > 0)
@@ -136,32 +109,27 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
         if (c.CharId > 0)
             _charIdLookup.TryAdd(c.CharId, c.LocalId);
     }
-
-    internal IEnumerable<HrtId> FindOrphanedGearSets(IEnumerable<HrtId> possibleOrphans)
+    public override HashSet<HrtId> GetReferencedIds()
     {
-        HashSet<HrtId> orphanSets = new(possibleOrphans);
-        foreach (PlayableClass job in Data.Values.SelectMany(character => character.Classes))
+        ServiceManager.PluginLog.Debug("Begin calculation of referenced Ids in character database");
+        HashSet<HrtId> referencedIds = new();
+        foreach (PlayableClass playableClass in Data.Values.SelectMany(character => character))
         {
-            orphanSets.Remove(job.CurGear.LocalId);
-            orphanSets.Remove(job.CurBis.LocalId);
+            foreach (GearSet gearSet in playableClass.GearSets.Where(set => !set.LocalId.IsEmpty))
+            {
+                referencedIds.Add(gearSet.LocalId);
+            }
+            foreach (GearSet gearSet in playableClass.BisSets.Where(set => !set.LocalId.IsEmpty))
+            {
+                referencedIds.Add(gearSet.LocalId);
+            }
         }
-
-        ServiceManager.PluginLog.Information($"Found {orphanSets.Count} orphaned gear sets.");
-        return orphanSets;
+        ServiceManager.PluginLog.Debug("Finished calculation of referenced Ids in character database");
+        return referencedIds;
     }
 
-    internal string Serialize(HrtIdReferenceConverter<GearSet> conv, JsonSerializerSettings settings)
-    {
-        settings.Converters.Add(conv);
-        string result = JsonConvert.SerializeObject(Data.Values, settings);
-        settings.Converters.Remove(conv);
-        return result;
-    }
+    public override HrtWindow OpenSearchWindow(Action<Character> onSelect, Action? onCancel = null) => new CharacterSearchWindow(this,onSelect, onCancel);
 
-    public override HrtWindow OpenSearchWindow(Action<Character> onSelect, Action? onCancel = null)
-    {
-        return new CharacterSearchWindow(this,onSelect, onCancel);
-    }
     private class CharacterSearchWindow : SearchWindow<Character, CharacterDb>
     {
         private readonly uint[] _worlds;
