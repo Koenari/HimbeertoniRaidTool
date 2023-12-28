@@ -35,6 +35,7 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
         Upgrade();
         _saveTask.Repeat = TimeSpan.FromMinutes(Data.SaveIntervalMinutes);
         _saveTask.ShouldRun = Data.SavePeriodically;
+        _saveTask.LastRun = DateTime.Now;
         ServiceManager.TaskManager.RegisterTask(_saveTask);
     }
 
