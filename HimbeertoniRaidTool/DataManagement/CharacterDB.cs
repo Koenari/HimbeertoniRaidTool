@@ -127,6 +127,17 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
         ServiceManager.PluginLog.Debug("Finished calculation of referenced Ids in character database");
         return referencedIds;
     }
+    public override void FixEntries()
+    {
+        foreach (PlayableClass playableClass in Data.Values.SelectMany(character => character.Classes))
+        {
+            playableClass.RemoveEmptySets();
+            if (playableClass.CurGear.LocalId.IsEmpty)
+                ServiceManager.HrtDataManager.GearDb.TryAdd(playableClass.CurGear);
+            if (playableClass.CurBis.LocalId.IsEmpty)
+                ServiceManager.HrtDataManager.GearDb.TryAdd(playableClass.CurBis);
+        }
+    }
 
     public override HrtWindow OpenSearchWindow(Action<Character> onSelect, Action? onCancel = null) => new CharacterSearchWindow(this,onSelect, onCancel);
 
