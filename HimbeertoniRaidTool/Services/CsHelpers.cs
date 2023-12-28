@@ -16,6 +16,10 @@ internal class CsHelpers
         var container = InventoryManager.Instance()->GetInventoryContainer(type);
         if (container == null || container->Size < 13) return;
         GearSet targetGearSet = targetClass.AutoUpdatedGearSet;
+        if (targetGearSet.LocalId.IsEmpty)
+        {
+            ServiceManager.HrtDataManager.GearDb.TryAdd(targetGearSet);
+        }
         for (int i = 0; i < 13; i++)
         {
             if (i == (int)GearSetSlot.Waist) continue;
