@@ -19,6 +19,7 @@ internal class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.General, "Remove unused gear sets from database"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Could not change to gear sets with the same name"),
             },
         },
         new(new Version(1, 5, 0, 0))

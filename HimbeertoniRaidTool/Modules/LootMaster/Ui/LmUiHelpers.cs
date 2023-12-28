@@ -41,7 +41,7 @@ internal static class LmUiHelpers
         {
             foreach (GearSet curJobGearSet in list)
             {
-                if (ImGui.Selectable($"{curJobGearSet}"))
+                if (ImGui.Selectable($"{curJobGearSet}##{curJobGearSet.LocalId}"))
                     changeCallback(curJobGearSet);
             }
             if (ImGui.Selectable(Localize("LootMaster:GearSwitch:AddNew", "+ Add new")))
