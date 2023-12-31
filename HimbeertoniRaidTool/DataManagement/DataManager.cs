@@ -137,9 +137,21 @@ public class HrtDataManager
         loadedSuccessful &= TryRead(_gearDbJsonFile, out string gearJson);
         loadedSuccessful &= TryRead(_charDbJsonFile, out string charDbJson);
 
-        _gearDb = new GearDb(IdProvider, gearJson, _jsonSettings);
-        _characterDb = new CharacterDb(IdProvider, charDbJson, new HrtIdReferenceConverter<GearSet>(_gearDb),
-            _jsonSettings);
+        try
+        {
+            _gearDb = new GearDb(IdProvider, gearJson, _jsonSettings);
+        } catch (JsonSerializationException)
+        {
+            _gearDb = new GearDb(IdProvider, string.Empty, _jsonSettings);
+        }
+        try
+        {
+            _characterDb = new CharacterDb(IdProvider, charDbJson, new HrtIdReferenceConverter<GearSet>(_gearDb), _jsonSettings);
+        } catch(JsonSerializationException)
+        {
+            _characterDb = new CharacterDb(IdProvider, string.Empty, new HrtIdReferenceConverter<GearSet>(_gearDb), _jsonSettings);
+        }
+        
         var charRefConv = new HrtIdReferenceConverter<Character>(_characterDb);
         //Migration
         if (raidGroupJsonFile.Exists)
