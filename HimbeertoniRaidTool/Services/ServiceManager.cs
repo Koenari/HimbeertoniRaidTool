@@ -43,7 +43,7 @@ internal class ServiceManager
         IconCache = new IconCache(PluginInterface, DataManager, TextureProvider);
         HrtDataManager = new HrtDataManager(PluginInterface);
         TaskManager = new TaskManager();
-        ConnectorPool = new ConnectorPool(TaskManager);
+        ConnectorPool = new ConnectorPool(TaskManager, PluginLog);
         CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList);
         GearRefresher.Instance.Enable(GameInteropProvider);
         return HrtDataManager.Initialized;

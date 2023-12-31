@@ -170,7 +170,7 @@ internal class CoreModule : IHrtModule
         );
         ServiceManager.TaskManager.RegisterTask(
             new HrtTask(
-                () => Connectors.EtroConnector.UpdateEtroSets(_config.Data.UpdateEtroBisOnStartup,
+                () => ServiceManager.ConnectorPool.EtroConnector.UpdateEtroSets(_config.Data.UpdateEtroBisOnStartup,
                     _config.Data.EtroUpdateIntervalDays),
                 HandleMessage, "Update etro sets")
         );

@@ -1,7 +1,10 @@
-﻿using HimbeertoniRaidTool.Common.Data;
+﻿using Dalamud.Plugin.Services;
+using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
@@ -13,11 +16,11 @@ internal class EtroConnector : WebConnector
     public const string GEARSET_WEB_BASE_URL = WEB_BASE_URL + "gearset/";
     public const string MATERIA_API_BASE_URL = API_BASE_URL + "materia/";
     public const string BIS_API_BASE_URL = GEARSET_API_BASE_URL + "bis/";
-    private readonly Lazy<Dictionary<uint, (MateriaCategory, MateriaLevel)>> _lazyMateriaCache;
     private readonly Dictionary<Job, Dictionary<string, string>> _bisCache;
     public IReadOnlyDictionary<string, string> GetBiS(Job job) => _bisCache[job];
     public string GetDefaultBiS(Job job) => _bisCache[job].Keys.FirstOrDefault("");
-    private Dictionary<uint, (MateriaCategory, MateriaLevel)> MateriaCache => _lazyMateriaCache.Value;
+    private bool _materiaCacheReady = false;
+    private readonly ConcurrentDictionary<uint, (MateriaCategory, MateriaLevel)> _materiaCache = new();
     private static JsonSerializerSettings JsonSettings => new()
     {
         StringEscapeHandling = StringEscapeHandling.Default,
@@ -30,9 +33,17 @@ internal class EtroConnector : WebConnector
         MissingMemberHandling = MissingMemberHandling.Ignore,
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
     };
-    internal EtroConnector(TaskManager tm) : base(new RateLimit(4, new TimeSpan(0, 0, 30)))
+    internal EtroConnector(TaskManager tm, IPluginLog log) : base(new RateLimit(4, new TimeSpan(0, 0, 30)))
     {
-        _lazyMateriaCache = new Lazy<Dictionary<uint, (MateriaCategory, MateriaLevel)>>(CreateMateriaCache, true);
+        tm.RegisterTask(new HrtTask(() => FillMateriaCache(_materiaCache),
+            (msg) =>
+            {
+                if (msg.MessageType == HrtUiMessageType.Failure)
+                    log.Error(msg.Message);
+                else
+                    log.Info(msg.Message);
+            }
+            ,"Get Etro Materia definitions"));
         _bisCache = new Dictionary<Job, Dictionary<string, string>>();
         foreach (Job job in Enum.GetValues<Job>())
             _bisCache.Add(job, new Dictionary<string, string>());
@@ -40,9 +51,9 @@ internal class EtroConnector : WebConnector
             (msg) =>
             {
                 if (msg.MessageType == HrtUiMessageType.Failure)
-                    ServiceManager.PluginLog.Error(msg.Message);
+                    log.Error(msg.Message);
                 else
-                    ServiceManager.PluginLog.Info(msg.Message);
+                    log.Info(msg.Message);
             }, "Load BiS list from etro"));
     }
 
@@ -62,17 +73,18 @@ internal class EtroConnector : WebConnector
         return new HrtUiMessage("Successfully loaded BiS list from Etro", HrtUiMessageType.Success);
     }
 
-    private Dictionary<uint, (MateriaCategory, MateriaLevel)> CreateMateriaCache()
+    private HrtUiMessage FillMateriaCache(ConcurrentDictionary<uint, (MateriaCategory, MateriaLevel)> materiaCache)
     {
-        Dictionary<uint, (MateriaCategory, MateriaLevel)> materiaCache = new();
+        var errorMessage = new HrtUiMessage("Error getting materia info from etro.gg", HrtUiMessageType.Failure);
         string? jsonResponse = MakeWebRequest(MATERIA_API_BASE_URL);
-        if (jsonResponse == null) return materiaCache;
+        if (jsonResponse == null) return errorMessage;
         var matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse, JsonSettings);
-        if (matList == null) return materiaCache;
+        if (matList == null) return errorMessage;
         foreach (EtroMateria? mat in matList)
             for (byte i = 0; i < mat.Tiers.Length; i++)
-                materiaCache.Add(mat.Tiers[i].Id, ((MateriaCategory)mat.Id, (MateriaLevel)i));
-        return materiaCache;
+                materiaCache.TryAdd(mat.Tiers[i].Id, ((MateriaCategory)mat.Id, (MateriaLevel)i));
+        _materiaCacheReady = true;
+        return new HrtUiMessage("Sucessfully fetched materia definitions from etro.gg",HrtUiMessageType.Success);
     }
 
     public void GetGearSetAsync(GearSet set,Action<HrtUiMessage>? messageCallback = null,string taskName = "Etro Update")
@@ -124,12 +136,13 @@ internal class EtroConnector : WebConnector
             if (!(etroSet.materia?.TryGetValue(idString, out var materia) ?? false)) return;
             foreach (uint? matId in materia.Values.Where(matId => matId.HasValue))
             {
-                set[slot].AddMateria(new HrtMateria(MateriaCache.GetValueOrDefault<uint, (MateriaCategory, MateriaLevel)>(matId!.Value, (0, 0))));
+                set[slot].AddMateria(new HrtMateria(_materiaCache.GetValueOrDefault<uint, (MateriaCategory, MateriaLevel)>(matId!.Value, (0, 0))));
             }
         }
     }
-    internal static HrtUiMessage UpdateEtroSets(bool updateAll, int maxAgeInDays)
+    internal HrtUiMessage UpdateEtroSets(bool updateAll, int maxAgeInDays)
     {
+        while (!_materiaCacheReady) Thread.Sleep(1);
         DateTime oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
@@ -138,7 +151,7 @@ internal class EtroConnector : WebConnector
             totalCount++;
             if (gearSet.IsEmpty || gearSet.EtroFetchDate < oldestValid && updateAll)
             {
-                HrtUiMessage message = ServiceManager.ConnectorPool.EtroConnector.GetGearSet(gearSet);
+                HrtUiMessage message = GetGearSet(gearSet);
                 if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
                     ServiceManager.PluginLog.Error(message.Message);
                 updateCount++;
