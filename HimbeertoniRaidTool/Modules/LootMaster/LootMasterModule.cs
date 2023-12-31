@@ -1,6 +1,8 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Data;
@@ -276,16 +278,43 @@ internal sealed class LootMasterModule : IHrtModule
     
     public void OnCommand(string command, string args)
     {
+        ServiceManager.PluginLog.Debug($"Lootmaster module handling command: {command} args: \"{args}\"");
         switch (args)
         {
             case "toggle":
                 _ui.IsOpen = !_ui.IsOpen;
+                break;
+            case "help":
+                PrintUsage("/help",""); 
                 break;
             default:
                 _ui.Show();
                 break;
         }
     }
+    public void PrintUsage(string command, string args)
+    {
+        //if (!command.Equals("/help")) return;
+
+        SeStringBuilder stringBuilder = new SeStringBuilder()
+            .AddUiForeground("[Himbeertoni Raid Tool]", 45)
+            .AddUiForeground("[Help]", 62)
+            .AddText(Localization.Localize("lootmaster:usage:heading", " Commands used for Loot Master:"))
+            .Add(new NewLinePayload());
+
+        stringBuilder
+                .AddUiForeground($"/lootmaster", 37)
+                .AddText(" - Opens Lootmaster window")
+                .Add(new NewLinePayload());
+        stringBuilder
+                .AddUiForeground($"/lootmaster toggle", 37)
+                .AddText(" - Toggles Lootmaster window")
+                .Add(new NewLinePayload());
+
+        ServiceManager.ChatGui.Print(stringBuilder.BuiltString);
+    }
+
+
     public void Dispose()
     {
         ConfigImpl.Data.LastGroupIndex = _ui.CurrentGroupIndex;

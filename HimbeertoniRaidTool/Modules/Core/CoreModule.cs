@@ -130,19 +130,19 @@ internal class CoreModule : IHrtModule
             ServiceManager.PluginLog.Error($"Argument {args} for command \"/hrt\" not recognized");
     }
 
-    private void PrintUsage(string command, string args)
+    public void PrintUsage(string command, string args)
     {
         if (!command.Equals("/help")) return;
         string subCommand = '/' + args.Split(' ')[0];
         //Propagate help call to sub command
         if (_registeredCommands.Any(c => c.HandlesCommand(subCommand)))
         {
-            string newArgs = $"help {args[(subCommand.Length - 1)..].Trim()}";
+            string newArgs = $"help {args[(subCommand.Length - 1)..]}".Trim();
 
             _registeredCommands.First(x => x.HandlesCommand(subCommand)).OnCommand(subCommand, newArgs);
             return;
         }
-
+    
         SeStringBuilder stringBuilder = new SeStringBuilder()
             .AddUiForeground("[Himbeertoni Raid Tool]", 45)
             .AddUiForeground("[Help]", 62)

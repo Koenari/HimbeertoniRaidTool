@@ -16,6 +16,7 @@ public interface IHrtModule
     event Action UiReady;
     void HandleMessage(HrtUiMessage message);
     void AfterFullyLoaded();
+    void PrintUsage(string command, string args);
     void Update();
     void Dispose();
 }
