@@ -121,6 +121,7 @@ internal static class ChangelogEnumExtensions
         ChangeLogEntryCategory.Bis => Localization.Localize("changelog:category:bis", "BiS"),
         ChangeLogEntryCategory.System => Localization.Localize("changelog:category:system", "System"),
         ChangeLogEntryCategory.Translation => Localization.Localize("changelog:category:translation", "Localization"),
+        ChangeLogEntryCategory.Performance => Localization.Localize("changelog:category:performance", "Performance"),
         _ => Localization.Localize("changelog:category:unknown", "Unknown"),
     };
     public static string LocalizedDescription(this ChangelogShowOptions showOption) => showOption switch

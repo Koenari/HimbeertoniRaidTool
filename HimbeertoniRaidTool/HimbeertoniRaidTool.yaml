@@ -15,8 +15,7 @@ image_urls:
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
     - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
 changelog: |-
-        New Feature: Manage multiple gear/bis sets per job
-        New Feature: Automatically updates own characters data (can be disabled in the config)
-        User Interface: Made it more pretty
-        User Interface: You can now hide jobs (select classes when editing a character)
-        General: Correctly handle materia for previous expansions
+        General: Remove unused gear sets from database
+        Bugfix: You are now able to change to gear sets with the same name
+        Bugfix: Autmotically updated gear was sometimes not saved correctly
+        Perormance: Optimized load time on slow connections

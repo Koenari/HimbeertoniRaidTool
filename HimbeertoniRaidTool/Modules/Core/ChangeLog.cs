@@ -19,7 +19,9 @@ internal class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.General, "Remove unused gear sets from database"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Could not change to gear sets with the same name"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "You are now able to change to gear sets with the same name"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Autmotically updated gear was sometimes not saved correctly"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Performance, "Optimized load time on slow connections"),
             },
         },
         new(new Version(1, 5, 0, 0))
@@ -304,6 +306,7 @@ internal enum ChangeLogEntryCategory
     Bis,
     System,
     Translation,
+    Performance,
 }
 
 internal enum ChangelogShowOptions
