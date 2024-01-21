@@ -68,6 +68,24 @@ internal class UiHelpers
         }
         float eraserButtonWidth = ImGui.GetItemRectSize().X;
         int matCount = item.Materia.Count();
+        //Relic stats
+        if (item.IsRelic())
+        {
+            item.RelicStats ??= new Dictionary<StatType, int>();
+            DrawRelicStaField(item.RelicStats, StatType.CriticalHit);
+            DrawRelicStaField(item.RelicStats, StatType.DirectHitRate);
+            DrawRelicStaField(item.RelicStats, StatType.Determination);
+            DrawRelicStaField(item.RelicStats,
+                item.GetStat(StatType.MagicalDamage) >= item.GetStat(StatType.PhysicalDamage) ? StatType.SpellSpeed
+                    : StatType.SkillSpeed);
+        }
+        void DrawRelicStaField(IDictionary<StatType, int> stats, StatType type)
+        {
+            stats.TryGetValue(type, out int value);
+            if (ImGui.InputInt(type.FriendlyName(), ref value, 5, 10))
+                stats[type] = value;
+        }
+        //Materia
         for (int i = 0; i < matCount; i++)
         {
             if (i == matCount - 1)

@@ -153,7 +153,7 @@ internal class EtroConnector : WebConnector
             {
                 stats.Add((StatType)statType, statValue);
             }
-            set[slot].SetRelicStats(stats);
+            set[slot].RelicStats = stats;
         }
         void FillItem(uint id, GearSetSlot slot)
         {
@@ -195,25 +195,26 @@ internal class EtroConnector : WebConnector
         return new HrtUiMessage($"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated");
 
     }
+
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("Style", "IDE1006:Naming Styles")]
-    internal class EtroRelic
+    private class EtroRelic
     {
         public BaseItem baseItem { get; set; }
 
-        public uint? param0;
-        public uint? param1;
-        public uint? param2;
-        public uint? param3;
-        public uint? param4;
-        public uint? param5;
+        public uint? param0{ get; set; }
+        public uint? param1{ get; set; }
+        public uint? param2{ get; set; }
+        public uint? param3{ get; set; }
+        public uint? param4{ get; set; }
+        public uint? param5{ get; set; }
 
-        public int? param0Value;
-        public int? param1Value;
-        public int? param2Value;
-        public int? param3Value;
-        public int? param4Value;
-        public int? param5Value;
+        public int? param0Value{ get; set; }
+        public int? param1Value{ get; set; }
+        public int? param2Value{ get; set; }
+        public int? param3Value{ get; set; }
+        public int? param4Value{ get; set; }
+        public int? param5Value{ get; set; }
 
         internal struct BaseItem
         {
@@ -241,7 +242,7 @@ internal class EtroConnector : WebConnector
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("Style", "IDE1006:Naming Styles")]
-    internal class EtroGearSet
+    private class EtroGearSet
     {
 
         public string? id { get; set; }

@@ -19,6 +19,7 @@ internal class ChangeLog
             NotableFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Bis, "Add support for relic weapons in etro.gg sets"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added ability to change relic stats when editing gear"),
             },
         },
         new(new Version(1, 5, 0, 1))
@@ -29,7 +30,7 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
                     "You are now able to change to gear sets with the same name"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
-                    "Autmotically updated gear was sometimes not saved correctly"),
+                    "Automatically updated gear was sometimes not saved correctly"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Performance, "Optimized load time on slow connections"),
             },
         },
