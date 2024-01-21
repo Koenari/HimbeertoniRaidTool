@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
+using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 
@@ -27,6 +27,7 @@ internal class ChangeLogUi : HrtWindow
             {
                 DrawVersionEntry(versionEntry, true);
             }
+            ImGui.NewLine();
             ImGui.Separator();
             ImGui.TextColored(Colors.TextWhite,
                 $"{Localization.Localize("changelog:seen:header", "Previous changelogs")}:");
@@ -61,14 +62,25 @@ internal class ChangeLogUi : HrtWindow
                 $"{Localization.Localize("changelog:versionHeader", "Version")} {versionEntry.Version}",
                 defaultOpen ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None))
         {
-
             foreach (ChangeLogEntry entry in versionEntry.NotableFeatures)
             {
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
                 DrawLogEntry(entry, true);
             }
             foreach (ChangeLogEntry entry in versionEntry.MinorFeatures)
             {
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
                 DrawLogEntry(entry);
+            }
+            if (versionEntry.HasKnownIssues)
+            {
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 5f * ScaleFactor);
+                ImGui.TextColored(Colors.TextSoftRed, Localization.Localize("changelog:knownIssues", "Known Issues"));
+                foreach (ChangeLogEntry entry in versionEntry.KnownIssues)
+                {
+                    ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
+                    DrawLogEntry(entry);
+                }
             }
         }
         if (versionEntry.HasNotableFeatures)
@@ -86,15 +98,7 @@ internal class ChangeLogUi : HrtWindow
             ImGui.SameLine();
             ImGui.TextColored(Colors.TextLink, $"Fixes issue #{entry.GitHubIssueNumber}");
             if (ImGui.IsItemClicked())
-                ServiceManager.TaskManager.RegisterTask(new HrtTask(() =>
-                {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "https://github.com/Koenari/HimbeertoniRaidTool/issues/" + entry.GitHubIssueNumber,
-                        UseShellExecute = true,
-                    });
-                    return new HrtUiMessage("");
-                }, _ => { }, "Open Issue"));
+                Util.OpenLink($"https://github.com/Koenari/HimbeertoniRaidTool/issues/{entry.GitHubIssueNumber}");
             ImGuiHelper.AddTooltip(Localization.Localize("changelog:issueLink:tooltip", "Open on GitHub"));
         }
         foreach (string entryBulletPoint in entry.BulletPoints)

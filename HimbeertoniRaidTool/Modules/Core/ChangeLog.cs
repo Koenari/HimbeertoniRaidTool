@@ -281,8 +281,11 @@ internal readonly struct SingleVersionChangelog
     public Version Version { get; }
     public List<ChangeLogEntry> NotableFeatures { get; } = new();
     public List<ChangeLogEntry> MinorFeatures { get; } = new();
+    public List<ChangeLogEntry> KnownIssues { get; } = new();
+
     public bool HasNotableFeatures => NotableFeatures.Count > 0;
     public bool HasMinorFeatures => MinorFeatures.Count > 0;
+    public bool HasKnownIssues => KnownIssues.Count > 0;
     public SingleVersionChangelog(Version version)
     {
         Version = version;
