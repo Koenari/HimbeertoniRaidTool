@@ -25,6 +25,9 @@ internal class CsHelpers
             if (i == (int)GearSetSlot.Waist) continue;
             var slot = container->GetInventorySlot(i);
             if (slot->ItemID == 0) continue;
+            GearItem oldItem = targetGearSet[(GearSetSlot)i];
+            //ToDo: correctly read stats of relics, until then do not override
+            if (oldItem.IsRelic() && oldItem.Id == slot->ItemID) continue;
             targetGearSet[(GearSetSlot)i] = new GearItem(slot->ItemID)
             {
                 IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ),

@@ -98,8 +98,7 @@ internal class CoreModule : IHrtModule
         {
             AddCommand(command);
         }
-        if (_config.Data.UpdateOwnData)
-            ServiceManager.EnableOwnCharacterDataProvider();
+        _config.OnConfigChange += UpdateOwnDataServiceConfig;
     }
 
     public void HandleMessage(HrtUiMessage message)
@@ -142,7 +141,7 @@ internal class CoreModule : IHrtModule
             _registeredCommands.First(x => x.HandlesCommand(subCommand)).OnCommand(subCommand, newArgs);
             return;
         }
-    
+
         SeStringBuilder stringBuilder = new SeStringBuilder()
             .AddUiForeground("[Himbeertoni Raid Tool]", 45)
             .AddUiForeground("[Help]", 62)
@@ -161,6 +160,7 @@ internal class CoreModule : IHrtModule
 
     public void AfterFullyLoaded()
     {
+        UpdateOwnDataServiceConfig();
         ServiceManager.TaskManager.RegisterTask(
             new HrtTask(() =>
             {
@@ -186,9 +186,13 @@ internal class CoreModule : IHrtModule
     }
     internal void MigrateBisUpdateConfig(bool shouldUpdate) => _config.Data.UpdateEtroBisOnStartup = shouldUpdate;
     internal void MigrateBisUpdateInterval(int interval) => _config.Data.EtroUpdateIntervalDays = interval;
-    public void Update()
+    public void Update() { }
+    private void UpdateOwnDataServiceConfig() => OwnCharacterDataProvider.SetConfig(
+        new OwnCharacterDataProvider.Configuration(_config.Data.UpdateOwnData, _config.Data.UpdateCombatJobs,
+            _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs));
+    public void Dispose()
     {
+        _config.OnConfigChange -= UpdateOwnDataServiceConfig;
+        _changelog.Dispose(this);
     }
-
-    public void Dispose() => _changelog.Dispose(this);
 }

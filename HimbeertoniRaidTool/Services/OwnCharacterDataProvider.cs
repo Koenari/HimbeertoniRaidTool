@@ -1,9 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataExtensions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -11,7 +11,7 @@ internal static class OwnCharacterDataProvider
 {
     private static Character? _curChar = null;
     private static PlayerCharacter? _self = null;
-
+    private static Configuration _config = new(false, false, false, false);
     private static readonly HashSet<Currency> _trackedCurrencies = new()
     {
         Currency.Gil,
@@ -25,21 +25,22 @@ internal static class OwnCharacterDataProvider
     private static readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
     private static uint _lastSeenJob = 0;
 
-    private static bool _enabled = false;
-    public static void Enable(IClientState clientState, IFramework framework)
+    private static bool _initialized = false;
+    public static void Initialize(IClientState clientState, IFramework framework)
     {
-        if (_enabled) return;
-        _enabled = true;
+        if (_initialized) return;
+        _initialized = true;
         clientState.Login += OnLogin;
         clientState.Logout += OnLogout;
         if (clientState.IsLoggedIn)
             OnLogin();
         framework.Update += OnFrameworkUpdate;
     }
-    internal static void Disable(IClientState clientState, IFramework framework)
+    internal static void SetConfig(Configuration config) => _config = config;
+    internal static void Destroy(IClientState clientState, IFramework framework)
     {
-        if (!_enabled) return;
-        _enabled = false;
+        if (!_initialized) return;
+        _initialized = false;
         clientState.Login -= OnLogin;
         clientState.Logout -= OnLogout;
         framework.Update -= OnFrameworkUpdate;
@@ -53,6 +54,7 @@ internal static class OwnCharacterDataProvider
     }
     private static void OnFrameworkUpdate(IFramework framework)
     {
+        if (!_initialized || !_config.Enabled) return;
         _timeSinceLastWalletUpdate += framework.UpdateDelta;
         _timeSinceLastGearUpdate += framework.UpdateDelta;
         if (_timeSinceLastWalletUpdate > _timeBetweenWalletUpdates)
@@ -100,11 +102,29 @@ internal static class OwnCharacterDataProvider
     {
         if (_curChar == null || _self == null) return;
         Job job = _self.GetJob();
+        if (job.IsCombatJob() && !_config.CombatJobsEnabled) return;
+        if (job.IsDoH() && !_config.DoHEnabled) return;
+        if (job.IsDoL() && !_config.DoLEnabled) return;
         PlayableClass targetClass = _curChar[job] ?? _curChar.AddClass(job);
         if (targetClass.Level < _self.Level) targetClass.Level = _self.Level;
         CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass);
         _timeSinceLastGearUpdate = TimeSpan.Zero;
     }
 
+    public readonly struct Configuration
+    {
+        public readonly bool Enabled;
+        public readonly bool CombatJobsEnabled;
+        public readonly bool DoHEnabled;
+        public readonly bool DoLEnabled;
+
+        public Configuration(bool enabled, bool combat, bool doh, bool dol)
+        {
+            Enabled = enabled;
+            CombatJobsEnabled = combat;
+            DoHEnabled = doh;
+            DoLEnabled = dol;
+        }
+    }
 
 }

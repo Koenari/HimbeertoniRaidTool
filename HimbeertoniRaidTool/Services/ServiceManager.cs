@@ -46,14 +46,14 @@ internal class ServiceManager
         ConnectorPool = new ConnectorPool(TaskManager, PluginLog);
         CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList);
         GearRefresher.Instance.Enable(GameInteropProvider);
+        OwnCharacterDataProvider.Initialize(ClientState, Framework);
         return HrtDataManager.Initialized;
     }
-    internal static void EnableOwnCharacterDataProvider() => OwnCharacterDataProvider.Enable(ClientState, Framework);
 
     internal static void Dispose()
     {
         GearRefresher.Instance.Dispose();
-        OwnCharacterDataProvider.Disable(ClientState, Framework);
+        OwnCharacterDataProvider.Destroy(ClientState, Framework);
         TaskManager.Dispose();
         IconCache.Dispose();
     }

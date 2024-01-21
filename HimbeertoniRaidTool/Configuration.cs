@@ -157,6 +157,8 @@ public interface IHrtConfiguration
     public string ParentInternalName { get; }
     public string ParentName { get; }
     public IHrtConfigUi? Ui { get; }
+
+    public event Action? OnConfigChange;
     internal bool Load(IModuleConfigurationManager configManager);
     internal bool Save(IModuleConfigurationManager configManager);
     public void AfterLoad();
@@ -166,20 +168,31 @@ internal abstract class HrtConfiguration<T> : IHrtConfiguration where T : IHrtCo
 {
     public string ParentInternalName { get; }
     public string ParentName { get; }
-    public T Data = new();
+
+    private T _data = new();
+
+    public T Data
+    {
+        get => _data;
+        set
+        {
+            _data = value;
+            OnConfigChange?.Invoke();
+        }
+    }
     public abstract IHrtConfigUi? Ui { get; }
 
+    public event Action? OnConfigChange = null;
     protected HrtConfiguration(string parentInternalName, string parentName)
     {
         ParentInternalName = parentInternalName;
         ParentName = parentName;
     }
-
     public bool Load(IModuleConfigurationManager configManager) =>
-        configManager.LoadConfiguration(ParentInternalName, ref Data);
+        configManager.LoadConfiguration(ParentInternalName, ref _data);
 
     public bool Save(IModuleConfigurationManager configManager) =>
-        configManager.SaveConfiguration(ParentInternalName, Data);
+        configManager.SaveConfiguration(ParentInternalName, _data);
 
     public abstract void AfterLoad();
 }

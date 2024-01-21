@@ -113,6 +113,8 @@ internal class LodestoneConnector : NetStoneBase
                 }
 
                 uint gearId = itemEntry.RowId;
+                //ToDO: parse relic stats, until then skip relics already present
+                if(classToChange.CurGear[slot].IsRelic() && classToChange.CurGear[slot].Id == gearId) return;
                 classToChange.CurGear[slot] = new GearItem(gearId)
                 {
                     IsHq = isHq,

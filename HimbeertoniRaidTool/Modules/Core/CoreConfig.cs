@@ -75,7 +75,13 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
         [JsonProperty] public bool SavePeriodically = true;
         [JsonProperty] public int SaveIntervalMinutes = 30;
         [JsonProperty] public bool HideInCombat = true;
+        /*
+         * Own data collection
+         */
         [JsonProperty] public bool UpdateOwnData = true;
+        [JsonProperty] public bool UpdateCombatJobs = true;
+        [JsonProperty] public bool UpdateDoLJobs = false;
+        [JsonProperty] public bool UpdateDoHJobs = false;
         /**
          * BiS
          */
@@ -110,9 +116,15 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
 
         public void Draw()
         {
-            ImGui.Text(Localize("options:core:automation", "Automation"));
-            ImGui.Checkbox(Localize("options:core:checkbox:ownGear", "Automatically update own data"),
+            ImGui.Text(Localize("options:core:dataUpdate", "Automatic data update"));
+            ImGui.Checkbox(Localize("options:core:checkbox:ownData", "Automatically update own data"),
                 ref _dataCopy.UpdateOwnData);
+            ImGui.Checkbox(Localize("options:core:checkbox:updateCombatJobs", "Update combat jobs"),
+                ref _dataCopy.UpdateCombatJobs);
+            ImGui.Checkbox(Localize("options:core:checkbox:updateDohJobs", "Update disciple of hand jobs"),
+                ref _dataCopy.UpdateDoHJobs);
+            ImGui.Checkbox(Localize("options:core:checkbox:updateDolJobs", "Update disciple of land jobs"),
+                ref _dataCopy.UpdateDoLJobs);
             ImGuiHelper.AddTooltip(Localize("options:core:checkbox:ownGear:tooltip",
                 "Keeps gear and classes of current character up to date"));
             ImGui.Separator();

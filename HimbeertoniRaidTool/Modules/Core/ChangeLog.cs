@@ -20,6 +20,15 @@ internal class ChangeLog
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Bis, "Add support for relic weapons in etro.gg sets"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added ability to change relic stats when editing gear"),
+                new ChangeLogEntry(ChangeLogEntryCategory.General,
+                    "You can now specify which types of jobs get automatically updated/created.\n"
+                    + "If you want single jobs to not show up, you can hide these in character edit"),
+            },
+            KnownIssues =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.Gear,
+                    "Stats for relic weapons are not correctly read from the Lodestone or Examine.\n"
+                    + "Your manual edits will NOT be overwritten"),
             },
         },
         new(new Version(1, 5, 0, 1))
@@ -320,6 +329,7 @@ internal enum ChangeLogEntryCategory
     System,
     Translation,
     Performance,
+    Gear,
 }
 
 internal enum ChangelogShowOptions
