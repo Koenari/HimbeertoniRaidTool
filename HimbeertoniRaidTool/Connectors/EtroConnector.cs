@@ -15,6 +15,7 @@ internal class EtroConnector : WebConnector
     public const string GEARSET_API_BASE_URL = API_BASE_URL + "gearsets/";
     public const string GEARSET_WEB_BASE_URL = WEB_BASE_URL + "gearset/";
     public const string MATERIA_API_BASE_URL = API_BASE_URL + "materia/";
+    public const string RELIC_API_BASE_URL = API_BASE_URL + "relic/";
     public const string BIS_API_BASE_URL = GEARSET_API_BASE_URL + "bis/";
     private readonly Dictionary<Job, Dictionary<string, string>> _bisCache;
     public IReadOnlyDictionary<string, string> GetBiS(Job job) => _bisCache[job];
@@ -93,6 +94,12 @@ internal class EtroConnector : WebConnector
         ServiceManager.TaskManager.RegisterTask(new HrtTask(()=> GetGearSet(set), messageCallback,taskName));
     }
 
+    private EtroRelic? GetRelicItem(string id)
+    {
+        string? relicJson = MakeWebRequest(RELIC_API_BASE_URL + id);
+        return relicJson == null ? null : JsonConvert.DeserializeObject<EtroRelic>(relicJson, JsonSettings);
+    }
+
     private HrtUiMessage GetGearSet(GearSet set)
     {
         HrtUiMessage errorMessage = new($"Could not update set {set.Name}", HrtUiMessageType.Failure);
@@ -108,6 +115,7 @@ internal class EtroConnector : WebConnector
         set.Name = etroSet.name ?? "";
         set.TimeStamp = etroSet.lastUpdate;
         set.EtroFetchDate = DateTime.UtcNow;
+        HrtUiMessage successMessage = new($"Update from Etro for {set.Name} succeeded", HrtUiMessageType.Success);
         FillItem(etroSet.weapon, GearSetSlot.MainHand);
         FillItem(etroSet.head, GearSetSlot.Head);
         FillItem(etroSet.body, GearSetSlot.Body);
@@ -120,7 +128,33 @@ internal class EtroConnector : WebConnector
         FillItem(etroSet.fingerL, GearSetSlot.Ring1);
         FillItem(etroSet.fingerR, GearSetSlot.Ring2);
         FillItem(etroSet.offHand, GearSetSlot.OffHand);
-        return new HrtUiMessage($"Update from Etro for {set.Name} succeeded", HrtUiMessageType.Success);
+        if (etroSet.relics is null)
+            return successMessage;
+        foreach ((string slot, string relicId) in etroSet.relics)
+        {
+            EtroRelic? relic = GetRelicItem(relicId);
+            if(relic is null) continue;
+            switch (slot)
+            {
+                case "weapon":
+                    FillRelicItem(relic, GearSetSlot.MainHand);
+                    break;
+                default: 
+                    ServiceManager.PluginLog.Error($"Cannot handle relic item for slot: {slot}");
+                    break;
+            }
+        }
+        return successMessage;
+        void FillRelicItem(EtroRelic relic, GearSetSlot slot)
+        {
+            FillItem(relic.baseItem.id, slot);
+            Dictionary<StatType, int> stats = new();
+            foreach ((uint statType, int statValue) in relic.Stats)
+            {
+                stats.Add((StatType)statType, statValue);
+            }
+            set[slot].SetRelicStats(stats);
+        }
         void FillItem(uint id, GearSetSlot slot)
         {
             set[slot] = new GearItem(id)
@@ -160,6 +194,49 @@ internal class EtroConnector : WebConnector
 
         return new HrtUiMessage($"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated");
 
+    }
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("Style", "IDE1006:Naming Styles")]
+    internal class EtroRelic
+    {
+        public BaseItem baseItem { get; set; }
+
+        public uint? param0;
+        public uint? param1;
+        public uint? param2;
+        public uint? param3;
+        public uint? param4;
+        public uint? param5;
+
+        public int? param0Value;
+        public int? param1Value;
+        public int? param2Value;
+        public int? param3Value;
+        public int? param4Value;
+        public int? param5Value;
+
+        internal struct BaseItem
+        {
+            public uint id { get; set; }
+        }
+        [JsonIgnore]
+        public IEnumerable<(uint,int)> Stats {
+            get
+            {
+                if(param0 is null) yield break;
+                yield return (param0.Value, param0Value ?? 0);
+                if(param1 is null) yield break;
+                yield return (param1.Value, param1Value ?? 0);
+                if(param2 is null) yield break;
+                yield return (param2.Value, param2Value ?? 0);
+                if(param3 is null) yield break;
+                yield return (param3.Value, param3Value ?? 0);
+                if(param4 is null) yield break;
+                yield return (param4.Value, param4Value ?? 0);
+                if(param5 is null) yield break;
+                yield return (param5.Value, param5Value ?? 0);
+            }
+        }
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -202,6 +279,7 @@ internal class EtroConnector : WebConnector
         public uint wrists { get; set; }
         public uint fingerL { get; set; }
         public uint fingerR { get; set; }
+        public Dictionary<string, string>? relics { get; set; }
     }
 
     private class EtroMateriaTier

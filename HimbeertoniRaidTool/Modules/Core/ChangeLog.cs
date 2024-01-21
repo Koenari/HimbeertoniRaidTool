@@ -14,13 +14,22 @@ internal class ChangeLog
         Entries.Where(e => e.Version <= Config.Data.LastSeenChangelog);
     public readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>()
     {
+        new(new Version(1, 5, 1, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.Bis, "Add support for relic weapons in etro.gg sets"),
+            },
+        },
         new(new Version(1, 5, 0, 1))
         {
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.General, "Remove unused gear sets from database"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "You are now able to change to gear sets with the same name"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Autmotically updated gear was sometimes not saved correctly"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
+                    "You are now able to change to gear sets with the same name"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
+                    "Autmotically updated gear was sometimes not saved correctly"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Performance, "Optimized load time on slow connections"),
             },
         },

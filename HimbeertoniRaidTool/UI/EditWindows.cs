@@ -490,6 +490,11 @@ internal class EditGearSetWindow : EditWindow<GearSet>
             }
 
             ImGui.Text($"{Localize("Etro ID", "Etro ID")}: {DataCopy.EtroId}");
+            ImGui.SameLine();
+            if (ImGuiHelper.Button(Localize("GearSetEdit:button:openEtro", "Open set on etro.gg"), null))
+            {
+                Util.OpenLink(EtroConnector.GEARSET_WEB_BASE_URL + DataCopy.EtroId);
+            }
             ImGui.Text(
                 $"{Localize("GearSetEdit:EtroLastDownload", "Last update check")}: {DataCopy.EtroFetchDate}");
         }
