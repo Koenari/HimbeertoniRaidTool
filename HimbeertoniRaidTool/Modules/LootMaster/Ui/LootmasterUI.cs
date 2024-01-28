@@ -545,7 +545,7 @@ internal class LootmasterUi : HrtWindow
             {
                 _lootMaster.FillPlayerFromTarget(player);
                 if (ServiceManager.TargetManager.Target is PlayerCharacter target)
-                    GearRefresher.RefreshGearInfos(target);
+                    CsHelpers.SafeguardedOpenExamine(target);
             }
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "AddCharFromDB",

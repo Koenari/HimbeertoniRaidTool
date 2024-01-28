@@ -7,54 +7,63 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal static class OwnCharacterDataProvider
+internal class OwnCharacterDataProvider : IGearDataProvider
 {
-    private static Character? _curChar = null;
-    private static PlayerCharacter? _self = null;
-    private static Configuration _config = new(false, false, false, false);
-    private static readonly HashSet<Currency> _trackedCurrencies = new()
+    private readonly IClientState _clientState;
+    private readonly IFramework _framework;
+    private Character? _curChar = null;
+    private PlayerCharacter? _self = null;
+    private GearDataProviderConfiguration _config = new(false, false, false, false);
+    private static GearDataProviderConfiguration DisabledConfig => new(false, false, false, false);
+    private readonly HashSet<Currency> _trackedCurrencies = new()
     {
         Currency.Gil,
         Currency.TomestoneOfCausality,
         Currency.TomestoneOfComedy,
     };
-    private static TimeSpan _timeSinceLastWalletUpdate;
-    private static readonly TimeSpan _timeBetweenWalletUpdates = new(30 * TimeSpan.TicksPerSecond);
+    private TimeSpan _timeSinceLastWalletUpdate;
+    private readonly TimeSpan _timeBetweenWalletUpdates = new(30 * TimeSpan.TicksPerSecond);
 
-    private static TimeSpan _timeSinceLastGearUpdate;
-    private static readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
-    private static uint _lastSeenJob = 0;
+    private TimeSpan _timeSinceLastGearUpdate;
+    private readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
+    private uint _lastSeenJob = 0;
 
-    private static bool _initialized = false;
-    public static void Initialize(IClientState clientState, IFramework framework)
+    private bool _disposed = false;
+    public OwnCharacterDataProvider(IClientState clientState, IFramework framework)
     {
-        if (_initialized) return;
-        _initialized = true;
-        clientState.Login += OnLogin;
-        clientState.Logout += OnLogout;
-        if (clientState.IsLoggedIn)
-            OnLogin();
-        framework.Update += OnFrameworkUpdate;
+        _clientState = clientState;
+        _framework = framework;
+        _clientState.Login += OnLogin;
+        _clientState.Logout += OnLogout;
+        _framework.Update += OnFrameworkUpdate;
     }
-    internal static void SetConfig(Configuration config) => _config = config;
-    internal static void Destroy(IClientState clientState, IFramework framework)
+    public void Enable(GearDataProviderConfiguration config)
     {
-        if (!_initialized) return;
-        _initialized = false;
-        clientState.Login -= OnLogin;
-        clientState.Logout -= OnLogout;
-        framework.Update -= OnFrameworkUpdate;
+        if (_disposed) return;
+        _config = config;
+        //Ensure character is set up regardless when this is enabled
+        if (_clientState.IsLoggedIn)
+            OnLogin();
+    }
+    public void Disable() => _config = DisabledConfig;
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        _clientState.Login -= OnLogin;
+        _clientState.Logout -= OnLogout;
+        _framework.Update -= OnFrameworkUpdate;
         OnLogout();
     }
-    private static void OnLogin() => GetChar(out _curChar, out _self);
-    private static void OnLogout()
+    private void OnLogin() => GetChar(out _curChar, out _self);
+    private void OnLogout()
     {
         _curChar = null;
         _self = null;
     }
-    private static void OnFrameworkUpdate(IFramework framework)
+    private void OnFrameworkUpdate(IFramework framework)
     {
-        if (!_initialized || !_config.Enabled) return;
+        if (_disposed || !_config.Enabled) return;
         _timeSinceLastWalletUpdate += framework.UpdateDelta;
         _timeSinceLastGearUpdate += framework.UpdateDelta;
         if (_timeSinceLastWalletUpdate > _timeBetweenWalletUpdates)
@@ -83,7 +92,7 @@ internal static class OwnCharacterDataProvider
         return false;
     }
 
-    private static unsafe void UpdateWallet()
+    private unsafe void UpdateWallet()
     {
         if (_curChar == null) return;
         var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Currency);
@@ -98,7 +107,7 @@ internal static class OwnCharacterDataProvider
         }
         _timeSinceLastWalletUpdate = TimeSpan.Zero;
     }
-    private static void UpdateGear()
+    private void UpdateGear()
     {
         if (_curChar == null || _self == null) return;
         Job job = _self.GetJob();
@@ -110,21 +119,4 @@ internal static class OwnCharacterDataProvider
         CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass);
         _timeSinceLastGearUpdate = TimeSpan.Zero;
     }
-
-    public readonly struct Configuration
-    {
-        public readonly bool Enabled;
-        public readonly bool CombatJobsEnabled;
-        public readonly bool DoHEnabled;
-        public readonly bool DoLEnabled;
-
-        public Configuration(bool enabled, bool combat, bool doh, bool dol)
-        {
-            Enabled = enabled;
-            CombatJobsEnabled = combat;
-            DoHEnabled = doh;
-            DoLEnabled = dol;
-        }
-    }
-
 }

@@ -79,7 +79,7 @@ public static class ImGuiHelper
                     $"{inspectTooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}",
                     canInspect, size))
             {
-                GearRefresher.RefreshGearInfos(playerChar);
+                CsHelpers.SafeguardedOpenExamine(playerChar);
                 return true;
             }
             return false;

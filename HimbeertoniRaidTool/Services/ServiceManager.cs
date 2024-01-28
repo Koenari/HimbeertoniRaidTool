@@ -33,6 +33,8 @@ internal class ServiceManager
     internal static CoreModule CoreModule { get; set; }
     internal static CharacterInfoService CharacterInfoService { get; private set; }
     internal static ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
+    internal static ExamineGearDataProvider ExamineGearDataProvider { get; private set; }
+    internal static OwnCharacterDataProvider OwnCharacterDataProvider { get; private set; }
 
     internal static bool Init(DalamudPluginInterface pluginInterface)
     {
@@ -45,15 +47,15 @@ internal class ServiceManager
         TaskManager = new TaskManager();
         ConnectorPool = new ConnectorPool(TaskManager, PluginLog);
         CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList);
-        GearRefresher.Instance.Enable(GameInteropProvider);
-        OwnCharacterDataProvider.Initialize(ClientState, Framework);
+        ExamineGearDataProvider = new ExamineGearDataProvider(GameInteropProvider);
+        OwnCharacterDataProvider = new OwnCharacterDataProvider(ClientState, Framework);
         return HrtDataManager.Initialized;
     }
 
     internal static void Dispose()
     {
-        GearRefresher.Instance.Dispose();
-        OwnCharacterDataProvider.Destroy(ClientState, Framework);
+        ExamineGearDataProvider.Dispose();
+        OwnCharacterDataProvider.Dispose();
         TaskManager.Dispose();
         IconCache.Dispose();
     }

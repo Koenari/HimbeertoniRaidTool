@@ -98,7 +98,7 @@ internal class CoreModule : IHrtModule
         {
             AddCommand(command);
         }
-        _config.OnConfigChange += UpdateOwnDataServiceConfig;
+        _config.OnConfigChange += UpdateGearDataProviderConfig;
     }
 
     public void HandleMessage(HrtUiMessage message)
@@ -160,7 +160,7 @@ internal class CoreModule : IHrtModule
 
     public void AfterFullyLoaded()
     {
-        UpdateOwnDataServiceConfig();
+        UpdateGearDataProviderConfig();
         ServiceManager.TaskManager.RegisterTask(
             new HrtTask(() =>
             {
@@ -187,12 +187,16 @@ internal class CoreModule : IHrtModule
     internal void MigrateBisUpdateConfig(bool shouldUpdate) => _config.Data.UpdateEtroBisOnStartup = shouldUpdate;
     internal void MigrateBisUpdateInterval(int interval) => _config.Data.EtroUpdateIntervalDays = interval;
     public void Update() { }
-    private void UpdateOwnDataServiceConfig() => OwnCharacterDataProvider.SetConfig(
-        new OwnCharacterDataProvider.Configuration(_config.Data.UpdateOwnData, _config.Data.UpdateCombatJobs,
-            _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs));
+    private void UpdateGearDataProviderConfig()
+    {
+        var newConfig = new GearDataProviderConfiguration(_config.Data.UpdateOwnData, _config.Data.UpdateCombatJobs,
+            _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs);
+        ServiceManager.OwnCharacterDataProvider.Enable(newConfig);
+        ServiceManager.ExamineGearDataProvider.Enable(newConfig);
+    }
     public void Dispose()
     {
-        _config.OnConfigChange -= UpdateOwnDataServiceConfig;
+        _config.OnConfigChange -= UpdateGearDataProviderConfig;
         _changelog.Dispose(this);
     }
 }

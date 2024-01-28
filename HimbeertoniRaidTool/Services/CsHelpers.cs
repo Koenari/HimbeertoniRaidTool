@@ -1,14 +1,11 @@
-﻿using FFXIVClientStructs.FFXIV.Client.Game;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using HimbeertoniRaidTool.Common.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal class CsHelpers
+internal static class CsHelpers
 {
     internal static unsafe void UpdateGearFromInventoryContainer(InventoryType type, PlayableClass targetClass)
     {
@@ -41,5 +38,22 @@ internal class CsHelpers
             }
         }
         targetGearSet.TimeStamp = DateTime.UtcNow;
+    }
+    internal static void SafeguardedOpenExamine(PlayerCharacter? @object)
+    {
+        if (@object is null)
+            return;
+        try
+        {
+            unsafe
+            {
+                AgentInspect.Instance()->ExamineCharacter(@object.ObjectId);
+            }
+
+        }
+        catch (Exception e)
+        {
+            ServiceManager.PluginLog.Error(e, $"Could not inspect character {@object.Name}");
+        }
     }
 }
