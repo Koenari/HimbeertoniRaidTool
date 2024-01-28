@@ -14,6 +14,14 @@ internal class ChangeLog
         Entries.Where(e => e.Version <= Config.Data.LastSeenChangelog);
     public readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>()
     {
+        new(new Version(1, 5, 2, 0))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.General,
+                    "Gear updates by examining now use the same restrictions as own data"),
+            },
+        },
         new(new Version(1, 5, 1, 0))
         {
             NotableFeatures =
