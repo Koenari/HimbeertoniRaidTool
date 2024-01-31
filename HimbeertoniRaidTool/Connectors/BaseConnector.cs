@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using HimbeertoniRaidTool.Plugin.Connectors.Utils;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 

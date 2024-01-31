@@ -1,0 +1,304 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <!-- 
+        Microsoft ResX Schema
+
+        Version 1.3
+
+        The primary goals of this format is to allow a simple XML format 
+        that is mostly human readable. The generation and parsing of the 
+        various data types are done through the TypeConverter classes 
+        associated with the data types.
+
+        Example:
+
+        ... ado.net/XML headers & schema ...
+        <resheader name="resmimetype">text/microsoft-resx</resheader>
+        <resheader name="version">1.3</resheader>
+        <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+        <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+        <data name="Name1">this is my long string</data>
+        <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+        <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+            [base64 mime encoded serialized .NET Framework object]
+        </data>
+        <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+            [base64 mime encoded string representing a byte array form of the .NET Framework object]
+        </data>
+
+        There are any number of "resheader" rows that contain simple 
+        name/value pairs.
+
+        Each data row contains a name, and value. The row also contains a 
+        type or mimetype. Type corresponds to a .NET class that support 
+        text/value conversion through the TypeConverter architecture. 
+        Classes that don't support this are serialized and stored with the 
+        mimetype set.
+
+        The mimetype is used for serialized objects, and tells the 
+        ResXResourceReader how to depersist the object. This is currently not 
+        extensible. For a given mimetype the value must be set accordingly:
+
+        Note - application/x-microsoft.net.object.binary.base64 is the format 
+        that the ResXResourceWriter will generate, however the reader can 
+        read any of the formats listed below.
+
+        mimetype: application/x-microsoft.net.object.binary.base64
+        value   : The object must be serialized with 
+            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+        mimetype: application/x-microsoft.net.object.soap.base64
+        value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+        mimetype: application/x-microsoft.net.object.bytearray.base64
+        value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+                xmlns="">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            <xsd:complexType>
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="Config:Lootmaster:ColoredItemNames">
+        <value>Color items by item level</value>
+    </data>
+    <data name="Config:Lootmaster:Colors">
+        <value>Configured colors</value>
+    </data>
+    <data name="Config:Lootmaster:IconInGroupOverview">
+        <value>Show item icon in group overview</value>
+    </data>
+    <data name="Config:Lootmaster:IgnoreMateriaForBis">
+        <value>Ignore Materia</value>
+    </data>
+    <data name="Config:Lootmaster:IgnoreMateriaForBisTooltip">
+        <value>Ignore Materia when determining if an item is equivalent to BiS</value>
+    </data>
+    <data name="Config:Lootmaster:ItemFormat:Available">
+        <value>Available options</value>
+    </data>
+    <data name="Config:Lootmaster:ItemFormat">
+        <value>Item format</value>
+    </data>
+    <data name="ChangesOnlyForThisLootSession">
+        <value>Changes made here only affect this loot session</value>
+    </data>
+    <data name="Distribute loot for:">
+        <value>Distribute loot for:</value>
+    </data>
+    <data name="LootCategory:Greed">
+        <value>Greed</value>
+    </data>
+    <data name="Loot session for">
+        <value>Loot session for</value>
+    </data>
+    <data name="Greed">
+        <value>Greed</value>
+    </data>
+    <data name="From current Group">
+        <value>From current Group</value>
+    </data>
+    <data name="From scratch">
+        <value>From scratch</value>
+    </data>
+    <data name="Add from DB">
+        <value>Add from DB</value>
+    </data>
+    <data name="Add empty group">
+        <value>Add empty group</value>
+    </data>
+    <data name="Delete group">
+        <value>Delete group</value>
+    </data>
+    <data name="/lootmaster">
+        <value>Opens LootMaster Window (or /lm as short variant)</value>
+    </data>
+    <data name="ByRole">
+        <value>Prioritize by role</value>
+    </data>
+    <data name="BISOverUpgrade">
+        <value>BIS &gt; Upgrade</value>
+    </data>
+    <data name="ConfigRolePriority">
+        <value>Priority to loot for each role (smaller is higher priority)</value>
+    </data>
+    <data name="Current priority">
+        <value>Current priority</value>
+    </data>
+    <data name="DeleteRaidGroup">
+        <value>Do you really want to delete following group:</value>
+    </data>
+    <data name="lootmaster:button:inventorytooltip">
+        <value>Open inventory window</value>
+    </data>
+    <data name="lootmaster:button:quickCompare:tooltip">
+        <value>Quickly compare gear</value>
+    </data>
+    <data name="LootCategory:Need">
+        <value>Need</value>
+    </data>
+    <data name="LootCategory:Pass">
+        <value>Pass</value>
+    </data>
+    <data name="LootCategory:Undecided">
+        <value>Undecided</value>
+    </data>
+    <data name="lootmaster:button:showconfig:tooltip">
+        <value>Open Configuration</value>
+    </data>
+    <data name="lootmaster:button:swapposition:tooltip">
+        <value>Swap Position</value>
+    </data>
+    <data name="Lootmaster:ColoredItemNamesTooltip">
+        <value>Color items according to the item level</value>
+    </data>
+    <data name="lootmaster:detail:deleteJob:tooltip">
+        <value>Delete job (hold Shift)</value>
+    </data>
+    <data name="lootmaster:detail:jobUp:tooltip">
+        <value>Move job up</value>
+    </data>
+    <data name="lootmaster:detail:jobDown:tooltip">
+        <value>Move job down</value>
+    </data>
+    <data name="Lootmaster:OpenOnLogin">
+        <value>Open group overview on login</value>
+    </data>
+    <data name="Lootmaster:OpenOnLoginTooltip">
+        <value>Opens group overview window when you log in</value>
+    </data>
+    <data name="LootMasterWindowTitle">
+        <value>Loot Master</value>
+    </data>
+    <data name="LootResult:GreedOnly">
+        <value>Greed only</value>
+    </data>
+    <data name="LootResult:AwardButton:Tooltip">
+        <value>Award to player</value>
+    </data>
+    <data name="LootResult:ItemAwardedTo">
+        <value>awarded to</value>
+    </data>
+    <data name="LootResults:AbortButton:Tooltip">
+        <value>Abort distribution to change loot or rules</value>
+    </data>
+    <data name="LootResults:AbortButton:Text">
+        <value>Abort</value>
+    </data>
+    <data name="LootResult:PossibleItems">
+        <value>Items to distribute:</value>
+    </data>
+    <data name="LootResult:PlayerWonOver">
+        <value>over</value>
+    </data>
+    <data name="LootResult:PlayerWon">
+        <value>won</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed">
+        <value>Award to all</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed:Tooltip">
+        <value>Award 1 to each player</value>
+    </data>
+    <data name="LootResultWindow:GuaranteedItems">
+        <value>Guaranteed Items (per player)</value>
+    </data>
+    <data name="LootSession:State:STARTED">
+        <value>Choosing Loot</value>
+    </data>
+    <data name="LootSession:CalcButton:Text">
+        <value>Calculate</value>
+    </data>
+    <data name="LootSession:CalcButton:Tooltip">
+        <value>Calculates results of loot distribution according to the rules and current equipment
+            of players
+            Locks the loot selection
+        </value>
+    </data>
+    <data name="LootSession:RulesButton:Tooltip">
+        <value>Override ruling options</value>
+    </data>
+    <data name="LootSession:State:DISTRIBUTION_STARTED">
+        <value>Distribution started</value>
+    </data>
+    <data name="LootRuleOrder">
+        <value>Order in which loot rules should be applied</value>
+    </data>
+    <data name="LootSession:State:LOOT_CHOSEN">
+        <value>Loot locked</value>
+    </data>
+    <data name="LootRule:CanBuy">
+        <value>Can buy</value>
+    </data>
+    <data name="LootRule:CanUse">
+        <value>Can use now</value>
+    </data>
+    <data name="Lootsession:State">
+        <value>Current State</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:bis">
+        <value>Ignore players/jobs not using this in BiS</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:can_buy">
+        <value>Ignore players/jobs that could buy these</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:can_use">
+        <value>Ignore players/jobs not able to use</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:need_greed">
+        <value>Ignore players that have no need</value>
+    </data>
+    <data name="LootSession:State:FINISHED">
+        <value>Finished</value>
+    </data>
+    <data name="GroupTabTooltip">
+        <value>Right click for more options</value>
+    </data>
+</root>

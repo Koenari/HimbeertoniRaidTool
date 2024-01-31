@@ -18,15 +18,14 @@ internal static class Localization
         _loc.SetupWithLangCode(pluginInterface.UiLanguage);
         pluginInterface.LanguageChanged += OnLanguageChanged;
     }
-    public static string Localize(string id) => Localize(id, id);
+    [Obsolete]
     public static string Localize(string id, string fallBack)
     {
         if (_fallBack || _loc is null)
             return fallBack;
         if (_localizationCache.TryGetValue(id, out string? val))
             return val;
-        else
-            return _localizationCache[id] = Dalamud.Localization.Localize(id, fallBack);
+        return _localizationCache[id] = Dalamud.Localization.Localize(id, fallBack);
     }
 
     private static void OnLanguageChanged(string langCode)
@@ -37,13 +36,11 @@ internal static class Localization
         _localizationCache.Clear();
     }
 
-    public static void Dispose()
-    {
-        ServiceManager.PluginInterface.LanguageChanged -= OnLanguageChanged;
-    }
+    public static void Dispose() => ServiceManager.PluginInterface.LanguageChanged -= OnLanguageChanged;
 
     internal static void ExportLocalizable(bool ignore = true)
     {
         _loc?.ExportLocalizable(ignore);
+        ServiceManager.PluginLog.Debug("Exported Localization");
     }
 }

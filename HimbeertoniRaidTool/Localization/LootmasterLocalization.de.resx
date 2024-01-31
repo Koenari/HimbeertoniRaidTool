@@ -1,0 +1,213 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="Config:Lootmaster:ColoredItemNames">
+        <value>Färbe Items nach ItemLevel ein</value>
+    </data>
+    <data name="Config:Lootmaster:Colors">
+        <value>Eingestellte Farben</value>
+    </data>
+    <data name="Config:Lootmaster:IconInGroupOverview">
+        <value>Icon in der Gruppenübersicht anzeigen</value>
+    </data>
+    <data name="Config:Lootmaster:IgnoreMateriaForBis">
+        <value>Materia ignorieren</value>
+    </data>
+    <data name="Config:Lootmaster:IgnoreMateriaForBisTooltip">
+        <value>Beim Vergleich von Items zu BiS die gesockelten Materia ignorieren</value>
+    </data>
+    <data name="Config:Lootmaster:ItemFormat:Available">
+        <value>Verfügbare Optionen</value>
+    </data>
+    <data name="Config:Lootmaster:ItemFormat">
+        <value>Item Format</value>
+    </data>
+    <data name="ChangesOnlyForThisLootSession">
+        <value>Änderungen hier gelten nur für die aktuelle Loot Sitzung</value>
+    </data>
+    <data name="Distribute loot for:">
+        <value>Beute verteilen für:</value>
+    </data>
+    <data name="LootCategory:Greed">
+        <value>Gier</value>
+    </data>
+    <data name="Loot session for">
+        <value>Loot Sitzung für</value>
+    </data>
+    <data name="Greed">
+        <value>Gier</value>
+    </data>
+    <data name="From current Group">
+        <value>Von der aktuellen Gruppe</value>
+    </data>
+    <data name="From scratch">
+        <value>Von Grund auf</value>
+    </data>
+    <data name="Add from DB">
+        <value>Aus Datenbank hinzufügen</value>
+    </data>
+    <data name="Add empty group">
+        <value>Leere Gruppe hinzufügen</value>
+    </data>
+    <data name="Delete group">
+        <value>Gruppe löschen</value>
+    </data>
+    <data name="/lootmaster">
+        <value>Öffnet das LootMaster Fenster (oder /lm als Abkürzung)</value>
+    </data>
+    <data name="ByRole">
+        <value>Rollenpriorität</value>
+    </data>
+    <data name="BISOverUpgrade">
+        <value>BiS &gt; Verbesserung</value>
+    </data>
+    <data name="ConfigRolePriority">
+        <value>Priorität für jede Rolle (Kleinere Zahl entspricht höherer Priorität)</value>
+    </data>
+    <data name="Current priority">
+        <value>Aktuelle Priorität</value>
+    </data>
+    <data name="DeleteRaidGroup">
+        <value>Möchten Sie die folgende Gruppe wirklich löschen:</value>
+    </data>
+    <data name="lootmaster:button:inventorytooltip">
+        <value>Lootmaster-Inventar öffnen</value>
+    </data>
+    <data name="lootmaster:button:quickCompare:tooltip">
+        <value>Ausrüstung schnell vergleichen</value>
+    </data>
+    <data name="LootCategory:Need">
+        <value>Bedarf</value>
+    </data>
+    <data name="LootCategory:Pass">
+        <value>Passen</value>
+    </data>
+    <data name="LootCategory:Undecided">
+        <value>Nicht entschieden</value>
+    </data>
+    <data name="lootmaster:button:showconfig:tooltip">
+        <value>Konfiguration öffnen</value>
+    </data>
+    <data name="lootmaster:button:swapposition:tooltip">
+        <value>Position tauschen</value>
+    </data>
+    <data name="Lootmaster:ColoredItemNamesTooltip">
+        <value>Items nach Itemlevel einfärben</value>
+    </data>
+    <data name="lootmaster:detail:deleteJob:tooltip">
+        <value>Job löschen (Shift halten)</value>
+    </data>
+    <data name="lootmaster:detail:jobUp:tooltip">
+        <value>Job nach oben bewegen</value>
+    </data>
+    <data name="lootmaster:detail:jobDown:tooltip">
+        <value>Job nach unten bewegen</value>
+    </data>
+    <data name="Lootmaster:OpenOnLogin">
+        <value>LootMaster beim Login öffnen</value>
+    </data>
+    <data name="Lootmaster:OpenOnLoginTooltip">
+        <value>Öffnet die Gruppenübersicht nach dem Einloggen</value>
+    </data>
+    <data name="LootMasterWindowTitle">
+        <value>Loot Master</value>
+    </data>
+    <data name="LootResult:GreedOnly">
+        <value>Nur Gier</value>
+    </data>
+    <data name="LootResult:AwardButton:Tooltip">
+        <value>An Spieler vergeben</value>
+    </data>
+    <data name="LootResult:ItemAwardedTo">
+        <value>vergeben an</value>
+    </data>
+    <data name="LootResults:AbortButton:Tooltip">
+        <value>Verteilung abbrechen, um Beute oder Regeln zu ändern</value>
+    </data>
+    <data name="LootResults:AbortButton:Text">
+        <value>Abbrechen</value>
+    </data>
+    <data name="LootResult:PossibleItems">
+        <value>Zu verteilende Items:</value>
+    </data>
+    <data name="LootResult:PlayerWonOver">
+        <value>über</value>
+    </data>
+    <data name="LootResult:PlayerWon">
+        <value>gewonnen</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed">
+        <value>An alle vergeben</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed:Tooltip">
+        <value>Jedem Spieler einmal vergeben</value>
+    </data>
+    <data name="LootResultWindow:GuaranteedItems">
+        <value>Garantierte Items (pro Spieler)</value>
+    </data>
+    <data name="LootSession:State:STARTED">
+        <value>Beute auswählen</value>
+    </data>
+    <data name="LootSession:CalcButton:Text">
+        <value>Berechnen</value>
+    </data>
+    <data name="LootSession:CalcButton:Tooltip">
+        <value>Berechnet die Ergebnisse der Beuteverteilung entsprechend den Regeln und der
+            aktuellen Ausrüstung der Spieler.
+            Sperrt die Beuteauswahl
+        </value>
+    </data>
+    <data name="LootSession:RulesButton:Tooltip">
+        <value>Verteilungsregeln überschreiben</value>
+    </data>
+    <data name="LootSession:State:DISTRIBUTION_STARTED">
+        <value>Verteilung gestartet</value>
+    </data>
+    <data name="LootRuleOrder">
+        <value>Reihenfolge in der die Loot Regeln angewendet werden</value>
+    </data>
+    <data name="LootSession:State:LOOT_CHOSEN">
+        <value>Beute festgelegt</value>
+    </data>
+    <data name="LootRule:CanBuy">
+        <value>Kann kaufen</value>
+    </data>
+    <data name="LootRule:CanUse">
+        <value>Kann jetzt verwenden</value>
+    </data>
+    <data name="Lootsession:State">
+        <value>Aktueller Status</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:bis">
+        <value>Spieler/Jobs ignorieren, die dies nicht als BiS verwenden</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:can_buy">
+        <value>Spieler/Jobs ignorieren, die das kaufen könnten</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:can_use">
+        <value>Spieler/Jobs ignorieren, die das nicht verwenden können</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:need_greed">
+        <value>Spieler ignorieren, die keinen Bedarf haben</value>
+    </data>
+    <data name="LootSession:State:FINISHED">
+        <value>Beendet</value>
+    </data>
+    <data name="GroupTabTooltip">
+        <value>Rechtsklick für mehr Optionen</value>
+    </data>
+</root>

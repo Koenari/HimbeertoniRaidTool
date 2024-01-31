@@ -2,7 +2,6 @@
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Plugin.DataExtensions;
 using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Plugin.Services;

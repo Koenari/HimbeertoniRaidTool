@@ -1,0 +1,213 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="Config:Lootmaster:ColoredItemNames">
+        <value>Colorier les objets par niveau d'objet</value>
+    </data>
+    <data name="Config:Lootmaster:Colors">
+        <value>Couleurs prédéfinies</value>
+    </data>
+    <data name="Config:Lootmaster:IconInGroupOverview">
+        <value>Montrer l'icône de l'objet dans l'aperçu général du groupe</value>
+    </data>
+    <data name="Config:Lootmaster:IgnoreMateriaForBis">
+        <value>Ignorer les Materia</value>
+    </data>
+    <data name="Config:Lootmaster:IgnoreMateriaForBisTooltip">
+        <value>Ignorer les Materia lorsqu'il est déterminé si un objet est équivalent au BiS</value>
+    </data>
+    <data name="Config:Lootmaster:ItemFormat:Available">
+        <value>Options disponibles</value>
+    </data>
+    <data name="Config:Lootmaster:ItemFormat">
+        <value>Format d'objet</value>
+    </data>
+    <data name="ChangesOnlyForThisLootSession">
+        <value>Les modifications apportées ici n'affectent que cette session de butin</value>
+    </data>
+    <data name="Distribute loot for:">
+        <value>Distribuer le butin pour :</value>
+    </data>
+    <data name="LootCategory:Greed">
+        <value>Cupidité</value>
+    </data>
+    <data name="Loot session for">
+        <value>Séance de butin pour</value>
+    </data>
+    <data name="Greed">
+        <value>Cupidité</value>
+    </data>
+    <data name="From current Group">
+        <value>À partir de l'Équipe actuellement formée</value>
+    </data>
+    <data name="From scratch">
+        <value>À partir de zéro</value>
+    </data>
+    <data name="Add from DB">
+        <value>Ajouter depuis la BDD</value>
+    </data>
+    <data name="Add empty group">
+        <value>Ajoute un groupe vide</value>
+    </data>
+    <data name="Delete group">
+        <value>Supprimer le groupe</value>
+    </data>
+    <data name="/lootmaster">
+        <value>Ouvre la fenêtre du LootMaster (variante courte : /lm)</value>
+    </data>
+    <data name="ByRole">
+        <value>Prioriser par rôle</value>
+    </data>
+    <data name="BISOverUpgrade">
+        <value>BIS &gt; Amélioration</value>
+    </data>
+    <data name="ConfigRolePriority">
+        <value>Priorité de butin pour chaque rôle (la plus petite valeur est prioritaire)</value>
+    </data>
+    <data name="Current priority">
+        <value>Priorité actuelle</value>
+    </data>
+    <data name="DeleteRaidGroup">
+        <value>Voulez-vous vraiment supprimer le groupe suivant :</value>
+    </data>
+    <data name="lootmaster:button:inventorytooltip">
+        <value>Ouvrir la fenêtre d'inventaire</value>
+    </data>
+    <data name="lootmaster:button:quickCompare:tooltip">
+        <value>Quickly compare gear</value>
+    </data>
+    <data name="LootCategory:Need">
+        <value>Besoin</value>
+    </data>
+    <data name="LootCategory:Pass">
+        <value>Passer</value>
+    </data>
+    <data name="LootCategory:Undecided">
+        <value>Indécis</value>
+    </data>
+    <data name="lootmaster:button:showconfig:tooltip">
+        <value>Ouvrir le fichier de configuration</value>
+    </data>
+    <data name="lootmaster:button:swapposition:tooltip">
+        <value>Échanger de position</value>
+    </data>
+    <data name="Lootmaster:ColoredItemNamesTooltip">
+        <value>Éléments de couleur en fonction du niveau de l'objet</value>
+    </data>
+    <data name="lootmaster:detail:deleteJob:tooltip">
+        <value>Delete job (hold Shift)</value>
+    </data>
+    <data name="lootmaster:detail:jobUp:tooltip">
+        <value>Move job up</value>
+    </data>
+    <data name="lootmaster:detail:jobDown:tooltip">
+        <value>Move job down</value>
+    </data>
+    <data name="Lootmaster:OpenOnLogin">
+        <value>Ouvrir la vue d'ensemble du groupe au moment de la connexion</value>
+    </data>
+    <data name="Lootmaster:OpenOnLoginTooltip">
+        <value>Ouvre la fenêtre d'aperçu du groupe quand vous vous connectez</value>
+    </data>
+    <data name="LootMasterWindowTitle">
+        <value>Loot Master</value>
+    </data>
+    <data name="LootResult:GreedOnly">
+        <value>Cupidité uniquement</value>
+    </data>
+    <data name="LootResult:AwardButton:Tooltip">
+        <value>Décerné au joueur</value>
+    </data>
+    <data name="LootResult:ItemAwardedTo">
+        <value>décerné à</value>
+    </data>
+    <data name="LootResults:AbortButton:Tooltip">
+        <value>Annuler la distribution pour changer le butin ou les règles</value>
+    </data>
+    <data name="LootResults:AbortButton:Text">
+        <value>Annuler</value>
+    </data>
+    <data name="LootResult:PossibleItems">
+        <value>Objets à distribuer :</value>
+    </data>
+    <data name="LootResult:PlayerWonOver">
+        <value>sur</value>
+    </data>
+    <data name="LootResult:PlayerWon">
+        <value>gagné</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed">
+        <value>Décerné à tous</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed:Tooltip">
+        <value>Décerné 1 à chaque joueur</value>
+    </data>
+    <data name="LootResultWindow:GuaranteedItems">
+        <value>Objets garantis (par joueur)</value>
+    </data>
+    <data name="LootSession:State:STARTED">
+        <value>Choix du butin</value>
+    </data>
+    <data name="LootSession:CalcButton:Text">
+        <value>Calculer</value>
+    </data>
+    <data name="LootSession:CalcButton:Tooltip">
+        <value>Calcule les résultats de la distribution du butin selon les règles et l'équipement
+            actuel des joueurs
+            Verrouille la sélection du butin
+        </value>
+    </data>
+    <data name="LootSession:RulesButton:Tooltip">
+        <value>Ignorer les options de décision</value>
+    </data>
+    <data name="LootSession:State:DISTRIBUTION_STARTED">
+        <value>Début de la distribution</value>
+    </data>
+    <data name="LootRuleOrder">
+        <value>Ordre dans lequel les règles du butin doivent être appliquées</value>
+    </data>
+    <data name="LootSession:State:LOOT_CHOSEN">
+        <value>Butin verrouillé</value>
+    </data>
+    <data name="LootRule:CanBuy">
+        <value>Can buy</value>
+    </data>
+    <data name="LootRule:CanUse">
+        <value>Can use now</value>
+    </data>
+    <data name="Lootsession:State">
+        <value>État actuel</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:bis">
+        <value>Ignore players/jobs not using this in BiS</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:can_buy">
+        <value>Ignore players/jobs that could buy these</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:can_use">
+        <value>Ignore players/jobs not able to use</value>
+    </data>
+    <data name="loot_rule:ignore:tooltip:need_greed">
+        <value>Ignore players that have no need</value>
+    </data>
+    <data name="LootSession:State:FINISHED">
+        <value>Terminé</value>
+    </data>
+    <data name="GroupTabTooltip">
+        <value>Clic droit pour plus d'options</value>
+    </data>
+</root>

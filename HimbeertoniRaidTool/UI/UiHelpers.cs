@@ -2,7 +2,6 @@
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Plugin.DataExtensions;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using System.Numerics;
@@ -10,7 +9,7 @@ using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-internal class UiHelpers
+internal static class UiHelpers
 {
     private static readonly Vector2 _maxMateriaCatSize;
     private static readonly Vector2 _maxMateriaLevelSize;
@@ -22,15 +21,6 @@ internal class UiHelpers
         _maxMateriaLevelSize =
             ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
     }
-    public static void OpenLink(string url) => ServiceManager.TaskManager.RegisterTask(new HrtTask(() =>
-    {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = url,
-            UseShellExecute = true,
-        });
-        return HrtUiMessage.Empty;
-    }, _ => { }, "Open Link"));
     public static void DrawGearEdit(HrtWindowWithModalChild parent, GearSetSlot slot,
         GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {

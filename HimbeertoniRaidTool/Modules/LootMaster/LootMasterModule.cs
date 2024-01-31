@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using System.Globalization;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Text.SeStringHandling;
@@ -6,8 +7,8 @@ using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.DataManagement;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
@@ -91,6 +92,7 @@ internal sealed class LootMasterModule : IHrtModule
     {
 
     }
+    public void OnLanguageChange(string langCode) => LootmasterLocalization.Culture = new CultureInfo(langCode);
     public bool FillPlayerFromTarget(Player player)
     {
 
@@ -299,7 +301,7 @@ internal sealed class LootMasterModule : IHrtModule
         SeStringBuilder stringBuilder = new SeStringBuilder()
             .AddUiForeground("[Himbeertoni Raid Tool]", 45)
             .AddUiForeground("[Help]", 62)
-            .AddText(Localization.Localize("lootmaster:usage:heading", " Commands used for Loot Master:"))
+            .AddText(Services.Localization.Localize("lootmaster:usage:heading", " Commands used for Loot Master:"))
             .Add(new NewLinePayload());
 
         stringBuilder

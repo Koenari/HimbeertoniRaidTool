@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Plugin.DataExtensions;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;

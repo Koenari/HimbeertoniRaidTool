@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
@@ -10,12 +11,13 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 internal class LootSessionUi : HrtWindow
 {
     private const string RULES_POPUP_ID = "RulesButtonPopup";
-    private readonly LootSession _session;
-    private readonly UiSortableList<LootRule> _ruleListUi;
     private readonly IEnumerable<RaidGroup> _possibleGroups;
+    private readonly UiSortableList<LootRule> _ruleListUi;
+    private readonly LootSession _session;
 
-    internal LootSessionUi(InstanceWithLoot lootSource, RaidGroup group, IEnumerable<RaidGroup> possibleGroups, LootRuling lootRuling,
-        RolePriority defaultRolePriority)
+    internal LootSessionUi(InstanceWithLoot lootSource, RaidGroup group, IEnumerable<RaidGroup> possibleGroups,
+                           LootRuling lootRuling,
+                           RolePriority defaultRolePriority)
     {
         _session = new LootSession(group, lootRuling, defaultRolePriority, lootSource);
         _ruleListUi = new UiSortableList<LootRule>(LootRuling.PossibleRules, lootRuling.RuleSet);
@@ -39,7 +41,7 @@ internal class LootSessionUi : HrtWindow
         ImGui.SameLine();
 
         if (ImGuiHelper.Button(FontAwesomeIcon.Cogs, "RulesButton",
-                Localize("LootSession:RulesButton:Tooltip", "Override ruling options")))
+                               Localize("LootSession:RulesButton:Tooltip", "Override ruling options")))
             ImGui.OpenPopup(RULES_POPUP_ID);
         if (ImGui.BeginPopup(RULES_POPUP_ID))
         {
@@ -56,15 +58,17 @@ internal class LootSessionUi : HrtWindow
         {
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (RaidGroup group in _possibleGroups)
+            {
                 if (ImGui.Selectable(group.Name) && group != _session.Group)
                     _session.Group = group;
+            }
             ImGui.EndCombo();
         }
 
         ImGui.SameLine();
         if (ImGuiHelper.Button(Localize("LootSession:CalcButton:Text", "Calculate"),
-                Localize("LootSession:CalcButton:Tooltip",
-                    "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection")))
+                               Localize("LootSession:CalcButton:Tooltip",
+                                        "Calculates results of loot distribution according to the rules and current equipment of players\n Locks the loot selection")))
             _session.Evaluate();
         ImGui.EndDisabled();
         ImGui.NewLine();
@@ -86,7 +90,7 @@ internal class LootSessionUi : HrtWindow
         {
             ImGui.PushID(row);
             if (ImGui.BeginTable("LootSelection", itemsPerRow,
-                    ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.SizingFixedFit))
+                                 ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.SizingFixedFit))
             {
                 for (int col = 0; col < itemsPerRow; col++)
                 {
@@ -100,7 +104,7 @@ internal class LootSessionUi : HrtWindow
                     ImGui.TableNextColumn();
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
                     ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle,
-                        Vector2.One * ScaleFactor * (itemSize - 30f));
+                                Vector2.One * ScaleFactor * (itemSize - 30f));
                     if (ImGui.IsItemHovered())
                     {
                         ImGui.BeginTooltip();
@@ -148,7 +152,7 @@ internal class LootSessionUi : HrtWindow
                 _session.RulingOptions.RuleSet = new List<LootRule>(_ruleListUi.List);
             ImGui.NewLine();
             ImGui.TextWrapped(Localize("ChangesOnlyForThisLootSession",
-                "Changes made here only affect this loot session"));
+                                       "Changes made here only affect this loot session"));
             ImGui.EndChild();
         }
     }
@@ -159,19 +163,20 @@ internal class LootSessionUi : HrtWindow
         ImGui.Text($"{Localize("Results for", "Results for")} {_session.Instance.Name} ({_session.Group.Name})");
         ImGui.SameLine();
         if (ImGuiHelper.Button(Localize("LootResults:AbortButton:Text", "Abort"),
-                Localize("LootResults:AbortButton:Tooltip", "Abort distribution to change loot or rules"),
-                _session.CurrentState < LootSession.State.DistributionStarted))
+                               Localize("LootResults:AbortButton:Tooltip",
+                                        "Abort distribution to change loot or rules"),
+                               _session.CurrentState < LootSession.State.DistributionStarted))
             _session.RevertToChooseLoot();
         ImGui.Separator();
         //Guaranteed Item
         ImGui.Text(Localize("LootResultWindow:GuaranteedItems", "Guaranteed Items (per player)"));
         if (_session.GuaranteedLoot.Count == 0)
-            ImGui.Text(Localize("None", "None"));
+            ImGui.Text(Localize(GeneralLoc.None, GeneralLoc.None));
         foreach ((HrtItem item, bool awarded) in _session.GuaranteedLoot)
         {
             ImGui.BeginGroup();
             ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle,
-                Vector2.One * ImGui.GetTextLineHeightWithSpacing());
+                        Vector2.One * ImGui.GetTextLineHeightWithSpacing());
             ImGui.SameLine();
             ImGui.Text(item.Name);
             ImGui.EndGroup();
@@ -184,7 +189,8 @@ internal class LootSessionUi : HrtWindow
 
             ImGui.SameLine();
             if (ImGuiHelper.Button($"{Localize("LootResultWindow:Button:AwardGuaranteed", "Award to all")}##{item.Id}",
-                    Localize("LootResultWindow:Button:AwardGuaranteed:Tooltip", "Award 1 to each player"), !awarded))
+                                   Localize("LootResultWindow:Button:AwardGuaranteed:Tooltip",
+                                            "Award 1 to each player"), !awarded))
                 _session.AwardGuaranteedLoot(item);
         }
 
@@ -193,21 +199,23 @@ internal class LootSessionUi : HrtWindow
         ImGui.Text(Localize("LootResult:PossibleItems", "Items to distribute:"));
         ImGui.Separator();
         if (_session.Results.Count == 0)
-            ImGui.Text(Localize("None", "None"));
+            ImGui.Text(Localize(GeneralLoc.None, GeneralLoc.None));
         foreach (((HrtItem item, int nr), LootResultContainer results) in _session.Results)
         {
             ImGui.PushID($"{item.Id}##{nr}");
             if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n {results.ShortResult}",
-                    ImGuiTreeNodeFlags.DefaultOpen))
-                if (ImGui.BeginTable($"LootTable", 4 + _session.RulingOptions.ActiveRules.Count(),
-                        ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg))
+                                       ImGuiTreeNodeFlags.DefaultOpen))
+                if (ImGui.BeginTable("LootTable", 4 + _session.RulingOptions.ActiveRules.Count(),
+                                     ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg))
                 {
                     ImGui.TableSetupColumn(Localize("Pos", "Pos"));
                     ImGui.TableSetupColumn(Localize("Player", "Player"));
                     ImGui.TableSetupColumn(Localize("Needed items", "Needed items"));
                     ImGui.TableSetupColumn(Localize("Rule", "Rule"));
                     foreach (LootRule rule in _session.RulingOptions.ActiveRules)
+                    {
                         ImGui.TableSetupColumn(rule.Name);
+                    }
                     ImGui.TableHeadersRow();
 
                     int place = 1;
@@ -239,20 +247,20 @@ internal class LootSessionUi : HrtWindow
                                 if (neededItem.Slots.Count() > 1)
                                 {
                                     if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"Award##{i}##{neededItem.Id}",
-                                            $"{Localize("LootResult:AwardButton:Tooltip", "Award to player")} (R)",
-                                            !results.IsAwarded))
+                                                           $"{Localize("LootResult:AwardButton:Tooltip", "Award to player")} (R)",
+                                                           !results.IsAwarded))
                                         _session.AwardItem((item, nr), neededItem, i);
                                     ImGui.SameLine();
                                     if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"Award##{i}##{neededItem.Id}",
-                                            $"{Localize("LootResult:AwardButton:Tooltip", "Award to player")} (L)",
-                                            !results.IsAwarded))
+                                                           $"{Localize("LootResult:AwardButton:Tooltip", "Award to player")} (L)",
+                                                           !results.IsAwarded))
                                         _session.AwardItem((item, nr), neededItem, i, true);
                                 }
                                 else
                                 {
                                     if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"Award##{i}##{neededItem.Id}",
-                                            $"{Localize("LootResult:AwardButton:Tooltip", "Award to player")}",
-                                            !results.IsAwarded))
+                                                           $"{Localize("LootResult:AwardButton:Tooltip", "Award to player")}",
+                                                           !results.IsAwarded))
                                         _session.AwardItem((item, nr), neededItem, i);
                                 }
                             }

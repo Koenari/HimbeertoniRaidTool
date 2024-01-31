@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <!-- 
+      Microsoft ResX Schema 
+      
+      Version 2.0
+      
+      The primary goals of this format is to allow a simple XML format 
+      that is mostly human readable. The generation and parsing of the 
+      various data types are done through the TypeConverter classes 
+      associated with the data types.
+      
+      Example:
+      
+      ... ado.net/XML headers & schema ...
+      <resheader name="resmimetype">text/microsoft-resx</resheader>
+      <resheader name="version">2.0</resheader>
+      <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+      <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+      <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+      <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+      <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+          <value>[base64 mime encoded serialized .NET Framework object]</value>
+      </data>
+      <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+          <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+          <comment>This is a comment</comment>
+      </data>
+                  
+      There are any number of "resheader" rows that contain simple 
+      name/value pairs.
+      
+      Each data row contains a name, and value. The row also contains a 
+      type or mimetype. Type corresponds to a .NET class that support 
+      text/value conversion through the TypeConverter architecture. 
+      Classes that don't support this are serialized and stored with the 
+      mimetype set.
+      
+      The mimetype is used for serialized objects, and tells the 
+      ResXResourceReader how to depersist the object. This is currently not 
+      extensible. For a given mimetype the value must be set accordingly:
+      
+      Note - application/x-microsoft.net.object.binary.base64 is the format 
+      that the ResXResourceWriter will generate, however the reader can 
+      read any of the formats listed below.
+      
+      mimetype: application/x-microsoft.net.object.binary.base64
+      value   : The object must be serialized with 
+              : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+              : and then encoded with base64 encoding.
+      
+      mimetype: application/x-microsoft.net.object.soap.base64
+      value   : The object must be serialized with 
+              : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+              : and then encoded with base64 encoding.
+  
+      mimetype: application/x-microsoft.net.object.bytearray.base64
+      value   : The object must be serialized into a byte array 
+              : using a System.ComponentModel.TypeConverter
+              : and then encoded with base64 encoding.
+      -->
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+                xmlns="">
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+        <xsd:element name="root" msdata:IsDataSet="true">
+            <xsd:complexType>
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="metadata">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="assembly">
+                        <xsd:complexType>
+                            <xsd:attribute name="alias" type="xsd:string"/>
+                            <xsd:attribute name="name" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"
+                                           msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>2.0</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="ConfigWindowTitle">
+        <value>Configuration de HimbeerToni Raid Tool</value>
+    </data>
+    <data name="ItemTableHeader">
+        <value>En-tête</value>
+    </data>
+    <data name="Value">
+        <value>Valeur</value>
+    </data>
+    <data name="Name">
+        <value>Nom</value>
+    </data>
+    <data name="itemLevelLong">
+        <value>Niveau d'objet</value>
+    </data>
+    <data name="itemSource">
+        <value>Source</value>
+    </data>
+    <data name="item:shopCosts">
+        <value>Shop costs</value>
+    </data>
+    <data name="item:looted:sources">
+        <value>Looté dans</value>
+    </data>
+    <data name="Save Player">
+        <value>Sauvegarder ce·tte joueur·se</value>
+    </data>
+    <data name="Player Data">
+        <value>Données Joueur·se</value>
+    </data>
+    <data name="Player Name">
+        <value>Nom Joueur·se</value>
+    </data>
+    <data name="Character Data">
+        <value>Données Personnage</value>
+    </data>
+    <data name="Character Name">
+        <value>Nom Personnage</value>
+    </data>
+    <data name="Home World">
+        <value>Monde d'origine</value>
+    </data>
+    <data name="Tribe">
+        <value>Tribu</value>
+    </data>
+    <data name="EditCharacterWindow_heading_JobData">
+        <value>Données des Jobs</value>
+    </data>
+    <data name="EditCharacterWindow_input_mainJob">
+        <value>Job principal</value>
+    </data>
+    <data name="EditCharacterWindow_text_noJobs">
+        <value>Le personnage n'a aucun job assigné</value>
+    </data>
+    <data name="PlayerEdit:Tooltip:LocalBis">
+        <value>BiS set for this class is locally managed.
+            Delete local set to use a set from etro.gg
+        </value>
+    </data>
+    <data name="Set to default">
+        <value>Définir par défaut</value>
+    </data>
+    <data name="DefaultBiSTooltip">
+        <value>Chercher le BIS par défaut défini dans la configuration</value>
+    </data>
+    <data name="Level">
+        <value>Niveau</value>
+    </data>
+    <data name="EditCharacterWindow_input_AddJob">
+        <value>Ajouter un Job</value>
+    </data>
+    <data name="Group Name">
+        <value>Nom du Groupe</value>
+    </data>
+    <data name="Group Type">
+        <value>Type du Groupe</value>
+    </data>
+    <data name="Override role priority">
+        <value>Outrepasser la priorité de rôle</value>
+    </data>
+    <data name="Edit">
+        <value>Modifier</value>
+    </data>
+    <data name="GearsetEdit:Delete">
+        <value>Remove set from this character (Hold Shift)</value>
+    </data>
+    <data name="GearSetEditWindow_Source">
+        <value>Source</value>
+    </data>
+    <data name="GearSet:ManagedBy:Etro">
+        <value>etro.gg</value>
+    </data>
+    <data name="GearSetEdit:MakeLocal">
+        <value>Create local copy</value>
+    </data>
+    <data name="GearSetEdit:MakeLocal:tooltip">
+        <value>Create a copy of this set in the local database. Set will not be updated from etro.gg
+            afterwards
+            Only local Gear Sets can be edited
+        </value>
+    </data>
+    <data name="Etro ID">
+        <value>Etro ID</value>
+    </data>
+    <data name="GearSetEdit:EtroLastDownload">
+        <value>Dernière vérification de mise à jour</value>
+    </data>
+    <data name="GearSet:ManagedBy:HrtLocal">
+        <value>Local Database</value>
+    </data>
+    <data name="Local ID">
+        <value>Local ID</value>
+    </data>
+    <data name="GearSetEdit:LastChanged">
+        <value>Last Change</value>
+    </data>
+    <data name="GearSetEdit:Name">
+        <value>Nom</value>
+    </data>
+    <data name="Get item for">
+        <value>Sélection d'un objet pour</value>
+    </data>
+    <data name="Use this item">
+        <value>Choisir cet objet</value>
+    </data>
+    <data name="Confirmation">
+        <value>Confirmation</value>
+    </data>
+    <data name="OK">
+        <value>OK</value>
+    </data>
+    <data name="Confirm action">
+        <value>OK</value>
+    </data>
+    <data name="Save">
+        <value>Sauvegarder</value>
+    </data>
+    <data name="Cancel">
+        <value>Annuler</value>
+    </data>
+    <data name="Close">
+        <value>Fermer</value>
+    </data>
+    <data name="Inspect">
+        <value>Mettre à jour l'équipement en examinant</value>
+    </data>
+    <data name="CharacterNotInReach">
+        <value>Le personnage n'est pas suffisamment à portée pour pouvoir l'examiner</value>
+    </data>
+    <data name="rightClickHint">
+        <value>clic droit pour plus d'options</value>
+    </data>
+    <data name="Lodestone Button">
+        <value>Télécharger l'équipement depuis le Lodestone</value>
+    </data>
+    <data name="LodestonUpdateStarted">
+        <value>Mise à jour de l'équipement initialisée pour</value>
+    </data>
+    <data name="Select item">
+        <value>Sélectionner un objet</value>
+    </data>
+    <data name="Remove this item">
+        <value>Remove this item</value>
+    </data>
+    <data name="Remove this materia">
+        <value>Retirer cette matéria</value>
+    </data>
+    <data name="Materia">
+        <value>Matéria</value>
+    </data>
+    <data name="Select materia">
+        <value>Sélectionner une matéria</value>
+    </data>
+    <data name="ui:sortable_list:move_up">
+        <value>Move up</value>
+    </data>
+    <data name="ui:sortable_list:move_down">
+        <value>Move down</value>
+    </data>
+    <data name="ui:sortable_list:remove">
+        <value>Remove entry</value>
+    </data>
+    <data name="ui:sortable_list::add">
+        <value>Add entry</value>
+    </data>
+    <data name="Appearance">
+        <value>Apparence</value>
+    </data>
+    <data name="iLvl">
+        <value>iLvl</value>
+    </data>
+    <data name="Examples">
+        <value>Exemples</value>
+    </data>
+    <data name="DefaultBiSHeading">
+        <value>Sets BiS par défaut (via leur ID etro.gg)</value>
+    </data>
+    <data name="DefaultBiSDisclaimer">
+        <value>Ces sets sont utilisés lors de la création d'un nouveau personnage ou de l'ajout d'un
+            nouveau job. Ils n'affectent pas les personnages déjà créés ni leurs jobs.
+        </value>
+    </data>
+    <data name="Reset to default">
+        <value>Réinitialiser aux valeurs par défaut</value>
+    </data>
+    <data name="default">
+        <value>par défaut</value>
+    </data>
+    <data name="ui:loot_rule:active:tooltip">
+        <value>Activé</value>
+    </data>
+    <data name="ui:loot_rule:ignore">
+        <value>Ignorer</value>
+    </data>
+    <data name="LowestItemLevel">
+        <value>Niveau d'objet global le plus bas</value>
+    </data>
+    <data name="HighestItemLevelGain">
+        <value>Highest ItemLevel Gain</value>
+    </data>
+    <data name="Rolling">
+        <value>Lancer de dé</value>
+    </data>
+    <data name="DPSGain">
+        <value>% de DPS gagnés</value>
+    </data>
+    <data name="Need over Greed">
+        <value>Besoin prioritaire sur Cupidité</value>
+    </data>
+    <data name="Not defined">
+        <value>Non définie</value>
+    </data>
+    <data name="undefined">
+        <value>non défini</value>
+    </data>
+    <data name="MainStats">
+        <value>Stats Principales</value>
+    </data>
+    <data name="SecondaryStats">
+        <value>Stats secondaires</value>
+    </data>
+    <data name="Empty">
+        <value>Vide</value>
+    </data>
+    <data name="SpeedMultiplierName">
+        <value>Multiplicateur d'AAs / de DoTs</value>
+    </data>
+    <data name="Dmgper100Tooltip">
+        <value>Average Dmg with a 100 potency skill adjusted for faster GCDs</value>
+    </data>
+    <data name="Current">
+        <value>Actuel</value>
+    </data>
+    <data name="QuickCompareStatGain">
+        <value>Augmentation</value>
+    </data>
+    <data name="New Gear">
+        <value>Nouvelle tenue</value>
+    </data>
+    <data name="Edit player">
+        <value>Édition Joueur·se</value>
+    </data>
+    <data name="gear">
+        <value>équipement</value>
+    </data>
+    <data name="Quick compare">
+        <value>Comparaison rapide</value>
+    </data>
+    <data name="BiS">
+        <value>BiS</value>
+    </data>
+    <data name="UpdateBis">
+        <value>Mettre à jour "{0}" depuis Etro.gg</value>
+    </data>
+    <data name="Add Player">
+        <value>Ajouter un·e joueur·se</value>
+    </data>
+    <data name="Player">
+        <value>Joueur·se</value>
+    </data>
+    <data name="itemLevelShort">
+        <value>iLvl</value>
+    </data>
+    <data name="Options">
+        <value>Options</value>
+    </data>
+    <data name="Edit group">
+        <value>Modifier le groupe</value>
+    </data>
+    <data name="AutoCreatedGroupName">
+        <value>Créé automatiquement</value>
+    </data>
+    <data name="n.A.">
+        <value>N/A</value>
+    </data>
+    <data name="PlayerDetails">
+        <value>Afficher les détails du·de la joueur·se pour</value>
+    </data>
+    <data name="Delete">
+        <value>Supprimer</value>
+    </data>
+    <data name="DeletePlayerConfirmation">
+        <value>Voulez-vous vraiment supprimer le·la joueur·se suivant·e ?</value>
+    </data>
+    <data name="No Player">
+        <value>Aucun·e joueur·se</value>
+    </data>
+    <data name="Add">
+        <value>Ajouter</value>
+    </data>
+    <data name="PlayerDetailsTitle">
+        <value>Détail du·de la joueur·se</value>
+    </data>
+    <data name="Inventory:AdditionalGear">
+        <value>Équipement supplémentaire</value>
+    </data>
+    <data name="Swap Position of">
+        <value>Permuter la position de</value>
+    </data>
+    <data name="Swap players positions">
+        <value>Permuter les positions des joueur·se·s</value>
+    </data>
+    <data name="Role priority">
+        <value>Priorité de rôle</value>
+    </data>
+    <data name="Results for">
+        <value>Résultats pour</value>
+    </data>
+    <data name="Pos">
+        <value>Position</value>
+    </data>
+    <data name="Needed items">
+        <value>Objets désirés</value>
+    </data>
+    <data name="Rule">
+        <value>Règle</value>
+    </data>
+    <data name="General">
+        <value>Général</value>
+    </data>
+    <data name="hrt:usage:heading">
+        <value>Commands used for Himbeertoni Raid Tool:</value>
+    </data>
+    <data name="Open Wiki">
+        <value>Ouvrir le Wiki</value>
+    </data>
+    <data name="Open the wiki in your browser">
+        <value>Ouvre le Wiki dans votre navigateur</value>
+    </data>
+    <data name="Close this window">
+        <value>Fermer cette fenêtre</value>
+    </data>
+    <data name="LodestoneConnector:CharNotFound">
+        <value>Personnage introuvable sur Lodestone.</value>
+    </data>
+    <data name="LodestoneConnector:JobIncompatible">
+        <value>Impossible de déterminer le job présentement utilisé, ou alors le job présentement
+            affiché sur le Lodestone n'est pas supporté.
+        </value>
+    </data>
+    <data name="LodestoneConnector:FailedToCreateGear">
+        <value>Impossible de créer une nouvelle tenue.</value>
+    </data>
+    <data name="LodestoneConnector:Success">
+        <value>L'équipement {1} de {0} a été mis à jour via les informations du Lodestone.</value>
+    </data>
+    <data name="LodestoneConnector:Failure">
+        <value>Impossible de mettre à jour l'équipement depuis le Lodestone.</value>
+    </data>
+    <data name="GetCharacterWindow_Title" xml:space="preserve">
+        <value>Obtenir un personnage depuis la BDD</value>
+    </data>
+</root>

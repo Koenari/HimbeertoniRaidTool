@@ -2,14 +2,16 @@
 using System.Numerics;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
+using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
+using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class CharacterDb : DataBaseTable<Character,GearSet>
+internal class CharacterDb : DataBaseTable<Character, GearSet>
 {
     private readonly Dictionary<ulong, HrtId> _charIdLookup = new();
     private readonly Dictionary<HrtId, HrtId> _idReplacement = new();
@@ -17,7 +19,7 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
     private readonly HashSet<uint> _usedWorlds = new();
 
     internal CharacterDb(IIdProvider idProvider, string serializedData, HrtIdReferenceConverter<GearSet> conv,
-        JsonSerializerSettings settings) : base(idProvider, serializedData, conv, settings)
+                         JsonSerializerSettings settings) : base(idProvider, serializedData, conv, settings)
     {
         if (LoadError) return;
         foreach (Character c in Data.Values)
@@ -42,11 +44,6 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
                 _charIdLookup.TryAdd(c.CharId, c.LocalId);
         }
     }
-
-    internal IEnumerable<uint> GetUsedWorlds() => _usedWorlds;
-
-    internal IReadOnlyList<string> GetKnownCharacters(uint worldId) => Data.Values.Where(c => c.HomeWorldId == worldId).Select(character => character.Name).ToList();
-
     public override bool TryAdd(in Character c)
     {
         if (!base.TryAdd(c))
@@ -139,25 +136,27 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
         }
     }
 
-    public override HrtWindow OpenSearchWindow(Action<Character> onSelect, Action? onCancel = null) => new CharacterSearchWindow(this,onSelect, onCancel);
+    public override HrtWindow OpenSearchWindow(Action<Character> onSelect, Action? onCancel = null) =>
+        new CharacterSearchWindow(this, onSelect, onCancel);
 
     private class CharacterSearchWindow : SearchWindow<Character, CharacterDb>
     {
-        private readonly uint[] _worlds;
         private readonly string[] _worldNames;
-        private int _worldSelectIndex;
-        private string[] _characterNames = Array.Empty<string>();
+        private readonly uint[] _worlds;
         private int _characterNameIndex;
+        private string[] _characterNames = Array.Empty<string>();
+        private int _worldSelectIndex;
 
-            
 
-        public CharacterSearchWindow(CharacterDb dataBase,Action<Character> onSelect, Action? onCancel) : base(dataBase,onSelect, onCancel)
+
+        public CharacterSearchWindow(CharacterDb dataBase, Action<Character> onSelect, Action? onCancel) : base(
+            dataBase, onSelect, onCancel)
         {
-            _worlds = ServiceManager.HrtDataManager.CharDb.GetUsedWorlds().ToArray();
+            _worlds = ServiceManager.HrtDataManager.CharDb._usedWorlds.ToArray();
             _worldNames = Array.ConvertAll(_worlds,
-                x => ServiceManager.DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(x)?.Name
-                    .RawString ?? "");
-            Title = Localize("GetCharacterTitle", "Get character from DB");
+                                           x => ServiceManager.DataManager.GetExcelSheet<World>()?.GetRow(x)?.Name
+                                                              .RawString ?? "");
+            Title = GeneralLoc.GetCharacterWindow_Title;
             Size = new Vector2(350, 420);
             Flags = ImGuiWindowFlags.NoScrollbar;
         }
@@ -166,13 +165,14 @@ internal class CharacterDb : DataBaseTable<Character,GearSet>
         {
             if (ImGui.ListBox("World", ref _worldSelectIndex, _worldNames, _worldNames.Length))
             {
-                var list = ServiceManager.HrtDataManager.CharDb.GetKnownCharacters(_worlds[_worldSelectIndex]);
-                _characterNames = list.ToArray();
+                _characterNames = Database.Data.Values.Where(c => c.HomeWorldId == _worlds[_worldSelectIndex])
+                                          .Select(character => character.Name).ToArray();
                 Array.Sort(_characterNames);
             }
 
             if (ImGui.ListBox("Name", ref _characterNameIndex, _characterNames, _characterNames.Length))
-                Database.SearchCharacter(_worlds[_worldSelectIndex],_characterNames[_characterNameIndex],out Selected);
+                Database.SearchCharacter(_worlds[_worldSelectIndex], _characterNames[_characterNameIndex],
+                                         out Selected);
         }
     }
 }

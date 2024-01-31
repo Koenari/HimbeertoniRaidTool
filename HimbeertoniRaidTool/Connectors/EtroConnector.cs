@@ -1,13 +1,16 @@
-﻿using Dalamud.Plugin.Services;
-using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Plugin.UI;
-using Newtonsoft.Json;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using Dalamud.Plugin.Services;
+using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Plugin.Connectors.Utils;
+using HimbeertoniRaidTool.Plugin.Localization;
+using HimbeertoniRaidTool.Plugin.UI;
+using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
 internal class EtroConnector : WebConnector
 {
     public const string WEB_BASE_URL = "https://etro.gg/";
@@ -18,10 +21,33 @@ internal class EtroConnector : WebConnector
     public const string RELIC_API_BASE_URL = API_BASE_URL + "relic/";
     public const string BIS_API_BASE_URL = GEARSET_API_BASE_URL + "bis/";
     private readonly Dictionary<Job, Dictionary<string, string>> _bisCache;
-    public IReadOnlyDictionary<string, string> GetBiS(Job job) => _bisCache[job];
-    public string GetDefaultBiS(Job job) => _bisCache[job].Keys.FirstOrDefault("");
-    private bool _materiaCacheReady = false;
     private readonly ConcurrentDictionary<uint, (MateriaCategory, MateriaLevel)> _materiaCache = new();
+    private bool _materiaCacheReady;
+    internal EtroConnector(TaskManager tm, IPluginLog log) : base(new RateLimit(4, new TimeSpan(0, 0, 30)))
+    {
+        tm.RegisterTask(new HrtTask(() => FillMateriaCache(_materiaCache),
+                                    msg =>
+                                    {
+                                        if (msg.MessageType == HrtUiMessageType.Failure)
+                                            log.Error(msg.Message);
+                                        else
+                                            log.Info(msg.Message);
+                                    }
+                                  , "Get Etro Materia definitions"));
+        _bisCache = new Dictionary<Job, Dictionary<string, string>>();
+        foreach (Job job in Enum.GetValues<Job>())
+        {
+            _bisCache.Add(job, new Dictionary<string, string>());
+        }
+        tm.RegisterTask(new HrtTask(FillBisList,
+                                    msg =>
+                                    {
+                                        if (msg.MessageType == HrtUiMessageType.Failure)
+                                            log.Error(msg.Message);
+                                        else
+                                            log.Info(msg.Message);
+                                    }, "Load BiS list from etro"));
+    }
     private static JsonSerializerSettings JsonSettings => new()
     {
         StringEscapeHandling = StringEscapeHandling.Default,
@@ -34,33 +60,12 @@ internal class EtroConnector : WebConnector
         MissingMemberHandling = MissingMemberHandling.Ignore,
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
     };
-    internal EtroConnector(TaskManager tm, IPluginLog log) : base(new RateLimit(4, new TimeSpan(0, 0, 30)))
-    {
-        tm.RegisterTask(new HrtTask(() => FillMateriaCache(_materiaCache),
-            (msg) =>
-            {
-                if (msg.MessageType == HrtUiMessageType.Failure)
-                    log.Error(msg.Message);
-                else
-                    log.Info(msg.Message);
-            }
-            ,"Get Etro Materia definitions"));
-        _bisCache = new Dictionary<Job, Dictionary<string, string>>();
-        foreach (Job job in Enum.GetValues<Job>())
-            _bisCache.Add(job, new Dictionary<string, string>());
-        tm.RegisterTask(new HrtTask(FillBisList,
-            (msg) =>
-            {
-                if (msg.MessageType == HrtUiMessageType.Failure)
-                    log.Error(msg.Message);
-                else
-                    log.Info(msg.Message);
-            }, "Load BiS list from etro"));
-    }
+    public IReadOnlyDictionary<string, string> GetBiS(Job job) => _bisCache[job];
+    public string GetDefaultBiS(Job job) => _bisCache[job].Keys.FirstOrDefault("");
 
     private HrtUiMessage FillBisList()
     {
-        HrtUiMessage failureMessage = new("Error fetching BiS list from etro", HrtUiMessageType.Failure);
+        HrtUiMessage failureMessage = new(GeneralLoc.EtroConnector_FillBisList_ErrorMessaeg, HrtUiMessageType.Failure);
         string? jsonResponse = MakeWebRequest(BIS_API_BASE_URL);
         if (jsonResponse == null)
             return failureMessage;
@@ -71,27 +76,32 @@ internal class EtroConnector : WebConnector
             if (set.id != null)
                 _bisCache[set.job][set.id] = set.name ?? set.id;
         }
-        return new HrtUiMessage("Successfully loaded BiS list from Etro", HrtUiMessageType.Success);
+        return new HrtUiMessage(GeneralLoc.EtroConnector_FillBisList_Success, HrtUiMessageType.Success);
     }
 
     private HrtUiMessage FillMateriaCache(ConcurrentDictionary<uint, (MateriaCategory, MateriaLevel)> materiaCache)
     {
-        var errorMessage = new HrtUiMessage("Error getting materia info from etro.gg", HrtUiMessageType.Failure);
+        var errorMessage = new HrtUiMessage(GeneralLoc.EtroConnector_FillMateriaCache_Error, HrtUiMessageType.Failure);
         string? jsonResponse = MakeWebRequest(MATERIA_API_BASE_URL);
         if (jsonResponse == null) return errorMessage;
         var matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse, JsonSettings);
         if (matList == null) return errorMessage;
         foreach (EtroMateria? mat in matList)
+        {
             for (byte i = 0; i < mat.Tiers.Length; i++)
+            {
                 materiaCache.TryAdd(mat.Tiers[i].Id, ((MateriaCategory)mat.Id, (MateriaLevel)i));
+            }
+        }
         _materiaCacheReady = true;
-        return new HrtUiMessage("Sucessfully fetched materia definitions from etro.gg",HrtUiMessageType.Success);
+        return new HrtUiMessage(GeneralLoc.EtroConnector_FillMateriaCache_Success, HrtUiMessageType.Success);
     }
 
-    public void GetGearSetAsync(GearSet set,Action<HrtUiMessage>? messageCallback = null,string taskName = "Etro Update")
+    public void GetGearSetAsync(GearSet set, Action<HrtUiMessage>? messageCallback = null,
+                                string taskName = "Etro Update")
     {
         messageCallback ??= _ => { };
-        ServiceManager.TaskManager.RegisterTask(new HrtTask(()=> GetGearSet(set), messageCallback,taskName));
+        ServiceManager.TaskManager.RegisterTask(new HrtTask(() => GetGearSet(set), messageCallback, taskName));
     }
 
     private EtroRelic? GetRelicItem(string id)
@@ -102,7 +112,8 @@ internal class EtroConnector : WebConnector
 
     private HrtUiMessage GetGearSet(GearSet set)
     {
-        HrtUiMessage errorMessage = new($"Could not update set {set.Name}", HrtUiMessageType.Failure);
+        HrtUiMessage errorMessage = new(string.Format(GeneralLoc.EtroConnector_GetGearSet_Error, set.Name),
+                                        HrtUiMessageType.Failure);
         if (set.EtroId.Equals(""))
             return errorMessage;
         errorMessage.Message = $"{errorMessage.Message} ({set.EtroId})";
@@ -115,7 +126,8 @@ internal class EtroConnector : WebConnector
         set.Name = etroSet.name ?? "";
         set.TimeStamp = etroSet.lastUpdate;
         set.EtroFetchDate = DateTime.UtcNow;
-        HrtUiMessage successMessage = new($"Update from Etro for {set.Name} succeeded", HrtUiMessageType.Success);
+        HrtUiMessage successMessage = new(string.Format(GeneralLoc.EtroConnector_GetGearSet_Success, set.Name),
+                                          HrtUiMessageType.Success);
         FillItem(etroSet.weapon, GearSetSlot.MainHand);
         FillItem(etroSet.head, GearSetSlot.Head);
         FillItem(etroSet.body, GearSetSlot.Body);
@@ -133,14 +145,14 @@ internal class EtroConnector : WebConnector
         foreach ((string slot, string relicId) in etroSet.relics)
         {
             EtroRelic? relic = GetRelicItem(relicId);
-            if(relic is null) continue;
+            if (relic is null) continue;
             switch (slot)
             {
                 case "weapon":
                     FillRelicItem(relic, GearSetSlot.MainHand);
                     break;
-                default: 
-                    ServiceManager.PluginLog.Error($"Cannot handle relic item for slot: {slot}");
+                default:
+                    ServiceManager.PluginLog.Error(string.Format(GeneralLoc.EtroConnector_GetGearSet_RelicError, slot));
                     break;
             }
         }
@@ -165,22 +177,28 @@ internal class EtroConnector : WebConnector
             {
                 GearSetSlot.Ring1 => "L",
                 GearSetSlot.Ring2 => "R",
-                _ => "",
+                _                 => "",
             };
             if (!(etroSet.materia?.TryGetValue(idString, out var materia) ?? false)) return;
             foreach (uint? matId in materia.Values.Where(matId => matId.HasValue))
             {
-                set[slot].AddMateria(new HrtMateria(_materiaCache.GetValueOrDefault<uint, (MateriaCategory, MateriaLevel)>(matId!.Value, (0, 0))));
+                set[slot].AddMateria(new HrtMateria(
+                                         _materiaCache.GetValueOrDefault<uint, (MateriaCategory, MateriaLevel)>(
+                                             matId!.Value, (0, 0))));
             }
         }
     }
     internal HrtUiMessage UpdateEtroSets(bool updateAll, int maxAgeInDays)
     {
-        while (!_materiaCacheReady) Thread.Sleep(1);
+        while (!_materiaCacheReady)
+        {
+            Thread.Sleep(1);
+        }
         DateTime oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
-        foreach (GearSet gearSet in ServiceManager.HrtDataManager.GearDb.GetValues().Where(set => set.ManagedBy == GearSetManager.Etro))
+        foreach (GearSet gearSet in ServiceManager.HrtDataManager.GearDb.GetValues()
+                                                  .Where(set => set.ManagedBy == GearSetManager.Etro))
         {
             totalCount++;
             if (gearSet.IsEmpty || gearSet.EtroFetchDate < oldestValid && updateAll)
@@ -192,56 +210,60 @@ internal class EtroConnector : WebConnector
             }
         }
 
-        return new HrtUiMessage($"Finished periodic etro Updates. ({updateCount}/{totalCount}) updated");
+        return new HrtUiMessage(
+            string.Format(GeneralLoc.EtroConnector_UpdateEtroSets_Finished, updateCount, totalCount));
 
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("Style", "IDE1006:Naming Styles")]
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
     private class EtroRelic
     {
         public BaseItem baseItem { get; set; }
 
-        public uint? param0{ get; set; }
-        public uint? param1{ get; set; }
-        public uint? param2{ get; set; }
-        public uint? param3{ get; set; }
-        public uint? param4{ get; set; }
-        public uint? param5{ get; set; }
+        public uint? param0 { get; set; }
+        public uint? param1 { get; set; }
+        public uint? param2 { get; set; }
+        public uint? param3 { get; set; }
+        public uint? param4 { get; set; }
+        public uint? param5 { get; set; }
 
-        public int? param0Value{ get; set; }
-        public int? param1Value{ get; set; }
-        public int? param2Value{ get; set; }
-        public int? param3Value{ get; set; }
-        public int? param4Value{ get; set; }
-        public int? param5Value{ get; set; }
+        public int? param0Value { get; set; }
+        public int? param1Value { get; set; }
+        public int? param2Value { get; set; }
+        public int? param3Value { get; set; }
+        public int? param4Value { get; set; }
+        public int? param5Value { get; set; }
+        [JsonIgnore]
+        public IEnumerable<(uint, int)> Stats
+        {
+            get
+            {
+                if (param0 is null) yield break;
+                yield return (param0.Value, param0Value ?? 0);
+                if (param1 is null) yield break;
+                yield return (param1.Value, param1Value ?? 0);
+                if (param2 is null) yield break;
+                yield return (param2.Value, param2Value ?? 0);
+                if (param3 is null) yield break;
+                yield return (param3.Value, param3Value ?? 0);
+                if (param4 is null) yield break;
+                yield return (param4.Value, param4Value ?? 0);
+                if (param5 is null) yield break;
+                yield return (param5.Value, param5Value ?? 0);
+            }
+        }
 
         internal struct BaseItem
         {
             public uint id { get; set; }
         }
-        [JsonIgnore]
-        public IEnumerable<(uint,int)> Stats {
-            get
-            {
-                if(param0 is null) yield break;
-                yield return (param0.Value, param0Value ?? 0);
-                if(param1 is null) yield break;
-                yield return (param1.Value, param1Value ?? 0);
-                if(param2 is null) yield break;
-                yield return (param2.Value, param2Value ?? 0);
-                if(param3 is null) yield break;
-                yield return (param3.Value, param3Value ?? 0);
-                if(param4 is null) yield break;
-                yield return (param4.Value, param4Value ?? 0);
-                if(param5 is null) yield break;
-                yield return (param5.Value, param5Value ?? 0);
-            }
-        }
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("Style", "IDE1006:Naming Styles")]
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
     private class EtroGearSet
     {
 
@@ -285,14 +307,16 @@ internal class EtroConnector : WebConnector
 
     private class EtroMateriaTier
     {
-        public ushort Id { get; set; }
+        public ushort Id { get; }
     }
 
 
 
     private class EtroMateria
     {
-        public uint Id { get; set; }
+        [JsonIgnore]
+        public readonly EtroMateriaTier[] Tiers = new EtroMateriaTier[10];
+        public uint Id { get; }
         public EtroMateriaTier Tier1 { get => Tiers[0]; set => Tiers[0] = value; }
         public EtroMateriaTier Tier2 { get => Tiers[1]; set => Tiers[1] = value; }
         public EtroMateriaTier Tier3 { get => Tiers[2]; set => Tiers[2] = value; }
@@ -303,7 +327,5 @@ internal class EtroConnector : WebConnector
         public EtroMateriaTier Tier8 { get => Tiers[7]; set => Tiers[7] = value; }
         public EtroMateriaTier Tier9 { get => Tiers[8]; set => Tiers[8] = value; }
         public EtroMateriaTier Tier10 { get => Tiers[9]; set => Tiers[9] = value; }
-        [JsonIgnore]
-        public EtroMateriaTier[] Tiers = new EtroMateriaTier[10];
     }
 }

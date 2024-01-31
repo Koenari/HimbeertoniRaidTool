@@ -1,0 +1,108 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="command:hrt:options">
+        <value>Shows the Configuration window</value>
+    </data>
+    <data name="command_hrt_help">
+        <value>Prints usage information to chat</value>
+    </data>
+    <data name="command:hrt:welcome">
+        <value>Open Welcome Window with explanations on how to use</value>
+    </data>
+    <data name="WelcomeWindowLine1">
+        <value>Bienvenido a Himbeertoni Raid Tool. Tu herramienta para gestionar el grupo de raid.
+        </value>
+    </data>
+    <data name="WelcomeWindow_Title">
+        <value>Bienvenida a Himbeertoni Raid Tool</value>
+    </data>
+    <data name="WelcomeWindowLine2">
+        <value>Comienza escribiendo "/lootmaster" (o "/lm") en el chat (o el botón de abajo). Ahí
+            hemos añadido tu personaje.
+        </value>
+    </data>
+    <data name="WelcomeWindowLine3">
+        <value>A continuación puedes conseguir tu equipo actual usando el botón "lupa" o examinando
+            tu personaje con un clic derecho.
+        </value>
+    </data>
+    <data name="WelcomeWindowLine5">
+        <value>Para empezar a usar esto necesitarás añadir tu grupo a través del botón "+" en la
+            pestaña Solo. Para esto tiene dos posibilidades. En "Desde cero" podrás introducir todo
+            usted mismo como un novato. O puede reunir sus miembros en un grupo (o esperar a la
+            próxima raid) y dejar que el plugin haga la mayor parte del trabajo eligiendo "Del grupo
+            actual". Todavía tienes que dar un nombre al grupo y tal vez ajustar los apodos para tus
+            jugadores.
+        </value>
+    </data>
+    <data name="WelcomeWindowLine4">
+        <value>El plugin siempre actualizará el equipo para los personajes que se añadieron a un
+            grupo o pestaña en solitario al examinar el personaje del juego.
+        </value>
+    </data>
+    <data name="WelcomeWindowLine6">
+        <value>Si por ejemplo quieres que la herramienta se abra al principio, te sugeriría que
+            eches un vistazo rápido a las opciones. Y ve a la wiki para instrucciones más detalladas
+            :)
+        </value>
+    </data>
+    <data name="Command_hrt">
+        <value>Show help</value>
+    </data>
+    <data name="ConfigUi_UpdateBisOnStartUp">
+        <value>Actualizar los sets periódicamente desde etro.gg</value>
+    </data>
+    <data name="ConfigUi_BisUpdateInterval">
+        <value>Intervalo de actualización (días)</value>
+    </data>
+    <data name="ConfigUi_heading_ui">
+        <value>Interfaz de usuario</value>
+    </data>
+    <data name="ConfigUi_checkbox_hideInCombat_tooltip">
+        <value>Oculta todas las ventanas cuando estás en combate</value>
+    </data>
+    <data name="ConfigUi_checkbox_hideInCombat">
+        <value>Ocultar en combate</value>
+    </data>
+    <data name="ConfigUi_input_AutoSaveInterval">
+        <value>Intervalos del autoguardado (min)</value>
+    </data>
+    <data name="ConfigUi_heading_AutoSave">
+        <value>Autoguardado</value>
+    </data>
+    <data name="ConfigUi_checkbox_savePeriodically">
+        <value>Guardar periódicamente</value>
+    </data>
+    <data name="ConfigUi_checkbox_savePeriodically_tooltip" xml:space="preserve">
+        <value>Guarda todos los datos del Plugin periódicamente. (Ayuda a prevenir la pérdida de
+      datos si el juego crashea)
+    </value>
+    </data>
+    <data name="WelcomeWindow_button_OpenLootMaster">
+        <value>Abrir LootMaster</value>
+    </data>
+    <data name="WelcomeWindow_button_OpenLootMaster_tooltip">
+        <value>Abrir la ventana principal de LootMaster (/lootmaster)</value>
+    </data>
+    <data name="WelcomeWindow_button_OpenOptions">
+        <value>Abrir Opciones</value>
+    </data>
+    <data name="WelcomeWindow_button_OpenOptions_tooltip">
+        <value>Mostrar opciones de configuración (/hrt config)</value>
+    </data>
+</root>

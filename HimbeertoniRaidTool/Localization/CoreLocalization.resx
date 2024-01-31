@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <!-- 
+        Microsoft ResX Schema
+
+        Version 1.3
+
+        The primary goals of this format is to allow a simple XML format 
+        that is mostly human readable. The generation and parsing of the 
+        various data types are done through the TypeConverter classes 
+        associated with the data types.
+
+        Example:
+
+        ... ado.net/XML headers & schema ...
+        <resheader name="resmimetype">text/microsoft-resx</resheader>
+        <resheader name="version">1.3</resheader>
+        <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+        <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+        <data name="Name1">this is my long string</data>
+        <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+        <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+            [base64 mime encoded serialized .NET Framework object]
+        </data>
+        <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+            [base64 mime encoded string representing a byte array form of the .NET Framework object]
+        </data>
+
+        There are any number of "resheader" rows that contain simple 
+        name/value pairs.
+
+        Each data row contains a name, and value. The row also contains a 
+        type or mimetype. Type corresponds to a .NET class that support 
+        text/value conversion through the TypeConverter architecture. 
+        Classes that don't support this are serialized and stored with the 
+        mimetype set.
+
+        The mimetype is used for serialized objects, and tells the 
+        ResXResourceReader how to depersist the object. This is currently not 
+        extensible. For a given mimetype the value must be set accordingly:
+
+        Note - application/x-microsoft.net.object.binary.base64 is the format 
+        that the ResXResourceWriter will generate, however the reader can 
+        read any of the formats listed below.
+
+        mimetype: application/x-microsoft.net.object.binary.base64
+        value   : The object must be serialized with 
+            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+        mimetype: application/x-microsoft.net.object.soap.base64
+        value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+        mimetype: application/x-microsoft.net.object.bytearray.base64
+        value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+                xmlns="">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            <xsd:complexType>
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="PeriodicSaveSuccessful" xml:space="preserve">
+    <value>Data Saved successfully</value>
+  </data>
+    <data name="PeriodicSaveFailed" xml:space="preserve">
+    <value>Data failed to save</value>
+  </data>
+    <data name="Config_Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+    <data name="command:hrt:options">
+        <value>Shows the Configuration window</value>
+    </data>
+    <data name="command_hrt_help">
+        <value>Prints usage information to chat</value>
+    </data>
+    <data name="command:hrt:welcome">
+        <value>Open Welcome Window with explanations on how to use</value>
+    </data>
+    <data name="Core:PeriodicSaveFailed">
+        <value>Data failed to save</value>
+    </data>
+    <data name="Core:PeriodicSaveSuccessful">
+        <value>Data Saved successfully</value>
+    </data>
+    <data name="ConfigUi_EtroGearUpdates" xml:space="preserve">
+		<value>Etro Gear Updates</value>
+	</data>
+    <data name="WelcomeWindowLine1">
+        <value>Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group.</value>
+    </data>
+    <data name="WelcomeWindow_Title">
+        <value>Welcome to Himbeertoni Raid Tool</value>
+    </data>
+    <data name="WelcomeWindowLine2">
+        <value>Start your journey by opening LootMaster by typing "/lootmaster" (or "/lm") in chat
+            (or the button below). There we already added your character for you.
+        </value>
+    </data>
+    <data name="WelcomeWindowLine3">
+        <value>Next you can get your current gear either by using the "magnifying glass" button or
+            by examining your character via right clicking.
+        </value>
+    </data>
+    <data name="WelcomeWindowLine5">
+        <value>To really start using this you'd need to add your group via the "+ button" right to
+            the Solo tab. For this you have two possibilities. "From scratch" let's you input
+            everything yourself like a noob. Or you can gather your group into a party (or wait for
+            the next gathering) and let the plugin do most of the work by choosing "From current
+            group". You still have to give the group a name and maybe adjust nicknames for your
+            players.
+        </value>
+    </data>
+    <data name="WelcomeWindowLine4">
+        <value>The plugin will always update the gear for characters that were added to a group or
+            solo tab when examining the character in-game.
+        </value>
+    </data>
+    <data name="WelcomeWindowLine6">
+        <value>If you for example want the loot master to open on start, I would suggest you take a
+            quick look at the options. And go to the wiki for more detailed instructions :)
+        </value>
+    </data>
+    <data name="Command_hrt">
+        <value>Show help</value>
+    </data>
+    <data name="ConfigUi_UpdateBisOnStartUp">
+        <value>Update sets from etro.gg periodically</value>
+    </data>
+    <data name="ConfigUi_BisUpdateInterval">
+        <value>Update interval (days)</value>
+    </data>
+    <data name="ConfigUi_Changelog_Title" xml:space="preserve">
+        <value>Changelog Options</value>
+    </data>
+    <data name="ConfigUi_checkbox_ownData" xml:space="preserve">
+        <value>Automatically update own data</value>
+    </data>
+    <data name="ConfigUi_checkbox_updateCombatJobs" xml:space="preserve">
+        <value>Update combat jobs</value>
+    </data>
+    <data name="ConfigUi_Heading_dataUpdate" xml:space="preserve">
+        <value>Automatic data update</value>
+    </data>
+    <data name="ConfigUi_checkbox_updateDohJobs" xml:space="preserve">
+        <value>Update disciple of hand jobs</value>
+    </data>
+    <data name="ConfigUi_checkbox_updateDolJobs" xml:space="preserve">
+        <value>Update disciple of land jobs</value>
+    </data>
+    <data name="ConfigUi_checkbox_ownData_tooltip" xml:space="preserve">
+        <value>Keeps gear and classes of logged in character up to date</value>
+    </data>
+    <data name="ConfigUi_checkbox_examine" xml:space="preserve">
+        <value>Update gear when examining</value>
+    </data>
+    <data name="ConfigUi_text_dataUpdateJobs" xml:space="preserve">
+        <value>Job specific config (affects all options above)</value>
+    </data>
+    <data name="ConfigUi_heading_ui">
+        <value>User Interface</value>
+    </data>
+    <data name="ConfigUi_checkbox_hideInCombat_tooltip">
+        <value>Hides all windows while character is in combat</value>
+    </data>
+    <data name="ConfigUi_checkbox_hideInCombat">
+        <value>Hide in combat</value>
+    </data>
+    <data name="ConfigUi_input_AutoSaveInterval">
+        <value>AutoSave interval (min)</value>
+    </data>
+    <data name="ConfigUi_heading_AutoSave">
+        <value>Auto Save</value>
+    </data>
+    <data name="ConfigUi_checkbox_savePeriodically">
+        <value>Save periodically</value>
+    </data>
+    <data name="ConfigUi_checkbox_savePeriodically_tooltip" xml:space="preserve">
+        <value>Saves all data of this plugin periodically. (Helps prevent losing data if your game
+            crashes)
+        </value>
+    </data>
+    <data name="CoreConfig_Title" xml:space="preserve">
+        <value>General</value>
+    </data>
+    <data name="WelcomeWindow_button_OpenLootMaster">
+        <value>Open LootMaster</value>
+    </data>
+    <data name="WelcomeWindow_button_OpenLootMaster_tooltip">
+        <value>Open LootMaster main window (/lootmaster)</value>
+    </data>
+    <data name="WelcomeWindow_button_OpenOptions">
+        <value>Open Options</value>
+    </data>
+    <data name="WelcomeWindow_button_OpenOptions_tooltip">
+        <value>Show configuration options (/hrt config)</value>
+    </data>
+</root>

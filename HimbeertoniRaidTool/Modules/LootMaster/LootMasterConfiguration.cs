@@ -1,28 +1,27 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
-using Dalamud.Utility;
+﻿using System.Numerics;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
-using HimbeertoniRaidTool.Plugin.DataExtensions;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
+using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
 internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguration.ConfigData>, IHrtConfiguration
 {
-    public override ConfigUi Ui { get; }
+    private const int TARGET_VERSION = 2;
 
     private bool _fullyLoaded;
-    private const int TARGET_VERSION = 2;
     public LootMasterConfiguration(IHrtModule hrtModule) : base(hrtModule.InternalName, hrtModule.Name)
     {
         Ui = new ConfigUi(this);
-        
+
     }
+    public override ConfigUi Ui { get; }
     public override void AfterLoad()
     {
         if (_fullyLoaded)
@@ -31,8 +30,8 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
         {
             const string msg = "Tried loading a configuration from a newer version of the plugin." +
                                "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
-            ServiceManager.PluginLog.Fatal(msg);
-            ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            Services.ServiceManager.PluginLog.Fatal(msg);
+            Services.ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
         }
         Upgrade();
@@ -48,8 +47,8 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
             if (Data.Version > oldVersion)
                 continue;
             string msg = $"Error upgrading Lootmaster configuration from version {oldVersion}";
-            ServiceManager.PluginLog.Fatal(msg);
-            ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            Services.ServiceManager.PluginLog.Fatal(msg);
+            Services.ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new InvalidOperationException(msg);
 
 
@@ -63,7 +62,7 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
             case 1:
                 Data.RaidGroups.Clear();
 #pragma warning disable CS0612
-                Data.RaidGroups = ServiceManager.HrtDataManager.Groups;
+                Data.RaidGroups = Services.ServiceManager.HrtDataManager.Groups;
 #pragma warning restore CS0612
                 Data.Version = 2;
                 break;
@@ -91,20 +90,22 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
         public void Draw()
         {
             ImGui.BeginTabBar("LootMaster");
-            if (ImGui.BeginTabItem(Localize("Appearance", "Appearance")))
+            if (ImGui.BeginTabItem(CoreLocalization.Config_Appearance))
             {
-                ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"), ref _dataCopy.OpenOnStartup);
+                ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"),
+                               ref _dataCopy.OpenOnStartup);
                 ImGuiHelper.AddTooltip(Localize("Lootmaster:OpenOnLoginTooltip",
-                    "Opens group overview window when you log in"));
+                                                "Opens group overview window when you log in"));
                 ImGui.Checkbox(Localize("Config:Lootmaster:IgnoreMateriaForBis",
-                    "Ignore Materia"), ref _dataCopy.IgnoreMateriaForBiS);
+                                        "Ignore Materia"), ref _dataCopy.IgnoreMateriaForBiS);
                 ImGuiHelper.AddTooltip(Localize("Config:Lootmaster:IgnoreMateriaForBisTooltip",
-                    "Ignore Materia when determining if an item is equivalent to BiS"));
+                                                "Ignore Materia when determining if an item is equivalent to BiS"));
                 ImGui.Checkbox(Localize("Config:Lootmaster:IconInGroupOverview", "Show item icon in group overview"),
-                    ref _dataCopy.ShowIconInGroupOverview);
-                ImGui.Checkbox(Localize("Config:Lootmaster:ColoredItemNames", "Color items by item level"), ref _dataCopy.ColoredItemNames);
+                               ref _dataCopy.ShowIconInGroupOverview);
+                ImGui.Checkbox(Localize("Config:Lootmaster:ColoredItemNames", "Color items by item level"),
+                               ref _dataCopy.ColoredItemNames);
                 ImGuiHelper.AddTooltip(Localize("Lootmaster:ColoredItemNamesTooltip",
-                    "Color items according to the item level"));
+                                                "Color items according to the item level"));
                 ImGui.BeginDisabled(!_dataCopy.ColoredItemNames);
                 ImGui.Text($"{Localize("Config:Lootmaster:Colors", "Configured colors")}:");
                 ImGui.NewLine();
@@ -130,14 +131,17 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
                 string copy = _dataCopy.UserItemFormat;
                 if (ImGui.InputText("##format", ref copy, 50))
                     _dataCopy.UserItemFormat = copy;
-                ImGui.Text($"{Localize("Config:Lootmaster:ItemFormat:Available", "Available options")}: {{ilvl}} {{source}} {{slot}}");
+                ImGui.Text(
+                    $"{Localize("Config:Lootmaster:ItemFormat:Available", "Available options")}: {{ilvl}} {{source}} {{slot}}");
                 ImGui.Separator();
                 ImGui.Text($"{Localize("Examples", "Examples")}:");
                 for (int i = 0; i < 4; i++)
                 {
-                    (long curiLvL, string source, string slot) = (iLvL - 10 * i, ((ItemSource)i).FriendlyName(), ((GearSetSlot)(i * 2)).FriendlyName());
+                    (long curiLvL, string source, string slot) = (iLvL - 10 * i, ((ItemSource)i).FriendlyName(),
+                        ((GearSetSlot)(i * 2)).FriendlyName());
                     if (_dataCopy.ColoredItemNames)
-                        ImGui.TextColored(_dataCopy.ItemLevelColors[i], string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
+                        ImGui.TextColored(_dataCopy.ItemLevelColors[i],
+                                          string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
                     else
                         ImGui.Text(string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
                     ImGui.SameLine();
@@ -149,7 +153,8 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
                 ImGui.Text(Localize("LootRuleOrder", "Order in which loot rules should be applied"));
                 _lootList.Draw();
                 ImGui.Separator();
-                ImGui.Text(Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
+                ImGui.Text(
+                    Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
                 ImGui.Text($"{Localize("Current priority", "Current priority")}: {_dataCopy.RolePriority}");
                 _dataCopy.RolePriority.DrawEdit(ImGui.InputInt);
                 ImGui.EndTabItem();
@@ -179,23 +184,18 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
     [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
     internal sealed class ConfigData : IHrtConfigData
     {
-        [JsonProperty]
-        public int Version { get; set; } = 1;
-        /*
-         * Appearance
-         */
-        [JsonProperty]
-        public bool OpenOnStartup = false;
-        [JsonProperty]
-        public bool IgnoreMateriaForBiS = false;
+        [JsonIgnore]
+        private string? _itemFormatStringCache;
+        [JsonProperty("RaidGroupIds", ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        private List<HrtId> _raidGroupIds = new();
         [JsonProperty("UserItemFormat")]
         private string _userItemFormat = "{source} {slot}";
         [JsonProperty]
         public bool ColoredItemNames = true;
         [JsonProperty]
-        public bool ShowIconInGroupOverview = false;
+        public bool IgnoreMateriaForBiS;
         [JsonProperty]
-        public Vector4[] ItemLevelColors = new Vector4[]
+        public Vector4[] ItemLevelColors =
         {
             //At or above cur max iLvl
             new(0.17f, 0.85f, 0.17f, 1f),
@@ -206,25 +206,15 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
             //30 or more below
             new(0.85f, 0.17f, 0.17f, 1f),
         };
-        /*
-         * BiS
-         */
-        [JsonProperty][Obsolete("Moved to Core Module",true)]
-        public bool UpdateEtroBisOnStartup
-        {
-            set => ServiceManager.CoreModule.MigrateBisUpdateConfig(value);
-        }
-        [JsonProperty][Obsolete("Moved to Core Module",true)]
-        public int EtroUpdateIntervalDays {
-            set => ServiceManager.CoreModule.MigrateBisUpdateInterval(value);
-        }
+        [JsonProperty]
+        public int LastGroupIndex;
         /*
          * Loot
          */
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public LootRuling LootRuling = new()
         {
-            RuleSet = new List<LootRule>()
+            RuleSet = new List<LootRule>
             {
                 new(LootRuleEnum.BisOverUpgrade),
                 new(LootRuleEnum.RolePrio),
@@ -234,6 +224,15 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
                 new(LootRuleEnum.Random),
             },
         };
+        /*
+         * Appearance
+         */
+        [JsonProperty]
+        public bool OpenOnStartup;
+        [JsonIgnore]
+        public List<RaidGroup> RaidGroups = new();
+        [JsonProperty("RaidTierIndex")]
+        public int? RaidTierOverride;
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public RolePriority RolePriority = new()
         {
@@ -243,6 +242,10 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
             { Role.Tank, 3 },
             { Role.Healer, 4 },
         };
+        [JsonProperty]
+        public bool ShowIconInGroupOverview;
+        [JsonProperty]
+        public int Version { get; set; } = 1;
         /*
          * Internal
          */
@@ -257,19 +260,22 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
             }
         }
         [JsonIgnore]
-        private string? _itemFormatStringCache;
-        [JsonIgnore]
         public string ItemFormatString => _itemFormatStringCache ??= ParseItemFormatString(UserItemFormat);
-        [JsonProperty]
-        public int LastGroupIndex = 0;
         [JsonIgnore]
-        public List<RaidGroup> RaidGroups = new();
-        [JsonProperty("RaidGroupIds",ObjectCreationHandling = ObjectCreationHandling.Replace)]
-        private List<HrtId> _raidGroupIds = new();
-        [JsonProperty("RaidTierIndex")]
-        public int? RaidTierOverride = null;
-        [JsonIgnore]
-        public RaidTier SelectedRaidTier => Common.Services.ServiceManager.GameInfo.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
+        public RaidTier SelectedRaidTier =>
+            ServiceManager.GameInfo.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
+
+        public void AfterLoad()
+        {
+            RaidGroups.Clear();
+            foreach (HrtId id in _raidGroupIds)
+            {
+                if (Services.ServiceManager.HrtDataManager.RaidGroupDb.TryGet(id, out RaidGroup? group))
+                    RaidGroups.Add(group);
+            }
+        }
+
+        public void BeforeSave() => _raidGroupIds = RaidGroups.ConvertAll(g => g.LocalId);
         private static string ParseItemFormatString(string input)
         {
             List<string> result = new();
@@ -290,21 +296,6 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
                 }
             }
             return string.Join(' ', result);
-        }
-
-        public void AfterLoad()
-        {
-            RaidGroups.Clear();
-            foreach (HrtId id in _raidGroupIds)
-            {
-                if(ServiceManager.HrtDataManager.RaidGroupDb.TryGet(id,out RaidGroup? group))
-                    RaidGroups.Add(group);
-            }
-        }
-
-        public void BeforeSave()
-        {
-            _raidGroupIds = RaidGroups.ConvertAll(g => g.LocalId);
         }
     }
 }

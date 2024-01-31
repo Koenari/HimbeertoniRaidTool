@@ -41,7 +41,7 @@ internal class ServiceManager
         if (_initialized) return false;
         _initialized = true;
         pluginInterface.Create<ServiceManager>();
-        Common.Services.ServiceManager.Init(DataManager.Excel);
+        Common.Services.ServiceManager.Init(DataManager.Excel, pluginInterface.UiLanguage);
         IconCache = new IconCache(PluginInterface, DataManager, TextureProvider);
         HrtDataManager = new HrtDataManager(PluginInterface);
         TaskManager = new TaskManager();

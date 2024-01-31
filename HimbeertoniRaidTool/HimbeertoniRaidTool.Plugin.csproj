@@ -85,12 +85,40 @@
     <ProjectReference Include="..\lib\NetStone\NetStone\NetStone.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Localization\**" Link="locale\%(RecursiveDir)\%(Filename)%(Extension)" CopyToOutputDirectory="Always" />
-  </ItemGroup>
-  <ItemGroup>
     <Using Include="HimbeertoniRaidTool.Plugin.Services" />
     <Using Include="System" />
     <Using Include="System.Collections.Generic" />
     <Using Include="System.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Localization\CoreLocalization.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CoreLocalization.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\LootmasterLocalization.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LootmasterLocalization.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\GeneralLoc.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GeneralLoc.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\CoreLocalization.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CoreLocalization.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\LootmasterLocalization.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>LootmasteLocalization.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\GeneralLoc.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>GeneralLoc.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

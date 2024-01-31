@@ -69,7 +69,7 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
             /*
              * Selection
              */
-            ImGui.Text(Localization.Localize("GearDB:Search:Name", "Name"));
+            ImGui.Text(Services.Localization.Localize("GearDB:Search:Name", "Name"));
             ImGui.SameLine();
             ImGui.SetNextItemWidth(150*ScaleFactor);
             ImGui.InputText("##Name", ref _name, 50);
@@ -77,7 +77,7 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
             ImGui.SetNextItemWidth(55*ScaleFactor);
             ImGuiHelper.Combo("##Job", ref _job);
             ImGui.SameLine();
-            ImGui.Text(Localization.Localize("GearDB:Search:iLvl","iLvl range:"));
+            ImGui.Text(Services.Localization.Localize("GearDB:Search:iLvl","iLvl range:"));
             ImGui.SameLine();
             ImGui.SetNextItemWidth(50*ScaleFactor);
             ImGui.InputInt("##minLvl", ref _iLvlMin,0);
@@ -95,7 +95,7 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
                          && (_iLvlMax == 0 || set.ItemLevel < _iLvlMax)
                          && (_name.Length == 0 || set.Name.Contains(_name))))
             {
-                ImGuiHelper.Button(FontAwesomeIcon.Check,$"{gearSet.LocalId}",Localization.Localize("GearDB:Search:Select","Select gearset"));
+                ImGuiHelper.Button(FontAwesomeIcon.Check,$"{gearSet.LocalId}",Services.Localization.Localize("GearDB:Search:Select","Select gearset"));
                 ImGui.SameLine();
                 ImGui.Text($"{gearSet.Name} ({gearSet.ItemLevel}) {(gearSet.ManagedBy==GearSetManager.Etro?" from Etro":"")}");
                 Save();

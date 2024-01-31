@@ -1,21 +1,36 @@
-﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using System.Numerics;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
-using HimbeertoniRaidTool.Plugin.DataExtensions;
-using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
-using System.Numerics;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
+using HimbeertoniRaidTool.Plugin.Localization;
+using ImGuiNET;
+using Lumina.Excel;
+using Lumina.Excel.GeneratedSheets;
 using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
 internal abstract class EditWindow<T> : HrtWindowWithModalChild where T : IHasHrtId
 {
+    private readonly Action<T>? _onCancel;
+
+    private readonly Action<T>? _onSave;
+
+    private T _original;
+    protected T DataCopy;
+
+    protected EditWindow(T original, Action<T>? onSave, Action<T>? onCancel)
+    {
+        _original = original;
+        DataCopy = _original.Clone();
+        _onCancel = onCancel;
+        _onSave = onSave;
+    }
     private static HrtDataManager DataManager => ServiceManager.HrtDataManager;
     public static EditWindow<S>? GetEditWindow<S>(HrtId id, Action<S>? onSave = null, Action<S>? onCancel = null)
         where S : IHasHrtId
@@ -36,7 +51,7 @@ internal abstract class EditWindow<T> : HrtWindowWithModalChild where T : IHasHr
             case not null when type == typeof(Character):
                 if (DataManager.CharDb.TryGet(id, out Character? character))
                     return new EditCharacterWindow(character, onSave as Action<Character>,
-                        onCancel as Action<Character>) as EditWindow<S>;
+                                                   onCancel as Action<Character>) as EditWindow<S>;
                 break;
             case not null when type == typeof(GearSet):
                 if (DataManager.GearDb.TryGet(id, out GearSet? gearSet))
@@ -47,20 +62,6 @@ internal abstract class EditWindow<T> : HrtWindowWithModalChild where T : IHasHr
                 return null;
         }
         return null;
-    }
-
-    private T _original;
-    protected T DataCopy;
-
-    private readonly Action<T>? _onSave;
-    private readonly Action<T>? _onCancel;
-
-    protected EditWindow(T original, Action<T>? onSave, Action<T>? onCancel)
-    {
-        _original = original;
-        DataCopy = _original.Clone();
-        _onCancel = onCancel;
-        _onSave = onSave;
     }
     public override sealed void Draw()
     {
@@ -123,7 +124,7 @@ internal class EditGroupWindow : EditWindow<RaidGroup>
         int groupType = (int)DataCopy.Type;
         ImGui.BeginDisabled(DataCopy.TypeLocked);
         if (ImGui.Combo(Localize("Group Type", "Group Type"), ref groupType, Enum.GetNames<GroupType>(),
-                Enum.GetNames<GroupType>().Length)) DataCopy.Type = (GroupType)groupType;
+                        Enum.GetNames<GroupType>().Length)) DataCopy.Type = (GroupType)groupType;
         ImGui.EndDisabled();
         //Role priority
         bool overrideRolePriority = DataCopy.RolePriority != null;
@@ -174,12 +175,14 @@ internal class EditPlayerWindow : EditWindow<Player>
         {
             ImGui.PushID(character.LocalId.ToString());
             if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "delete",
-                    $"{Localize("Remove")} {character.Name} from {DataCopy.NickName}",
-                    ImGui.IsKeyDown(ImGuiKey.ModShift)))
+                                   string.Format(GeneralLoc.EditPlayerWindow_button_removeChar_tooltip, character.Name,
+                                                 DataCopy.NickName),
+                                   ImGui.IsKeyDown(ImGuiKey.ModShift)))
                 DataCopy.RemoveCharacter(character);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "edit",
-                    $"{Localize("Edit")} {character.Name} @ {character.HomeWorld?.Name}"))
+                                   string.Format(GeneralLoc.EditPlayerWindow_button_editChar_tooltip, character.Name,
+                                                 character.HomeWorld?.Name)))
             {
                 var window = GetEditWindow<Character>(character.LocalId);
                 if (window != null)
@@ -189,8 +192,8 @@ internal class EditPlayerWindow : EditWindow<Player>
             bool isMain = mainChar.Equals(character);
             if (isMain) ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
             if (ImGuiHelper.Button(
-                    isMain ? Localize("edit:player:button:charIsMain", "Is Main")
-                        : Localize("edit:player:button:charMakeMain", "Make Main"), null))
+                    isMain ? GeneralLoc.EditPlayerWindow_button_IsMain : GeneralLoc.EditPlayerWindow_button_MakeMain,
+                    null))
                 DataCopy.MainChar = character;
             if (isMain) ImGui.PopStyleColor();
             ImGui.SameLine();
@@ -198,7 +201,7 @@ internal class EditPlayerWindow : EditWindow<Player>
             ImGui.PopID();
         }
         if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "addEmpty",
-                Localize("edit:player:button:addEmptyChar:tooltip", "Add custom character")))
+                               GeneralLoc.EditPlayerWindow_button_AddEmptyCharacter_tooltip))
         {
             var character = new Character();
             AddChild(new EditCharacterWindow(character, c =>
@@ -209,7 +212,7 @@ internal class EditPlayerWindow : EditWindow<Player>
         }
         ImGui.SameLine();
         if (ImGuiHelper.Button(FontAwesomeIcon.Search, "addFromDb",
-                Localize("edit:player:button:addCharFRomDb:tooltip", "Add existing character")))
+                               GeneralLoc.EditPlayerWindow_button_AddFromDb_tooltip))
         {
             AddChild(ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(c => DataCopy.AddCharacter(c)));
         }
@@ -241,29 +244,28 @@ internal class EditPlayerWindow : EditWindow<Player>
 
 internal class EditCharacterWindow : EditWindow<Character>
 {
-    private Job _newJob = Job.ADV;
     private const int CLASS_HEIGHT = 27 + 4;
+    private Job _newJob = Job.ADV;
     internal EditCharacterWindow(Character character, Action<Character>? onSave = null,
-        Action<Character>? onCancel = null) : base(character, onSave, onCancel)
+                                 Action<Character>? onCancel = null) : base(character, onSave, onCancel)
     {
         Size = new Vector2(500, 295 + CLASS_HEIGHT * DataCopy.Classes.Count());
         SizeCondition = ImGuiCond.Appearing;
-        Title = $"{Localize("Edit")} {Localize("character")} {DataCopy.Name}";
+        Title = string.Format(GeneralLoc.EditCharacterWindow_Title, DataCopy.Name);
     }
 
     protected override void Cancel() { }
 
     protected override void DrawContent()
     {
-        ImGui.SetCursorPosX(
-            (ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
-        ImGui.Text(Localize("Character Data", "Character Data"));
-        if (ImGui.InputText(Localize("Character Name", "Character Name"), ref DataCopy.Name, 50)
-            && ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, DataCopy.Name))
+        ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(GeneralLoc.Character_Data).X) / 2f);
+        ImGui.Text(GeneralLoc.Character_Data);
+        if (ImGui.InputText(GeneralLoc.Character_Name, ref DataCopy.Name, 50)
+         && ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, DataCopy.Name))
             DataCopy.HomeWorld ??= pc.HomeWorld.GameData;
-        if (ImGuiHelper.ExcelSheetCombo(Localize("Home World", "Home World") + "##" + Title, out World? w,
-                _ => DataCopy.HomeWorld?.Name.RawString ?? "",
-                x => x.Name.RawString, x => x.IsPublic))
+        if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.Home_World + "##" + Title, out World? w,
+                                        _ => DataCopy.HomeWorld?.Name.RawString ?? "",
+                                        x => x.Name.RawString, x => x.IsPublic))
             DataCopy.HomeWorld = w;
 
         //ImGuiHelper.Combo(Localize("Gender", "Gender"), ref PlayerCopy.MainChar.Gender);
@@ -273,33 +275,32 @@ internal class EditCharacterWindow : EditWindow<Character>
                    string.Empty;
         }
 
-        if (ImGuiHelper.ExcelSheetCombo(Localize("Tribe", "Tribe") + "##" + Title, out Tribe? t,
-                _ => GetGenderedTribeName(DataCopy.Tribe), GetGenderedTribeName))
+        if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.Tribe + "##" + Title, out Tribe? t,
+                                        _ => GetGenderedTribeName(DataCopy.Tribe), GetGenderedTribeName))
             DataCopy.TribeId = t.RowId;
         //Class Data
-        ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Job Data", "Job Data")).X) / 2f);
-        ImGui.Text(Localize("Job Data", "Job Data"));
+        ImGui.SetCursorPosX((ImGui.GetWindowWidth()
+                           - ImGui.CalcTextSize(GeneralLoc.EditCharacterWindow_heading_JobData).X) / 2f);
+        ImGui.Text(GeneralLoc.EditCharacterWindow_heading_JobData);
         if (DataCopy.Classes.Any())
         {
 
             if (DataCopy.Classes.All(x => x.Job != DataCopy.MainJob))
                 DataCopy.MainJob = DataCopy.Classes.First().Job;
-            if (ImGui.BeginCombo(Localize("Main Job", "Main Job"), DataCopy.MainJob.ToString()))
+            if (ImGui.BeginCombo(GeneralLoc.EditCharacterWindow_input_mainJob, DataCopy.MainJob.ToString()))
                 foreach (PlayableClass curJob in DataCopy)
                 {
                     if (ImGui.Selectable(curJob.Job.ToString()))
                         DataCopy.MainJob = curJob.Job;
                 }
             ImGui.Separator();
-            ImGui.TextColored(Colors.TextSoftRed,
-                Localize("EditCharacter:Jobs:BisNotice",
-                    "BiS sets are now changed by editing the respective BiS set directly"));
+            ImGui.TextColored(Colors.TextSoftRed, GeneralLoc.EditCharacterWindow_text_BisNotice);
         }
         else
         {
             DataCopy.MainJob = null;
             ImGui.NewLine();
-            ImGui.Text(Localize("NoClasses", "Character does not have any classes created"));
+            ImGui.Text(GeneralLoc.EditCharacterWindow_text_noJobs);
         }
 
         ImGui.Separator();
@@ -307,13 +308,14 @@ internal class EditCharacterWindow : EditWindow<Character>
         foreach (PlayableClass c in DataCopy.Classes)
         {
             ImGui.PushID(c.Job.ToString());
-            if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"delete", $"Delete all data for {c.Job}"))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "delete",
+                                   string.Format(GeneralLoc.EditCharacterWindow_button_deleteJob_tooltip, c.Job)))
                 toDelete = c.Job;
             ImGui.SameLine();
             ImGui.Text($"{c.Job}  ");
             ImGui.SameLine();
             ImGui.SetNextItemWidth(150f * ScaleFactor);
-            if (ImGui.InputInt($"{Localize("Level", "Level")}", ref c.Level))
+            if (ImGui.InputInt(GeneralLoc.Level, ref c.Level))
                 c.Level = Math.Clamp(c.Level, 1, Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxLevel);
             ImGui.SameLine();
             ImGui.Checkbox(Localize("EditCharacter:Job:Hide", "Do not show this job"), ref c.HideInUi);
@@ -321,13 +323,13 @@ internal class EditCharacterWindow : EditWindow<Character>
             ImGui.PopID();
         }
         if (toDelete is not null) DataCopy.RemoveClass(toDelete.Value);
-        if (ImGuiHelper.SearchableCombo(Localize("Add Job", "Add Job"), out Job job, _newJob.ToString(),
-                Enum.GetValues<Job>(), j => j.ToString(),
-                (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
-                (j) => DataCopy.Classes.All(y => y.Job != j)))
+        if (ImGuiHelper.SearchableCombo(GeneralLoc.EditCharacterWindow_input_AddJob, out Job job, _newJob.ToString(),
+                                        Enum.GetValues<Job>(), j => j.ToString(),
+                                        (j, s) => j.ToString().Contains(s, StringComparison.CurrentCultureIgnoreCase),
+                                        j => DataCopy.Classes.All(y => y.Job != j)))
             _newJob = job;
         ImGui.SameLine();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", "Add job"))
+        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddJob", GeneralLoc.EditCharacterWindow_button_addJob_tooltip))
         {
             PlayableClass? newClass = DataCopy[_newJob];
             if (newClass == null)
@@ -383,7 +385,6 @@ internal class EditCharacterWindow : EditWindow<Character>
         if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.CharDb.TryAdd(destination);
         ServiceManager.HrtDataManager.Save();
     }
-
 }
 
 internal class EditGearSetWindow : EditWindow<GearSet>
@@ -391,11 +392,11 @@ internal class EditGearSetWindow : EditWindow<GearSet>
     private readonly Job _job;
     private string _etroIdInput = "";
     internal EditGearSetWindow(GearSet original, Job? job = null, Action<GearSet>? onSave = null,
-        Action<GearSet>? onCancel = null) :
+                               Action<GearSet>? onCancel = null) :
         base(original, onSave, onCancel)
     {
         _job = job ?? original[GearSetSlot.MainHand].Jobs.First();
-        Title = $"{Localize("GearsetEdit:Title", "Edit gear set")}: {original.Name}";
+        Title = string.Format(GeneralLoc.EditGearSetWindow_Title, original.Name);
         MinSize = new Vector2(550, 300);
     }
 
@@ -405,9 +406,8 @@ internal class EditGearSetWindow : EditWindow<GearSet>
     {
         bool isFromEtro = DataCopy.ManagedBy == GearSetManager.Etro;
         ImGui.SameLine();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "deleteSet",
-                Localize("GearsetEdit:Delete", "Remove set from this character (Hold Shift)"),
-                ImGui.IsKeyDown(ImGuiKey.ModShift), new Vector2(50, 25)))
+        if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "deleteSet", GeneralLoc.GearsetEdit_Delete,
+                               ImGui.IsKeyDown(ImGuiKey.ModShift), new Vector2(50, 25)))
         {
             GearSet newSet = new();
             if (ServiceManager.HrtDataManager.GearDb.TryAdd(newSet))
@@ -418,7 +418,7 @@ internal class EditGearSetWindow : EditWindow<GearSet>
             }
         }
         //Other infos
-        ImGui.Text(Localize("GearSetEdit:UseSetFromEtro", "Replace with set from etro:"));
+        ImGui.Text(GeneralLoc.EditGearSetWindow_text_getEtro);
         foreach ((string etroId, string name) in ServiceManager.ConnectorPool.EtroConnector.GetBiS(_job))
         {
             ImGui.SameLine();
@@ -439,8 +439,8 @@ internal class EditGearSetWindow : EditWindow<GearSet>
         }
         const string customEtroPopupId = "customEtroPopupID";
         ImGui.SameLine();
-        if (ImGuiHelper.Button(Localize("GearSetEdit:Button:CustomEtro", "Custom"),
-                Localize("GearSetEdit:Button:CustomEtro:tooltip", "Provide custom id")))
+        if (ImGuiHelper.Button(GeneralLoc.EditGearSetWindow_button_CustomEtro,
+                               GeneralLoc.EditGearSetWindow_button_CustomEtro_tooltip))
         {
             _etroIdInput = "";
             ImGui.OpenPopup(customEtroPopupId);
@@ -449,8 +449,8 @@ internal class EditGearSetWindow : EditWindow<GearSet>
         if (ImGui.BeginPopupContextItem(customEtroPopupId))
         {
             ImGui.InputText("CustomEtroID", ref _etroIdInput, 200);
-            if (ImGuiHelper.Button(Localize("GearSetEdit:Button:CustomEtro:Get", "Get"),
-                    Localize("GearSetEdit:Button:CustomEtro:Get:Tooltip", "Download set")))
+            if (ImGuiHelper.Button(GeneralLoc.EditGearSetWindow_cutsomEtro_button_Get,
+                                   GeneralLoc.EditGearSetWindow_cutsomEtro_button_Get_tooltip))
             {
                 if (_etroIdInput.StartsWith(EtroConnector.GEARSET_WEB_BASE_URL))
                     _etroIdInput = _etroIdInput[EtroConnector.GEARSET_WEB_BASE_URL.Length..];
@@ -472,13 +472,9 @@ internal class EditGearSetWindow : EditWindow<GearSet>
 
         if (isFromEtro)
         {
-            ImGui.Text($"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:Etro", "etro.gg")}");
+            ImGui.Text($"{GeneralLoc.GearSetEditWindow_Source}: {GearSetManager.Etro.FriendlyName()}");
             ImGui.SameLine();
-            if (ImGuiHelper.Button(Localize("GearSetEdit:MakeLocal", "Create local copy"),
-                    Localize("GearSetEdit:MakeLocal:tooltip",
-                        "Create a copy of this set in the local database. Set will not be updated from etro.gg afterwards\n"
-                        +
-                        "Only local Gear Sets can be edited")))
+            if (ImGuiHelper.Button(GeneralLoc.GearSetEdit_MakeLocal, GeneralLoc.GearSetEdit_MakeLocal_tooltip))
             {
                 GearSet newSet = DataCopy.Clone();
                 newSet.LocalId = HrtId.Empty;
@@ -489,7 +485,7 @@ internal class EditGearSetWindow : EditWindow<GearSet>
                 ReplaceOriginal(newSet);
             }
 
-            ImGui.Text($"{Localize("Etro ID", "Etro ID")}: {DataCopy.EtroId}");
+            ImGui.Text($"{GeneralLoc.Etro_ID}: {DataCopy.EtroId}");
             ImGui.SameLine();
             if (ImGuiHelper.Button(Localize("GearSetEdit:button:openEtro", "Open set on etro.gg"), null))
             {
@@ -504,8 +500,8 @@ internal class EditGearSetWindow : EditWindow<GearSet>
                 $"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:HrtLocal", "Local Database")}");
             if (DataCopy.IsSystemManaged)
                 ImGui.TextColored(Colors.TextRed,
-                    Localize("GearSetEdit:SystemManagedWarning",
-                        "This set is manged by the plugin and will be automatically overwritten with characters current gear!"));
+                                  Localize("GearSetEdit:SystemManagedWarning",
+                                           "This set is manged by the plugin and will be automatically overwritten with characters current gear!"));
         }
 
         ImGui.Text($"{Localize("GearSetEdit:LastChanged", "Last Change")}: {DataCopy.TimeStamp}");
@@ -566,17 +562,17 @@ internal class EditGearSetWindow : EditWindow<GearSet>
 internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
 {
     // ReSharper disable once StaticMemberInGenericType
-    protected static readonly Lumina.Excel.ExcelSheet<Item> Sheet = ServiceManager.DataManager.GetExcelSheet<Item>()!;
-    protected T? Item = null;
-    private readonly Action<T> _onSave;
+    protected static readonly ExcelSheet<Item> Sheet = ServiceManager.DataManager.GetExcelSheet<Item>()!;
     private readonly Action<T?> _onCancel;
-    protected virtual bool CanSave { get; set; } = true;
+    private readonly Action<T> _onSave;
+    protected T? Item;
 
     internal SelectItemWindow(Action<T> onSave, Action<T?> onCancel)
     {
         (_onSave, _onCancel) = (onSave, onCancel);
         Flags = ImGuiWindowFlags.NoCollapse;
     }
+    protected virtual bool CanSave { get; set; } = true;
 
 
     public override void Draw()
@@ -612,17 +608,17 @@ internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
 
 internal class SelectGearItemWindow : SelectItemWindow<GearItem>
 {
-    private readonly bool _lockSlot = false;
-    private IEnumerable<GearSetSlot> _slots;
-    private readonly bool _lockJob = false;
-    private Job? _job;
-    private uint _minILvl;
-    private uint _maxILvl;
+    private readonly bool _lockJob;
+    private readonly bool _lockSlot;
     private List<Item> _items;
-    protected override bool CanSave => false;
+    private Job? _job;
+    private uint _maxILvl;
+    private uint _minILvl;
+    private IEnumerable<GearSetSlot> _slots;
 
     public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? curentItem = null,
-        GearSetSlot? slot = null, Job? job = null, uint maxItemLevel = 0) : base(onSave, onCancel)
+                                GearSetSlot? slot = null, Job? job = null, uint maxItemLevel = 0) : base(
+        onSave, onCancel)
     {
         Item = curentItem;
         if (slot.HasValue)
@@ -643,6 +639,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         _minILvl = _maxILvl > 30 ? _maxILvl - 30 : 0;
         _items = ReevaluateItems();
     }
+    protected override bool CanSave => false;
 
     protected override void DrawItemSelection()
     {
@@ -688,7 +685,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             if (isCurrentItem)
                 ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
             if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", Localize("Use this item", "Use this item"),
-                    true, new Vector2(32f, 32f)))
+                                   true, new Vector2(32f, 32f)))
             {
                 if (isCurrentItem)
                     Cancel();
@@ -716,12 +713,14 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
     private List<Item> ReevaluateItems()
     {
         _items = Sheet.Where(x =>
-            x.ClassJobCategory.Row != 0
-            && (!_slots.Any() ||
-                _slots.Any(slot => slot == GearSetSlot.None || x.EquipSlotCategory.Value.Contains(slot)))
-            && (_maxILvl == 0 || x.LevelItem.Row <= _maxILvl)
-            && x.LevelItem.Row >= _minILvl
-            && (_job.GetValueOrDefault(0) == 0 || x.ClassJobCategory.Value.Contains(_job.GetValueOrDefault()))
+                                 x.ClassJobCategory.Row != 0
+                              && (!_slots.Any() ||
+                                  _slots.Any(slot => slot == GearSetSlot.None
+                                                  || x.EquipSlotCategory.Value.Contains(slot)))
+                              && (_maxILvl == 0 || x.LevelItem.Row <= _maxILvl)
+                              && x.LevelItem.Row >= _minILvl
+                              && (_job.GetValueOrDefault(0) == 0
+                               || x.ClassJobCategory.Value.Contains(_job.GetValueOrDefault()))
         ).Take(50).ToList();
         _items.Sort((x, y) => (int)y.LevelItem.Row - (int)x.LevelItem.Row);
         return _items;
@@ -731,6 +730,8 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
 internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
 {
     private static readonly Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>> _allMateria;
+
+    private readonly MateriaLevel _maxLvl;
 
     static SelectMateriaWindow()
     {
@@ -746,17 +747,15 @@ internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
         }
     }
 
-    private readonly MateriaLevel _maxLvl;
-    protected override bool CanSave => false;
-
     public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, MateriaLevel maxMatLvl,
-        MateriaLevel? matLevel = null) : base(onSave, onCancel)
+                               MateriaLevel? matLevel = null) : base(onSave, onCancel)
     {
         _maxLvl = matLevel ?? maxMatLvl;
         Title = Localize("Select Materia", "Select Materia");
         string longestName = Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "";
         Size = new Vector2(ImGui.CalcTextSize(longestName).X + 200f, 120f);
     }
+    protected override bool CanSave => false;
 
     protected override void DrawItemSelection()
     {
