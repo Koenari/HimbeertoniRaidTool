@@ -41,12 +41,11 @@ internal class CoreModule : IHrtModule
                 "/option",
                 "/config",
             },
-            Description = Localize("command:hrt:options", "Shows the Configuration window"),
+            Description = CoreLocalization.command_hrt_options,
         },
         new("/welcome", _wcw.Show)
         {
-            Description = Localize("command:hrt:welcome",
-                                   "Open Welcome Window with explanations on how to use"),
+            Description = CoreLocalization.command_hrt_welcome,
         },
         new("/help", PrintUsage)
         {
@@ -113,8 +112,7 @@ internal class CoreModule : IHrtModule
         SeStringBuilder stringBuilder = new SeStringBuilder()
                                         .AddUiForeground("[Himbeertoni Raid Tool]", 45)
                                         .AddUiForeground("[Help]", 62)
-                                        .AddText(Localize("hrt:usage:heading",
-                                                          " Commands used for Himbeertoni Raid Tool:"))
+                                        .AddText(CoreLocalization.usage_heading)
                                         .Add(new NewLinePayload());
         foreach (HrtCommand c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
         {

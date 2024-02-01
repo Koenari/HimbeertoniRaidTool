@@ -267,9 +267,6 @@
     <data name="Cancel">
         <value>キャンセル</value>
     </data>
-    <data name="Close">
-        <value>閉じる</value>
-    </data>
     <data name="Inspect">
         <value>装備品の検証を更新</value>
     </data>
@@ -466,18 +463,6 @@
     </data>
     <data name="General">
         <value>全般</value>
-    </data>
-    <data name="hrt:usage:heading">
-        <value>Commands used for Himbeertoni Raid Tool:</value>
-    </data>
-    <data name="Open Wiki">
-        <value>Wikiを開く</value>
-    </data>
-    <data name="Open the wiki in your browser">
-        <value>Wikiをブラウザで開きますか?</value>
-    </data>
-    <data name="Close this window">
-        <value>このウィンドウを閉じる</value>
     </data>
     <data name="LodestoneConnector:CharNotFound">
         <value>Lodestoneにキャラクターが見つかりません。</value>

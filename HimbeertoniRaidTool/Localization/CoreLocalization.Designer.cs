@@ -60,6 +60,186 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to BiS.
+        /// </summary>
+        internal static string ChangelogCategory_BiS {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_BiS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bugfix.
+        /// </summary>
+        internal static string ChangelogCategory_Bugfix {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_Bugfix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configuration.
+        /// </summary>
+        internal static string ChangelogCategory_Configuration {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_Configuration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gear.
+        /// </summary>
+        internal static string ChangelogCategory_Gear {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_Gear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to General.
+        /// </summary>
+        internal static string ChangelogCategory_General {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_General", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Localization.
+        /// </summary>
+        internal static string ChangelogCategory_Localization {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_Localization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loot Master.
+        /// </summary>
+        internal static string ChangelogCategory_LootMaster {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_LootMaster", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loot Session.
+        /// </summary>
+        internal static string ChangelogCategory_LootSession {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_LootSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Feature.
+        /// </summary>
+        internal static string ChangelogCategory_NewFeature {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_NewFeature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Performance.
+        /// </summary>
+        internal static string ChangelogCategory_Performance {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_Performance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to System.
+        /// </summary>
+        internal static string ChangelogCategory_System {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_System", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User Interface.
+        /// </summary>
+        internal static string ChangelogCategory_UserInterface {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_UserInterface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show me all changes.
+        /// </summary>
+        internal static string ChangelogOption_LocalizedDescription_ShowAll {
+            get {
+                return ResourceManager.GetString("ChangelogOption_LocalizedDescription_ShowAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do NOT show changes.
+        /// </summary>
+        internal static string ChangelogOption_LocalizedDescription_ShowNone {
+            get {
+                return ResourceManager.GetString("ChangelogOption_LocalizedDescription_ShowNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show me notable changes.
+        /// </summary>
+        internal static string ChangelogOption_LocalizedDescription_ShowNotable {
+            get {
+                return ResourceManager.GetString("ChangelogOption_LocalizedDescription_ShowNotable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yeah, I read it!.
+        /// </summary>
+        internal static string ChangeLogUi_button_read {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_button_read", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Known Issues.
+        /// </summary>
+        internal static string ChangeLogUi_heading_KnownIssues {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_heading_KnownIssues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0}.
+        /// </summary>
+        internal static string ChangeLogUi_heading_version {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_heading_version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fixes issue #{0}.
+        /// </summary>
+        internal static string ChangeLogUi_text_issueLink {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_text_issueLink", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open on GitHub.
+        /// </summary>
+        internal static string ChangeLogUi_text_issueLink_tooltip {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_text_issueLink_tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Show help.
         /// </summary>
         internal static string Command_hrt {
@@ -101,6 +281,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string Config_Appearance {
             get {
                 return ResourceManager.GetString("Config_Appearance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error upgrading Core configuration from version {0}.
+        /// </summary>
+        internal static string Config_UpgradeError {
+            get {
+                return ResourceManager.GetString("Config_UpgradeError", resourceCulture);
             }
         }
         
@@ -323,6 +512,33 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Commands used for Himbeertoni Raid Tool:.
+        /// </summary>
+        internal static string usage_heading {
+            get {
+                return ResourceManager.GetString("usage:heading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        internal static string WelcomeWindow_button_Close {
+            get {
+                return ResourceManager.GetString("WelcomeWindow_button_Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close this window.
+        /// </summary>
+        internal static string WelcomeWindow_button_Close_tooltip {
+            get {
+                return ResourceManager.GetString("WelcomeWindow_button_Close_tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open LootMaster.
         /// </summary>
         internal static string WelcomeWindow_button_OpenLootMaster {
@@ -355,6 +571,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string WelcomeWindow_button_OpenOptions_tooltip {
             get {
                 return ResourceManager.GetString("WelcomeWindow_button_OpenOptions_tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Wiki.
+        /// </summary>
+        internal static string WelcomeWindow_button_openWiki {
+            get {
+                return ResourceManager.GetString("WelcomeWindow_button_openWiki", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open the wiki in your browser.
+        /// </summary>
+        internal static string WelcomeWindow_button_openWiki_tooltip {
+            get {
+                return ResourceManager.GetString("WelcomeWindow_button_openWiki_tooltip", resourceCulture);
             }
         }
         

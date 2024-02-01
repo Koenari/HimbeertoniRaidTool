@@ -3,7 +3,6 @@ using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 
@@ -38,16 +37,16 @@ internal class WelcomeWindow : HrtWindow
                                CoreLocalization.WelcomeWindow_button_OpenOptions_tooltip))
         {
             _coreModule.OnCommand("/hrt", "config");
-
         }
         ImGui.SameLine();
-        if (ImGuiHelper.Button(Localize("Open Wiki", "Open Wiki"),
-                               Localize("Open the wiki in your browser", "Open the wiki in your browser")))
+        if (ImGuiHelper.Button(CoreLocalization.WelcomeWindow_button_openWiki,
+                               CoreLocalization.WelcomeWindow_button_openWiki_tooltip))
         {
             Util.OpenLink(WIKI_URL);
         }
         ImGui.SameLine();
-        if (ImGuiHelper.Button(Localize("Close", "Close"), Localize("Close this window", "Close this window")))
+        if (ImGuiHelper.Button(CoreLocalization.WelcomeWindow_button_Close,
+                               CoreLocalization.WelcomeWindow_button_Close_tooltip))
             Hide();
     }
 }

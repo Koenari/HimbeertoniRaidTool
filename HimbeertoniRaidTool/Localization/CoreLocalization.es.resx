@@ -105,4 +105,19 @@
     <data name="WelcomeWindow_button_OpenOptions_tooltip">
         <value>Mostrar opciones de configuración (/hrt config)</value>
     </data>
+    <data name="usage:heading">
+        <value>Commands used for Himbeertoni Raid Tool:</value>
+    </data>
+    <data name="WelcomeWindow_button_openWiki">
+        <value>Abrir Wiki</value>
+    </data>
+    <data name="WelcomeWindow_button_openWiki_tooltip">
+        <value>Abrir este enlace en el navegador</value>
+    </data>
+    <data name="WelcomeWindow_button_Close">
+        <value>Cerrar</value>
+    </data>
+    <data name="WelcomeWindow_button_Close_tooltip">
+        <value>Cerrar esta ventana</value>
+    </data>
 </root>

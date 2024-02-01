@@ -243,4 +243,82 @@
     <data name="WelcomeWindow_button_OpenOptions_tooltip">
         <value>Show configuration options (/hrt config)</value>
     </data>
+    <data name="usage:heading">
+        <value>Commands used for Himbeertoni Raid Tool:</value>
+    </data>
+    <data name="WelcomeWindow_button_openWiki">
+        <value>Open Wiki</value>
+    </data>
+    <data name="WelcomeWindow_button_openWiki_tooltip">
+        <value>Open the wiki in your browser</value>
+    </data>
+    <data name="WelcomeWindow_button_Close">
+        <value>Close</value>
+    </data>
+    <data name="WelcomeWindow_button_Close_tooltip">
+        <value>Close this window</value>
+    </data>
+    <data name="Config_UpgradeError" xml:space="preserve">
+        <value>Error upgrading Core configuration from version {0}</value>
+    </data>
+    <data name="ChangeLogUi_button_read" xml:space="preserve">
+        <value>Yeah, I read it!</value>
+    </data>
+    <data name="ChangelogCategory_General" xml:space="preserve">
+        <value>General</value>
+    </data>
+    <data name="ChangeLogUi_text_issueLink" xml:space="preserve">
+        <value>Fixes issue #{0}</value>
+    </data>
+    <data name="ChangeLogUi_text_issueLink_tooltip" xml:space="preserve">
+        <value>Open on GitHub</value>
+    </data>
+    <data name="ChangeLogUi_heading_KnownIssues" xml:space="preserve">
+        <value>Known Issues</value>
+    </data>
+    <data name="ChangeLogUi_heading_version" xml:space="preserve">
+        <value>Version {0}</value>
+    </data>
+    <data name="ChangelogCategory_NewFeature" xml:space="preserve">
+        <value>New Feature</value>
+    </data>
+    <data name="ChangelogCategory_Bugfix" xml:space="preserve">
+        <value>Bugfix</value>
+    </data>
+    <data name="ChangelogCategory_Configuration" xml:space="preserve">
+        <value>Configuration</value>
+    </data>
+    <data name="ChangelogCategory_UserInterface" xml:space="preserve">
+        <value>User Interface</value>
+    </data>
+    <data name="ChangelogCategory_LootMaster" xml:space="preserve">
+        <value>Loot Master</value>
+    </data>
+    <data name="ChangelogCategory_LootSession" xml:space="preserve">
+        <value>Loot Session</value>
+    </data>
+    <data name="ChangelogCategory_BiS" xml:space="preserve">
+        <value>BiS</value>
+    </data>
+    <data name="ChangelogCategory_System" xml:space="preserve">
+        <value>System</value>
+    </data>
+    <data name="ChangelogCategory_Localization" xml:space="preserve">
+        <value>Localization</value>
+    </data>
+    <data name="ChangelogCategory_Performance" xml:space="preserve">
+        <value>Performance</value>
+    </data>
+    <data name="ChangelogCategory_Gear" xml:space="preserve">
+        <value>Gear</value>
+    </data>
+    <data name="ChangelogOption_LocalizedDescription_ShowNone" xml:space="preserve">
+        <value>Do NOT show changes</value>
+    </data>
+    <data name="ChangelogOption_LocalizedDescription_ShowNotable" xml:space="preserve">
+        <value>Show me notable changes</value>
+    </data>
+    <data name="ChangelogOption_LocalizedDescription_ShowAll" xml:space="preserve">
+        <value>Show me all changes</value>
+    </data>
 </root>

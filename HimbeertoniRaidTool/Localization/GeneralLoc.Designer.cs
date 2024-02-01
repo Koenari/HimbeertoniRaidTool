@@ -123,6 +123,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Previous changelogs.
+        /// </summary>
+        internal static string ChangeLogUi_heading_seen {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_heading_seen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Himbeertoni Raid Tool Changelog.
+        /// </summary>
+        internal static string ChangeLogUi_Title {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Character Data.
         /// </summary>
         internal static string Character_Data {
@@ -150,29 +168,22 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Close.
-        /// </summary>
-        internal static string Close {
-            get {
-                return ResourceManager.GetString("Close", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Close this window.
-        /// </summary>
-        internal static string Close_this_window {
-            get {
-                return ResourceManager.GetString("Close this window", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Shows the changelog.
         /// </summary>
         internal static string command_hrt_changelog {
             get {
                 return ResourceManager.GetString("command_hrt_changelog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tried loading a configuration from a newer version of the plugin
+        ///To prevent data loss operation has been stopped.
+        ///You need to update to use this plugin!.
+        /// </summary>
+        internal static string Config_Error_Downgrade {
+            get {
+                return ResourceManager.GetString("Config_Error_Downgrade", resourceCulture);
             }
         }
         
@@ -758,15 +769,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Commands used for Himbeertoni Raid Tool:.
-        /// </summary>
-        internal static string hrt_usage_heading {
-            get {
-                return ResourceManager.GetString("hrt:usage:heading", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to iLvl.
         /// </summary>
         internal static string iLvl {
@@ -1053,24 +1055,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string OK {
             get {
                 return ResourceManager.GetString("OK", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open the wiki in your browser.
-        /// </summary>
-        internal static string Open_the_wiki_in_your_browser {
-            get {
-                return ResourceManager.GetString("Open the wiki in your browser", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open Wiki.
-        /// </summary>
-        internal static string Open_Wiki {
-            get {
-                return ResourceManager.GetString("Open Wiki", resourceCulture);
             }
         }
         
@@ -1415,6 +1399,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string undefined {
             get {
                 return ResourceManager.GetString("undefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        internal static string Unknown {
+            get {
+                return ResourceManager.GetString("Unknown", resourceCulture);
             }
         }
         

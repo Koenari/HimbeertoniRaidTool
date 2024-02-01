@@ -267,9 +267,6 @@
     <data name="Cancel">
         <value>Cancel</value>
     </data>
-    <data name="Close">
-        <value>Close</value>
-    </data>
     <data name="Inspect">
         <value>Update Gear by Examining</value>
     </data>
@@ -467,18 +464,6 @@
     <data name="General">
         <value>General</value>
     </data>
-    <data name="hrt:usage:heading">
-        <value>Commands used for Himbeertoni Raid Tool:</value>
-    </data>
-    <data name="Open Wiki">
-        <value>Open Wiki</value>
-    </data>
-    <data name="Open the wiki in your browser">
-        <value>Open the wiki in your browser</value>
-    </data>
-    <data name="Close this window">
-        <value>Close this window</value>
-    </data>
     <data name="LodestoneConnector:CharNotFound">
         <value>Character not found on Lodestone.</value>
     </data>
@@ -600,5 +585,19 @@
     </data>
     <data name="command_hrt_changelog" xml:space="preserve">
         <value>Shows the changelog</value>
+    </data>
+    <data name="Config_Error_Downgrade" xml:space="preserve">
+        <value>Tried loading a configuration from a newer version of the plugin
+To prevent data loss operation has been stopped.
+You need to update to use this plugin!</value>
+    </data>
+    <data name="ChangeLogUi_Title" xml:space="preserve">
+        <value>Himbeertoni Raid Tool Changelog</value>
+    </data>
+    <data name="ChangeLogUi_heading_seen" xml:space="preserve">
+        <value>Previous changelogs</value>
+    </data>
+    <data name="Unknown" xml:space="preserve">
+        <value>Unknown</value>
     </data>
 </root>

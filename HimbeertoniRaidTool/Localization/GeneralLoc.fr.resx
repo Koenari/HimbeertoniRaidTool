@@ -267,9 +267,6 @@
     <data name="Cancel">
         <value>Annuler</value>
     </data>
-    <data name="Close">
-        <value>Fermer</value>
-    </data>
     <data name="Inspect">
         <value>Mettre à jour l'équipement en examinant</value>
     </data>
@@ -466,18 +463,6 @@
     </data>
     <data name="General">
         <value>Général</value>
-    </data>
-    <data name="hrt:usage:heading">
-        <value>Commands used for Himbeertoni Raid Tool:</value>
-    </data>
-    <data name="Open Wiki">
-        <value>Ouvrir le Wiki</value>
-    </data>
-    <data name="Open the wiki in your browser">
-        <value>Ouvre le Wiki dans votre navigateur</value>
-    </data>
-    <data name="Close this window">
-        <value>Fermer cette fenêtre</value>
     </data>
     <data name="LodestoneConnector:CharNotFound">
         <value>Personnage introuvable sur Lodestone.</value>

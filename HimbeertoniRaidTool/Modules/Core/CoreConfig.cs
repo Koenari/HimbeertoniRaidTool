@@ -26,8 +26,7 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
     {
         if (Data.Version > TARGET_VERSION)
         {
-            const string msg = "Tried loading a configuration from a newer version of the plugin." +
-                               "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
+            string msg = GeneralLoc.Config_Error_Downgrade;
             ServiceManager.PluginLog.Fatal(msg);
             ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
@@ -47,7 +46,7 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
             DoUpgradeStep();
             if (Data.Version > oldVersion)
                 continue;
-            string msg = $"Error upgrading Lootmaster configuration from version {oldVersion}";
+            string msg = string.Format(CoreLocalization.Config_UpgradeError, oldVersion);
             ServiceManager.PluginLog.Fatal(msg);
             ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new InvalidOperationException(msg);

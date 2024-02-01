@@ -35,11 +35,11 @@ public sealed class HrtPlugin : IDalamudPlugin
         //Init Configuration    
         ServiceManager.Config = _configuration =
             ServiceManager.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        _coreModule = new CoreModule();
         if (!_loadError)
         {
             //Load and update/correct configuration + ConfigUi
             _configuration.AfterLoad();
-            _coreModule = new CoreModule();
             LoadAllModules(_coreModule);
         }
         else

@@ -42,7 +42,9 @@
         </value>
     </data>
     <data name="WelcomeWindowLine3">
-        <value>次に、虫眼鏡アイコンを使用するか、右クリックでキャラクターを調べることで、現在の装備品を取得できます。</value>
+        <value>
+            次に、虫眼鏡アイコンを使用するか、右クリックでキャラクターを調べることで、現在の装備品を取得できます。
+        </value>
     </data>
     <data name="WelcomeWindowLine5">
         <value>この機能を実際に使用するには、Soloタブの右側にある「+ボタン」を使ってグループを追加する必要があります。これには2つの選択肢があります。
@@ -51,7 +53,9 @@
         </value>
     </data>
     <data name="WelcomeWindowLine4">
-        <value>ゲーム内のキャラクターを調べるときに、GroupやSoloのタブに追加されたキャラクターの装備品を常に更新します。</value>
+        <value>
+            ゲーム内のキャラクターを調べるときに、GroupやSoloのタブに追加されたキャラクターの装備品を常に更新します。
+        </value>
     </data>
     <data name="WelcomeWindowLine6">
         <value>もし、起動時に戦利品マスタを開くようにしたい場合は、オプションをざっと見てみることをお勧めします。より詳しい説明はwikiを参照してください
@@ -102,5 +106,20 @@
     </data>
     <data name="WelcomeWindow_button_OpenOptions_tooltip">
         <value>設定オプションを表示 (/hrt config)</value>
+    </data>
+    <data name="usage:heading">
+        <value>Commands used for Himbeertoni Raid Tool:</value>
+    </data>
+    <data name="WelcomeWindow_button_openWiki">
+        <value>Wikiを開く</value>
+    </data>
+    <data name="WelcomeWindow_button_openWiki_tooltip">
+        <value>Wikiをブラウザで開きますか?</value>
+    </data>
+    <data name="WelcomeWindow_button_Close">
+        <value>閉じる</value>
+    </data>
+    <data name="WelcomeWindow_button_Close_tooltip">
+        <value>このウィンドウを閉じる</value>
     </data>
 </root>
