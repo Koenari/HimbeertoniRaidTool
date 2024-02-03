@@ -7,7 +7,6 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 using ServiceManager = HimbeertoniRaidTool.Plugin.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
@@ -71,27 +70,24 @@ public class LootRule : IEquatable<LootRule>, IDrawable
     private string IgnoreTooltip =>
         Rule switch
         {
-            LootRuleEnum.BisOverUpgrade => Localize("loot_rule:ignore:tooltip:bis",
-                                                    "Ignore players/jobs not using this in BiS "),
-            LootRuleEnum.CanUse => Localize("loot_rule:ignore:tooltip:can_use", "Ignore players/jobs not able to use"),
-            LootRuleEnum.CanBuy => Localize("loot_rule:ignore:tooltip:can_buy",
-                                            "Ignore players/jobs that could buy these"),
-            LootRuleEnum.NeedGreed => Localize("loot_rule:ignore:tooltip:need_greed",
-                                               "Ignore players that have no need"),
-            _ => "",
+            LootRuleEnum.BisOverUpgrade => LootmasterLoc.loot_rule_ignore_tooltip_bis,
+            LootRuleEnum.CanUse         => LootmasterLoc.loot_rule_ignore_tooltip_can_use,
+            LootRuleEnum.CanBuy         => LootmasterLoc.loot_rule_ignore_tooltip_can_buy,
+            LootRuleEnum.NeedGreed      => LootmasterLoc.loot_rule_ignore_tooltip_need_greed,
+            _                           => "",
         };
 
     public void Draw()
     {
         ImGui.Checkbox("##active", ref Active);
-        ImGuiHelper.AddTooltip(Localize("ui:loot_rule:active:tooltip", "Activated"));
+        ImGuiHelper.AddTooltip(LootmasterLoc.ui_loot_rule_active_tooltip);
         ImGui.SameLine();
         ImGui.BeginDisabled(!Active);
         ImGui.Text(Name);
         if (CanIgnore)
         {
             ImGui.SameLine();
-            ImGui.Checkbox($"{Localize("ui:loot_rule:ignore", "Ignore")}##ignore", ref IgnorePlayers);
+            ImGui.Checkbox($"{LootmasterLoc.ui_loot_rule_ignore}##ignore", ref IgnorePlayers);
             ImGuiHelper.AddTooltip(IgnoreTooltip);
         }
         ImGui.EndDisabled();
@@ -126,28 +122,28 @@ public class LootRule : IEquatable<LootRule>, IDrawable
         LootRuleEnum.Random               => (x.Roll(), null),
         LootRuleEnum.LowestItemLevel      => (-x.ItemLevel(), x.ItemLevel().ToString()),
         LootRuleEnum.HighestItemLevelGain => (x.ItemLevelGain(), null),
-        LootRuleEnum.BisOverUpgrade       => x.IsBiS() ? (1, "y") : (-1, "n"),
+        LootRuleEnum.BisOverUpgrade       => x.IsBiS() ? (1, GeneralLoc.Yes_Abbrev) : (-1, GeneralLoc.No_Abbrev),
         LootRuleEnum.RolePrio             => (x.RolePriority(), x.ApplicableJob.Role.ToString()),
         LootRuleEnum.DpsGain              => (x.DpsGain(), $"{x.DpsGain() * 100:f1} %%"),
-        LootRuleEnum.CanUse               => x.CanUse() ? (1, "y") : (-1, "n"),
-        LootRuleEnum.CanBuy               => x.CanBuy() ? (-1, "y") : (1, "n"),
-        _                                 => (0, "none"),
+        LootRuleEnum.CanUse               => x.CanUse() ? (1, GeneralLoc.Yes_Abbrev) : (-1, GeneralLoc.No_Abbrev),
+        LootRuleEnum.CanBuy               => x.CanBuy() ? (-1, GeneralLoc.Yes_Abbrev) : (1, GeneralLoc.No_Abbrev),
+        _                                 => (0, GeneralLoc.None),
     };
     public override string ToString() => Name;
     private string GetName() => Rule switch
     {
-        LootRuleEnum.BisOverUpgrade       => Localize("BISOverUpgrade", "BIS > Upgrade"),
-        LootRuleEnum.LowestItemLevel      => Localize("LowestItemLevel", "Lowest overall ItemLevel"),
-        LootRuleEnum.HighestItemLevelGain => Localize("HighestItemLevelGain", "Highest ItemLevel Gain"),
-        LootRuleEnum.RolePrio             => Localize("ByRole", "Prioritize by role"),
-        LootRuleEnum.Random               => Localize("Rolling", "Rolling"),
-        LootRuleEnum.DpsGain              => Localize("DPSGain", "% DPS gained"),
-        LootRuleEnum.CanUse               => Localize("LootRule:CanUse", "Can use now"),
-        LootRuleEnum.CanBuy               => Localize("LootRule:CanBuy", "Can buy"),
-        LootRuleEnum.None                 => Localize(GeneralLoc.None, GeneralLoc.None),
-        LootRuleEnum.Greed                => Localize("Greed", "Greed"),
-        LootRuleEnum.NeedGreed            => Localize("Need over Greed", "Need over Greed"),
-        _                                 => Localize("Not defined", "Not defined"),
+        LootRuleEnum.BisOverUpgrade       => LootmasterLoc.LootRule_BISOverUpgrade,
+        LootRuleEnum.LowestItemLevel      => LootmasterLoc.LootRule_LowestItemLevel,
+        LootRuleEnum.HighestItemLevelGain => LootmasterLoc.LootRule_HighestItemLevelGain,
+        LootRuleEnum.RolePrio             => LootmasterLoc.LootRule_ByRole,
+        LootRuleEnum.Random               => LootmasterLoc.LootRule_Rolling,
+        LootRuleEnum.DpsGain              => LootmasterLoc.LootRule_DPSGain,
+        LootRuleEnum.CanUse               => LootmasterLoc.LootRule_CanUse,
+        LootRuleEnum.CanBuy               => LootmasterLoc.LootRule_CanBuy,
+        LootRuleEnum.None                 => GeneralLoc.None,
+        LootRuleEnum.Greed                => LootmasterLoc.LootRule_Greed,
+        LootRuleEnum.NeedGreed            => LootmasterLoc.LootRule_Need,
+        _                                 => GeneralLoc.undefined,
     };
 
     public override int GetHashCode() => Rule.GetHashCode();
@@ -225,28 +221,28 @@ public static class LootRulesExtension
                                                                            shopEntry =>
                                                                            {
                                                                                for (int i = 0;
-                                                                                i < SpecialShop.NUM_COST;
-                                                                                i++)
+                                                                                    i < SpecialShop.NUM_COST;
+                                                                                    i++)
                                                                                {
                                                                                    SpecialShop.ItemCostEntry cost =
                                                                                        shopEntry.entry.ItemCostEntries[
                                                                                            i];
                                                                                    if (cost.Count == 0) continue;
                                                                                    if (ItemInfo.IsCurrency(
-                                                                                       cost.Item.Row)) continue;
+                                                                                            cost.Item.Row)) continue;
                                                                                    if (ItemInfo.IsTomeStone(
-                                                                                       cost.Item.Row)) continue;
+                                                                                            cost.Item.Row)) continue;
                                                                                    if (result.ApplicableJob.CurGear
-                                                                                    .Contains(
-                                                                                        new HrtItem(cost.Item.Row)))
+                                                                                        .Contains(
+                                                                                            new HrtItem(cost.Item.Row)))
                                                                                        continue;
                                                                                    if (result.Player.MainChar
-                                                                                        .MainInventory
-                                                                                        .ItemCount(cost.Item.Row)
-                                                                                  + (result.GuaranteedLoot.Any(
-                                                                                        loot => loot.Id
-                                                                                         == cost.Item.Row) ? 1 : 0)
-                                                                                 >= cost.Count) continue;
+                                                                                            .MainInventory
+                                                                                            .ItemCount(cost.Item.Row)
+                                                                                      + (result.GuaranteedLoot.Any(
+                                                                                            loot => loot.Id
+                                                                                             == cost.Item.Row) ? 1 : 0)
+                                                                                     >= cost.Count) continue;
                                                                                    return false;
                                                                                }
                                                                                return true;

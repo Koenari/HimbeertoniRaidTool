@@ -40,11 +40,11 @@ internal class CoreModule : IHrtModule
                 "/option",
                 "/config",
             },
-            Description = CoreLocalization.command_hrt_options,
+            Description = CoreLoc.command_hrt_options,
         },
         new("/welcome", _wcw.Show)
         {
-            Description = CoreLocalization.command_hrt_welcome,
+            Description = CoreLoc.command_hrt_welcome,
         },
         new("/help", PrintUsage)
         {
@@ -52,7 +52,7 @@ internal class CoreModule : IHrtModule
             {
                 "/usage",
             },
-            Description = CoreLocalization.command_hrt_help,
+            Description = CoreLoc.command_hrt_help,
         },
         new("/changelog", _changelog.ShowUi)
         {
@@ -69,7 +69,7 @@ internal class CoreModule : IHrtModule
         new()
         {
             Command = "/hrt",
-            Description = CoreLocalization.command_hrt_help,
+            Description = CoreLoc.command_hrt_help,
             ShowInHelp = true,
             OnCommand = OnCommand,
             ShouldExposeToDalamud = true,
@@ -111,7 +111,7 @@ internal class CoreModule : IHrtModule
         SeStringBuilder stringBuilder = new SeStringBuilder()
                                         .AddUiForeground("[Himbeertoni Raid Tool]", 45)
                                         .AddUiForeground("[Help]", 62)
-                                        .AddText(CoreLocalization.usage_heading)
+                                        .AddText(CoreLoc.usage_heading)
                                         .Add(new NewLinePayload());
         foreach (HrtCommand c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
         {
@@ -151,7 +151,7 @@ internal class CoreModule : IHrtModule
             UiReady?.Invoke();
     }
     public void Update() { }
-    public void OnLanguageChange(string langCode) => CoreLocalization.Culture = new CultureInfo(langCode);
+    public void OnLanguageChange(string langCode) => CoreLoc.Culture = new CultureInfo(langCode);
     public void Dispose()
     {
         _config.OnConfigChange -= UpdateGearDataProviderConfig;

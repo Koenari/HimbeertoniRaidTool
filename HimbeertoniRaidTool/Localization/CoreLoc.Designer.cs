@@ -21,14 +21,14 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class CoreLocalization {
+    internal class CoreLoc {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal CoreLocalization() {
+        internal CoreLoc() {
         }
         
         /// <summary>
@@ -38,7 +38,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HimbeertoniRaidTool.Plugin.Localization.CoreLocalization", typeof(CoreLocalization).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HimbeertoniRaidTool.Plugin.Localization.CoreLoc", typeof(CoreLoc).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -240,15 +240,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Show help.
-        /// </summary>
-        internal static string Command_hrt {
-            get {
-                return ResourceManager.GetString("Command_hrt", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Prints usage information to chat.
         /// </summary>
         internal static string command_hrt_help {
@@ -262,7 +253,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string command_hrt_options {
             get {
-                return ResourceManager.GetString("command:hrt:options", resourceCulture);
+                return ResourceManager.GetString("command_hrt_options", resourceCulture);
             }
         }
         
@@ -271,7 +262,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string command_hrt_welcome {
             get {
-                return ResourceManager.GetString("command:hrt:welcome", resourceCulture);
+                return ResourceManager.GetString("command_hrt_welcome", resourceCulture);
             }
         }
         

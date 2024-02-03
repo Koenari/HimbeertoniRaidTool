@@ -59,7 +59,8 @@
             : and then encoded with base64 encoding.
     -->
 
-    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
                 xmlns="">
         <xsd:element name="root" msdata:IsDataSet="true">
             <xsd:complexType>
@@ -115,7 +116,7 @@
     <data name="Config:Lootmaster:IconInGroupOverview">
         <value>Show item icon in group overview</value>
     </data>
-    <data name="Config:Lootmaster:IgnoreMateriaForBis">
+    <data name="Config_input_IgnoreMateriaForBis">
         <value>Ignore Materia</value>
     </data>
     <data name="Config:Lootmaster:IgnoreMateriaForBisTooltip">
@@ -127,19 +128,16 @@
     <data name="Config:Lootmaster:ItemFormat">
         <value>Item format</value>
     </data>
-    <data name="ChangesOnlyForThisLootSession">
+    <data name="LootSession_text_rolePriorityHint">
         <value>Changes made here only affect this loot session</value>
-    </data>
-    <data name="Distribute loot for:">
-        <value>Distribute loot for:</value>
     </data>
     <data name="LootCategory:Greed">
         <value>Greed</value>
     </data>
-    <data name="Loot session for">
-        <value>Loot session for</value>
+    <data name="LootSessionWindow_Title">
+        <value>Loot session for {0}</value>
     </data>
-    <data name="Greed">
+    <data name="LootRule_Greed">
         <value>Greed</value>
     </data>
     <data name="From current Group">
@@ -157,13 +155,13 @@
     <data name="Delete group">
         <value>Delete group</value>
     </data>
-    <data name="/lootmaster">
+    <data name="lootmaster">
         <value>Opens LootMaster Window (or /lm as short variant)</value>
     </data>
-    <data name="ByRole">
+    <data name="LootRule_ByRole">
         <value>Prioritize by role</value>
     </data>
-    <data name="BISOverUpgrade">
+    <data name="LootRule_BISOverUpgrade">
         <value>BIS &gt; Upgrade</value>
     </data>
     <data name="ConfigRolePriority">
@@ -175,7 +173,7 @@
     <data name="DeleteRaidGroup">
         <value>Do you really want to delete following group:</value>
     </data>
-    <data name="lootmaster:button:inventorytooltip">
+    <data name="lootmaster_button_inventory_tooltip">
         <value>Open inventory window</value>
     </data>
     <data name="lootmaster:button:quickCompare:tooltip">
@@ -208,13 +206,13 @@
     <data name="lootmaster:detail:jobDown:tooltip">
         <value>Move job down</value>
     </data>
-    <data name="Lootmaster:OpenOnLogin">
+    <data name="Config_input_OpenOnLogin">
         <value>Open group overview on login</value>
     </data>
-    <data name="Lootmaster:OpenOnLoginTooltip">
+    <data name="Config_input_OpenOnLogin_tt">
         <value>Opens group overview window when you log in</value>
     </data>
-    <data name="LootMasterWindowTitle">
+    <data name="Ui_Title">
         <value>Loot Master</value>
     </data>
     <data name="LootResult:GreedOnly">
@@ -233,7 +231,7 @@
         <value>Abort</value>
     </data>
     <data name="LootResult:PossibleItems">
-        <value>Items to distribute:</value>
+        <value>Items to distribute</value>
     </data>
     <data name="LootResult:PlayerWonOver">
         <value>over</value>
@@ -300,5 +298,143 @@
     </data>
     <data name="GroupTabTooltip">
         <value>Right click for more options</value>
+    </data>
+    <data name="CurrentGear">
+        <value>Current</value>
+    </data>
+    <data name="QuickCompare_StatGain">
+        <value>Gain</value>
+    </data>
+    <data name="QuickCompare_NewGear">
+        <value>New Gear</value>
+    </data>
+    <data name="QuickCompareWindow_Title" xml:space="preserve">
+        <value>Compare</value>
+    </data>
+    <data name="LootSession_text_rolePriority">
+        <value>Role priority</value>
+    </data>
+    <data name="LootSession_heading_results" xml:space="preserve">
+        <value>Results for {0} ({1})</value>
+        <comment>{0} fight {1} group</comment>
+    </data>
+    <data name="GearSetSelect_Add_new" xml:space="preserve">
+        <value>+ Add new</value>
+    </data>
+    <data name="GearSetSelect_AddFromDB" xml:space="preserve">
+        <value>+ Search known sets</value>
+    </data>
+    <data name="StatTable_MainStats_Title">
+        <value>Main Stats</value>
+    </data>
+    <data name="StatTable_SecondaryStats_Title">
+        <value>Secondary Stats</value>
+    </data>
+    <data name="GearSetSearchWindow_iLvlRange" xml:space="preserve">
+        <value>iLvl range:</value>
+    </data>
+    <data name="GearSetSearchWindow_button_Select" xml:space="preserve">
+        <value>Select gearset</value>
+    </data>
+    <data name="ui:loot_rule:active:tooltip">
+        <value>Activated</value>
+    </data>
+    <data name="ui:loot_rule:ignore">
+        <value>Ignore</value>
+    </data>
+    <data name="LootRule_LowestItemLevel">
+        <value>Lowest overall ItemLevel</value>
+    </data>
+    <data name="LootRule_HighestItemLevelGain">
+        <value>Highest ItemLevel Gain</value>
+    </data>
+    <data name="LootRule_DPSGain">
+        <value>% DPS gained</value>
+    </data>
+    <data name="LootRule_Rolling">
+        <value>Rolling</value>
+    </data>
+    <data name="PlayerDetail_button_quickCompare">
+        <value>Quick compare</value>
+    </data>
+    <data name="PlayerDetail_buttton_editGear_tooltip" xml:space="preserve">
+        <value>Edit {0} gear</value>
+        <comment>{0} Job abbreviation</comment>
+    </data>
+    <data name="UpdateBis">
+        <value>Update "{0}" from Etro.gg</value>
+    </data>
+    <data name="LootmasterUi_button_group_tooltip" xml:space="preserve">
+        <value>Right click for more options</value>
+    </data>
+    <data name="LootmasterUi_button_editGroup" xml:space="preserve">
+        <value>Edit group {0}</value>
+    </data>
+    <data name="LootmasterUi_button_deleteGRoup_tooltip" xml:space="preserve">
+        <value>Remove group {0} (hold shift)</value>
+    </data>
+    <data name="Lootmaster_button_newGroupAutomatic" xml:space="preserve">
+        <value>From current Group</value>
+    </data>
+    <data name="AutoCreatedGroupName">
+        <value>Auto Created</value>
+    </data>
+    <data name="Lootmaster_button_newGRoupManual" xml:space="preserve">
+        <value>From scratch</value>
+    </data>
+    <data name="Lootmaster_button_newGRoupManual_tooltip" xml:space="preserve">
+        <value>Add empty group</value>
+    </data>
+    <data name="Lootmaster_text_noJobs" xml:space="preserve">
+        <value>No jobs created</value>
+    </data>
+    <data name="Lootmaster_button_editGear_tooltip" xml:space="preserve">
+        <value>Edit gearset: {0}</value>
+    </data>
+    <data name="Lootmaster_button_etroUpdate_tooltip" xml:space="preserve">
+        <value>Update {0} ({1}) from etro</value>
+        <comment>{0} name {1} etroId</comment>
+    </data>
+    <data name="InventoryWindow_Title" xml:space="preserve">
+        <value>{0}'s inventory</value>
+    </data>
+    <data name="Ui_text_emptyPlayer">
+        <value>No Player</value>
+    </data>
+    <data name="InventoryUi_heading_additionalGear" xml:space="preserve">
+        <value>Additional Gear</value>
+    </data>
+    <data name="Ui_button_addCharFromDb_tt" xml:space="preserve">
+        <value>Add character from DB</value>
+    </data>
+    <data name="Ui_button_addEmptyPlayer_tt" xml:space="preserve">
+        <value>Add empty</value>
+    </data>
+    <data name="Ui_button_addExistinPlayer_tt" xml:space="preserve">
+        <value>Add player from DB</value>
+    </data>
+    <data name="Ui_btn_addPlayerFromTarget_tt" xml:space="preserve">
+        <value>Fill with target ({0})</value>
+    </data>
+    <data name="Ui_btn_removePlayer_tt" xml:space="preserve">
+        <value>Remove {0} from this group (hold shift)</value>
+    </data>
+    <data name="ImGuiHelper_GuardedButton_notice" xml:space="preserve">
+        <value>hold shift</value>
+    </data>
+    <data name="Ui_text_openLootSessioon" xml:space="preserve">
+        <value>Distribute loot for:</value>
+    </data>
+    <data name="LootRule_Need">
+        <value>Need over Greed</value>
+    </data>
+    <data name="Config_hdg_Examples">
+        <value>Examples</value>
+    </data>
+    <data name="Ui_MainTable_Col_Sort" xml:space="preserve">
+        <value>Sort</value>
+    </data>
+    <data name="Ui_MainTable_Col_Player" xml:space="preserve">
+        <value>Player</value>
     </data>
 </root>

@@ -15,14 +15,8 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="command:hrt:options">
-        <value>Shows the Configuration window</value>
-    </data>
     <data name="command_hrt_help">
         <value>Prints usage information to chat</value>
-    </data>
-    <data name="command:hrt:welcome">
-        <value>Open Welcome Window with explanations on how to use</value>
     </data>
     <data name="WelcomeWindowLine1">
         <value>Bienvenido a Himbeertoni Raid Tool. Tu herramienta para gestionar el grupo de raid.
@@ -60,9 +54,6 @@
             eches un vistazo rápido a las opciones. Y ve a la wiki para instrucciones más detalladas
             :)
         </value>
-    </data>
-    <data name="Command_hrt">
-        <value>Show help</value>
     </data>
     <data name="ConfigUi_UpdateBisOnStartUp">
         <value>Actualizar los sets periódicamente desde etro.gg</value>
@@ -119,5 +110,8 @@
     </data>
     <data name="WelcomeWindow_button_Close_tooltip">
         <value>Cerrar esta ventana</value>
+    </data>
+    <data name="ChangelogCategory_BiS" xml:space="preserve">
+        <value>BiS</value>
     </data>
 </root>

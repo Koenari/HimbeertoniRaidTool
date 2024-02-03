@@ -127,7 +127,7 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="ConfigWindowTitle">
+    <data name="ConfigWindow_Title">
         <value>HimbeerToni Raid Tool Konfiguration</value>
     </data>
     <data name="ItemTableHeader">
@@ -142,25 +142,19 @@
     <data name="itemLevelLong">
         <value>Gegenstandsstufe</value>
     </data>
-    <data name="itemSource">
+    <data name="ItemTable_heading_source">
         <value>Ursprung</value>
-    </data>
-    <data name="item:shopCosts">
-        <value>Händlerkosten</value>
-    </data>
-    <data name="item:looted:sources">
-        <value>Loot von</value>
     </data>
     <data name="Save Player">
         <value>Spieler speichern</value>
     </data>
-    <data name="Player Data">
+    <data name="EditPlayerWindow_heading_playerData">
         <value>Spielerdaten</value>
     </data>
-    <data name="Player Name">
+    <data name="EditPlayerWindow_input_Name">
         <value>Spielername</value>
     </data>
-    <data name="Character Data">
+    <data name="EditPlayerWindow_heading_characterData">
         <value>Charakterdaten</value>
     </data>
     <data name="Character Name">
@@ -198,10 +192,10 @@
     <data name="EditCharacterWindow_input_AddJob">
         <value>Job hinzufügen</value>
     </data>
-    <data name="Group Name">
+    <data name="EditGroupWindow_input_name">
         <value>Gruppenname</value>
     </data>
-    <data name="Group Type">
+    <data name="EditGroupWindow_input_type">
         <value>Gruppenart</value>
     </data>
     <data name="Override role priority">
@@ -267,10 +261,10 @@
     <data name="Cancel">
         <value>Abbrechen</value>
     </data>
-    <data name="Inspect">
+    <data name="Ui_btn_Inspect_tt">
         <value>Ausrüstung aktualisieren durch Untersuchen</value>
     </data>
-    <data name="CharacterNotInReach">
+    <data name="Ui_btn_tt_CharacterNotInReach">
         <value>Charakter ist nicht nah genug zum Untersuchen</value>
     </data>
     <data name="rightClickHint">
@@ -294,19 +288,19 @@
     <data name="Materia">
         <value>Materia</value>
     </data>
-    <data name="Select materia">
+    <data name="SelectMateriaUi_Title">
         <value>Materia auswählen</value>
     </data>
-    <data name="ui:sortable_list:move_up">
+    <data name="SortableList_moveUp">
         <value>Nach oben</value>
     </data>
-    <data name="ui:sortable_list:move_down">
+    <data name="SortableList_moveDown">
         <value>Nach unten</value>
     </data>
-    <data name="ui:sortable_list:remove">
+    <data name="SortableList_remove">
         <value>Eintrag entfernen</value>
     </data>
-    <data name="ui:sortable_list::add">
+    <data name="SortableList_Add">
         <value>Eintrag hinzufügen</value>
     </data>
     <data name="Appearance">
@@ -314,9 +308,6 @@
     </data>
     <data name="iLvl">
         <value>G.-St.</value>
-    </data>
-    <data name="Examples">
-        <value>Beispiele</value>
     </data>
     <data name="DefaultBiSHeading">
         <value>Standard BiS Sets (als etro.gg ID)</value>
@@ -332,73 +323,28 @@
     <data name="default">
         <value>Standard</value>
     </data>
-    <data name="ui:loot_rule:active:tooltip">
-        <value>Aktiviert</value>
-    </data>
-    <data name="ui:loot_rule:ignore">
-        <value>Ignorieren</value>
-    </data>
-    <data name="LowestItemLevel">
-        <value>Niedrigste Gegenstandsstufe</value>
-    </data>
-    <data name="HighestItemLevelGain">
-        <value>Gegenstandsstufen Gewinn</value>
-    </data>
-    <data name="Rolling">
-        <value>Würfeln</value>
-    </data>
-    <data name="DPSGain">
-        <value>% DPS Gewinn</value>
-    </data>
-    <data name="Need over Greed">
-        <value>Bedarf vor Gier</value>
-    </data>
     <data name="Not defined">
         <value>Nicht definiert</value>
     </data>
     <data name="undefined">
         <value>unbekannt</value>
     </data>
-    <data name="MainStats">
-        <value>Attribute</value>
-    </data>
-    <data name="SecondaryStats">
-        <value>Sekundäre Attribute</value>
-    </data>
     <data name="Empty">
         <value>Leer</value>
-    </data>
-    <data name="SpeedMultiplierName">
-        <value>AA/DoT Multiplikator</value>
     </data>
     <data name="Dmgper100Tooltip">
         <value>Durchschnittlicher Schaden mit einer 100 Potenz Fähigkeiten angepasst für schnellere
             GCDs
         </value>
     </data>
-    <data name="Current">
-        <value>Aktuell</value>
-    </data>
-    <data name="QuickCompareStatGain">
-        <value>Gewinn</value>
-    </data>
-    <data name="New Gear">
-        <value>Neue Ausrüstung</value>
-    </data>
     <data name="Edit player">
         <value>Spieler bearbeiten</value>
     </data>
-    <data name="gear">
+    <data name="Gear">
         <value>Ausrüstung</value>
-    </data>
-    <data name="Quick compare">
-        <value>Schnellvergleich</value>
     </data>
     <data name="BiS">
         <value>BiS</value>
-    </data>
-    <data name="UpdateBis">
-        <value>"{0}" von etro.gg aktualisieren</value>
     </data>
     <data name="Add Player">
         <value>Spieler hinzufügen</value>
@@ -415,10 +361,7 @@
     <data name="Edit group">
         <value>Gruppe bearbeiten</value>
     </data>
-    <data name="AutoCreatedGroupName">
-        <value>Automatisch erstellt</value>
-    </data>
-    <data name="n.A.">
+    <data name="NotAvail_Abbrev">
         <value>n.V.</value>
     </data>
     <data name="PlayerDetails">
@@ -430,14 +373,11 @@
     <data name="DeletePlayerConfirmation">
         <value>Möchten Sie den folgenden Spieler wirklich löschen?</value>
     </data>
-    <data name="No Player">
-        <value>Kein Spieler</value>
-    </data>
     <data name="Add">
         <value>Hinzufügen</value>
     </data>
     <data name="PlayerDetailsTitle">
-        <value>Spieler Details</value>
+        <value>Spieler Details für {0}</value>
     </data>
     <data name="Inventory:AdditionalGear">
         <value>Zusätzliche Ausrüstung</value>
@@ -447,9 +387,6 @@
     </data>
     <data name="Swap players positions">
         <value>Spielerpositionen tauschen</value>
-    </data>
-    <data name="Role priority">
-        <value>Rollenpriorität</value>
     </data>
     <data name="Results for">
         <value>Ergebnisse für</value>
@@ -485,5 +422,11 @@
     </data>
     <data name="GetCharacterWindow_Title" xml:space="preserve">
         <value>Charakter von Datenbank abrufen</value>
+    </data>
+    <data name="ItemTable_heading_LootedIn" xml:space="preserve">
+        <value>Loot von</value>
+    </data>
+    <data name="DrawItem_heading_ShopCosts" xml:space="preserve">
+        <value>Händlerkosten</value>
     </data>
 </root>

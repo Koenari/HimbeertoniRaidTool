@@ -163,14 +163,14 @@ internal class CharacterDb : DataBaseTable<Character, GearSet>
 
         protected override void DrawContent()
         {
-            if (ImGui.ListBox("World", ref _worldSelectIndex, _worldNames, _worldNames.Length))
+            if (ImGui.ListBox(GeneralLoc.World, ref _worldSelectIndex, _worldNames, _worldNames.Length))
             {
                 _characterNames = Database.Data.Values.Where(c => c.HomeWorldId == _worlds[_worldSelectIndex])
                                           .Select(character => character.Name).ToArray();
                 Array.Sort(_characterNames);
             }
 
-            if (ImGui.ListBox("Name", ref _characterNameIndex, _characterNames, _characterNames.Length))
+            if (ImGui.ListBox(GeneralLoc.Name, ref _characterNameIndex, _characterNames, _characterNames.Length))
                 Database.SearchCharacter(_worlds[_worldSelectIndex], _characterNames[_characterNameIndex],
                                          out Selected);
         }

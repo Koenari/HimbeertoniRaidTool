@@ -116,13 +116,13 @@
     <data name="Config_Appearance" xml:space="preserve">
     <value>Appearance</value>
   </data>
-    <data name="command:hrt:options">
+    <data name="command_hrt_options">
         <value>Shows the Configuration window</value>
     </data>
     <data name="command_hrt_help">
         <value>Prints usage information to chat</value>
     </data>
-    <data name="command:hrt:welcome">
+    <data name="command_hrt_welcome">
         <value>Open Welcome Window with explanations on how to use</value>
     </data>
     <data name="Core:PeriodicSaveFailed">
@@ -168,9 +168,6 @@
         <value>If you for example want the loot master to open on start, I would suggest you take a
             quick look at the options. And go to the wiki for more detailed instructions :)
         </value>
-    </data>
-    <data name="Command_hrt">
-        <value>Show help</value>
     </data>
     <data name="ConfigUi_UpdateBisOnStartUp">
         <value>Update sets from etro.gg periodically</value>

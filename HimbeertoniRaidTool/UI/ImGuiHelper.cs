@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 using ImGuiNET;
 using Lumina.Excel;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 // ReSharper disable UnusedMember.Global
 
@@ -22,14 +22,21 @@ public static class ImGuiHelper
     //This is a small hack since to my knowledge there is no way to close and existing combo when not clicking
     private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> _comboDic = new();
     public static bool SaveButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
-        => Button(FontAwesomeIcon.Save, "Save", tooltip ?? Localize("Save", "Save"), enabled,
+        => Button(FontAwesomeIcon.Save, "##save", tooltip ?? GeneralLoc.Save, enabled,
                   size ?? new Vector2(50f, 25f));
     public static bool CancelButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
-        => Button(FontAwesomeIcon.WindowClose, "Cancel", tooltip ?? Localize("Cancel", "Cancel"), enabled,
+        => Button(FontAwesomeIcon.WindowClose, "##cancel", tooltip ?? GeneralLoc.Cancel, enabled,
                   size ?? new Vector2(50f, 25f));
     public static bool CloseButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
-        => Button(FontAwesomeIcon.WindowClose, "Close", tooltip ?? Localize("Close", "Close"), enabled,
+        => Button(FontAwesomeIcon.WindowClose, "##close", tooltip ?? GeneralLoc.Close, enabled,
                   size ?? new Vector2(50f, 25f));
+
+    public static bool GuardedButton(string label, string? tooltip, Vector2 size = default) =>
+        GuardedButton(label, tooltip, true, size);
+    public static bool GuardedButton(string label, string? tooltip, bool enabled = true, Vector2 size = default) =>
+        Button(label, $"{tooltip} ({LootmasterLoc.ImGuiHelper_GuardedButton_notice})",
+               enabled && ImGui.IsKeyDown(ImGuiKey.ModShift), size);
+
     public static bool Button(string label, string? tooltip, bool enabled = true, Vector2 size = default)
     {
         ImGui.BeginDisabled(!enabled);
@@ -61,13 +68,13 @@ public static class ImGuiHelper
     {
         ImGui.PushID(p.NickName);
         bool result = false;
-        string inspectTooltip = Localize("Inspect", "Update Gear by Examining");
+        string inspectTooltip = GeneralLoc.Ui_btn_Inspect_tt;
         bool canInspect = true;
         if (!ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? playerChar, p.MainChar.Name,
                                                             p.MainChar.HomeWorld))
         {
             canInspect = false;
-            inspectTooltip = Localize("CharacterNotInReach", "Character is not in reach to examine");
+            inspectTooltip = GeneralLoc.Ui_btn_tt_CharacterNotInReach;
         }
         if (canInspect || showMultiple)
             result |= DrawInspectButton();
@@ -79,7 +86,7 @@ public static class ImGuiHelper
         }
         if (!showMultiple)
         {
-            if (ImGui.BeginPopupContextItem("gearUpdateContextMenu"))
+            if (ImGui.BeginPopupContextItem("##gearUpdateContextMenu"))
             {
                 if (DrawInspectButton(true))
                     ImGui.CloseCurrentPopup();
@@ -93,8 +100,8 @@ public static class ImGuiHelper
         return result;
         bool DrawInspectButton(bool insideContextMenu = false)
         {
-            if (Button(FontAwesomeIcon.Search, "inspect",
-                       $"{inspectTooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}",
+            if (Button(FontAwesomeIcon.Search, "##inspect",
+                       $"{inspectTooltip}{(!showMultiple && !insideContextMenu ? $" ({GeneralLoc.rightClickHint})" : "")}",
                        canInspect, size))
             {
                 CsHelpers.SafeguardedOpenExamine(playerChar);
@@ -104,13 +111,12 @@ public static class ImGuiHelper
         }
         bool DrawLodestoneButton(bool insideContextMenu = false)
         {
-            string tooltip = Localize("Lodestone Button", "Download Gear from Lodestone");
+            string tooltip = GeneralLoc.Lodestone_Button;
             if (Button(FontAwesomeIcon.CloudDownloadAlt, "lodestone",
-                       $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({Localize("rightClickHint", "right click for more options")})" : "")}",
+                       $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({GeneralLoc.rightClickHint})" : "")}",
                        ServiceManager.ConnectorPool.LodestoneConnector.CanBeUsed, size))
             {
-                module.HandleMessage(new HrtUiMessage(
-                                         $"{Localize("LodestoneUpdateStarted", "Started gear update for")} {p.MainChar.Name}"));
+                module.HandleMessage(new HrtUiMessage($"{GeneralLoc.LodestonUpdateStarted} {p.MainChar.Name}"));
                 ServiceManager.TaskManager.RegisterTask(
                     new HrtTask(() => ServiceManager.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
                                 module.HandleMessage, $"Update {p.MainChar.Name} from Lodestone"));

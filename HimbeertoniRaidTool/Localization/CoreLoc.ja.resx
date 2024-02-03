@@ -15,14 +15,8 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="command:hrt:options">
-        <value>Shows the Configuration window</value>
-    </data>
     <data name="command_hrt_help">
         <value>Prints usage information to chat</value>
-    </data>
-    <data name="command:hrt:welcome">
-        <value>Open Welcome Window with explanations on how to use</value>
     </data>
     <data name="Core:PeriodicSaveFailed">
         <value>Data failed to save</value>
@@ -61,9 +55,6 @@
         <value>もし、起動時に戦利品マスタを開くようにしたい場合は、オプションをざっと見てみることをお勧めします。より詳しい説明はwikiを参照してください
             :)
         </value>
-    </data>
-    <data name="Command_hrt">
-        <value>Show help</value>
     </data>
     <data name="ConfigUi_UpdateBisOnStartUp">
         <value>etro.ggから定期的にセットを更新</value>
@@ -121,5 +112,8 @@
     </data>
     <data name="WelcomeWindow_button_Close_tooltip">
         <value>このウィンドウを閉じる</value>
+    </data>
+    <data name="ChangelogCategory_BiS" xml:space="preserve">
+        <value>最適装備</value>
     </data>
 </root>

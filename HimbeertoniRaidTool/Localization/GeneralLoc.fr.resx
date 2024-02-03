@@ -127,7 +127,7 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="ConfigWindowTitle">
+    <data name="ConfigWindow_Title">
         <value>Configuration de HimbeerToni Raid Tool</value>
     </data>
     <data name="ItemTableHeader">
@@ -142,25 +142,19 @@
     <data name="itemLevelLong">
         <value>Niveau d'objet</value>
     </data>
-    <data name="itemSource">
+    <data name="ItemTable_heading_source">
         <value>Source</value>
-    </data>
-    <data name="item:shopCosts">
-        <value>Shop costs</value>
-    </data>
-    <data name="item:looted:sources">
-        <value>Looté dans</value>
     </data>
     <data name="Save Player">
         <value>Sauvegarder ce·tte joueur·se</value>
     </data>
-    <data name="Player Data">
+    <data name="EditPlayerWindow_heading_playerData">
         <value>Données Joueur·se</value>
     </data>
-    <data name="Player Name">
+    <data name="EditPlayerWindow_input_Name">
         <value>Nom Joueur·se</value>
     </data>
-    <data name="Character Data">
+    <data name="EditPlayerWindow_heading_characterData">
         <value>Données Personnage</value>
     </data>
     <data name="Character Name">
@@ -198,10 +192,10 @@
     <data name="EditCharacterWindow_input_AddJob">
         <value>Ajouter un Job</value>
     </data>
-    <data name="Group Name">
+    <data name="EditGroupWindow_input_name">
         <value>Nom du Groupe</value>
     </data>
-    <data name="Group Type">
+    <data name="EditGroupWindow_input_type">
         <value>Type du Groupe</value>
     </data>
     <data name="Override role priority">
@@ -267,10 +261,10 @@
     <data name="Cancel">
         <value>Annuler</value>
     </data>
-    <data name="Inspect">
+    <data name="Ui_btn_Inspect_tt">
         <value>Mettre à jour l'équipement en examinant</value>
     </data>
-    <data name="CharacterNotInReach">
+    <data name="Ui_btn_tt_CharacterNotInReach">
         <value>Le personnage n'est pas suffisamment à portée pour pouvoir l'examiner</value>
     </data>
     <data name="rightClickHint">
@@ -294,19 +288,19 @@
     <data name="Materia">
         <value>Matéria</value>
     </data>
-    <data name="Select materia">
+    <data name="SelectMateriaUi_Title">
         <value>Sélectionner une matéria</value>
     </data>
-    <data name="ui:sortable_list:move_up">
+    <data name="SortableList_moveUp">
         <value>Move up</value>
     </data>
-    <data name="ui:sortable_list:move_down">
+    <data name="SortableList_moveDown">
         <value>Move down</value>
     </data>
-    <data name="ui:sortable_list:remove">
+    <data name="SortableList_remove">
         <value>Remove entry</value>
     </data>
-    <data name="ui:sortable_list::add">
+    <data name="SortableList_Add">
         <value>Add entry</value>
     </data>
     <data name="Appearance">
@@ -314,9 +308,6 @@
     </data>
     <data name="iLvl">
         <value>iLvl</value>
-    </data>
-    <data name="Examples">
-        <value>Exemples</value>
     </data>
     <data name="DefaultBiSHeading">
         <value>Sets BiS par défaut (via leur ID etro.gg)</value>
@@ -332,71 +323,26 @@
     <data name="default">
         <value>par défaut</value>
     </data>
-    <data name="ui:loot_rule:active:tooltip">
-        <value>Activé</value>
-    </data>
-    <data name="ui:loot_rule:ignore">
-        <value>Ignorer</value>
-    </data>
-    <data name="LowestItemLevel">
-        <value>Niveau d'objet global le plus bas</value>
-    </data>
-    <data name="HighestItemLevelGain">
-        <value>Highest ItemLevel Gain</value>
-    </data>
-    <data name="Rolling">
-        <value>Lancer de dé</value>
-    </data>
-    <data name="DPSGain">
-        <value>% de DPS gagnés</value>
-    </data>
-    <data name="Need over Greed">
-        <value>Besoin prioritaire sur Cupidité</value>
-    </data>
     <data name="Not defined">
         <value>Non définie</value>
     </data>
     <data name="undefined">
         <value>non défini</value>
     </data>
-    <data name="MainStats">
-        <value>Stats Principales</value>
-    </data>
-    <data name="SecondaryStats">
-        <value>Stats secondaires</value>
-    </data>
     <data name="Empty">
         <value>Vide</value>
-    </data>
-    <data name="SpeedMultiplierName">
-        <value>Multiplicateur d'AAs / de DoTs</value>
     </data>
     <data name="Dmgper100Tooltip">
         <value>Average Dmg with a 100 potency skill adjusted for faster GCDs</value>
     </data>
-    <data name="Current">
-        <value>Actuel</value>
-    </data>
-    <data name="QuickCompareStatGain">
-        <value>Augmentation</value>
-    </data>
-    <data name="New Gear">
-        <value>Nouvelle tenue</value>
-    </data>
     <data name="Edit player">
         <value>Édition Joueur·se</value>
     </data>
-    <data name="gear">
+    <data name="Gear">
         <value>équipement</value>
-    </data>
-    <data name="Quick compare">
-        <value>Comparaison rapide</value>
     </data>
     <data name="BiS">
         <value>BiS</value>
-    </data>
-    <data name="UpdateBis">
-        <value>Mettre à jour "{0}" depuis Etro.gg</value>
     </data>
     <data name="Add Player">
         <value>Ajouter un·e joueur·se</value>
@@ -413,10 +359,7 @@
     <data name="Edit group">
         <value>Modifier le groupe</value>
     </data>
-    <data name="AutoCreatedGroupName">
-        <value>Créé automatiquement</value>
-    </data>
-    <data name="n.A.">
+    <data name="NotAvail_Abbrev">
         <value>N/A</value>
     </data>
     <data name="PlayerDetails">
@@ -428,14 +371,8 @@
     <data name="DeletePlayerConfirmation">
         <value>Voulez-vous vraiment supprimer le·la joueur·se suivant·e ?</value>
     </data>
-    <data name="No Player">
-        <value>Aucun·e joueur·se</value>
-    </data>
     <data name="Add">
         <value>Ajouter</value>
-    </data>
-    <data name="PlayerDetailsTitle">
-        <value>Détail du·de la joueur·se</value>
     </data>
     <data name="Inventory:AdditionalGear">
         <value>Équipement supplémentaire</value>
@@ -445,9 +382,6 @@
     </data>
     <data name="Swap players positions">
         <value>Permuter les positions des joueur·se·s</value>
-    </data>
-    <data name="Role priority">
-        <value>Priorité de rôle</value>
     </data>
     <data name="Results for">
         <value>Résultats pour</value>
@@ -483,5 +417,8 @@
     </data>
     <data name="GetCharacterWindow_Title" xml:space="preserve">
         <value>Obtenir un personnage depuis la BDD</value>
+    </data>
+    <data name="ItemTable_heading_LootedIn" xml:space="preserve">
+        <value>Looté dans</value>
     </data>
 </root>

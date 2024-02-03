@@ -24,7 +24,7 @@
     <data name="Config:Lootmaster:IconInGroupOverview">
         <value>Show item icon in group overview</value>
     </data>
-    <data name="Config:Lootmaster:IgnoreMateriaForBis">
+    <data name="Config_input_IgnoreMateriaForBis">
         <value>Ignore Materia</value>
     </data>
     <data name="Config:Lootmaster:IgnoreMateriaForBisTooltip">
@@ -36,19 +36,13 @@
     <data name="Config:Lootmaster:ItemFormat">
         <value>Item format</value>
     </data>
-    <data name="ChangesOnlyForThisLootSession">
-        <value>Changes made here only affect this loot session</value>
-    </data>
-    <data name="Distribute loot for:">
+    <data name="Ui_text_openLootSessioon">
         <value>戦利品の配布先：</value>
     </data>
     <data name="LootCategory:Greed">
         <value>GREED</value>
     </data>
-    <data name="Loot session for">
-        <value>戦利品セッション</value>
-    </data>
-    <data name="Greed">
+    <data name="LootRule_Greed">
         <value>GREED</value>
     </data>
     <data name="From current Group">
@@ -66,10 +60,10 @@
     <data name="Delete group">
         <value>グループを削除</value>
     </data>
-    <data name="/lootmaster">
+    <data name="lootmaster">
         <value>LootMaster ウィンドウを開きます ( /lm でも開くことができます)</value>
     </data>
-    <data name="BISOverUpgrade">
+    <data name="LootRule_BISOverUpgrade">
         <value>理想装備 &gt; アップグレード</value>
     </data>
     <data name="ConfigRolePriority">
@@ -81,7 +75,7 @@
     <data name="DeleteRaidGroup">
         <value>このグループを本当に削除しますか？:</value>
     </data>
-    <data name="lootmaster:button:inventorytooltip">
+    <data name="lootmaster_button_inventory_tooltip">
         <value>所持品を開く</value>
     </data>
     <data name="lootmaster:button:quickCompare:tooltip">
@@ -114,13 +108,13 @@
     <data name="lootmaster:detail:jobDown:tooltip">
         <value>Move job down</value>
     </data>
-    <data name="Lootmaster:OpenOnLogin">
+    <data name="Config_input_OpenOnLogin">
         <value>ログイン時にグループ概要を開く</value>
     </data>
-    <data name="Lootmaster:OpenOnLoginTooltip">
+    <data name="Config_input_OpenOnLogin_tt">
         <value>Opens group overview window when you log in</value>
     </data>
-    <data name="LootMasterWindowTitle">
+    <data name="Ui_Title">
         <value>Loot Master</value>
     </data>
     <data name="LootResult:GreedOnly">
@@ -139,7 +133,7 @@
         <value>中断</value>
     </data>
     <data name="LootResult:PossibleItems">
-        <value>配布するアイテム:</value>
+        <value>配布するアイテム</value>
     </data>
     <data name="LootResult:PlayerWonOver">
         <value>オーバー</value>
@@ -155,18 +149,6 @@
     </data>
     <data name="LootResultWindow:GuaranteedItems">
         <value>保証アイテム（プレイヤー毎）</value>
-    </data>
-    <data name="LootSession:State:STARTED">
-        <value>Choosing Loot</value>
-    </data>
-    <data name="LootSession:CalcButton:Text">
-        <value>Calculate</value>
-    </data>
-    <data name="LootSession:CalcButton:Tooltip">
-        <value>Calculates results of loot distribution according to the rules and current equipment
-            of players
-            Locks the loot selection
-        </value>
     </data>
     <data name="LootSession:RulesButton:Tooltip">
         <value>設定を上書き</value>
@@ -206,5 +188,59 @@
     </data>
     <data name="GroupTabTooltip">
         <value>右クリックで詳細オプションを開く</value>
+    </data>
+    <data name="CurrentGear">
+        <value>現在</value>
+    </data>
+    <data name="QuickCompare_StatGain">
+        <value>Gain</value>
+    </data>
+    <data name="QuickCompare_NewGear">
+        <value>New Gear</value>
+    </data>
+    <data name="LootSession_text_rolePriority">
+        <value>ロールの優先度</value>
+    </data>
+    <data name="StatTable_MainStats_Title">
+        <value>メインステ</value>
+    </data>
+    <data name="StatTable_SecondaryStats_Title">
+        <value>サブステ</value>
+    </data>
+    <data name="ui:loot_rule:active:tooltip">
+        <value>Activated</value>
+    </data>
+    <data name="ui:loot_rule:ignore">
+        <value>Ignore</value>
+    </data>
+    <data name="LootRule_LowestItemLevel">
+        <value>最も低いアイテムレベル</value>
+    </data>
+    <data name="LootRule_HighestItemLevelGain">
+        <value>Highest ItemLevel Gain</value>
+    </data>
+    <data name="LootRule_DPSGain">
+        <value>% DPS gained</value>
+    </data>
+    <data name="LootRule_Rolling">
+        <value>ローリング</value>
+    </data>
+    <data name="PlayerDetail_button_quickCompare">
+        <value>Quick compare</value>
+    </data>
+    <data name="UpdateBis">
+        <value>Etro.ggから"{0}"を更新</value>
+    </data>
+    <data name="AutoCreatedGroupName">
+        <value>自動作成</value>
+    </data>
+    <data name="Ui_text_emptyPlayer">
+        <value>プレイヤーなし</value>
+    </data>
+    <data name="LootRule_Need">
+        <value>GREEDよりNEED</value>
+    </data>
+    <data name="Config_hdg_Examples">
+        <value>例</value>
     </data>
 </root>

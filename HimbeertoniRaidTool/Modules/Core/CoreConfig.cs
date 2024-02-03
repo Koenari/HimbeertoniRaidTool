@@ -11,7 +11,7 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
 {
     private const int TARGET_VERSION = 1;
     private readonly PeriodicTask _saveTask;
-    public CoreConfig(CoreModule module) : base(module.InternalName, CoreLocalization.CoreConfig_Title)
+    public CoreConfig(CoreModule module) : base(module.InternalName, CoreLoc.CoreConfig_Title)
     {
         Ui = new ConfigUi(this);
         _saveTask = new PeriodicTask(PeriodicSave, module.HandleMessage, "Automatic Save",
@@ -46,7 +46,7 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
             DoUpgradeStep();
             if (Data.Version > oldVersion)
                 continue;
-            string msg = string.Format(CoreLocalization.Config_UpgradeError, oldVersion);
+            string msg = string.Format(CoreLoc.Config_UpgradeError, oldVersion);
             ServiceManager.PluginLog.Fatal(msg);
             ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new InvalidOperationException(msg);
@@ -60,9 +60,9 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
     private static HrtUiMessage PeriodicSave()
     {
         if (ServiceManager.HrtDataManager.Save())
-            return new HrtUiMessage(CoreLocalization.PeriodicSaveSuccessful,
+            return new HrtUiMessage(CoreLoc.PeriodicSaveSuccessful,
                                     HrtUiMessageType.Success);
-        return new HrtUiMessage(CoreLocalization.PeriodicSaveFailed,
+        return new HrtUiMessage(CoreLoc.PeriodicSaveFailed,
                                 HrtUiMessageType.Failure);
     }
 
@@ -115,43 +115,43 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
 
         public void Draw()
         {
-            ImGui.Text(CoreLocalization.ConfigUi_Heading_dataUpdate);
-            ImGui.Checkbox(CoreLocalization.ConfigUi_checkbox_ownData, ref _dataCopy.UpdateOwnData);
-            ImGuiHelper.AddTooltip(CoreLocalization.ConfigUi_checkbox_ownData_tooltip);
-            ImGui.Checkbox(CoreLocalization.ConfigUi_checkbox_examine, ref _dataCopy.UpdateGearOnExamine);
+            ImGui.Text(CoreLoc.ConfigUi_Heading_dataUpdate);
+            ImGui.Checkbox(CoreLoc.ConfigUi_checkbox_ownData, ref _dataCopy.UpdateOwnData);
+            ImGuiHelper.AddTooltip(CoreLoc.ConfigUi_checkbox_ownData_tooltip);
+            ImGui.Checkbox(CoreLoc.ConfigUi_checkbox_examine, ref _dataCopy.UpdateGearOnExamine);
             ImGui.BeginDisabled(_dataCopy is { UpdateOwnData: false, UpdateGearOnExamine: false });
-            ImGui.Text(CoreLocalization.ConfigUi_text_dataUpdateJobs);
+            ImGui.Text(CoreLoc.ConfigUi_text_dataUpdateJobs);
             ImGui.Indent(25);
-            ImGui.Checkbox(CoreLocalization.ConfigUi_checkbox_updateCombatJobs, ref _dataCopy.UpdateCombatJobs);
-            ImGui.Checkbox(CoreLocalization.ConfigUi_checkbox_updateDohJobs, ref _dataCopy.UpdateDoHJobs);
-            ImGui.Checkbox(CoreLocalization.ConfigUi_checkbox_updateDolJobs, ref _dataCopy.UpdateDoLJobs);
+            ImGui.Checkbox(CoreLoc.ConfigUi_checkbox_updateCombatJobs, ref _dataCopy.UpdateCombatJobs);
+            ImGui.Checkbox(CoreLoc.ConfigUi_checkbox_updateDohJobs, ref _dataCopy.UpdateDoHJobs);
+            ImGui.Checkbox(CoreLoc.ConfigUi_checkbox_updateDolJobs, ref _dataCopy.UpdateDoLJobs);
             ImGui.Indent(-25);
             ImGui.EndDisabled();
             ImGui.Separator();
-            ImGui.Text(CoreLocalization.ConfigUi_heading_ui);
-            ImGuiHelper.Checkbox(CoreLocalization.ConfigUi_checkbox_hideInCombat, ref _dataCopy.HideInCombat,
-                                 CoreLocalization.ConfigUi_checkbox_hideInCombat_tooltip);
+            ImGui.Text(CoreLoc.ConfigUi_heading_ui);
+            ImGuiHelper.Checkbox(CoreLoc.ConfigUi_checkbox_hideInCombat, ref _dataCopy.HideInCombat,
+                                 CoreLoc.ConfigUi_checkbox_hideInCombat_tooltip);
             ImGui.Separator();
-            ImGui.Text(CoreLocalization.ConfigUi_heading_AutoSave);
-            ImGuiHelper.Checkbox(CoreLocalization.ConfigUi_checkbox_savePeriodically, ref _dataCopy.SavePeriodically,
-                                 CoreLocalization.ConfigUi_checkbox_savePeriodically_tooltip);
+            ImGui.Text(CoreLoc.ConfigUi_heading_AutoSave);
+            ImGuiHelper.Checkbox(CoreLoc.ConfigUi_checkbox_savePeriodically, ref _dataCopy.SavePeriodically,
+                                 CoreLoc.ConfigUi_checkbox_savePeriodically_tooltip);
             ImGui.BeginDisabled(!_dataCopy.SavePeriodically);
-            ImGui.TextWrapped($"{CoreLocalization.ConfigUi_input_AutoSaveInterval}:");
+            ImGui.TextWrapped($"{CoreLoc.ConfigUi_input_AutoSaveInterval}:");
             ImGui.SetNextItemWidth(150 * HrtWindow.ScaleFactor);
             if (ImGui.InputInt("##AutoSave_interval_min", ref _dataCopy.SaveIntervalMinutes))
                 if (_dataCopy.SaveIntervalMinutes < 1)
                     _dataCopy.SaveIntervalMinutes = 1;
             ImGui.EndDisabled();
             ImGui.Separator();
-            ImGui.Text(CoreLocalization.ConfigUi_Changelog_Title);
+            ImGui.Text(CoreLoc.ConfigUi_Changelog_Title);
             ImGuiHelper.Combo("##showChangelog", ref _dataCopy.ChangelogNotificationOptions,
                               t => t.LocalizedDescription());
             ImGui.Separator();
-            ImGui.Text(CoreLocalization.ConfigUi_EtroGearUpdates);
-            ImGui.Checkbox(CoreLocalization.ConfigUi_UpdateBisOnStartUp, ref _dataCopy.UpdateEtroBisOnStartup);
+            ImGui.Text(CoreLoc.ConfigUi_EtroGearUpdates);
+            ImGui.Checkbox(CoreLoc.ConfigUi_UpdateBisOnStartUp, ref _dataCopy.UpdateEtroBisOnStartup);
             ImGui.BeginDisabled(!_dataCopy.UpdateEtroBisOnStartup);
             ImGui.SetNextItemWidth(150f * HrtWindow.ScaleFactor);
-            if (ImGui.InputInt(CoreLocalization.ConfigUi_BisUpdateInterval, ref _dataCopy.EtroUpdateIntervalDays))
+            if (ImGui.InputInt(CoreLoc.ConfigUi_BisUpdateInterval, ref _dataCopy.EtroUpdateIntervalDays))
                 if (_dataCopy.EtroUpdateIntervalDays < 1)
                     _dataCopy.EtroUpdateIntervalDays = 1;
             ImGui.EndDisabled();

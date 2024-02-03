@@ -24,7 +24,7 @@
     <data name="Config:Lootmaster:IconInGroupOverview">
         <value>Montrer l'icône de l'objet dans l'aperçu général du groupe</value>
     </data>
-    <data name="Config:Lootmaster:IgnoreMateriaForBis">
+    <data name="Config_input_IgnoreMateriaForBis">
         <value>Ignorer les Materia</value>
     </data>
     <data name="Config:Lootmaster:IgnoreMateriaForBisTooltip">
@@ -36,19 +36,19 @@
     <data name="Config:Lootmaster:ItemFormat">
         <value>Format d'objet</value>
     </data>
-    <data name="ChangesOnlyForThisLootSession">
+    <data name="LootSession_text_rolePriorityHint">
         <value>Les modifications apportées ici n'affectent que cette session de butin</value>
     </data>
-    <data name="Distribute loot for:">
+    <data name="Ui_text_openLootSessioon">
         <value>Distribuer le butin pour :</value>
     </data>
     <data name="LootCategory:Greed">
         <value>Cupidité</value>
     </data>
-    <data name="Loot session for">
-        <value>Séance de butin pour</value>
+    <data name="LootSessionWindow_Title">
+        <value>Séance de butin pour {0}</value>
     </data>
-    <data name="Greed">
+    <data name="LootRule_Greed">
         <value>Cupidité</value>
     </data>
     <data name="From current Group">
@@ -66,13 +66,13 @@
     <data name="Delete group">
         <value>Supprimer le groupe</value>
     </data>
-    <data name="/lootmaster">
+    <data name="lootmaster">
         <value>Ouvre la fenêtre du LootMaster (variante courte : /lm)</value>
     </data>
-    <data name="ByRole">
+    <data name="LootRule_ByRole">
         <value>Prioriser par rôle</value>
     </data>
-    <data name="BISOverUpgrade">
+    <data name="LootRule_BISOverUpgrade">
         <value>BIS &gt; Amélioration</value>
     </data>
     <data name="ConfigRolePriority">
@@ -84,7 +84,7 @@
     <data name="DeleteRaidGroup">
         <value>Voulez-vous vraiment supprimer le groupe suivant :</value>
     </data>
-    <data name="lootmaster:button:inventorytooltip">
+    <data name="lootmaster_button_inventory_tooltip">
         <value>Ouvrir la fenêtre d'inventaire</value>
     </data>
     <data name="lootmaster:button:quickCompare:tooltip">
@@ -117,13 +117,13 @@
     <data name="lootmaster:detail:jobDown:tooltip">
         <value>Move job down</value>
     </data>
-    <data name="Lootmaster:OpenOnLogin">
+    <data name="Config_input_OpenOnLogin">
         <value>Ouvrir la vue d'ensemble du groupe au moment de la connexion</value>
     </data>
-    <data name="Lootmaster:OpenOnLoginTooltip">
+    <data name="Config_input_OpenOnLogin_tt">
         <value>Ouvre la fenêtre d'aperçu du groupe quand vous vous connectez</value>
     </data>
-    <data name="LootMasterWindowTitle">
+    <data name="Ui_Title">
         <value>Loot Master</value>
     </data>
     <data name="LootResult:GreedOnly">
@@ -142,7 +142,7 @@
         <value>Annuler</value>
     </data>
     <data name="LootResult:PossibleItems">
-        <value>Objets à distribuer :</value>
+        <value>Objets à distribuer</value>
     </data>
     <data name="LootResult:PlayerWonOver">
         <value>sur</value>
@@ -209,5 +209,59 @@
     </data>
     <data name="GroupTabTooltip">
         <value>Clic droit pour plus d'options</value>
+    </data>
+    <data name="CurrentGear">
+        <value>Actuel</value>
+    </data>
+    <data name="QuickCompare_StatGain">
+        <value>Augmentation</value>
+    </data>
+    <data name="QuickCompare_NewGear">
+        <value>Nouvelle tenue</value>
+    </data>
+    <data name="LootSession_text_rolePriority">
+        <value>Priorité de rôle</value>
+    </data>
+    <data name="StatTable_MainStats_Title">
+        <value>Stats Principales</value>
+    </data>
+    <data name="StatTable_SecondaryStats_Title">
+        <value>Stats secondaires</value>
+    </data>
+    <data name="ui:loot_rule:active:tooltip">
+        <value>Activé</value>
+    </data>
+    <data name="ui:loot_rule:ignore">
+        <value>Ignorer</value>
+    </data>
+    <data name="LootRule_LowestItemLevel">
+        <value>Niveau d'objet global le plus bas</value>
+    </data>
+    <data name="LootRule_HighestItemLevelGain">
+        <value>Highest ItemLevel Gain</value>
+    </data>
+    <data name="LootRule_DPSGain">
+        <value>% de DPS gagnés</value>
+    </data>
+    <data name="LootRule_Rolling">
+        <value>Lancer de dé</value>
+    </data>
+    <data name="PlayerDetail_button_quickCompare">
+        <value>Comparaison rapide</value>
+    </data>
+    <data name="UpdateBis">
+        <value>Mettre à jour "{0}" depuis Etro.gg</value>
+    </data>
+    <data name="AutoCreatedGroupName">
+        <value>Créé automatiquement</value>
+    </data>
+    <data name="Ui_text_emptyPlayer">
+        <value>Aucun·e joueur·se</value>
+    </data>
+    <data name="LootRule_Need">
+        <value>Besoin prioritaire sur Cupidité</value>
+    </data>
+    <data name="Config_hdg_Examples">
+        <value>Exemples</value>
     </data>
 </root>

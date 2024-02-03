@@ -24,7 +24,7 @@
     <data name="Config:Lootmaster:IconInGroupOverview">
         <value>Icon in der Gruppenübersicht anzeigen</value>
     </data>
-    <data name="Config:Lootmaster:IgnoreMateriaForBis">
+    <data name="Config_input_IgnoreMateriaForBis">
         <value>Materia ignorieren</value>
     </data>
     <data name="Config:Lootmaster:IgnoreMateriaForBisTooltip">
@@ -36,19 +36,19 @@
     <data name="Config:Lootmaster:ItemFormat">
         <value>Item Format</value>
     </data>
-    <data name="ChangesOnlyForThisLootSession">
+    <data name="LootSession_text_rolePriorityHint">
         <value>Änderungen hier gelten nur für die aktuelle Loot Sitzung</value>
     </data>
-    <data name="Distribute loot for:">
+    <data name="Ui_text_openLootSessioon">
         <value>Beute verteilen für:</value>
     </data>
     <data name="LootCategory:Greed">
         <value>Gier</value>
     </data>
-    <data name="Loot session for">
-        <value>Loot Sitzung für</value>
+    <data name="LootSessionWindow_Title">
+        <value>Loot Sitzung für {0}</value>
     </data>
-    <data name="Greed">
+    <data name="LootRule_Greed">
         <value>Gier</value>
     </data>
     <data name="From current Group">
@@ -66,13 +66,13 @@
     <data name="Delete group">
         <value>Gruppe löschen</value>
     </data>
-    <data name="/lootmaster">
+    <data name="lootmaster">
         <value>Öffnet das LootMaster Fenster (oder /lm als Abkürzung)</value>
     </data>
-    <data name="ByRole">
+    <data name="LootRule_ByRole">
         <value>Rollenpriorität</value>
     </data>
-    <data name="BISOverUpgrade">
+    <data name="LootRule_BISOverUpgrade">
         <value>BiS &gt; Verbesserung</value>
     </data>
     <data name="ConfigRolePriority">
@@ -84,7 +84,7 @@
     <data name="DeleteRaidGroup">
         <value>Möchten Sie die folgende Gruppe wirklich löschen:</value>
     </data>
-    <data name="lootmaster:button:inventorytooltip">
+    <data name="lootmaster_button_inventory_tooltip">
         <value>Lootmaster-Inventar öffnen</value>
     </data>
     <data name="lootmaster:button:quickCompare:tooltip">
@@ -117,13 +117,13 @@
     <data name="lootmaster:detail:jobDown:tooltip">
         <value>Job nach unten bewegen</value>
     </data>
-    <data name="Lootmaster:OpenOnLogin">
+    <data name="Config_input_OpenOnLogin">
         <value>LootMaster beim Login öffnen</value>
     </data>
-    <data name="Lootmaster:OpenOnLoginTooltip">
+    <data name="Config_input_OpenOnLogin_tt">
         <value>Öffnet die Gruppenübersicht nach dem Einloggen</value>
     </data>
-    <data name="LootMasterWindowTitle">
+    <data name="Ui_Title">
         <value>Loot Master</value>
     </data>
     <data name="LootResult:GreedOnly">
@@ -142,7 +142,7 @@
         <value>Abbrechen</value>
     </data>
     <data name="LootResult:PossibleItems">
-        <value>Zu verteilende Items:</value>
+        <value>Zu verteilende Items</value>
     </data>
     <data name="LootResult:PlayerWonOver">
         <value>über</value>
@@ -209,5 +209,59 @@
     </data>
     <data name="GroupTabTooltip">
         <value>Rechtsklick für mehr Optionen</value>
+    </data>
+    <data name="CurrentGear">
+        <value>Aktuell</value>
+    </data>
+    <data name="QuickCompare_StatGain">
+        <value>Gewinn</value>
+    </data>
+    <data name="QuickCompare_NewGear">
+        <value>Neue Ausrüstung</value>
+    </data>
+    <data name="LootSession_text_rolePriority">
+        <value>Rollenpriorität</value>
+    </data>
+    <data name="StatTable_MainStats_Title">
+        <value>Attribute</value>
+    </data>
+    <data name="StatTable_SecondaryStats_Title">
+        <value>Sekundäre Attribute</value>
+    </data>
+    <data name="ui:loot_rule:active:tooltip">
+        <value>Aktiviert</value>
+    </data>
+    <data name="ui:loot_rule:ignore">
+        <value>Ignorieren</value>
+    </data>
+    <data name="LootRule_LowestItemLevel">
+        <value>Niedrigste Gegenstandsstufe</value>
+    </data>
+    <data name="LootRule_HighestItemLevelGain">
+        <value>Gegenstandsstufen Gewinn</value>
+    </data>
+    <data name="LootRule_DPSGain">
+        <value>% DPS Gewinn</value>
+    </data>
+    <data name="LootRule_Rolling">
+        <value>Würfeln</value>
+    </data>
+    <data name="PlayerDetail_button_quickCompare">
+        <value>Schnellvergleich</value>
+    </data>
+    <data name="UpdateBis">
+        <value>"{0}" von etro.gg aktualisieren</value>
+    </data>
+    <data name="AutoCreatedGroupName">
+        <value>Automatisch erstellt</value>
+    </data>
+    <data name="Ui_text_emptyPlayer">
+        <value>Kein Spieler</value>
+    </data>
+    <data name="LootRule_Need">
+        <value>Bedarf vor Gier</value>
+    </data>
+    <data name="Config_hdg_Examples">
+        <value>Beispiele</value>
     </data>
 </root>

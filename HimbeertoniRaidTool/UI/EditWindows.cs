@@ -11,7 +11,6 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -65,7 +64,7 @@ internal abstract class EditWindow<T> : HrtWindowWithModalChild where T : IHasHr
     }
     public override sealed void Draw()
     {
-        ImGui.Text($"{Localize("EditWindow:LocalId", "Local ID")}: {_original.LocalId}");
+        ImGui.Text($"{GeneralLoc.Local_ID}: {_original.LocalId}");
         //Buttons
         if (ImGuiHelper.SaveButton())
         {
@@ -104,7 +103,7 @@ internal class EditGroupWindow : EditWindow<RaidGroup>
     {
         Size = new Vector2(500, 170 + (group.RolePriority != null ? 180 : 0));
         SizeCondition = ImGuiCond.Appearing;
-        Title = $"{Localize("Edit Group", "Edit Group")} {DataCopy.Name}";
+        Title = string.Format(GeneralLoc.EditGroupWindow_Title, DataCopy.Name);
     }
 
     protected override void Save(RaidGroup destination)
@@ -120,15 +119,14 @@ internal class EditGroupWindow : EditWindow<RaidGroup>
     protected override void DrawContent()
     {
         //Name + Type
-        ImGui.InputText(Localize("Group Name", "Group Name"), ref DataCopy.Name, 100);
+        ImGui.InputText(GeneralLoc.EditGroupWindow_input_name, ref DataCopy.Name, 100);
         int groupType = (int)DataCopy.Type;
         ImGui.BeginDisabled(DataCopy.TypeLocked);
-        if (ImGui.Combo(Localize("Group Type", "Group Type"), ref groupType, Enum.GetNames<GroupType>(),
-                        Enum.GetNames<GroupType>().Length)) DataCopy.Type = (GroupType)groupType;
+        ImGuiHelper.Combo(GeneralLoc.EditGroupWindow_input_type, ref DataCopy.Type);
         ImGui.EndDisabled();
         //Role priority
         bool overrideRolePriority = DataCopy.RolePriority != null;
-        if (ImGui.Checkbox(Localize("Override role priority", "Override role priority"), ref overrideRolePriority))
+        if (ImGui.Checkbox(GeneralLoc.Override_role_priority, ref overrideRolePriority))
         {
             DataCopy.RolePriority = overrideRolePriority ? new RolePriority() : null;
             Vector2 curSize = ImGui.GetWindowSize();
@@ -140,8 +138,8 @@ internal class EditGroupWindow : EditWindow<RaidGroup>
 
         if (overrideRolePriority)
         {
-            ImGui.Text(Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
-            ImGui.Text($"{Localize("Current priority", "Current priority")}: {DataCopy.RolePriority}");
+            ImGui.Text(LootmasterLoc.ConfigRolePriority);
+            ImGui.Text($"{LootmasterLoc.Current_priority}: {DataCopy.RolePriority}");
             DataCopy.RolePriority!.DrawEdit(ImGui.InputInt);
         }
     }
@@ -154,7 +152,7 @@ internal class EditPlayerWindow : EditWindow<Player>
     {
         Size = new Vector2(450, 250);
         SizeCondition = ImGuiCond.Appearing;
-        Title = $"{Localize("Edit Player", "Edit Player")} {DataCopy.NickName}";
+        Title = $"{GeneralLoc.Edit_player} {DataCopy.NickName}";
     }
 
     protected override void Cancel() { }
@@ -163,13 +161,13 @@ internal class EditPlayerWindow : EditWindow<Player>
     {
         //Player Data
         ImGui.SetCursorPosX(
-            (ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Player Data", "Player Data")).X) / 2f);
-        ImGui.Text(Localize("Player Data", "Player Data"));
-        ImGui.InputText(Localize("Player Name", "Player Name"), ref DataCopy.NickName, 50);
+            (ImGui.GetWindowWidth() - ImGui.CalcTextSize(GeneralLoc.EditPlayerWindow_heading_playerData).X) / 2f);
+        ImGui.Text(GeneralLoc.EditPlayerWindow_heading_playerData);
+        ImGui.InputText(GeneralLoc.EditPlayerWindow_input_Name, ref DataCopy.NickName, 50);
         //Character Data
         ImGui.SetCursorPosX(
-            (ImGui.GetWindowWidth() - ImGui.CalcTextSize(Localize("Character Data", "Character Data")).X) / 2f);
-        ImGui.Text(Localize("Character Data", "Character Data"));
+            (ImGui.GetWindowWidth() - ImGui.CalcTextSize(GeneralLoc.EditPlayerWindow_heading_characterData).X) / 2f);
+        ImGui.Text(GeneralLoc.EditPlayerWindow_heading_characterData);
         Character mainChar = DataCopy.MainChar;
         foreach (Character character in DataCopy.Characters)
         {
@@ -258,8 +256,9 @@ internal class EditCharacterWindow : EditWindow<Character>
 
     protected override void DrawContent()
     {
-        ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize(GeneralLoc.Character_Data).X) / 2f);
-        ImGui.Text(GeneralLoc.Character_Data);
+        ImGui.SetCursorPosX((ImGui.GetWindowWidth()
+                           - ImGui.CalcTextSize(GeneralLoc.EditPlayerWindow_heading_characterData).X) / 2f);
+        ImGui.Text(GeneralLoc.EditPlayerWindow_heading_characterData);
         if (ImGui.InputText(GeneralLoc.Character_Name, ref DataCopy.Name, 50)
          && ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, DataCopy.Name))
             DataCopy.HomeWorld ??= pc.HomeWorld.GameData;
@@ -318,7 +317,7 @@ internal class EditCharacterWindow : EditWindow<Character>
             if (ImGui.InputInt(GeneralLoc.Level, ref c.Level))
                 c.Level = Math.Clamp(c.Level, 1, Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxLevel);
             ImGui.SameLine();
-            ImGui.Checkbox(Localize("EditCharacter:Job:Hide", "Do not show this job"), ref c.HideInUi);
+            ImGui.Checkbox(GeneralLoc.EditCharacterui_input_hideJob, ref c.HideInUi);
             ImGui.Separator();
             ImGui.PopID();
         }
@@ -487,33 +486,28 @@ internal class EditGearSetWindow : EditWindow<GearSet>
 
             ImGui.Text($"{GeneralLoc.Etro_ID}: {DataCopy.EtroId}");
             ImGui.SameLine();
-            if (ImGuiHelper.Button(Localize("GearSetEdit:button:openEtro", "Open set on etro.gg"), null))
-            {
+            if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_openEtro, null))
                 Util.OpenLink(EtroConnector.GEARSET_WEB_BASE_URL + DataCopy.EtroId);
-            }
-            ImGui.Text(
-                $"{Localize("GearSetEdit:EtroLastDownload", "Last update check")}: {DataCopy.EtroFetchDate}");
+
+            ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_txt_lastUpdate, DataCopy.EtroFetchDate));
         }
         else
         {
-            ImGui.Text(
-                $"{Localize("GearSetEdit:Source", "Source")}: {Localize("GearSet:ManagedBy:HrtLocal", "Local Database")}");
+            ImGui.Text($"{GeneralLoc.EditGearSetUi_txt_Source}: {GeneralLoc.GearSet_manager_local}");
             if (DataCopy.IsSystemManaged)
-                ImGui.TextColored(Colors.TextRed,
-                                  Localize("GearSetEdit:SystemManagedWarning",
-                                           "This set is manged by the plugin and will be automatically overwritten with characters current gear!"));
+                ImGui.TextColored(Colors.TextRed, GeneralLoc.Gearset_Warning_SysManaged);
         }
 
-        ImGui.Text($"{Localize("GearSetEdit:LastChanged", "Last Change")}: {DataCopy.TimeStamp}");
+        ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_txt_LastChange, DataCopy.TimeStamp));
         ImGui.BeginDisabled(isFromEtro);
-        ImGui.Text($"{Localize("GearSetEdit:Name", "Name")}: ");
+        ImGui.Text($"{GeneralLoc.Name}: ");
         ImGui.SameLine();
         ImGui.InputText("", ref DataCopy.Name, 100);
         //Gear slots
-        if (ImGui.BeginTable("GearEditTable", 2, ImGuiTableFlags.Borders))
+        if (ImGui.BeginTable("##GearEditTable", 2, ImGuiTableFlags.Borders))
         {
-            ImGui.TableSetupColumn("GearL");
-            ImGui.TableSetupColumn("GearR");
+            ImGui.TableSetupColumn("##GearL");
+            ImGui.TableSetupColumn("##GearR");
             DrawSlot(GearSetSlot.MainHand);
             if (_job.CanHaveShield())
                 DrawSlot(GearSetSlot.OffHand);
@@ -533,7 +527,7 @@ internal class EditGearSetWindow : EditWindow<GearSet>
         }
 
         ImGui.EndDisabled();
-
+        return;
         void DrawSlot(GearSetSlot slot)
         {
             ImGui.BeginDisabled(ChildIsOpen);
@@ -616,11 +610,11 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
     private uint _minILvl;
     private IEnumerable<GearSetSlot> _slots;
 
-    public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? curentItem = null,
+    public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? currentItem = null,
                                 GearSetSlot? slot = null, Job? job = null, uint maxItemLevel = 0) : base(
         onSave, onCancel)
     {
-        Item = curentItem;
+        Item = currentItem;
         if (slot.HasValue)
         {
             _lockSlot = true;
@@ -633,8 +627,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
 
         _lockJob = job.HasValue;
         _job = job;
-        Title = $"{Localize("Get item for", "Get item for")}" +
-                $" {string.Join(',', _slots.Select((e, _) => e.FriendlyName()))}";
+        Title = GeneralLoc.Get_item_for + $"{string.Join(',', _slots.Select((e, _) => e.FriendlyName()))}";
         _maxILvl = maxItemLevel;
         _minILvl = _maxILvl > 30 ? _maxILvl - 30 : 0;
         _items = ReevaluateItems();
@@ -684,8 +677,8 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             bool isCurrentItem = item.RowId == Item?.Id;
             if (isCurrentItem)
                 ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
-            if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", Localize("Use this item", "Use this item"),
-                                   true, new Vector2(32f, 32f)))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", GeneralLoc.Use_this_item, true,
+                                   new Vector2(32f, 32f)))
             {
                 if (isCurrentItem)
                     Cancel();
@@ -751,7 +744,7 @@ internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
                                MateriaLevel? matLevel = null) : base(onSave, onCancel)
     {
         _maxLvl = matLevel ?? maxMatLvl;
-        Title = Localize("Select Materia", "Select Materia");
+        Title = GeneralLoc.SelectMateriaUi_Title;
         string longestName = Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "";
         Size = new Vector2(ImGui.CalcTextSize(longestName).X + 200f, 120f);
     }

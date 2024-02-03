@@ -11,7 +11,6 @@ using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 using Character = HimbeertoniRaidTool.Common.Data.Character;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
@@ -41,18 +40,13 @@ internal sealed class LootMasterModule : IHrtModule
     public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
     {
-        new()
+        new("/lootmaster", OnCommand)
         {
-            // ReSharper disable once StringLiteralTypo
-            Command = "/lootmaster",
             AltCommands = new List<string>
             {
                 "/lm",
             },
-            // ReSharper disable once StringLiteralTypo
-            Description = Localize("/lootmaster", "Opens LootMaster Window (or /lm as short variant)"),
-            ShowInHelp = true,
-            OnCommand = OnCommand,
+            Description = LootmasterLoc.lootmaster,
             ShouldExposeToDalamud = true,
             ShouldExposeAltsToDalamud = true,
         },
@@ -83,25 +77,22 @@ internal sealed class LootMasterModule : IHrtModule
     {
 
     }
-    public void OnLanguageChange(string langCode) => LootmasterLocalization.Culture = new CultureInfo(langCode);
+    public void OnLanguageChange(string langCode) => LootmasterLoc.Culture = new CultureInfo(langCode);
     public void PrintUsage(string command, string args)
     {
-        //if (!command.Equals("/help")) return;
-
         SeStringBuilder stringBuilder = new SeStringBuilder()
                                         .AddUiForeground("[Himbeertoni Raid Tool]", 45)
                                         .AddUiForeground("[Help]", 62)
-                                        .AddText(
-                                            Localize("lootmaster:usage:heading", " Commands used for Loot Master:"))
+                                        .AddText(GeneralLoc.chat_usage_heading)
                                         .Add(new NewLinePayload());
 
         stringBuilder
             .AddUiForeground("/lootmaster", 37)
-            .AddText(" - Opens Lootmaster window")
+            .AddText($" - {GeneralLoc.command_show_helpText}")
             .Add(new NewLinePayload());
         stringBuilder
             .AddUiForeground("/lootmaster toggle", 37)
-            .AddText(" - Toggles Lootmaster window")
+            .AddText($" - {GeneralLoc.command_toggle_helpText}")
             .Add(new NewLinePayload());
 
         ServiceManager.ChatGui.Print(stringBuilder.BuiltString);

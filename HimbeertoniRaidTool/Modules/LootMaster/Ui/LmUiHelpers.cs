@@ -1,10 +1,10 @@
 ﻿using System.Numerics;
 using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
@@ -22,18 +22,29 @@ public enum SlotDrawFlags
 
 internal static class LmUiHelpers
 {
+
+    [Flags]
+    public enum StatTableCompareMode
+    {
+        None = 0,
+        DoCompare = 1,
+        DiffLeftToRight = 2,
+        DiffRightToLeft = 4,
+        Default = DoCompare | DiffLeftToRight,
+    }
+
     public static Vector4 LevelColor(LootMasterConfiguration.ConfigData config, GearItem item) =>
         (config.SelectedRaidTier.ItemLevel(item.Slots.First()) - (int)item.ItemLevel) switch
         {
-            <= 0 => config.ItemLevelColors[0],
+            <= 0  => config.ItemLevelColors[0],
             <= 10 => config.ItemLevelColors[1],
             <= 20 => config.ItemLevelColors[2],
-            _ => config.ItemLevelColors[3],
+            _     => config.ItemLevelColors[3],
         };
     internal static void DrawGearSetCombo(string id, GearSet current, IEnumerable<GearSet> list,
-        Action<GearSet> changeCallback,
-        Func<HrtWindow, bool> addWindow, Job job = Job.ADV,
-        float width = 85f)
+                                          Action<GearSet> changeCallback,
+                                          Func<HrtWindow, bool> addWindow, Job job = Job.ADV,
+                                          float width = 85f)
     {
         ImGui.SetNextItemWidth(width);
         if (ImGui.BeginCombo($"##{id}", $"{current}", ImGuiComboFlags.NoArrowButton))
@@ -43,11 +54,11 @@ internal static class LmUiHelpers
                 if (ImGui.Selectable($"{curJobGearSet}##{curJobGearSet.LocalId}"))
                     changeCallback(curJobGearSet);
             }
-            if (ImGui.Selectable(Localize("LootMaster:GearSwitch:AddNew", "+ Add new")))
+            if (ImGui.Selectable(LootmasterLoc.GearSetSelect_Add_new))
             {
                 addWindow(new EditGearSetWindow(new GearSet(), job, changeCallback));
             }
-            if (ImGui.Selectable(Localize("LootMaster:GearSwitch:AddFromDb", "+ Search known sets")))
+            if (ImGui.Selectable(LootmasterLoc.GearSetSelect_AddFromDB))
             {
                 addWindow(ServiceManager.HrtDataManager.GearDb.OpenSearchWindow(changeCallback));
             }
@@ -57,10 +68,10 @@ internal static class LmUiHelpers
             ImGuiHelper.AddTooltip(current.Name);
     }
     internal static void DrawSlot(LootMasterConfiguration.ConfigData config, GearItem item,
-        SlotDrawFlags style = SlotDrawFlags.SingleItem | SlotDrawFlags.SimpleView)
+                                  SlotDrawFlags style = SlotDrawFlags.SingleItem | SlotDrawFlags.SimpleView)
         => DrawSlot(config, (item, GearItem.Empty), style);
     internal static void DrawSlot(LootMasterConfiguration.ConfigData config, (GearItem, GearItem) itemTuple,
-        SlotDrawFlags style = SlotDrawFlags.Default)
+                                  SlotDrawFlags style = SlotDrawFlags.Default)
     {
         float originalY = ImGui.GetCursorPosY();
         float fullLineHeight = ImGui.GetTextLineHeightWithSpacing();
@@ -120,15 +131,15 @@ internal static class LmUiHelpers
                 if (extended || config.ShowIconInGroupOverview)
                 {
                     Vector2 iconSize = new(ImGui.GetTextLineHeightWithSpacing()
-                                           * (extended ? multiLine ? 2.4f : 1.4f : 1f));
+                                         * (extended ? multiLine ? 2.4f : 1.4f : 1f));
                     ImGui.Image(ServiceManager.IconCache.LoadIcon(itemToDraw.Icon, itemToDraw.IsHq).ImGuiHandle,
-                        iconSize * HrtWindow.ScaleFactor);
+                                iconSize * HrtWindow.ScaleFactor);
                     ImGui.SameLine();
                 }
                 string toDraw = string.Format(config.ItemFormatString,
-                    itemToDraw.ItemLevel,
-                    itemToDraw.Source.FriendlyName(),
-                    itemToDraw.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
+                                              itemToDraw.ItemLevel,
+                                              itemToDraw.Source.FriendlyName(),
+                                              itemToDraw.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
                 if (extended) ImGui.SetCursorPosY(ImGui.GetCursorPosY() + fullLineHeight * (multiLine ? 0.7f : 0.2f));
                 Action<string> drawText = config.ColoredItemNames
                     ? t => ImGui.TextColored(LevelColor(config, itemToDraw), t)
@@ -142,32 +153,22 @@ internal static class LmUiHelpers
                     $"( {string.Join(" | ", itemToDraw.Materia.ToList().ConvertAll(mat => $"{mat.StatType.Abbrev()} +{mat.GetStat()}"))} )");
             }
             else
-                ImGui.Text(Localize("Empty", "Empty"));
+                ImGui.Text(GeneralLoc.Empty);
 
         }
     }
 
-    [Flags]
-    public enum StatTableCompareMode
-    {
-        None = 0,
-        DoCompare = 1,
-        DiffLeftToRight = 2,
-        DiffRightToLeft = 4,
-        Default = DoCompare | DiffLeftToRight,
-    }
-
     public static void DrawStatTable(PlayableClass curClass, Tribe? tribe, IReadOnlyGearSet left,
-        IReadOnlyGearSet right, string leftHeader, string diffHeader, string rightHeader,
-        StatTableCompareMode compareMode = StatTableCompareMode.Default)
+                                     IReadOnlyGearSet right, string leftHeader, string diffHeader, string rightHeader,
+                                     StatTableCompareMode compareMode = StatTableCompareMode.Default)
     {
         bool doCompare = compareMode.HasFlag(StatTableCompareMode.DoCompare);
         Job curJob = curClass.Job;
         Role curRole = curJob.GetRole();
         StatType mainStat = curJob.MainStat();
-        StatType weaponStat = curRole == Role.Healer || curRole == Role.Caster ? StatType.MagicalDamage
+        StatType weaponStat = curRole is Role.Healer or Role.Caster ? StatType.MagicalDamage
             : StatType.PhysicalDamage;
-        BeginAndSetupTable("MainStats", Localize("MainStats", "Main Stats"));
+        BeginAndSetupTable("##MainStats", LootmasterLoc.StatTable_MainStats_Title);
         DrawStatRow(weaponStat);
         DrawStatRow(StatType.Vitality);
         DrawStatRow(mainStat);
@@ -175,7 +176,7 @@ internal static class LmUiHelpers
         DrawStatRow(StatType.MagicDefense);
         ImGui.EndTable();
         ImGui.NewLine();
-        BeginAndSetupTable("SecondaryStats", Localize("SecondaryStats", "Secondary Stats"));
+        BeginAndSetupTable("##SecondaryStats", LootmasterLoc.StatTable_SecondaryStats_Title);
         DrawStatRow(StatType.CriticalHit);
         DrawStatRow(StatType.Determination);
         DrawStatRow(StatType.DirectHitRate);
@@ -206,7 +207,7 @@ internal static class LmUiHelpers
             }
             int numEvals = 1;
             if (type == StatType.CriticalHit || type == StatType.Tenacity || type == StatType.SpellSpeed
-                || type == StatType.SkillSpeed)
+             || type == StatType.SkillSpeed)
                 numEvals++;
             int leftStat = curClass.GetStat(type, left, tribe);
             int rightStat = curClass.GetStat(type, right, tribe);
@@ -219,11 +220,8 @@ internal static class LmUiHelpers
             }
             ImGui.TableNextColumn();
             ImGui.Text(type.FriendlyName());
-            if (type == StatType.CriticalHit)
-                ImGui.Text(Localize("Critical Damage", "Critical Damage"));
-            if (type is StatType.SkillSpeed or StatType.SpellSpeed)
-                ImGui.Text(Localize("SpeedMultiplierName", "AA / DoT multiplier"));
-
+            if (type is StatType.CriticalHit or StatType.SkillSpeed or StatType.SpellSpeed)
+                ImGui.Text(type.AlternativeFriendlyName());
             //Stats
             ImGui.TableNextColumn();
             ImGui.Text(leftStat.ToString());
@@ -249,8 +247,7 @@ internal static class LmUiHelpers
                 ImGui.Text(val);
             }
             if (type == weaponStat)
-                ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip",
-                    "Average Dmg with a 100 potency skill adjusted for faster GCDs"));
+                ImGuiHelper.AddTooltip(GeneralLoc.Dmgper100Tooltip);
             if (doCompare)
             {
                 ImGui.TableNextColumn();
@@ -264,7 +261,7 @@ internal static class LmUiHelpers
                     else
                     {
                         ImGui.TextColored(Color(diff),
-                            $"{(diff < 0 ? "" : "+")}{AllaganLibrary.FormatStatValue(diff, type, i).Val}");
+                                          $"{(diff < 0 ? "" : "+")}{AllaganLibrary.FormatStatValue(diff, type, i).Val}");
                     }
                 }
             }
@@ -274,8 +271,7 @@ internal static class LmUiHelpers
                 ImGui.Text(AllaganLibrary.FormatStatValue(rightEvalStat[i], type, i).Val);
             }
             if (type == weaponStat)
-                ImGuiHelper.AddTooltip(Localize("Dmgper100Tooltip",
-                    "Average Dmg with a 100 potency skill adjusted for faster GCDs"));
+                ImGuiHelper.AddTooltip(GeneralLoc.Dmgper100Tooltip);
             ImGui.TableNextColumn();
             for (int i = 0; i < numEvals; i++)
             {
@@ -286,8 +282,9 @@ internal static class LmUiHelpers
         {
             int numCol = doCompare ? 9 : 7;
             ImGui.BeginTable(id, numCol,
-                ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH | ImGuiTableFlags.BordersOuterV
-                | ImGuiTableFlags.RowBg);
+                             ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH
+                                                               | ImGuiTableFlags.BordersOuterV
+                                                               | ImGuiTableFlags.RowBg);
             ImGui.TableSetupColumn(name);
             ImGui.TableSetupColumn(leftHeader);
             if (doCompare)
@@ -302,5 +299,4 @@ internal static class LmUiHelpers
             ImGui.TableHeadersRow();
         }
     }
-
 }

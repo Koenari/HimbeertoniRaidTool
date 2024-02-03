@@ -41,10 +41,10 @@ internal class ChangeLogUi : HrtWindow
         ImGui.SetNextItemWidth(comboWidth * ScaleFactor);
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (Size.Value.X - comboWidth) / 2);
         ImGuiHelper.Combo("##opt", ref _options, t => t.LocalizedDescription());
-        float buttonWidth = ImGui.CalcTextSize(CoreLocalization.ChangeLogUi_button_read).X + 20;
+        float buttonWidth = ImGui.CalcTextSize(CoreLoc.ChangeLogUi_button_read).X + 20;
         ImGui.SetNextItemWidth(buttonWidth);
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (Size.Value.X - buttonWidth) / 2);
-        if (ImGuiHelper.Button(CoreLocalization.ChangeLogUi_button_read, null))
+        if (ImGuiHelper.Button(CoreLoc.ChangeLogUi_button_read, null))
         {
             _log.Config.ChangelogNotificationOptions = _options;
             _log.Config.LastSeenChangelog = _log.CurrentVersion;
@@ -57,7 +57,7 @@ internal class ChangeLogUi : HrtWindow
         if (versionEntry.HasNotableFeatures)
             ImGui.PushStyleColor(ImGuiCol.Header, Colors.PetrolDark);
         if (ImGui.CollapsingHeader(
-                string.Format(CoreLocalization.ChangeLogUi_heading_version, versionEntry.Version),
+                string.Format(CoreLoc.ChangeLogUi_heading_version, versionEntry.Version),
                 defaultOpen ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None))
         {
             foreach (ChangeLogEntry entry in versionEntry.NotableFeatures)
@@ -73,7 +73,7 @@ internal class ChangeLogUi : HrtWindow
             if (versionEntry.HasKnownIssues)
             {
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 5f * ScaleFactor);
-                ImGui.TextColored(Colors.TextSoftRed, CoreLocalization.ChangeLogUi_heading_KnownIssues);
+                ImGui.TextColored(Colors.TextSoftRed, CoreLoc.ChangeLogUi_heading_KnownIssues);
                 foreach (ChangeLogEntry entry in versionEntry.KnownIssues)
                 {
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
@@ -95,10 +95,10 @@ internal class ChangeLogUi : HrtWindow
         {
             ImGui.SameLine();
             ImGui.TextColored(Colors.TextLink,
-                              string.Format(CoreLocalization.ChangeLogUi_text_issueLink, entry.GitHubIssueNumber));
+                              string.Format(CoreLoc.ChangeLogUi_text_issueLink, entry.GitHubIssueNumber));
             if (ImGui.IsItemClicked())
                 Util.OpenLink($"https://github.com/Koenari/HimbeertoniRaidTool/issues/{entry.GitHubIssueNumber}");
-            ImGuiHelper.AddTooltip(CoreLocalization.ChangeLogUi_text_issueLink_tooltip);
+            ImGuiHelper.AddTooltip(CoreLoc.ChangeLogUi_text_issueLink_tooltip);
         }
         foreach (string entryBulletPoint in entry.BulletPoints)
         {
@@ -114,26 +114,26 @@ public static class ChangelogEnumExtensions
 {
     public static string Localized(this ChangeLogEntryCategory cat) => cat switch
     {
-        ChangeLogEntryCategory.General     => CoreLocalization.ChangelogCategory_General,
-        ChangeLogEntryCategory.NewFeature  => CoreLocalization.ChangelogCategory_NewFeature,
-        ChangeLogEntryCategory.Bugfix      => CoreLocalization.ChangelogCategory_Bugfix,
-        ChangeLogEntryCategory.Options     => CoreLocalization.ChangelogCategory_Configuration,
-        ChangeLogEntryCategory.Ui          => CoreLocalization.ChangelogCategory_UserInterface,
-        ChangeLogEntryCategory.Lootmaster  => CoreLocalization.ChangelogCategory_LootMaster,
-        ChangeLogEntryCategory.LootSession => CoreLocalization.ChangelogCategory_LootSession,
-        ChangeLogEntryCategory.Bis         => CoreLocalization.ChangelogCategory_BiS,
-        ChangeLogEntryCategory.System      => CoreLocalization.ChangelogCategory_System,
-        ChangeLogEntryCategory.Translation => CoreLocalization.ChangelogCategory_Localization,
-        ChangeLogEntryCategory.Performance => CoreLocalization.ChangelogCategory_Performance,
-        ChangeLogEntryCategory.Gear        => CoreLocalization.ChangelogCategory_Gear,
+        ChangeLogEntryCategory.General     => CoreLoc.ChangelogCategory_General,
+        ChangeLogEntryCategory.NewFeature  => CoreLoc.ChangelogCategory_NewFeature,
+        ChangeLogEntryCategory.Bugfix      => CoreLoc.ChangelogCategory_Bugfix,
+        ChangeLogEntryCategory.Options     => CoreLoc.ChangelogCategory_Configuration,
+        ChangeLogEntryCategory.Ui          => CoreLoc.ChangelogCategory_UserInterface,
+        ChangeLogEntryCategory.Lootmaster  => CoreLoc.ChangelogCategory_LootMaster,
+        ChangeLogEntryCategory.LootSession => CoreLoc.ChangelogCategory_LootSession,
+        ChangeLogEntryCategory.Bis         => CoreLoc.ChangelogCategory_BiS,
+        ChangeLogEntryCategory.System      => CoreLoc.ChangelogCategory_System,
+        ChangeLogEntryCategory.Translation => CoreLoc.ChangelogCategory_Localization,
+        ChangeLogEntryCategory.Performance => CoreLoc.ChangelogCategory_Performance,
+        ChangeLogEntryCategory.Gear        => CoreLoc.ChangelogCategory_Gear,
         _                                  => GeneralLoc.Unknown,
     };
     public static string LocalizedDescription(this ChangelogShowOptions showOption) => showOption switch
     {
 
-        ChangelogShowOptions.ShowAll     => CoreLocalization.ChangelogOption_LocalizedDescription_ShowAll,
-        ChangelogShowOptions.ShowNotable => CoreLocalization.ChangelogOption_LocalizedDescription_ShowNotable,
-        ChangelogShowOptions.ShowNone    => CoreLocalization.ChangelogOption_LocalizedDescription_ShowNone,
+        ChangelogShowOptions.ShowAll     => CoreLoc.ChangelogOption_LocalizedDescription_ShowAll,
+        ChangelogShowOptions.ShowNotable => CoreLoc.ChangelogOption_LocalizedDescription_ShowNotable,
+        ChangelogShowOptions.ShowNone    => CoreLoc.ChangelogOption_LocalizedDescription_ShowNone,
         _                                => GeneralLoc.Unknown,
     };
 }

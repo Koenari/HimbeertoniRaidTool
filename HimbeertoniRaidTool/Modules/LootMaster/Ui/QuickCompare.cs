@@ -1,34 +1,34 @@
 ﻿using System.Numerics;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
 internal class QuickCompareWindow : HrtWindowWithModalChild
 {
-    private readonly LootMasterConfiguration.ConfigData _currentConfig;
     private readonly PlayableClass _curClass;
+    private readonly LootMasterConfiguration.ConfigData _currentConfig;
     private readonly Tribe? _curTribe;
-    private IReadOnlyGearSet CurGear => _curClass.CurGear;
 
     private readonly GearSet _newGear;
-    internal QuickCompareWindow(LootMasterConfiguration.ConfigData lmConfig, PlayableClass job, Tribe? tribe) : base()
+    internal QuickCompareWindow(LootMasterConfiguration.ConfigData lmConfig, PlayableClass job, Tribe? tribe)
     {
         _currentConfig = lmConfig;
         _curClass = job;
         _curTribe = tribe;
         _newGear = new GearSet(_curClass.CurGear);
-        Title = $"Compare";
+        Title = LootmasterLoc.QuickCompareWindow_Title;
         OpenCentered = true;
         (Size, SizeCondition) = (new Vector2(1600, 650), ImGuiCond.Appearing);
 
     }
+    private IReadOnlyGearSet CurGear => _curClass.CurGear;
     public override void Draw()
     {
-        ImGui.BeginChild("SoloView");
+        ImGui.BeginChild("##SoloView");
         ImGui.Columns(3);
         /*
          * Current gear
@@ -38,8 +38,8 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
             {
                 LmUiHelpers.DrawSlot(_currentConfig, i, SlotDrawFlags.DetailedSingle);
             }
-            ImGui.BeginTable("GearCompareCurrent", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
-            ImGui.TableSetupColumn(Localize("Gear", "Gear"));
+            ImGui.BeginTable("##GearCompareCurrent", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
+            ImGui.TableSetupColumn(GeneralLoc.Gear);
             ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
             ImGui.TableNextColumn();
@@ -73,14 +73,16 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
          */
         ImGui.NextColumn();
         LmUiHelpers.DrawStatTable(_curClass, _curTribe, CurGear, _newGear,
-            Localize("Current", "Current"), Localize("QuickCompareStatGain", "Gain"), Localize("New Gear", "New Gear"));
+                                  LootmasterLoc.CurrentGear,
+                                  LootmasterLoc.QuickCompare_StatGain,
+                                  LootmasterLoc.QuickCompare_NewGear);
         /*
          * New Gear
          */
         {
             ImGui.NextColumn();
-            ImGui.BeginTable("GearCompareNew", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
-            ImGui.TableSetupColumn(Localize("New Gear", "New Gear"));
+            ImGui.BeginTable("##GearCompareNew", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
+            ImGui.TableSetupColumn(LootmasterLoc.QuickCompare_NewGear);
             ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
 
@@ -102,6 +104,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
             ImGui.EndTable();
             ImGui.EndChild();
         }
+        return;
         void DrawEditSlot(GearSetSlot slot)
         {
             ImGui.TableNextColumn();

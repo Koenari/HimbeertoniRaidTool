@@ -1,17 +1,44 @@
-﻿using HimbeertoniRaidTool.Common;
+﻿using System.Collections;
+using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Data;
-using System.Collections;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
+using HimbeertoniRaidTool.Plugin.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
 public class LootSession
 {
+
+    public enum State
+    {
+        Started,
+        LootChosen,
+        DistributionStarted,
+        Finished,
+    }
+
     public readonly InstanceWithLoot Instance;
+    internal readonly List<(HrtItem item, int count)> Loot = new();
+    public readonly RolePriority RolePriority;
+    private RaidGroup _group;
+    public List<Player> Excluded = new();
+    public LootSession(RaidGroup group, LootRuling rulingOptions, RolePriority defaultRolePriority,
+                       InstanceWithLoot instance)
+    {
+        Instance = instance;
+        RulingOptions = rulingOptions.Clone();
+        foreach (HrtItem item in Instance.PossibleItems)
+        {
+            Loot.Add((item, 0));
+        }
+        foreach (HrtItem item in instance.GuaranteedItems)
+        {
+            GuaranteedLoot[item] = false;
+        }
+        _group = Group = group;
+        RolePriority = group.RolePriority ?? defaultRolePriority;
+    }
     public LootRuling RulingOptions { get; set; }
     public State CurrentState { get; private set; } = State.Started;
-    internal readonly List<(HrtItem item, int count)> Loot = new();
-    private RaidGroup _group;
     internal RaidGroup Group
     {
         get => _group;
@@ -21,23 +48,10 @@ public class LootSession
             Results.Clear();
         }
     }
-    
+
     public Dictionary<(HrtItem, int), LootResultContainer> Results { get; } = new();
-    public List<Player> Excluded = new();
-    public readonly RolePriority RolePriority;
     public Dictionary<HrtItem, bool> GuaranteedLoot { get; } = new();
     internal int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
-    public LootSession(RaidGroup group, LootRuling rulingOptions, RolePriority defaultRolePriority, InstanceWithLoot instance)
-    {
-        Instance = instance;
-        RulingOptions = rulingOptions.Clone();
-        foreach (HrtItem item in Instance.PossibleItems)
-            Loot.Add((item, 0));
-        foreach (HrtItem item in instance.GuaranteedItems)
-            GuaranteedLoot[item] = false;
-        _group = Group = group;
-        RolePriority = group.RolePriority ?? defaultRolePriority;
-    }
     public void Evaluate()
     {
         if (CurrentState < State.LootChosen)
@@ -46,13 +60,17 @@ public class LootSession
         {
             Results.Clear();
             foreach ((HrtItem item, int count) in Loot)
+            {
                 for (int i = 0; i < count; i++)
                 {
                     Results.Add((item, i), ConstructLootResults(item));
                 }
+            }
         }
         foreach (LootResultContainer results in Results.Values)
+        {
             results.Eval();
+        }
     }
     public bool RevertToChooseLoot()
     {
@@ -142,20 +160,14 @@ public class LootSession
         {
             c.CurGear[slot] = toAward;
             foreach (HrtMateria m in c.CurBis[slot].Materia)
+            {
                 c.CurGear[slot].AddMateria(m);
+            }
         }
         EvaluateFinished();
         if (CurrentState != State.Finished)
             Evaluate();
         return true;
-    }
-
-    public enum State
-    {
-        Started,
-        LootChosen,
-        DistributionStarted,
-        Finished,
     }
 }
 
@@ -163,21 +175,20 @@ public static class LootSessionExtensions
 {
     public static string FriendlyName(this LootSession.State state) => state switch
     {
-        LootSession.State.Started => Localize("LootSession:State:STARTED", "Choosing Loot"),
-        LootSession.State.LootChosen => Localize("LootSession:State:LOOT_CHOSEN", "Loot locked"),
-        LootSession.State.DistributionStarted => Localize("LootSession:State:DISTRIBUTION_STARTED", "Distribution started"),
-        LootSession.State.Finished => Localize("LootSession:State:FINISHED", "Finished"),
-        _ => Localize("undefined", "undefined"),
+        LootSession.State.Started             => LootmasterLoc.LootSession_State_STARTED,
+        LootSession.State.LootChosen          => LootmasterLoc.LootSession_State_LOOT_CHOSEN,
+        LootSession.State.DistributionStarted => LootmasterLoc.LootSession_State_DISTRIBUTION_STARTED,
+        LootSession.State.Finished            => LootmasterLoc.LootSession_State_FINISHED,
+        _                                     => GeneralLoc.undefined,
     };
     public static string FriendlyName(this LootCategory cat) => cat switch
     {
-        LootCategory.Need => Localize("LootCategory:Need", "Need"),
-        LootCategory.Greed => Localize("LootCategory:Greed", "Greed"),
-        LootCategory.Pass => Localize("LootCategory:Pass", "Pass"),
-        LootCategory.Undecided => Localize("LootCategory:Undecided", "Undecided"),
-        _ => Localize("undefined", "undefined"),
+        LootCategory.Need      => LootmasterLoc.LootCategory_Need,
+        LootCategory.Greed     => LootmasterLoc.LootCategory_Greed,
+        LootCategory.Pass      => LootmasterLoc.LootCategory_Pass,
+        LootCategory.Undecided => LootmasterLoc.LootCategory_Undecided,
+        _                      => GeneralLoc.undefined,
     };
-
 }
 
 public enum LootCategory
@@ -192,21 +203,18 @@ public class LootResult
 {
     private static readonly Random _random = new(Guid.NewGuid().GetHashCode());
     private readonly LootSession _session;
-    public LootCategory Category = LootCategory.Undecided;
-    public readonly Player Player;
-    public readonly Job Job;
-    public readonly int Roll;
+    public readonly HashSet<GearItem> ApplicableItems;
     public readonly PlayableClass ApplicableJob;
     public readonly HrtItem DroppedItem;
-    public IEnumerable<HrtItem> GuaranteedLoot => _session.GuaranteedLoot.Keys;
-    public int RolePriority => _session.RolePriority.GetPriority(ApplicableJob.Role);
-    public bool IsEvaluated { get; private set; }
     public readonly Dictionary<LootRule, (float val, string reason)> EvaluatedRules = new();
-    public readonly HashSet<GearItem> ApplicableItems;
+    public readonly Job Job;
     public readonly List<GearItem> NeededItems = new();
+    public readonly Player Player;
+    public readonly int Roll;
     public GearItem? AwardedItem;
-    public bool ShouldIgnore => IsEvaluated && _session.RulingOptions.ActiveRules.Any(x => x.ShouldIgnore(this));
-    public LootResult(LootSession session, Player p, IEnumerable<GearItem> possibleItems, HrtItem droppedItem, Job? job = null)
+    public LootCategory Category = LootCategory.Undecided;
+    public LootResult(LootSession session, Player p, IEnumerable<GearItem> possibleItems, HrtItem droppedItem,
+                      Job? job = null)
     {
         _session = session;
         Player = p;
@@ -225,6 +233,10 @@ public class LootResult
         //Filter items by job
         ApplicableItems = new HashSet<GearItem>(possibleItems.Where(i => i.Jobs.Contains(Job)));
     }
+    public IEnumerable<HrtItem> GuaranteedLoot => _session.GuaranteedLoot.Keys;
+    public int RolePriority => _session.RolePriority.GetPriority(ApplicableJob.Role);
+    public bool IsEvaluated { get; private set; }
+    public bool ShouldIgnore => IsEvaluated && _session.RulingOptions.ActiveRules.Any(x => x.ShouldIgnore(this));
     public void Evaluate()
     {
         CalcNeed();
@@ -252,20 +264,23 @@ public class LootResult
         NeededItems.Clear();
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (GearItem item in ApplicableItems)
+        {
             if (
                 //Always need if Bis and not acquired
-                ApplicableJob.CurBis.Any(x => item.Equals(x,ItemComparisonMode.IdOnly)) && !ApplicableJob.CurGear.Any(x => item.Equals(x,ItemComparisonMode.IdOnly))
+                ApplicableJob.CurBis.Any(x => item.Equals(x, ItemComparisonMode.IdOnly))
+             && !ApplicableJob.CurGear.Any(x => item.Equals(x, ItemComparisonMode.IdOnly))
                 //No need if any of following are true
-                || !(
+             || !(
                     //Player already has this unique item
                     item.IsUnique && ApplicableJob.CurGear.Any(x => item.Equals(x, ItemComparisonMode.IdOnly))
                     //Player has Bis or higher/same iLvl for all applicable slots
-                    || ApplicableJob.HaveBisOrHigherItemLevel(item.Slots, item)
+                 || ApplicableJob.HaveBisOrHigherItemLevel(item.Slots, item)
                 )
             )
             {
                 NeededItems.Add(item);
             }
+        }
         Category = NeededItems.Count > 0 ? LootCategory.Need : LootCategory.Greed;
     }
 }
@@ -273,16 +288,19 @@ public class LootResult
 public class LootResultContainer : IReadOnlyList<LootResult>
 {
     private readonly List<LootResult> _participants = new();
-    public int Count => _participants.Count;
     public readonly LootSession Session;
-    public LootResult this[int index] => _participants[index];
+
+    private string? _shortResultCache;
+    internal bool ShowDetails = true;
+
+    public LootResultContainer(LootSession session)
+    {
+        Session = session;
+    }
     public LootResult? AwardedTo => AwardedIdx.HasValue ? this[AwardedIdx.Value] : null;
     public bool IsAwarded => AwardedTo != null;
     public bool Finished => IsAwarded || Count == 0 || this[0].Category != LootCategory.Need;
     public int? AwardedIdx { get; private set; }
-
-    private string? _shortResultCache;
-    internal bool ShowDetails = true;
 
     public string ShortResult
     {
@@ -291,30 +309,34 @@ public class LootResultContainer : IReadOnlyList<LootResult>
             if (_shortResultCache != null)
                 return _shortResultCache;
             if (IsAwarded)
-                return _shortResultCache = $"{AwardedTo?.AwardedItem?.Name} {Localize("LootResult:ItemAwardedTo", "awarded to")} {AwardedTo?.Player.NickName} ({AwardedTo?.ApplicableJob})";
+                return _shortResultCache =
+                    $"{AwardedTo?.AwardedItem?.Name} {LootmasterLoc.LootResult_ItemAwardedTo} {AwardedTo?.Player.NickName} ({AwardedTo?.ApplicableJob})";
             if (Count == 0 || this[0].Category != LootCategory.Need)
-                return _shortResultCache = Localize("LootResult:GreedOnly", "Greed only");
-            string result = $"{this[0].Player.NickName} ({this[0].ApplicableJob.Job}) {Localize("LootResult:PlayerWon", "won")}";
+                return _shortResultCache = LootmasterLoc.LootResult_GreedOnly;
+            string result =
+                $"{this[0].Player.NickName} ({this[0].ApplicableJob.Job}) {LootmasterLoc.LootResult_PlayerWon}";
             if (Count > 1)
             {
                 if (this[1].Category == LootCategory.Need)
-                    result += $" {Localize("LootResult:PlayerWonOver", "over")} {this[1].Player.NickName} ({this[1].ApplicableJob.Job})";
+                    result +=
+                        $" {LootmasterLoc.LootResult_PlayerWonOver} {this[1].Player.NickName} ({this[1].ApplicableJob.Job})";
                 result += $" ({this[0].DecidingFactor(this[1])})";
             }
             return _shortResultCache = result;
         }
     }
-
-    public LootResultContainer(LootSession session)
-    {
-        Session = session;
-    }
+    public int Count => _participants.Count;
+    public LootResult this[int index] => _participants[index];
+    public IEnumerator<LootResult> GetEnumerator() => _participants.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => _participants.GetEnumerator();
     internal void Eval()
     {
         if (IsAwarded)
             return;
         foreach (LootResult result in this)
+        {
             result.Evaluate();
+        }
         _participants.Sort(new LootRulingComparer(Session.RulingOptions.ActiveRules));
         _shortResultCache = null;
     }
@@ -325,8 +347,6 @@ public class LootResultContainer : IReadOnlyList<LootResult>
         _shortResultCache = null;
     }
     internal void Add(LootResult result) => _participants.Add(result);
-    public IEnumerator<LootResult> GetEnumerator() => _participants.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => _participants.GetEnumerator();
 }
 
 internal class LootRulingComparer : IComparer<LootResult>

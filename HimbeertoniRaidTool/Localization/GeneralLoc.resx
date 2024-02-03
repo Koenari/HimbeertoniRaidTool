@@ -127,7 +127,7 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="ConfigWindowTitle">
+    <data name="ConfigWindow_Title">
         <value>HimbeerToni Raid Tool Configuration</value>
     </data>
     <data name="ItemTableHeader">
@@ -142,25 +142,19 @@
     <data name="itemLevelLong">
         <value>Item Level</value>
     </data>
-    <data name="itemSource">
+    <data name="ItemTable_heading_source">
         <value>Source</value>
-    </data>
-    <data name="item:shopCosts">
-        <value>Shop costs</value>
-    </data>
-    <data name="item:looted:sources">
-        <value>Looted in</value>
     </data>
     <data name="Save Player">
         <value>Save Player</value>
     </data>
-    <data name="Player Data">
+    <data name="EditPlayerWindow_heading_playerData">
         <value>Player Data</value>
     </data>
-    <data name="Player Name">
+    <data name="EditPlayerWindow_input_Name">
         <value>Player Name</value>
     </data>
-    <data name="Character Data">
+    <data name="EditPlayerWindow_heading_characterData">
         <value>Character Data</value>
     </data>
     <data name="Character Name">
@@ -198,10 +192,10 @@
     <data name="EditCharacterWindow_input_AddJob">
         <value>Add Job</value>
     </data>
-    <data name="Group Name">
+    <data name="EditGroupWindow_input_name">
         <value>Group Name</value>
     </data>
-    <data name="Group Type">
+    <data name="EditGroupWindow_input_type">
         <value>Group Type</value>
     </data>
     <data name="Override role priority">
@@ -267,10 +261,10 @@
     <data name="Cancel">
         <value>Cancel</value>
     </data>
-    <data name="Inspect">
+    <data name="Ui_btn_Inspect_tt">
         <value>Update Gear by Examining</value>
     </data>
-    <data name="CharacterNotInReach">
+    <data name="Ui_btn_tt_CharacterNotInReach">
         <value>Character is not in reach to examine</value>
     </data>
     <data name="rightClickHint">
@@ -294,19 +288,19 @@
     <data name="Materia">
         <value>Materia</value>
     </data>
-    <data name="Select materia">
+    <data name="SelectMateriaUi_Title">
         <value>Select materia</value>
     </data>
-    <data name="ui:sortable_list:move_up">
+    <data name="SortableList_moveUp">
         <value>Move up</value>
     </data>
-    <data name="ui:sortable_list:move_down">
+    <data name="SortableList_moveDown">
         <value>Move down</value>
     </data>
-    <data name="ui:sortable_list:remove">
+    <data name="SortableList_remove">
         <value>Remove entry</value>
     </data>
-    <data name="ui:sortable_list::add">
+    <data name="SortableList_Add">
         <value>Add entry</value>
     </data>
     <data name="Appearance">
@@ -314,9 +308,6 @@
     </data>
     <data name="iLvl">
         <value>iLvl</value>
-    </data>
-    <data name="Examples">
-        <value>Examples</value>
     </data>
     <data name="DefaultBiSHeading">
         <value>Default BiS sets (as etro.gg ID)</value>
@@ -332,71 +323,26 @@
     <data name="default">
         <value>default</value>
     </data>
-    <data name="ui:loot_rule:active:tooltip">
-        <value>Activated</value>
-    </data>
-    <data name="ui:loot_rule:ignore">
-        <value>Ignore</value>
-    </data>
-    <data name="LowestItemLevel">
-        <value>Lowest overall ItemLevel</value>
-    </data>
-    <data name="HighestItemLevelGain">
-        <value>Highest ItemLevel Gain</value>
-    </data>
-    <data name="Rolling">
-        <value>Rolling</value>
-    </data>
-    <data name="DPSGain">
-        <value>% DPS gained</value>
-    </data>
-    <data name="Need over Greed">
-        <value>Need over Greed</value>
-    </data>
     <data name="Not defined">
         <value>Not defined</value>
     </data>
     <data name="undefined">
         <value>undefined</value>
     </data>
-    <data name="MainStats">
-        <value>Main Stats</value>
-    </data>
-    <data name="SecondaryStats">
-        <value>Secondary Stats</value>
-    </data>
     <data name="Empty">
         <value>Empty</value>
-    </data>
-    <data name="SpeedMultiplierName">
-        <value>AA / DoT multiplier</value>
     </data>
     <data name="Dmgper100Tooltip">
         <value>Average Dmg with a 100 potency skill adjusted for faster GCDs</value>
     </data>
-    <data name="Current">
-        <value>Current</value>
-    </data>
-    <data name="QuickCompareStatGain">
-        <value>Gain</value>
-    </data>
-    <data name="New Gear">
-        <value>New Gear</value>
-    </data>
     <data name="Edit player">
         <value>Edit player</value>
     </data>
-    <data name="gear">
+    <data name="Gear">
         <value>gear</value>
-    </data>
-    <data name="Quick compare">
-        <value>Quick compare</value>
     </data>
     <data name="BiS">
         <value>BiS</value>
-    </data>
-    <data name="UpdateBis">
-        <value>Update "{0}" from Etro.gg</value>
     </data>
     <data name="Add Player">
         <value>Add Player</value>
@@ -413,10 +359,7 @@
     <data name="Edit group">
         <value>Edit group</value>
     </data>
-    <data name="AutoCreatedGroupName">
-        <value>Auto Created</value>
-    </data>
-    <data name="n.A.">
+    <data name="NotAvail_Abbrev">
         <value>n.A.</value>
     </data>
     <data name="PlayerDetails">
@@ -428,14 +371,11 @@
     <data name="DeletePlayerConfirmation">
         <value>Do you really want to delete following player?</value>
     </data>
-    <data name="No Player">
-        <value>No Player</value>
-    </data>
     <data name="Add">
         <value>Add</value>
     </data>
     <data name="PlayerDetailsTitle">
-        <value>Player Details</value>
+        <value>Player Details for {0}</value>
     </data>
     <data name="Inventory:AdditionalGear">
         <value>Additional Gear</value>
@@ -445,9 +385,6 @@
     </data>
     <data name="Swap players positions">
         <value>Swap players positions</value>
-    </data>
-    <data name="Role priority">
-        <value>Role priority</value>
     </data>
     <data name="Results for">
         <value>Results for</value>
@@ -599,5 +536,74 @@ You need to update to use this plugin!</value>
     </data>
     <data name="Unknown" xml:space="preserve">
         <value>Unknown</value>
+    </data>
+    <data name="DrawItem_heading_ShopCosts" xml:space="preserve">
+        <value>Shop costs</value>
+    </data>
+    <data name="ItemTable_heading_Header" xml:space="preserve">
+        <value>Header</value>
+    </data>
+    <data name="ItemTable_heading_name" xml:space="preserve">
+        <value>Name</value>
+    </data>
+    <data name="ItemTable_heading_iLvl" xml:space="preserve">
+        <value>Item Level</value>
+    </data>
+    <data name="ItemTable_heading_LootedIn" xml:space="preserve">
+        <value>Looted in</value>
+    </data>
+    <data name="EditGroupWindow_Title" xml:space="preserve">
+        <value>Edit Group {0}</value>
+    </data>
+    <data name="Right_Abbrev" xml:space="preserve">
+        <value>R</value>
+    </data>
+    <data name="Left_Abbrev" xml:space="preserve">
+        <value>L</value>
+    </data>
+    <data name="Yes_Abbrev" xml:space="preserve">
+        <value>y</value>
+    </data>
+    <data name="No_Abbrev" xml:space="preserve">
+        <value>n</value>
+    </data>
+    <data name="Close" xml:space="preserve">
+        <value>Close</value>
+    </data>
+    <data name="chat_usage_heading" xml:space="preserve">
+        <value>Commands used for Loot Master:</value>
+    </data>
+    <data name="command_show_helpText" xml:space="preserve">
+        <value>Opens Lootmaster window</value>
+    </data>
+    <data name="command_toggle_helpText" xml:space="preserve">
+        <value>Toggles Lootmaster window</value>
+    </data>
+    <data name="World" xml:space="preserve">
+        <value>World</value>
+    </data>
+    <data name="Ui_GearEdit_btn_tt_selectMat" xml:space="preserve">
+        <value>Select materia</value>
+    </data>
+    <data name="EditGearSetUi_btn_openEtro" xml:space="preserve">
+        <value>Open set on etro.gg</value>
+    </data>
+    <data name="EditGearSetUi_txt_lastUpdate" xml:space="preserve">
+        <value>Last update check: {0}</value>
+    </data>
+    <data name="GearSet_manager_local" xml:space="preserve">
+        <value>Local Database</value>
+    </data>
+    <data name="Gearset_Warning_SysManaged" xml:space="preserve">
+        <value>This set is manged by the plugin and will be automatically overwritten with characters current gear!</value>
+    </data>
+    <data name="EditGearSetUi_txt_Source" xml:space="preserve">
+        <value>Source</value>
+    </data>
+    <data name="EditGearSetUi_txt_LastChange" xml:space="preserve">
+        <value>Last Change: {0}</value>
+    </data>
+    <data name="EditCharacterui_input_hideJob" xml:space="preserve">
+        <value>Do not show this job</value>
     </data>
 </root>

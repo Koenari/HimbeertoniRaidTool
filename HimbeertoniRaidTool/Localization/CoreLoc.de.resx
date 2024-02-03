@@ -15,13 +15,13 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="command:hrt:options">
+    <data name="command_hrt_options">
         <value>Zeigt das Konfigurationsfenster an</value>
     </data>
     <data name="command_hrt_help">
         <value>Zeigt Informationen zur Nutzung im Chat</value>
     </data>
-    <data name="command:hrt:welcome">
+    <data name="command_hrt_welcome">
         <value>Begrüßungsfenster mit Erklärungen öffnen</value>
     </data>
     <data name="Core:PeriodicSaveFailed">
@@ -68,9 +68,6 @@
             Bedürfnisse anzupassen. Auch ein Blick auf das Wiki ist empfehlenswert, für
             detailliertere Anweisungen :)
         </value>
-    </data>
-    <data name="Command_hrt">
-        <value>Hilfe anzeigen</value>
     </data>
     <data name="ConfigUi_UpdateBisOnStartUp">
         <value>Ausrüstungssets von etro.gg regelmäßig aktualisieren</value>
@@ -130,5 +127,8 @@
     </data>
     <data name="WelcomeWindow_button_Close_tooltip">
         <value>Dieses Fenster schließen</value>
+    </data>
+    <data name="ChangelogCategory_BiS" xml:space="preserve">
+        <value>BiS</value>
     </data>
 </root>

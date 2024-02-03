@@ -24,7 +24,7 @@
     <data name="Config:Lootmaster:IconInGroupOverview">
         <value>Show item icon in group overview</value>
     </data>
-    <data name="Config:Lootmaster:IgnoreMateriaForBis">
+    <data name="Config_input_IgnoreMateriaForBis">
         <value>Ignore Materia</value>
     </data>
     <data name="Config:Lootmaster:IgnoreMateriaForBisTooltip">
@@ -36,19 +36,16 @@
     <data name="Config:Lootmaster:ItemFormat">
         <value>Item format</value>
     </data>
-    <data name="ChangesOnlyForThisLootSession">
-        <value>Changes made here only affect this loot session</value>
-    </data>
-    <data name="Distribute loot for:">
+    <data name="Ui_text_openLootSessioon">
         <value>Distribuir el botín para:</value>
     </data>
     <data name="LootCategory:Greed">
         <value>Greed</value>
     </data>
-    <data name="Loot session for">
-        <value>Sesión de loot para</value>
+    <data name="LootSessionWindow_Title">
+        <value>Sesión de loot para {0}</value>
     </data>
-    <data name="Greed">
+    <data name="LootRule_Greed">
         <value>Codicia</value>
     </data>
     <data name="From current Group">
@@ -66,10 +63,10 @@
     <data name="Delete group">
         <value>Eliminar grupo</value>
     </data>
-    <data name="/lootmaster">
+    <data name="lootmaster">
         <value>Abre la ventana de LootMaster (o "/lm")</value>
     </data>
-    <data name="BISOverUpgrade">
+    <data name="LootRule_BISOverUpgrade">
         <value>BIS &gt; Mejora</value>
     </data>
     <data name="ConfigRolePriority">
@@ -81,7 +78,7 @@
     <data name="DeleteRaidGroup">
         <value>¿Estás seguro de querer eliminar este grupo:</value>
     </data>
-    <data name="lootmaster:button:inventorytooltip">
+    <data name="lootmaster_button_inventory_tooltip">
         <value>Open inventory window</value>
     </data>
     <data name="lootmaster:button:quickCompare:tooltip">
@@ -114,13 +111,13 @@
     <data name="lootmaster:detail:jobDown:tooltip">
         <value>Move job down</value>
     </data>
-    <data name="Lootmaster:OpenOnLogin">
+    <data name="Config_input_OpenOnLogin">
         <value>Abrir resumen de grupo al iniciar sesión</value>
     </data>
-    <data name="Lootmaster:OpenOnLoginTooltip">
+    <data name="Config_input_OpenOnLogin_tt">
         <value>Opens group overview window when you log in</value>
     </data>
-    <data name="LootMasterWindowTitle">
+    <data name="Ui_Title">
         <value>Loot Master</value>
     </data>
     <data name="LootResult:GreedOnly">
@@ -138,9 +135,6 @@
     <data name="LootResults:AbortButton:Text">
         <value>Abort</value>
     </data>
-    <data name="LootResult:PossibleItems">
-        <value>Items to distribute:</value>
-    </data>
     <data name="LootResult:PlayerWonOver">
         <value>over</value>
     </data>
@@ -156,38 +150,17 @@
     <data name="LootResultWindow:GuaranteedItems">
         <value>Guaranteed Items (per player)</value>
     </data>
-    <data name="LootSession:State:STARTED">
-        <value>Choosing Loot</value>
-    </data>
-    <data name="LootSession:CalcButton:Text">
-        <value>Calculate</value>
-    </data>
     <data name="LootSession:CalcButton:Tooltip">
-        <value>Calculates results of loot distribution according to the rules and current equipment
-            of players
-            Locks the loot selection
-        </value>
-    </data>
-    <data name="LootSession:RulesButton:Tooltip">
-        <value>Override ruling options</value>
-    </data>
-    <data name="LootSession:State:DISTRIBUTION_STARTED">
-        <value>Distribution started</value>
+        <value></value>
     </data>
     <data name="LootRuleOrder">
         <value>Orden en el que deben aplicarse las reglas del loot</value>
-    </data>
-    <data name="LootSession:State:LOOT_CHOSEN">
-        <value>Loot locked</value>
     </data>
     <data name="LootRule:CanBuy">
         <value>Can buy</value>
     </data>
     <data name="LootRule:CanUse">
         <value>Can use now</value>
-    </data>
-    <data name="Lootsession:State">
-        <value>Current State</value>
     </data>
     <data name="loot_rule:ignore:tooltip:bis">
         <value>Ignore players/jobs not using this in BiS</value>
@@ -201,10 +174,58 @@
     <data name="loot_rule:ignore:tooltip:need_greed">
         <value>Ignore players that have no need</value>
     </data>
-    <data name="LootSession:State:FINISHED">
-        <value>Finished</value>
-    </data>
     <data name="GroupTabTooltip">
         <value>Right click for more options</value>
+    </data>
+    <data name="CurrentGear">
+        <value>Actual</value>
+    </data>
+    <data name="QuickCompare_StatGain">
+        <value>Gain</value>
+    </data>
+    <data name="QuickCompare_NewGear">
+        <value>New Gear</value>
+    </data>
+    <data name="LootSession_text_rolePriority">
+        <value>Prioridad de rol</value>
+    </data>
+    <data name="StatTable_MainStats_Title">
+        <value>Estadísticas principales</value>
+    </data>
+    <data name="StatTable_SecondaryStats_Title">
+        <value>Estadísticas secundarias</value>
+    </data>
+    <data name="ui:loot_rule:active:tooltip">
+        <value>Activated</value>
+    </data>
+    <data name="ui:loot_rule:ignore">
+        <value>Ignore</value>
+    </data>
+    <data name="LootRule_LowestItemLevel">
+        <value>Nivel de objetos menor</value>
+    </data>
+    <data name="LootRule_HighestItemLevelGain">
+        <value>Highest ItemLevel Gain</value>
+    </data>
+    <data name="LootRule_DPSGain">
+        <value>% DPS gained</value>
+    </data>
+    <data name="LootRule_Rolling">
+        <value>Rollear</value>
+    </data>
+    <data name="PlayerDetail_button_quickCompare">
+        <value>Quick compare</value>
+    </data>
+    <data name="UpdateBis">
+        <value>Actualizar "{0}" desde Etro.gg</value>
+    </data>
+    <data name="Ui_text_emptyPlayer">
+        <value>Sin jugadores</value>
+    </data>
+    <data name="LootRule_Need">
+        <value>Need over Greed</value>
+    </data>
+    <data name="Config_hdg_Examples">
+        <value>Examples</value>
     </data>
 </root>

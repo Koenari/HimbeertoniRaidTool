@@ -96,15 +96,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Auto Created.
-        /// </summary>
-        internal static string AutoCreatedGroupName {
-            get {
-                return ResourceManager.GetString("AutoCreatedGroupName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to BiS.
         /// </summary>
         internal static string BiS {
@@ -141,15 +132,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Character Data.
-        /// </summary>
-        internal static string Character_Data {
-            get {
-                return ResourceManager.GetString("Character Data", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Character Name.
         /// </summary>
         internal static string Character_Name {
@@ -159,11 +141,20 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Character is not in reach to examine.
+        ///   Looks up a localized string similar to Commands used for Loot Master:.
         /// </summary>
-        internal static string CharacterNotInReach {
+        internal static string chat_usage_heading {
             get {
-                return ResourceManager.GetString("CharacterNotInReach", resourceCulture);
+                return ResourceManager.GetString("chat_usage_heading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        internal static string Close {
+            get {
+                return ResourceManager.GetString("Close", resourceCulture);
             }
         }
         
@@ -173,6 +164,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string command_hrt_changelog {
             get {
                 return ResourceManager.GetString("command_hrt_changelog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Opens Lootmaster window.
+        /// </summary>
+        internal static string command_show_helpText {
+            get {
+                return ResourceManager.GetString("command_show_helpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggles Lootmaster window.
+        /// </summary>
+        internal static string command_toggle_helpText {
+            get {
+                return ResourceManager.GetString("command_toggle_helpText", resourceCulture);
             }
         }
         
@@ -190,9 +199,9 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// <summary>
         ///   Looks up a localized string similar to HimbeerToni Raid Tool Configuration.
         /// </summary>
-        internal static string ConfigWindowTitle {
+        internal static string ConfigWindow_Title {
             get {
-                return ResourceManager.GetString("ConfigWindowTitle", resourceCulture);
+                return ResourceManager.GetString("ConfigWindow_Title", resourceCulture);
             }
         }
         
@@ -229,15 +238,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string CoreModule_Name {
             get {
                 return ResourceManager.GetString("CoreModule_Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Current.
-        /// </summary>
-        internal static string Current {
-            get {
-                return ResourceManager.GetString("Current", resourceCulture);
             }
         }
         
@@ -298,11 +298,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to % DPS gained.
+        ///   Looks up a localized string similar to Shop costs.
         /// </summary>
-        internal static string DPSGain {
+        internal static string DrawItem_heading_ShopCosts {
             get {
-                return ResourceManager.GetString("DPSGain", resourceCulture);
+                return ResourceManager.GetString("DrawItem_heading_ShopCosts", resourceCulture);
             }
         }
         
@@ -330,6 +330,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string Edit_player {
             get {
                 return ResourceManager.GetString("Edit player", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do not show this job.
+        /// </summary>
+        internal static string EditCharacterui_input_hideJob {
+            get {
+                return ResourceManager.GetString("EditCharacterui_input_hideJob", resourceCulture);
             }
         }
         
@@ -406,6 +415,42 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open set on etro.gg.
+        /// </summary>
+        internal static string EditGearSetUi_btn_openEtro {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_openEtro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last Change: {0}.
+        /// </summary>
+        internal static string EditGearSetUi_txt_LastChange {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_txt_LastChange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last update check: {0}.
+        /// </summary>
+        internal static string EditGearSetUi_txt_lastUpdate {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_txt_lastUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source.
+        /// </summary>
+        internal static string EditGearSetUi_txt_Source {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_txt_Source", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Custom.
         /// </summary>
         internal static string EditGearSetWindow_button_CustomEtro {
@@ -460,6 +505,33 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Group Name.
+        /// </summary>
+        internal static string EditGroupWindow_input_name {
+            get {
+                return ResourceManager.GetString("EditGroupWindow_input_name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Group Type.
+        /// </summary>
+        internal static string EditGroupWindow_input_type {
+            get {
+                return ResourceManager.GetString("EditGroupWindow_input_type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit Group {0}.
+        /// </summary>
+        internal static string EditGroupWindow_Title {
+            get {
+                return ResourceManager.GetString("EditGroupWindow_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add custom character.
         /// </summary>
         internal static string EditPlayerWindow_button_AddEmptyCharacter_tooltip {
@@ -510,6 +582,33 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string EditPlayerWindow_button_removeChar_tooltip {
             get {
                 return ResourceManager.GetString("EditPlayerWindow_button_removeChar_tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Character Data.
+        /// </summary>
+        internal static string EditPlayerWindow_heading_characterData {
+            get {
+                return ResourceManager.GetString("EditPlayerWindow_heading_characterData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Player Data.
+        /// </summary>
+        internal static string EditPlayerWindow_heading_playerData {
+            get {
+                return ResourceManager.GetString("EditPlayerWindow_heading_playerData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Player Name.
+        /// </summary>
+        internal static string EditPlayerWindow_input_Name {
+            get {
+                return ResourceManager.GetString("EditPlayerWindow_input_Name", resourceCulture);
             }
         }
         
@@ -604,20 +703,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Examples.
-        /// </summary>
-        internal static string Examples {
-            get {
-                return ResourceManager.GetString("Examples", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to gear.
         /// </summary>
-        internal static string gear {
+        internal static string Gear {
             get {
-                return ResourceManager.GetString("gear", resourceCulture);
+                return ResourceManager.GetString("Gear", resourceCulture);
             }
         }
         
@@ -636,6 +726,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string GearSet_ManagedBy_HrtLocal {
             get {
                 return ResourceManager.GetString("GearSet:ManagedBy:HrtLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Local Database.
+        /// </summary>
+        internal static string GearSet_manager_local {
+            get {
+                return ResourceManager.GetString("GearSet_manager_local", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This set is manged by the plugin and will be automatically overwritten with characters current gear!.
+        /// </summary>
+        internal static string Gearset_Warning_SysManaged {
+            get {
+                return ResourceManager.GetString("Gearset_Warning_SysManaged", resourceCulture);
             }
         }
         
@@ -733,33 +841,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Group Name.
-        /// </summary>
-        internal static string Group_Name {
-            get {
-                return ResourceManager.GetString("Group Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Group Type.
-        /// </summary>
-        internal static string Group_Type {
-            get {
-                return ResourceManager.GetString("Group Type", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Highest ItemLevel Gain.
-        /// </summary>
-        internal static string HighestItemLevelGain {
-            get {
-                return ResourceManager.GetString("HighestItemLevelGain", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Home World.
         /// </summary>
         internal static string Home_World {
@@ -778,38 +859,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update Gear by Examining.
-        /// </summary>
-        internal static string Inspect {
-            get {
-                return ResourceManager.GetString("Inspect", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Additional Gear.
         /// </summary>
         internal static string Inventory_AdditionalGear {
             get {
                 return ResourceManager.GetString("Inventory:AdditionalGear", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Looted in.
-        /// </summary>
-        internal static string item_looted_sources {
-            get {
-                return ResourceManager.GetString("item:looted:sources", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Shop costs.
-        /// </summary>
-        internal static string item_shopCosts {
-            get {
-                return ResourceManager.GetString("item:shopCosts", resourceCulture);
             }
         }
         
@@ -832,11 +886,47 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Header.
+        /// </summary>
+        internal static string ItemTable_heading_Header {
+            get {
+                return ResourceManager.GetString("ItemTable_heading_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Item Level.
+        /// </summary>
+        internal static string ItemTable_heading_iLvl {
+            get {
+                return ResourceManager.GetString("ItemTable_heading_iLvl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Looted in.
+        /// </summary>
+        internal static string ItemTable_heading_LootedIn {
+            get {
+                return ResourceManager.GetString("ItemTable_heading_LootedIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string ItemTable_heading_name {
+            get {
+                return ResourceManager.GetString("ItemTable_heading_name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Source.
         /// </summary>
-        internal static string itemSource {
+        internal static string ItemTable_heading_source {
             get {
-                return ResourceManager.GetString("itemSource", resourceCulture);
+                return ResourceManager.GetString("ItemTable_heading_source", resourceCulture);
             }
         }
         
@@ -846,6 +936,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string ItemTableHeader {
             get {
                 return ResourceManager.GetString("ItemTableHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to L.
+        /// </summary>
+        internal static string Left_Abbrev {
+            get {
+                return ResourceManager.GetString("Left_Abbrev", resourceCulture);
             }
         }
         
@@ -951,38 +1050,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lowest overall ItemLevel.
-        /// </summary>
-        internal static string LowestItemLevel {
-            get {
-                return ResourceManager.GetString("LowestItemLevel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Main Stats.
-        /// </summary>
-        internal static string MainStats {
-            get {
-                return ResourceManager.GetString("MainStats", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Materia.
         /// </summary>
         internal static string Materia {
             get {
                 return ResourceManager.GetString("Materia", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to n.A..
-        /// </summary>
-        internal static string n_A_ {
-            get {
-                return ResourceManager.GetString("n.A.", resourceCulture);
             }
         }
         
@@ -996,15 +1068,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Need over Greed.
-        /// </summary>
-        internal static string Need_over_Greed {
-            get {
-                return ResourceManager.GetString("Need over Greed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Needed items.
         /// </summary>
         internal static string Needed_items {
@@ -1014,20 +1077,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to New Gear.
+        ///   Looks up a localized string similar to n.
         /// </summary>
-        internal static string New_Gear {
+        internal static string No_Abbrev {
             get {
-                return ResourceManager.GetString("New Gear", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No Player.
-        /// </summary>
-        internal static string No_Player {
-            get {
-                return ResourceManager.GetString("No Player", resourceCulture);
+                return ResourceManager.GetString("No_Abbrev", resourceCulture);
             }
         }
         
@@ -1046,6 +1100,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string Not_defined {
             get {
                 return ResourceManager.GetString("Not defined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to n.A..
+        /// </summary>
+        internal static string NotAvail_Abbrev {
+            get {
+                return ResourceManager.GetString("NotAvail_Abbrev", resourceCulture);
             }
         }
         
@@ -1086,24 +1149,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Player Data.
-        /// </summary>
-        internal static string Player_Data {
-            get {
-                return ResourceManager.GetString("Player Data", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Player Name.
-        /// </summary>
-        internal static string Player_Name {
-            get {
-                return ResourceManager.GetString("Player Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Show player details for.
         /// </summary>
         internal static string PlayerDetails {
@@ -1113,7 +1158,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Player Details.
+        ///   Looks up a localized string similar to Player Details for {0}.
         /// </summary>
         internal static string PlayerDetailsTitle {
             get {
@@ -1160,24 +1205,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Quick compare.
-        /// </summary>
-        internal static string Quick_compare {
-            get {
-                return ResourceManager.GetString("Quick compare", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Gain.
-        /// </summary>
-        internal static string QuickCompareStatGain {
-            get {
-                return ResourceManager.GetString("QuickCompareStatGain", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Remove this item.
         /// </summary>
         internal static string Remove_this_item {
@@ -1214,29 +1241,20 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to R.
+        /// </summary>
+        internal static string Right_Abbrev {
+            get {
+                return ResourceManager.GetString("Right_Abbrev", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to right click for more options.
         /// </summary>
         internal static string rightClickHint {
             get {
                 return ResourceManager.GetString("rightClickHint", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Role priority.
-        /// </summary>
-        internal static string Role_priority {
-            get {
-                return ResourceManager.GetString("Role priority", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Rolling.
-        /// </summary>
-        internal static string Rolling {
-            get {
-                return ResourceManager.GetString("Rolling", resourceCulture);
             }
         }
         
@@ -1268,15 +1286,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Secondary Stats.
-        /// </summary>
-        internal static string SecondaryStats {
-            get {
-                return ResourceManager.GetString("SecondaryStats", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Select item.
         /// </summary>
         internal static string Select_item {
@@ -1288,9 +1297,9 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Select materia.
         /// </summary>
-        internal static string Select_materia {
+        internal static string SelectMateriaUi_Title {
             get {
-                return ResourceManager.GetString("Select materia", resourceCulture);
+                return ResourceManager.GetString("SelectMateriaUi_Title", resourceCulture);
             }
         }
         
@@ -1304,11 +1313,38 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to AA / DoT multiplier.
+        ///   Looks up a localized string similar to Add entry.
         /// </summary>
-        internal static string SpeedMultiplierName {
+        internal static string SortableList_Add {
             get {
-                return ResourceManager.GetString("SpeedMultiplierName", resourceCulture);
+                return ResourceManager.GetString("SortableList_Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move down.
+        /// </summary>
+        internal static string SortableList_moveDown {
+            get {
+                return ResourceManager.GetString("SortableList_moveDown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move up.
+        /// </summary>
+        internal static string SortableList_moveUp {
+            get {
+                return ResourceManager.GetString("SortableList_moveUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove entry.
+        /// </summary>
+        internal static string SortableList_remove {
+            get {
+                return ResourceManager.GetString("SortableList_remove", resourceCulture);
             }
         }
         
@@ -1340,56 +1376,29 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Activated.
+        ///   Looks up a localized string similar to Update Gear by Examining.
         /// </summary>
-        internal static string ui_loot_rule_active_tooltip {
+        internal static string Ui_btn_Inspect_tt {
             get {
-                return ResourceManager.GetString("ui:loot_rule:active:tooltip", resourceCulture);
+                return ResourceManager.GetString("Ui_btn_Inspect_tt", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ignore.
+        ///   Looks up a localized string similar to Character is not in reach to examine.
         /// </summary>
-        internal static string ui_loot_rule_ignore {
+        internal static string Ui_btn_tt_CharacterNotInReach {
             get {
-                return ResourceManager.GetString("ui:loot_rule:ignore", resourceCulture);
+                return ResourceManager.GetString("Ui_btn_tt_CharacterNotInReach", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add entry.
+        ///   Looks up a localized string similar to Select materia.
         /// </summary>
-        internal static string ui_sortable_list__add {
+        internal static string Ui_GearEdit_btn_tt_selectMat {
             get {
-                return ResourceManager.GetString("ui:sortable_list::add", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Move down.
-        /// </summary>
-        internal static string ui_sortable_list_move_down {
-            get {
-                return ResourceManager.GetString("ui:sortable_list:move_down", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Move up.
-        /// </summary>
-        internal static string ui_sortable_list_move_up {
-            get {
-                return ResourceManager.GetString("ui:sortable_list:move_up", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Remove entry.
-        /// </summary>
-        internal static string ui_sortable_list_remove {
-            get {
-                return ResourceManager.GetString("ui:sortable_list:remove", resourceCulture);
+                return ResourceManager.GetString("Ui_GearEdit_btn_tt_selectMat", resourceCulture);
             }
         }
         
@@ -1412,15 +1421,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update &quot;{0}&quot; from Etro.gg.
-        /// </summary>
-        internal static string UpdateBis {
-            get {
-                return ResourceManager.GetString("UpdateBis", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Use this item.
         /// </summary>
         internal static string Use_this_item {
@@ -1435,6 +1435,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string Value {
             get {
                 return ResourceManager.GetString("Value", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to World.
+        /// </summary>
+        internal static string World {
+            get {
+                return ResourceManager.GetString("World", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to y.
+        /// </summary>
+        internal static string Yes_Abbrev {
+            get {
+                return ResourceManager.GetString("Yes_Abbrev", resourceCulture);
             }
         }
     }

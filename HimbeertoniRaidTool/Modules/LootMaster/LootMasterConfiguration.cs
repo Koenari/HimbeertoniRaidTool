@@ -6,7 +6,6 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
@@ -89,52 +88,47 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
 
         public void Draw()
         {
-            ImGui.BeginTabBar("LootMaster");
-            if (ImGui.BeginTabItem(CoreLocalization.Config_Appearance))
+            ImGui.BeginTabBar("##LootMaster");
+            if (ImGui.BeginTabItem(CoreLoc.Config_Appearance))
             {
-                ImGui.Checkbox(Localize("Lootmaster:OpenOnLogin", "Open group overview on login"),
-                               ref _dataCopy.OpenOnStartup);
-                ImGuiHelper.AddTooltip(Localize("Lootmaster:OpenOnLoginTooltip",
-                                                "Opens group overview window when you log in"));
-                ImGui.Checkbox(Localize("Config:Lootmaster:IgnoreMateriaForBis",
-                                        "Ignore Materia"), ref _dataCopy.IgnoreMateriaForBiS);
-                ImGuiHelper.AddTooltip(Localize("Config:Lootmaster:IgnoreMateriaForBisTooltip",
-                                                "Ignore Materia when determining if an item is equivalent to BiS"));
-                ImGui.Checkbox(Localize("Config:Lootmaster:IconInGroupOverview", "Show item icon in group overview"),
+                ImGui.Checkbox(LootmasterLoc.Config_input_OpenOnLogin, ref _dataCopy.OpenOnStartup);
+                ImGuiHelper.AddTooltip(LootmasterLoc.Config_input_OpenOnLogin_tt);
+                ImGui.Checkbox(LootmasterLoc.Config_input_IgnoreMateriaForBis,
+                               ref _dataCopy.IgnoreMateriaForBiS);
+                ImGuiHelper.AddTooltip(LootmasterLoc.Config_Lootmaster_IgnoreMateriaForBisTooltip);
+                ImGui.Checkbox(LootmasterLoc.Config_Lootmaster_IconInGroupOverview,
                                ref _dataCopy.ShowIconInGroupOverview);
-                ImGui.Checkbox(Localize("Config:Lootmaster:ColoredItemNames", "Color items by item level"),
-                               ref _dataCopy.ColoredItemNames);
-                ImGuiHelper.AddTooltip(Localize("Lootmaster:ColoredItemNamesTooltip",
-                                                "Color items according to the item level"));
+                ImGui.Checkbox(LootmasterLoc.Config_Lootmaster_ColoredItemNames, ref _dataCopy.ColoredItemNames);
+                ImGuiHelper.AddTooltip(LootmasterLoc.Lootmaster_ColoredItemNamesTooltip);
                 ImGui.BeginDisabled(!_dataCopy.ColoredItemNames);
-                ImGui.Text($"{Localize("Config:Lootmaster:Colors", "Configured colors")}:");
+                ImGui.Text(LootmasterLoc.Config_Lootmaster_Colors);
                 ImGui.NewLine();
                 uint iLvL = _config.Data.SelectedRaidTier.ArmorItemLevel;
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.CalcTextSize($"{iLvL} > ").X);
-                ImGui.Text($"{Localize("iLvl", "iLvl")} >= {iLvL}");
+                ImGui.Text($"{GeneralLoc.iLvl} >= {iLvL}");
                 ImGui.SameLine();
                 ImGui.ColorEdit4("##Color0", ref _dataCopy.ItemLevelColors[0]);
-                ImGui.Text($"{iLvL} > {Localize("iLvl", "iLvl")} >= {iLvL - 10}");
+                ImGui.Text($"{iLvL} > {GeneralLoc.iLvl} >= {iLvL - 10}");
                 ImGui.SameLine();
                 ImGui.ColorEdit4("##Color1", ref _dataCopy.ItemLevelColors[1]);
-                ImGui.Text($"{iLvL - 10} > {Localize("iLvl", "iLvl")} >= {iLvL - 20}");
+                ImGui.Text($"{iLvL - 10} > {GeneralLoc.iLvl} >= {iLvL - 20}");
                 ImGui.SameLine();
                 ImGui.ColorEdit4("##Color2", ref _dataCopy.ItemLevelColors[2]);
-                ImGui.Text($"{iLvL - 20} > {Localize("iLvl", "iLvl")}");
+                ImGui.Text($"{iLvL - 20} > {GeneralLoc.iLvl}");
                 ImGui.SameLine();
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.CalcTextSize($" >= {iLvL - 20}").X);
                 ImGui.ColorEdit4("##Color3", ref _dataCopy.ItemLevelColors[3]);
                 ImGui.EndDisabled();
                 ImGui.Separator();
-                ImGui.Text($"{Localize("Config:Lootmaster:ItemFormat", "Item format")}:");
+                ImGui.Text(LootmasterLoc.Config_Lootmaster_ItemFormat);
                 ImGui.SameLine();
                 string copy = _dataCopy.UserItemFormat;
                 if (ImGui.InputText("##format", ref copy, 50))
                     _dataCopy.UserItemFormat = copy;
                 ImGui.Text(
-                    $"{Localize("Config:Lootmaster:ItemFormat:Available", "Available options")}: {{ilvl}} {{source}} {{slot}}");
+                    $"{LootmasterLoc.Config_Lootmaster_ItemFormat_Available}: {{ilvl}} {{source}} {{slot}}");
                 ImGui.Separator();
-                ImGui.Text($"{Localize("Examples", "Examples")}:");
+                ImGui.Text(LootmasterLoc.Config_hdg_Examples);
                 for (int i = 0; i < 4; i++)
                 {
                     (long curiLvL, string source, string slot) = (iLvL - 10 * i, ((ItemSource)i).FriendlyName(),
@@ -150,12 +144,11 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
             }
             if (ImGui.BeginTabItem("Loot"))
             {
-                ImGui.Text(Localize("LootRuleOrder", "Order in which loot rules should be applied"));
+                ImGui.Text(LootmasterLoc.LootRuleOrder);
                 _lootList.Draw();
                 ImGui.Separator();
-                ImGui.Text(
-                    Localize("ConfigRolePriority", "Priority to loot for each role (smaller is higher priority)"));
-                ImGui.Text($"{Localize("Current priority", "Current priority")}: {_dataCopy.RolePriority}");
+                ImGui.Text(LootmasterLoc.ConfigRolePriority);
+                ImGui.Text($"{LootmasterLoc.Current_priority}: {_dataCopy.RolePriority}");
                 _dataCopy.RolePriority.DrawEdit(ImGui.InputInt);
                 ImGui.EndTabItem();
             }

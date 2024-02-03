@@ -29,7 +29,6 @@ public sealed class HrtPlugin : IDalamudPlugin
         //Init all services
         _loadError = !ServiceManager.Init(pluginInterface);
         //Init Localization
-        Services.Localization.Init(pluginInterface);
         OnLanguageChange(pluginInterface.UiLanguage);
         pluginInterface.LanguageChanged += OnLanguageChange;
         //Init Configuration    
@@ -76,8 +75,6 @@ public sealed class HrtPlugin : IDalamudPlugin
                 ServiceManager.PluginLog.Fatal($"Unable to Dispose module \"{type}\"\n{e}");
             }
         }
-
-        Services.Localization.Dispose();
         _configuration.Dispose();
         ServiceManager.Dispose();
     }
