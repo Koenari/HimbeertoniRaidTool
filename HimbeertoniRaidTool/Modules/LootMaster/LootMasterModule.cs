@@ -18,15 +18,28 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
 internal sealed class LootMasterModule : IHrtModule
 {
+    private readonly LootmasterUi _ui;
+    internal readonly LootMasterConfiguration ConfigImpl;
+    private bool _fillSoloOnLogin;
+    public LootMasterModule()
+    {
+        ConfigImpl = new LootMasterConfiguration(this);
+        WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
+        _ui = new LootmasterUi(this);
+        WindowSystem.AddWindow(_ui);
+        ServiceManager.ClientState.Login += OnLogin;
+    }
+    //Properties
+    internal List<RaidGroup> RaidGroups => ConfigImpl.Data.RaidGroups;
     //Interface Properties
     public string Name => "Loot Master";
     public string InternalName => "LootMaster";
     public IHrtConfiguration Configuration => ConfigImpl;
     public string Description => "";
-    public WindowSystem WindowSystem { get; }
+    public IWindowSystem WindowSystem { get; }
 
-    public event Action? UiReady; 
-    public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
+    public event Action? UiReady;
+    public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
     {
         new()
         {
@@ -44,39 +57,70 @@ internal sealed class LootMasterModule : IHrtModule
             ShouldExposeAltsToDalamud = true,
         },
     };
-    //Properties
-    internal List<RaidGroup> RaidGroups => ConfigImpl.Data.RaidGroups;
-    private readonly LootmasterUi _ui;
-    internal readonly LootMasterConfiguration ConfigImpl;
-    private bool _fillSoloOnLogin;
-    public LootMasterModule()
-    {
-        ConfigImpl = new LootMasterConfiguration(this);
-        WindowSystem = new WindowSystem(InternalName);
-        _ui = new LootmasterUi(this);
-        WindowSystem.AddWindow(_ui);
-        ServiceManager.ClientState.Login += OnLogin;
-    }
     public void AfterFullyLoaded()
     {
         if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo)
         {
-            
-            var solo =  new RaidGroup("Solo", GroupType.Solo)
+
+            var solo = new RaidGroup("Solo", GroupType.Solo)
             {
                 TypeLocked = true,
             };
-            if(ServiceManager.HrtDataManager.RaidGroupDb.TryAdd(solo))
+            if (ServiceManager.HrtDataManager.RaidGroupDb.TryAdd(solo))
             {
                 ServiceManager.PluginLog.Info("Add solo group");
-                RaidGroups.Insert(0,solo);
+                RaidGroups.Insert(0, solo);
             }
-            
+
         }
-        if(!RaidGroups[0][0].Filled || !RaidGroups[0][0].MainChar.Filled)
+        if (!RaidGroups[0][0].Filled || !RaidGroups[0][0].MainChar.Filled)
             _fillSoloOnLogin = true;
         if (ServiceManager.ClientState.IsLoggedIn)
             OnLogin();
+    }
+
+    public void Update()
+    {
+
+    }
+    public void OnLanguageChange(string langCode) => LootmasterLocalization.Culture = new CultureInfo(langCode);
+    public void PrintUsage(string command, string args)
+    {
+        //if (!command.Equals("/help")) return;
+
+        SeStringBuilder stringBuilder = new SeStringBuilder()
+                                        .AddUiForeground("[Himbeertoni Raid Tool]", 45)
+                                        .AddUiForeground("[Help]", 62)
+                                        .AddText(
+                                            Localize("lootmaster:usage:heading", " Commands used for Loot Master:"))
+                                        .Add(new NewLinePayload());
+
+        stringBuilder
+            .AddUiForeground("/lootmaster", 37)
+            .AddText(" - Opens Lootmaster window")
+            .Add(new NewLinePayload());
+        stringBuilder
+            .AddUiForeground("/lootmaster toggle", 37)
+            .AddText(" - Toggles Lootmaster window")
+            .Add(new NewLinePayload());
+
+        ServiceManager.ChatGui.Print(stringBuilder.BuiltString);
+    }
+
+
+    public void Dispose()
+    {
+        ConfigImpl.Data.LastGroupIndex = _ui.CurrentGroupIndex;
+        ConfigImpl.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
+    }
+
+    public void HandleMessage(HrtUiMessage message)
+    {
+        if (message.MessageType is HrtUiMessageType.Failure or HrtUiMessageType.Error)
+            ServiceManager.PluginLog.Warning(message.Message);
+        else
+            ServiceManager.PluginLog.Information(message.Message);
+        _ui.HandleMessage(message);
     }
     public void OnLogin()
     {
@@ -87,31 +131,25 @@ internal sealed class LootMasterModule : IHrtModule
             _ui.Show();
         UiReady?.Invoke();
     }
-
-    public void Update()
-    {
-
-    }
-    public void OnLanguageChange(string langCode) => LootmasterLocalization.Culture = new CultureInfo(langCode);
     public bool FillPlayerFromTarget(Player player)
     {
 
         GameObject? target = ServiceManager.TargetManager.Target;
-        return target is PlayerCharacter character && FillPlayer(player,character);
+        return target is PlayerCharacter character && FillPlayer(player, character);
     }
     public bool FillPlayerFromSelf(Player player)
     {
         PlayerCharacter? character = ServiceManager.ClientState.LocalPlayer;
-        return character != null && FillPlayer(player,character);
+        return character != null && FillPlayer(player, character);
     }
     private bool FillPlayer(Player player, PlayerCharacter source)
     {
         if (player.LocalId.IsEmpty && !ServiceManager.HrtDataManager.PlayerDb.TryAdd(player)) return false;
-        if(player.NickName.IsNullOrEmpty())
+        if (player.NickName.IsNullOrEmpty())
             player.NickName = source.Name.TextValue.Split(' ')[0];
         ulong contentId = ServiceManager.CharacterInfoService.GetContentId(source);
         CharacterDb characterDb = ServiceManager.HrtDataManager.CharDb;
-        ulong charId = Character.CalcCharId((ulong)contentId);
+        ulong charId = Character.CalcCharId(contentId);
         Character? c = null;
         if (charId > 0)
             characterDb.TryGetCharacterByCharId(charId, out c);
@@ -127,7 +165,7 @@ internal sealed class LootMasterModule : IHrtModule
                 return false;
         }
         player.MainChar = c;
-        return FillCharacter(c,source);
+        return FillCharacter(c, source);
     }
 
     private bool FillCharacter(Character destination, PlayerCharacter source)
@@ -135,14 +173,15 @@ internal sealed class LootMasterModule : IHrtModule
         ServiceManager.PluginLog.Debug($"Filling Player for character: {source.Name}");
         Job curJob = source.GetJob();
         ServiceManager.PluginLog.Debug($"Found job: {curJob}");
-        if(!curJob.IsCombatJob()) return false;
+        if (!curJob.IsCombatJob()) return false;
         bool isNew = destination[curJob] is null;
         PlayableClass curClass = destination[curJob] ?? destination.AddClass(curJob);
         if (isNew)
         {
             curClass.Level = source.Level;
             GearDb gearDb = ServiceManager.HrtDataManager.GearDb;
-            if (!gearDb.TryGetSetByEtroId(ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job), out GearSet? etroSet))
+            if (!gearDb.TryGetSetByEtroId(ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
+                                          out GearSet? etroSet))
             {
                 etroSet = new GearSet(GearSetManager.Etro)
                 {
@@ -169,7 +208,7 @@ internal sealed class LootMasterModule : IHrtModule
             //Determine group type
             < 2 => GroupType.Solo,
             < 5 => GroupType.Group,
-            _ => GroupType.Raid,
+            _   => GroupType.Raid,
         };
         //Get Infos
         if (group.Type == GroupType.Solo)
@@ -179,7 +218,7 @@ internal sealed class LootMasterModule : IHrtModule
                 group[0].NickName = target.Name.TextValue;
                 group[0].MainChar.Name = target.Name.TextValue;
                 group[0].MainChar.HomeWorld = target.HomeWorld.GameData;
-                FillPlayer(group[0],target);
+                FillPlayer(group[0], target);
             }
             else
                 FillPlayerFromSelf(group[0]);
@@ -261,7 +300,8 @@ internal sealed class LootMasterModule : IHrtModule
                 character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
                 ServiceManager.HrtDataManager.CharDb.TryAdd(character);
                 bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
-                if (ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, p.MainChar.Name, p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
+                if (ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, p.MainChar.Name,
+                                                                   p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                 {
                     p.MainChar.MainJob = c;
                     p.MainChar.MainClass!.Level = pc.Level;
@@ -277,7 +317,7 @@ internal sealed class LootMasterModule : IHrtModule
         }
         ServiceManager.HrtDataManager.Save();
     }
-    
+
     public void OnCommand(string command, string args)
     {
         ServiceManager.PluginLog.Debug($"Lootmaster module handling command: {command} args: \"{args}\"");
@@ -287,48 +327,11 @@ internal sealed class LootMasterModule : IHrtModule
                 _ui.IsOpen = !_ui.IsOpen;
                 break;
             case "help":
-                PrintUsage("/help",""); 
+                PrintUsage("/help", "");
                 break;
             default:
                 _ui.Show();
                 break;
         }
-    }
-    public void PrintUsage(string command, string args)
-    {
-        //if (!command.Equals("/help")) return;
-
-        SeStringBuilder stringBuilder = new SeStringBuilder()
-            .AddUiForeground("[Himbeertoni Raid Tool]", 45)
-            .AddUiForeground("[Help]", 62)
-            .AddText(Services.Localization.Localize("lootmaster:usage:heading", " Commands used for Loot Master:"))
-            .Add(new NewLinePayload());
-
-        stringBuilder
-                .AddUiForeground($"/lootmaster", 37)
-                .AddText(" - Opens Lootmaster window")
-                .Add(new NewLinePayload());
-        stringBuilder
-                .AddUiForeground($"/lootmaster toggle", 37)
-                .AddText(" - Toggles Lootmaster window")
-                .Add(new NewLinePayload());
-
-        ServiceManager.ChatGui.Print(stringBuilder.BuiltString);
-    }
-
-
-    public void Dispose()
-    {
-        ConfigImpl.Data.LastGroupIndex = _ui.CurrentGroupIndex;
-        ConfigImpl.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
-    }
-
-    public void HandleMessage(HrtUiMessage message)
-    {
-        if (message.MessageType is HrtUiMessageType.Failure or HrtUiMessageType.Error)
-            ServiceManager.PluginLog.Warning(message.Message);
-        else
-            ServiceManager.PluginLog.Information(message.Message);
-        _ui.HandleMessage(message);
     }
 }

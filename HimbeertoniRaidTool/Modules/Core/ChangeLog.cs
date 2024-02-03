@@ -2,24 +2,16 @@
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
-internal class ChangeLog
+public class ChangeLog
 {
-    public readonly CoreConfig Config;
-    public readonly ChangeLogUi Ui;
-    public Version CurrentVersion => Entries[0].Version;
-    public Version LastMinor => Entries.First(e => e.Version.Minor != CurrentVersion.Minor).Version;
-    public IEnumerable<SingleVersionChangelog> UnseenChangeLogs =>
-        Entries.Where(e => e.Version > Config.Data.LastSeenChangelog);
-    public IEnumerable<SingleVersionChangelog> SeenChangeLogs =>
-        Entries.Where(e => e.Version <= Config.Data.LastSeenChangelog);
-    public readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>()
+    public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
         new(new Version(1, 5, 2, 0))
         {
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.General,
-                    "Gear updates by examining now use the same restrictions as own data"),
+                                   "Gear updates by examining now use the same restrictions as own data"),
             },
         },
         new(new Version(1, 5, 1, 0))
@@ -29,14 +21,14 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Bis, "Add support for relic weapons in etro.gg sets"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added ability to change relic stats when editing gear"),
                 new ChangeLogEntry(ChangeLogEntryCategory.General,
-                    "You can now specify which types of jobs get automatically updated/created.\n"
-                    + "If you want single jobs to not show up, you can hide these in character edit"),
+                                   "You can now specify which types of jobs get automatically updated/created.\n"
+                                 + "If you want single jobs to not show up, you can hide these in character edit"),
             },
             KnownIssues =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Gear,
-                    "Stats for relic weapons are not correctly read from the Lodestone or Examine.\n"
-                    + "Your manual edits will NOT be overwritten"),
+                                   "Stats for relic weapons are not correctly read from the Lodestone or Examine.\n"
+                                 + "Your manual edits will NOT be overwritten"),
             },
         },
         new(new Version(1, 5, 0, 1))
@@ -45,9 +37,9 @@ internal class ChangeLog
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.General, "Remove unused gear sets from database"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
-                    "You are now able to change to gear sets with the same name"),
+                                   "You are now able to change to gear sets with the same name"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
-                    "Automatically updated gear was sometimes not saved correctly"),
+                                   "Automatically updated gear was sometimes not saved correctly"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Performance, "Optimized load time on slow connections"),
             },
         },
@@ -57,13 +49,13 @@ internal class ChangeLog
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.NewFeature, "Manage multiple gear/bis sets per job", 132),
                 new ChangeLogEntry(ChangeLogEntryCategory.NewFeature,
-                    "Automatically updates own characters data (can be disabled in the config)"),
+                                   "Automatically updates own characters data (can be disabled in the config)"),
             },
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Made it more pretty"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui,
-                    "You can now hide jobs (select classes when editing a character)"),
+                                   "You can now hide jobs (select classes when editing a character)"),
                 new ChangeLogEntry(ChangeLogEntryCategory.General, "Correctly handle materia for previous expansions"),
             },
         },
@@ -72,7 +64,7 @@ internal class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
-                    "Adding new players from target resulted in an empty player"),
+                                   "Adding new players from target resulted in an empty player"),
                 new ChangeLogEntry(ChangeLogEntryCategory.General, "Changed command in new user window", 127),
             },
         },
@@ -96,7 +88,7 @@ internal class ChangeLog
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Lootmaster crashing and spamming log"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
-                    "Newly created players were potentially not saved correctly"),
+                                   "Newly created players were potentially not saved correctly"),
             },
         },
         new(new Version(1, 4, 1, 0))
@@ -104,7 +96,7 @@ internal class ChangeLog
             NotableFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.NewFeature,
-                    "You can now track multiple characters per player"),
+                                   "You can now track multiple characters per player"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Reworked group view to improve user experience")
                 {
                     BulletPoints =
@@ -154,9 +146,9 @@ internal class ChangeLog
             NotableFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui,
-                    "You can now manage jobs directly in solo and detail view"),
+                                   "You can now manage jobs directly in solo and detail view"),
                 new ChangeLogEntry(ChangeLogEntryCategory.LootSession,
-                    "You can ignore players/jobs based on certain rules"),
+                                   "You can ignore players/jobs based on certain rules"),
             },
             MinorFeatures =
             {
@@ -164,10 +156,10 @@ internal class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Fixed loot rule \"Can Buy\""),
                 new ChangeLogEntry(ChangeLogEntryCategory.Options, "Reworked Ui for loot rules"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Lootmaster,
-                    "You can now edit name + role priority for the Solo group"),
+                                   "You can now edit name + role priority for the Solo group"),
                 // ReSharper disable once StringLiteralTypo
                 new ChangeLogEntry(ChangeLogEntryCategory.Translation,
-                    "Updated French translation (Thanks to Arganier)"),
+                                   "Updated French translation (Thanks to Arganier)"),
             },
         },
         new(new Version(1, 3, 2, 0))
@@ -187,9 +179,9 @@ internal class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.System,
-                    "Remove unused entries from database (old gear sets and characters)"),
+                                   "Remove unused entries from database (old gear sets and characters)"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bis,
-                    "Import crafted items as HQ from etro.gg  (broken since 1.2.x)", 126),
+                                   "Import crafted items as HQ from etro.gg  (broken since 1.2.x)", 126),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Fix extremely rare crash on startup"),
             },
         },
@@ -205,16 +197,16 @@ internal class ChangeLog
             NotableFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.LootSession,
-                    "%DPS gain now properly takes SKS/SPS into account"),
+                                   "%DPS gain now properly takes SKS/SPS into account"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
-                    "Fixed wrong stat calculations due to unintentionally capping stats lower than intended"),
+                                   "Fixed wrong stat calculations due to unintentionally capping stats lower than intended"),
             },
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Only cap applicable stats on items"),
                 new ChangeLogEntry(ChangeLogEntryCategory.LootSession, "Removed manually curated DPS for players"),
                 new ChangeLogEntry(ChangeLogEntryCategory.System,
-                    "Properly handle local and etro.gg sets (Etro sets cannot be edited and need to be converted to local to edit)"),
+                                   "Properly handle local and etro.gg sets (Etro sets cannot be edited and need to be converted to local to edit)"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Slightly reworked Ui for editing gear"),
                 new ChangeLogEntry(ChangeLogEntryCategory.General, "You can now edit the names of gear sets"),
             },
@@ -224,7 +216,7 @@ internal class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
-                    "Merge infos for multiple database entries for one character", 123),
+                                   "Merge infos for multiple database entries for one character", 123),
             },
         },
         new(new Version(1, 3, 0, 4))
@@ -232,9 +224,9 @@ internal class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
-                    "Multiple characters unintentionally sharing gear sets", 124),
+                                   "Multiple characters unintentionally sharing gear sets", 124),
                 new ChangeLogEntry(ChangeLogEntryCategory.LootSession,
-                    "Rings can now be assigned to a slot explicitly"),
+                                   "Rings can now be assigned to a slot explicitly"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added button to update BiS in group overview"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bis, "Always update empty sets (with valid ID) at startup"),
             },
@@ -244,10 +236,10 @@ internal class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
-                    "Corrected loot for Anabaseios Savage (Thanks to Zeppy for helping)"),
+                                   "Corrected loot for Anabaseios Savage (Thanks to Zeppy for helping)"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Dungeon/Trial Gear is now shown correctly"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
-                    "Fixed an issue with potentially overriding gear sets (since 1.2.x.x)"),
+                                   "Fixed an issue with potentially overriding gear sets (since 1.2.x.x)"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Bis, "Added more BiS (AST, SCH, SGE)"),
             },
         },
@@ -267,33 +259,50 @@ internal class ChangeLog
             },
         },
     };
-    internal ChangeLog(IHrtModule module, CoreConfig config)
+    private readonly ChangeLogUi _ui;
+    public readonly IConfigOptions Config;
+    public ChangeLog(IHrtModule module, IConfigOptions config)
     {
         Config = config;
-        Ui = new ChangeLogUi(this);
-        module.WindowSystem.AddWindow(Ui);
-        module.UiReady += ShowChanges;
+        _ui = new ChangeLogUi(this);
+        module.WindowSystem.AddWindow(_ui);
+        module.UiReady += OnStartup;
     }
-    private void ShowChanges()
+    public Version CurrentVersion => Entries[0].Version;
+    public Version LastMinor => Entries.First(e => e.Version.Minor != CurrentVersion.Minor).Version;
+    public IEnumerable<SingleVersionChangelog> UnseenChangeLogs =>
+        Entries.Where(e => e.Version > Config.LastSeenChangelog);
+    public IEnumerable<SingleVersionChangelog> SeenChangeLogs =>
+        Entries.Where(e => e.Version <= Config.LastSeenChangelog);
+    public void ShowUi() => _ui.Show();
+    private void OnStartup()
     {
-        if (Config.Data.LastSeenChangelog is { Major: 0, Minor: 0, Revision: 0, Build: 0 })
-            Config.Data.LastSeenChangelog = LastMinor;
-        switch (Config.Data.ChangelogNotificationOptions)
+        if (Config.LastSeenChangelog is { Major: 0, Minor: 0, Revision: 0, Build: 0 })
+            Config.LastSeenChangelog = LastMinor;
+        switch (Config.ChangelogNotificationOptions)
         {
             case ChangelogShowOptions.ShowAll when UnseenChangeLogs.Any():
             case ChangelogShowOptions.ShowNotable
                 when UnseenChangeLogs.Any(e => e.HasNotableFeatures):
-                Ui.Show();
+                _ui.Show();
                 break;
             case ChangelogShowOptions.ShowNone:
-                Config.Data.LastSeenChangelog = CurrentVersion;
+                Config.LastSeenChangelog = CurrentVersion;
                 break;
+            default:
+                return;
         }
     }
-    public void Dispose(IHrtModule module) => module.UiReady -= ShowChanges;
+    public void Dispose(IHrtModule module) => module.UiReady -= OnStartup;
+
+    public interface IConfigOptions
+    {
+        public Version LastSeenChangelog { get; set; }
+        public ChangelogShowOptions ChangelogNotificationOptions { get; set; }
+    }
 }
 
-internal readonly struct SingleVersionChangelog
+public readonly struct SingleVersionChangelog
 {
     public Version Version { get; }
     public List<ChangeLogEntry> NotableFeatures { get; } = new();
@@ -309,7 +318,7 @@ internal readonly struct SingleVersionChangelog
     }
 }
 
-internal readonly struct ChangeLogEntry
+public readonly struct ChangeLogEntry
 {
     public ChangeLogEntryCategory Category { get; init; }
     public string Description { get; init; }
@@ -324,7 +333,7 @@ internal readonly struct ChangeLogEntry
     }
 }
 
-internal enum ChangeLogEntryCategory
+public enum ChangeLogEntryCategory
 {
     General,
     NewFeature,
@@ -340,7 +349,7 @@ internal enum ChangeLogEntryCategory
     Gear,
 }
 
-internal enum ChangelogShowOptions
+public enum ChangelogShowOptions
 {
     ShowAll = 0,
     ShowNotable = 10,

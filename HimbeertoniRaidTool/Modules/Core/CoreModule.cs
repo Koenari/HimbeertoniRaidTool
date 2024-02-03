@@ -6,7 +6,6 @@ using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
@@ -19,11 +18,11 @@ internal class CoreModule : IHrtModule
 
     public CoreModule()
     {
-        WindowSystem = new WindowSystem(InternalName);
+        WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
         _wcw = new WelcomeWindow(this);
         WindowSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
-        _changelog = new ChangeLog(this, _config);
+        _changelog = new ChangeLog(this, new ChangelogOptionsWrapper(_config));
         ServiceManager.CoreModule = this;
         foreach (HrtCommand command in InternalCommands)
         {
@@ -55,7 +54,7 @@ internal class CoreModule : IHrtModule
             },
             Description = CoreLocalization.command_hrt_help,
         },
-        new("/changelog", _changelog.Ui.Show)
+        new("/changelog", _changelog.ShowUi)
         {
             Description = GeneralLoc.command_hrt_changelog,
         },
@@ -79,7 +78,7 @@ internal class CoreModule : IHrtModule
 
     public string InternalName => "Core";
     public IHrtConfiguration Configuration => _config;
-    public WindowSystem WindowSystem { get; }
+    public IWindowSystem WindowSystem { get; }
 
     public void HandleMessage(HrtUiMessage message)
     {
@@ -179,5 +178,24 @@ internal class CoreModule : IHrtModule
                                                           _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs);
         ServiceManager.OwnCharacterDataProvider.Enable(newConfig);
         ServiceManager.ExamineGearDataProvider.Enable(newConfig);
+    }
+
+    private class ChangelogOptionsWrapper : ChangeLog.IConfigOptions
+    {
+        private readonly CoreConfig _coreConfig;
+        public ChangelogOptionsWrapper(CoreConfig coreConfig)
+        {
+            _coreConfig = coreConfig;
+        }
+        public Version LastSeenChangelog
+        {
+            get => _coreConfig.Data.LastSeenChangelog;
+            set => _coreConfig.Data.LastSeenChangelog = value;
+        }
+        public ChangelogShowOptions ChangelogNotificationOptions
+        {
+            get => _coreConfig.Data.ChangelogNotificationOptions;
+            set => _coreConfig.Data.ChangelogNotificationOptions = value;
+        }
     }
 }

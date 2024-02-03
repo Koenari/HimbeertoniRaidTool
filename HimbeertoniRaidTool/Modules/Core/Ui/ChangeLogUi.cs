@@ -17,7 +17,7 @@ internal class ChangeLogUi : HrtWindow
         SizeCondition = ImGuiCond.Appearing;
         OpenCentered = true;
         Title = GeneralLoc.ChangeLogUi_Title;
-        _options = _log.Config.Data.ChangelogNotificationOptions;
+        _options = _log.Config.ChangelogNotificationOptions;
     }
     public override void Draw()
     {
@@ -46,8 +46,8 @@ internal class ChangeLogUi : HrtWindow
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (Size.Value.X - buttonWidth) / 2);
         if (ImGuiHelper.Button(CoreLocalization.ChangeLogUi_button_read, null))
         {
-            _log.Config.Data.ChangelogNotificationOptions = _options;
-            _log.Config.Data.LastSeenChangelog = _log.CurrentVersion;
+            _log.Config.ChangelogNotificationOptions = _options;
+            _log.Config.LastSeenChangelog = _log.CurrentVersion;
             Hide();
         }
     }
@@ -110,9 +110,9 @@ internal class ChangeLogUi : HrtWindow
     }
 }
 
-internal static class ChangelogEnumExtensions
+public static class ChangelogEnumExtensions
 {
-    internal static string Localized(this ChangeLogEntryCategory cat) => cat switch
+    public static string Localized(this ChangeLogEntryCategory cat) => cat switch
     {
         ChangeLogEntryCategory.General     => CoreLocalization.ChangelogCategory_General,
         ChangeLogEntryCategory.NewFeature  => CoreLocalization.ChangelogCategory_NewFeature,

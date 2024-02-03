@@ -14,6 +14,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetStone", "lib\NetStone\Ne
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HimbeertoniRaidTool.Common", "lib\HimbeertoniRaidTool.Common\HimbeertoniRaidTool.Common.csproj", "{EA419F64-32A4-4027-9956-1A6FF16B94FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChangelogExporter", "ChangelogExporter\ChangelogExporter.csproj", "{77FA9820-C6B7-4B0A-9691-E97E6B52C797}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{13C812E9-0D42-4B95-8646-40EEBF30636F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13C812E9-0D42-4B95-8646-40EEBF30636F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13C812E9-0D42-4B95-8646-40EEBF30636F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77FA9820-C6B7-4B0A-9691-E97E6B52C797}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77FA9820-C6B7-4B0A-9691-E97E6B52C797}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77FA9820-C6B7-4B0A-9691-E97E6B52C797}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77FA9820-C6B7-4B0A-9691-E97E6B52C797}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

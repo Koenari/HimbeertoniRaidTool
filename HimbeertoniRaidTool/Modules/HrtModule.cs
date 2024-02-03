@@ -10,7 +10,7 @@ public interface IHrtModule
     string InternalName { get; }
     string Description { get; }
     IHrtConfiguration Configuration { get; }
-    WindowSystem WindowSystem { get; }
+    IWindowSystem WindowSystem { get; }
     IEnumerable<HrtCommand> Commands { get; }
     event Action UiReady;
     void HandleMessage(HrtUiMessage message);
@@ -19,6 +19,30 @@ public interface IHrtModule
     void Update();
     void OnLanguageChange(string langCode);
     void Dispose();
+}
+
+public interface IWindowSystem
+{
+    public IEnumerable<HrtWindow> Windows { get; }
+    void Draw();
+    void AddWindow(HrtWindow ui);
+    void RemoveAllWindows();
+    void RemoveWindow(HrtWindow hrtWindow);
+}
+
+internal class DalamudWindowSystem : IWindowSystem
+{
+    private readonly WindowSystem _windowSystemImplementation;
+    public DalamudWindowSystem(WindowSystem implementation)
+    {
+        _windowSystemImplementation = implementation;
+    }
+    public void Draw() => _windowSystemImplementation.Draw();
+
+    public void AddWindow(HrtWindow window) => _windowSystemImplementation.AddWindow(window);
+    public void RemoveAllWindows() => _windowSystemImplementation.RemoveAllWindows();
+    public void RemoveWindow(HrtWindow hrtWindow) => _windowSystemImplementation.RemoveWindow(hrtWindow);
+    public IEnumerable<HrtWindow> Windows => _windowSystemImplementation.Windows.Cast<HrtWindow>();
 }
 
 public struct HrtCommand
