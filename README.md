@@ -24,8 +24,8 @@ If you have notused the plugin for a longer period of time some data might not b
 | Data / Config   | From >=1.4.x | From 1.2.x-1.3.x | From <1.2.x |
 |:---:|:---:|:---:|:---:|
 | To >=1.4.x      | -    | :white_check_mark: / :white_check_mark:<sup>1</sup> | :x: / :x: |
-| To 1.2.x-1.3.x  | :x: / :x:    |   - |    :white_check_mark: / :white_check_mark: | 
-| To <1.2.x       | :x: / :x:    |     :x: / :x: |    - | 
+| To 1.2.x-1.3.x  | -   |   - |    :white_check_mark: / :white_check_mark: | 
+| To <1.2.x       | -   |  - |    - | 
 
 1 - Some options are lost
 ## Installation
