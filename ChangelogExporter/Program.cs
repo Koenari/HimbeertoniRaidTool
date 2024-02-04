@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,12 +12,16 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization.TypeInspectors;
 
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
 if (args.Length < 2) return -1;
 
 string fileName = args[0];
 string internalName = args[1];
 
-SingleVersionChangelog currentVersion =  args.Length > 2 ? ChangeLog.Entries.First(entry => entry.Version == new Version(args[2])):ChangeLog.Entries[0];
+SingleVersionChangelog currentVersion = args.Length > 2
+    ? ChangeLog.Entries.First(entry => entry.Version == new Version(args[2])) : ChangeLog.Entries[0];
 StringBuilder programOutput = new();
 
 foreach (ChangeLogEntry entry in currentVersion.NotableFeatures)
@@ -51,6 +56,9 @@ void AppendChangelogEntry(StringBuilder output, ChangeLogEntry entry)
     }
 }
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[SuppressMessage("ReSharper", "NotAccessedField.Global")]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 internal class PluginManifest
 {
     public string author;
@@ -74,7 +82,7 @@ public class SortedTypeInspector : TypeInspectorSkeleton
         _innerTypeInspector = innerTypeInspector;
     }
 
-    public override IEnumerable<IPropertyDescriptor> GetProperties(Type type, object container) =>
+    public override IEnumerable<IPropertyDescriptor> GetProperties(Type type, object? container) =>
         _innerTypeInspector.GetProperties(type, container).Order(new CustomComparer());
 
     private class CustomComparer : IComparer<IPropertyDescriptor>

@@ -40,11 +40,11 @@ internal class CoreModule : IHrtModule
                 "/option",
                 "/config",
             },
-            Description = CoreLoc.command_hrt_options,
+            Description = CoreLoc.Command_hrt_options,
         },
         new("/welcome", _wcw.Show)
         {
-            Description = CoreLoc.command_hrt_welcome,
+            Description = CoreLoc.Command_hrt_welcome,
         },
         new("/help", PrintUsage)
         {
@@ -52,7 +52,7 @@ internal class CoreModule : IHrtModule
             {
                 "/usage",
             },
-            Description = CoreLoc.command_hrt_help,
+            Description = CoreLoc.Command_hrt_help,
         },
         new("/changelog", _changelog.ShowUi)
         {
@@ -69,7 +69,7 @@ internal class CoreModule : IHrtModule
         new()
         {
             Command = "/hrt",
-            Description = CoreLoc.command_hrt_help,
+            Description = CoreLoc.Command_hrt_help,
             ShowInHelp = true,
             OnCommand = OnCommand,
             ShouldExposeToDalamud = true,
@@ -111,7 +111,7 @@ internal class CoreModule : IHrtModule
         SeStringBuilder stringBuilder = new SeStringBuilder()
                                         .AddUiForeground("[Himbeertoni Raid Tool]", 45)
                                         .AddUiForeground("[Help]", 62)
-                                        .AddText(CoreLoc.usage_heading)
+                                        .AddText(CoreLoc.Chat_help_heading)
                                         .Add(new NewLinePayload());
         foreach (HrtCommand c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
         {

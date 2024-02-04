@@ -170,54 +170,54 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Show me all changes.
         /// </summary>
-        internal static string ChangelogOption_LocalizedDescription_ShowAll {
+        internal static string ChangelogShowOption_ShowAll {
             get {
-                return ResourceManager.GetString("ChangelogOption_LocalizedDescription_ShowAll", resourceCulture);
+                return ResourceManager.GetString("ChangelogShowOption_ShowAll", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Do NOT show changes.
         /// </summary>
-        internal static string ChangelogOption_LocalizedDescription_ShowNone {
+        internal static string ChangelogShowOption_ShowNone {
             get {
-                return ResourceManager.GetString("ChangelogOption_LocalizedDescription_ShowNone", resourceCulture);
+                return ResourceManager.GetString("ChangelogShowOption_ShowNone", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Show me notable changes.
         /// </summary>
-        internal static string ChangelogOption_LocalizedDescription_ShowNotable {
+        internal static string ChangelogShowOption_ShowNotable {
             get {
-                return ResourceManager.GetString("ChangelogOption_LocalizedDescription_ShowNotable", resourceCulture);
+                return ResourceManager.GetString("ChangelogShowOption_ShowNotable", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Yeah, I read it!.
         /// </summary>
-        internal static string ChangeLogUi_button_read {
+        internal static string ChangeLogUi_btn_haveRead {
             get {
-                return ResourceManager.GetString("ChangeLogUi_button_read", resourceCulture);
+                return ResourceManager.GetString("ChangeLogUi_btn_haveRead", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Known Issues.
         /// </summary>
-        internal static string ChangeLogUi_heading_KnownIssues {
+        internal static string ChangeLogUi_hdg_KnownIssues {
             get {
-                return ResourceManager.GetString("ChangeLogUi_heading_KnownIssues", resourceCulture);
+                return ResourceManager.GetString("ChangeLogUi_hdg_KnownIssues", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Version {0}.
         /// </summary>
-        internal static string ChangeLogUi_heading_version {
+        internal static string ChangeLogUi_hdg_version {
             get {
-                return ResourceManager.GetString("ChangeLogUi_heading_version", resourceCulture);
+                return ResourceManager.GetString("ChangeLogUi_hdg_version", resourceCulture);
             }
         }
         
@@ -240,119 +240,110 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error upgrading Core configuration from version {0}.
+        /// </summary>
+        internal static string Chat_configUpgradeError {
+            get {
+                return ResourceManager.GetString("Chat_configUpgradeError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Commands used for Himbeertoni Raid Tool:.
+        /// </summary>
+        internal static string Chat_help_heading {
+            get {
+                return ResourceManager.GetString("Chat_help_heading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Prints usage information to chat.
         /// </summary>
-        internal static string command_hrt_help {
+        internal static string Command_hrt_help {
             get {
-                return ResourceManager.GetString("command_hrt_help", resourceCulture);
+                return ResourceManager.GetString("Command_hrt_help", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Shows the Configuration window.
         /// </summary>
-        internal static string command_hrt_options {
+        internal static string Command_hrt_options {
             get {
-                return ResourceManager.GetString("command_hrt_options", resourceCulture);
+                return ResourceManager.GetString("Command_hrt_options", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Open Welcome Window with explanations on how to use.
         /// </summary>
-        internal static string command_hrt_welcome {
+        internal static string Command_hrt_welcome {
             get {
-                return ResourceManager.GetString("command_hrt_welcome", resourceCulture);
+                return ResourceManager.GetString("Command_hrt_welcome", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Appearance.
+        ///   Looks up a localized string similar to Update sets from etro.gg periodically.
         /// </summary>
-        internal static string Config_Appearance {
+        internal static string ConfigUi_cb_autoEtroUpdate {
             get {
-                return ResourceManager.GetString("Config_Appearance", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Error upgrading Core configuration from version {0}.
-        /// </summary>
-        internal static string Config_UpgradeError {
-            get {
-                return ResourceManager.GetString("Config_UpgradeError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Update interval (days).
-        /// </summary>
-        internal static string ConfigUi_BisUpdateInterval {
-            get {
-                return ResourceManager.GetString("ConfigUi_BisUpdateInterval", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Changelog Options.
-        /// </summary>
-        internal static string ConfigUi_Changelog_Title {
-            get {
-                return ResourceManager.GetString("ConfigUi_Changelog_Title", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_autoEtroUpdate", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Update gear when examining.
         /// </summary>
-        internal static string ConfigUi_checkbox_examine {
+        internal static string ConfigUi_cb_examine {
             get {
-                return ResourceManager.GetString("ConfigUi_checkbox_examine", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_examine", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Hide in combat.
         /// </summary>
-        internal static string ConfigUi_checkbox_hideInCombat {
+        internal static string ConfigUi_cb_hideInCombat {
             get {
-                return ResourceManager.GetString("ConfigUi_checkbox_hideInCombat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Hides all windows while character is in combat.
-        /// </summary>
-        internal static string ConfigUi_checkbox_hideInCombat_tooltip {
-            get {
-                return ResourceManager.GetString("ConfigUi_checkbox_hideInCombat_tooltip", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_hideInCombat", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Automatically update own data.
         /// </summary>
-        internal static string ConfigUi_checkbox_ownData {
+        internal static string ConfigUi_cb_ownData {
             get {
-                return ResourceManager.GetString("ConfigUi_checkbox_ownData", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Keeps gear and classes of logged in character up to date.
-        /// </summary>
-        internal static string ConfigUi_checkbox_ownData_tooltip {
-            get {
-                return ResourceManager.GetString("ConfigUi_checkbox_ownData_tooltip", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_ownData", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Save periodically.
         /// </summary>
-        internal static string ConfigUi_checkbox_savePeriodically {
+        internal static string ConfigUi_cb_periodicSave {
             get {
-                return ResourceManager.GetString("ConfigUi_checkbox_savePeriodically", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_periodicSave", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hides all windows while character is in combat.
+        /// </summary>
+        internal static string ConfigUi_cb_tt_hideInCombat {
+            get {
+                return ResourceManager.GetString("ConfigUi_cb_tt_hideInCombat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keeps gear and classes of logged in character up to date.
+        /// </summary>
+        internal static string ConfigUi_cb_tt_ownData {
+            get {
+                return ResourceManager.GetString("ConfigUi_cb_tt_ownData", resourceCulture);
             }
         }
         
@@ -361,81 +352,99 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         ///            crashes)
         ///        .
         /// </summary>
-        internal static string ConfigUi_checkbox_savePeriodically_tooltip {
+        internal static string ConfigUi_cb_tt_periodicSave {
             get {
-                return ResourceManager.GetString("ConfigUi_checkbox_savePeriodically_tooltip", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_tt_periodicSave", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Update combat jobs.
         /// </summary>
-        internal static string ConfigUi_checkbox_updateCombatJobs {
+        internal static string ConfigUi_cb_updateCombatJobs {
             get {
-                return ResourceManager.GetString("ConfigUi_checkbox_updateCombatJobs", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_updateCombatJobs", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Update disciple of hand jobs.
         /// </summary>
-        internal static string ConfigUi_checkbox_updateDohJobs {
+        internal static string ConfigUi_cb_updateDohJobs {
             get {
-                return ResourceManager.GetString("ConfigUi_checkbox_updateDohJobs", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_updateDohJobs", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Update disciple of land jobs.
         /// </summary>
-        internal static string ConfigUi_checkbox_updateDolJobs {
+        internal static string ConfigUi_cb_updateDolJobs {
             get {
-                return ResourceManager.GetString("ConfigUi_checkbox_updateDolJobs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Etro Gear Updates.
-        /// </summary>
-        internal static string ConfigUi_EtroGearUpdates {
-            get {
-                return ResourceManager.GetString("ConfigUi_EtroGearUpdates", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_updateDolJobs", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Auto Save.
         /// </summary>
-        internal static string ConfigUi_heading_AutoSave {
+        internal static string ConfigUi_hdg_AutoSave {
             get {
-                return ResourceManager.GetString("ConfigUi_heading_AutoSave", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_hdg_AutoSave", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Changelog Options.
+        /// </summary>
+        internal static string ConfigUi_hdg_changelog {
+            get {
+                return ResourceManager.GetString("ConfigUi_hdg_changelog", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Automatic data update.
         /// </summary>
-        internal static string ConfigUi_Heading_dataUpdate {
+        internal static string ConfigUi_hdg_dataUpdate {
             get {
-                return ResourceManager.GetString("ConfigUi_Heading_dataUpdate", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_hdg_dataUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Etro Gear Updates.
+        /// </summary>
+        internal static string ConfigUi_hdg_etroUpdates {
+            get {
+                return ResourceManager.GetString("ConfigUi_hdg_etroUpdates", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to User Interface.
         /// </summary>
-        internal static string ConfigUi_heading_ui {
+        internal static string ConfigUi_hdg_ui {
             get {
-                return ResourceManager.GetString("ConfigUi_heading_ui", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_hdg_ui", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to AutoSave interval (min).
         /// </summary>
-        internal static string ConfigUi_input_AutoSaveInterval {
+        internal static string ConfigUi_in_autoSaveInterval {
             get {
-                return ResourceManager.GetString("ConfigUi_input_AutoSaveInterval", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_in_autoSaveInterval", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update interval (days).
+        /// </summary>
+        internal static string ConfigUi_in_etroUpdateInterval {
+            get {
+                return ResourceManager.GetString("ConfigUi_in_etroUpdateInterval", resourceCulture);
             }
         }
         
@@ -449,214 +458,124 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update sets from etro.gg periodically.
-        /// </summary>
-        internal static string ConfigUi_UpdateBisOnStartUp {
-            get {
-                return ResourceManager.GetString("ConfigUi_UpdateBisOnStartUp", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Data failed to save.
-        /// </summary>
-        internal static string Core_PeriodicSaveFailed {
-            get {
-                return ResourceManager.GetString("Core:PeriodicSaveFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Data Saved successfully.
-        /// </summary>
-        internal static string Core_PeriodicSaveSuccessful {
-            get {
-                return ResourceManager.GetString("Core:PeriodicSaveSuccessful", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to General.
         /// </summary>
-        internal static string CoreConfig_Title {
+        internal static string ConfigUi_Title {
             get {
-                return ResourceManager.GetString("CoreConfig_Title", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_Title", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Data failed to save.
         /// </summary>
-        internal static string PeriodicSaveFailed {
+        internal static string UiMessage_PeriodicSaveFailed {
             get {
-                return ResourceManager.GetString("PeriodicSaveFailed", resourceCulture);
+                return ResourceManager.GetString("UiMessage_PeriodicSaveFailed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Data Saved successfully.
         /// </summary>
-        internal static string PeriodicSaveSuccessful {
+        internal static string UiMessage_PeriodicSaveSuccessful {
             get {
-                return ResourceManager.GetString("PeriodicSaveSuccessful", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Commands used for Himbeertoni Raid Tool:.
-        /// </summary>
-        internal static string usage_heading {
-            get {
-                return ResourceManager.GetString("usage:heading", resourceCulture);
+                return ResourceManager.GetString("UiMessage_PeriodicSaveSuccessful", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Close.
         /// </summary>
-        internal static string WelcomeWindow_button_Close {
+        internal static string WelcomeUi_btn_close {
             get {
-                return ResourceManager.GetString("WelcomeWindow_button_Close", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Close this window.
-        /// </summary>
-        internal static string WelcomeWindow_button_Close_tooltip {
-            get {
-                return ResourceManager.GetString("WelcomeWindow_button_Close_tooltip", resourceCulture);
+                return ResourceManager.GetString("WelcomeUi_btn_close", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Open LootMaster.
         /// </summary>
-        internal static string WelcomeWindow_button_OpenLootMaster {
+        internal static string WelcomeUi_btn_OpenLootMaster {
             get {
-                return ResourceManager.GetString("WelcomeWindow_button_OpenLootMaster", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open LootMaster main window (/lootmaster).
-        /// </summary>
-        internal static string WelcomeWindow_button_OpenLootMaster_tooltip {
-            get {
-                return ResourceManager.GetString("WelcomeWindow_button_OpenLootMaster_tooltip", resourceCulture);
+                return ResourceManager.GetString("WelcomeUi_btn_OpenLootMaster", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Open Options.
         /// </summary>
-        internal static string WelcomeWindow_button_OpenOptions {
+        internal static string WelcomeUi_btn_OpenOptions {
             get {
-                return ResourceManager.GetString("WelcomeWindow_button_OpenOptions", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Show configuration options (/hrt config).
-        /// </summary>
-        internal static string WelcomeWindow_button_OpenOptions_tooltip {
-            get {
-                return ResourceManager.GetString("WelcomeWindow_button_OpenOptions_tooltip", resourceCulture);
+                return ResourceManager.GetString("WelcomeUi_btn_OpenOptions", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Open Wiki.
         /// </summary>
-        internal static string WelcomeWindow_button_openWiki {
+        internal static string Welcomeui_btn_openWiki {
             get {
-                return ResourceManager.GetString("WelcomeWindow_button_openWiki", resourceCulture);
+                return ResourceManager.GetString("Welcomeui_btn_openWiki", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close this window.
+        /// </summary>
+        internal static string WelcomeUi_btn_tt_close {
+            get {
+                return ResourceManager.GetString("WelcomeUi_btn_tt_close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open LootMaster main window (/lootmaster).
+        /// </summary>
+        internal static string WelcomeUi_btn_tt_OpenLootMaster {
+            get {
+                return ResourceManager.GetString("WelcomeUi_btn_tt_OpenLootMaster", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show configuration options (/hrt config).
+        /// </summary>
+        internal static string WelcomeUi_btn_tt_OpenOptions {
+            get {
+                return ResourceManager.GetString("WelcomeUi_btn_tt_OpenOptions", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Open the wiki in your browser.
         /// </summary>
-        internal static string WelcomeWindow_button_openWiki_tooltip {
+        internal static string Welcomeui_btn_tt_openWiki {
             get {
-                return ResourceManager.GetString("WelcomeWindow_button_openWiki_tooltip", resourceCulture);
+                return ResourceManager.GetString("Welcomeui_btn_tt_openWiki", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group. Start
+        ///            your journey by opening LootMaster by typing &quot;/lootmaster&quot; (or &quot;/lm&quot;) in chat
+        ///            (or the button below). There we already added your character for you. Next you can get
+        ///            your current gear either by using the &quot;magnifying glass&quot; button or
+        ///            by examining your character via right clicking. The plugin will always update the gear
+        ///            for characters that were added to a group or [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string WelcomeUi_text {
+            get {
+                return ResourceManager.GetString("WelcomeUi_text", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Welcome to Himbeertoni Raid Tool.
         /// </summary>
-        internal static string WelcomeWindow_Title {
+        internal static string WelcomeUi_Title {
             get {
-                return ResourceManager.GetString("WelcomeWindow_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group..
-        /// </summary>
-        internal static string WelcomeWindowLine1 {
-            get {
-                return ResourceManager.GetString("WelcomeWindowLine1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Start your journey by opening LootMaster by typing &quot;/lootmaster&quot; (or &quot;/lm&quot;) in chat
-        ///            (or the button below). There we already added your character for you.
-        ///        .
-        /// </summary>
-        internal static string WelcomeWindowLine2 {
-            get {
-                return ResourceManager.GetString("WelcomeWindowLine2", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Next you can get your current gear either by using the &quot;magnifying glass&quot; button or
-        ///            by examining your character via right clicking.
-        ///        .
-        /// </summary>
-        internal static string WelcomeWindowLine3 {
-            get {
-                return ResourceManager.GetString("WelcomeWindowLine3", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The plugin will always update the gear for characters that were added to a group or
-        ///            solo tab when examining the character in-game.
-        ///        .
-        /// </summary>
-        internal static string WelcomeWindowLine4 {
-            get {
-                return ResourceManager.GetString("WelcomeWindowLine4", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to To really start using this you&apos;d need to add your group via the &quot;+ button&quot; right to
-        ///            the Solo tab. For this you have two possibilities. &quot;From scratch&quot; let&apos;s you input
-        ///            everything yourself like a noob. Or you can gather your group into a party (or wait for
-        ///            the next gathering) and let the plugin do most of the work by choosing &quot;From current
-        ///            group&quot;. You still have to give the group a name and maybe adjust nicknames for your
-        ///            players.
-        ///        .
-        /// </summary>
-        internal static string WelcomeWindowLine5 {
-            get {
-                return ResourceManager.GetString("WelcomeWindowLine5", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to If you for example want the loot master to open on start, I would suggest you take a
-        ///            quick look at the options. And go to the wiki for more detailed instructions :)
-        ///        .
-        /// </summary>
-        internal static string WelcomeWindowLine6 {
-            get {
-                return ResourceManager.GetString("WelcomeWindowLine6", resourceCulture);
+                return ResourceManager.GetString("WelcomeUi_Title", resourceCulture);
             }
         }
     }

@@ -15,102 +15,73 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="command_hrt_help">
-        <value>Prints usage information to chat</value>
-    </data>
-    <data name="Core:PeriodicSaveFailed">
-        <value>Data failed to save</value>
-    </data>
-    <data name="Core:PeriodicSaveSuccessful">
-        <value>Data Saved successfully</value>
-    </data>
-    <data name="WelcomeWindowLine1">
-        <value>Himbeertoni Raid Tool へようこそ。レイドグループを管理するあなたの仲間です。</value>
-    </data>
-    <data name="WelcomeWindow_Title">
-        <value>Himbeertoni Raid Tool へようこそ</value>
-    </data>
-    <data name="WelcomeWindowLine2">
-        <value>
+    <data name="WelcomeUi_text">
+        <value>Himbeertoni Raid Tool へようこそ。レイドグループを管理するあなたの仲間です。
             チャットで「/lootmaster」（または「/lm」）と入力し、LootMasterを開いて旅を始めましょう（もしくは下のボタン）。既にあなたのキャラクターが追加されています。
-        </value>
-    </data>
-    <data name="WelcomeWindowLine3">
-        <value>
             次に、虫眼鏡アイコンを使用するか、右クリックでキャラクターを調べることで、現在の装備品を取得できます。
-        </value>
-    </data>
-    <data name="WelcomeWindowLine5">
-        <value>この機能を実際に使用するには、Soloタブの右側にある「+ボタン」を使ってグループを追加する必要があります。これには2つの選択肢があります。
+            ゲーム内のキャラクターを調べるときに、GroupやSoloのタブに追加されたキャラクターの装備品を常に更新します。
+            この機能を実際に使用するには、Soloタブの右側にある「+ボタン」を使ってグループを追加する必要があります。これには2つの選択肢があります。
             "新規作成"では、自分ですべてを入力することができます。また、"現在のグループを編集
             "を選択することで、グループをパーティに集め（または次の集まりを待ち）、プラグインに自動で登録を任せることができます。ただし、グループ名とプレイヤーのニックネームを手動で設定する必要があります。"
-        </value>
-    </data>
-    <data name="WelcomeWindowLine4">
-        <value>
-            ゲーム内のキャラクターを調べるときに、GroupやSoloのタブに追加されたキャラクターの装備品を常に更新します。
-        </value>
-    </data>
-    <data name="WelcomeWindowLine6">
-        <value>もし、起動時に戦利品マスタを開くようにしたい場合は、オプションをざっと見てみることをお勧めします。より詳しい説明はwikiを参照してください
+            もし、起動時に戦利品マスタを開くようにしたい場合は、オプションをざっと見てみることをお勧めします。より詳しい説明はwikiを参照してください
             :)
         </value>
     </data>
-    <data name="ConfigUi_UpdateBisOnStartUp">
+    <data name="WelcomeUi_Title">
+        <value>Himbeertoni Raid Tool へようこそ</value>
+    </data>
+    <data name="ConfigUi_cb_autoEtroUpdate">
         <value>etro.ggから定期的にセットを更新</value>
     </data>
-    <data name="ConfigUi_BisUpdateInterval">
+    <data name="ConfigUi_in_etroUpdateInterval">
         <value>更新間隔 (日)</value>
     </data>
-    <data name="ConfigUi_heading_ui">
+    <data name="ConfigUi_hdg_ui">
         <value>UI</value>
     </data>
-    <data name="ConfigUi_checkbox_hideInCombat_tooltip">
+    <data name="ConfigUi_cb_tt_hideInCombat">
         <value>キャラクターが戦闘時、すべてのウィンドウを非表示にする</value>
     </data>
-    <data name="ConfigUi_checkbox_hideInCombat">
+    <data name="ConfigUi_cb_hideInCombat">
         <value>戦闘中に隠す</value>
     </data>
-    <data name="ConfigUi_input_AutoSaveInterval">
+    <data name="ConfigUi_in_autoSaveInterval">
         <value>自動保存の間隔 (分)</value>
     </data>
-    <data name="ConfigUi_heading_AutoSave">
+    <data name="ConfigUi_hdg_AutoSave">
         <value>自動保存</value>
     </data>
-    <data name="ConfigUi_checkbox_savePeriodically">
+    <data name="ConfigUi_cb_periodicSave">
         <value>定期的に保存する</value>
     </data>
-    <data name="ConfigUi_checkbox_savePeriodically_tooltip" xml:space="preserve">
+    <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
         <value>このプラグインのすべてのデータを定期的に保存します。（ゲームのクラッシュ時、データが失われないようにします）</value>
     </data>
-    <data name="CoreConfig_Title" xml:space="preserve">
+    <data name="ConfigUi_Title" xml:space="preserve">
         <value>全般</value>
     </data>
-    <data name="WelcomeWindow_button_OpenLootMaster">
+    <data name="WelcomeUi_btn_OpenLootMaster">
         <value>LootMasterを開く</value>
     </data>
-    <data name="WelcomeWindow_button_OpenLootMaster_tooltip">
+    <data name="WelcomeUi_btn_tt_OpenLootMaster">
         <value>LootMaster のメインウィンドウを開く (/lootmaster)</value>
     </data>
-    <data name="WelcomeWindow_button_OpenOptions">
+    <data name="WelcomeUi_btn_OpenOptions">
         <value>オプションを開く</value>
     </data>
-    <data name="WelcomeWindow_button_OpenOptions_tooltip">
+    <data name="WelcomeUi_btn_tt_OpenOptions">
         <value>設定オプションを表示 (/hrt config)</value>
     </data>
-    <data name="usage:heading">
-        <value>Commands used for Himbeertoni Raid Tool:</value>
-    </data>
-    <data name="WelcomeWindow_button_openWiki">
+    <data name="Welcomeui_btn_openWiki">
         <value>Wikiを開く</value>
     </data>
-    <data name="WelcomeWindow_button_openWiki_tooltip">
+    <data name="Welcomeui_btn_tt_openWiki">
         <value>Wikiをブラウザで開きますか?</value>
     </data>
-    <data name="WelcomeWindow_button_Close">
+    <data name="WelcomeUi_btn_close">
         <value>閉じる</value>
     </data>
-    <data name="WelcomeWindow_button_Close_tooltip">
+    <data name="WelcomeUi_btn_tt_close">
         <value>このウィンドウを閉じる</value>
     </data>
     <data name="ChangelogCategory_BiS" xml:space="preserve">

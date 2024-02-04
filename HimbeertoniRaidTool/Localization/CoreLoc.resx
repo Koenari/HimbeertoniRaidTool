@@ -107,158 +107,135 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="PeriodicSaveSuccessful" xml:space="preserve">
-    <value>Data Saved successfully</value>
-  </data>
-    <data name="PeriodicSaveFailed" xml:space="preserve">
-    <value>Data failed to save</value>
-  </data>
-    <data name="Config_Appearance" xml:space="preserve">
-    <value>Appearance</value>
-  </data>
-    <data name="command_hrt_options">
+    <data name="Command_hrt_options">
         <value>Shows the Configuration window</value>
     </data>
-    <data name="command_hrt_help">
+    <data name="Command_hrt_help">
         <value>Prints usage information to chat</value>
     </data>
-    <data name="command_hrt_welcome">
+    <data name="Command_hrt_welcome">
         <value>Open Welcome Window with explanations on how to use</value>
     </data>
-    <data name="Core:PeriodicSaveFailed">
+    <data name="UiMessage_PeriodicSaveFailed">
         <value>Data failed to save</value>
     </data>
-    <data name="Core:PeriodicSaveSuccessful">
+    <data name="UiMessage_PeriodicSaveSuccessful">
         <value>Data Saved successfully</value>
     </data>
-    <data name="ConfigUi_EtroGearUpdates" xml:space="preserve">
+    <data name="ConfigUi_hdg_etroUpdates" xml:space="preserve">
 		<value>Etro Gear Updates</value>
 	</data>
-    <data name="WelcomeWindowLine1">
-        <value>Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group.</value>
-    </data>
-    <data name="WelcomeWindow_Title">
-        <value>Welcome to Himbeertoni Raid Tool</value>
-    </data>
-    <data name="WelcomeWindowLine2">
-        <value>Start your journey by opening LootMaster by typing "/lootmaster" (or "/lm") in chat
-            (or the button below). There we already added your character for you.
-        </value>
-    </data>
-    <data name="WelcomeWindowLine3">
-        <value>Next you can get your current gear either by using the "magnifying glass" button or
-            by examining your character via right clicking.
-        </value>
-    </data>
-    <data name="WelcomeWindowLine5">
-        <value>To really start using this you'd need to add your group via the "+ button" right to
+    <data name="WelcomeUi_text">
+        <value>Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group. Start
+            your journey by opening LootMaster by typing "/lootmaster" (or "/lm") in chat
+            (or the button below). There we already added your character for you. Next you can get
+            your current gear either by using the "magnifying glass" button or
+            by examining your character via right clicking. The plugin will always update the gear
+            for characters that were added to a group or
+            solo tab when examining the character in-game. To really start using this you'd need to
+            add your group via the "+ button" right to
             the Solo tab. For this you have two possibilities. "From scratch" let's you input
             everything yourself like a noob. Or you can gather your group into a party (or wait for
             the next gathering) and let the plugin do most of the work by choosing "From current
             group". You still have to give the group a name and maybe adjust nicknames for your
-            players.
+            players. If you for example want the loot master to open on start, I would suggest you
+            take a
+            quick look at the options. Or go to the wiki for more detailed instructions :)
         </value>
     </data>
-    <data name="WelcomeWindowLine4">
-        <value>The plugin will always update the gear for characters that were added to a group or
-            solo tab when examining the character in-game.
-        </value>
+    <data name="WelcomeUi_Title">
+        <value>Welcome to Himbeertoni Raid Tool</value>
     </data>
-    <data name="WelcomeWindowLine6">
-        <value>If you for example want the loot master to open on start, I would suggest you take a
-            quick look at the options. And go to the wiki for more detailed instructions :)
-        </value>
-    </data>
-    <data name="ConfigUi_UpdateBisOnStartUp">
+    <data name="ConfigUi_cb_autoEtroUpdate">
         <value>Update sets from etro.gg periodically</value>
     </data>
-    <data name="ConfigUi_BisUpdateInterval">
+    <data name="ConfigUi_in_etroUpdateInterval">
         <value>Update interval (days)</value>
     </data>
-    <data name="ConfigUi_Changelog_Title" xml:space="preserve">
+    <data name="ConfigUi_hdg_changelog" xml:space="preserve">
         <value>Changelog Options</value>
     </data>
-    <data name="ConfigUi_checkbox_ownData" xml:space="preserve">
+    <data name="ConfigUi_cb_ownData" xml:space="preserve">
         <value>Automatically update own data</value>
     </data>
-    <data name="ConfigUi_checkbox_updateCombatJobs" xml:space="preserve">
+    <data name="ConfigUi_cb_updateCombatJobs" xml:space="preserve">
         <value>Update combat jobs</value>
     </data>
-    <data name="ConfigUi_Heading_dataUpdate" xml:space="preserve">
+    <data name="ConfigUi_hdg_dataUpdate" xml:space="preserve">
         <value>Automatic data update</value>
     </data>
-    <data name="ConfigUi_checkbox_updateDohJobs" xml:space="preserve">
+    <data name="ConfigUi_cb_updateDohJobs" xml:space="preserve">
         <value>Update disciple of hand jobs</value>
     </data>
-    <data name="ConfigUi_checkbox_updateDolJobs" xml:space="preserve">
+    <data name="ConfigUi_cb_updateDolJobs" xml:space="preserve">
         <value>Update disciple of land jobs</value>
     </data>
-    <data name="ConfigUi_checkbox_ownData_tooltip" xml:space="preserve">
+    <data name="ConfigUi_cb_tt_ownData" xml:space="preserve">
         <value>Keeps gear and classes of logged in character up to date</value>
     </data>
-    <data name="ConfigUi_checkbox_examine" xml:space="preserve">
+    <data name="ConfigUi_cb_examine" xml:space="preserve">
         <value>Update gear when examining</value>
     </data>
     <data name="ConfigUi_text_dataUpdateJobs" xml:space="preserve">
         <value>Job specific config (affects all options above)</value>
     </data>
-    <data name="ConfigUi_heading_ui">
+    <data name="ConfigUi_hdg_ui">
         <value>User Interface</value>
     </data>
-    <data name="ConfigUi_checkbox_hideInCombat_tooltip">
+    <data name="ConfigUi_cb_tt_hideInCombat">
         <value>Hides all windows while character is in combat</value>
     </data>
-    <data name="ConfigUi_checkbox_hideInCombat">
+    <data name="ConfigUi_cb_hideInCombat">
         <value>Hide in combat</value>
     </data>
-    <data name="ConfigUi_input_AutoSaveInterval">
+    <data name="ConfigUi_in_autoSaveInterval">
         <value>AutoSave interval (min)</value>
     </data>
-    <data name="ConfigUi_heading_AutoSave">
+    <data name="ConfigUi_hdg_AutoSave">
         <value>Auto Save</value>
     </data>
-    <data name="ConfigUi_checkbox_savePeriodically">
+    <data name="ConfigUi_cb_periodicSave">
         <value>Save periodically</value>
     </data>
-    <data name="ConfigUi_checkbox_savePeriodically_tooltip" xml:space="preserve">
+    <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
         <value>Saves all data of this plugin periodically. (Helps prevent losing data if your game
             crashes)
         </value>
     </data>
-    <data name="CoreConfig_Title" xml:space="preserve">
+    <data name="ConfigUi_Title" xml:space="preserve">
         <value>General</value>
     </data>
-    <data name="WelcomeWindow_button_OpenLootMaster">
+    <data name="WelcomeUi_btn_OpenLootMaster">
         <value>Open LootMaster</value>
     </data>
-    <data name="WelcomeWindow_button_OpenLootMaster_tooltip">
+    <data name="WelcomeUi_btn_tt_OpenLootMaster">
         <value>Open LootMaster main window (/lootmaster)</value>
     </data>
-    <data name="WelcomeWindow_button_OpenOptions">
+    <data name="WelcomeUi_btn_OpenOptions">
         <value>Open Options</value>
     </data>
-    <data name="WelcomeWindow_button_OpenOptions_tooltip">
+    <data name="WelcomeUi_btn_tt_OpenOptions">
         <value>Show configuration options (/hrt config)</value>
     </data>
-    <data name="usage:heading">
+    <data name="Chat_help_heading">
         <value>Commands used for Himbeertoni Raid Tool:</value>
     </data>
-    <data name="WelcomeWindow_button_openWiki">
+    <data name="Welcomeui_btn_openWiki">
         <value>Open Wiki</value>
     </data>
-    <data name="WelcomeWindow_button_openWiki_tooltip">
+    <data name="Welcomeui_btn_tt_openWiki">
         <value>Open the wiki in your browser</value>
     </data>
-    <data name="WelcomeWindow_button_Close">
+    <data name="WelcomeUi_btn_close">
         <value>Close</value>
     </data>
-    <data name="WelcomeWindow_button_Close_tooltip">
+    <data name="WelcomeUi_btn_tt_close">
         <value>Close this window</value>
     </data>
-    <data name="Config_UpgradeError" xml:space="preserve">
+    <data name="Chat_configUpgradeError" xml:space="preserve">
         <value>Error upgrading Core configuration from version {0}</value>
     </data>
-    <data name="ChangeLogUi_button_read" xml:space="preserve">
+    <data name="ChangeLogUi_btn_haveRead" xml:space="preserve">
         <value>Yeah, I read it!</value>
     </data>
     <data name="ChangelogCategory_General" xml:space="preserve">
@@ -270,10 +247,10 @@
     <data name="ChangeLogUi_text_issueLink_tooltip" xml:space="preserve">
         <value>Open on GitHub</value>
     </data>
-    <data name="ChangeLogUi_heading_KnownIssues" xml:space="preserve">
+    <data name="ChangeLogUi_hdg_KnownIssues" xml:space="preserve">
         <value>Known Issues</value>
     </data>
-    <data name="ChangeLogUi_heading_version" xml:space="preserve">
+    <data name="ChangeLogUi_hdg_version" xml:space="preserve">
         <value>Version {0}</value>
     </data>
     <data name="ChangelogCategory_NewFeature" xml:space="preserve">
@@ -309,13 +286,13 @@
     <data name="ChangelogCategory_Gear" xml:space="preserve">
         <value>Gear</value>
     </data>
-    <data name="ChangelogOption_LocalizedDescription_ShowNone" xml:space="preserve">
+    <data name="ChangelogShowOption_ShowNone" xml:space="preserve">
         <value>Do NOT show changes</value>
     </data>
-    <data name="ChangelogOption_LocalizedDescription_ShowNotable" xml:space="preserve">
+    <data name="ChangelogShowOption_ShowNotable" xml:space="preserve">
         <value>Show me notable changes</value>
     </data>
-    <data name="ChangelogOption_LocalizedDescription_ShowAll" xml:space="preserve">
+    <data name="ChangelogShowOption_ShowAll" xml:space="preserve">
         <value>Show me all changes</value>
     </data>
 </root>
