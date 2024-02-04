@@ -95,7 +95,7 @@ internal sealed class LootMasterModule : IHrtModule
             .AddText($" - {GeneralLoc.command_toggle_helpText}")
             .Add(new NewLinePayload());
 
-        ServiceManager.ChatGui.Print(stringBuilder.BuiltString);
+        ServiceManager.Chat.Print(stringBuilder.BuiltString);
     }
 
 

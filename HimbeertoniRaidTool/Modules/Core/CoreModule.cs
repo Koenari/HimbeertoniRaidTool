@@ -121,7 +121,7 @@ internal class CoreModule : IHrtModule
                 .Add(new NewLinePayload());
         }
 
-        ServiceManager.ChatGui.Print(stringBuilder.BuiltString);
+        ServiceManager.Chat.Print(stringBuilder.BuiltString);
     }
 
     public void AfterFullyLoaded()

@@ -28,7 +28,7 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
         {
             string msg = GeneralLoc.Config_Error_Downgrade;
             ServiceManager.PluginLog.Fatal(msg);
-            ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
         }
         Upgrade();
@@ -48,7 +48,7 @@ internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
                 continue;
             string msg = string.Format(CoreLoc.Config_UpgradeError, oldVersion);
             ServiceManager.PluginLog.Fatal(msg);
-            ServiceManager.ChatGui.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new InvalidOperationException(msg);
 
 

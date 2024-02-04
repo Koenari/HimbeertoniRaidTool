@@ -46,7 +46,7 @@ public sealed class HrtPlugin : IDalamudPlugin
             pluginInterface.UiBuilder.AddNotification(
                 NAME + " did not load correctly. Please disable/enable to try again", "Error in HRT",
                 NotificationType.Error, 10000);
-            ServiceManager.ChatGui.PrintError(NAME + " did not load correctly. Please disable/enable to try again");
+            ServiceManager.Chat.PrintError(NAME + " did not load correctly. Please disable/enable to try again");
         }
     }
 
@@ -86,8 +86,8 @@ public sealed class HrtPlugin : IDalamudPlugin
         //Look for all classes in Modules namespace that implement the IHrtModule interface
         foreach (Type moduleType in GetType().Assembly.GetTypes().Where(
                      t => (t.Namespace?.StartsWith($"{GetType().Namespace}.Modules") ?? false)
-                          && t is { IsInterface: false, IsAbstract: false }
-                          && t.GetInterfaces().Any(i => i == typeof(IHrtModule))))
+                       && t is { IsInterface: false, IsAbstract: false }
+                       && t.GetInterfaces().Any(i => i == typeof(IHrtModule))))
         {
             if (moduleType == typeof(CoreModule)) continue;
             try
@@ -149,22 +149,22 @@ public sealed class HrtPlugin : IDalamudPlugin
         if (command.ShouldExposeToDalamud)
         {
             if (_commandManager.AddHandler(command.Command,
-                    new CommandInfo(command.OnCommand)
-                    {
-                        HelpMessage = command.Description,
-                        ShowInHelp = command.ShowInHelp,
-                    }))
+                                           new CommandInfo(command.OnCommand)
+                                           {
+                                               HelpMessage = command.Description,
+                                               ShowInHelp = command.ShowInHelp,
+                                           }))
                 _dalamudRegisteredCommands.Add(command.Command);
 
             if (command.ShouldExposeAltsToDalamud)
                 foreach (string alt in command.AltCommands)
                 {
                     if (_commandManager.AddHandler(alt,
-                            new CommandInfo(command.OnCommand)
-                            {
-                                HelpMessage = command.Description,
-                                ShowInHelp = false,
-                            }))
+                                                   new CommandInfo(command.OnCommand)
+                                                   {
+                                                       HelpMessage = command.Description,
+                                                       ShowInHelp = false,
+                                                   }))
                         _dalamudRegisteredCommands.Add(alt);
                 }
         }
