@@ -14,39 +14,34 @@ internal class WelcomeWindow : HrtWindow
     {
         _coreModule = coreModule;
         (Size, SizeCondition) = (new Vector2(520, 345), ImGuiCond.Always);
-        Title = CoreLoc.WelcomeWindow_Title;
+        Title = CoreLoc.WelcomeUi_Title;
         Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize;
     }
     public override void Draw()
     {
-        ImGui.TextWrapped(CoreLoc.WelcomeWindowLine1);
-        ImGui.TextWrapped(CoreLoc.WelcomeWindowLine2);
-        ImGui.TextWrapped(CoreLoc.WelcomeWindowLine3);
-        ImGui.TextWrapped(CoreLoc.WelcomeWindowLine4);
-        ImGui.TextWrapped(CoreLoc.WelcomeWindowLine5);
-        ImGui.TextWrapped(CoreLoc.WelcomeWindowLine6);
+        ImGui.TextWrapped(CoreLoc.WelcomeUi_text);
         ImGui.NewLine();
         //Buttons
-        if (ImGuiHelper.Button(CoreLoc.WelcomeWindow_button_OpenLootMaster,
-                               CoreLoc.WelcomeWindow_button_OpenLootMaster_tooltip))
+        if (ImGuiHelper.Button(CoreLoc.WelcomeUi_btn_OpenLootMaster,
+                               CoreLoc.WelcomeUi_btn_tt_OpenLootMaster))
         {
             _coreModule.OnCommand("/hrt", "lootmaster");
         }
         ImGui.SameLine();
-        if (ImGuiHelper.Button(CoreLoc.WelcomeWindow_button_OpenOptions,
-                               CoreLoc.WelcomeWindow_button_OpenOptions_tooltip))
+        if (ImGuiHelper.Button(CoreLoc.WelcomeUi_btn_OpenOptions,
+                               CoreLoc.WelcomeUi_btn_tt_OpenOptions))
         {
             _coreModule.OnCommand("/hrt", "config");
         }
         ImGui.SameLine();
-        if (ImGuiHelper.Button(CoreLoc.WelcomeWindow_button_openWiki,
-                               CoreLoc.WelcomeWindow_button_openWiki_tooltip))
+        if (ImGuiHelper.Button(CoreLoc.Welcomeui_btn_openWiki,
+                               CoreLoc.Welcomeui_btn_tt_openWiki))
         {
             Util.OpenLink(WIKI_URL);
         }
         ImGui.SameLine();
-        if (ImGuiHelper.Button(CoreLoc.WelcomeWindow_button_Close,
-                               CoreLoc.WelcomeWindow_button_Close_tooltip))
+        if (ImGuiHelper.Button(CoreLoc.WelcomeUi_btn_close,
+                               CoreLoc.WelcomeUi_btn_tt_close))
             Hide();
     }
 }

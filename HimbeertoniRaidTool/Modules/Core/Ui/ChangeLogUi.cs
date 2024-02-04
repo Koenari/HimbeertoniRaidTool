@@ -41,10 +41,10 @@ internal class ChangeLogUi : HrtWindow
         ImGui.SetNextItemWidth(comboWidth * ScaleFactor);
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (Size.Value.X - comboWidth) / 2);
         ImGuiHelper.Combo("##opt", ref _options, t => t.LocalizedDescription());
-        float buttonWidth = ImGui.CalcTextSize(CoreLoc.ChangeLogUi_button_read).X + 20;
+        float buttonWidth = ImGui.CalcTextSize(CoreLoc.ChangeLogUi_btn_haveRead).X + 20;
         ImGui.SetNextItemWidth(buttonWidth);
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (Size.Value.X - buttonWidth) / 2);
-        if (ImGuiHelper.Button(CoreLoc.ChangeLogUi_button_read, null))
+        if (ImGuiHelper.Button(CoreLoc.ChangeLogUi_btn_haveRead, null))
         {
             _log.Config.ChangelogNotificationOptions = _options;
             _log.Config.LastSeenChangelog = _log.CurrentVersion;
@@ -57,7 +57,7 @@ internal class ChangeLogUi : HrtWindow
         if (versionEntry.HasNotableFeatures)
             ImGui.PushStyleColor(ImGuiCol.Header, Colors.PetrolDark);
         if (ImGui.CollapsingHeader(
-                string.Format(CoreLoc.ChangeLogUi_heading_version, versionEntry.Version),
+                string.Format(CoreLoc.ChangeLogUi_hdg_version, versionEntry.Version),
                 defaultOpen ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None))
         {
             foreach (ChangeLogEntry entry in versionEntry.NotableFeatures)
@@ -73,7 +73,7 @@ internal class ChangeLogUi : HrtWindow
             if (versionEntry.HasKnownIssues)
             {
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 5f * ScaleFactor);
-                ImGui.TextColored(Colors.TextSoftRed, CoreLoc.ChangeLogUi_heading_KnownIssues);
+                ImGui.TextColored(Colors.TextSoftRed, CoreLoc.ChangeLogUi_hdg_KnownIssues);
                 foreach (ChangeLogEntry entry in versionEntry.KnownIssues)
                 {
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
@@ -131,9 +131,9 @@ public static class ChangelogEnumExtensions
     public static string LocalizedDescription(this ChangelogShowOptions showOption) => showOption switch
     {
 
-        ChangelogShowOptions.ShowAll     => CoreLoc.ChangelogOption_LocalizedDescription_ShowAll,
-        ChangelogShowOptions.ShowNotable => CoreLoc.ChangelogOption_LocalizedDescription_ShowNotable,
-        ChangelogShowOptions.ShowNone    => CoreLoc.ChangelogOption_LocalizedDescription_ShowNone,
+        ChangelogShowOptions.ShowAll     => CoreLoc.ChangelogShowOption_ShowAll,
+        ChangelogShowOptions.ShowNotable => CoreLoc.ChangelogShowOption_ShowNotable,
+        ChangelogShowOptions.ShowNone    => CoreLoc.ChangelogShowOption_ShowNone,
         _                                => GeneralLoc.Unknown,
     };
 }
