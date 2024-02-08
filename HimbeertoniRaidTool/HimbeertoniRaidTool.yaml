@@ -14,3 +14,8 @@ image_urls:
 - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/loot_session.png
 - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
 - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
+changelog: >2+
+      General: Gear updates by examining now use the same restrictions as own data collection
+      Localization: Redone translation
+      Bugfix: Selecting gear from database now works
+      Bugfix: Adding gear sets in solo view works again
