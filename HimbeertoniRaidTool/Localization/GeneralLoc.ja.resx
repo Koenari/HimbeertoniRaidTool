@@ -127,138 +127,55 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="ConfigWindow_Title">
+    <data name="ConfigUi_Title">
         <value>HimbeerToni Raid Tool 設定</value>
     </data>
-    <data name="ItemTableHeader">
-        <value>ヘッダ</value>
-    </data>
-    <data name="Value">
-        <value>値</value>
-    </data>
-    <data name="Name">
+    <data name="CommonTerms_Name">
         <value>名前</value>
-    </data>
-    <data name="itemLevelLong">
-        <value>アイテムレベル</value>
     </data>
     <data name="ItemTable_heading_source">
         <value>変換元</value>
     </data>
-    <data name="Save Player">
-        <value>プレイヤーを保存</value>
-    </data>
-    <data name="EditPlayerWindow_heading_playerData">
+    <data name="EditPlayerUi_hdg_playerData">
         <value>プレイヤーデータ</value>
     </data>
-    <data name="EditPlayerWindow_input_Name">
-        <value>プレイヤー名</value>
-    </data>
-    <data name="EditPlayerWindow_heading_characterData">
+    <data name="EditPlayerUi_hdg_characterData">
         <value>キャラクターデータ</value>
     </data>
-    <data name="Character Name">
-        <value>キャラクター名</value>
-    </data>
-    <data name="Home World">
+    <data name="EditCharUi_in_HomeWorld">
         <value>ホームワールド</value>
     </data>
-    <data name="Tribe">
+    <data name="CommonTerms_Tribe">
         <value>種族</value>
     </data>
-    <data name="EditCharacterWindow_heading_JobData">
+    <data name="EditCharUi_hdg_JobData">
         <value>ジョブデータ</value>
     </data>
-    <data name="EditCharacterWindow_input_mainJob">
+    <data name="EditCharUi_in_mainJob">
         <value>メインジョブ</value>
     </data>
-    <data name="EditCharacterWindow_text_noJobs">
+    <data name="EditCharUi_text_noJobs">
         <value>キャラクターにクラスが設定されていません</value>
     </data>
-    <data name="PlayerEdit:Tooltip:LocalBis">
-        <value>BiS set for this class is locally managed.
-            Delete local set to use a set from etro.gg
-        </value>
-    </data>
-    <data name="Set to default">
-        <value>既定に設定</value>
-    </data>
-    <data name="DefaultBiSTooltip">
-        <value>設定からデフォルトの最適装備を取得する</value>
-    </data>
-    <data name="Level">
+    <data name="CommonTerms_Level">
         <value>レベル</value>
     </data>
-    <data name="EditCharacterWindow_input_AddJob">
-        <value>ジョブを追加</value>
-    </data>
-    <data name="EditGroupWindow_input_name">
-        <value>グループ名</value>
-    </data>
-    <data name="EditGroupWindow_input_type">
+    <data name="EditGroupUi_in_type">
         <value>グループの種類</value>
     </data>
-    <data name="Override role priority">
+    <data name="EditGroupUi_cb_OverrideRolePriority">
         <value>ロールの優先順位を上書き</value>
     </data>
-    <data name="Edit">
-        <value>編集</value>
-    </data>
-    <data name="GearsetEdit:Delete">
-        <value>Remove set from this character (Hold Shift)</value>
-    </data>
-    <data name="GearSetEditWindow_Source">
-        <value>Source</value>
-    </data>
-    <data name="GearSet:ManagedBy:Etro">
-        <value>etro.gg</value>
-    </data>
-    <data name="GearSetEdit:MakeLocal">
-        <value>Create local copy</value>
-    </data>
-    <data name="GearSetEdit:MakeLocal:tooltip">
-        <value>Create a copy of this set in the local database. Set will not be updated from etro.gg
-            afterwards
-            Only local Gear Sets can be edited
-        </value>
-    </data>
-    <data name="Etro ID">
-        <value>Etro ID</value>
-    </data>
-    <data name="GearSetEdit:EtroLastDownload">
-        <value>Last update check</value>
-    </data>
-    <data name="GearSet:ManagedBy:HrtLocal">
-        <value>Local Database</value>
-    </data>
-    <data name="Local ID">
-        <value>Local ID</value>
-    </data>
-    <data name="GearSetEdit:LastChanged">
-        <value>Last Change</value>
-    </data>
-    <data name="GearSetEdit:Name">
-        <value>Name</value>
-    </data>
-    <data name="Get item for">
+    <data name="SelectGearItemui_Title">
         <value>アイテムを取得：</value>
     </data>
-    <data name="Use this item">
+    <data name="SelectItemUi_btn_tt_useThis">
         <value>このアイテムを使用</value>
     </data>
-    <data name="Confirmation">
-        <value>確認</value>
-    </data>
-    <data name="OK">
-        <value>OK</value>
-    </data>
-    <data name="Confirm action">
-        <value>OK</value>
-    </data>
-    <data name="Save">
+    <data name="General_btn_tt_save">
         <value>保存</value>
     </data>
-    <data name="Cancel">
+    <data name="Ui_btn_tt_cancel">
         <value>キャンセル</value>
     </data>
     <data name="Ui_btn_Inspect_tt">
@@ -267,144 +184,43 @@
     <data name="Ui_btn_tt_CharacterNotInReach">
         <value>キャラクターを検証できません</value>
     </data>
-    <data name="rightClickHint">
+    <data name="Ui_rightClickHint">
         <value>右クリックで詳細オプションを開く</value>
     </data>
-    <data name="Lodestone Button">
+    <data name="Ui_btn_tt_Lodestone">
         <value>Lodestoneから装備をダウンロード</value>
     </data>
-    <data name="LodestonUpdateStarted">
+    <data name="LodestonConnetor_msg_UpdateStarted">
         <value>装備品アップデートを開始：</value>
     </data>
-    <data name="Select item">
+    <data name="EditGearSetUi_btn_tt_selectItem">
         <value>アイテムを選択</value>
-    </data>
-    <data name="Remove this item">
-        <value>Remove this item</value>
-    </data>
-    <data name="Remove this materia">
-        <value>このマテリアを削除</value>
-    </data>
-    <data name="Materia">
-        <value>Materia</value>
     </data>
     <data name="SelectMateriaUi_Title">
         <value>マテリアを選択</value>
     </data>
-    <data name="SortableList_moveUp">
-        <value>Move up</value>
-    </data>
-    <data name="SortableList_moveDown">
-        <value>Move down</value>
-    </data>
-    <data name="SortableList_remove">
-        <value>Remove entry</value>
-    </data>
-    <data name="SortableList_Add">
-        <value>Add entry</value>
-    </data>
-    <data name="Appearance">
-        <value>外観</value>
-    </data>
-    <data name="iLvl">
+    <data name="CommonTerms_itemLvl_abbrev">
         <value>IL</value>
     </data>
-    <data name="DefaultBiSHeading">
-        <value>デフォルトの最適装備セット (etro.gg IDとして)</value>
-    </data>
-    <data name="DefaultBiSDisclaimer">
-        <value>These sets are used when creating a new character or adding a new job. These do not
-            affect already created characters and jobs.
-        </value>
-    </data>
-    <data name="Reset to default">
-        <value>既定値に戻す</value>
-    </data>
-    <data name="default">
-        <value>初期値</value>
-    </data>
-    <data name="Not defined">
+    <data name="CommonTerms_undefined">
         <value>未定義</value>
     </data>
-    <data name="undefined">
-        <value>未定義</value>
-    </data>
-    <data name="Empty">
+    <data name="CommonTerms_Empty">
         <value>なし</value>
     </data>
-    <data name="Dmgper100Tooltip">
-        <value>Average Dmg with a 100 potency skill adjusted for faster GCDs</value>
-    </data>
-    <data name="Edit player">
-        <value>プレイヤーを編集</value>
-    </data>
-    <data name="Gear">
+    <data name="CommonTerms_Gear">
         <value>装備品</value>
     </data>
-    <data name="BiS">
+    <data name="CommonTerms_BiS">
         <value>最適装備</value>
     </data>
-    <data name="Add Player">
-        <value>プレイヤーを追加</value>
-    </data>
-    <data name="Player">
-        <value>プレイヤー</value>
-    </data>
-    <data name="itemLevelShort">
-        <value>IL</value>
-    </data>
-    <data name="Options">
-        <value>設定</value>
-    </data>
-    <data name="Edit group">
-        <value>グループを編集</value>
-    </data>
-    <data name="NotAvail_Abbrev">
-        <value>n.A.</value>
-    </data>
-    <data name="PlayerDetails">
-        <value>プレイヤーの詳細を表示:</value>
-    </data>
-    <data name="Delete">
-        <value>削除</value>
-    </data>
-    <data name="DeletePlayerConfirmation">
-        <value>このプレイヤーを本当に削除しますか？:</value>
-    </data>
-    <data name="Add">
-        <value>追加</value>
-    </data>
-    <data name="Inventory:AdditionalGear">
-        <value>追加の装備品</value>
-    </data>
-    <data name="Swap Position of">
-        <value>位置を入れ替え：</value>
-    </data>
-    <data name="Swap players positions">
-        <value>プレイヤーの位置を入れ替え</value>
-    </data>
-    <data name="Results for">
-        <value>結果:</value>
-    </data>
-    <data name="Pos">
-        <value>位置</value>
-    </data>
-    <data name="Needed items">
-        <value>必須アイテム</value>
-    </data>
-    <data name="Rule">
-        <value>ルール</value>
-    </data>
-    <data name="General">
-        <value>全般</value>
-    </data>
-    <data name="LodestoneConnector:CharNotFound">
+    <data name="LodestoneConnector_err_CharNotFound">
         <value>Lodestoneにキャラクターが見つかりません。</value>
     </data>
-    <data name="LodestoneConnector:JobIncompatible">
+    <data name="LodestoneConnector_err_JobIncompatible">
         <value>使用中のジョブまたは表示中のジョブが Lodestone に対応していません。</value>
     </data>
-    <data name="LodestoneConnector:Failure">
+    <data name="LodestoneConnector_err_GeneralFailure">
         <value>Lodestoneから装備品を更新できませんでした。</value>
     </data>
     <data name="GetCharacterWindow_Title" xml:space="preserve">
@@ -412,5 +228,14 @@
     </data>
     <data name="ItemTable_heading_LootedIn" xml:space="preserve">
         <value>獲得された</value>
+    </data>
+    <data name="ItemTable_heading_iLvl" xml:space="preserve">
+        <value>アイテムレベル</value>
+    </data>
+    <data name="ItemTable_heading_Header" xml:space="preserve">
+        <value>ヘッダ</value>
+    </data>
+    <data name="Ui_btn_tt_addEmpty" xml:space="preserve">
+        <value>空の{0}を追加</value>
     </data>
 </root>

@@ -179,7 +179,7 @@ public static class LootSessionExtensions
         LootSession.State.LootChosen          => LootmasterLoc.LootSession_State_LOOT_CHOSEN,
         LootSession.State.DistributionStarted => LootmasterLoc.LootSession_State_DISTRIBUTION_STARTED,
         LootSession.State.Finished            => LootmasterLoc.LootSession_State_FINISHED,
-        _                                     => GeneralLoc.undefined,
+        _                                     => GeneralLoc.CommonTerms_undefined,
     };
     public static string FriendlyName(this LootCategory cat) => cat switch
     {
@@ -187,7 +187,7 @@ public static class LootSessionExtensions
         LootCategory.Greed     => LootmasterLoc.LootCategory_Greed,
         LootCategory.Pass      => LootmasterLoc.LootCategory_Pass,
         LootCategory.Undecided => LootmasterLoc.LootCategory_Undecided,
-        _                      => GeneralLoc.undefined,
+        _                      => GeneralLoc.CommonTerms_undefined,
     };
 }
 
@@ -310,16 +310,16 @@ public class LootResultContainer : IReadOnlyList<LootResult>
                 return _shortResultCache;
             if (IsAwarded)
                 return _shortResultCache =
-                    $"{AwardedTo?.AwardedItem?.Name} {LootmasterLoc.LootResult_ItemAwardedTo} {AwardedTo?.Player.NickName} ({AwardedTo?.ApplicableJob})";
+                    $"{AwardedTo?.AwardedItem?.Name} {LootmasterLoc.LootUi_Results_ItemAwardedTo} {AwardedTo?.Player.NickName} ({AwardedTo?.ApplicableJob})";
             if (Count == 0 || this[0].Category != LootCategory.Need)
-                return _shortResultCache = LootmasterLoc.LootResult_GreedOnly;
+                return _shortResultCache = LootmasterLoc.LootUi_Results_GreedOnly;
             string result =
-                $"{this[0].Player.NickName} ({this[0].ApplicableJob.Job}) {LootmasterLoc.LootResult_PlayerWon}";
+                $"{this[0].Player.NickName} ({this[0].ApplicableJob.Job}) {LootmasterLoc.LootUi_Results_PlayerWon}";
             if (Count > 1)
             {
                 if (this[1].Category == LootCategory.Need)
                     result +=
-                        $" {LootmasterLoc.LootResult_PlayerWonOver} {this[1].Player.NickName} ({this[1].ApplicableJob.Job})";
+                        $" {LootmasterLoc.LootUi_Results_PlayerWonOver} {this[1].Player.NickName} ({this[1].ApplicableJob.Job})";
                 result += $" ({this[0].DecidingFactor(this[1])})";
             }
             return _shortResultCache = result;

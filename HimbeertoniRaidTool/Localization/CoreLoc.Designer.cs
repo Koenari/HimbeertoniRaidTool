@@ -213,6 +213,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Previous changelogs.
+        /// </summary>
+        internal static string ChangeLogUi_hdg_seen {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_hdg_seen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version {0}.
         /// </summary>
         internal static string ChangeLogUi_hdg_version {
@@ -240,6 +249,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Himbeertoni Raid Tool Changelog.
+        /// </summary>
+        internal static string ChangeLogUi_Title {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error upgrading Core configuration from version {0}.
         /// </summary>
         internal static string Chat_configUpgradeError {
@@ -254,6 +272,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string Chat_help_heading {
             get {
                 return ResourceManager.GetString("Chat_help_heading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shows the changelog.
+        /// </summary>
+        internal static string command_hrt_changelog {
+            get {
+                return ResourceManager.GetString("command_hrt_changelog", resourceCulture);
             }
         }
         
@@ -463,6 +490,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string ConfigUi_Title {
             get {
                 return ResourceManager.GetString("ConfigUi_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Core functionality of Himbeertoni Raid Tool.
+        /// </summary>
+        internal static string Module_Description {
+            get {
+                return ResourceManager.GetString("Module_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Core Functions.
+        /// </summary>
+        internal static string Module_Name {
+            get {
+                return ResourceManager.GetString("Module_Name", resourceCulture);
             }
         }
         

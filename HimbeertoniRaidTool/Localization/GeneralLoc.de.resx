@@ -127,138 +127,70 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="ConfigWindow_Title">
+    <data name="ConfigUi_Title">
         <value>HimbeerToni Raid Tool Konfiguration</value>
     </data>
-    <data name="ItemTableHeader">
-        <value>Kopfzeile</value>
-    </data>
-    <data name="Value">
-        <value>Wert</value>
-    </data>
-    <data name="Name">
+    <data name="CommonTerms_Name">
         <value>Name</value>
-    </data>
-    <data name="itemLevelLong">
-        <value>Gegenstandsstufe</value>
     </data>
     <data name="ItemTable_heading_source">
         <value>Ursprung</value>
     </data>
-    <data name="Save Player">
-        <value>Spieler speichern</value>
-    </data>
-    <data name="EditPlayerWindow_heading_playerData">
+    <data name="EditPlayerUi_hdg_playerData">
         <value>Spielerdaten</value>
     </data>
-    <data name="EditPlayerWindow_input_Name">
-        <value>Spielername</value>
-    </data>
-    <data name="EditPlayerWindow_heading_characterData">
+    <data name="EditPlayerUi_hdg_characterData">
         <value>Charakterdaten</value>
     </data>
-    <data name="Character Name">
-        <value>Charaktername</value>
-    </data>
-    <data name="Home World">
+    <data name="EditCharUi_in_HomeWorld">
         <value>Heimatwelt</value>
     </data>
-    <data name="Tribe">
+    <data name="CommonTerms_Tribe">
         <value>Stamm</value>
     </data>
-    <data name="EditCharacterWindow_heading_JobData">
+    <data name="EditCharUi_hdg_JobData">
         <value>Job Daten</value>
     </data>
-    <data name="EditCharacterWindow_input_mainJob">
+    <data name="EditCharUi_in_mainJob">
         <value>Hauptjob</value>
     </data>
-    <data name="EditCharacterWindow_text_noJobs">
+    <data name="EditCharUi_text_noJobs">
         <value>Charakter hat keine Klassen angelegt</value>
     </data>
-    <data name="PlayerEdit:Tooltip:LocalBis">
-        <value>BiS-Set für diese Klasse wird lokal verwaltet.
-            Lokales Set löschen, um ein Set von etro.gg zu verwenden
-        </value>
-    </data>
-    <data name="Set to default">
-        <value>Auf Standard zurücksetzen</value>
-    </data>
-    <data name="DefaultBiSTooltip">
-        <value>Standard-BiS aus der Konfiguration laden</value>
-    </data>
-    <data name="Level">
+    <data name="CommonTerms_Level">
         <value>Stufe</value>
     </data>
-    <data name="EditCharacterWindow_input_AddJob">
-        <value>Job hinzufügen</value>
-    </data>
-    <data name="EditGroupWindow_input_name">
-        <value>Gruppenname</value>
-    </data>
-    <data name="EditGroupWindow_input_type">
+    <data name="EditGroupUi_in_type">
         <value>Gruppenart</value>
     </data>
-    <data name="Override role priority">
+    <data name="EditGroupUi_cb_OverrideRolePriority">
         <value>Priorität der Rolle überschreiben</value>
     </data>
-    <data name="Edit">
-        <value>Bearbeiten</value>
-    </data>
-    <data name="GearsetEdit:Delete">
-        <value>Set von diesem Charakter entfernen (Shift halten)</value>
-    </data>
-    <data name="GearSetEditWindow_Source">
+    <data name="EditGearSetUi_Source">
         <value>Ursprung</value>
     </data>
-    <data name="GearSet:ManagedBy:Etro">
-        <value>etro.gg</value>
-    </data>
-    <data name="GearSetEdit:MakeLocal">
+    <data name="EditGearSetUi_btn_MakeLocal">
         <value>Lokale Kopie erstellen</value>
     </data>
-    <data name="GearSetEdit:MakeLocal:tooltip">
+    <data name="EditGearSetUi_btn_tt_MakeLocal">
         <value>Erstellen Sie eine Kopie dieses Set in der lokalen Datenbank. Der Set wird nicht von
             etro.gg aktualisiert.
             Nur lokale Ausrüstungssets können bearbeitet werden
         </value>
     </data>
-    <data name="Etro ID">
-        <value>Etro ID</value>
-    </data>
-    <data name="GearSetEdit:EtroLastDownload">
-        <value>Letzte Update-Prüfung</value>
-    </data>
-    <data name="GearSet:ManagedBy:HrtLocal">
-        <value>Lokale Datenbank</value>
-    </data>
-    <data name="Local ID">
+    <data name="EditUi_Txt_LocalId">
         <value>Lokale ID</value>
     </data>
-    <data name="GearSetEdit:LastChanged">
-        <value>Letzte Änderung</value>
-    </data>
-    <data name="GearSetEdit:Name">
-        <value>Name</value>
-    </data>
-    <data name="Get item for">
+    <data name="SelectGearItemui_Title">
         <value>Gegenstand holen für</value>
     </data>
-    <data name="Use this item">
+    <data name="SelectItemUi_btn_tt_useThis">
         <value>Diesen Gegenstand benutzen</value>
     </data>
-    <data name="Confirmation">
-        <value>Bestätigung</value>
-    </data>
-    <data name="OK">
-        <value>OK</value>
-    </data>
-    <data name="Confirm action">
-        <value>OK</value>
-    </data>
-    <data name="Save">
+    <data name="General_btn_tt_save">
         <value>Speichern</value>
     </data>
-    <data name="Cancel">
+    <data name="Ui_btn_tt_cancel">
         <value>Abbrechen</value>
     </data>
     <data name="Ui_btn_Inspect_tt">
@@ -267,157 +199,75 @@
     <data name="Ui_btn_tt_CharacterNotInReach">
         <value>Charakter ist nicht nah genug zum Untersuchen</value>
     </data>
-    <data name="rightClickHint">
+    <data name="Ui_rightClickHint">
         <value>Rechtsklick für mehr Optionen</value>
     </data>
-    <data name="Lodestone Button">
+    <data name="Ui_btn_tt_Lodestone">
         <value>Ausrüstungsdaten vom Lodestone herunterladen</value>
     </data>
-    <data name="LodestonUpdateStarted">
+    <data name="LodestonConnetor_msg_UpdateStarted">
         <value>Ausrüstungsaktualisierung gestrtet für</value>
     </data>
-    <data name="Select item">
+    <data name="EditGearSetUi_btn_tt_selectItem">
         <value>Item auswählen</value>
     </data>
-    <data name="Remove this item">
-        <value>Dieses Element entfernen</value>
+    <data name="General_btn_tt_remove">
+        <value>{0} {1} entfernen</value>
     </data>
-    <data name="Remove this materia">
-        <value>Diese Materia entfernen</value>
-    </data>
-    <data name="Materia">
+    <data name="CommonTerms_Materia">
         <value>Materia</value>
     </data>
     <data name="SelectMateriaUi_Title">
         <value>Materia auswählen</value>
     </data>
-    <data name="SortableList_moveUp">
+    <data name="SortableList_btn_tt_moveUp">
         <value>Nach oben</value>
     </data>
-    <data name="SortableList_moveDown">
+    <data name="SortableList_btn_tt_moveDown">
         <value>Nach unten</value>
     </data>
-    <data name="SortableList_remove">
-        <value>Eintrag entfernen</value>
-    </data>
-    <data name="SortableList_Add">
-        <value>Eintrag hinzufügen</value>
-    </data>
-    <data name="Appearance">
-        <value>Aussehen</value>
-    </data>
-    <data name="iLvl">
+    <data name="CommonTerms_itemLvl_abbrev">
         <value>G.-St.</value>
     </data>
-    <data name="DefaultBiSHeading">
-        <value>Standard BiS Sets (als etro.gg ID)</value>
-    </data>
-    <data name="DefaultBiSDisclaimer">
-        <value>Diese Sets werden beim Erstellen eines neuen Charakters oder beim Hinzufügen eines
-            neuen Jobs verwendet. Diese ändern nicht die bereits erstellten Charaktere und Jobs.
-        </value>
-    </data>
-    <data name="Reset to default">
-        <value>Auf Standard zurücksetzen</value>
-    </data>
-    <data name="default">
-        <value>Standard</value>
-    </data>
-    <data name="Not defined">
-        <value>Nicht definiert</value>
-    </data>
-    <data name="undefined">
+    <data name="CommonTerms_undefined">
         <value>unbekannt</value>
     </data>
-    <data name="Empty">
+    <data name="CommonTerms_Empty">
         <value>Leer</value>
     </data>
-    <data name="Dmgper100Tooltip">
-        <value>Durchschnittlicher Schaden mit einer 100 Potenz Fähigkeiten angepasst für schnellere
-            GCDs
-        </value>
+    <data name="General_btn_tt_edit">
+        <value>{0} {1} bearbeiten</value>
     </data>
-    <data name="Edit player">
-        <value>Spieler bearbeiten</value>
-    </data>
-    <data name="Gear">
+    <data name="CommonTerms_Gear">
         <value>Ausrüstung</value>
     </data>
-    <data name="BiS">
+    <data name="CommonTerms_BiS">
         <value>BiS</value>
     </data>
-    <data name="Add Player">
-        <value>Spieler hinzufügen</value>
-    </data>
-    <data name="Player">
-        <value>Spieler</value>
-    </data>
-    <data name="itemLevelShort">
-        <value>iLvl</value>
-    </data>
-    <data name="Options">
-        <value>Einstellungen</value>
-    </data>
-    <data name="Edit group">
-        <value>Gruppe bearbeiten</value>
-    </data>
-    <data name="NotAvail_Abbrev">
+    <data name="CommonTerms_NotAvail_Abbrev">
         <value>n.V.</value>
     </data>
-    <data name="PlayerDetails">
-        <value>Spielerdetails anzeigen für</value>
+    <data name="General_btn_tt_delete">
+        <value>{0} {1} löschen</value>
     </data>
-    <data name="Delete">
-        <value>Löschen</value>
+    <data name="Ui_btn_tt_add">
+        <value>{0} hinzufügen</value>
     </data>
-    <data name="DeletePlayerConfirmation">
-        <value>Möchten Sie den folgenden Spieler wirklich löschen?</value>
-    </data>
-    <data name="Add">
-        <value>Hinzufügen</value>
-    </data>
-    <data name="PlayerDetailsTitle">
-        <value>Spieler Details für {0}</value>
-    </data>
-    <data name="Inventory:AdditionalGear">
-        <value>Zusätzliche Ausrüstung</value>
-    </data>
-    <data name="Swap Position of">
-        <value>Tausche Position von</value>
-    </data>
-    <data name="Swap players positions">
-        <value>Spielerpositionen tauschen</value>
-    </data>
-    <data name="Results for">
-        <value>Ergebnisse für</value>
-    </data>
-    <data name="Pos">
-        <value>Pos</value>
-    </data>
-    <data name="Needed items">
-        <value>Benötigte Items</value>
-    </data>
-    <data name="Rule">
-        <value>Regel</value>
-    </data>
-    <data name="General">
-        <value>Allgemein</value>
-    </data>
-    <data name="LodestoneConnector:CharNotFound">
+    <data name="LodestoneConnector_err_CharNotFound">
         <value>Charakter wurde nicht auf dem Lodestone gefunden.</value>
     </data>
-    <data name="LodestoneConnector:JobIncompatible">
+    <data name="LodestoneConnector_err_JobIncompatible">
         <value>Der aktuell verwendete Job konnte nicht ermittlet werden oder der aktuell angezeigte
             Job auf dem Lodestone wird nicht unterstützt.
         </value>
     </data>
-    <data name="LodestoneConnector:FailedToCreateGear">
+    <data name="LodestoneConnector_err_FailedToCreateGear">
         <value>Neues Ausrüstungsset konnte nicht angelegt werden.</value>
     </data>
-    <data name="LodestoneConnector:Success">
+    <data name="LodestoneConnector_msg_Success">
         <value>{0}'s {1} Ausrüstung vom Lodestone aktualisiert.</value>
     </data>
-    <data name="LodestoneConnector:Failure">
+    <data name="LodestoneConnector_err_GeneralFailure">
         <value>Konnte die Ausrüstung vom Lodestone nicht aktualisieren.</value>
     </data>
     <data name="GetCharacterWindow_Title" xml:space="preserve">
@@ -426,7 +276,25 @@
     <data name="ItemTable_heading_LootedIn" xml:space="preserve">
         <value>Loot von</value>
     </data>
-    <data name="DrawItem_heading_ShopCosts" xml:space="preserve">
+    <data name="DrawItem_hdg_ShopCosts" xml:space="preserve">
         <value>Händlerkosten</value>
+    </data>
+    <data name="ItemTable_heading_iLvl" xml:space="preserve">
+        <value>Gegenstandsstufe</value>
+    </data>
+    <data name="EditGearSetUi_txt_lastUpdate" xml:space="preserve">
+        <value>Letzte Update-Prüfung: {0}</value>
+    </data>
+    <data name="EditGearSetUi_txt_LastChange" xml:space="preserve">
+        <value>Letzte Änderung: {0}</value>
+    </data>
+    <data name="ItemTable_heading_Header" xml:space="preserve">
+        <value>Kopfzeile</value>
+    </data>
+    <data name="Ui_btn_tt_addEmpty" xml:space="preserve">
+        <value>Leere(s/n) {0} hinzufügen</value>
+    </data>
+    <data name="Ui_btn_tt_removeFrom" xml:space="preserve">
+        <value>{0} aus {1} entfernen</value>
     </data>
 </root>

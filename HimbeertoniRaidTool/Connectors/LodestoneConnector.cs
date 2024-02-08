@@ -50,14 +50,14 @@ internal class LodestoneConnector : NetStoneBase
         {
             LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
             if (lodestoneCharacter == null)
-                return new HrtUiMessage(GeneralLoc.LodestoneConnector_CharNotFound, HrtUiMessageType.Failure);
+                return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_CharNotFound, HrtUiMessageType.Failure);
             Job? foundJob;
             if (lodestoneCharacter.Gear.Soulcrystal != null)
                 foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Soulcrystal.ItemName, out isHq)?.ClassJobUse.Row;
             else
                 foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand?.ItemName, out isHq)?.ClassJobUse.Row;
             if (foundJob == null || !Enum.IsDefined(typeof(Job), foundJob))
-                return new HrtUiMessage(GeneralLoc.LodestoneConnector_JobIncompatible, HrtUiMessageType.Failure);
+                return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_JobIncompatible, HrtUiMessageType.Failure);
 
             PlayableClass? classToChange = p.MainChar[foundJob.Value];
             if (classToChange == null)
@@ -67,7 +67,8 @@ internal class LodestoneConnector : NetStoneBase
                 hasError |= !ServiceManager.HrtDataManager.GearDb.TryAdd(classToChange.CurGear);
                 hasError |= !ServiceManager.HrtDataManager.GearDb.TryAdd(classToChange.CurBis);
                 if (hasError)
-                    return new HrtUiMessage(GeneralLoc.LodestoneConnector_FailedToCreateGear, HrtUiMessageType.Failure);
+                    return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_FailedToCreateGear,
+                                            HrtUiMessageType.Failure);
             }
 
             classToChange.Level = lodestoneCharacter.ActiveClassJobLevel;
@@ -134,13 +135,13 @@ internal class LodestoneConnector : NetStoneBase
             }
 
             return new HrtUiMessage(
-                string.Format(GeneralLoc.LodestoneConnector_Success, p.MainChar.Name, classToChange.Job),
+                string.Format(GeneralLoc.LodestoneConnector_msg_Success, p.MainChar.Name, classToChange.Job),
                 HrtUiMessageType.Success);
         }
         catch (Exception e)
         {
             ServiceManager.PluginLog.Error(e, "Error in Lodestone Gear fetch");
-            return new HrtUiMessage(GeneralLoc.LodestoneConnector_Failure, HrtUiMessageType.Error);
+            return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_GeneralFailure, HrtUiMessageType.Error);
         }
     }
 

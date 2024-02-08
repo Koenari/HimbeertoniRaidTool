@@ -43,14 +43,15 @@ internal static class UiHelpers
         ImGui.SameLine();
         ImGui.BeginDisabled(parent.ChildIsOpen);
         {
-            if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}changeItem", GeneralLoc.Select_item))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}changeItem",
+                                   GeneralLoc.EditGearSetUi_btn_tt_selectItem))
                 parent.AddChild(new SelectGearItemWindow(onItemChange, _ => { }, item, slot, curJob,
                                                          Common.Services.ServiceManager.GameInfo.CurrentExpansion
                                                                .CurrentSavage?.ItemLevel(slot) ?? 0));
             ImGui.EndDisabled();
         }
         ImGui.SameLine();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{slot}", GeneralLoc.Remove_this_item))
+        if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{slot}", GeneralLoc.General_btn_tt_remove))
         {
             item = GearItem.Empty;
             onItemChange(item);
@@ -80,7 +81,9 @@ internal static class UiHelpers
         {
             if (i == matCount - 1)
             {
-                if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{slot}mat{i}", GeneralLoc.Remove_this_materia))
+                if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"##delete{slot}mat{i}",
+                                       string.Format(GeneralLoc.General_btn_tt_remove, HrtMateria.DataTypeNameStatic,
+                                                     string.Empty)))
                 {
                     item.RemoveMateria(i);
                     i--;
@@ -119,7 +122,7 @@ internal static class UiHelpers
                 item.ReplaceMateria(i, new HrtMateria(cat, mat.Level));
             }
             ImGui.SameLine();
-            ImGui.Text(GeneralLoc.Materia);
+            ImGui.Text(GeneralLoc.CommonTerms_Materia);
             ImGui.SameLine();
             ImGui.SetNextItemWidth(_maxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
             if (ImGuiHelper.SearchableCombo(

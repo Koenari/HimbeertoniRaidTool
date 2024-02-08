@@ -16,7 +16,7 @@ internal class ChangeLogUi : HrtWindow
         Size = new Vector2(600, 500);
         SizeCondition = ImGuiCond.Appearing;
         OpenCentered = true;
-        Title = GeneralLoc.ChangeLogUi_Title;
+        Title = CoreLoc.ChangeLogUi_Title;
         _options = _log.Config.ChangelogNotificationOptions;
     }
     public override void Draw()
@@ -30,7 +30,7 @@ internal class ChangeLogUi : HrtWindow
             }
             ImGui.NewLine();
             ImGui.Separator();
-            ImGui.TextColored(Colors.TextWhite, GeneralLoc.ChangeLogUi_heading_seen);
+            ImGui.TextColored(Colors.TextWhite, CoreLoc.ChangeLogUi_hdg_seen);
             foreach (SingleVersionChangelog versionEntry in _log.SeenChangeLogs)
             {
                 DrawVersionEntry(versionEntry);
@@ -126,7 +126,7 @@ public static class ChangelogEnumExtensions
         ChangeLogEntryCategory.Translation => CoreLoc.ChangelogCategory_Localization,
         ChangeLogEntryCategory.Performance => CoreLoc.ChangelogCategory_Performance,
         ChangeLogEntryCategory.Gear        => CoreLoc.ChangelogCategory_Gear,
-        _                                  => GeneralLoc.Unknown,
+        _                                  => GeneralLoc.CommonTerms_Unknown,
     };
     public static string LocalizedDescription(this ChangelogShowOptions showOption) => showOption switch
     {
@@ -134,6 +134,6 @@ public static class ChangelogEnumExtensions
         ChangelogShowOptions.ShowAll     => CoreLoc.ChangelogShowOption_ShowAll,
         ChangelogShowOptions.ShowNotable => CoreLoc.ChangelogShowOption_ShowNotable,
         ChangelogShowOptions.ShowNone    => CoreLoc.ChangelogShowOption_ShowNone,
-        _                                => GeneralLoc.Unknown,
+        _                                => GeneralLoc.CommonTerms_Unknown,
     };
 }

@@ -46,7 +46,7 @@ internal sealed class LootMasterModule : IHrtModule
             {
                 "/lm",
             },
-            Description = LootmasterLoc.lootmaster,
+            Description = LootmasterLoc.command_lootmaster,
             ShouldExposeToDalamud = true,
             ShouldExposeAltsToDalamud = true,
         },
@@ -83,16 +83,16 @@ internal sealed class LootMasterModule : IHrtModule
         SeStringBuilder stringBuilder = new SeStringBuilder()
                                         .AddUiForeground("[Himbeertoni Raid Tool]", 45)
                                         .AddUiForeground("[Help]", 62)
-                                        .AddText(GeneralLoc.chat_usage_heading)
+                                        .AddText(LootmasterLoc.chat_usage_heading)
                                         .Add(new NewLinePayload());
 
         stringBuilder
             .AddUiForeground("/lootmaster", 37)
-            .AddText($" - {GeneralLoc.command_show_helpText}")
+            .AddText($" - {LootmasterLoc.command_show_helpText}")
             .Add(new NewLinePayload());
         stringBuilder
             .AddUiForeground("/lootmaster toggle", 37)
-            .AddText($" - {GeneralLoc.command_toggle_helpText}")
+            .AddText($" - {LootmasterLoc.command_toggle_helpText}")
             .Add(new NewLinePayload());
 
         ServiceManager.Chat.Print(stringBuilder.BuiltString);

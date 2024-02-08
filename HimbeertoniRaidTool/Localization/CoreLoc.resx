@@ -295,4 +295,19 @@
     <data name="ChangelogShowOption_ShowAll" xml:space="preserve">
         <value>Show me all changes</value>
     </data>
+    <data name="ChangeLogUi_hdg_seen" xml:space="preserve">
+        <value>Previous changelogs</value>
+    </data>
+    <data name="ChangeLogUi_Title" xml:space="preserve">
+        <value>Himbeertoni Raid Tool Changelog</value>
+    </data>
+    <data name="command_hrt_changelog" xml:space="preserve">
+        <value>Shows the changelog</value>
+    </data>
+    <data name="Module_Description" xml:space="preserve">
+        <value>Core functionality of Himbeertoni Raid Tool</value>
+    </data>
+    <data name="Module_Name" xml:space="preserve">
+        <value>Core Functions</value>
+    </data>
 </root>

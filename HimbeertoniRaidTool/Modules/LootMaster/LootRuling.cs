@@ -42,7 +42,7 @@ public class LootRuling
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class LootRule : IEquatable<LootRule>, IDrawable
+public class LootRule : IEquatable<LootRule>, IDrawable, IHrtDataType
 {
     [JsonProperty("Rule")] public readonly LootRuleEnum Rule;
 
@@ -54,6 +54,7 @@ public class LootRule : IEquatable<LootRule>, IDrawable
     {
         Rule = rule;
     }
+    public static string DataTypeNameStatic => LootmasterLoc.LootRule_DataTypeName;
 
     public bool CanIgnore =>
         Rule switch
@@ -65,34 +66,35 @@ public class LootRule : IEquatable<LootRule>, IDrawable
             _                           => false,
         };
 
-    public string Name => GetName();
-
     private string IgnoreTooltip =>
         Rule switch
         {
-            LootRuleEnum.BisOverUpgrade => LootmasterLoc.loot_rule_ignore_tooltip_bis,
-            LootRuleEnum.CanUse         => LootmasterLoc.loot_rule_ignore_tooltip_can_use,
-            LootRuleEnum.CanBuy         => LootmasterLoc.loot_rule_ignore_tooltip_can_buy,
-            LootRuleEnum.NeedGreed      => LootmasterLoc.loot_rule_ignore_tooltip_need_greed,
+            LootRuleEnum.BisOverUpgrade => LootmasterLoc.LootRule_draw_cb_tt_ignore_bis,
+            LootRuleEnum.CanUse         => LootmasterLoc.LootRule_draw_cb_tt_ignore_canUse,
+            LootRuleEnum.CanBuy         => LootmasterLoc.LootRule_draw_cb_tt_ignore_canBuy,
+            LootRuleEnum.NeedGreed      => LootmasterLoc.LootRule_draw_cb_tt_ignore_needGreed,
             _                           => "",
         };
 
     public void Draw()
     {
         ImGui.Checkbox("##active", ref Active);
-        ImGuiHelper.AddTooltip(LootmasterLoc.ui_loot_rule_active_tooltip);
+        ImGuiHelper.AddTooltip(LootmasterLoc.LootRule_Draw_cb_tt_active);
         ImGui.SameLine();
         ImGui.BeginDisabled(!Active);
         ImGui.Text(Name);
         if (CanIgnore)
         {
             ImGui.SameLine();
-            ImGui.Checkbox($"{LootmasterLoc.ui_loot_rule_ignore}##ignore", ref IgnorePlayers);
+            ImGui.Checkbox($"{LootmasterLoc.LootRule_draw_cb_ignore}##ignore", ref IgnorePlayers);
             ImGuiHelper.AddTooltip(IgnoreTooltip);
         }
         ImGui.EndDisabled();
     }
     public bool Equals(LootRule? obj) => obj?.Rule == Rule;
+    string IHrtDataType.DataTypeName => DataTypeNameStatic;
+
+    public string Name => GetName();
 
     /// <summary>
     ///     Evaluates this LootRule for given player
@@ -122,12 +124,15 @@ public class LootRule : IEquatable<LootRule>, IDrawable
         LootRuleEnum.Random               => (x.Roll(), null),
         LootRuleEnum.LowestItemLevel      => (-x.ItemLevel(), x.ItemLevel().ToString()),
         LootRuleEnum.HighestItemLevelGain => (x.ItemLevelGain(), null),
-        LootRuleEnum.BisOverUpgrade       => x.IsBiS() ? (1, GeneralLoc.Yes_Abbrev) : (-1, GeneralLoc.No_Abbrev),
-        LootRuleEnum.RolePrio             => (x.RolePriority(), x.ApplicableJob.Role.ToString()),
-        LootRuleEnum.DpsGain              => (x.DpsGain(), $"{x.DpsGain() * 100:f1} %%"),
-        LootRuleEnum.CanUse               => x.CanUse() ? (1, GeneralLoc.Yes_Abbrev) : (-1, GeneralLoc.No_Abbrev),
-        LootRuleEnum.CanBuy               => x.CanBuy() ? (-1, GeneralLoc.Yes_Abbrev) : (1, GeneralLoc.No_Abbrev),
-        _                                 => (0, GeneralLoc.None),
+        LootRuleEnum.BisOverUpgrade => x.IsBiS() ? (1, GeneralLoc.CommonTerms_Yes_Abbrev)
+            : (-1, GeneralLoc.CommonTerms_No_Abbrev),
+        LootRuleEnum.RolePrio => (x.RolePriority(), x.ApplicableJob.Role.ToString()),
+        LootRuleEnum.DpsGain  => (x.DpsGain(), $"{x.DpsGain() * 100:f1} %%"),
+        LootRuleEnum.CanUse => x.CanUse() ? (1, GeneralLoc.CommonTerms_Yes_Abbrev)
+            : (-1, GeneralLoc.CommonTerms_No_Abbrev),
+        LootRuleEnum.CanBuy => x.CanBuy() ? (-1, GeneralLoc.CommonTerms_Yes_Abbrev)
+            : (1, GeneralLoc.CommonTerms_No_Abbrev),
+        _ => (0, GeneralLoc.CommonTerms_None),
     };
     public override string ToString() => Name;
     private string GetName() => Rule switch
@@ -140,10 +145,10 @@ public class LootRule : IEquatable<LootRule>, IDrawable
         LootRuleEnum.DpsGain              => LootmasterLoc.LootRule_DPSGain,
         LootRuleEnum.CanUse               => LootmasterLoc.LootRule_CanUse,
         LootRuleEnum.CanBuy               => LootmasterLoc.LootRule_CanBuy,
-        LootRuleEnum.None                 => GeneralLoc.None,
+        LootRuleEnum.None                 => GeneralLoc.CommonTerms_None,
         LootRuleEnum.Greed                => LootmasterLoc.LootRule_Greed,
         LootRuleEnum.NeedGreed            => LootmasterLoc.LootRule_Need,
-        _                                 => GeneralLoc.undefined,
+        _                                 => GeneralLoc.CommonTerms_undefined,
     };
 
     public override int GetHashCode() => Rule.GetHashCode();

@@ -28,9 +28,7 @@ public sealed class HrtPlugin : IDalamudPlugin
         _commandManager = commandManager;
         //Init all services
         _loadError = !ServiceManager.Init(pluginInterface);
-        //Init Localization
-        OnLanguageChange(pluginInterface.UiLanguage);
-        pluginInterface.LanguageChanged += OnLanguageChange;
+
         //Init Configuration    
         ServiceManager.Config = _configuration =
             ServiceManager.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
@@ -48,6 +46,9 @@ public sealed class HrtPlugin : IDalamudPlugin
                 NotificationType.Error, 10000);
             ServiceManager.Chat.PrintError(NAME + " did not load correctly. Please disable/enable to try again");
         }
+        //Init Localization
+        pluginInterface.LanguageChanged += OnLanguageChange;
+        OnLanguageChange(pluginInterface.UiLanguage);
     }
 
     public void Dispose()

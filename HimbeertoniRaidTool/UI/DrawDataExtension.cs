@@ -17,7 +17,7 @@ public static class DrawDataExtension
         if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
         {
             ImGui.TableSetupColumn(GeneralLoc.ItemTable_heading_Header);
-            ImGui.TableSetupColumn(GeneralLoc.Value);
+            ImGui.TableSetupColumn("");
             //General Data
             DrawRow(GeneralLoc.ItemTable_heading_name,
                     $"{item.Name} {(item is GearItem { IsHq: true } ? "(HQ)" : "")}");
@@ -56,7 +56,7 @@ public static class DrawDataExtension
                 if (gearItem.Materia.Any())
                 {
                     ImGui.TableNextColumn();
-                    ImGui.Text(GeneralLoc.Materia);
+                    ImGui.Text(GeneralLoc.CommonTerms_Materia);
                     ImGui.TableNextColumn();
                     foreach (HrtMateria? mat in gearItem.Materia)
                     {
@@ -67,7 +67,7 @@ public static class DrawDataExtension
             //Shop Data
             if (ServiceManager.ItemInfo.CanBePurchased(item.Id))
             {
-                DrawRow(GeneralLoc.DrawItem_heading_ShopCosts, string.Empty);
+                DrawRow(GeneralLoc.DrawItem_hdg_ShopCosts, string.Empty);
                 foreach ((string? shopName, SpecialShop.ShopEntry? shopEntry) in ServiceManager.ItemInfo
                              .GetShopEntriesForItem(item.Id))
                 {

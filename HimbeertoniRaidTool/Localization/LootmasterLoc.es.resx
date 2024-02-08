@@ -15,167 +15,35 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="Config:Lootmaster:ColoredItemNames">
-        <value>Color items by item level</value>
-    </data>
-    <data name="Config:Lootmaster:Colors">
-        <value>Configured colors</value>
-    </data>
-    <data name="Config:Lootmaster:IconInGroupOverview">
-        <value>Show item icon in group overview</value>
-    </data>
-    <data name="Config_input_IgnoreMateriaForBis">
-        <value>Ignore Materia</value>
-    </data>
-    <data name="Config:Lootmaster:IgnoreMateriaForBisTooltip">
-        <value>Ignore Materia when determining if an item is equivalent to BiS</value>
-    </data>
-    <data name="Config:Lootmaster:ItemFormat:Available">
-        <value>Available options</value>
-    </data>
-    <data name="Config:Lootmaster:ItemFormat">
-        <value>Item format</value>
-    </data>
     <data name="Ui_text_openLootSessioon">
         <value>Distribuir el botín para:</value>
     </data>
-    <data name="LootCategory:Greed">
-        <value>Greed</value>
-    </data>
-    <data name="LootSessionWindow_Title">
+    <data name="LootSessionUi_Title">
         <value>Sesión de loot para {0}</value>
     </data>
     <data name="LootRule_Greed">
         <value>Codicia</value>
     </data>
-    <data name="From current Group">
-        <value>Del grupo</value>
-    </data>
-    <data name="From scratch">
-        <value>Desde cero</value>
-    </data>
-    <data name="Add from DB">
-        <value>Añadir desde BD</value>
-    </data>
-    <data name="Add empty group">
-        <value>Añadir grupo vacío</value>
-    </data>
-    <data name="Delete group">
-        <value>Eliminar grupo</value>
-    </data>
-    <data name="lootmaster">
+    <data name="command_lootmaster">
         <value>Abre la ventana de LootMaster (o "/lm")</value>
     </data>
     <data name="LootRule_BISOverUpgrade">
         <value>BIS &gt; Mejora</value>
     </data>
-    <data name="ConfigRolePriority">
+    <data name="ConfigUi_hdg_RolePriority">
         <value>Prioridad para obtener botín de cada clase (menor = mas prioridad)</value>
     </data>
-    <data name="Current priority">
+    <data name="ConfigUi_txt_currentPrio">
         <value>Prioridad actual</value>
     </data>
-    <data name="DeleteRaidGroup">
-        <value>¿Estás seguro de querer eliminar este grupo:</value>
-    </data>
-    <data name="lootmaster_button_inventory_tooltip">
-        <value>Open inventory window</value>
-    </data>
-    <data name="lootmaster:button:quickCompare:tooltip">
-        <value>Quickly compare gear</value>
-    </data>
-    <data name="LootCategory:Need">
-        <value>Need</value>
-    </data>
-    <data name="LootCategory:Pass">
-        <value>Pass</value>
-    </data>
-    <data name="LootCategory:Undecided">
-        <value>Undecided</value>
-    </data>
-    <data name="lootmaster:button:showconfig:tooltip">
-        <value>Open Configuration</value>
-    </data>
-    <data name="lootmaster:button:swapposition:tooltip">
-        <value>Swap Position</value>
-    </data>
-    <data name="Lootmaster:ColoredItemNamesTooltip">
-        <value>Color items according to the item level</value>
-    </data>
-    <data name="lootmaster:detail:deleteJob:tooltip">
-        <value>Delete job (hold Shift)</value>
-    </data>
-    <data name="lootmaster:detail:jobUp:tooltip">
-        <value>Move job up</value>
-    </data>
-    <data name="lootmaster:detail:jobDown:tooltip">
-        <value>Move job down</value>
-    </data>
-    <data name="Config_input_OpenOnLogin">
+    <data name="Configui_cb_OpenOnLogin">
         <value>Abrir resumen de grupo al iniciar sesión</value>
     </data>
-    <data name="Config_input_OpenOnLogin_tt">
-        <value>Opens group overview window when you log in</value>
-    </data>
-    <data name="Ui_Title">
-        <value>Loot Master</value>
-    </data>
-    <data name="LootResult:GreedOnly">
-        <value>Greed only</value>
-    </data>
-    <data name="LootResult:AwardButton:Tooltip">
-        <value>Award to player</value>
-    </data>
-    <data name="LootResult:ItemAwardedTo">
-        <value>awarded to</value>
-    </data>
-    <data name="LootResults:AbortButton:Tooltip">
-        <value>Abort distribution to change loot or rules</value>
-    </data>
-    <data name="LootResults:AbortButton:Text">
-        <value>Abort</value>
-    </data>
-    <data name="LootResult:PlayerWonOver">
-        <value>over</value>
-    </data>
-    <data name="LootResult:PlayerWon">
-        <value>won</value>
-    </data>
-    <data name="LootResultWindow:Button:AwardGuaranteed">
-        <value>Award to all</value>
-    </data>
-    <data name="LootResultWindow:Button:AwardGuaranteed:Tooltip">
-        <value>Award 1 to each player</value>
-    </data>
-    <data name="LootResultWindow:GuaranteedItems">
-        <value>Guaranteed Items (per player)</value>
-    </data>
-    <data name="LootSession:CalcButton:Tooltip">
+    <data name="LootSessionUi_btn_tt_Calc">
         <value></value>
     </data>
-    <data name="LootRuleOrder">
+    <data name="ConfigUi_hdg_LootRuleOrder">
         <value>Orden en el que deben aplicarse las reglas del loot</value>
-    </data>
-    <data name="LootRule:CanBuy">
-        <value>Can buy</value>
-    </data>
-    <data name="LootRule:CanUse">
-        <value>Can use now</value>
-    </data>
-    <data name="loot_rule:ignore:tooltip:bis">
-        <value>Ignore players/jobs not using this in BiS</value>
-    </data>
-    <data name="loot_rule:ignore:tooltip:can_buy">
-        <value>Ignore players/jobs that could buy these</value>
-    </data>
-    <data name="loot_rule:ignore:tooltip:can_use">
-        <value>Ignore players/jobs not able to use</value>
-    </data>
-    <data name="loot_rule:ignore:tooltip:need_greed">
-        <value>Ignore players that have no need</value>
-    </data>
-    <data name="GroupTabTooltip">
-        <value>Right click for more options</value>
     </data>
     <data name="CurrentGear">
         <value>Actual</value>
@@ -183,7 +51,7 @@
     <data name="QuickCompare_StatGain">
         <value>Gain</value>
     </data>
-    <data name="QuickCompare_NewGear">
+    <data name="QuickCompareUi_hdg_NewGear">
         <value>New Gear</value>
     </data>
     <data name="LootSession_text_rolePriority">
@@ -195,37 +63,34 @@
     <data name="StatTable_SecondaryStats_Title">
         <value>Estadísticas secundarias</value>
     </data>
-    <data name="ui:loot_rule:active:tooltip">
-        <value>Activated</value>
-    </data>
-    <data name="ui:loot_rule:ignore">
-        <value>Ignore</value>
-    </data>
     <data name="LootRule_LowestItemLevel">
         <value>Nivel de objetos menor</value>
-    </data>
-    <data name="LootRule_HighestItemLevelGain">
-        <value>Highest ItemLevel Gain</value>
-    </data>
-    <data name="LootRule_DPSGain">
-        <value>% DPS gained</value>
     </data>
     <data name="LootRule_Rolling">
         <value>Rollear</value>
     </data>
-    <data name="PlayerDetail_button_quickCompare">
-        <value>Quick compare</value>
-    </data>
-    <data name="UpdateBis">
+    <data name="Ui_btn_tt_UpdateFrmEtro">
         <value>Actualizar "{0}" desde Etro.gg</value>
     </data>
     <data name="Ui_text_emptyPlayer">
         <value>Sin jugadores</value>
     </data>
-    <data name="LootRule_Need">
-        <value>Need over Greed</value>
+    <data name="ConfigUi_tab_Appearance" xml:space="preserve">
+        <value>Apariencia</value>
     </data>
-    <data name="Config_hdg_Examples">
-        <value>Examples</value>
+    <data name="LootSessionUi_resultTable_Col_Pos">
+        <value>Draw</value>
+    </data>
+    <data name="LootUI_Results_Rule">
+        <value>Regla</value>
+    </data>
+    <data name="Ui_btn_tt_PlayerDetails">
+        <value>Mostar detalles del jugador para</value>
+    </data>
+    <data name="Ui_btn_newGroupAutomatic" xml:space="preserve">
+        <value>Del grupo</value>
+    </data>
+    <data name="Ui_btn_newGroupManual" xml:space="preserve">
+        <value>Desde cero</value>
     </data>
 </root>

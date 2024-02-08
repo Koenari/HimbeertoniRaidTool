@@ -40,9 +40,9 @@ internal class PlayerDb : DataBaseTable<Player, Character>
         protected override void DrawContent()
         {
             ImGui.Text(
-                $"{GeneralLoc.PlayerSearchWindow_Selected}: {(Selected is null ? $"{GeneralLoc.None}" : $"{Selected.NickName} ({Selected.MainChar.Name})")}");
+                $"{GeneralLoc.DBSearchPlayerUi_txt_selected}: {(Selected is null ? $"{GeneralLoc.CommonTerms_None}" : $"{Selected.NickName} ({Selected.MainChar.Name})")}");
             ImGui.Separator();
-            ImGui.Text($"{GeneralLoc.PlayerSearchWindow_Select_player}:");
+            ImGui.Text($"{GeneralLoc.DBSearchPlayerUi_hdg_selectPlayer}:");
             if (ImGuiHelper.SearchableCombo("##search", out Player?
                                                 newSelected, string.Empty, Database.GetValues(),
                                             p => $"{p.NickName} ({p.MainChar.Name})"))

@@ -127,138 +127,55 @@
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="ConfigWindow_Title">
+    <data name="ConfigUi_Title">
         <value>Configuración de HimbeerToni Raid</value>
     </data>
-    <data name="ItemTableHeader">
-        <value>Encabezado</value>
-    </data>
-    <data name="Value">
-        <value>Valor</value>
-    </data>
-    <data name="Name">
+    <data name="CommonTerms_Name">
         <value>Nombre</value>
-    </data>
-    <data name="itemLevelLong">
-        <value>Nivel de objetos</value>
     </data>
     <data name="ItemTable_heading_source">
         <value>Fuente</value>
     </data>
-    <data name="Save Player">
-        <value>Guardar personaje</value>
-    </data>
-    <data name="EditPlayerWindow_heading_playerData">
+    <data name="EditPlayerUi_hdg_playerData">
         <value>Información del personaje</value>
     </data>
-    <data name="EditPlayerWindow_input_Name">
-        <value>Nombre del jugador</value>
-    </data>
-    <data name="EditPlayerWindow_heading_characterData">
+    <data name="EditPlayerUi_hdg_characterData">
         <value>Datos del personaje</value>
     </data>
-    <data name="Character Name">
-        <value>Nombre del personaje</value>
-    </data>
-    <data name="Home World">
+    <data name="EditCharUi_in_HomeWorld">
         <value>Mundo</value>
     </data>
-    <data name="Tribe">
+    <data name="CommonTerms_Tribe">
         <value>Tribu</value>
     </data>
-    <data name="EditCharacterWindow_heading_JobData">
+    <data name="EditCharUi_hdg_JobData">
         <value>Información de clase</value>
     </data>
-    <data name="EditCharacterWindow_input_mainJob">
+    <data name="EditCharUi_in_mainJob">
         <value>Clase principal</value>
     </data>
-    <data name="EditCharacterWindow_text_noJobs">
+    <data name="EditCharUi_text_noJobs">
         <value>Este personaje no tiene ninguna clase creada</value>
     </data>
-    <data name="PlayerEdit:Tooltip:LocalBis">
-        <value>BiS set for this class is locally managed.
-            Delete local set to use a set from etro.gg
-        </value>
-    </data>
-    <data name="Set to default">
-        <value>Establecer como predeterminado</value>
-    </data>
-    <data name="DefaultBiSTooltip">
-        <value>Obtener BiS desde la configuración</value>
-    </data>
-    <data name="Level">
+    <data name="CommonTerms_Level">
         <value>Nivel</value>
     </data>
-    <data name="EditCharacterWindow_input_AddJob">
-        <value>Añadir clase</value>
-    </data>
-    <data name="EditGroupWindow_input_name">
-        <value>Nombre del grupo</value>
-    </data>
-    <data name="EditGroupWindow_input_type">
+    <data name="EditGroupUi_in_type">
         <value>Tipo de grupo</value>
     </data>
-    <data name="Override role priority">
+    <data name="EditGroupUi_cb_OverrideRolePriority">
         <value>Anular prioridad de rol</value>
     </data>
-    <data name="Edit">
-        <value>Editar</value>
-    </data>
-    <data name="GearsetEdit:Delete">
-        <value>Remove set from this character (Hold Shift)</value>
-    </data>
-    <data name="GearSetEditWindow_Source">
-        <value>Source</value>
-    </data>
-    <data name="GearSet:ManagedBy:Etro">
-        <value>etro.gg</value>
-    </data>
-    <data name="GearSetEdit:MakeLocal">
-        <value>Create local copy</value>
-    </data>
-    <data name="GearSetEdit:MakeLocal:tooltip">
-        <value>Create a copy of this set in the local database. Set will not be updated from etro.gg
-            afterwards
-            Only local Gear Sets can be edited
-        </value>
-    </data>
-    <data name="Etro ID">
-        <value>Etro ID</value>
-    </data>
-    <data name="GearSetEdit:EtroLastDownload">
-        <value>Last update check</value>
-    </data>
-    <data name="GearSet:ManagedBy:HrtLocal">
-        <value>Local Database</value>
-    </data>
-    <data name="Local ID">
-        <value>Local ID</value>
-    </data>
-    <data name="GearSetEdit:LastChanged">
-        <value>Last Change</value>
-    </data>
-    <data name="GearSetEdit:Name">
-        <value>Name</value>
-    </data>
-    <data name="Get item for">
+    <data name="SelectGearItemui_Title">
         <value>Obtener objeto para</value>
     </data>
-    <data name="Use this item">
+    <data name="SelectItemUi_btn_tt_useThis">
         <value>Usar este objeto</value>
     </data>
-    <data name="Confirmation">
-        <value>Confirmación</value>
-    </data>
-    <data name="OK">
-        <value>Ok</value>
-    </data>
-    <data name="Confirm action">
-        <value>Ok</value>
-    </data>
-    <data name="Save">
+    <data name="General_btn_tt_save">
         <value>Guardar</value>
     </data>
-    <data name="Cancel">
+    <data name="Ui_btn_tt_cancel">
         <value>Cancelar</value>
     </data>
     <data name="Ui_btn_Inspect_tt">
@@ -267,129 +184,37 @@
     <data name="Ui_btn_tt_CharacterNotInReach">
         <value>El personaje no está a rango para examinar</value>
     </data>
-    <data name="rightClickHint">
-        <value>right click for more options</value>
-    </data>
-    <data name="Select item">
+    <data name="EditGearSetUi_btn_tt_selectItem">
         <value>Elegir objeto</value>
-    </data>
-    <data name="Remove this item">
-        <value>Remove this item</value>
-    </data>
-    <data name="Remove this materia">
-        <value>Eliminar esta materia</value>
-    </data>
-    <data name="Materia">
-        <value>Materia</value>
     </data>
     <data name="SelectMateriaUi_Title">
         <value>Elegir materia</value>
     </data>
-    <data name="SortableList_moveUp">
-        <value>Move up</value>
-    </data>
-    <data name="SortableList_moveDown">
-        <value>Move down</value>
-    </data>
-    <data name="SortableList_remove">
-        <value>Remove entry</value>
-    </data>
-    <data name="SortableList_Add">
-        <value>Add entry</value>
-    </data>
-    <data name="Appearance">
-        <value>Apariencia</value>
-    </data>
-    <data name="iLvl">
-        <value>iLvl</value>
-    </data>
-    <data name="DefaultBiSHeading">
-        <value>Default BiS sets (as etro.gg ID)</value>
-    </data>
-    <data name="DefaultBiSDisclaimer">
-        <value>These sets are used when creating a new character or adding a new job. These do not
-            affect already created characters and jobs.
-        </value>
-    </data>
-    <data name="Reset to default">
-        <value>Restablecer por defecto</value>
-    </data>
-    <data name="default">
-        <value>predeterminado</value>
-    </data>
-    <data name="Not defined">
-        <value>Sin definir</value>
-    </data>
-    <data name="undefined">
+    <data name="CommonTerms_undefined">
         <value>indefinido</value>
     </data>
-    <data name="Empty">
+    <data name="CommonTerms_Empty">
         <value>Vacío</value>
     </data>
-    <data name="Dmgper100Tooltip">
-        <value>Average Dmg with a 100 potency skill adjusted for faster GCDs</value>
-    </data>
-    <data name="Edit player">
-        <value>Editar personaje</value>
-    </data>
-    <data name="Gear">
+    <data name="CommonTerms_Gear">
         <value>equipo</value>
     </data>
-    <data name="BiS">
+    <data name="CommonTerms_BiS">
         <value>BiS</value>
     </data>
-    <data name="Add Player">
-        <value>Añadir personaje</value>
-    </data>
-    <data name="Player">
-        <value>Jugador</value>
-    </data>
-    <data name="itemLevelShort">
-        <value>nivel de objetos</value>
-    </data>
-    <data name="Options">
-        <value>Opciones</value>
-    </data>
-    <data name="Edit group">
-        <value>Editar grupo</value>
-    </data>
-    <data name="NotAvail_Abbrev">
+    <data name="CommonTerms_NotAvail_Abbrev">
         <value>n.A.</value>
-    </data>
-    <data name="PlayerDetails">
-        <value>Mostar detalles del jugador para</value>
-    </data>
-    <data name="Delete">
-        <value>Borrar</value>
-    </data>
-    <data name="DeletePlayerConfirmation">
-        <value>¿De verdad quieres eliminar el siguiente personaje?</value>
-    </data>
-    <data name="Add">
-        <value>Añadir</value>
-    </data>
-    <data name="Inventory:AdditionalGear">
-        <value>Additional Gear</value>
-    </data>
-    <data name="Swap Position of">
-        <value>Cambiar la posición de</value>
-    </data>
-    <data name="Swap players positions">
-        <value>Cambiar la posicion de personaje</value>
-    </data>
-    <data name="Results for">
-        <value>Results for</value>
-    </data>
-    <data name="Pos">
-        <value>Draw</value>
-    </data>
-    <data name="Needed items">
-        <value>Needed items</value>
-    </data>
-    <data name="Rule">
-        <value>Regla</value>
     </data>
     <data name="GetCharacterWindow_Title" xml:space="preserve">
         <value>Obtener un personaje desde la BD</value>
+    </data>
+    <data name="ItemTable_heading_iLvl" xml:space="preserve">
+        <value>Nivel de objetos</value>
+    </data>
+    <data name="ItemTable_heading_Header" xml:space="preserve">
+        <value>Encabezado</value>
+    </data>
+    <data name="Ui_btn_tt_addEmpty" xml:space="preserve">
+        <value>Añadir {0} vacío</value>
     </data>
 </root>

@@ -56,12 +56,12 @@ internal class CoreModule : IHrtModule
         },
         new("/changelog", _changelog.ShowUi)
         {
-            Description = GeneralLoc.command_hrt_changelog,
+            Description = CoreLoc.command_hrt_changelog,
         },
     };
     public bool HideInCombat => _config.Data.HideInCombat;
-    public string Name => GeneralLoc.CoreModule_Name;
-    public string Description => GeneralLoc.CoreModule_Description;
+    public string Name => CoreLoc.Module_Name;
+    public string Description => CoreLoc.Module_Description;
 
     public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>

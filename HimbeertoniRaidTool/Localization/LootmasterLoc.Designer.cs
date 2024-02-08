@@ -60,29 +60,56 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add empty group.
-        /// </summary>
-        internal static string Add_empty_group {
-            get {
-                return ResourceManager.GetString("Add empty group", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add from DB.
-        /// </summary>
-        internal static string Add_from_DB {
-            get {
-                return ResourceManager.GetString("Add from DB", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Auto Created.
         /// </summary>
         internal static string AutoCreatedGroupName {
             get {
                 return ResourceManager.GetString("AutoCreatedGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Commands used for Loot Master:.
+        /// </summary>
+        internal static string chat_usage_heading {
+            get {
+                return ResourceManager.GetString("chat_usage_heading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Opens LootMaster Window (or /lm as short variant).
+        /// </summary>
+        internal static string command_lootmaster {
+            get {
+                return ResourceManager.GetString("command_lootmaster", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Opens Lootmaster window.
+        /// </summary>
+        internal static string command_show_helpText {
+            get {
+                return ResourceManager.GetString("command_show_helpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggles Lootmaster window.
+        /// </summary>
+        internal static string command_toggle_helpText {
+            get {
+                return ResourceManager.GetString("command_toggle_helpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore Materia.
+        /// </summary>
+        internal static string Config_cb_IgnoreMateriaForBis {
+            get {
+                return ResourceManager.GetString("Config_cb_IgnoreMateriaForBis", resourceCulture);
             }
         }
         
@@ -96,101 +123,119 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ignore Materia.
-        /// </summary>
-        internal static string Config_input_IgnoreMateriaForBis {
-            get {
-                return ResourceManager.GetString("Config_input_IgnoreMateriaForBis", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open group overview on login.
-        /// </summary>
-        internal static string Config_input_OpenOnLogin {
-            get {
-                return ResourceManager.GetString("Config_input_OpenOnLogin", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Opens group overview window when you log in.
-        /// </summary>
-        internal static string Config_input_OpenOnLogin_tt {
-            get {
-                return ResourceManager.GetString("Config_input_OpenOnLogin_tt", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Color items by item level.
         /// </summary>
-        internal static string Config_Lootmaster_ColoredItemNames {
+        internal static string ConfigUi_cb_ColoredItemNames {
             get {
-                return ResourceManager.GetString("Config:Lootmaster:ColoredItemNames", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Configured colors.
-        /// </summary>
-        internal static string Config_Lootmaster_Colors {
-            get {
-                return ResourceManager.GetString("Config:Lootmaster:Colors", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_ColoredItemNames", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Show item icon in group overview.
         /// </summary>
-        internal static string Config_Lootmaster_IconInGroupOverview {
+        internal static string ConfigUi_cb_IconInGroupOverview {
             get {
-                return ResourceManager.GetString("Config:Lootmaster:IconInGroupOverview", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_IconInGroupOverview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open group overview on login.
+        /// </summary>
+        internal static string Configui_cb_OpenOnLogin {
+            get {
+                return ResourceManager.GetString("Configui_cb_OpenOnLogin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Color items according to the item level.
+        /// </summary>
+        internal static string ConfigUi_cb_tt_ColoredItemNames {
+            get {
+                return ResourceManager.GetString("ConfigUi_cb_tt_ColoredItemNames", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Ignore Materia when determining if an item is equivalent to BiS.
         /// </summary>
-        internal static string Config_Lootmaster_IgnoreMateriaForBisTooltip {
+        internal static string ConfigUi_cb_tt_IgnoreMateriaForBis {
             get {
-                return ResourceManager.GetString("Config:Lootmaster:IgnoreMateriaForBisTooltip", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_cb_tt_IgnoreMateriaForBis", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Item format.
+        ///   Looks up a localized string similar to Configured colors.
         /// </summary>
-        internal static string Config_Lootmaster_ItemFormat {
+        internal static string Configui_hdg_Colors {
             get {
-                return ResourceManager.GetString("Config:Lootmaster:ItemFormat", resourceCulture);
+                return ResourceManager.GetString("Configui_hdg_Colors", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Available options.
+        ///   Looks up a localized string similar to Order in which loot rules should be applied.
         /// </summary>
-        internal static string Config_Lootmaster_ItemFormat_Available {
+        internal static string ConfigUi_hdg_LootRuleOrder {
             get {
-                return ResourceManager.GetString("Config:Lootmaster:ItemFormat:Available", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_hdg_LootRuleOrder", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Priority to loot for each role (smaller is higher priority).
         /// </summary>
-        internal static string ConfigRolePriority {
+        internal static string ConfigUi_hdg_RolePriority {
             get {
-                return ResourceManager.GetString("ConfigRolePriority", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_hdg_RolePriority", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Item format.
+        /// </summary>
+        internal static string Configui_in_ItemFormat {
+            get {
+                return ResourceManager.GetString("Configui_in_ItemFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Opens group overview window when you log in.
+        /// </summary>
+        internal static string Configui_in_tt_OpenOnLogin {
+            get {
+                return ResourceManager.GetString("Configui_in_tt_OpenOnLogin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Appearance.
+        /// </summary>
+        internal static string ConfigUi_tab_Appearance {
+            get {
+                return ResourceManager.GetString("ConfigUi_tab_Appearance", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Current priority.
         /// </summary>
-        internal static string Current_priority {
+        internal static string ConfigUi_txt_currentPrio {
             get {
-                return ResourceManager.GetString("Current priority", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_txt_currentPrio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Available options.
+        /// </summary>
+        internal static string ConfigUi_txt_ItemFormatAvailable {
+            get {
+                return ResourceManager.GetString("ConfigUi_txt_ItemFormatAvailable", resourceCulture);
             }
         }
         
@@ -200,42 +245,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string CurrentGear {
             get {
                 return ResourceManager.GetString("CurrentGear", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Delete group.
-        /// </summary>
-        internal static string Delete_group {
-            get {
-                return ResourceManager.GetString("Delete group", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Do you really want to delete following group:.
-        /// </summary>
-        internal static string DeleteRaidGroup {
-            get {
-                return ResourceManager.GetString("DeleteRaidGroup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to From current Group.
-        /// </summary>
-        internal static string From_current_Group {
-            get {
-                return ResourceManager.GetString("From current Group", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to From scratch.
-        /// </summary>
-        internal static string From_scratch {
-            get {
-                return ResourceManager.GetString("From scratch", resourceCulture);
             }
         }
         
@@ -276,74 +285,20 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Right click for more options.
-        /// </summary>
-        internal static string GroupTabTooltip {
-            get {
-                return ResourceManager.GetString("GroupTabTooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to hold shift.
-        /// </summary>
-        internal static string ImGuiHelper_GuardedButton_notice {
-            get {
-                return ResourceManager.GetString("ImGuiHelper_GuardedButton_notice", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Additional Gear.
         /// </summary>
-        internal static string InventoryUi_heading_additionalGear {
+        internal static string InventoryUi_hdg_additionalGear {
             get {
-                return ResourceManager.GetString("InventoryUi_heading_additionalGear", resourceCulture);
+                return ResourceManager.GetString("InventoryUi_hdg_additionalGear", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to {0}&apos;s inventory.
         /// </summary>
-        internal static string InventoryWindow_Title {
+        internal static string InventoryUi_Title {
             get {
-                return ResourceManager.GetString("InventoryWindow_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Ignore players/jobs not using this in BiS.
-        /// </summary>
-        internal static string loot_rule_ignore_tooltip_bis {
-            get {
-                return ResourceManager.GetString("loot_rule:ignore:tooltip:bis", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Ignore players/jobs that could buy these.
-        /// </summary>
-        internal static string loot_rule_ignore_tooltip_can_buy {
-            get {
-                return ResourceManager.GetString("loot_rule:ignore:tooltip:can_buy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Ignore players/jobs not able to use.
-        /// </summary>
-        internal static string loot_rule_ignore_tooltip_can_use {
-            get {
-                return ResourceManager.GetString("loot_rule:ignore:tooltip:can_use", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Ignore players that have no need.
-        /// </summary>
-        internal static string loot_rule_ignore_tooltip_need_greed {
-            get {
-                return ResourceManager.GetString("loot_rule:ignore:tooltip:need_greed", resourceCulture);
+                return ResourceManager.GetString("InventoryUi_Title", resourceCulture);
             }
         }
         
@@ -352,7 +307,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string LootCategory_Greed {
             get {
-                return ResourceManager.GetString("LootCategory:Greed", resourceCulture);
+                return ResourceManager.GetString("LootCategory_Greed", resourceCulture);
             }
         }
         
@@ -361,7 +316,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string LootCategory_Need {
             get {
-                return ResourceManager.GetString("LootCategory:Need", resourceCulture);
+                return ResourceManager.GetString("LootCategory_Need", resourceCulture);
             }
         }
         
@@ -370,7 +325,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string LootCategory_Pass {
             get {
-                return ResourceManager.GetString("LootCategory:Pass", resourceCulture);
+                return ResourceManager.GetString("LootCategory_Pass", resourceCulture);
             }
         }
         
@@ -379,241 +334,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string LootCategory_Undecided {
             get {
-                return ResourceManager.GetString("LootCategory:Undecided", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Opens LootMaster Window (or /lm as short variant).
-        /// </summary>
-        internal static string lootmaster {
-            get {
-                return ResourceManager.GetString("lootmaster", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Edit gearset: {0}.
-        /// </summary>
-        internal static string Lootmaster_button_editGear_tooltip {
-            get {
-                return ResourceManager.GetString("Lootmaster_button_editGear_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Update {0} ({1}) from etro.
-        /// </summary>
-        internal static string Lootmaster_button_etroUpdate_tooltip {
-            get {
-                return ResourceManager.GetString("Lootmaster_button_etroUpdate_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open inventory window.
-        /// </summary>
-        internal static string lootmaster_button_inventory_tooltip {
-            get {
-                return ResourceManager.GetString("lootmaster_button_inventory_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to From current Group.
-        /// </summary>
-        internal static string Lootmaster_button_newGroupAutomatic {
-            get {
-                return ResourceManager.GetString("Lootmaster_button_newGroupAutomatic", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to From scratch.
-        /// </summary>
-        internal static string Lootmaster_button_newGRoupManual {
-            get {
-                return ResourceManager.GetString("Lootmaster_button_newGRoupManual", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add empty group.
-        /// </summary>
-        internal static string Lootmaster_button_newGRoupManual_tooltip {
-            get {
-                return ResourceManager.GetString("Lootmaster_button_newGRoupManual_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Quickly compare gear.
-        /// </summary>
-        internal static string lootmaster_button_quickCompare_tooltip {
-            get {
-                return ResourceManager.GetString("lootmaster:button:quickCompare:tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open Configuration.
-        /// </summary>
-        internal static string lootmaster_button_showconfig_tooltip {
-            get {
-                return ResourceManager.GetString("lootmaster:button:showconfig:tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Swap Position.
-        /// </summary>
-        internal static string lootmaster_button_swapposition_tooltip {
-            get {
-                return ResourceManager.GetString("lootmaster:button:swapposition:tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Color items according to the item level.
-        /// </summary>
-        internal static string Lootmaster_ColoredItemNamesTooltip {
-            get {
-                return ResourceManager.GetString("Lootmaster:ColoredItemNamesTooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Delete job (hold Shift).
-        /// </summary>
-        internal static string lootmaster_detail_deleteJob_tooltip {
-            get {
-                return ResourceManager.GetString("lootmaster:detail:deleteJob:tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Move job down.
-        /// </summary>
-        internal static string lootmaster_detail_jobDown_tooltip {
-            get {
-                return ResourceManager.GetString("lootmaster:detail:jobDown:tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Move job up.
-        /// </summary>
-        internal static string lootmaster_detail_jobUp_tooltip {
-            get {
-                return ResourceManager.GetString("lootmaster:detail:jobUp:tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No jobs created.
-        /// </summary>
-        internal static string Lootmaster_text_noJobs {
-            get {
-                return ResourceManager.GetString("Lootmaster_text_noJobs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Remove group {0} (hold shift).
-        /// </summary>
-        internal static string LootmasterUi_button_deleteGRoup_tooltip {
-            get {
-                return ResourceManager.GetString("LootmasterUi_button_deleteGRoup_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Edit group {0}.
-        /// </summary>
-        internal static string LootmasterUi_button_editGroup {
-            get {
-                return ResourceManager.GetString("LootmasterUi_button_editGroup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Right click for more options.
-        /// </summary>
-        internal static string LootmasterUi_button_group_tooltip {
-            get {
-                return ResourceManager.GetString("LootmasterUi_button_group_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Award to player.
-        /// </summary>
-        internal static string LootResult_AwardButton_Tooltip {
-            get {
-                return ResourceManager.GetString("LootResult:AwardButton:Tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Greed only.
-        /// </summary>
-        internal static string LootResult_GreedOnly {
-            get {
-                return ResourceManager.GetString("LootResult:GreedOnly", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to awarded to.
-        /// </summary>
-        internal static string LootResult_ItemAwardedTo {
-            get {
-                return ResourceManager.GetString("LootResult:ItemAwardedTo", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to won.
-        /// </summary>
-        internal static string LootResult_PlayerWon {
-            get {
-                return ResourceManager.GetString("LootResult:PlayerWon", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to over.
-        /// </summary>
-        internal static string LootResult_PlayerWonOver {
-            get {
-                return ResourceManager.GetString("LootResult:PlayerWonOver", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Items to distribute.
-        /// </summary>
-        internal static string LootResult_PossibleItems {
-            get {
-                return ResourceManager.GetString("LootResult:PossibleItems", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Abort.
-        /// </summary>
-        internal static string LootResults_AbortButton_Text {
-            get {
-                return ResourceManager.GetString("LootResults:AbortButton:Text", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Abort distribution to change loot or rules.
-        /// </summary>
-        internal static string LootResults_AbortButton_Tooltip {
-            get {
-                return ResourceManager.GetString("LootResults:AbortButton:Tooltip", resourceCulture);
+                return ResourceManager.GetString("LootCategory_Undecided", resourceCulture);
             }
         }
         
@@ -632,15 +353,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string LootResultWindow_Button_AwardGuaranteed_Tooltip {
             get {
                 return ResourceManager.GetString("LootResultWindow:Button:AwardGuaranteed:Tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Guaranteed Items (per player).
-        /// </summary>
-        internal static string LootResultWindow_GuaranteedItems {
-            get {
-                return ResourceManager.GetString("LootResultWindow:GuaranteedItems", resourceCulture);
             }
         }
         
@@ -667,7 +379,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string LootRule_CanBuy {
             get {
-                return ResourceManager.GetString("LootRule:CanBuy", resourceCulture);
+                return ResourceManager.GetString("LootRule_CanBuy", resourceCulture);
             }
         }
         
@@ -676,7 +388,16 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string LootRule_CanUse {
             get {
-                return ResourceManager.GetString("LootRule:CanUse", resourceCulture);
+                return ResourceManager.GetString("LootRule_CanUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to loot rule.
+        /// </summary>
+        internal static string LootRule_DataTypeName {
+            get {
+                return ResourceManager.GetString("LootRule_DataTypeName", resourceCulture);
             }
         }
         
@@ -686,6 +407,60 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string LootRule_DPSGain {
             get {
                 return ResourceManager.GetString("LootRule_DPSGain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore.
+        /// </summary>
+        internal static string LootRule_draw_cb_ignore {
+            get {
+                return ResourceManager.GetString("LootRule_draw_cb_ignore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Activated.
+        /// </summary>
+        internal static string LootRule_Draw_cb_tt_active {
+            get {
+                return ResourceManager.GetString("LootRule_Draw_cb_tt_active", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore players/jobs not using this in BiS.
+        /// </summary>
+        internal static string LootRule_draw_cb_tt_ignore_bis {
+            get {
+                return ResourceManager.GetString("LootRule_draw_cb_tt_ignore_bis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore players/jobs that could buy these.
+        /// </summary>
+        internal static string LootRule_draw_cb_tt_ignore_canBuy {
+            get {
+                return ResourceManager.GetString("LootRule_draw_cb_tt_ignore_canBuy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore players/jobs not able to use.
+        /// </summary>
+        internal static string LootRule_draw_cb_tt_ignore_canUse {
+            get {
+                return ResourceManager.GetString("LootRule_draw_cb_tt_ignore_canUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore players that have no need.
+        /// </summary>
+        internal static string LootRule_draw_cb_tt_ignore_needGreed {
+            get {
+                return ResourceManager.GetString("LootRule_draw_cb_tt_ignore_needGreed", resourceCulture);
             }
         }
         
@@ -735,36 +510,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Order in which loot rules should be applied.
-        /// </summary>
-        internal static string LootRuleOrder {
-            get {
-                return ResourceManager.GetString("LootRuleOrder", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Calculate.
-        /// </summary>
-        internal static string LootSession_CalcButton_Text {
-            get {
-                return ResourceManager.GetString("LootSession:CalcButton:Text", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Calculates results of loot distribution according to the rules and current equipment
-        ///            of players
-        ///            Locks the loot selection
-        ///        .
-        /// </summary>
-        internal static string LootSession_CalcButton_Tooltip {
-            get {
-                return ResourceManager.GetString("LootSession:CalcButton:Tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Results for {0} ({1}).
         /// </summary>
         internal static string LootSession_heading_results {
@@ -774,29 +519,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Override ruling options.
-        /// </summary>
-        internal static string LootSession_RulesButton_Tooltip {
-            get {
-                return ResourceManager.GetString("LootSession:RulesButton:Tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Current State.
-        /// </summary>
-        internal static string Lootsession_State {
-            get {
-                return ResourceManager.GetString("Lootsession:State", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Distribution started.
         /// </summary>
         internal static string LootSession_State_DISTRIBUTION_STARTED {
             get {
-                return ResourceManager.GetString("LootSession:State:DISTRIBUTION_STARTED", resourceCulture);
+                return ResourceManager.GetString("LootSession_State_DISTRIBUTION_STARTED", resourceCulture);
             }
         }
         
@@ -805,7 +532,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string LootSession_State_FINISHED {
             get {
-                return ResourceManager.GetString("LootSession:State:FINISHED", resourceCulture);
+                return ResourceManager.GetString("LootSession_State_FINISHED", resourceCulture);
             }
         }
         
@@ -814,7 +541,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string LootSession_State_LOOT_CHOSEN {
             get {
-                return ResourceManager.GetString("LootSession:State:LOOT_CHOSEN", resourceCulture);
+                return ResourceManager.GetString("LootSession_State_LOOT_CHOSEN", resourceCulture);
             }
         }
         
@@ -823,7 +550,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// </summary>
         internal static string LootSession_State_STARTED {
             get {
-                return ResourceManager.GetString("LootSession:State:STARTED", resourceCulture);
+                return ResourceManager.GetString("LootSession_State_STARTED", resourceCulture);
             }
         }
         
@@ -846,11 +573,158 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Calculate.
+        /// </summary>
+        internal static string LootSessionUi_btn_Calc {
+            get {
+                return ResourceManager.GetString("LootSessionUi_btn_Calc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calculates results of loot distribution according to the rules and current equipment
+        ///            of players
+        ///            Locks the loot selection
+        ///        .
+        /// </summary>
+        internal static string LootSessionUi_btn_tt_Calc {
+            get {
+                return ResourceManager.GetString("LootSessionUi_btn_tt_Calc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Override ruling options.
+        /// </summary>
+        internal static string LootSessionUi_btn_tt_Rules {
+            get {
+                return ResourceManager.GetString("LootSessionUi_btn_tt_Rules", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pos.
+        /// </summary>
+        internal static string LootSessionUi_resultTable_Col_Pos {
+            get {
+                return ResourceManager.GetString("LootSessionUi_resultTable_Col_Pos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Loot session for {0}.
         /// </summary>
-        internal static string LootSessionWindow_Title {
+        internal static string LootSessionUi_Title {
             get {
-                return ResourceManager.GetString("LootSessionWindow_Title", resourceCulture);
+                return ResourceManager.GetString("LootSessionUi_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current State.
+        /// </summary>
+        internal static string LootsessionUi_txt_state {
+            get {
+                return ResourceManager.GetString("LootsessionUi_txt_state", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abort.
+        /// </summary>
+        internal static string LootUi_Results_btn_Abort {
+            get {
+                return ResourceManager.GetString("LootUi_Results_btn_Abort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abort distribution to change loot or rules.
+        /// </summary>
+        internal static string LootUi_Results_btn_tt_Abort {
+            get {
+                return ResourceManager.GetString("LootUi_Results_btn_tt_Abort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Award to player.
+        /// </summary>
+        internal static string LootUi_results_btn_tt_Award {
+            get {
+                return ResourceManager.GetString("LootUi_results_btn_tt_Award", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Greed only.
+        /// </summary>
+        internal static string LootUi_Results_GreedOnly {
+            get {
+                return ResourceManager.GetString("LootUi_Results_GreedOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Guaranteed Items (per player).
+        /// </summary>
+        internal static string LootUi_Results_hdg_GuaranteedItems {
+            get {
+                return ResourceManager.GetString("LootUi_Results_hdg_GuaranteedItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Needed items.
+        /// </summary>
+        internal static string LootUi_Results_hdg_NeededItems {
+            get {
+                return ResourceManager.GetString("LootUi_Results_hdg_NeededItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to awarded to.
+        /// </summary>
+        internal static string LootUi_Results_ItemAwardedTo {
+            get {
+                return ResourceManager.GetString("LootUi_Results_ItemAwardedTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to won.
+        /// </summary>
+        internal static string LootUi_Results_PlayerWon {
+            get {
+                return ResourceManager.GetString("LootUi_Results_PlayerWon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to over.
+        /// </summary>
+        internal static string LootUi_Results_PlayerWonOver {
+            get {
+                return ResourceManager.GetString("LootUi_Results_PlayerWonOver", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Items to distribute.
+        /// </summary>
+        internal static string LootUi_Results_PossibleItems {
+            get {
+                return ResourceManager.GetString("LootUi_Results_PossibleItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rule.
+        /// </summary>
+        internal static string LootUI_Results_Rule {
+            get {
+                return ResourceManager.GetString("LootUI_Results_Rule", resourceCulture);
             }
         }
         
@@ -864,20 +738,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Edit {0} gear.
+        ///   Looks up a localized string similar to Player Details for {0}.
         /// </summary>
-        internal static string PlayerDetail_buttton_editGear_tooltip {
+        internal static string PlayerDetailsUi_Title {
             get {
-                return ResourceManager.GetString("PlayerDetail_buttton_editGear_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to New Gear.
-        /// </summary>
-        internal static string QuickCompare_NewGear {
-            get {
-                return ResourceManager.GetString("QuickCompare_NewGear", resourceCulture);
+                return ResourceManager.GetString("PlayerDetailsUi_Title", resourceCulture);
             }
         }
         
@@ -891,11 +756,20 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New Gear.
+        /// </summary>
+        internal static string QuickCompareUi_hdg_NewGear {
+            get {
+                return ResourceManager.GetString("QuickCompareUi_hdg_NewGear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Compare.
         /// </summary>
-        internal static string QuickCompareWindow_Title {
+        internal static string QuickCompareUi_Title {
             get {
-                return ResourceManager.GetString("QuickCompareWindow_Title", resourceCulture);
+                return ResourceManager.GetString("QuickCompareUi_Title", resourceCulture);
             }
         }
         
@@ -918,7 +792,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Fill with target ({0}).
+        ///   Looks up a localized string similar to Fill with target ({0}) data.
         /// </summary>
         internal static string Ui_btn_addPlayerFromTarget_tt {
             get {
@@ -927,56 +801,74 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remove {0} from this group (hold shift).
+        ///   Looks up a localized string similar to From current Group.
         /// </summary>
-        internal static string Ui_btn_removePlayer_tt {
+        internal static string Ui_btn_newGroupAutomatic {
             get {
-                return ResourceManager.GetString("Ui_btn_removePlayer_tt", resourceCulture);
+                return ResourceManager.GetString("Ui_btn_newGroupAutomatic", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add character from DB.
+        ///   Looks up a localized string similar to From scratch.
         /// </summary>
-        internal static string Ui_button_addCharFromDb_tt {
+        internal static string Ui_btn_newGroupManual {
             get {
-                return ResourceManager.GetString("Ui_button_addCharFromDb_tt", resourceCulture);
+                return ResourceManager.GetString("Ui_btn_newGroupManual", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add empty.
+        ///   Looks up a localized string similar to Update {0} ({1}) from etro.
         /// </summary>
-        internal static string Ui_button_addEmptyPlayer_tt {
+        internal static string Ui_btn_tt_etroUpdate {
             get {
-                return ResourceManager.GetString("Ui_button_addEmptyPlayer_tt", resourceCulture);
+                return ResourceManager.GetString("Ui_btn_tt_etroUpdate", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add player from DB.
+        ///   Looks up a localized string similar to Open inventory window.
         /// </summary>
-        internal static string Ui_button_addExistinPlayer_tt {
+        internal static string Ui_btn_tt_inventory {
             get {
-                return ResourceManager.GetString("Ui_button_addExistinPlayer_tt", resourceCulture);
+                return ResourceManager.GetString("Ui_btn_tt_inventory", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Activated.
+        ///   Looks up a localized string similar to Show player details for.
         /// </summary>
-        internal static string ui_loot_rule_active_tooltip {
+        internal static string Ui_btn_tt_PlayerDetails {
             get {
-                return ResourceManager.GetString("ui:loot_rule:active:tooltip", resourceCulture);
+                return ResourceManager.GetString("Ui_btn_tt_PlayerDetails", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ignore.
+        ///   Looks up a localized string similar to Quickly compare gear.
         /// </summary>
-        internal static string ui_loot_rule_ignore {
+        internal static string Ui_btn_tt_quickCompare {
             get {
-                return ResourceManager.GetString("ui:loot_rule:ignore", resourceCulture);
+                return ResourceManager.GetString("Ui_btn_tt_quickCompare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Configuration.
+        /// </summary>
+        internal static string ui_btn_tt_showConfig {
+            get {
+                return ResourceManager.GetString("ui_btn_tt_showConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update &quot;{0}&quot; from Etro.gg.
+        /// </summary>
+        internal static string Ui_btn_tt_UpdateFrmEtro {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_UpdateFrmEtro", resourceCulture);
             }
         }
         
@@ -1026,11 +918,20 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update &quot;{0}&quot; from Etro.gg.
+        ///   Looks up a localized string similar to Average Dmg with a 100 potency skill adjusted for faster GCDs.
         /// </summary>
-        internal static string UpdateBis {
+        internal static string Ui_tt_Dmgper100 {
             get {
-                return ResourceManager.GetString("UpdateBis", resourceCulture);
+                return ResourceManager.GetString("Ui_tt_Dmgper100", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No jobs created.
+        /// </summary>
+        internal static string Ui_txt_noJobs {
+            get {
+                return ResourceManager.GetString("Ui_txt_noJobs", resourceCulture);
             }
         }
     }

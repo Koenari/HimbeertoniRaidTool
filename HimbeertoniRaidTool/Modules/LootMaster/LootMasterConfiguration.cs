@@ -89,44 +89,44 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
         public void Draw()
         {
             ImGui.BeginTabBar("##LootMaster");
-            if (ImGui.BeginTabItem(CoreLoc.Config_Appearance))
+            if (ImGui.BeginTabItem(LootmasterLoc.ConfigUi_tab_Appearance))
             {
-                ImGui.Checkbox(LootmasterLoc.Config_input_OpenOnLogin, ref _dataCopy.OpenOnStartup);
-                ImGuiHelper.AddTooltip(LootmasterLoc.Config_input_OpenOnLogin_tt);
-                ImGui.Checkbox(LootmasterLoc.Config_input_IgnoreMateriaForBis,
-                               ref _dataCopy.IgnoreMateriaForBiS);
-                ImGuiHelper.AddTooltip(LootmasterLoc.Config_Lootmaster_IgnoreMateriaForBisTooltip);
-                ImGui.Checkbox(LootmasterLoc.Config_Lootmaster_IconInGroupOverview,
+                ImGuiHelper.Checkbox(LootmasterLoc.Configui_cb_OpenOnLogin, ref _dataCopy.OpenOnStartup,
+                                     LootmasterLoc.Configui_in_tt_OpenOnLogin);
+                ImGuiHelper.Checkbox(LootmasterLoc.Config_cb_IgnoreMateriaForBis,
+                                     ref _dataCopy.IgnoreMateriaForBiS,
+                                     LootmasterLoc.ConfigUi_cb_tt_IgnoreMateriaForBis);
+                ImGui.Checkbox(LootmasterLoc.ConfigUi_cb_IconInGroupOverview,
                                ref _dataCopy.ShowIconInGroupOverview);
-                ImGui.Checkbox(LootmasterLoc.Config_Lootmaster_ColoredItemNames, ref _dataCopy.ColoredItemNames);
-                ImGuiHelper.AddTooltip(LootmasterLoc.Lootmaster_ColoredItemNamesTooltip);
+                ImGuiHelper.Checkbox(LootmasterLoc.ConfigUi_cb_ColoredItemNames, ref _dataCopy.ColoredItemNames,
+                                     LootmasterLoc.ConfigUi_cb_tt_ColoredItemNames);
                 ImGui.BeginDisabled(!_dataCopy.ColoredItemNames);
-                ImGui.Text(LootmasterLoc.Config_Lootmaster_Colors);
+                ImGui.Text(LootmasterLoc.Configui_hdg_Colors);
                 ImGui.NewLine();
                 uint iLvL = _config.Data.SelectedRaidTier.ArmorItemLevel;
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.CalcTextSize($"{iLvL} > ").X);
-                ImGui.Text($"{GeneralLoc.iLvl} >= {iLvL}");
+                ImGui.Text($"{GeneralLoc.CommonTerms_itemLvl_abbrev} >= {iLvL}");
                 ImGui.SameLine();
                 ImGui.ColorEdit4("##Color0", ref _dataCopy.ItemLevelColors[0]);
-                ImGui.Text($"{iLvL} > {GeneralLoc.iLvl} >= {iLvL - 10}");
+                ImGui.Text($"{iLvL} > {GeneralLoc.CommonTerms_itemLvl_abbrev} >= {iLvL - 10}");
                 ImGui.SameLine();
                 ImGui.ColorEdit4("##Color1", ref _dataCopy.ItemLevelColors[1]);
-                ImGui.Text($"{iLvL - 10} > {GeneralLoc.iLvl} >= {iLvL - 20}");
+                ImGui.Text($"{iLvL - 10} > {GeneralLoc.CommonTerms_itemLvl_abbrev} >= {iLvL - 20}");
                 ImGui.SameLine();
                 ImGui.ColorEdit4("##Color2", ref _dataCopy.ItemLevelColors[2]);
-                ImGui.Text($"{iLvL - 20} > {GeneralLoc.iLvl}");
+                ImGui.Text($"{iLvL - 20} > {GeneralLoc.CommonTerms_itemLvl_abbrev}");
                 ImGui.SameLine();
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.CalcTextSize($" >= {iLvL - 20}").X);
                 ImGui.ColorEdit4("##Color3", ref _dataCopy.ItemLevelColors[3]);
                 ImGui.EndDisabled();
                 ImGui.Separator();
-                ImGui.Text(LootmasterLoc.Config_Lootmaster_ItemFormat);
+                ImGui.Text(LootmasterLoc.Configui_in_ItemFormat);
                 ImGui.SameLine();
                 string copy = _dataCopy.UserItemFormat;
                 if (ImGui.InputText("##format", ref copy, 50))
                     _dataCopy.UserItemFormat = copy;
                 ImGui.Text(
-                    $"{LootmasterLoc.Config_Lootmaster_ItemFormat_Available}: {{ilvl}} {{source}} {{slot}}");
+                    $"{LootmasterLoc.ConfigUi_txt_ItemFormatAvailable}: {{ilvl}} {{source}} {{slot}}");
                 ImGui.Separator();
                 ImGui.Text(LootmasterLoc.Config_hdg_Examples);
                 for (int i = 0; i < 4; i++)
@@ -144,11 +144,11 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
             }
             if (ImGui.BeginTabItem("Loot"))
             {
-                ImGui.Text(LootmasterLoc.LootRuleOrder);
+                ImGui.Text(LootmasterLoc.ConfigUi_hdg_LootRuleOrder);
                 _lootList.Draw();
                 ImGui.Separator();
-                ImGui.Text(LootmasterLoc.ConfigRolePriority);
-                ImGui.Text($"{LootmasterLoc.Current_priority}: {_dataCopy.RolePriority}");
+                ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
+                ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {_dataCopy.RolePriority}");
                 _dataCopy.RolePriority.DrawEdit(ImGui.InputInt);
                 ImGui.EndTabItem();
             }

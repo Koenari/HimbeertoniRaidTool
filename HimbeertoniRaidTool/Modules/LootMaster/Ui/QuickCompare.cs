@@ -20,7 +20,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
         _curClass = job;
         _curTribe = tribe;
         _newGear = new GearSet(_curClass.CurGear);
-        Title = LootmasterLoc.QuickCompareWindow_Title;
+        Title = LootmasterLoc.QuickCompareUi_Title;
         OpenCentered = true;
         (Size, SizeCondition) = (new Vector2(1600, 650), ImGuiCond.Appearing);
 
@@ -39,7 +39,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
                 LmUiHelpers.DrawSlot(_currentConfig, i, SlotDrawFlags.DetailedSingle);
             }
             ImGui.BeginTable("##GearCompareCurrent", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
-            ImGui.TableSetupColumn(GeneralLoc.Gear);
+            ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear);
             ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
             ImGui.TableNextColumn();
@@ -75,14 +75,14 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
         LmUiHelpers.DrawStatTable(_curClass, _curTribe, CurGear, _newGear,
                                   LootmasterLoc.CurrentGear,
                                   LootmasterLoc.QuickCompare_StatGain,
-                                  LootmasterLoc.QuickCompare_NewGear);
+                                  LootmasterLoc.QuickCompareUi_hdg_NewGear);
         /*
          * New Gear
          */
         {
             ImGui.NextColumn();
             ImGui.BeginTable("##GearCompareNew", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
-            ImGui.TableSetupColumn(LootmasterLoc.QuickCompare_NewGear);
+            ImGui.TableSetupColumn(LootmasterLoc.QuickCompareUi_hdg_NewGear);
             ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
 

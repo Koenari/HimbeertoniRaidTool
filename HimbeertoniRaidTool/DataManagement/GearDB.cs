@@ -75,7 +75,7 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
             /*
              * Selection
              */
-            ImGui.Text(GeneralLoc.Name);
+            ImGui.Text(GeneralLoc.CommonTerms_Name);
             ImGui.SameLine();
             ImGui.SetNextItemWidth(150 * ScaleFactor);
             ImGui.InputText("##Name", ref _name, 50);

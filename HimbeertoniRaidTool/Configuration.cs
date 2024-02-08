@@ -77,7 +77,7 @@ public class Configuration : IPluginConfiguration, IDisposable
 
             (Size, SizeCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);
             Flags = ImGuiWindowFlags.NoCollapse;
-            Title = GeneralLoc.ConfigWindow_Title;
+            Title = GeneralLoc.ConfigUi_Title;
             IsOpen = false;
         }
 

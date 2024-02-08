@@ -22,30 +22,51 @@ public static class ImGuiHelper
     //This is a small hack since to my knowledge there is no way to close and existing combo when not clicking
     private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> _comboDic = new();
     public static bool SaveButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
-        => Button(FontAwesomeIcon.Save, "##save", tooltip ?? GeneralLoc.Save, enabled,
+        => Button(FontAwesomeIcon.Save, "##save", tooltip ?? GeneralLoc.General_btn_tt_save, enabled,
                   size ?? new Vector2(50f, 25f));
     public static bool CancelButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
-        => Button(FontAwesomeIcon.WindowClose, "##cancel", tooltip ?? GeneralLoc.Cancel, enabled,
+        => Button(FontAwesomeIcon.WindowClose, "##cancel", tooltip ?? GeneralLoc.Ui_btn_tt_cancel, enabled,
                   size ?? new Vector2(50f, 25f));
     public static bool CloseButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
-        => Button(FontAwesomeIcon.WindowClose, "##close", tooltip ?? GeneralLoc.Close, enabled,
+        => Button(FontAwesomeIcon.WindowClose, "##close", tooltip ?? GeneralLoc.General_btn_tt_close, enabled,
                   size ?? new Vector2(50f, 25f));
-
-    public static bool GuardedButton(string label, string? tooltip, Vector2 size = default) =>
+    public static bool EditButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
+        where T : IHrtDataType
+        => Button(FontAwesomeIcon.Edit, id, string.Format(GeneralLoc.Ui_btn_tt_add, data.DataTypeName, ""),
+                  enabled, size);
+    public static bool DeleteButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
+        where T : IHrtDataType =>
+        GuardedButton(FontAwesomeIcon.Eraser, id,
+                      string.Format(GeneralLoc.General_btn_tt_delete, data.DataTypeName, data.Name), enabled, size);
+    public static bool RemoveButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
+        where T : IHrtDataType =>
+        GuardedButton(FontAwesomeIcon.Eraser, id,
+                      string.Format(GeneralLoc.General_btn_tt_remove, data.DataTypeName, data.Name), enabled, size);
+    public static bool AddButton(string dataType, string id, bool enabled = true, Vector2 size = default)
+        => Button(FontAwesomeIcon.Plus, id, string.Format(GeneralLoc.Ui_btn_tt_add, dataType), enabled, size);
+    public static bool GuardedButton(string label, string? tooltip, Vector2 size) =>
         GuardedButton(label, tooltip, true, size);
     public static bool GuardedButton(string label, string? tooltip, bool enabled = true, Vector2 size = default) =>
-        Button(label, $"{tooltip} ({LootmasterLoc.ImGuiHelper_GuardedButton_notice})",
+        Button(label, $"{tooltip} ({GeneralLoc.Ui_GuardedButton_notice})",
                enabled && ImGui.IsKeyDown(ImGuiKey.ModShift), size);
 
     public static bool Button(string label, string? tooltip, bool enabled = true, Vector2 size = default)
     {
         ImGui.BeginDisabled(!enabled);
-        bool result = ImGui.Button(label, size);
+        bool result = ImGui.Button(label.CapitaliezSentence(), size);
         ImGui.EndDisabled();
         if (tooltip is not null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip(tooltip);
         return result;
     }
+
+    public static bool GuardedButton(FontAwesomeIcon icon, string id, string? tooltip, Vector2 size) =>
+        GuardedButton(icon, id, tooltip, true, size);
+    public static bool GuardedButton(FontAwesomeIcon icon, string id, string? tooltip, bool enabled = true,
+                                     Vector2 size = default) =>
+        Button(icon, id, $"{tooltip} ({GeneralLoc.Ui_GuardedButton_notice})",
+               enabled && ImGui.IsKeyDown(ImGuiKey.ModShift), size);
+
     public static bool Button(FontAwesomeIcon icon, string id, string? tooltip, bool enabled = true,
                               Vector2 size = default)
     {
@@ -101,7 +122,7 @@ public static class ImGuiHelper
         bool DrawInspectButton(bool insideContextMenu = false)
         {
             if (Button(FontAwesomeIcon.Search, "##inspect",
-                       $"{inspectTooltip}{(!showMultiple && !insideContextMenu ? $" ({GeneralLoc.rightClickHint})" : "")}",
+                       $"{inspectTooltip}{(!showMultiple && !insideContextMenu ? $" ({GeneralLoc.Ui_rightClickHint})" : "")}",
                        canInspect, size))
             {
                 CsHelpers.SafeguardedOpenExamine(playerChar);
@@ -111,12 +132,13 @@ public static class ImGuiHelper
         }
         bool DrawLodestoneButton(bool insideContextMenu = false)
         {
-            string tooltip = GeneralLoc.Lodestone_Button;
+            string tooltip = GeneralLoc.Ui_btn_tt_Lodestone;
             if (Button(FontAwesomeIcon.CloudDownloadAlt, "lodestone",
-                       $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({GeneralLoc.rightClickHint})" : "")}",
+                       $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({GeneralLoc.Ui_rightClickHint})" : "")}",
                        ServiceManager.ConnectorPool.LodestoneConnector.CanBeUsed, size))
             {
-                module.HandleMessage(new HrtUiMessage($"{GeneralLoc.LodestonUpdateStarted} {p.MainChar.Name}"));
+                module.HandleMessage(
+                    new HrtUiMessage($"{GeneralLoc.LodestonConnetor_msg_UpdateStarted} {p.MainChar.Name}"));
                 ServiceManager.TaskManager.RegisterTask(
                     new HrtTask(() => ServiceManager.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
                                 module.HandleMessage, $"Update {p.MainChar.Name} from Lodestone"));
@@ -129,7 +151,7 @@ public static class ImGuiHelper
     public static void AddTooltip(string tooltip)
     {
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip(tooltip);
+            ImGui.SetTooltip(tooltip.CapitaliezSentence());
     }
 
 
@@ -283,5 +305,17 @@ public static class ImGuiHelper
 
         ImGui.EndCombo();
         return false;
+    }
+}
+
+public static class StringExtensions
+{
+    public static string CapitaliezSentence(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return string.Empty;
+        }
+        return $"{char.ToUpper(input[0])}{input[1..]}";
     }
 }

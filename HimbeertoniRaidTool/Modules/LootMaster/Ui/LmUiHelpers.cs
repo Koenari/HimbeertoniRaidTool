@@ -153,7 +153,7 @@ internal static class LmUiHelpers
                     $"( {string.Join(" | ", itemToDraw.Materia.ToList().ConvertAll(mat => $"{mat.StatType.Abbrev()} +{mat.GetStat()}"))} )");
             }
             else
-                ImGui.Text(GeneralLoc.Empty);
+                ImGui.Text(GeneralLoc.CommonTerms_Empty);
 
         }
     }
@@ -247,7 +247,7 @@ internal static class LmUiHelpers
                 ImGui.Text(val);
             }
             if (type == weaponStat)
-                ImGuiHelper.AddTooltip(GeneralLoc.Dmgper100Tooltip);
+                ImGuiHelper.AddTooltip(LootmasterLoc.Ui_tt_Dmgper100);
             if (doCompare)
             {
                 ImGui.TableNextColumn();
@@ -271,7 +271,7 @@ internal static class LmUiHelpers
                 ImGui.Text(AllaganLibrary.FormatStatValue(rightEvalStat[i], type, i).Val);
             }
             if (type == weaponStat)
-                ImGuiHelper.AddTooltip(GeneralLoc.Dmgper100Tooltip);
+                ImGuiHelper.AddTooltip(LootmasterLoc.Ui_tt_Dmgper100);
             ImGui.TableNextColumn();
             for (int i = 0; i < numEvals; i++)
             {

@@ -25,7 +25,7 @@ internal class LootSessionUi : HrtWindow
         MinSize = new Vector2(600, 300);
         //Size = new Vector2(1100, 600);
         SizeCondition = ImGuiCond.Appearing;
-        Title = string.Format(LootmasterLoc.LootSessionWindow_Title, lootSource.Name);
+        Title = string.Format(LootmasterLoc.LootSessionUi_Title, lootSource.Name);
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         OpenCentered = true;
         _possibleGroups = possibleGroups;
@@ -37,11 +37,11 @@ internal class LootSessionUi : HrtWindow
         if (ImGuiHelper.CloseButton())
             Hide();
         ImGui.SameLine();
-        ImGui.Text($"{LootmasterLoc.Lootsession_State}: {_session.CurrentState.FriendlyName()}");
+        ImGui.Text($"{LootmasterLoc.LootsessionUi_txt_state}: {_session.CurrentState.FriendlyName()}");
         ImGui.SameLine();
 
         if (ImGuiHelper.Button(FontAwesomeIcon.Cogs, "##RulesButton",
-                               LootmasterLoc.LootSession_RulesButton_Tooltip))
+                               LootmasterLoc.LootSessionUi_btn_tt_Rules))
             ImGui.OpenPopup(RULES_POPUP_ID);
         if (ImGui.BeginPopup(RULES_POPUP_ID))
         {
@@ -66,8 +66,7 @@ internal class LootSessionUi : HrtWindow
         }
 
         ImGui.SameLine();
-        if (ImGuiHelper.Button(LootmasterLoc.LootSession_CalcButton_Text,
-                               LootmasterLoc.LootSession_CalcButton_Tooltip))
+        if (ImGuiHelper.Button(LootmasterLoc.LootSessionUi_btn_Calc, LootmasterLoc.LootSessionUi_btn_tt_Calc))
             _session.Evaluate();
         ImGui.EndDisabled();
         ImGui.NewLine();
@@ -161,15 +160,15 @@ internal class LootSessionUi : HrtWindow
         ImGui.Text(string.Format(LootmasterLoc.LootSession_heading_results, _session.Instance.Name,
                                  _session.Group.Name));
         ImGui.SameLine();
-        if (ImGuiHelper.Button(LootmasterLoc.LootResults_AbortButton_Text,
-                               LootmasterLoc.LootResults_AbortButton_Tooltip,
+        if (ImGuiHelper.Button(LootmasterLoc.LootUi_Results_btn_Abort,
+                               LootmasterLoc.LootUi_Results_btn_tt_Abort,
                                _session.CurrentState < LootSession.State.DistributionStarted))
             _session.RevertToChooseLoot();
         ImGui.Separator();
         //Guaranteed Item
-        ImGui.Text(LootmasterLoc.LootResultWindow_GuaranteedItems);
+        ImGui.Text(LootmasterLoc.LootUi_Results_hdg_GuaranteedItems);
         if (_session.GuaranteedLoot.Count == 0)
-            ImGui.Text(GeneralLoc.None);
+            ImGui.Text(GeneralLoc.CommonTerms_None);
         foreach ((HrtItem item, bool awarded) in _session.GuaranteedLoot)
         {
             ImGui.BeginGroup();
@@ -193,10 +192,10 @@ internal class LootSessionUi : HrtWindow
 
         //Possible Items
         ImGui.NewLine();
-        ImGui.Text(LootmasterLoc.LootResult_PossibleItems);
+        ImGui.Text(LootmasterLoc.LootUi_Results_PossibleItems);
         ImGui.Separator();
         if (_session.Results.Count == 0)
-            ImGui.Text(GeneralLoc.None);
+            ImGui.Text(GeneralLoc.CommonTerms_None);
         foreach (((HrtItem item, int nr), LootResultContainer results) in _session.Results)
         {
             ImGui.PushID($"{item.Id}##{nr}");
@@ -205,10 +204,10 @@ internal class LootSessionUi : HrtWindow
                 if (ImGui.BeginTable("LootTable", 4 + _session.RulingOptions.ActiveRules.Count(),
                                      ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg))
                 {
-                    ImGui.TableSetupColumn(GeneralLoc.Pos);
-                    ImGui.TableSetupColumn(GeneralLoc.Player);
-                    ImGui.TableSetupColumn(GeneralLoc.Needed_items);
-                    ImGui.TableSetupColumn(GeneralLoc.Rule);
+                    ImGui.TableSetupColumn(LootmasterLoc.LootSessionUi_resultTable_Col_Pos);
+                    ImGui.TableSetupColumn(Player.DataTypeNameStatic.CapitaliezSentence());
+                    ImGui.TableSetupColumn(LootmasterLoc.LootUi_Results_hdg_NeededItems);
+                    ImGui.TableSetupColumn(LootmasterLoc.LootUI_Results_Rule);
                     foreach (LootRule rule in _session.RulingOptions.ActiveRules)
                     {
                         ImGui.TableSetupColumn(rule.Name);
@@ -244,19 +243,19 @@ internal class LootSessionUi : HrtWindow
                                 if (neededItem.Slots.Count() > 1)
                                 {
                                     if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"##Award##{i}##{neededItem.Id}",
-                                                           $"{LootmasterLoc.LootResult_AwardButton_Tooltip} ({GeneralLoc.Right_Abbrev})",
+                                                           $"{LootmasterLoc.LootUi_results_btn_tt_Award} ({GeneralLoc.CommonTerms_Right_Abbrev})",
                                                            !results.IsAwarded))
                                         _session.AwardItem((item, nr), neededItem, i);
                                     ImGui.SameLine();
                                     if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"##Award##{i}##{neededItem.Id}",
-                                                           $"{LootmasterLoc.LootResult_AwardButton_Tooltip} ({GeneralLoc.Left_Abbrev}",
+                                                           $"{LootmasterLoc.LootUi_results_btn_tt_Award} ({GeneralLoc.CommonTerms_Left_Abbrev}",
                                                            !results.IsAwarded))
                                         _session.AwardItem((item, nr), neededItem, i, true);
                                 }
                                 else
                                 {
                                     if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"##Award##{i}##{neededItem.Id}",
-                                                           $"{LootmasterLoc.LootResult_AwardButton_Tooltip}",
+                                                           $"{LootmasterLoc.LootUi_results_btn_tt_Award}",
                                                            !results.IsAwarded))
                                         _session.AwardItem((item, nr), neededItem, i);
                                 }

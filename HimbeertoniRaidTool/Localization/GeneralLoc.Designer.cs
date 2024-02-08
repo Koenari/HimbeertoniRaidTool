@@ -60,128 +60,155 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to default.
-        /// </summary>
-        internal static string _default {
-            get {
-                return ResourceManager.GetString("default", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add.
-        /// </summary>
-        internal static string Add {
-            get {
-                return ResourceManager.GetString("Add", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add Player.
-        /// </summary>
-        internal static string Add_Player {
-            get {
-                return ResourceManager.GetString("Add Player", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Appearance.
-        /// </summary>
-        internal static string Appearance {
-            get {
-                return ResourceManager.GetString("Appearance", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to BiS.
         /// </summary>
-        internal static string BiS {
+        internal static string CommonTerms_BiS {
             get {
-                return ResourceManager.GetString("BiS", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_BiS", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cancel.
+        ///   Looks up a localized string similar to Empty.
         /// </summary>
-        internal static string Cancel {
+        internal static string CommonTerms_Empty {
             get {
-                return ResourceManager.GetString("Cancel", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_Empty", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Previous changelogs.
+        ///   Looks up a localized string similar to Etro ID.
         /// </summary>
-        internal static string ChangeLogUi_heading_seen {
+        internal static string CommonTerms_EtroID {
             get {
-                return ResourceManager.GetString("ChangeLogUi_heading_seen", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_EtroID", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Himbeertoni Raid Tool Changelog.
+        ///   Looks up a localized string similar to gear.
         /// </summary>
-        internal static string ChangeLogUi_Title {
+        internal static string CommonTerms_Gear {
             get {
-                return ResourceManager.GetString("ChangeLogUi_Title", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_Gear", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Character Name.
+        ///   Looks up a localized string similar to iLvl.
         /// </summary>
-        internal static string Character_Name {
+        internal static string CommonTerms_itemLvl_abbrev {
             get {
-                return ResourceManager.GetString("Character Name", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_itemLvl_abbrev", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Commands used for Loot Master:.
+        ///   Looks up a localized string similar to L.
         /// </summary>
-        internal static string chat_usage_heading {
+        internal static string CommonTerms_Left_Abbrev {
             get {
-                return ResourceManager.GetString("chat_usage_heading", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_Left_Abbrev", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Close.
+        ///   Looks up a localized string similar to Level.
         /// </summary>
-        internal static string Close {
+        internal static string CommonTerms_Level {
             get {
-                return ResourceManager.GetString("Close", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_Level", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Shows the changelog.
+        ///   Looks up a localized string similar to Materia.
         /// </summary>
-        internal static string command_hrt_changelog {
+        internal static string CommonTerms_Materia {
             get {
-                return ResourceManager.GetString("command_hrt_changelog", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_Materia", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Opens Lootmaster window.
+        ///   Looks up a localized string similar to Name.
         /// </summary>
-        internal static string command_show_helpText {
+        internal static string CommonTerms_Name {
             get {
-                return ResourceManager.GetString("command_show_helpText", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_Name", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Toggles Lootmaster window.
+        ///   Looks up a localized string similar to n.
         /// </summary>
-        internal static string command_toggle_helpText {
+        internal static string CommonTerms_No_Abbrev {
             get {
-                return ResourceManager.GetString("command_toggle_helpText", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_No_Abbrev", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None.
+        /// </summary>
+        internal static string CommonTerms_None {
+            get {
+                return ResourceManager.GetString("CommonTerms_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to n.A..
+        /// </summary>
+        internal static string CommonTerms_NotAvail_Abbrev {
+            get {
+                return ResourceManager.GetString("CommonTerms_NotAvail_Abbrev", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to R.
+        /// </summary>
+        internal static string CommonTerms_Right_Abbrev {
+            get {
+                return ResourceManager.GetString("CommonTerms_Right_Abbrev", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tribe.
+        /// </summary>
+        internal static string CommonTerms_Tribe {
+            get {
+                return ResourceManager.GetString("CommonTerms_Tribe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to undefined.
+        /// </summary>
+        internal static string CommonTerms_undefined {
+            get {
+                return ResourceManager.GetString("CommonTerms_undefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        internal static string CommonTerms_Unknown {
+            get {
+                return ResourceManager.GetString("CommonTerms_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to y.
+        /// </summary>
+        internal static string CommonTerms_Yes_Abbrev {
+            get {
+                return ResourceManager.GetString("CommonTerms_Yes_Abbrev", resourceCulture);
             }
         }
         
@@ -199,218 +226,117 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// <summary>
         ///   Looks up a localized string similar to HimbeerToni Raid Tool Configuration.
         /// </summary>
-        internal static string ConfigWindow_Title {
+        internal static string ConfigUi_Title {
             get {
-                return ResourceManager.GetString("ConfigWindow_Title", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to OK.
+        ///   Looks up a localized string similar to Select player.
         /// </summary>
-        internal static string Confirm_action {
+        internal static string DBSearchPlayerUi_hdg_selectPlayer {
             get {
-                return ResourceManager.GetString("Confirm action", resourceCulture);
+                return ResourceManager.GetString("DBSearchPlayerUi_hdg_selectPlayer", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Confirmation.
+        ///   Looks up a localized string similar to Currently selected.
         /// </summary>
-        internal static string Confirmation {
+        internal static string DBSearchPlayerUi_txt_selected {
             get {
-                return ResourceManager.GetString("Confirmation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Core functionality of Himbeertoni Raid Tool.
-        /// </summary>
-        internal static string CoreModule_Description {
-            get {
-                return ResourceManager.GetString("CoreModule_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Core Functions.
-        /// </summary>
-        internal static string CoreModule_Name {
-            get {
-                return ResourceManager.GetString("CoreModule_Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to These sets are used when creating a new character or adding a new job. These do not
-        ///            affect already created characters and jobs.
-        ///        .
-        /// </summary>
-        internal static string DefaultBiSDisclaimer {
-            get {
-                return ResourceManager.GetString("DefaultBiSDisclaimer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Default BiS sets (as etro.gg ID).
-        /// </summary>
-        internal static string DefaultBiSHeading {
-            get {
-                return ResourceManager.GetString("DefaultBiSHeading", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Fetch default BiS from configuration.
-        /// </summary>
-        internal static string DefaultBiSTooltip {
-            get {
-                return ResourceManager.GetString("DefaultBiSTooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Delete.
-        /// </summary>
-        internal static string Delete {
-            get {
-                return ResourceManager.GetString("Delete", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Do you really want to delete following player?.
-        /// </summary>
-        internal static string DeletePlayerConfirmation {
-            get {
-                return ResourceManager.GetString("DeletePlayerConfirmation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Average Dmg with a 100 potency skill adjusted for faster GCDs.
-        /// </summary>
-        internal static string Dmgper100Tooltip {
-            get {
-                return ResourceManager.GetString("Dmgper100Tooltip", resourceCulture);
+                return ResourceManager.GetString("DBSearchPlayerUi_txt_selected", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Shop costs.
         /// </summary>
-        internal static string DrawItem_heading_ShopCosts {
+        internal static string DrawItem_hdg_ShopCosts {
             get {
-                return ResourceManager.GetString("DrawItem_heading_ShopCosts", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Edit.
-        /// </summary>
-        internal static string Edit {
-            get {
-                return ResourceManager.GetString("Edit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Edit group.
-        /// </summary>
-        internal static string Edit_group {
-            get {
-                return ResourceManager.GetString("Edit group", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Edit player.
-        /// </summary>
-        internal static string Edit_player {
-            get {
-                return ResourceManager.GetString("Edit player", resourceCulture);
+                return ResourceManager.GetString("DrawItem_hdg_ShopCosts", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Do not show this job.
         /// </summary>
-        internal static string EditCharacterui_input_hideJob {
+        internal static string EditCharUi_cb_hideJob {
             get {
-                return ResourceManager.GetString("EditCharacterui_input_hideJob", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add job.
-        /// </summary>
-        internal static string EditCharacterWindow_button_addJob_tooltip {
-            get {
-                return ResourceManager.GetString("EditCharacterWindow_button_addJob_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Delete all data for {0}.
-        /// </summary>
-        internal static string EditCharacterWindow_button_deleteJob_tooltip {
-            get {
-                return ResourceManager.GetString("EditCharacterWindow_button_deleteJob_tooltip", resourceCulture);
+                return ResourceManager.GetString("EditCharUi_cb_hideJob", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Job Data.
         /// </summary>
-        internal static string EditCharacterWindow_heading_JobData {
+        internal static string EditCharUi_hdg_JobData {
             get {
-                return ResourceManager.GetString("EditCharacterWindow_heading_JobData", resourceCulture);
+                return ResourceManager.GetString("EditCharUi_hdg_JobData", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add Job.
+        ///   Looks up a localized string similar to Home World.
         /// </summary>
-        internal static string EditCharacterWindow_input_AddJob {
+        internal static string EditCharUi_in_HomeWorld {
             get {
-                return ResourceManager.GetString("EditCharacterWindow_input_AddJob", resourceCulture);
+                return ResourceManager.GetString("EditCharUi_in_HomeWorld", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Main Job.
         /// </summary>
-        internal static string EditCharacterWindow_input_mainJob {
+        internal static string EditCharUi_in_mainJob {
             get {
-                return ResourceManager.GetString("EditCharacterWindow_input_mainJob", resourceCulture);
+                return ResourceManager.GetString("EditCharUi_in_mainJob", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to BiS sets are now changed by editing the respective BiS set directly.
         /// </summary>
-        internal static string EditCharacterWindow_text_BisNotice {
+        internal static string EditCharUi_text_BisNotice {
             get {
-                return ResourceManager.GetString("EditCharacterWindow_text_BisNotice", resourceCulture);
+                return ResourceManager.GetString("EditCharUi_text_BisNotice", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Character does not have any classes created.
         /// </summary>
-        internal static string EditCharacterWindow_text_noJobs {
+        internal static string EditCharUi_text_noJobs {
             get {
-                return ResourceManager.GetString("EditCharacterWindow_text_noJobs", resourceCulture);
+                return ResourceManager.GetString("EditCharUi_text_noJobs", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Edit character {0}.
         /// </summary>
-        internal static string EditCharacterWindow_Title {
+        internal static string EditCharUi_Title {
             get {
-                return ResourceManager.GetString("EditCharacterWindow_Title", resourceCulture);
+                return ResourceManager.GetString("EditCharUi_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom.
+        /// </summary>
+        internal static string EditGearSetUi_btn_CustomEtro {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_CustomEtro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create local copy.
+        /// </summary>
+        internal static string EditGearSetUi_btn_MakeLocal {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_MakeLocal", resourceCulture);
             }
         }
         
@@ -420,6 +346,81 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string EditGearSetUi_btn_openEtro {
             get {
                 return ResourceManager.GetString("EditGearSetUi_btn_openEtro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Provide custom id.
+        /// </summary>
+        internal static string EditGearSetUi_btn_tt_CustomEtro {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_tt_CustomEtro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Get.
+        /// </summary>
+        internal static string EditGearSetUi_btn_tt_cutsomEtro {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_tt_cutsomEtro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download set.
+        /// </summary>
+        internal static string EditGearSetUi_btn_tt_cutsomEtro_Get {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_tt_cutsomEtro_Get", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create a copy of this set in the local database. Set will not be updated from etro.gg
+        ///            afterwards
+        ///            Only local Gear Sets can be edited
+        ///        .
+        /// </summary>
+        internal static string EditGearSetUi_btn_tt_MakeLocal {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_tt_MakeLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select item.
+        /// </summary>
+        internal static string EditGearSetUi_btn_tt_selectItem {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_tt_selectItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source.
+        /// </summary>
+        internal static string EditGearSetUi_Source {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_Source", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with set from etro.
+        /// </summary>
+        internal static string EditGearSetUi_text_getEtro {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_text_getEtro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit gear set {0}.
+        /// </summary>
+        internal static string EditGearSetUi_Title {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_Title", resourceCulture);
             }
         }
         
@@ -451,182 +452,83 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Custom.
+        ///   Looks up a localized string similar to Override role priority.
         /// </summary>
-        internal static string EditGearSetWindow_button_CustomEtro {
+        internal static string EditGroupUi_cb_OverrideRolePriority {
             get {
-                return ResourceManager.GetString("EditGearSetWindow_button_CustomEtro", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Provide custom id.
-        /// </summary>
-        internal static string EditGearSetWindow_button_CustomEtro_tooltip {
-            get {
-                return ResourceManager.GetString("EditGearSetWindow_button_CustomEtro_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Get.
-        /// </summary>
-        internal static string EditGearSetWindow_cutsomEtro_button_Get {
-            get {
-                return ResourceManager.GetString("EditGearSetWindow_cutsomEtro_button_Get", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Download set.
-        /// </summary>
-        internal static string EditGearSetWindow_cutsomEtro_button_Get_tooltip {
-            get {
-                return ResourceManager.GetString("EditGearSetWindow_cutsomEtro_button_Get_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Replace with set from etro.
-        /// </summary>
-        internal static string EditGearSetWindow_text_getEtro {
-            get {
-                return ResourceManager.GetString("EditGearSetWindow_text_getEtro", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Edit gear set {0}.
-        /// </summary>
-        internal static string EditGearSetWindow_Title {
-            get {
-                return ResourceManager.GetString("EditGearSetWindow_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Group Name.
-        /// </summary>
-        internal static string EditGroupWindow_input_name {
-            get {
-                return ResourceManager.GetString("EditGroupWindow_input_name", resourceCulture);
+                return ResourceManager.GetString("EditGroupUi_cb_OverrideRolePriority", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Group Type.
         /// </summary>
-        internal static string EditGroupWindow_input_type {
+        internal static string EditGroupUi_in_type {
             get {
-                return ResourceManager.GetString("EditGroupWindow_input_type", resourceCulture);
+                return ResourceManager.GetString("EditGroupUi_in_type", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Edit Group {0}.
+        ///   Looks up a localized string similar to Edit group {0}.
         /// </summary>
-        internal static string EditGroupWindow_Title {
+        internal static string EditGroupUi_Title {
             get {
-                return ResourceManager.GetString("EditGroupWindow_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add custom character.
-        /// </summary>
-        internal static string EditPlayerWindow_button_AddEmptyCharacter_tooltip {
-            get {
-                return ResourceManager.GetString("EditPlayerWindow_button_AddEmptyCharacter_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add existing character.
-        /// </summary>
-        internal static string EditPlayerWindow_button_AddFromDb_tooltip {
-            get {
-                return ResourceManager.GetString("EditPlayerWindow_button_AddFromDb_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to  Edit {0} @ {1}.
-        /// </summary>
-        internal static string EditPlayerWindow_button_editChar_tooltip {
-            get {
-                return ResourceManager.GetString("EditPlayerWindow_button_editChar_tooltip", resourceCulture);
+                return ResourceManager.GetString("EditGroupUi_Title", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Is Main.
         /// </summary>
-        internal static string EditPlayerWindow_button_IsMain {
+        internal static string EditPlayerUi_btn_IsMain {
             get {
-                return ResourceManager.GetString("EditPlayerWindow_button_IsMain", resourceCulture);
+                return ResourceManager.GetString("EditPlayerUi_btn_IsMain", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Make Main.
         /// </summary>
-        internal static string EditPlayerWindow_button_MakeMain {
+        internal static string EditPlayerUi_btn_MakeMain {
             get {
-                return ResourceManager.GetString("EditPlayerWindow_button_MakeMain", resourceCulture);
+                return ResourceManager.GetString("EditPlayerUi_btn_MakeMain", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remove {0} from {1}.
+        ///   Looks up a localized string similar to  Edit {0} @ {1}.
         /// </summary>
-        internal static string EditPlayerWindow_button_removeChar_tooltip {
+        internal static string EditPlayerUi_btn_tt_editChar {
             get {
-                return ResourceManager.GetString("EditPlayerWindow_button_removeChar_tooltip", resourceCulture);
+                return ResourceManager.GetString("EditPlayerUi_btn_tt_editChar", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Character Data.
         /// </summary>
-        internal static string EditPlayerWindow_heading_characterData {
+        internal static string EditPlayerUi_hdg_characterData {
             get {
-                return ResourceManager.GetString("EditPlayerWindow_heading_characterData", resourceCulture);
+                return ResourceManager.GetString("EditPlayerUi_hdg_characterData", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Player Data.
         /// </summary>
-        internal static string EditPlayerWindow_heading_playerData {
+        internal static string EditPlayerUi_hdg_playerData {
             get {
-                return ResourceManager.GetString("EditPlayerWindow_heading_playerData", resourceCulture);
+                return ResourceManager.GetString("EditPlayerUi_hdg_playerData", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Player Name.
+        ///   Looks up a localized string similar to Local ID.
         /// </summary>
-        internal static string EditPlayerWindow_input_Name {
+        internal static string EditUi_Txt_LocalId {
             get {
-                return ResourceManager.GetString("EditPlayerWindow_input_Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Empty.
-        /// </summary>
-        internal static string Empty {
-            get {
-                return ResourceManager.GetString("Empty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Etro ID.
-        /// </summary>
-        internal static string Etro_ID {
-            get {
-                return ResourceManager.GetString("Etro ID", resourceCulture);
+                return ResourceManager.GetString("EditUi_Txt_LocalId", resourceCulture);
             }
         }
         
@@ -703,42 +605,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to gear.
-        /// </summary>
-        internal static string Gear {
-            get {
-                return ResourceManager.GetString("Gear", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to etro.gg.
-        /// </summary>
-        internal static string GearSet_ManagedBy_Etro {
-            get {
-                return ResourceManager.GetString("GearSet:ManagedBy:Etro", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Local Database.
-        /// </summary>
-        internal static string GearSet_ManagedBy_HrtLocal {
-            get {
-                return ResourceManager.GetString("GearSet:ManagedBy:HrtLocal", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Local Database.
-        /// </summary>
-        internal static string GearSet_manager_local {
-            get {
-                return ResourceManager.GetString("GearSet_manager_local", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to This set is manged by the plugin and will be automatically overwritten with characters current gear!.
         /// </summary>
         internal static string Gearset_Warning_SysManaged {
@@ -748,86 +614,47 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remove set from this character (Hold Shift).
+        ///   Looks up a localized string similar to Close.
         /// </summary>
-        internal static string GearsetEdit_Delete {
+        internal static string General_btn_tt_close {
             get {
-                return ResourceManager.GetString("GearsetEdit:Delete", resourceCulture);
+                return ResourceManager.GetString("General_btn_tt_close", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Last update check.
+        ///   Looks up a localized string similar to Delete {0} {1}.
         /// </summary>
-        internal static string GearSetEdit_EtroLastDownload {
+        internal static string General_btn_tt_delete {
             get {
-                return ResourceManager.GetString("GearSetEdit:EtroLastDownload", resourceCulture);
+                return ResourceManager.GetString("General_btn_tt_delete", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Last Change.
+        ///   Looks up a localized string similar to Edit {0} {1}.
         /// </summary>
-        internal static string GearSetEdit_LastChanged {
+        internal static string General_btn_tt_edit {
             get {
-                return ResourceManager.GetString("GearSetEdit:LastChanged", resourceCulture);
+                return ResourceManager.GetString("General_btn_tt_edit", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Create local copy.
+        ///   Looks up a localized string similar to remove {0} {1}.
         /// </summary>
-        internal static string GearSetEdit_MakeLocal {
+        internal static string General_btn_tt_remove {
             get {
-                return ResourceManager.GetString("GearSetEdit:MakeLocal", resourceCulture);
+                return ResourceManager.GetString("General_btn_tt_remove", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Create a copy of this set in the local database. Set will not be updated from etro.gg
-        ///            afterwards
-        ///            Only local Gear Sets can be edited
-        ///        .
+        ///   Looks up a localized string similar to Save.
         /// </summary>
-        internal static string GearSetEdit_MakeLocal_tooltip {
+        internal static string General_btn_tt_save {
             get {
-                return ResourceManager.GetString("GearSetEdit:MakeLocal:tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Name.
-        /// </summary>
-        internal static string GearSetEdit_Name {
-            get {
-                return ResourceManager.GetString("GearSetEdit:Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Source.
-        /// </summary>
-        internal static string GearSetEditWindow_Source {
-            get {
-                return ResourceManager.GetString("GearSetEditWindow_Source", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to General.
-        /// </summary>
-        internal static string General {
-            get {
-                return ResourceManager.GetString("General", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Get item for.
-        /// </summary>
-        internal static string Get_item_for {
-            get {
-                return ResourceManager.GetString("Get item for", resourceCulture);
+                return ResourceManager.GetString("General_btn_tt_save", resourceCulture);
             }
         }
         
@@ -837,51 +664,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string GetCharacterWindow_Title {
             get {
                 return ResourceManager.GetString("GetCharacterWindow_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Home World.
-        /// </summary>
-        internal static string Home_World {
-            get {
-                return ResourceManager.GetString("Home World", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to iLvl.
-        /// </summary>
-        internal static string iLvl {
-            get {
-                return ResourceManager.GetString("iLvl", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Additional Gear.
-        /// </summary>
-        internal static string Inventory_AdditionalGear {
-            get {
-                return ResourceManager.GetString("Inventory:AdditionalGear", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Item Level.
-        /// </summary>
-        internal static string itemLevelLong {
-            get {
-                return ResourceManager.GetString("itemLevelLong", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to iLvl.
-        /// </summary>
-        internal static string itemLevelShort {
-            get {
-                return ResourceManager.GetString("itemLevelShort", resourceCulture);
             }
         }
         
@@ -931,74 +713,38 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Header.
+        ///   Looks up a localized string similar to Started gear update for.
         /// </summary>
-        internal static string ItemTableHeader {
+        internal static string LodestonConnetor_msg_UpdateStarted {
             get {
-                return ResourceManager.GetString("ItemTableHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to L.
-        /// </summary>
-        internal static string Left_Abbrev {
-            get {
-                return ResourceManager.GetString("Left_Abbrev", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Level.
-        /// </summary>
-        internal static string Level {
-            get {
-                return ResourceManager.GetString("Level", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Local ID.
-        /// </summary>
-        internal static string Local_ID {
-            get {
-                return ResourceManager.GetString("Local ID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Download Gear from Lodestone.
-        /// </summary>
-        internal static string Lodestone_Button {
-            get {
-                return ResourceManager.GetString("Lodestone Button", resourceCulture);
+                return ResourceManager.GetString("LodestonConnetor_msg_UpdateStarted", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Character not found on Lodestone..
         /// </summary>
-        internal static string LodestoneConnector_CharNotFound {
+        internal static string LodestoneConnector_err_CharNotFound {
             get {
-                return ResourceManager.GetString("LodestoneConnector:CharNotFound", resourceCulture);
+                return ResourceManager.GetString("LodestoneConnector_err_CharNotFound", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Could not create new gear set..
         /// </summary>
-        internal static string LodestoneConnector_FailedToCreateGear {
+        internal static string LodestoneConnector_err_FailedToCreateGear {
             get {
-                return ResourceManager.GetString("LodestoneConnector:FailedToCreateGear", resourceCulture);
+                return ResourceManager.GetString("LodestoneConnector_err_FailedToCreateGear", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Could not update gear from Lodestone..
         /// </summary>
-        internal static string LodestoneConnector_Failure {
+        internal static string LodestoneConnector_err_GeneralFailure {
             get {
-                return ResourceManager.GetString("LodestoneConnector:Failure", resourceCulture);
+                return ResourceManager.GetString("LodestoneConnector_err_GeneralFailure", resourceCulture);
             }
         }
         
@@ -1007,290 +753,36 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         ///            supported.
         ///        .
         /// </summary>
-        internal static string LodestoneConnector_JobIncompatible {
+        internal static string LodestoneConnector_err_JobIncompatible {
             get {
-                return ResourceManager.GetString("LodestoneConnector:JobIncompatible", resourceCulture);
+                return ResourceManager.GetString("LodestoneConnector_err_JobIncompatible", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Updated {0}&apos;s {1} gear from Lodestone..
         /// </summary>
-        internal static string LodestoneConnector_Success {
+        internal static string LodestoneConnector_msg_Success {
             get {
-                return ResourceManager.GetString("LodestoneConnector:Success", resourceCulture);
+                return ResourceManager.GetString("LodestoneConnector_msg_Success", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Started gear update for.
+        ///   Looks up a localized string similar to Get item for.
         /// </summary>
-        internal static string LodestonUpdateStarted {
+        internal static string SelectGearItemui_Title {
             get {
-                return ResourceManager.GetString("LodestonUpdateStarted", resourceCulture);
+                return ResourceManager.GetString("SelectGearItemui_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Edit character {0}.
+        ///   Looks up a localized string similar to Use this item.
         /// </summary>
-        internal static string LootmasterUi_button_editCharacter_tooltip {
+        internal static string SelectItemUi_btn_tt_useThis {
             get {
-                return ResourceManager.GetString("LootmasterUi_button_editCharacter_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Edit player {0}.
-        /// </summary>
-        internal static string LootmasterUi_button_editPlayer_tooltip {
-            get {
-                return ResourceManager.GetString("LootmasterUi_button_editPlayer_tooltip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Materia.
-        /// </summary>
-        internal static string Materia {
-            get {
-                return ResourceManager.GetString("Materia", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Name.
-        /// </summary>
-        internal static string Name {
-            get {
-                return ResourceManager.GetString("Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Needed items.
-        /// </summary>
-        internal static string Needed_items {
-            get {
-                return ResourceManager.GetString("Needed items", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to n.
-        /// </summary>
-        internal static string No_Abbrev {
-            get {
-                return ResourceManager.GetString("No_Abbrev", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to None.
-        /// </summary>
-        internal static string None {
-            get {
-                return ResourceManager.GetString("None", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Not defined.
-        /// </summary>
-        internal static string Not_defined {
-            get {
-                return ResourceManager.GetString("Not defined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to n.A..
-        /// </summary>
-        internal static string NotAvail_Abbrev {
-            get {
-                return ResourceManager.GetString("NotAvail_Abbrev", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to OK.
-        /// </summary>
-        internal static string OK {
-            get {
-                return ResourceManager.GetString("OK", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Options.
-        /// </summary>
-        internal static string Options {
-            get {
-                return ResourceManager.GetString("Options", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Override role priority.
-        /// </summary>
-        internal static string Override_role_priority {
-            get {
-                return ResourceManager.GetString("Override role priority", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Player.
-        /// </summary>
-        internal static string Player {
-            get {
-                return ResourceManager.GetString("Player", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Show player details for.
-        /// </summary>
-        internal static string PlayerDetails {
-            get {
-                return ResourceManager.GetString("PlayerDetails", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Player Details for {0}.
-        /// </summary>
-        internal static string PlayerDetailsTitle {
-            get {
-                return ResourceManager.GetString("PlayerDetailsTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to BiS set for this class is locally managed.
-        ///            Delete local set to use a set from etro.gg
-        ///        .
-        /// </summary>
-        internal static string PlayerEdit_Tooltip_LocalBis {
-            get {
-                return ResourceManager.GetString("PlayerEdit:Tooltip:LocalBis", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Select player.
-        /// </summary>
-        internal static string PlayerSearchWindow_Select_player {
-            get {
-                return ResourceManager.GetString("PlayerSearchWindow_Select_player", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Currently selected.
-        /// </summary>
-        internal static string PlayerSearchWindow_Selected {
-            get {
-                return ResourceManager.GetString("PlayerSearchWindow_Selected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Pos.
-        /// </summary>
-        internal static string Pos {
-            get {
-                return ResourceManager.GetString("Pos", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Remove this item.
-        /// </summary>
-        internal static string Remove_this_item {
-            get {
-                return ResourceManager.GetString("Remove this item", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Remove this materia.
-        /// </summary>
-        internal static string Remove_this_materia {
-            get {
-                return ResourceManager.GetString("Remove this materia", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Reset to default.
-        /// </summary>
-        internal static string Reset_to_default {
-            get {
-                return ResourceManager.GetString("Reset to default", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Results for.
-        /// </summary>
-        internal static string Results_for {
-            get {
-                return ResourceManager.GetString("Results for", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to R.
-        /// </summary>
-        internal static string Right_Abbrev {
-            get {
-                return ResourceManager.GetString("Right_Abbrev", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to right click for more options.
-        /// </summary>
-        internal static string rightClickHint {
-            get {
-                return ResourceManager.GetString("rightClickHint", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Rule.
-        /// </summary>
-        internal static string Rule {
-            get {
-                return ResourceManager.GetString("Rule", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Save.
-        /// </summary>
-        internal static string Save {
-            get {
-                return ResourceManager.GetString("Save", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Save Player.
-        /// </summary>
-        internal static string Save_Player {
-            get {
-                return ResourceManager.GetString("Save Player", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Select item.
-        /// </summary>
-        internal static string Select_item {
-            get {
-                return ResourceManager.GetString("Select item", resourceCulture);
+                return ResourceManager.GetString("SelectItemUi_btn_tt_useThis", resourceCulture);
             }
         }
         
@@ -1304,74 +796,20 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Set to default.
+        ///   Looks up a localized string similar to Move {0} down.
         /// </summary>
-        internal static string Set_to_default {
+        internal static string SortableList_btn_tt_moveDown {
             get {
-                return ResourceManager.GetString("Set to default", resourceCulture);
+                return ResourceManager.GetString("SortableList_btn_tt_moveDown", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add entry.
+        ///   Looks up a localized string similar to Move {0} up.
         /// </summary>
-        internal static string SortableList_Add {
+        internal static string SortableList_btn_tt_moveUp {
             get {
-                return ResourceManager.GetString("SortableList_Add", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Move down.
-        /// </summary>
-        internal static string SortableList_moveDown {
-            get {
-                return ResourceManager.GetString("SortableList_moveDown", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Move up.
-        /// </summary>
-        internal static string SortableList_moveUp {
-            get {
-                return ResourceManager.GetString("SortableList_moveUp", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Remove entry.
-        /// </summary>
-        internal static string SortableList_remove {
-            get {
-                return ResourceManager.GetString("SortableList_remove", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Swap players positions.
-        /// </summary>
-        internal static string Swap_players_positions {
-            get {
-                return ResourceManager.GetString("Swap players positions", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Swap Position of.
-        /// </summary>
-        internal static string Swap_Position_of {
-            get {
-                return ResourceManager.GetString("Swap Position of", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Tribe.
-        /// </summary>
-        internal static string Tribe {
-            get {
-                return ResourceManager.GetString("Tribe", resourceCulture);
+                return ResourceManager.GetString("SortableList_btn_tt_moveUp", resourceCulture);
             }
         }
         
@@ -1385,11 +823,65 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add {0}.
+        /// </summary>
+        internal static string Ui_btn_tt_add {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add empty {0}.
+        /// </summary>
+        internal static string Ui_btn_tt_addEmpty {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_addEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add {0} from database.
+        /// </summary>
+        internal static string Ui_btn_tt_addExisting {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_addExisting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string Ui_btn_tt_cancel {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Character is not in reach to examine.
         /// </summary>
         internal static string Ui_btn_tt_CharacterNotInReach {
             get {
                 return ResourceManager.GetString("Ui_btn_tt_CharacterNotInReach", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download Gear from Lodestone.
+        /// </summary>
+        internal static string Ui_btn_tt_Lodestone {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_Lodestone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to remove {0} from {1}.
+        /// </summary>
+        internal static string Ui_btn_tt_removeFrom {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_removeFrom", resourceCulture);
             }
         }
         
@@ -1403,56 +895,20 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to undefined.
+        ///   Looks up a localized string similar to press shift to be able to click this button.
         /// </summary>
-        internal static string undefined {
+        internal static string Ui_GuardedButton_notice {
             get {
-                return ResourceManager.GetString("undefined", resourceCulture);
+                return ResourceManager.GetString("Ui_GuardedButton_notice", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unknown.
+        ///   Looks up a localized string similar to right click for more options.
         /// </summary>
-        internal static string Unknown {
+        internal static string Ui_rightClickHint {
             get {
-                return ResourceManager.GetString("Unknown", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Use this item.
-        /// </summary>
-        internal static string Use_this_item {
-            get {
-                return ResourceManager.GetString("Use this item", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value.
-        /// </summary>
-        internal static string Value {
-            get {
-                return ResourceManager.GetString("Value", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to World.
-        /// </summary>
-        internal static string World {
-            get {
-                return ResourceManager.GetString("World", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to y.
-        /// </summary>
-        internal static string Yes_Abbrev {
-            get {
-                return ResourceManager.GetString("Yes_Abbrev", resourceCulture);
+                return ResourceManager.GetString("Ui_rightClickHint", resourceCulture);
             }
         }
     }
