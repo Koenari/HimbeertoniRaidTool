@@ -39,10 +39,6 @@
     "message": "Défense magique",
     "description": "DrawDataExtension.Draw"
   },
-  "item:shopCosts": {
-    "message": "Shop costs",
-    "description": "DrawDataExtension.Draw"
-  },
   "item:looted:sources": {
     "message": "Looté dans",
     "description": "DrawDataExtension.Draw"
@@ -95,10 +91,6 @@
     "message": "BIS",
     "description": "EditPlayerWindow.Draw"
   },
-  "PlayerEdit:Tooltip:LocalBis": {
-    "message": "BiS set for this class is locally managed.\nDelete local set to use a set from etro.gg",
-    "description": "EditPlayerWindow.Draw"
-  },
   "Set to default": {
     "message": "Définir par défaut",
     "description": "EditPlayerWindow.Draw"
@@ -143,44 +135,12 @@
     "message": "Modifier",
     "description": "EditGearSetWindow..ctor"
   },
-  "GearsetEdit:Delete": {
-    "message": "Remove set from this character (Hold Shift)",
-    "description": "EditGearSetWindow.Draw"
-  },
-  "GearSetEdit:Source": {
-    "message": "Source",
-    "description": "EditGearSetWindow.Draw"
-  },
   "GearSet:ManagedBy:Etro": {
     "message": "etro.gg",
     "description": "EditGearSetWindow.Draw"
   },
-  "GearSetEdit:MakeLocal": {
-    "message": "Create local copy",
-    "description": "EditGearSetWindow.Draw"
-  },
-  "GearSetEdit:MakeLocal:tooltip": {
-    "message": "Create a copy of this set in the local database. Set will not be updated from etro.gg afterwards\nOnly local Gear Sets can be edited",
-    "description": "EditGearSetWindow.Draw"
-  },
-  "Etro ID": {
-    "message": "Etro ID",
-    "description": "EditGearSetWindow.Draw"
-  },
   "GearSetEdit:EtroLastDownload": {
     "message": "Dernière vérification de mise à jour",
-    "description": "EditGearSetWindow.Draw"
-  },
-  "GearSet:ManagedBy:HrtLocal": {
-    "message": "Local Database",
-    "description": "EditGearSetWindow.Draw"
-  },
-  "Local ID": {
-    "message": "Local ID",
-    "description": "EditGearSetWindow.Draw"
-  },
-  "GearSetEdit:LastChanged": {
-    "message": "Last Change",
     "description": "EditGearSetWindow.Draw"
   },
   "GearSetEdit:Name": {
@@ -247,10 +207,6 @@
     "message": "Sélectionner un objet",
     "description": "UiHelpers.DrawGearEdit"
   },
-  "Remove this item": {
-    "message": "Remove this item",
-    "description": "UiHelpers.DrawGearEdit"
-  },
   "Remove this materia": {
     "message": "Retirer cette matéria",
     "description": "UiHelpers.DrawGearEdit"
@@ -262,22 +218,6 @@
   "Select materia": {
     "message": "Sélectionner une matéria",
     "description": "UiHelpers.DrawGearEdit"
-  },
-  "ui:sortable_list:move_up": {
-    "message": "Move up",
-    "description": "UiSortableList`1.Draw"
-  },
-  "ui:sortable_list:move_down": {
-    "message": "Move down",
-    "description": "UiSortableList`1.Draw"
-  },
-  "ui:sortable_list:remove": {
-    "message": "Remove entry",
-    "description": "UiSortableList`1.Draw"
-  },
-  "ui:sortable_list::add": {
-    "message": "Add entry",
-    "description": "UiSortableList`1.Draw"
   },
   "Appearance": {
     "message": "Apparence",
@@ -371,32 +311,12 @@
     "message": "Ignorer",
     "description": "LootRule.Draw"
   },
-  "loot_rule:ignore:tooltip:bis": {
-    "message": "Ignore players/jobs not using this in BiS ",
-    "description": "LootRule.get_IgnoreTooltip"
-  },
-  "loot_rule:ignore:tooltip:can_use": {
-    "message": "Ignore players/jobs not able to use",
-    "description": "LootRule.get_IgnoreTooltip"
-  },
-  "loot_rule:ignore:tooltip:can_buy": {
-    "message": "Ignore players/jobs that could buy these",
-    "description": "LootRule.get_IgnoreTooltip"
-  },
-  "loot_rule:ignore:tooltip:need_greed": {
-    "message": "Ignore players that have no need",
-    "description": "LootRule.get_IgnoreTooltip"
-  },
   "BISOverUpgrade": {
     "message": "BIS > Amélioration",
     "description": "LootRule.GetName"
   },
   "LowestItemLevel": {
     "message": "Niveau d'objet global le plus bas",
-    "description": "LootRule.GetName"
-  },
-  "HighestItemLevelGain": {
-    "message": "Highest ItemLevel Gain",
     "description": "LootRule.GetName"
   },
   "ByRole": {
@@ -409,14 +329,6 @@
   },
   "DPSGain": {
     "message": "% de DPS gagnés",
-    "description": "LootRule.GetName"
-  },
-  "LootRule:CanUse": {
-    "message": "Can use now",
-    "description": "LootRule.GetName"
-  },
-  "LootRule:CanBuy": {
-    "message": "Can buy",
     "description": "LootRule.GetName"
   },
   "None": {
@@ -507,10 +419,6 @@
     "message": "Multiplicateur d'AAs / de DoTs",
     "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
   },
-  "Dmgper100Tooltip": {
-    "message": "Average Dmg with a 100 potency skill adjusted for faster GCDs",
-    "description": "LmUiHelpers.<DrawStatTable>g__DrawStatRow|4_0"
-  },
   "Gear": {
     "message": "Équipement",
     "description": "QuickCompareWindow.Draw"
@@ -533,18 +441,6 @@
   },
   "Edit player": {
     "message": "Édition Joueur·se",
-    "description": "LootmasterUi.DrawDetailedPlayer"
-  },
-  "lootmaster:detail:deleteJob:tooltip": {
-    "message": "Delete job (hold Shift)",
-    "description": "LootmasterUi.DrawDetailedPlayer"
-  },
-  "lootmaster:detail:jobUp:tooltip": {
-    "message": "Move job up",
-    "description": "LootmasterUi.DrawDetailedPlayer"
-  },
-  "lootmaster:detail:jobDown:tooltip": {
-    "message": "Move job down",
     "description": "LootmasterUi.DrawDetailedPlayer"
   },
   "gear": {
@@ -617,10 +513,6 @@
   },
   "n.A.": {
     "message": "N/A",
-    "description": "LootmasterUi.DrawPlayerRow"
-  },
-  "lootmaster:button:quickCompare:tooltip": {
-    "message": "Quickly compare gear",
     "description": "LootmasterUi.DrawPlayerRow"
   },
   "lootmaster:button:swapposition:tooltip": {
@@ -790,26 +682,6 @@
   "AutoSave_interval_min": {
     "message": "Intervalle de sauvegarde automatique (min)",
     "description": "ConfigUi.Draw"
-  },
-  "/hrt": {
-    "message": "Show help",
-    "description": "CoreModule.get_Commands"
-  },
-  "command:hrt:options": {
-    "message": "Shows the Configuration window",
-    "description": "CoreModule.get_InternalCommands"
-  },
-  "command:hrt:welcome": {
-    "message": "Open Welcome Window with explanations on how to use",
-    "description": "CoreModule.get_InternalCommands"
-  },
-  "command:hrt:help": {
-    "message": "Prints usage information to chat",
-    "description": "CoreModule.get_InternalCommands"
-  },
-  "hrt:usage:heading": {
-    "message": " Commands used for Himbeertoni Raid Tool:",
-    "description": "CoreModule.PrintUsage"
   },
   "Welcome to HRT": {
     "message": "Bienvenue dans Himbeertoni Raid Tool",
