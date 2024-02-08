@@ -251,6 +251,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select gear set from database.
+        /// </summary>
+        internal static string DBSearchWindowGear_Title {
+            get {
+                return ResourceManager.GetString("DBSearchWindowGear_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Shop costs.
         /// </summary>
         internal static string DrawItem_hdg_ShopCosts {

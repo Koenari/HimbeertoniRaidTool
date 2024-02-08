@@ -12,6 +12,8 @@ public class ChangeLog
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.General,
                                    "Gear updates by examining now use the same restrictions as own data"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Translation, "Redone translation"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Selecting gear from database now works"),
             },
         },
         new(new Version(1, 5, 1, 0))

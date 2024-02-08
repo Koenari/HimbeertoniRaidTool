@@ -68,6 +68,7 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
         {
             Size = new Vector2(500, 400);
             SizeCondition = ImGuiCond.Appearing;
+            Title = GeneralLoc.DBSearchWindowGear_Title;
         }
 
         protected override void DrawContent()
@@ -102,12 +103,15 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
                                                                     && (_iLvlMax == 0 || set.ItemLevel < _iLvlMax)
                                                                     && (_name.Length == 0 || set.Name.Contains(_name))))
             {
-                ImGuiHelper.Button(FontAwesomeIcon.Check, $"{gearSet.LocalId}",
-                                   LootmasterLoc.GearSetSearchWindow_button_Select);
+                if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{gearSet.LocalId}",
+                                       LootmasterLoc.GearSetSearchWindow_button_Select))
+                {
+                    Selected = gearSet;
+                    Save();
+                }
                 ImGui.SameLine();
                 ImGui.Text(
                     $"{gearSet.Name} ({gearSet.ItemLevel}) {(gearSet.ManagedBy == GearSetManager.Etro ? " from Etro" : "")}");
-                Save();
             }
         }
     }
