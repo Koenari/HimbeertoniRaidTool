@@ -147,10 +147,10 @@ internal class LootmasterUi : HrtWindow
             /*
              * Current Gear
              */
-            GearSet? newCur = null;
             ImGui.Text(GeneralLoc.CommonTerms_Gear);
             ImGui.SameLine();
-            LmUiHelpers.DrawGearSetCombo("##curGear", playableClass.CurGear, playableClass.GearSets, s => newCur = s,
+            LmUiHelpers.DrawGearSetCombo("##curGear", playableClass.CurGear, playableClass.GearSets,
+                                         s => playableClass.CurGear = s,
                                          AddChild, playableClass.Job, comboWidth);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(playableClass.CurGear, "##editGear"))
@@ -160,15 +160,14 @@ internal class LootmasterUi : HrtWindow
             if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, "##quickCompare",
                                    LootmasterLoc.PlayerDetail_button_quickCompare))
                 AddChild(new QuickCompareWindow(CurConfig, playableClass, p.MainChar.Tribe));
-            if (newCur is not null) { playableClass.CurGear = newCur; }
             /*
              * BiS
              */
-            GearSet? newBis = null;
             ImGui.SameLine();
             ImGui.Text(GeneralLoc.CommonTerms_BiS);
             ImGui.SameLine();
-            LmUiHelpers.DrawGearSetCombo("##curBis", playableClass.CurBis, playableClass.BisSets, s => newBis = s,
+            LmUiHelpers.DrawGearSetCombo("##curBis", playableClass.CurBis, playableClass.BisSets,
+                                         s => playableClass.CurBis = s,
                                          AddChild, playableClass.Job, comboWidth);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(playableClass.CurBis, "##editBIS"))
@@ -182,7 +181,6 @@ internal class LootmasterUi : HrtWindow
                     HandleMessage,
                     string.Format(LootmasterLoc.Ui_btn_tt_etroUpdate,
                                   playableClass.CurBis.Name, playableClass.CurBis.EtroId));
-            if (newBis is not null) playableClass.CurBis = newBis;
             ImGui.Spacing();
             ImGui.PopID();
         }
