@@ -1,0 +1,95 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="WelcomeUi_text">
+        <value>Bienvenido a Himbeertoni Raid Tool. Tu herramienta para gestionar el grupo de raid.
+            Comienza escribiendo "/lootmaster" (o "/lm") en el chat (o el botón de abajo). Ahí
+            hemos añadido tu personaje. A continuación puedes conseguir tu equipo actual usando el
+            botón "lupa" o examinando
+            tu personaje con un clic derecho. El plugin siempre actualizará el equipo para los
+            personajes que se añadieron a un
+            grupo o pestaña en solitario al examinar el personaje del juego. Para empezar a usar
+            esto necesitarás añadir tu grupo a través del botón "+" en la
+            pestaña Solo. Para esto tiene dos posibilidades. En "Desde cero" podrás introducir todo
+            usted mismo como un novato. O puede reunir sus miembros en un grupo (o esperar a la
+            próxima raid) y dejar que el plugin haga la mayor parte del trabajo eligiendo "Del grupo
+            actual". Todavía tienes que dar un nombre al grupo y tal vez ajustar los apodos para tus
+            jugadores. Si por ejemplo quieres que la herramienta se abra al principio, te sugeriría
+            que eches un vistazo rápido a las opciones. Y ve a la wiki para instrucciones más
+            detalladas :)
+        </value>
+    </data>
+    <data name="WelcomeUi_Title">
+        <value>Bienvenida a Himbeertoni Raid Tool</value>
+    </data>
+    <data name="ConfigUi_cb_autoEtroUpdate">
+        <value>Actualizar los sets periódicamente desde etro.gg</value>
+    </data>
+    <data name="ConfigUi_in_etroUpdateInterval">
+        <value>Intervalo de actualización (días)</value>
+    </data>
+    <data name="ConfigUi_hdg_ui">
+        <value>Interfaz de usuario</value>
+    </data>
+    <data name="ConfigUi_cb_tt_hideInCombat">
+        <value>Oculta todas las ventanas cuando estás en combate</value>
+    </data>
+    <data name="ConfigUi_cb_hideInCombat">
+        <value>Ocultar en combate</value>
+    </data>
+    <data name="ConfigUi_in_autoSaveInterval">
+        <value>Intervalos del autoguardado (min)</value>
+    </data>
+    <data name="ConfigUi_hdg_AutoSave">
+        <value>Autoguardado</value>
+    </data>
+    <data name="ConfigUi_cb_periodicSave">
+        <value>Guardar periódicamente</value>
+    </data>
+    <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
+        <value>Guarda todos los datos del Plugin periódicamente. (Ayuda a prevenir la pérdida de
+      datos si el juego crashea)
+    </value>
+    </data>
+    <data name="WelcomeUi_btn_OpenLootMaster">
+        <value>Abrir LootMaster</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_OpenLootMaster">
+        <value>Abrir la ventana principal de LootMaster (/lootmaster)</value>
+    </data>
+    <data name="WelcomeUi_btn_OpenOptions">
+        <value>Abrir Opciones</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_OpenOptions">
+        <value>Mostrar opciones de configuración (/hrt config)</value>
+    </data>
+    <data name="Welcomeui_btn_openWiki">
+        <value>Abrir Wiki</value>
+    </data>
+    <data name="Welcomeui_btn_tt_openWiki">
+        <value>Abrir este enlace en el navegador</value>
+    </data>
+    <data name="WelcomeUi_btn_close">
+        <value>Cerrar</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_close">
+        <value>Cerrar esta ventana</value>
+    </data>
+    <data name="ChangelogCategory_BiS" xml:space="preserve">
+        <value>BiS</value>
+    </data>
+</root>

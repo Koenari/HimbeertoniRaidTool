@@ -1,0 +1,108 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="UiMessage_PeriodicSaveFailed">
+        <value>Échec de la sauvegarde de données</value>
+    </data>
+    <data name="UiMessage_PeriodicSaveSuccessful">
+        <value>Données sauvegardées avec succès</value>
+    </data>
+    <data name="WelcomeUi_text">
+        <value>Bienvenue dans Himbeertoni Raid Tool, votre compagnon de gestion de groupe de raid.
+            Débutez votre voyage en ouvrant le LootMaster en tapant "/lootmaster" (ou "/lm") dans
+            le chat (ou en cliquant sur le bouton ci-dessous). Nous y avons déjà ajouté votre
+            personnage pour vous. Ensuite, vous pouvez enregistrer votre équipement actuel soit en
+            utilisant le bouton
+            "loupe", soit en examinant votre personnage via un clic droit. Le plugin mettra
+            automatiquement à jour les équipements de chaque personnage qui a
+            été ajouté à un onglet solo ou de groupe à chaque fois que vous examinez un de ces
+            personnages en jeu. Pour vraiment commencer à utiliser cet outil, vous devrez ajouter
+            votre groupe via le
+            "bouton +" à droite de l'onglet Solo. Pour ce faire, deux choix s'offrent à vous. "À
+            partir de zéro" vous permet de tout configurer manuellement comme un noob. L'autre
+            option, supérieure, est de réunir votre groupe au sein d'une équipe et de laisser le
+            plugin saisir les données automatiquement en utilisant l'option "À partir de l'Équipe
+            actuellement formée". Vous devrez toutefois assigner un nom manuellement, et
+            éventuellement donner un surnom aux autres joueur·se·s. Si vous souhaitez, par exemple,
+            que le Loot Master s'ouvre au démarrage, je vous
+            suggère de jeter un coup d'oeil rapide dans les options. Vous pouvez également aller sur
+            le Wiki pour des instructions davantage détaillées :)
+        </value>
+    </data>
+    <data name="WelcomeUi_Title">
+        <value>Bienvenue dans Himbeertoni Raid Tool</value>
+    </data>
+    <data name="ConfigUi_cb_autoEtroUpdate">
+        <value>Mettre à jour régulièrement les sets depuis etro.gg</value>
+    </data>
+    <data name="ConfigUi_in_etroUpdateInterval">
+        <value>Intervalle de mise à jour (jours)</value>
+    </data>
+    <data name="ConfigUi_hdg_ui">
+        <value>Interface utilisateur</value>
+    </data>
+    <data name="ConfigUi_cb_tt_hideInCombat">
+        <value>Cacher toutes les fenêtres pendant que le personnage est en combat</value>
+    </data>
+    <data name="ConfigUi_cb_hideInCombat">
+        <value>Cacher pendant le combat</value>
+    </data>
+    <data name="ConfigUi_in_autoSaveInterval">
+        <value>Intervalle de sauvegarde automatique (min)</value>
+    </data>
+    <data name="ConfigUi_hdg_AutoSave">
+        <value>Sauvegarde automatique</value>
+    </data>
+    <data name="ConfigUi_cb_periodicSave">
+        <value>Sauvegarder régulièrement</value>
+    </data>
+    <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
+        <value>Sauvegarde toutes les données de ce plugin (Aide à empêcher la perte de données si
+      votre jeu plante)
+    </value>
+    </data>
+    <data name="ConfigUi_Title" xml:space="preserve">
+        <value>Général</value>
+    </data>
+    <data name="WelcomeUi_btn_OpenLootMaster">
+        <value>Ouvrir le LootMaster</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_OpenLootMaster">
+        <value>Ouvrir la fenêtre principale de LootMaster (/lootmaster)</value>
+    </data>
+    <data name="WelcomeUi_btn_OpenOptions">
+        <value>Ouvrir les Options</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_OpenOptions">
+        <value>Afficher les options de configuration (/hrt config)</value>
+    </data>
+    <data name="Welcomeui_btn_openWiki">
+        <value>Ouvrir le Wiki</value>
+    </data>
+    <data name="Welcomeui_btn_tt_openWiki">
+        <value>Ouvre le Wiki dans votre navigateur</value>
+    </data>
+    <data name="WelcomeUi_btn_close">
+        <value>Fermer</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_close">
+        <value>Fermer cette fenêtre</value>
+    </data>
+    <data name="ChangelogCategory_BiS" xml:space="preserve">
+        <value>BiS</value>
+    </data>
+</root>

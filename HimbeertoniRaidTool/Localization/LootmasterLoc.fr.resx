@@ -1,0 +1,234 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="ConfigUi_cb_ColoredItemNames">
+        <value>Colorier les objets par niveau d'objet</value>
+    </data>
+    <data name="Configui_hdg_Colors">
+        <value>Couleurs prédéfinies</value>
+    </data>
+    <data name="ConfigUi_cb_IconInGroupOverview">
+        <value>Montrer l'icône de l'objet dans l'aperçu général du groupe</value>
+    </data>
+    <data name="Config_cb_IgnoreMateriaForBis">
+        <value>Ignorer les Materia</value>
+    </data>
+    <data name="ConfigUi_cb_tt_IgnoreMateriaForBis">
+        <value>Ignorer les Materia lorsqu'il est déterminé si un objet est équivalent au BiS</value>
+    </data>
+    <data name="ConfigUi_txt_ItemFormatAvailable">
+        <value>Options disponibles</value>
+    </data>
+    <data name="Configui_in_ItemFormat">
+        <value>Format d'objet</value>
+    </data>
+    <data name="LootSession_text_rolePriorityHint">
+        <value>Les modifications apportées ici n'affectent que cette session de butin</value>
+    </data>
+    <data name="Ui_text_openLootSessioon">
+        <value>Distribuer le butin pour :</value>
+    </data>
+    <data name="LootCategory_Greed">
+        <value>Cupidité</value>
+    </data>
+    <data name="LootSessionUi_Title">
+        <value>Séance de butin pour {0}</value>
+    </data>
+    <data name="LootRule_Greed">
+        <value>Cupidité</value>
+    </data>
+    <data name="command_lootmaster">
+        <value>Ouvre la fenêtre du LootMaster (variante courte : /lm)</value>
+    </data>
+    <data name="LootRule_ByRole">
+        <value>Prioriser par rôle</value>
+    </data>
+    <data name="LootRule_BISOverUpgrade">
+        <value>BIS &gt; Amélioration</value>
+    </data>
+    <data name="ConfigUi_hdg_RolePriority">
+        <value>Priorité de butin pour chaque rôle (la plus petite valeur est prioritaire)</value>
+    </data>
+    <data name="ConfigUi_txt_currentPrio">
+        <value>Priorité actuelle</value>
+    </data>
+    <data name="Ui_btn_tt_inventory">
+        <value>Ouvrir la fenêtre d'inventaire</value>
+    </data>
+    <data name="LootCategory_Need">
+        <value>Besoin</value>
+    </data>
+    <data name="LootCategory_Pass">
+        <value>Passer</value>
+    </data>
+    <data name="LootCategory_Undecided">
+        <value>Indécis</value>
+    </data>
+    <data name="ui_btn_tt_showConfig">
+        <value>Ouvrir le fichier de configuration</value>
+    </data>
+    <data name="ConfigUi_cb_tt_ColoredItemNames">
+        <value>Éléments de couleur en fonction du niveau de l'objet</value>
+    </data>
+    <data name="Configui_cb_OpenOnLogin">
+        <value>Ouvrir la vue d'ensemble du groupe au moment de la connexion</value>
+    </data>
+    <data name="Configui_in_tt_OpenOnLogin">
+        <value>Ouvre la fenêtre d'aperçu du groupe quand vous vous connectez</value>
+    </data>
+    <data name="LootUi_Results_GreedOnly">
+        <value>Cupidité uniquement</value>
+    </data>
+    <data name="LootUi_results_btn_tt_Award">
+        <value>Décerné au joueur</value>
+    </data>
+    <data name="LootUi_Results_ItemAwardedTo">
+        <value>décerné à</value>
+    </data>
+    <data name="LootUi_Results_btn_tt_Abort">
+        <value>Annuler la distribution pour changer le butin ou les règles</value>
+    </data>
+    <data name="LootUi_Results_btn_Abort">
+        <value>Annuler</value>
+    </data>
+    <data name="LootUi_Results_PossibleItems">
+        <value>Objets à distribuer</value>
+    </data>
+    <data name="LootUi_Results_PlayerWonOver">
+        <value>sur</value>
+    </data>
+    <data name="LootUi_Results_PlayerWon">
+        <value>gagné</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed">
+        <value>Décerné à tous</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed:Tooltip">
+        <value>Décerné 1 à chaque joueur</value>
+    </data>
+    <data name="LootUi_Results_hdg_GuaranteedItems">
+        <value>Objets garantis (par joueur)</value>
+    </data>
+    <data name="LootSession_State_STARTED">
+        <value>Choix du butin</value>
+    </data>
+    <data name="LootSessionUi_btn_Calc">
+        <value>Calculer</value>
+    </data>
+    <data name="LootSessionUi_btn_tt_Calc">
+        <value>Calcule les résultats de la distribution du butin selon les règles et l'équipement
+            actuel des joueurs
+            Verrouille la sélection du butin
+        </value>
+    </data>
+    <data name="LootSessionUi_btn_tt_Rules">
+        <value>Ignorer les options de décision</value>
+    </data>
+    <data name="LootSession_State_DISTRIBUTION_STARTED">
+        <value>Début de la distribution</value>
+    </data>
+    <data name="ConfigUi_hdg_LootRuleOrder">
+        <value>Ordre dans lequel les règles du butin doivent être appliquées</value>
+    </data>
+    <data name="LootSession_State_LOOT_CHOSEN">
+        <value>Butin verrouillé</value>
+    </data>
+    <data name="LootsessionUi_txt_state">
+        <value>État actuel</value>
+    </data>
+    <data name="LootSession_State_FINISHED">
+        <value>Terminé</value>
+    </data>
+    <data name="CurrentGear">
+        <value>Actuel</value>
+    </data>
+    <data name="QuickCompare_StatGain">
+        <value>Augmentation</value>
+    </data>
+    <data name="QuickCompareUi_hdg_NewGear">
+        <value>Nouvelle tenue</value>
+    </data>
+    <data name="LootSession_text_rolePriority">
+        <value>Priorité de rôle</value>
+    </data>
+    <data name="StatTable_MainStats_Title">
+        <value>Stats Principales</value>
+    </data>
+    <data name="StatTable_SecondaryStats_Title">
+        <value>Stats secondaires</value>
+    </data>
+    <data name="LootRule_Draw_cb_tt_active">
+        <value>Activé</value>
+    </data>
+    <data name="LootRule_draw_cb_ignore">
+        <value>Ignorer</value>
+    </data>
+    <data name="LootRule_LowestItemLevel">
+        <value>Niveau d'objet global le plus bas</value>
+    </data>
+    <data name="LootRule_DPSGain">
+        <value>% de DPS gagnés</value>
+    </data>
+    <data name="LootRule_Rolling">
+        <value>Lancer de dé</value>
+    </data>
+    <data name="PlayerDetail_button_quickCompare">
+        <value>Comparaison rapide</value>
+    </data>
+    <data name="Ui_btn_tt_UpdateFrmEtro">
+        <value>Mettre à jour "{0}" depuis Etro.gg</value>
+    </data>
+    <data name="AutoCreatedGroupName">
+        <value>Créé automatiquement</value>
+    </data>
+    <data name="Ui_text_emptyPlayer">
+        <value>Aucun·e joueur·se</value>
+    </data>
+    <data name="LootRule_Need">
+        <value>Besoin prioritaire sur Cupidité</value>
+    </data>
+    <data name="Config_hdg_Examples">
+        <value>Exemples</value>
+    </data>
+    <data name="ConfigUi_tab_Appearance" xml:space="preserve">
+        <value>Apparence</value>
+    </data>
+    <data name="LootSessionUi_resultTable_Col_Pos">
+        <value>Position</value>
+    </data>
+    <data name="LootSession_heading_results" xml:space="preserve">
+        <value>Résultats pour {0} ({1})</value>
+    </data>
+    <data name="LootUI_Results_Rule">
+        <value>Règle</value>
+    </data>
+    <data name="LootUi_Results_hdg_NeededItems">
+        <value>Objets désirés</value>
+    </data>
+    <data name="Ui_btn_tt_PlayerDetails">
+        <value>Afficher les détails du·de la joueur·se pour</value>
+    </data>
+    <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
+        <value>Équipement supplémentaire</value>
+    </data>
+    <data name="Ui_btn_newGroupAutomatic" xml:space="preserve">
+        <value>À partir de l'Équipe actuellement formée</value>
+    </data>
+    <data name="Ui_btn_newGroupManual" xml:space="preserve">
+        <value>À partir de zéro</value>
+    </data>
+</root>

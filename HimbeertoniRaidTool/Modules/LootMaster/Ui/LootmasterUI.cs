@@ -3,26 +3,20 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Internal;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Plugin.DataExtensions;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
+using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
 internal class LootmasterUi : HrtWindow
 {
-    private readonly LootMasterModule _lootMaster;
-    private LootMasterConfiguration.ConfigData CurConfig => _lootMaster.ConfigImpl.Data;
-    internal int CurrentGroupIndex { get; private set; }
-    private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurrentGroupIndex];
-    private static GameExpansion CurrentExpansion => Common.Services.ServiceManager.GameInfo.CurrentExpansion;
-    private readonly Queue<HrtUiMessage> _messageQueue = new();
-    private (HrtUiMessage message, DateTime time)? _currentMessage;
     private readonly Vector2 _buttonSize;
     private readonly Vector2 _buttonSizeVertical;
-    protected Vector2 ButtonSize => _buttonSize * ScaleFactor;
-    protected Vector2 ButtonSizeVertical => _buttonSizeVertical * ScaleFactor;
+    private readonly LootMasterModule _lootMaster;
+    private readonly Queue<HrtUiMessage> _messageQueue = new();
+    private (HrtUiMessage message, DateTime time)? _currentMessage;
 
     internal LootmasterUi(LootMasterModule lootMaster) : base("LootMaster")
     {
@@ -32,9 +26,15 @@ internal class LootmasterUi : HrtWindow
         _buttonSize = new Vector2(30f, 25f);
         _buttonSizeVertical = new Vector2(_buttonSize.Y, _buttonSize.X);
         SizeCondition = ImGuiCond.FirstUseEver;
-        Title = Localize("LootMasterWindowTitle", "Loot Master");
-        ServiceManager.PluginInterface.UiBuilder.OpenMainUi += Show;
+        Title = LootmasterLoc.Ui_Title;
+        Services.ServiceManager.PluginInterface.UiBuilder.OpenMainUi += Show;
     }
+    private LootMasterConfiguration.ConfigData CurConfig => _lootMaster.ConfigImpl.Data;
+    internal int CurrentGroupIndex { get; private set; }
+    private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurrentGroupIndex];
+    private static GameExpansion CurrentExpansion => ServiceManager.GameInfo.CurrentExpansion;
+    protected Vector2 ButtonSize => _buttonSize * ScaleFactor;
+    protected Vector2 ButtonSizeVertical => _buttonSizeVertical * ScaleFactor;
 
     // ReSharper disable once UnusedMethodReturnValue.Local
     private bool AddChild(HrtWindow child)
@@ -56,22 +56,22 @@ internal class LootmasterUi : HrtWindow
     {
         base.Update();
         Queue<HrtWindow> toRemove = new();
-        foreach (HrtWindow? w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen).Cast<HrtWindow>())
+        foreach (HrtWindow? w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen))
         {
             toRemove.Enqueue(w);
         }
         foreach (HrtWindow w in toRemove.Where(w => !w.Equals(this)))
         {
-            ServiceManager.PluginLog.Debug($"Cleaning Up Window: {w.WindowName}");
+            Services.ServiceManager.PluginLog.Debug($"Cleaning Up Window: {w.WindowName}");
             _lootMaster.WindowSystem.RemoveWindow(w);
         }
     }
 
     private static TimeSpan MessageTimeByMessageType(HrtUiMessageType type) => type switch
     {
-        HrtUiMessageType.Info => TimeSpan.FromSeconds(3),
+        HrtUiMessageType.Info                                => TimeSpan.FromSeconds(3),
         HrtUiMessageType.Success or HrtUiMessageType.Warning => TimeSpan.FromSeconds(5),
-        _ => TimeSpan.FromSeconds(10),
+        _                                                    => TimeSpan.FromSeconds(10),
     };
 
     private void DrawUiMessages()
@@ -88,10 +88,10 @@ internal class LootmasterUi : HrtWindow
         Vector4 color = _currentMessage.Value.message.MessageType switch
         {
             HrtUiMessageType.Error or HrtUiMessageType.Failure => Colors.TextRed,
-            HrtUiMessageType.Success => Colors.TextGreen,
-            HrtUiMessageType.Warning => Colors.TextYellow,
-            HrtUiMessageType.Important => Colors.TextSoftRed,
-            _ => Colors.TextWhite,
+            HrtUiMessageType.Success                           => Colors.TextGreen,
+            HrtUiMessageType.Warning                           => Colors.TextYellow,
+            HrtUiMessageType.Important                         => Colors.TextSoftRed,
+            _                                                  => Colors.TextWhite,
         };
         ImGui.TextColored(color, _currentMessage.Value.message.Message);
     }
@@ -99,7 +99,7 @@ internal class LootmasterUi : HrtWindow
     private void DrawDetailedPlayer(Player p)
     {
         PlayableClass? curClass = p.MainChar.MainClass;
-        ImGui.BeginChild("SoloView");
+        ImGui.BeginChild("##SoloView");
         ImGui.Columns(3);
         /*
          * Job Selection
@@ -109,12 +109,10 @@ internal class LootmasterUi : HrtWindow
 
         ImGuiHelper.GearUpdateButtons(p, _lootMaster, true);
         ImGui.SameLine();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditPlayer{p.NickName}",
-                $"{Localize("Edit player")} {p.NickName}"))
+        if (ImGuiHelper.EditButton(p, $"##EditPlayer{p.NickName}"))
             AddChild(new EditPlayerWindow(p));
         ImGui.SameLine();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditCharacter{p.NickName}",
-                $"{Localize("Edit character")} {p.MainChar.Name}"))
+        if (ImGuiHelper.EditButton(p.MainChar, $"##EditCharacter{p.NickName}"))
             AddChild(new EditCharacterWindow(p.MainChar));
         ImGui.BeginChild("JobList");
         foreach (PlayableClass playableClass in p.MainChar.Classes.Where(c => !c.HideInUi))
@@ -122,18 +120,17 @@ internal class LootmasterUi : HrtWindow
             ImGui.PushID($"{playableClass.Job}");
             ImGui.Separator();
             ImGui.Spacing();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "Delete",
-                    Localize("lootmaster:detail:deleteJob:tooltip", "Delete job (hold Shift)"),
-                    ImGui.IsKeyDown(ImGuiKey.ModShift)))
+            if (ImGuiHelper.DeleteButton(playableClass, "##delete"))
                 p.MainChar.RemoveClass(playableClass.Job);
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "JobUp",
-                    Localize("lootmaster:detail:jobUp:tooltip", "Move job up"), p.MainChar.CanMoveUp(playableClass)))
+            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##jobUp",
+                                   string.Format(GeneralLoc.SortableList_btn_tt_moveUp, playableClass.DataTypeName),
+                                   p.MainChar.CanMoveUp(playableClass)))
                 p.MainChar.MoveClassUp(playableClass);
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "JobDown",
-                    Localize("lootmaster:detail:jobDown:tooltip", "Move job down"),
-                    p.MainChar.CanMoveDown(playableClass)))
+            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "##jobDown",
+                                   string.Format(GeneralLoc.SortableList_btn_tt_moveDown, playableClass.DataTypeName),
+                                   p.MainChar.CanMoveDown(playableClass)))
                 p.MainChar.MoveClassDown(playableClass);
             bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
@@ -141,7 +138,7 @@ internal class LootmasterUi : HrtWindow
                 ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
             ImGui.SameLine();
             if (ImGuiHelper.Button($"{playableClass.Job} ({playableClass.Level:D2})", null, true,
-                    new Vector2(62f * ScaleFactor, 0f)))
+                                   new Vector2(62f * ScaleFactor, 0f)))
                 p.MainChar.MainJob = playableClass.Job;
             if (isMainJob)
                 ImGui.PopStyleColor();
@@ -151,18 +148,17 @@ internal class LootmasterUi : HrtWindow
              * Current Gear
              */
             GearSet? newCur = null;
-            ImGui.Text(Localize("LootMaster:Detail:Gear", "Gear"));
+            ImGui.Text(GeneralLoc.CommonTerms_Gear);
             ImGui.SameLine();
-            LmUiHelpers.DrawGearSetCombo("curGear", playableClass.CurGear, playableClass.GearSets, s => newCur = s,
-                AddChild, playableClass.Job, comboWidth);
+            LmUiHelpers.DrawGearSetCombo("##curGear", playableClass.CurGear, playableClass.GearSets, s => newCur = s,
+                                         AddChild, playableClass.Job, comboWidth);
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditGear",
-                    $"{Localize("Edit", "Edit")} {playableClass.Job} {Localize("gear", "gear")}"))
+            if (ImGuiHelper.EditButton(playableClass.CurGear, "##editGear"))
                 AddChild(
                     new EditGearSetWindow(playableClass.CurGear, playableClass.Job, g => playableClass.CurGear = g));
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, $"QuickCompare",
-                    $"{Localize("Quick compare", "Quick compare")}"))
+            if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, "##quickCompare",
+                                   LootmasterLoc.PlayerDetail_button_quickCompare))
                 AddChild(new QuickCompareWindow(CurConfig, playableClass, p.MainChar.Tribe));
             if (newCur is not null) { playableClass.CurGear = newCur; }
             /*
@@ -170,21 +166,22 @@ internal class LootmasterUi : HrtWindow
              */
             GearSet? newBis = null;
             ImGui.SameLine();
-            ImGui.Text(Localize("LootMaster:Detail:Bis", "BiS"));
+            ImGui.Text(GeneralLoc.CommonTerms_BiS);
             ImGui.SameLine();
-            LmUiHelpers.DrawGearSetCombo("curBis", playableClass.CurBis, playableClass.BisSets, s => newBis = s,
-                AddChild, playableClass.Job, comboWidth);
+            LmUiHelpers.DrawGearSetCombo("##curBis", playableClass.CurBis, playableClass.BisSets, s => newBis = s,
+                                         AddChild, playableClass.Job, comboWidth);
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, $"EditBIS",
-                    $"{Localize("Edit", "Edit")} {playableClass.CurBis.Name}"))
-                AddChild(new EditGearSetWindow(playableClass.CurBis, playableClass.Job, g => playableClass.CurBis = g));
+            if (ImGuiHelper.EditButton(playableClass.CurBis, "##editBIS"))
+                AddChild(new EditGearSetWindow(playableClass.CurBis, playableClass.Job,
+                                               g => playableClass.CurBis = g));
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.CurBis.EtroId,
-                    string.Format(Localize("UpdateBis", "Update \"{0}\" from Etro.gg"), playableClass.CurBis.Name),
-                    playableClass.CurBis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }))
-                ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(playableClass.CurBis,
+                                   string.Format(LootmasterLoc.Ui_btn_tt_UpdateFrmEtro, playableClass.CurBis.Name),
+                                   playableClass.CurBis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }))
+                Services.ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(playableClass.CurBis,
                     HandleMessage,
-                    $"Update {playableClass.CurBis.Name} ({playableClass.CurBis.EtroId}) from etro");
+                    string.Format(LootmasterLoc.Ui_btn_tt_etroUpdate,
+                                  playableClass.CurBis.Name, playableClass.CurBis.EtroId));
             if (newBis is not null) playableClass.CurBis = newBis;
             ImGui.Spacing();
             ImGui.PopID();
@@ -197,15 +194,16 @@ internal class LootmasterUi : HrtWindow
         ImGui.NextColumn();
         if (curClass is not null)
             LmUiHelpers.DrawStatTable(curClass, p.MainChar.Tribe, curClass.CurGear, curClass.CurBis,
-                Localize("Current", "Current"), " ", Localize("BiS", "BiS"),
-                LmUiHelpers.StatTableCompareMode.DoCompare | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
+                                      LootmasterLoc.CurrentGear, " ", GeneralLoc.CommonTerms_BiS,
+                                      LmUiHelpers.StatTableCompareMode.DoCompare
+                                    | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
 
         /*
          * Show Gear
          */
         ImGui.NextColumn();
-        ImGui.BeginTable("SoloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
-        ImGui.TableSetupColumn(Localize("Gear", "Gear"));
+        ImGui.BeginTable("##soloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
+        ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear);
         ImGui.TableSetupColumn("");
         ImGui.TableHeadersRow();
         if (curClass is not null)
@@ -252,9 +250,9 @@ internal class LootmasterUi : HrtWindow
         if (CurrentGroupIndex > _lootMaster.RaidGroups.Count - 1 || CurrentGroupIndex < 0)
             CurrentGroupIndex = 0;
         DrawUiMessages();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "showConfig",
-                Localize("lootmaster:button:showConfig:tooltip", "Open Configuration")))
-            ServiceManager.Config.Show();
+        if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "##showConfig",
+                               LootmasterLoc.ui_btn_tt_showConfig))
+            Services.ServiceManager.Config.Show();
         ImGui.SameLine();
         DrawLootHandlerButtons();
         DrawRaidGroupSwitchBar();
@@ -266,18 +264,19 @@ internal class LootmasterUi : HrtWindow
             }
             else
             {
-                if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "Solo", Localize("Add Player", "Add Player")))
+                if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##Solo",
+                                       string.Format(GeneralLoc.Ui_btn_tt_add, CurrentGroup[0].DataTypeName)))
                     AddChild(new EditPlayerWindow(CurrentGroup[0]));
             }
         }
         else
         {
-            if (ImGui.BeginTable("RaidGroup", 15,
-                    ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg))
+            if (ImGui.BeginTable("##RaidGroup", 15,
+                                 ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg))
             {
-                ImGui.TableSetupColumn(Localize("lootmaster:group:columns:sort:title", "Sort"));
-                ImGui.TableSetupColumn(Localize("lootmaster:group:columns:player:title", "Player"));
-                ImGui.TableSetupColumn(Localize("lootmaster:group:columns:gear:title", "Gear"));
+                ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Sort);
+                ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Player);
+                ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear);
                 foreach (GearSetSlot slot in GearSet.Slots)
                 {
                     if (slot == GearSetSlot.OffHand)
@@ -301,7 +300,7 @@ internal class LootmasterUi : HrtWindow
 
     private void DrawRaidGroupSwitchBar()
     {
-        if (!ImGui.BeginTabBar("RaidGroupSwitchBar"))
+        if (!ImGui.BeginTabBar("##RaidGroupSwitchBar"))
             return;
         for (int tabBarIdx = 0; tabBarIdx < _lootMaster.RaidGroups.Count; tabBarIdx++)
         {
@@ -315,13 +314,11 @@ internal class LootmasterUi : HrtWindow
 
             if (ImGui.TabItemButton(group.Name))
                 CurrentGroupIndex = tabBarIdx;
-            ImGuiHelper.AddTooltip(Localize("Lootmaster:RaidGroupBar:Button:Tooltip", "Right click for more options"));
+            ImGuiHelper.AddTooltip(GeneralLoc.Ui_rightClickHint);
 
             if (ImGui.BeginPopupContextItem(group.Name))
             {
-                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditGroup",
-                        string.Format(Localize("Lootmaster:RaidGroupBar:Button:Edit:tooltip", "Edit group {0}"),
-                            group.Name)))
+                if (ImGuiHelper.EditButton(group, "##editGroup"))
                 {
                     group.TypeLocked |= isPredefinedSolo;
                     AddChild(new EditGroupWindow(group));
@@ -331,10 +328,9 @@ internal class LootmasterUi : HrtWindow
                 if (!isPredefinedSolo)
                 {
                     ImGui.SameLine();
-                    if (ImGuiHelper.Button(FontAwesomeIcon.TrashAlt, "DeleteGroup",
-                            string.Format(
-                                Localize("lootmaster:button:removeGroup:tooltip", "Remove group {0} (hold shift)"),
-                                group.Name), ImGui.IsKeyDown(ImGuiKey.ModShift)))
+                    if (ImGuiHelper.GuardedButton(FontAwesomeIcon.TrashAlt, "##deleteGroup",
+                                                  string.Format(GeneralLoc.General_btn_tt_remove, group.DataTypeName,
+                                                                group.Name)))
                     {
                         _lootMaster.RaidGroups.Remove(group);
                         ImGui.CloseCurrentPopup();
@@ -348,18 +344,18 @@ internal class LootmasterUi : HrtWindow
             ImGui.PopID();
         }
 
-        const string newGroupContextMenuId = "NewGroupContextMenu";
+        const string newGroupContextMenuId = "##NewGroupContextMenu";
         if (ImGui.TabItemButton("+")) ImGui.OpenPopup(newGroupContextMenuId);
         if (ImGui.BeginPopupContextItem(newGroupContextMenuId))
         {
-            if (ImGuiHelper.Button(Localize("lootmaster:button:newGroupFromCurrent", "From current Group"), null))
+            if (ImGuiHelper.Button(LootmasterLoc.Ui_btn_newGroupAutomatic, null))
             {
-                _lootMaster.AddGroup(new RaidGroup(Localize("AutoCreatedGroupName", "Auto Created")), true);
+                _lootMaster.AddGroup(new RaidGroup(LootmasterLoc.AutoCreatedGroupName), true);
                 ImGui.CloseCurrentPopup();
             }
 
-            if (ImGuiHelper.Button(Localize("lootmaster:button:newGroupFromScratch", "From scratch"),
-                    Localize("lootmaster:button:newGroupFromScratch:tooltip", "Add empty group")))
+            if (ImGuiHelper.Button(LootmasterLoc.Ui_btn_newGroupManual,
+                                   string.Format(GeneralLoc.Ui_btn_tt_addEmpty, RaidGroup.DataTypeNameStatic)))
                 AddChild(new EditGroupWindow(new RaidGroup(), group => _lootMaster.AddGroup(group, false)));
             ImGui.EndPopup();
         }
@@ -377,36 +373,35 @@ internal class LootmasterUi : HrtWindow
         float dualTopRowY = ImGui.GetCursorPosY() + lineSpacing * 2.1f;
         float dualBottomRowY = ImGui.GetCursorPosY() + fullLineHeight * 2.1f;
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + lineSpacing * 1.5f);
-        if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "sortUp", Localize("LootMaster:SortButton:up", "Move up"),
-                pos > 0, ButtonSizeVertical))
+        if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##sortUp",
+                               string.Format(GeneralLoc.SortableList_btn_tt_moveUp, Player.DataTypeNameStatic), pos > 0,
+                               ButtonSizeVertical))
             CurrentGroup.SwapPlayers(pos - 1, pos);
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + lineSpacing * 0.5f);
-        if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "sortDown",
-                Localize("LootMaster:SortButton:down", "Move down"), pos < CurrentGroup.Count - 1, ButtonSizeVertical))
+        if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "##sortDown",
+                               string.Format(GeneralLoc.SortableList_btn_tt_moveDown, Player.DataTypeNameStatic),
+                               pos < CurrentGroup.Count - 1,
+                               ButtonSizeVertical))
             CurrentGroup.SwapPlayers(pos, pos + 1);
         if (player.Filled)
         {
             //Player Column
             ImGui.TableNextColumn();
             ImGui.Text(
-                $"{player.CurJob?.Role.FriendlyName() ?? Localize("lootmaster:player", "Player")}:   {player.NickName}");
+                $"{player.CurJob?.Role.FriendlyName() ?? Player.DataTypeNameStatic.CapitaliezSentence()}:   {player.NickName}");
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditPlayer",
-                    string.Format(Localize("lootmaster:button:editPlayer:tooltip", "Edit player {0}"),
-                        player.NickName)))
+            if (ImGuiHelper.EditButton(player, "##editPlayer"))
                 AddChild(new EditPlayerWindow(player));
             ImGui.Text(
-                $"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? Localize("general:notAvailable:abbrev", "n.A.")}");
+                $"{player.MainChar.Name} @ {player.MainChar.HomeWorld?.Name ?? GeneralLoc.CommonTerms_NotAvail_Abbrev}");
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditCharacter",
-                    string.Format(Localize("lootmaster:button:editCharacter:tooltip", "Edit character {0}"),
-                        player.MainChar.Name)))
+            if (ImGuiHelper.EditButton(player.MainChar, "##editCharacter"))
                 AddChild(new EditCharacterWindow(player.MainChar));
             PlayableClass? curJob = player.CurJob;
             if (player.MainChar.Classes.Any())
             {
                 ImGui.SetNextItemWidth(110 * ScaleFactor);
-                if (ImGui.BeginCombo($"##Class", curJob?.ToString()))
+                if (ImGui.BeginCombo("##Class", curJob?.ToString()))
                 {
                     foreach (PlayableClass job in player.MainChar.Where(c => !c.HideInUi))
                     {
@@ -418,7 +413,7 @@ internal class LootmasterUi : HrtWindow
             }
             else
             {
-                ImGui.Text(Localize("lootmaster:noJobs", "No jobs created"));
+                ImGui.Text(LootmasterLoc.Ui_txt_noJobs);
             }
             if (curJob is null)
             {
@@ -435,7 +430,7 @@ internal class LootmasterUi : HrtWindow
                 /*
                  * Gear Sets
                  */
-                ImGui.PushID("GearButtons");
+                ImGui.PushID("##gearButtons");
                 GearSet gear = curJob.CurGear;
                 GearSet bis = curJob.CurBis;
                 ImGui.TableNextColumn();
@@ -444,14 +439,12 @@ internal class LootmasterUi : HrtWindow
                  * Current Gear
                  */
                 ImGui.SetCursorPosY(dualTopRowY);
-                LmUiHelpers.DrawGearSetCombo("curGear", gear, curJob.GearSets, s => curJob.CurGear = s, AddChild,
-                    curJob.Job,
-                    comboWidth);
+                LmUiHelpers.DrawGearSetCombo("##curGear", gear, curJob.GearSets, s => curJob.CurGear = s, AddChild,
+                                             curJob.Job,
+                                             comboWidth);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualTopRowY);
-                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditCurGear",
-                        string.Format(Localize("lootmaster:button:editGearSet:tooltip", "Edit gearset: {0}"),
-                            gear.Name), true, ButtonSize))
+                if (ImGuiHelper.EditButton(gear, "##editCurGear", true, ButtonSize))
                     AddChild(new EditGearSetWindow(gear, curJob.Job, g => curJob.CurGear = g));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualTopRowY);
@@ -460,24 +453,22 @@ internal class LootmasterUi : HrtWindow
                  * Current BiS
                  */
                 ImGui.SetCursorPosY(dualBottomRowY);
-                LmUiHelpers.DrawGearSetCombo("curBis", bis, curJob.BisSets, s => curJob.CurBis = s, AddChild,
-                    curJob.Job,
-                    comboWidth);
+                LmUiHelpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s, AddChild,
+                                             curJob.Job,
+                                             comboWidth);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualBottomRowY);
-                if (ImGuiHelper.Button(FontAwesomeIcon.Edit, "EditBiSGear",
-                        string.Format(Localize("lootmaster:button:editGearSet:tooltip", "Edit gearset: {0}"),
-                            gear.Name), true, ButtonSize))
+                if (ImGuiHelper.EditButton(bis, "##editBiSGear", true, ButtonSize))
                     AddChild(new EditGearSetWindow(bis, curJob.Job, g => curJob.CurBis = g));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualBottomRowY);
                 if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.EtroId,
-                        string.Format(
-                            Localize("lootmaster:button:etroUpdate:tooltip", "Update gear set \"{0}\" from Etro.gg"),
-                            bis.Name),
-                        bis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }, ButtonSize))
-                    ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(bis, HandleMessage,
-                        $"Update {bis.Name} ({bis.EtroId}) from etro");
+                                       string.Format(LootmasterLoc.Ui_btn_tt_etroUpdate,
+                                                     bis.Name, bis.EtroId),
+                                       bis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }, ButtonSize))
+                    Services.ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(bis, HandleMessage,
+                        string.Format(LootmasterLoc.Ui_btn_tt_etroUpdate, bis.Name,
+                                      bis.EtroId));
                 ImGui.PopID();
                 foreach ((GearSetSlot slot, (GearItem, GearItem) itemTuple) in curJob.ItemTuples)
                 {
@@ -496,27 +487,26 @@ internal class LootmasterUi : HrtWindow
             {
                 ImGui.TableNextColumn();
                 ImGui.SetCursorPosY(dualTopRowY);
-                if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, $"QuickCompare",
-                        $"{Localize("lootmaster:button:quickCompare:tooltip", "Quickly compare gear")}", curJob != null,
-                        ButtonSize))
+                if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, "##quickCompare",
+                                       LootmasterLoc.Ui_btn_tt_quickCompare,
+                                       curJob != null,
+                                       ButtonSize))
                     AddChild(new QuickCompareWindow(CurConfig, curJob!, player.MainChar.Tribe));
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Wallet, "Inventory",
-                        Localize("lootmaster:button:inventory:tooltip", "Open inventory window"), true, ButtonSize))
-                    AddChild(new InventoryWindow(player.MainChar.MainInventory,
-                        string.Format(Localize("lootmaster:inventoryWindow:title", "{0}'s inventory"),
-                            player.MainChar.Name)));
+                if (ImGuiHelper.Button(FontAwesomeIcon.Wallet, "##inventory",
+                                       LootmasterLoc.Ui_btn_tt_inventory, true,
+                                       ButtonSize))
+                    AddChild(new InventoryWindow(player.MainChar));
                 ImGui.SetCursorPosY(dualBottomRowY);
-                if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, "Details",
-                        $"{Localize("lootmaster:button:playerDetails:tooltip", "Show player details for")} {player.NickName}",
-                        true, ButtonSize))
+                if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, "##details",
+                                       $"{LootmasterLoc.Ui_btn_tt_PlayerDetails} {player.NickName}",
+                                       true, ButtonSize))
                     AddChild(new PlayerDetailWindow(this, player));
                 ImGui.SameLine();
-                if (ImGuiHelper.Button(FontAwesomeIcon.TrashAlt, "Delete",
-                        string.Format(
-                            Localize("lootmaster:button:removePlayer:tooltip",
-                                "Remove {0} from this group (hold shift)"), player.NickName),
-                        ImGui.IsKeyDown(ImGuiKey.ModShift), ButtonSize))
+                if (ImGuiHelper.GuardedButton(FontAwesomeIcon.TrashAlt, "##remove",
+                                              string.Format(GeneralLoc.Ui_btn_tt_removeFrom, player.NickName,
+                                                            group.Name),
+                                              ButtonSize))
                     group[pos] = new Player();
             }
         }
@@ -524,35 +514,40 @@ internal class LootmasterUi : HrtWindow
         {
             ImGui.TableNextColumn();
             ImGui.NewLine();
-            ImGui.Text(Localize("lootmaster:emptyPlayer", "No Player"));
+            ImGui.Text(LootmasterLoc.Ui_text_emptyPlayer);
             ImGui.Text(" ");
             for (int i = 0; i < GearSet.NUM_SLOTS; i++)
             {
                 ImGui.TableNextColumn();
             }
             ImGui.TableNextColumn();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "AddNew",
-                    Localize("lootmaster:button:NewPlayerEmpty:tooltip", "Add empty"), true, ButtonSize))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##addNew",
+                                   string.Format(GeneralLoc.Ui_btn_tt_addEmpty, player.DataTypeName),
+                                   true, ButtonSize))
                 AddChild(new EditPlayerWindow(player));
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Search, "AddPlayerFromDB",
-                    Localize("lootmaster:button:PLayerFromDb", "Add player from DB"), true, ButtonSize))
-                AddChild(ServiceManager.HrtDataManager.PlayerDb.OpenSearchWindow(selected => group[pos] = selected));
+            if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addPlayerFromDB",
+                                   string.Format(GeneralLoc.Ui_btn_tt_addExisting, group[pos].DataTypeName), true,
+                                   ButtonSize))
+                AddChild(Services.ServiceManager.HrtDataManager.PlayerDb.OpenSearchWindow(
+                             selected => group[pos] = selected));
             if (ImGuiHelper.Button(FontAwesomeIcon.LocationCrosshairs, "AddTarget",
-                    $"{Localize("lootmaster:button:PLayerFromTarget:tooltip", "Fill with target")} "
-                    + $"({ServiceManager.TargetManager.Target?.Name ?? Localize("None")})",
-                    ServiceManager.TargetManager.Target is not null, ButtonSize))
+                                   string.Format(LootmasterLoc.Ui_btn_addPlayerFromTarget_tt,
+                                                 Services.ServiceManager.TargetManager.Target?.Name
+                                              ?? GeneralLoc.CommonTerms_None),
+                                   Services.ServiceManager.TargetManager.Target is not null, ButtonSize))
             {
                 _lootMaster.FillPlayerFromTarget(player);
-                if (ServiceManager.TargetManager.Target is PlayerCharacter target)
+                if (Services.ServiceManager.TargetManager.Target is PlayerCharacter target)
                     CsHelpers.SafeguardedOpenExamine(target);
             }
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Search, "AddCharFromDB",
-                    Localize("lootmaster:button:CharacterFromDb:tooltip", "Add character from DB"), true, ButtonSize))
-                AddChild(ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(selected =>
+            if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addCharFromDB",
+                                   string.Format(GeneralLoc.Ui_btn_tt_addExisting,
+                                                 Character.DataTypeNameStatic), true, ButtonSize))
+                AddChild(Services.ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(selected =>
                 {
-                    if (!ServiceManager.HrtDataManager.PlayerDb.TryAdd(player))
+                    if (!Services.ServiceManager.HrtDataManager.PlayerDb.TryAdd(player))
                         return;
                     player.NickName = selected.Name.Split(' ')[0];
                     player.MainChar = selected;
@@ -566,7 +561,7 @@ internal class LootmasterUi : HrtWindow
     private void DrawLootHandlerButtons()
     {
         ImGui.SetNextItemWidth(ImGui.CalcTextSize(CurConfig.SelectedRaidTier.Name).X + 32f * ScaleFactor);
-        if (ImGui.BeginCombo("##Raid Tier", CurConfig.SelectedRaidTier.Name))
+        if (ImGui.BeginCombo("##raidTier", CurConfig.SelectedRaidTier.Name))
         {
             for (int i = 0; i < CurrentExpansion.SavageRaidTiers.Length; i++)
             {
@@ -584,14 +579,14 @@ internal class LootmasterUi : HrtWindow
         }
 
         ImGui.SameLine();
-        ImGui.Text(Localize("lootmaster:text:lootDistribution ", "Distribute loot for:"));
+        ImGui.Text(LootmasterLoc.Ui_text_openLootSessioon + ":");
         ImGui.SameLine();
 
         foreach (InstanceWithLoot lootSource in CurConfig.SelectedRaidTier.Bosses)
         {
             if (ImGuiHelper.Button(lootSource.Name, null))
                 AddChild(new LootSessionUi(lootSource, CurrentGroup, CurConfig.RaidGroups, CurConfig.LootRuling,
-                    CurConfig.RolePriority));
+                                           CurConfig.RolePriority));
             ImGui.SameLine();
         }
 
@@ -610,7 +605,7 @@ internal class LootmasterUi : HrtWindow
             _drawPlayer = lmui.DrawDetailedPlayer;
             _player = p;
             Show();
-            Title = $"{Localize("lootmaster:window:playerDetails:title", "Player Details")} {_player.NickName}";
+            Title = string.Format(LootmasterLoc.PlayerDetailsUi_Title, _player.NickName);
             (Size, SizeCondition) = (new Vector2(1600, 600), ImGuiCond.Appearing);
         }
 
@@ -622,19 +617,19 @@ internal class InventoryWindow : HrtWindowWithModalChild
 {
     private readonly Inventory _inv;
 
-    internal InventoryWindow(Inventory inv, string title)
+    internal InventoryWindow(Character c)
     {
         Size = new Vector2(400f, 550f);
         SizeCondition = ImGuiCond.Appearing;
-        Title = title;
-        _inv = inv;
-        if (Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage is null)
+        Title = string.Format(LootmasterLoc.InventoryUi_Title, c.Name);
+        _inv = c.MainInventory;
+        if (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage is null)
             return;
-        foreach (HrtItem item in from boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage
-                     .Bosses
-                 from item in boss.GuaranteedItems
-                 where !_inv.Contains(item.Id)
-                 select item)
+        foreach (HrtItem item in from boss in ServiceManager.GameInfo.CurrentExpansion.CurrentSavage
+                                                            .Bosses
+                                 from item in boss.GuaranteedItems
+                                 where !_inv.Contains(item.Id)
+                                 select item)
         {
             _inv[_inv.FirstFreeSlot()] = new InventoryEntry(item)
             {
@@ -647,32 +642,34 @@ internal class InventoryWindow : HrtWindowWithModalChild
     {
         if (ImGuiHelper.CloseButton())
             Hide();
-        if (Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage is not null)
-            foreach (InstanceWithLoot boss in Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage
-                         .Bosses)
-            foreach (HrtItem item in boss.GuaranteedItems)
+        if (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage is not null)
+            foreach (InstanceWithLoot boss in ServiceManager.GameInfo.CurrentExpansion.CurrentSavage
+                                                            .Bosses)
             {
-                IDalamudTextureWrap icon = ServiceManager.IconCache[item.Icon];
-                ImGui.Image(icon.ImGuiHandle, icon.Size);
-                ImGui.SameLine();
-                ImGui.Text(item.Name);
-                ImGui.SameLine();
-                InventoryEntry entry = _inv[_inv.IndexOf(item.Id)];
-                ImGui.SetNextItemWidth(150f * ScaleFactor);
-                ImGui.InputInt($"##{item.Name}", ref entry.Quantity);
-                _inv[_inv.IndexOf(item.Id)] = entry;
+                foreach (HrtItem item in boss.GuaranteedItems)
+                {
+                    IDalamudTextureWrap icon = Services.ServiceManager.IconCache[item.Icon];
+                    ImGui.Image(icon.ImGuiHandle, icon.Size);
+                    ImGui.SameLine();
+                    ImGui.Text(item.Name);
+                    ImGui.SameLine();
+                    InventoryEntry entry = _inv[_inv.IndexOf(item.Id)];
+                    ImGui.SetNextItemWidth(150f * ScaleFactor);
+                    ImGui.InputInt($"##{item.Name}", ref entry.Quantity);
+                    _inv[_inv.IndexOf(item.Id)] = entry;
+                }
             }
 
         ImGui.Separator();
-        ImGui.Text(Localize("Inventory:AdditionalGear", "Additional Gear"));
+        ImGui.Text(LootmasterLoc.InventoryUi_hdg_additionalGear);
         Vector2 iconSize = new Vector2(37, 37) * ScaleFactor;
         foreach ((int idx, InventoryEntry entry) in _inv.Where(e => e.Value.IsGear))
         {
             ImGui.PushID(idx);
             if (entry.Item is not GearItem item)
                 continue;
-            IDalamudTextureWrap icon = ServiceManager.IconCache[item.Icon];
-            if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "Delete", null, true, iconSize))
+            IDalamudTextureWrap icon = Services.ServiceManager.IconCache[item.Icon];
+            if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "##delete", null, true, iconSize))
                 _inv.Remove(idx);
             ImGui.SameLine();
             ImGui.BeginGroup();
@@ -691,9 +688,10 @@ internal class InventoryWindow : HrtWindowWithModalChild
         }
 
         ImGui.BeginDisabled(ChildIsOpen);
-        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, $"Add", null, true, iconSize))
+        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##add", null, true, iconSize))
             ModalChild = new SelectGearItemWindow(i => _inv.Add(_inv.FirstFreeSlot(), i), _ => { }, null, null, null,
-                Common.Services.ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel ?? 0);
+                                                  ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel
+                                               ?? 0);
         ImGui.EndDisabled();
     }
 }

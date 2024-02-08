@@ -2,24 +2,26 @@
 using Dalamud.Configuration;
 using Dalamud.Interface.Windowing;
 using HimbeertoniRaidTool.Plugin.DataManagement;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin;
 
 public class Configuration : IPluginConfiguration, IDisposable
 {
-    private bool _fullyLoaded = false;
-    private readonly int _targetVersion = 5;
-    public int Version { get; set; } = 5;
     private readonly Dictionary<Type, IHrtConfiguration> _configurations = new();
+    private readonly int _targetVersion = 5;
     private readonly ConfigUi _ui;
+    private bool _fullyLoaded;
 
     public Configuration()
     {
         _ui = new ConfigUi(this);
     }
+
+    public void Dispose() => _ui.Dispose();
+    public int Version { get; set; } = 5;
 
     internal void AfterLoad()
     {
@@ -60,12 +62,10 @@ public class Configuration : IPluginConfiguration, IDisposable
         }
     }
 
-    public void Dispose() => _ui.Dispose();
-
     public class ConfigUi : HrtWindow, IDisposable
     {
-        private readonly WindowSystem _windowSystem;
         private readonly Configuration _configuration;
+        private readonly WindowSystem _windowSystem;
 
         public ConfigUi(Configuration configuration) : base("HimbeerToniRaidToolConfiguration")
         {
@@ -77,7 +77,7 @@ public class Configuration : IPluginConfiguration, IDisposable
 
             (Size, SizeCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);
             Flags = ImGuiWindowFlags.NoCollapse;
-            Title = Localize("ConfigWindowTitle", "HimbeerToni Raid Tool Configuration");
+            Title = GeneralLoc.ConfigUi_Title;
             IsOpen = false;
         }
 
@@ -113,18 +113,12 @@ public class Configuration : IPluginConfiguration, IDisposable
             ImGui.BeginTabBar("Modules");
             foreach (IHrtConfiguration c in _configuration._configurations.Values)
             {
-                try
+                if (c.Ui == null)
+                    continue;
+                if (ImGui.BeginTabItem(c.ParentName))
                 {
-                    if (c.Ui == null)
-                        continue;
-                    if (ImGui.BeginTabItem(c.ParentName))
-                    {
-                        c.Ui.Draw();
-                        ImGui.EndTabItem();
-                    }
-                }
-                catch (Exception)
-                {
+                    c.Ui.Draw();
+                    ImGui.EndTabItem();
                 }
             }
 
@@ -166,10 +160,13 @@ public interface IHrtConfiguration
 
 internal abstract class HrtConfiguration<T> : IHrtConfiguration where T : IHrtConfigData, new()
 {
-    public string ParentInternalName { get; }
-    public string ParentName { get; }
 
     private T _data = new();
+    protected HrtConfiguration(string parentInternalName, string parentName)
+    {
+        ParentInternalName = parentInternalName;
+        ParentName = parentName;
+    }
 
     public T Data
     {
@@ -180,14 +177,11 @@ internal abstract class HrtConfiguration<T> : IHrtConfiguration where T : IHrtCo
             OnConfigChange?.Invoke();
         }
     }
+    public string ParentInternalName { get; }
+    public string ParentName { get; }
     public abstract IHrtConfigUi? Ui { get; }
 
-    public event Action? OnConfigChange = null;
-    protected HrtConfiguration(string parentInternalName, string parentName)
-    {
-        ParentInternalName = parentInternalName;
-        ParentName = parentName;
-    }
+    public event Action? OnConfigChange;
     public bool Load(IModuleConfigurationManager configManager) =>
         configManager.LoadConfiguration(ParentInternalName, ref _data);
 

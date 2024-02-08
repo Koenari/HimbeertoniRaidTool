@@ -1,0 +1,6 @@
+﻿<wpf:ResourceDictionary xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib"
+                        xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xml:space="preserve"
+                        xsi:schemaLocation="clr-namespace:System;assembly=mscorlib ">
+	<s:String x:Key="/Default/CodeEditing/Localization/Localizable/@EntryValue">Yes</s:String></wpf:ResourceDictionary>

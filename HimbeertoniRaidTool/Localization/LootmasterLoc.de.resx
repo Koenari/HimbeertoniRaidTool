@@ -1,0 +1,269 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="ConfigUi_cb_ColoredItemNames">
+        <value>Färbe Items nach ItemLevel ein</value>
+    </data>
+    <data name="Configui_hdg_Colors">
+        <value>Eingestellte Farben</value>
+    </data>
+    <data name="ConfigUi_cb_IconInGroupOverview">
+        <value>Icon in der Gruppenübersicht anzeigen</value>
+    </data>
+    <data name="Config_cb_IgnoreMateriaForBis">
+        <value>Materia ignorieren</value>
+    </data>
+    <data name="ConfigUi_cb_tt_IgnoreMateriaForBis">
+        <value>Beim Vergleich von Items zu BiS die gesockelten Materia ignorieren</value>
+    </data>
+    <data name="ConfigUi_txt_ItemFormatAvailable">
+        <value>Verfügbare Optionen</value>
+    </data>
+    <data name="Configui_in_ItemFormat">
+        <value>Item Format</value>
+    </data>
+    <data name="LootSession_text_rolePriorityHint">
+        <value>Änderungen hier gelten nur für die aktuelle Loot Sitzung</value>
+    </data>
+    <data name="Ui_text_openLootSessioon">
+        <value>Beute verteilen für:</value>
+    </data>
+    <data name="LootCategory_Greed">
+        <value>Gier</value>
+    </data>
+    <data name="LootSessionUi_Title">
+        <value>Loot Sitzung für {0}</value>
+    </data>
+    <data name="LootRule_Greed">
+        <value>Gier</value>
+    </data>
+    <data name="command_lootmaster">
+        <value>Öffnet das LootMaster Fenster (oder /lm als Abkürzung)</value>
+    </data>
+    <data name="LootRule_ByRole">
+        <value>Rollenpriorität</value>
+    </data>
+    <data name="LootRule_BISOverUpgrade">
+        <value>BiS &gt; Verbesserung</value>
+    </data>
+    <data name="ConfigUi_hdg_RolePriority">
+        <value>Priorität für jede Rolle (Kleinere Zahl entspricht höherer Priorität)</value>
+    </data>
+    <data name="ConfigUi_txt_currentPrio">
+        <value>Aktuelle Priorität</value>
+    </data>
+    <data name="Ui_btn_tt_inventory">
+        <value>Lootmaster-Inventar öffnen</value>
+    </data>
+    <data name="Ui_btn_tt_quickCompare">
+        <value>Ausrüstung schnell vergleichen</value>
+    </data>
+    <data name="LootCategory_Need">
+        <value>Bedarf</value>
+    </data>
+    <data name="LootCategory_Pass">
+        <value>Passen</value>
+    </data>
+    <data name="LootCategory_Undecided">
+        <value>Nicht entschieden</value>
+    </data>
+    <data name="ui_btn_tt_showConfig">
+        <value>Konfiguration öffnen</value>
+    </data>
+    <data name="ConfigUi_cb_tt_ColoredItemNames">
+        <value>Items nach Itemlevel einfärben</value>
+    </data>
+    <data name="Configui_cb_OpenOnLogin">
+        <value>LootMaster beim Login öffnen</value>
+    </data>
+    <data name="Configui_in_tt_OpenOnLogin">
+        <value>Öffnet die Gruppenübersicht nach dem Einloggen</value>
+    </data>
+    <data name="LootUi_Results_GreedOnly">
+        <value>Nur Gier</value>
+    </data>
+    <data name="LootUi_results_btn_tt_Award">
+        <value>An Spieler vergeben</value>
+    </data>
+    <data name="LootUi_Results_ItemAwardedTo">
+        <value>vergeben an</value>
+    </data>
+    <data name="LootUi_Results_btn_tt_Abort">
+        <value>Verteilung abbrechen, um Beute oder Regeln zu ändern</value>
+    </data>
+    <data name="LootUi_Results_btn_Abort">
+        <value>Abbrechen</value>
+    </data>
+    <data name="LootUi_Results_PossibleItems">
+        <value>Zu verteilende Items</value>
+    </data>
+    <data name="LootUi_Results_PlayerWonOver">
+        <value>über</value>
+    </data>
+    <data name="LootUi_Results_PlayerWon">
+        <value>gewonnen</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed">
+        <value>An alle vergeben</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed:Tooltip">
+        <value>Jedem Spieler einmal vergeben</value>
+    </data>
+    <data name="LootUi_Results_hdg_GuaranteedItems">
+        <value>Garantierte Items (pro Spieler)</value>
+    </data>
+    <data name="LootSession_State_STARTED">
+        <value>Beute auswählen</value>
+    </data>
+    <data name="LootSessionUi_btn_Calc">
+        <value>Berechnen</value>
+    </data>
+    <data name="LootSessionUi_btn_tt_Calc">
+        <value>Berechnet die Ergebnisse der Beuteverteilung entsprechend den Regeln und der
+            aktuellen Ausrüstung der Spieler.
+            Sperrt die Beuteauswahl
+        </value>
+    </data>
+    <data name="LootSessionUi_btn_tt_Rules">
+        <value>Verteilungsregeln überschreiben</value>
+    </data>
+    <data name="LootSession_State_DISTRIBUTION_STARTED">
+        <value>Verteilung gestartet</value>
+    </data>
+    <data name="ConfigUi_hdg_LootRuleOrder">
+        <value>Reihenfolge in der die Loot Regeln angewendet werden</value>
+    </data>
+    <data name="LootSession_State_LOOT_CHOSEN">
+        <value>Beute festgelegt</value>
+    </data>
+    <data name="LootRule_CanBuy">
+        <value>Kann kaufen</value>
+    </data>
+    <data name="LootRule_CanUse">
+        <value>Kann jetzt verwenden</value>
+    </data>
+    <data name="LootsessionUi_txt_state">
+        <value>Aktueller Status</value>
+    </data>
+    <data name="LootRule_draw_cb_tt_ignore_bis">
+        <value>Spieler/Jobs ignorieren, die dies nicht als BiS verwenden</value>
+    </data>
+    <data name="LootRule_draw_cb_tt_ignore_canBuy">
+        <value>Spieler/Jobs ignorieren, die das kaufen könnten</value>
+    </data>
+    <data name="LootRule_draw_cb_tt_ignore_canUse">
+        <value>Spieler/Jobs ignorieren, die das nicht verwenden können</value>
+    </data>
+    <data name="LootRule_draw_cb_tt_ignore_needGreed">
+        <value>Spieler ignorieren, die keinen Bedarf haben</value>
+    </data>
+    <data name="LootSession_State_FINISHED">
+        <value>Beendet</value>
+    </data>
+    <data name="CurrentGear">
+        <value>Aktuell</value>
+    </data>
+    <data name="QuickCompare_StatGain">
+        <value>Gewinn</value>
+    </data>
+    <data name="QuickCompareUi_hdg_NewGear">
+        <value>Neue Ausrüstung</value>
+    </data>
+    <data name="LootSession_text_rolePriority">
+        <value>Rollenpriorität</value>
+    </data>
+    <data name="StatTable_MainStats_Title">
+        <value>Attribute</value>
+    </data>
+    <data name="StatTable_SecondaryStats_Title">
+        <value>Sekundäre Attribute</value>
+    </data>
+    <data name="LootRule_Draw_cb_tt_active">
+        <value>Aktiviert</value>
+    </data>
+    <data name="LootRule_draw_cb_ignore">
+        <value>Ignorieren</value>
+    </data>
+    <data name="LootRule_LowestItemLevel">
+        <value>Niedrigste Gegenstandsstufe</value>
+    </data>
+    <data name="LootRule_HighestItemLevelGain">
+        <value>Gegenstandsstufen Gewinn</value>
+    </data>
+    <data name="LootRule_DPSGain">
+        <value>% DPS Gewinn</value>
+    </data>
+    <data name="LootRule_Rolling">
+        <value>Würfeln</value>
+    </data>
+    <data name="PlayerDetail_button_quickCompare">
+        <value>Schnellvergleich</value>
+    </data>
+    <data name="Ui_btn_tt_UpdateFrmEtro">
+        <value>"{0}" von etro.gg aktualisieren</value>
+    </data>
+    <data name="AutoCreatedGroupName">
+        <value>Automatisch erstellt</value>
+    </data>
+    <data name="Ui_text_emptyPlayer">
+        <value>Kein Spieler</value>
+    </data>
+    <data name="LootRule_Need">
+        <value>Bedarf vor Gier</value>
+    </data>
+    <data name="Config_hdg_Examples">
+        <value>Beispiele</value>
+    </data>
+    <data name="ConfigUi_tab_Appearance" xml:space="preserve">
+        <value>Aussehen</value>
+    </data>
+    <data name="LootSessionUi_resultTable_Col_Pos">
+        <value>Pos</value>
+    </data>
+    <data name="LootSession_heading_results" xml:space="preserve">
+        <value>Ergebnisse für {0} ({1})</value>
+    </data>
+    <data name="LootUI_Results_Rule">
+        <value>Regel</value>
+    </data>
+    <data name="LootUi_Results_hdg_NeededItems">
+        <value>Benötigte Items</value>
+    </data>
+    <data name="PlayerDetailsUi_Title">
+        <value>Spieler Details für {0}</value>
+    </data>
+    <data name="Ui_btn_tt_PlayerDetails">
+        <value>Spielerdetails anzeigen für</value>
+    </data>
+    <data name="Ui_btn_addPlayerFromTarget_tt" xml:space="preserve">
+        <value>Mit Daten des Ziels ({0}) füllen</value>
+    </data>
+    <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
+        <value>Zusätzliche Ausrüstung</value>
+    </data>
+    <data name="Ui_tt_Dmgper100">
+        <value>Durchschnittlicher Schaden mit einer 100 Potenz Fähigkeiten angepasst für schnellere
+            GCDs
+        </value>
+    </data>
+    <data name="Ui_btn_newGroupAutomatic" xml:space="preserve">
+        <value>Aus der aktuellen Gruppe</value>
+    </data>
+    <data name="Ui_btn_newGroupManual" xml:space="preserve">
+        <value>Von Grund auf</value>
+    </data>
+</root>

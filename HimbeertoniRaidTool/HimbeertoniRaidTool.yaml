@@ -3,19 +3,14 @@ name: Himbeertoni Raid Tool
 punchline: All you need for Raiding
 description: A collection of useful tools for raid groups, including loot management
 tags:
-    - Raid
-    - Loot
-    - Equipment
-    - Gear
+- Raid
+- Loot
+- Equipment
+- Gear
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/wiki
 icon_url: https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png
 image_urls:
-    - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/loot_session.png
-    - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
-    - https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
-changelog: |-
-        Bis: Add support for relic weapons in etro.gg sets
-        Ui: Added ability to change relic stats when editing gear
-        General: You can now specify which types of jobs get automatically updated/created. If you want single jobs to not show up, you can hide these in character edit
-        Known issue: Stats for relic weapons are not correctly read from the Lodestone or Examine, but your manual edits will NOT be overwritten
+- https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/loot_session.png
+- https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
+- https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png

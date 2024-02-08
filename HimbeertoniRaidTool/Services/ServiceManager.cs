@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects;
+﻿using System.Diagnostics.CodeAnalysis;
+using Dalamud.Game.ClientState.Objects;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -10,21 +11,19 @@ using HimbeertoniRaidTool.Plugin.Modules.Core;
 #pragma warning disable CS8618
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal class ServiceManager
+
+internal static class ServiceManager
 {
-    private static bool _initialized = false;
-    [PluginService] public static IChatGui ChatGui { get; private set; }
-    [PluginService] public static IDataManager DataManager { get; private set; }
-    [PluginService] public static ITargetManager TargetManager { get; private set; }
-    [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; }
-    [PluginService] public static IClientState ClientState { get; private set; }
-    [PluginService] public static IObjectTable ObjectTable { get; private set; }
-    [PluginService] public static IPartyList PartyList { get; private set; }
-    [PluginService] public static ICondition Condition { get; private set; }
-    [PluginService] public static IPluginLog PluginLog { get; private set; }
-    [PluginService] private static IGameInteropProvider GameInteropProvider { get; set; }
-    [PluginService] private static ITextureProvider TextureProvider { get; set; }
-    [PluginService] private static IFramework Framework { get; set; }
+    private static bool _initialized;
+    public static IChatProvider Chat { get; private set; }
+    public static IDataManager DataManager => DalamudServices.DataManager;
+    public static ITargetManager TargetManager => DalamudServices.TargetManager;
+    public static DalamudPluginInterface PluginInterface => DalamudServices.PluginInterface;
+    public static IClientState ClientState => DalamudServices.ClientState;
+    public static IObjectTable ObjectTable => DalamudServices.ObjectTable;
+    public static IPartyList PartyList => DalamudServices.PartyList;
+    public static ICondition Condition => DalamudServices.Condition;
+    public static IPluginLog PluginLog { get; private set; }
     public static IconCache IconCache { get; private set; }
     public static HrtDataManager HrtDataManager { get; private set; }
     internal static TaskManager TaskManager { get; private set; }
@@ -36,19 +35,24 @@ internal class ServiceManager
     internal static ExamineGearDataProvider ExamineGearDataProvider { get; private set; }
     internal static OwnCharacterDataProvider OwnCharacterDataProvider { get; private set; }
 
+    private static DalamudServiceWrapper DalamudServices { get; set; }
+
     internal static bool Init(DalamudPluginInterface pluginInterface)
     {
         if (_initialized) return false;
         _initialized = true;
-        pluginInterface.Create<ServiceManager>();
-        Common.Services.ServiceManager.Init(DataManager.Excel);
-        IconCache = new IconCache(PluginInterface, DataManager, TextureProvider);
+        DalamudServices = pluginInterface.Create<DalamudServiceWrapper>()
+                        ?? throw new FailedToLoadException("Could not initialize Service Manager");
+        PluginLog = new LoggingProxy(DalamudServices.PluginLog);
+        Chat = new DalamudChatProxy(DalamudServices.ChatGui);
+        Common.Services.ServiceManager.Init(DataManager.Excel, pluginInterface.UiLanguage);
+        IconCache = new IconCache(PluginInterface, DataManager, DalamudServices.TextureProvider);
         HrtDataManager = new HrtDataManager(PluginInterface);
         TaskManager = new TaskManager();
         ConnectorPool = new ConnectorPool(TaskManager, PluginLog);
         CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList);
-        ExamineGearDataProvider = new ExamineGearDataProvider(GameInteropProvider);
-        OwnCharacterDataProvider = new OwnCharacterDataProvider(ClientState, Framework);
+        ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider);
+        OwnCharacterDataProvider = new OwnCharacterDataProvider(ClientState, DalamudServices.Framework);
         return HrtDataManager.Initialized;
     }
 
@@ -58,6 +62,24 @@ internal class ServiceManager
         OwnCharacterDataProvider.Dispose();
         TaskManager.Dispose();
         IconCache.Dispose();
+    }
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+    [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
+    private class DalamudServiceWrapper
+    {
+        [PluginService] public IChatGui ChatGui { get; set; }
+        [PluginService] public IDataManager DataManager { get; set; }
+        [PluginService] public ITargetManager TargetManager { get; set; }
+        [PluginService] public DalamudPluginInterface PluginInterface { get; set; }
+        [PluginService] public IClientState ClientState { get; set; }
+        [PluginService] public IObjectTable ObjectTable { get; set; }
+        [PluginService] public IPartyList PartyList { get; set; }
+        [PluginService] public ICondition Condition { get; set; }
+        [PluginService] public IPluginLog PluginLog { get; set; }
+        [PluginService] public IGameInteropProvider GameInteropProvider { get; set; }
+        [PluginService] public ITextureProvider TextureProvider { get; set; }
+        [PluginService] public IFramework Framework { get; set; }
     }
 }
 

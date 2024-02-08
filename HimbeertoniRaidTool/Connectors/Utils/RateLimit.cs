@@ -1,4 +1,4 @@
-﻿namespace HimbeertoniRaidTool.Plugin.Connectors;
+﻿namespace HimbeertoniRaidTool.Plugin.Connectors.Utils;
 public struct RateLimit
 {
     public RateLimit(int requests, TimeSpan time)

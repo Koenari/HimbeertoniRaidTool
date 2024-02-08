@@ -1,0 +1,90 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="WelcomeUi_text">
+        <value>Himbeertoni Raid Tool へようこそ。レイドグループを管理するあなたの仲間です。
+            チャットで「/lootmaster」（または「/lm」）と入力し、LootMasterを開いて旅を始めましょう（もしくは下のボタン）。既にあなたのキャラクターが追加されています。
+            次に、虫眼鏡アイコンを使用するか、右クリックでキャラクターを調べることで、現在の装備品を取得できます。
+            ゲーム内のキャラクターを調べるときに、GroupやSoloのタブに追加されたキャラクターの装備品を常に更新します。
+            この機能を実際に使用するには、Soloタブの右側にある「+ボタン」を使ってグループを追加する必要があります。これには2つの選択肢があります。
+            "新規作成"では、自分ですべてを入力することができます。また、"現在のグループを編集
+            "を選択することで、グループをパーティに集め（または次の集まりを待ち）、プラグインに自動で登録を任せることができます。ただし、グループ名とプレイヤーのニックネームを手動で設定する必要があります。"
+            もし、起動時に戦利品マスタを開くようにしたい場合は、オプションをざっと見てみることをお勧めします。より詳しい説明はwikiを参照してください
+            :)
+        </value>
+    </data>
+    <data name="WelcomeUi_Title">
+        <value>Himbeertoni Raid Tool へようこそ</value>
+    </data>
+    <data name="ConfigUi_cb_autoEtroUpdate">
+        <value>etro.ggから定期的にセットを更新</value>
+    </data>
+    <data name="ConfigUi_in_etroUpdateInterval">
+        <value>更新間隔 (日)</value>
+    </data>
+    <data name="ConfigUi_hdg_ui">
+        <value>UI</value>
+    </data>
+    <data name="ConfigUi_cb_tt_hideInCombat">
+        <value>キャラクターが戦闘時、すべてのウィンドウを非表示にする</value>
+    </data>
+    <data name="ConfigUi_cb_hideInCombat">
+        <value>戦闘中に隠す</value>
+    </data>
+    <data name="ConfigUi_in_autoSaveInterval">
+        <value>自動保存の間隔 (分)</value>
+    </data>
+    <data name="ConfigUi_hdg_AutoSave">
+        <value>自動保存</value>
+    </data>
+    <data name="ConfigUi_cb_periodicSave">
+        <value>定期的に保存する</value>
+    </data>
+    <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
+        <value>このプラグインのすべてのデータを定期的に保存します。（ゲームのクラッシュ時、データが失われないようにします）</value>
+    </data>
+    <data name="ConfigUi_Title" xml:space="preserve">
+        <value>全般</value>
+    </data>
+    <data name="WelcomeUi_btn_OpenLootMaster">
+        <value>LootMasterを開く</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_OpenLootMaster">
+        <value>LootMaster のメインウィンドウを開く (/lootmaster)</value>
+    </data>
+    <data name="WelcomeUi_btn_OpenOptions">
+        <value>オプションを開く</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_OpenOptions">
+        <value>設定オプションを表示 (/hrt config)</value>
+    </data>
+    <data name="Welcomeui_btn_openWiki">
+        <value>Wikiを開く</value>
+    </data>
+    <data name="Welcomeui_btn_tt_openWiki">
+        <value>Wikiをブラウザで開きますか?</value>
+    </data>
+    <data name="WelcomeUi_btn_close">
+        <value>閉じる</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_close">
+        <value>このウィンドウを閉じる</value>
+    </data>
+    <data name="ChangelogCategory_BiS" xml:space="preserve">
+        <value>最適装備</value>
+    </data>
+</root>

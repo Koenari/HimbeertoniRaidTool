@@ -1,0 +1,119 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="Command_hrt_options">
+        <value>Zeigt das Konfigurationsfenster an</value>
+    </data>
+    <data name="Command_hrt_help">
+        <value>Zeigt Informationen zur Nutzung im Chat</value>
+    </data>
+    <data name="Command_hrt_welcome">
+        <value>Begrüßungsfenster mit Erklärungen öffnen</value>
+    </data>
+    <data name="UiMessage_PeriodicSaveFailed">
+        <value>Speichern fehlgeschlagen</value>
+    </data>
+    <data name="UiMessage_PeriodicSaveSuccessful">
+        <value>Daten erfolgreich gespeichert</value>
+    </data>
+    <data name="WelcomeUi_text">
+        <value>Willkommen zum Himbeertoni Raid Tool. Dein Begleiter beim verwalten deiner Raid
+            Gruppe. Starte am besten, indem du den LootMaster öffnest, tippe dazu "/lootmaster"
+            (oder
+            "/lm") in den Chat oder nutze den Knopf unten. Dein Charakter ist dort schon für dich
+            angelegt. Du kannst deine aktuelle Ausrüstung automatisch aktualisieren, entweder über
+            den
+            "Lupen"-Knopf oder durch Untersuchen deines Charakters. Dieses Plugin aktualisiert
+            Ausrüstung automatisch für alle Charaktere, die Teil einer
+            Gruppe sind, wenn du diese untersuchst.Um wirklich Loszulegen füge deine Gruppe über den
+            "+"-Knopf hinzu. Du hast zwei
+            Möglichkeiten eine Gruppe anzulegen. Hierzu gibt es zwei Varianten. "Von Grund auf" legt
+            eine leere Gruppe an und lässt dich alles von Hand eintragen. Alternativ kannst du die
+            Gruppe automatisch anlegen lassen, hierzu musst du mit deinen Kameraden in einer Gruppe
+            sein und "Von der aktuellen Gruppe" auswählen. Danach solltest du nur noch die Namen der
+            Gruppe und Spieler anpassen müssen. Ich empfehle dir einen schnellen Blick in die
+            Optionen, um das Plugin an deine
+            Bedürfnisse anzupassen. Auch ein Blick auf das Wiki ist empfehlenswert, für
+            detailliertere Anweisungen :)
+        </value>
+    </data>
+    <data name="WelcomeUi_Title">
+        <value>Willkommen zum Himbeertoni Raid Tool</value>
+    </data>
+    <data name="ConfigUi_cb_autoEtroUpdate">
+        <value>Ausrüstungssets von etro.gg regelmäßig aktualisieren</value>
+    </data>
+    <data name="ConfigUi_in_etroUpdateInterval">
+        <value>Aktualisierungsintervall (in Tagen)</value>
+    </data>
+    <data name="ConfigUi_hdg_ui">
+        <value>Benutzeroberfläche</value>
+    </data>
+    <data name="ConfigUi_cb_tt_hideInCombat">
+        <value>Blendet alle Fenster aus, wenn der Charakter sich im Kampf befindet</value>
+    </data>
+    <data name="ConfigUi_cb_hideInCombat">
+        <value>Im Kampf ausblenden</value>
+    </data>
+    <data name="ConfigUi_in_autoSaveInterval">
+        <value>Autospeicher-Intervall (min)</value>
+    </data>
+    <data name="ConfigUi_hdg_AutoSave">
+        <value>Automatisches Speichern</value>
+    </data>
+    <data name="ConfigUi_cb_periodicSave">
+        <value>Regelmäßig speichern</value>
+    </data>
+    <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
+        <value>Speichert alle Daten dieses Plugins regelmäßig. (Hilft den Datenverlust bei einem
+      Absturz deines Spiels zu verhindern)
+    </value>
+    </data>
+    <data name="ConfigUi_Title" xml:space="preserve">
+        <value>Allgemein</value>
+    </data>
+    <data name="WelcomeUi_btn_OpenLootMaster">
+        <value>LootMaster öffnen</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_OpenLootMaster">
+        <value>Öffnet das LootMaster Fenster (/lootmaster)</value>
+    </data>
+    <data name="WelcomeUi_btn_OpenOptions">
+        <value>Optionen öffnen</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_OpenOptions">
+        <value>Konfiguration öffnen (/hrt config)</value>
+    </data>
+    <data name="Chat_help_heading">
+        <value>Befehle für Himbeertoni Raid Tool:</value>
+    </data>
+    <data name="Welcomeui_btn_openWiki">
+        <value>Wiki öffnen</value>
+    </data>
+    <data name="Welcomeui_btn_tt_openWiki">
+        <value>Wiki im Standard Browser öffnen</value>
+    </data>
+    <data name="WelcomeUi_btn_close">
+        <value>Schließen</value>
+    </data>
+    <data name="WelcomeUi_btn_tt_close">
+        <value>Dieses Fenster schließen</value>
+    </data>
+    <data name="ChangelogCategory_BiS" xml:space="preserve">
+        <value>BiS</value>
+    </data>
+</root>

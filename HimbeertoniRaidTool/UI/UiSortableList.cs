@@ -1,22 +1,18 @@
 ﻿using Dalamud.Interface;
+using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-public class UiSortableList<T> where T : IDrawable
+public class UiSortableList<T> where T : IDrawable, IHrtDataType
 {
-    private readonly List<T> _possibilities;
     private readonly List<T> _currentList;
-    private int Length => _currentList.Count;
+    private readonly List<T> _possibilities;
 
     /// <summary>
-    /// Get a copy of the current state of the list.
-    /// </summary>
-    public IReadOnlyList<T> List => _currentList;
-
-    /// <summary>
-    /// Class <c>UiSortableList</c> represents an Ui Element to edit a list and ensures all entries are unique.
+    ///     Class <c>UiSortableList</c> represents an Ui Element to edit a list and ensures all entries are
+    ///     unique.
     /// </summary>
     /// <param name="possibilities">A List of all possible entries</param>
     /// <param name="inList">An (incomplete) list of entries used as initial state</param>
@@ -26,9 +22,15 @@ public class UiSortableList<T> where T : IDrawable
         _currentList = inList;
         ConsolidateList();
     }
+    private int Length => _currentList.Count;
 
     /// <summary>
-    /// Draws Ui for Editing this list using ImGui. Should be called inside of an ImGui Frame.
+    ///     Get a copy of the current state of the list.
+    /// </summary>
+    public IReadOnlyList<T> List => _currentList;
+
+    /// <summary>
+    ///     Draws Ui for Editing this list using ImGui. Should be called inside of an ImGui Frame.
     /// </summary>
     public bool Draw()
     {
@@ -36,26 +38,29 @@ public class UiSortableList<T> where T : IDrawable
         int id = 0;
         for (int i = 0; i < _currentList.Count; i++)
         {
+            T currentItem = _currentList[i];
             ImGui.PushID(id);
-            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "up", Localize("ui:sortable_list:move_up", "Move up"),
-                    i > 0))
+            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##up",
+                                   string.Format(GeneralLoc.SortableList_btn_tt_moveUp, currentItem.DataTypeName),
+                                   i > 0))
             {
                 (_currentList[i - 1], _currentList[i]) = (_currentList[i], _currentList[i - 1]);
                 changed = true;
             }
 
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "down",
-                    Localize("ui:sortable_list:move_down", "Move down"),
-                    i < _currentList.Count - 1))
+            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "##down",
+                                   string.Format(GeneralLoc.SortableList_btn_tt_moveDown, currentItem.DataTypeName),
+                                   i < _currentList.Count - 1))
             {
                 (_currentList[i], _currentList[i + 1]) = (_currentList[i + 1], _currentList[i]);
                 changed = true;
             }
 
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "delete",
-                    Localize("ui:sortable_list:remove", "Remove entry")))
+            if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "##delete",
+                                   string.Format(GeneralLoc.General_btn_tt_delete, currentItem.DataTypeName,
+                                                 currentItem.Name)))
             {
                 _currentList.RemoveAt(i);
                 changed = true;
@@ -70,14 +75,15 @@ public class UiSortableList<T> where T : IDrawable
         }
 
         if (_currentList.Count < _possibilities.Count)
-            if (ImGui.BeginCombo($"{Localize("ui:sortable_list::add", "Add entry")}#add",
-                    Localize("ui:sortable_list::add", "Add entry")))
+            if (ImGui.BeginCombo(
+                    $"{string.Format(GeneralLoc.Ui_btn_tt_add, _possibilities.First().DataTypeName)}#add",
+                    string.Format(GeneralLoc.Ui_btn_tt_add, _possibilities.First().DataTypeName)))
             {
-                foreach (T unused in _possibilities)
+                foreach (T unused in _possibilities.Where(item => !_currentList.Contains(item)))
                 {
-                    if (_currentList.Contains(unused))
-                        continue;
-                    if (ImGui.Selectable(unused.ToString())) _currentList.Add(unused);
+                    if (ImGui.Selectable(unused.ToString()))
+                        _currentList.Add(unused);
+                    changed = true;
                 }
 
                 ImGui.EndCombo();
@@ -88,17 +94,14 @@ public class UiSortableList<T> where T : IDrawable
 
     private void ConsolidateList()
     {
-        List<T> used = new();
+        HashSet<T> used = new();
         for (int i = 0; i < _currentList.Count; i++)
         {
-            if (used.Contains(_currentList[i]))
-            {
-                _currentList.RemoveAt(i);
-                i--;
+            if (used.Add(_currentList[i]))
                 continue;
-            }
+            _currentList.RemoveAt(i);
+            i--;
 
-            used.Add(_currentList[i]);
         }
     }
 }

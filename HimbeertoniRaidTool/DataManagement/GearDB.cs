@@ -1,11 +1,12 @@
-﻿using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Common.Security;
-using HimbeertoniRaidTool.Plugin.UI;
-using Newtonsoft.Json;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Dalamud.Interface;
+using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Plugin.Localization;
+using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
+using Newtonsoft.Json;
 using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
@@ -14,11 +15,12 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
 {
     private readonly Dictionary<string, HrtId> _etroLookup = new();
 
-    internal GearDb(IIdProvider idProvider, string gearData, JsonSerializerSettings settings) : base(idProvider, gearData, null, settings)
+    internal GearDb(IIdProvider idProvider, string gearData, JsonSerializerSettings settings) : base(
+        idProvider, gearData, null, settings)
     {
         if (LoadError)
             return;
-        foreach ((HrtId id,GearSet set) in Data)
+        foreach ((HrtId id, GearSet set) in Data)
         {
             if (set.ManagedBy == GearSetManager.Etro)
                 _etroLookup.TryAdd(set.EtroId, id);
@@ -42,23 +44,27 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
     }
     public override void FixEntries()
     {
-        foreach (GearSet dataValue in Data.Values.Where(dataValue => dataValue is { ManagedBy: GearSetManager.Etro, EtroId: "" }))
+        foreach (GearSet dataValue in Data.Values.Where(dataValue =>
+                                                            dataValue is
+                                                                { ManagedBy: GearSetManager.Etro, EtroId: "" }))
         {
             dataValue.ManagedBy = GearSetManager.Hrt;
         }
     }
 
-    public override HashSet<HrtId> GetReferencedIds() => new (Data.Keys);
-    public override HrtWindow OpenSearchWindow(Action<GearSet> onSelect, Action? onCancel = null) => new GearSearchWindow(this,onSelect,onCancel);
+    public override HashSet<HrtId> GetReferencedIds() => new(Data.Keys);
+    public override HrtWindow OpenSearchWindow(Action<GearSet> onSelect, Action? onCancel = null) =>
+        new GearSearchWindow(this, onSelect, onCancel);
 
     private class GearSearchWindow : SearchWindow<GearSet, GearDb>
     {
-        private string _name = string.Empty;
+        private int _iLvlMax;
+        private int _iLvlMin;
         private Job _job = Job.ADV;
-        private int _iLvlMin = 0;
-        private int _iLvlMax = 0;
+        private string _name = string.Empty;
 
-        public GearSearchWindow(GearDb dataBase,Action<GearSet> onSelect, Action? onCancel) : base(dataBase,onSelect, onCancel)
+        public GearSearchWindow(GearDb dataBase, Action<GearSet> onSelect, Action? onCancel) : base(
+            dataBase, onSelect, onCancel)
         {
             Size = new Vector2(500, 400);
             SizeCondition = ImGuiCond.Appearing;
@@ -69,35 +75,38 @@ internal class GearDb : DataBaseTable<GearSet, GearSet>
             /*
              * Selection
              */
-            ImGui.Text(Localization.Localize("GearDB:Search:Name", "Name"));
+            ImGui.Text(GeneralLoc.CommonTerms_Name);
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(150*ScaleFactor);
+            ImGui.SetNextItemWidth(150 * ScaleFactor);
             ImGui.InputText("##Name", ref _name, 50);
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(55*ScaleFactor);
+            ImGui.SetNextItemWidth(55 * ScaleFactor);
             ImGuiHelper.Combo("##Job", ref _job);
             ImGui.SameLine();
-            ImGui.Text(Localization.Localize("GearDB:Search:iLvl","iLvl range:"));
+            ImGui.Text(LootmasterLoc.GearSetSearchWindow_iLvlRange);
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(50*ScaleFactor);
-            ImGui.InputInt("##minLvl", ref _iLvlMin,0);
+            ImGui.SetNextItemWidth(50 * ScaleFactor);
+            ImGui.InputInt("##minLvl", ref _iLvlMin, 0);
             ImGui.SameLine();
             ImGui.Text("-");
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(50*ScaleFactor);
-            ImGui.InputInt("##maxLvl", ref _iLvlMax,0);
+            ImGui.SetNextItemWidth(50 * ScaleFactor);
+            ImGui.InputInt("##maxLvl", ref _iLvlMax, 0);
             /*
              * List
              */
             foreach (GearSet gearSet in Database.Data.Values.Where(set =>
-                         (_job == Job.ADV || set[GearSetSlot.MainHand].Jobs.Contains(_job))
-                         && (_iLvlMin == 0 || set.ItemLevel > _iLvlMin)
-                         && (_iLvlMax == 0 || set.ItemLevel < _iLvlMax)
-                         && (_name.Length == 0 || set.Name.Contains(_name))))
+                                                                       (_job == Job.ADV || set[GearSetSlot.MainHand]
+                                                                           .Jobs.Contains(_job))
+                                                                    && (_iLvlMin == 0 || set.ItemLevel > _iLvlMin)
+                                                                    && (_iLvlMax == 0 || set.ItemLevel < _iLvlMax)
+                                                                    && (_name.Length == 0 || set.Name.Contains(_name))))
             {
-                ImGuiHelper.Button(FontAwesomeIcon.Check,$"{gearSet.LocalId}",Localization.Localize("GearDB:Search:Select","Select gearset"));
+                ImGuiHelper.Button(FontAwesomeIcon.Check, $"{gearSet.LocalId}",
+                                   LootmasterLoc.GearSetSearchWindow_button_Select);
                 ImGui.SameLine();
-                ImGui.Text($"{gearSet.Name} ({gearSet.ItemLevel}) {(gearSet.ManagedBy==GearSetManager.Etro?" from Etro":"")}");
+                ImGui.Text(
+                    $"{gearSet.Name} ({gearSet.ItemLevel}) {(gearSet.ManagedBy == GearSetManager.Etro ? " from Etro" : "")}");
                 Save();
             }
         }

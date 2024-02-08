@@ -1,0 +1,406 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <!-- 
+        Microsoft ResX Schema
+
+        Version 1.3
+
+        The primary goals of this format is to allow a simple XML format 
+        that is mostly human readable. The generation and parsing of the 
+        various data types are done through the TypeConverter classes 
+        associated with the data types.
+
+        Example:
+
+        ... ado.net/XML headers & schema ...
+        <resheader name="resmimetype">text/microsoft-resx</resheader>
+        <resheader name="version">1.3</resheader>
+        <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+        <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+        <data name="Name1">this is my long string</data>
+        <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+        <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+            [base64 mime encoded serialized .NET Framework object]
+        </data>
+        <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+            [base64 mime encoded string representing a byte array form of the .NET Framework object]
+        </data>
+
+        There are any number of "resheader" rows that contain simple 
+        name/value pairs.
+
+        Each data row contains a name, and value. The row also contains a 
+        type or mimetype. Type corresponds to a .NET class that support 
+        text/value conversion through the TypeConverter architecture. 
+        Classes that don't support this are serialized and stored with the 
+        mimetype set.
+
+        The mimetype is used for serialized objects, and tells the 
+        ResXResourceReader how to depersist the object. This is currently not 
+        extensible. For a given mimetype the value must be set accordingly:
+
+        Note - application/x-microsoft.net.object.binary.base64 is the format 
+        that the ResXResourceWriter will generate, however the reader can 
+        read any of the formats listed below.
+
+        mimetype: application/x-microsoft.net.object.binary.base64
+        value   : The object must be serialized with 
+            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+        mimetype: application/x-microsoft.net.object.soap.base64
+        value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+        mimetype: application/x-microsoft.net.object.bytearray.base64
+        value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+                xmlns="">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            <xsd:complexType>
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="ConfigUi_cb_ColoredItemNames">
+        <value>Color items by item level</value>
+    </data>
+    <data name="Configui_hdg_Colors">
+        <value>Configured colors</value>
+    </data>
+    <data name="ConfigUi_cb_IconInGroupOverview">
+        <value>Show item icon in group overview</value>
+    </data>
+    <data name="Config_cb_IgnoreMateriaForBis">
+        <value>Ignore Materia</value>
+    </data>
+    <data name="ConfigUi_cb_tt_IgnoreMateriaForBis">
+        <value>Ignore Materia when determining if an item is equivalent to BiS</value>
+    </data>
+    <data name="ConfigUi_txt_ItemFormatAvailable">
+        <value>Available options</value>
+    </data>
+    <data name="Configui_in_ItemFormat">
+        <value>Item format</value>
+    </data>
+    <data name="LootSession_text_rolePriorityHint">
+        <value>Changes made here only affect this loot session</value>
+    </data>
+    <data name="LootCategory_Greed">
+        <value>Greed</value>
+    </data>
+    <data name="LootSessionUi_Title">
+        <value>Loot session for {0}</value>
+    </data>
+    <data name="LootRule_Greed">
+        <value>Greed</value>
+    </data>
+    <data name="command_lootmaster">
+        <value>Opens LootMaster Window (or /lm as short variant)</value>
+    </data>
+    <data name="LootRule_ByRole">
+        <value>Prioritize by role</value>
+    </data>
+    <data name="LootRule_BISOverUpgrade">
+        <value>BIS &gt; Upgrade</value>
+    </data>
+    <data name="ConfigUi_hdg_RolePriority">
+        <value>Priority to loot for each role (smaller is higher priority)</value>
+    </data>
+    <data name="ConfigUi_txt_currentPrio">
+        <value>Current priority</value>
+    </data>
+    <data name="Ui_btn_tt_inventory">
+        <value>Open inventory window</value>
+    </data>
+    <data name="Ui_btn_tt_quickCompare">
+        <value>Quickly compare gear</value>
+    </data>
+    <data name="LootCategory_Need">
+        <value>Need</value>
+    </data>
+    <data name="LootCategory_Pass">
+        <value>Pass</value>
+    </data>
+    <data name="LootCategory_Undecided">
+        <value>Undecided</value>
+    </data>
+    <data name="ui_btn_tt_showConfig">
+        <value>Open Configuration</value>
+    </data>
+    <data name="ConfigUi_cb_tt_ColoredItemNames">
+        <value>Color items according to the item level</value>
+    </data>
+    <data name="Configui_cb_OpenOnLogin">
+        <value>Open group overview on login</value>
+    </data>
+    <data name="Configui_in_tt_OpenOnLogin">
+        <value>Opens group overview window when you log in</value>
+    </data>
+    <data name="Ui_Title">
+        <value>Loot Master</value>
+    </data>
+    <data name="LootUi_Results_GreedOnly">
+        <value>Greed only</value>
+    </data>
+    <data name="LootUi_results_btn_tt_Award">
+        <value>Award to player</value>
+    </data>
+    <data name="LootUi_Results_ItemAwardedTo">
+        <value>awarded to</value>
+    </data>
+    <data name="LootUi_Results_btn_tt_Abort">
+        <value>Abort distribution to change loot or rules</value>
+    </data>
+    <data name="LootUi_Results_btn_Abort">
+        <value>Abort</value>
+    </data>
+    <data name="LootUi_Results_PossibleItems">
+        <value>Items to distribute</value>
+    </data>
+    <data name="LootUi_Results_PlayerWonOver">
+        <value>over</value>
+    </data>
+    <data name="LootUi_Results_PlayerWon">
+        <value>won</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed">
+        <value>Award to all</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed:Tooltip">
+        <value>Award 1 to each player</value>
+    </data>
+    <data name="LootUi_Results_hdg_GuaranteedItems">
+        <value>Guaranteed Items (per player)</value>
+    </data>
+    <data name="LootSession_State_STARTED">
+        <value>Choosing Loot</value>
+    </data>
+    <data name="LootSessionUi_btn_Calc">
+        <value>Calculate</value>
+    </data>
+    <data name="LootSessionUi_btn_tt_Calc">
+        <value>Calculates results of loot distribution according to the rules and current equipment
+            of players
+            Locks the loot selection
+        </value>
+    </data>
+    <data name="LootSessionUi_btn_tt_Rules">
+        <value>Override ruling options</value>
+    </data>
+    <data name="LootSession_State_DISTRIBUTION_STARTED">
+        <value>Distribution started</value>
+    </data>
+    <data name="ConfigUi_hdg_LootRuleOrder">
+        <value>Order in which loot rules should be applied</value>
+    </data>
+    <data name="LootSession_State_LOOT_CHOSEN">
+        <value>Loot locked</value>
+    </data>
+    <data name="LootRule_CanBuy">
+        <value>Can buy</value>
+    </data>
+    <data name="LootRule_CanUse">
+        <value>Can use now</value>
+    </data>
+    <data name="LootsessionUi_txt_state">
+        <value>Current State</value>
+    </data>
+    <data name="LootRule_draw_cb_tt_ignore_bis">
+        <value>Ignore players/jobs not using this in BiS</value>
+    </data>
+    <data name="LootRule_draw_cb_tt_ignore_canBuy">
+        <value>Ignore players/jobs that could buy these</value>
+    </data>
+    <data name="LootRule_draw_cb_tt_ignore_canUse">
+        <value>Ignore players/jobs not able to use</value>
+    </data>
+    <data name="LootRule_draw_cb_tt_ignore_needGreed">
+        <value>Ignore players that have no need</value>
+    </data>
+    <data name="LootSession_State_FINISHED">
+        <value>Finished</value>
+    </data>
+    <data name="CurrentGear">
+        <value>Current</value>
+    </data>
+    <data name="QuickCompare_StatGain">
+        <value>Gain</value>
+    </data>
+    <data name="QuickCompareUi_hdg_NewGear">
+        <value>New Gear</value>
+    </data>
+    <data name="QuickCompareUi_Title" xml:space="preserve">
+        <value>Compare</value>
+    </data>
+    <data name="LootSession_text_rolePriority">
+        <value>Role priority</value>
+    </data>
+    <data name="LootSession_heading_results" xml:space="preserve">
+        <value>Results for {0} ({1})</value>
+        <comment>{0} fight {1} group</comment>
+    </data>
+    <data name="GearSetSelect_Add_new" xml:space="preserve">
+        <value>+ Add new</value>
+    </data>
+    <data name="GearSetSelect_AddFromDB" xml:space="preserve">
+        <value>+ Search known sets</value>
+    </data>
+    <data name="StatTable_MainStats_Title">
+        <value>Main Stats</value>
+    </data>
+    <data name="StatTable_SecondaryStats_Title">
+        <value>Secondary Stats</value>
+    </data>
+    <data name="GearSetSearchWindow_iLvlRange" xml:space="preserve">
+        <value>iLvl range:</value>
+    </data>
+    <data name="GearSetSearchWindow_button_Select" xml:space="preserve">
+        <value>Select gearset</value>
+    </data>
+    <data name="LootRule_Draw_cb_tt_active">
+        <value>Activated</value>
+    </data>
+    <data name="LootRule_draw_cb_ignore">
+        <value>Ignore</value>
+    </data>
+    <data name="LootRule_LowestItemLevel">
+        <value>Lowest overall ItemLevel</value>
+    </data>
+    <data name="LootRule_HighestItemLevelGain">
+        <value>Highest ItemLevel Gain</value>
+    </data>
+    <data name="LootRule_DPSGain">
+        <value>% DPS gained</value>
+    </data>
+    <data name="LootRule_Rolling">
+        <value>Rolling</value>
+    </data>
+    <data name="PlayerDetail_button_quickCompare">
+        <value>Quick compare</value>
+    </data>
+    <data name="Ui_btn_tt_UpdateFrmEtro">
+        <value>Update "{0}" from Etro.gg</value>
+    </data>
+    <data name="Ui_btn_newGroupAutomatic" xml:space="preserve">
+        <value>From current Group</value>
+    </data>
+    <data name="AutoCreatedGroupName">
+        <value>Auto Created</value>
+    </data>
+    <data name="Ui_btn_newGroupManual" xml:space="preserve">
+        <value>From scratch</value>
+    </data>
+    <data name="Ui_txt_noJobs" xml:space="preserve">
+        <value>No jobs created</value>
+    </data>
+    <data name="Ui_btn_tt_etroUpdate" xml:space="preserve">
+        <value>Update {0} ({1}) from etro</value>
+        <comment>{0} name {1} etroId</comment>
+    </data>
+    <data name="InventoryUi_Title" xml:space="preserve">
+        <value>{0}'s inventory</value>
+    </data>
+    <data name="Ui_text_emptyPlayer">
+        <value>No Player</value>
+    </data>
+    <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
+        <value>Additional Gear</value>
+    </data>
+    <data name="Ui_btn_addPlayerFromTarget_tt" xml:space="preserve">
+        <value>Fill with target ({0}) data</value>
+    </data>
+    <data name="Ui_text_openLootSessioon" xml:space="preserve">
+        <value>Distribute loot for:</value>
+    </data>
+    <data name="LootRule_Need">
+        <value>Need over Greed</value>
+    </data>
+    <data name="Config_hdg_Examples">
+        <value>Examples</value>
+    </data>
+    <data name="Ui_MainTable_Col_Sort" xml:space="preserve">
+        <value>Sort</value>
+    </data>
+    <data name="Ui_MainTable_Col_Player" xml:space="preserve">
+        <value>Player</value>
+    </data>
+    <data name="ConfigUi_tab_Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+    <data name="chat_usage_heading" xml:space="preserve">
+        <value>Commands used for Loot Master:</value>
+    </data>
+    <data name="LootSessionUi_resultTable_Col_Pos">
+        <value>Pos</value>
+    </data>
+    <data name="LootUI_Results_Rule">
+        <value>Rule</value>
+    </data>
+    <data name="LootUi_Results_hdg_NeededItems">
+        <value>Needed items</value>
+    </data>
+    <data name="PlayerDetailsUi_Title">
+        <value>Player Details for {0}</value>
+    </data>
+    <data name="Ui_btn_tt_PlayerDetails">
+        <value>Show player details for</value>
+    </data>
+    <data name="LootRule_DataTypeName" xml:space="preserve">
+        <value>loot rule</value>
+    </data>
+    <data name="Ui_tt_Dmgper100">
+        <value>Average Dmg with a 100 potency skill adjusted for faster GCDs</value>
+    </data>
+    <data name="command_show_helpText" xml:space="preserve">
+        <value>Opens Lootmaster window</value>
+    </data>
+    <data name="command_toggle_helpText" xml:space="preserve">
+        <value>Toggles Lootmaster window</value>
+    </data>
+</root>

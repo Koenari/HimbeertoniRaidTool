@@ -3,6 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dalamud;
 using HimbeertoniRaidTool.Common.Data;
+using HimbeertoniRaidTool.Plugin.Connectors.Utils;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
@@ -11,7 +13,6 @@ using NetStone.Model.Parseables.Character;
 using NetStone.Model.Parseables.Character.Gear;
 using NetStone.Model.Parseables.Search.Character;
 using NetStone.Search.Character;
-using static HimbeertoniRaidTool.Plugin.Services.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
@@ -49,19 +50,14 @@ internal class LodestoneConnector : NetStoneBase
         {
             LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
             if (lodestoneCharacter == null)
-                return new HrtUiMessage(
-                    Localize("LodestoneConnector:CharNotFound", "Character not found on Lodestone."),
-                    HrtUiMessageType.Failure);
+                return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_CharNotFound, HrtUiMessageType.Failure);
             Job? foundJob;
             if (lodestoneCharacter.Gear.Soulcrystal != null)
                 foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Soulcrystal.ItemName, out isHq)?.ClassJobUse.Row;
             else
                 foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand?.ItemName, out isHq)?.ClassJobUse.Row;
             if (foundJob == null || !Enum.IsDefined(typeof(Job), foundJob))
-                return new HrtUiMessage(
-                    Localize("LodestoneConnector:JobIncompatible",
-                        "Could not resolve currently used job or currently displayed job on " +
-                        "Lodestone is not supported."), HrtUiMessageType.Failure);
+                return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_JobIncompatible, HrtUiMessageType.Failure);
 
             PlayableClass? classToChange = p.MainChar[foundJob.Value];
             if (classToChange == null)
@@ -71,9 +67,8 @@ internal class LodestoneConnector : NetStoneBase
                 hasError |= !ServiceManager.HrtDataManager.GearDb.TryAdd(classToChange.CurGear);
                 hasError |= !ServiceManager.HrtDataManager.GearDb.TryAdd(classToChange.CurBis);
                 if (hasError)
-                    return new HrtUiMessage(
-                        Localize("LodestoneConnector:FailedToCreateGear", "Could not create new gear set."),
-                        HrtUiMessageType.Failure);
+                    return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_FailedToCreateGear,
+                                            HrtUiMessageType.Failure);
             }
 
             classToChange.Level = lodestoneCharacter.ActiveClassJobLevel;
@@ -114,7 +109,7 @@ internal class LodestoneConnector : NetStoneBase
 
                 uint gearId = itemEntry.RowId;
                 //ToDO: parse relic stats, until then skip relics already present
-                if(classToChange.CurGear[slot].IsRelic() && classToChange.CurGear[slot].Id == gearId) return;
+                if (classToChange.CurGear[slot].IsRelic() && classToChange.CurGear[slot].Id == gearId) return;
                 classToChange.CurGear[slot] = new GearItem(gearId)
                 {
                     IsHq = isHq,
@@ -124,29 +119,29 @@ internal class LodestoneConnector : NetStoneBase
                     if (string.IsNullOrEmpty(materia))
                         return;
                     uint? materiaCategoryId = _materiaSheet?.FirstOrDefault(el =>
-                        Array.Exists(el.Item, item => item.Value?.Name.RawString == materia))?.RowId;
+                                                                                Array.Exists(
+                                                                                    el.Item,
+                                                                                    item => item.Value?.Name.RawString
+                                                                                     == materia))?.RowId;
                     if (materiaCategoryId == null)
                         continue;
                     var materiaCategory = (MateriaCategory)materiaCategoryId;
                     MateriaLevel materiaLevel =
                         TranslateMateriaLevel(materia.Remove(0, materia.LastIndexOf(" ", StringComparison.Ordinal))
-                            .Trim());
+                                                     .Trim());
 
                     classToChange.CurGear[slot].AddMateria(new HrtMateria(materiaCategory, materiaLevel));
                 }
             }
 
             return new HrtUiMessage(
-                string.Format(
-                    Localize("LodestoneConnector:Success", "Updated {0}'s {1} gear from Lodestone."),
-                    p.MainChar.Name, classToChange.Job),
+                string.Format(GeneralLoc.LodestoneConnector_msg_Success, p.MainChar.Name, classToChange.Job),
                 HrtUiMessageType.Success);
         }
         catch (Exception e)
         {
             ServiceManager.PluginLog.Error(e, "Error in Lodestone Gear fetch");
-            return new HrtUiMessage(Localize("LodestoneConnector:Failure", "Could not update gear from Lodestone."),
-                HrtUiMessageType.Error);
+            return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_GeneralFailure, HrtUiMessageType.Error);
         }
     }
 
@@ -168,11 +163,12 @@ internal class LodestoneConnector : NetStoneBase
         }
 
         return _itemSheet!.FirstOrDefault(item => item.Name.RawString.Equals(
-            name, StringComparison.InvariantCultureIgnoreCase));
+                                              name, StringComparison.InvariantCultureIgnoreCase));
     }
 
     /// <summary>
-    ///     Translate the last part of a Materia name (i.e the "X" in "Savage Might Materia X") into a the Materia level.
+    ///     Translate the last part of a Materia name (i.e the "X" in "Savage Might Materia X") into a the
+    ///     Materia level.
     ///     We subtract 1 because materia levels start at 0 internally.
     /// </summary>
     /// <param name="numeral">The numeral to be translated.</param>
@@ -228,11 +224,14 @@ internal class NetStoneBase
     private void UpdateCache()
     {
         foreach (var req in _cachedRequests.Where(e => e.Value.time + _cacheTime < DateTime.Now))
+        {
             _cachedRequests.TryRemove(req.Key, out _);
+        }
     }
 
     /// <summary>
-    ///     Fetch a given character from lodestone either by it's name and home world or by it's lodestone id.
+    ///     Fetch a given character from lodestone either by it's name and home world or by it's lodestone
+    ///     id.
     ///     Returns null if no character by that id or name could be found.
     /// </summary>
     /// <param name="c">Character to be fetched.</param>
@@ -241,7 +240,9 @@ internal class NetStoneBase
     {
         UpdateCache();
         while (RateLimitHit() || _currentRequests.ContainsKey(c.Name))
+        {
             Thread.Sleep(1000);
+        }
         if (_cachedRequests.TryGetValue(c.Name, out (DateTime time, LodestoneCharacter response) result))
             return result.response;
 
@@ -288,18 +289,14 @@ internal class NetStoneBase
         }
     }
 
-    private bool RateLimitHit()
-    {
-        return _currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now) >
-               _rateLimit.MaxRequests;
-    }
+    private bool RateLimitHit() =>
+        _currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now) >
+        _rateLimit.MaxRequests;
 
     private static LodestoneClient GetLodestoneClient()
     {
-        var result = GetLodestoneClientAsync();
+        var result = LodestoneClient.GetClientAsync();
         result.Wait();
         return result.Result;
     }
-
-    private static async Task<LodestoneClient> GetLodestoneClientAsync() => await LodestoneClient.GetClientAsync();
 }

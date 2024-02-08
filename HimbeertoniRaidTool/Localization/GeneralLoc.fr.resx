@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <!-- 
+      Microsoft ResX Schema 
+      
+      Version 2.0
+      
+      The primary goals of this format is to allow a simple XML format 
+      that is mostly human readable. The generation and parsing of the 
+      various data types are done through the TypeConverter classes 
+      associated with the data types.
+      
+      Example:
+      
+      ... ado.net/XML headers & schema ...
+      <resheader name="resmimetype">text/microsoft-resx</resheader>
+      <resheader name="version">2.0</resheader>
+      <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+      <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+      <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+      <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+      <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+          <value>[base64 mime encoded serialized .NET Framework object]</value>
+      </data>
+      <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+          <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+          <comment>This is a comment</comment>
+      </data>
+                  
+      There are any number of "resheader" rows that contain simple 
+      name/value pairs.
+      
+      Each data row contains a name, and value. The row also contains a 
+      type or mimetype. Type corresponds to a .NET class that support 
+      text/value conversion through the TypeConverter architecture. 
+      Classes that don't support this are serialized and stored with the 
+      mimetype set.
+      
+      The mimetype is used for serialized objects, and tells the 
+      ResXResourceReader how to depersist the object. This is currently not 
+      extensible. For a given mimetype the value must be set accordingly:
+      
+      Note - application/x-microsoft.net.object.binary.base64 is the format 
+      that the ResXResourceWriter will generate, however the reader can 
+      read any of the formats listed below.
+      
+      mimetype: application/x-microsoft.net.object.binary.base64
+      value   : The object must be serialized with 
+              : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+              : and then encoded with base64 encoding.
+      
+      mimetype: application/x-microsoft.net.object.soap.base64
+      value   : The object must be serialized with 
+              : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+              : and then encoded with base64 encoding.
+  
+      mimetype: application/x-microsoft.net.object.bytearray.base64
+      value   : The object must be serialized into a byte array 
+              : using a System.ComponentModel.TypeConverter
+              : and then encoded with base64 encoding.
+      -->
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+                xmlns="">
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+        <xsd:element name="root" msdata:IsDataSet="true">
+            <xsd:complexType>
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="metadata">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="assembly">
+                        <xsd:complexType>
+                            <xsd:attribute name="alias" type="xsd:string"/>
+                            <xsd:attribute name="name" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"
+                                           msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>2.0</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="ConfigUi_Title">
+        <value>Configuration de HimbeerToni Raid Tool</value>
+    </data>
+    <data name="CommonTerms_Name">
+        <value>Nom</value>
+    </data>
+    <data name="EditPlayerUi_hdg_playerData">
+        <value>Données Joueur·se</value>
+    </data>
+    <data name="EditPlayerUi_hdg_characterData">
+        <value>Données Personnage</value>
+    </data>
+    <data name="EditCharUi_in_HomeWorld">
+        <value>Monde d'origine</value>
+    </data>
+    <data name="CommonTerms_Tribe">
+        <value>Tribu</value>
+    </data>
+    <data name="EditCharUi_hdg_JobData">
+        <value>Données des Jobs</value>
+    </data>
+    <data name="EditCharUi_in_mainJob">
+        <value>Job principal</value>
+    </data>
+    <data name="EditCharUi_text_noJobs">
+        <value>Le personnage n'a aucun job assigné</value>
+    </data>
+    <data name="CommonTerms_Level">
+        <value>Niveau</value>
+    </data>
+    <data name="EditGroupUi_in_type">
+        <value>Type du Groupe</value>
+    </data>
+    <data name="EditGroupUi_cb_OverrideRolePriority">
+        <value>Outrepasser la priorité de rôle</value>
+    </data>
+    <data name="SelectGearItemui_Title">
+        <value>Sélection d'un objet pour</value>
+    </data>
+    <data name="SelectItemUi_btn_tt_useThis">
+        <value>Choisir cet objet</value>
+    </data>
+    <data name="General_btn_tt_save">
+        <value>Sauvegarder</value>
+    </data>
+    <data name="Ui_btn_tt_cancel">
+        <value>Annuler</value>
+    </data>
+    <data name="Ui_btn_Inspect_tt">
+        <value>Mettre à jour l'équipement en examinant</value>
+    </data>
+    <data name="Ui_btn_tt_CharacterNotInReach">
+        <value>Le personnage n'est pas suffisamment à portée pour pouvoir l'examiner</value>
+    </data>
+    <data name="Ui_rightClickHint">
+        <value>clic droit pour plus d'options</value>
+    </data>
+    <data name="Ui_btn_tt_Lodestone">
+        <value>Télécharger l'équipement depuis le Lodestone</value>
+    </data>
+    <data name="LodestonConnetor_msg_UpdateStarted">
+        <value>Mise à jour de l'équipement initialisée pour</value>
+    </data>
+    <data name="EditGearSetUi_btn_tt_selectItem">
+        <value>Sélectionner un objet</value>
+    </data>
+    <data name="CommonTerms_Materia">
+        <value>Matéria</value>
+    </data>
+    <data name="SelectMateriaUi_Title">
+        <value>Sélectionner une matéria</value>
+    </data>
+    <data name="CommonTerms_undefined">
+        <value>non défini</value>
+    </data>
+    <data name="CommonTerms_Empty">
+        <value>Vide</value>
+    </data>
+    <data name="CommonTerms_Gear">
+        <value>équipement</value>
+    </data>
+    <data name="CommonTerms_BiS">
+        <value>BiS</value>
+    </data>
+    <data name="CommonTerms_NotAvail_Abbrev">
+        <value>N/A</value>
+    </data>
+    <data name="LodestoneConnector_err_CharNotFound">
+        <value>Personnage introuvable sur Lodestone.</value>
+    </data>
+    <data name="LodestoneConnector_err_JobIncompatible">
+        <value>Impossible de déterminer le job présentement utilisé, ou alors le job présentement
+            affiché sur le Lodestone n'est pas supporté.
+        </value>
+    </data>
+    <data name="LodestoneConnector_err_FailedToCreateGear">
+        <value>Impossible de créer une nouvelle tenue.</value>
+    </data>
+    <data name="LodestoneConnector_msg_Success">
+        <value>L'équipement {1} de {0} a été mis à jour via les informations du Lodestone.</value>
+    </data>
+    <data name="LodestoneConnector_err_GeneralFailure">
+        <value>Impossible de mettre à jour l'équipement depuis le Lodestone.</value>
+    </data>
+    <data name="GetCharacterWindow_Title" xml:space="preserve">
+        <value>Obtenir un personnage depuis la BDD</value>
+    </data>
+    <data name="ItemTable_heading_LootedIn" xml:space="preserve">
+        <value>Looté dans</value>
+    </data>
+    <data name="ItemTable_heading_iLvl" xml:space="preserve">
+        <value>Niveau d'objet</value>
+    </data>
+    <data name="ItemTable_heading_Header" xml:space="preserve">
+        <value>En-tête</value>
+    </data>
+    <data name="EditGearSetUi_txt_lastUpdate" xml:space="preserve">
+        <value>Dernière vérification de mise à jour: {0}</value>
+    </data>
+    <data name="Ui_btn_tt_addEmpty" xml:space="preserve">
+        <value>Ajoute un(e) {0} vide</value>
+    </data>
+</root>

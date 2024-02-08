@@ -5,7 +5,6 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Plugin.DataExtensions;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -50,9 +49,6 @@ internal class ExamineGearDataProvider : IGearDataProvider
     private unsafe byte OnExamineRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* loadingStage)
     {
         byte result = _hook!.Original(atkUnitBase, a2, loadingStage);
-        var agent = AgentInspect.Instance();
-        ServiceManager.PluginLog.Debug(
-            $"Examine Hook: ({a2},{loadingStage->UInt})\n\t Request: {agent->RequestObjectID:X8}\n\t Current: {agent->CurrentObjectID:X8}");
         if (loadingStage is null || a2 <= 0 || loadingStage->UInt != 3) return result;
         GetItemInfos();
         return result;
@@ -60,7 +56,6 @@ internal class ExamineGearDataProvider : IGearDataProvider
 
     private void GetItemInfos()
     {
-        ServiceManager.PluginLog.Debug("Examine opened");
         if (!_configuration.Enabled)
             return;
         uint objId;

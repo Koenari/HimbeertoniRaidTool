@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <!-- 
+      Microsoft ResX Schema 
+      
+      Version 2.0
+      
+      The primary goals of this format is to allow a simple XML format 
+      that is mostly human readable. The generation and parsing of the 
+      various data types are done through the TypeConverter classes 
+      associated with the data types.
+      
+      Example:
+      
+      ... ado.net/XML headers & schema ...
+      <resheader name="resmimetype">text/microsoft-resx</resheader>
+      <resheader name="version">2.0</resheader>
+      <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+      <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+      <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+      <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+      <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+          <value>[base64 mime encoded serialized .NET Framework object]</value>
+      </data>
+      <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+          <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+          <comment>This is a comment</comment>
+      </data>
+                  
+      There are any number of "resheader" rows that contain simple 
+      name/value pairs.
+      
+      Each data row contains a name, and value. The row also contains a 
+      type or mimetype. Type corresponds to a .NET class that support 
+      text/value conversion through the TypeConverter architecture. 
+      Classes that don't support this are serialized and stored with the 
+      mimetype set.
+      
+      The mimetype is used for serialized objects, and tells the 
+      ResXResourceReader how to depersist the object. This is currently not 
+      extensible. For a given mimetype the value must be set accordingly:
+      
+      Note - application/x-microsoft.net.object.binary.base64 is the format 
+      that the ResXResourceWriter will generate, however the reader can 
+      read any of the formats listed below.
+      
+      mimetype: application/x-microsoft.net.object.binary.base64
+      value   : The object must be serialized with 
+              : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+              : and then encoded with base64 encoding.
+      
+      mimetype: application/x-microsoft.net.object.soap.base64
+      value   : The object must be serialized with 
+              : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+              : and then encoded with base64 encoding.
+  
+      mimetype: application/x-microsoft.net.object.bytearray.base64
+      value   : The object must be serialized into a byte array 
+              : using a System.ComponentModel.TypeConverter
+              : and then encoded with base64 encoding.
+      -->
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+                xmlns="">
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+        <xsd:element name="root" msdata:IsDataSet="true">
+            <xsd:complexType>
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="metadata">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="assembly">
+                        <xsd:complexType>
+                            <xsd:attribute name="alias" type="xsd:string"/>
+                            <xsd:attribute name="name" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"
+                                           msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"
+                                             msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>2.0</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="ConfigUi_Title">
+        <value>HimbeerToni Raid Tool Configuration</value>
+    </data>
+    <data name="CommonTerms_Name">
+        <value>Name</value>
+    </data>
+    <data name="ItemTable_heading_source">
+        <value>Source</value>
+    </data>
+    <data name="EditPlayerUi_hdg_playerData">
+        <value>Player Data</value>
+    </data>
+    <data name="EditPlayerUi_hdg_characterData">
+        <value>Character Data</value>
+    </data>
+    <data name="EditCharUi_in_HomeWorld">
+        <value>Home World</value>
+    </data>
+    <data name="CommonTerms_Tribe">
+        <value>Tribe</value>
+    </data>
+    <data name="EditCharUi_hdg_JobData">
+        <value>Job Data</value>
+    </data>
+    <data name="EditCharUi_in_mainJob">
+        <value>Main Job</value>
+    </data>
+    <data name="EditCharUi_text_noJobs">
+        <value>Character does not have any classes created</value>
+    </data>
+    <data name="CommonTerms_Level">
+        <value>Level</value>
+    </data>
+    <data name="EditGroupUi_in_type">
+        <value>Group Type</value>
+    </data>
+    <data name="EditGroupUi_cb_OverrideRolePriority">
+        <value>Override role priority</value>
+    </data>
+    <data name="EditGearSetUi_Source">
+        <value>Source</value>
+    </data>
+    <data name="EditGearSetUi_btn_MakeLocal">
+        <value>Create local copy</value>
+    </data>
+    <data name="EditGearSetUi_btn_tt_MakeLocal">
+        <value>Create a copy of this set in the local database. Set will not be updated from etro.gg
+            afterwards
+            Only local Gear Sets can be edited
+        </value>
+    </data>
+    <data name="CommonTerms_EtroID">
+        <value>Etro ID</value>
+    </data>
+    <data name="EditUi_Txt_LocalId">
+        <value>Local ID</value>
+    </data>
+    <data name="SelectGearItemui_Title">
+        <value>Get item for</value>
+    </data>
+    <data name="SelectItemUi_btn_tt_useThis">
+        <value>Use this item</value>
+    </data>
+    <data name="General_btn_tt_save">
+        <value>Save</value>
+    </data>
+    <data name="Ui_btn_tt_cancel">
+        <value>Cancel</value>
+    </data>
+    <data name="Ui_btn_Inspect_tt">
+        <value>Update Gear by Examining</value>
+    </data>
+    <data name="Ui_btn_tt_CharacterNotInReach">
+        <value>Character is not in reach to examine</value>
+    </data>
+    <data name="Ui_rightClickHint">
+        <value>right click for more options</value>
+    </data>
+    <data name="Ui_btn_tt_Lodestone">
+        <value>Download Gear from Lodestone</value>
+    </data>
+    <data name="LodestonConnetor_msg_UpdateStarted">
+        <value>Started gear update for</value>
+    </data>
+    <data name="EditGearSetUi_btn_tt_selectItem">
+        <value>Select item</value>
+    </data>
+    <data name="General_btn_tt_remove">
+        <value>remove {0} {1}</value>
+        <comment>{0} type {1} name e.g. remove player toni</comment>
+    </data>
+    <data name="CommonTerms_Materia">
+        <value>Materia</value>
+    </data>
+    <data name="SelectMateriaUi_Title">
+        <value>Select materia</value>
+    </data>
+    <data name="SortableList_btn_tt_moveUp">
+        <value>Move {0} up</value>
+        <comment>{0} data type</comment>
+    </data>
+    <data name="SortableList_btn_tt_moveDown">
+        <value>Move {0} down</value>
+        <comment>{0} data type</comment>
+    </data>
+    <data name="CommonTerms_itemLvl_abbrev">
+        <value>iLvl</value>
+    </data>
+    <data name="CommonTerms_undefined">
+        <value>undefined</value>
+    </data>
+    <data name="CommonTerms_Empty">
+        <value>Empty</value>
+    </data>
+    <data name="General_btn_tt_edit">
+        <value>Edit {0} {1}</value>
+        <comment>{0} data type {1} name
+
+            e.g. Edit player Toni
+        </comment>
+    </data>
+    <data name="CommonTerms_Gear">
+        <value>gear</value>
+    </data>
+    <data name="CommonTerms_BiS">
+        <value>BiS</value>
+    </data>
+    <data name="CommonTerms_NotAvail_Abbrev">
+        <value>n.A.</value>
+    </data>
+    <data name="General_btn_tt_delete">
+        <value>Delete {0} {1}</value>
+        <comment>{0} type {1} name</comment>
+    </data>
+    <data name="Ui_btn_tt_add">
+        <value>Add {0}</value>
+        <comment>{0} data type e.g. Add player
+        </comment>
+    </data>
+    <data name="LodestoneConnector_err_CharNotFound">
+        <value>Character not found on Lodestone.</value>
+    </data>
+    <data name="LodestoneConnector_err_JobIncompatible">
+        <value>Could not resolve currently used job or currently displayed job on Lodestone is not
+            supported.
+        </value>
+    </data>
+    <data name="LodestoneConnector_err_FailedToCreateGear">
+        <value>Could not create new gear set.</value>
+    </data>
+    <data name="LodestoneConnector_msg_Success">
+        <value>Updated {0}'s {1} gear from Lodestone.</value>
+        <comment>{0} = character name {1} = Job abbreviation</comment>
+    </data>
+    <data name="LodestoneConnector_err_GeneralFailure">
+        <value>Could not update gear from Lodestone.</value>
+    </data>
+    <data name="DBSearchPlayerUi_txt_selected" xml:space="preserve">
+        <value>Currently selected</value>
+    </data>
+    <data name="CommonTerms_None" xml:space="preserve">
+        <value>None</value>
+    </data>
+    <data name="DBSearchPlayerUi_hdg_selectPlayer" xml:space="preserve">
+        <value>Select player</value>
+    </data>
+    <data name="EtroConnector_FillBisList_ErrorMessaeg" xml:space="preserve">
+        <value>Error fetching BiS list from etro.gg</value>
+    </data>
+    <data name="EtroConnector_FillBisList_Success" xml:space="preserve">
+        <value> Successfully loaded BiS list from etro.gg</value>
+    </data>
+    <data name="EtroConnector_FillMateriaCache_Error" xml:space="preserve">
+        <value>Error getting materia info from etro.gg</value>
+    </data>
+    <data name="EtroConnector_FillMateriaCache_Success" xml:space="preserve">
+        <value>Successfully fetched materia definitions from etro.gg</value>
+    </data>
+    <data name="EtroConnector_GetGearSet_Error" xml:space="preserve">
+        <value>Could not update set {0}</value>
+        <comment>{0} = Name of gear set</comment>
+    </data>
+    <data name="EtroConnector_GetGearSet_Success" xml:space="preserve">
+        <value> Update from Etro for {0} succeeded</value>
+        <comment>{0} = Name of gear set</comment>
+    </data>
+    <data name="EtroConnector_GetGearSet_RelicError" xml:space="preserve">
+        <value>Cannot handle relic item for slot: {0}</value>
+    </data>
+    <data name="EtroConnector_UpdateEtroSets_Finished" xml:space="preserve">
+        <value>Finished periodic etro Updates. ({0}/{1}) updated</value>
+        <comment>{0} = number updated {1} = total</comment>
+    </data>
+    <data name="GetCharacterWindow_Title" xml:space="preserve">
+        <value>Get character from DB</value>
+    </data>
+    <data name="EditCharUi_Title" xml:space="preserve">
+        <value>Edit character {0}</value>
+    </data>
+    <data name="EditPlayerUi_btn_tt_editChar" xml:space="preserve">
+        <value> Edit {0} @ {1}</value>
+        <comment>{0} Name {1} World</comment>
+    </data>
+    <data name="Ui_btn_tt_removeFrom" xml:space="preserve">
+        <value>remove {0} from {1}</value>
+        <comment>{0} to be removed {1} removed from</comment>
+    </data>
+    <data name="EditPlayerUi_btn_IsMain" xml:space="preserve">
+        <value>Is Main</value>
+    </data>
+    <data name="EditPlayerUi_btn_MakeMain" xml:space="preserve">
+        <value>Make Main</value>
+    </data>
+    <data name="EditCharUi_text_BisNotice" xml:space="preserve">
+        <value>BiS sets are now changed by editing the respective BiS set directly</value>
+    </data>
+    <data name="EditGearSetUi_Title" xml:space="preserve">
+        <value>Edit gear set {0}</value>
+    </data>
+    <data name="EditGearSetUi_text_getEtro" xml:space="preserve">
+        <value>Replace with set from etro</value>
+    </data>
+    <data name="EditGearSetUi_btn_CustomEtro" xml:space="preserve">
+        <value>Custom</value>
+    </data>
+    <data name="EditGearSetUi_btn_tt_CustomEtro" xml:space="preserve">
+        <value>Provide custom id</value>
+    </data>
+    <data name="EditGearSetUi_btn_tt_cutsomEtro" xml:space="preserve">
+        <value>Get</value>
+    </data>
+    <data name="EditGearSetUi_btn_tt_cutsomEtro_Get" xml:space="preserve">
+        <value>Download set</value>
+    </data>
+    <data name="Config_Error_Downgrade" xml:space="preserve">
+        <value>Tried loading a configuration from a newer version of the plugin
+To prevent data loss operation has been stopped.
+You need to update to use this plugin!</value>
+    </data>
+    <data name="CommonTerms_Unknown" xml:space="preserve">
+        <value>Unknown</value>
+    </data>
+    <data name="DrawItem_hdg_ShopCosts" xml:space="preserve">
+        <value>Shop costs</value>
+    </data>
+    <data name="ItemTable_heading_Header" xml:space="preserve">
+        <value>Header</value>
+    </data>
+    <data name="ItemTable_heading_name" xml:space="preserve">
+        <value>Name</value>
+    </data>
+    <data name="ItemTable_heading_iLvl" xml:space="preserve">
+        <value>Item Level</value>
+    </data>
+    <data name="ItemTable_heading_LootedIn" xml:space="preserve">
+        <value>Looted in</value>
+    </data>
+    <data name="EditGroupUi_Title" xml:space="preserve">
+        <value>Edit group {0}</value>
+    </data>
+    <data name="CommonTerms_Right_Abbrev" xml:space="preserve">
+        <value>R</value>
+    </data>
+    <data name="CommonTerms_Left_Abbrev" xml:space="preserve">
+        <value>L</value>
+    </data>
+    <data name="CommonTerms_Yes_Abbrev" xml:space="preserve">
+        <value>y</value>
+    </data>
+    <data name="CommonTerms_No_Abbrev" xml:space="preserve">
+        <value>n</value>
+    </data>
+    <data name="General_btn_tt_close" xml:space="preserve">
+        <value>Close</value>
+    </data>
+    <data name="Ui_GearEdit_btn_tt_selectMat" xml:space="preserve">
+        <value>Select materia</value>
+    </data>
+    <data name="EditGearSetUi_btn_openEtro" xml:space="preserve">
+        <value>Open set on etro.gg</value>
+    </data>
+    <data name="EditGearSetUi_txt_lastUpdate" xml:space="preserve">
+        <value>Last update check: {0}</value>
+    </data>
+    <data name="Gearset_Warning_SysManaged" xml:space="preserve">
+        <value>This set is manged by the plugin and will be automatically overwritten with characters current gear!</value>
+    </data>
+    <data name="EditGearSetUi_txt_Source" xml:space="preserve">
+        <value>Source</value>
+    </data>
+    <data name="EditGearSetUi_txt_LastChange" xml:space="preserve">
+        <value>Last Change: {0}</value>
+    </data>
+    <data name="EditCharUi_cb_hideJob" xml:space="preserve">
+        <value>Do not show this job</value>
+    </data>
+    <data name="Ui_GuardedButton_notice" xml:space="preserve">
+        <value>press shift to be able to click this button</value>
+    </data>
+    <data name="Ui_btn_tt_addEmpty" xml:space="preserve">
+        <value>Add empty {0}</value>
+    </data>
+    <data name="Ui_btn_tt_addExisting" xml:space="preserve">
+        <value>Add {0} from database</value>
+    </data>
+</root>

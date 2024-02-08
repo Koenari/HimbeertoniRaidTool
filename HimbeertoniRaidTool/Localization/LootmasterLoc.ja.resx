@@ -1,0 +1,177 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0,
+            Culture=neutral, PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="ConfigUi_cb_ColoredItemNames">
+        <value>アイテムレベルでアイテムを色分けする</value>
+    </data>
+    <data name="Configui_hdg_Colors">
+        <value>設定した色</value>
+    </data>
+    <data name="Ui_text_openLootSessioon">
+        <value>戦利品の配布先：</value>
+    </data>
+    <data name="LootCategory_Greed">
+        <value>GREED</value>
+    </data>
+    <data name="LootRule_Greed">
+        <value>GREED</value>
+    </data>
+    <data name="command_lootmaster">
+        <value>LootMaster ウィンドウを開きます ( /lm でも開くことができます)</value>
+    </data>
+    <data name="LootRule_BISOverUpgrade">
+        <value>理想装備 &gt; アップグレード</value>
+    </data>
+    <data name="ConfigUi_hdg_RolePriority">
+        <value>各ロールの戦利品の優先度（小さい方が優先度が高くなります）</value>
+    </data>
+    <data name="ConfigUi_txt_currentPrio">
+        <value>現在の優先度</value>
+    </data>
+    <data name="Ui_btn_tt_inventory">
+        <value>所持品を開く</value>
+    </data>
+    <data name="LootCategory_Need">
+        <value>NEED</value>
+    </data>
+    <data name="LootCategory_Pass">
+        <value>PASS</value>
+    </data>
+    <data name="LootCategory_Undecided">
+        <value>未定</value>
+    </data>
+    <data name="ui_btn_tt_showConfig">
+        <value>設定を開く</value>
+    </data>
+    <data name="ConfigUi_cb_tt_ColoredItemNames">
+        <value>アイテムレベルに応じて色を付ける</value>
+    </data>
+    <data name="Configui_cb_OpenOnLogin">
+        <value>ログイン時にグループ概要を開く</value>
+    </data>
+    <data name="LootUi_Results_GreedOnly">
+        <value>GREED限定</value>
+    </data>
+    <data name="LootUi_results_btn_tt_Award">
+        <value>プレイヤーに与える</value>
+    </data>
+    <data name="LootUi_Results_ItemAwardedTo">
+        <value>獲得者:</value>
+    </data>
+    <data name="LootUi_Results_btn_tt_Abort">
+        <value>戦利品やルールを変更するために、分布を中止します</value>
+    </data>
+    <data name="LootUi_Results_btn_Abort">
+        <value>中断</value>
+    </data>
+    <data name="LootUi_Results_PossibleItems">
+        <value>配布するアイテム</value>
+    </data>
+    <data name="LootUi_Results_PlayerWonOver">
+        <value>オーバー</value>
+    </data>
+    <data name="LootUi_Results_PlayerWon">
+        <value>勝利</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed">
+        <value>全員に与える</value>
+    </data>
+    <data name="LootResultWindow:Button:AwardGuaranteed:Tooltip">
+        <value>各プレイヤーに1つずつ与える</value>
+    </data>
+    <data name="LootUi_Results_hdg_GuaranteedItems">
+        <value>保証アイテム（プレイヤー毎）</value>
+    </data>
+    <data name="LootSessionUi_btn_tt_Rules">
+        <value>設定を上書き</value>
+    </data>
+    <data name="LootSession_State_DISTRIBUTION_STARTED">
+        <value>分配開始</value>
+    </data>
+    <data name="ConfigUi_hdg_LootRuleOrder">
+        <value>戦利品のルールを適用する順序</value>
+    </data>
+    <data name="LootSession_State_LOOT_CHOSEN">
+        <value>戦利品をロック</value>
+    </data>
+    <data name="LootsessionUi_txt_state">
+        <value>現在のステータス</value>
+    </data>
+    <data name="LootSession_State_FINISHED">
+        <value>完了</value>
+    </data>
+    <data name="CurrentGear">
+        <value>現在</value>
+    </data>
+    <data name="LootSession_text_rolePriority">
+        <value>ロールの優先度</value>
+    </data>
+    <data name="StatTable_MainStats_Title">
+        <value>メインステ</value>
+    </data>
+    <data name="StatTable_SecondaryStats_Title">
+        <value>サブステ</value>
+    </data>
+    <data name="LootRule_LowestItemLevel">
+        <value>最も低いアイテムレベル</value>
+    </data>
+    <data name="LootRule_Rolling">
+        <value>ローリング</value>
+    </data>
+    <data name="Ui_btn_tt_UpdateFrmEtro">
+        <value>Etro.ggから"{0}"を更新</value>
+    </data>
+    <data name="AutoCreatedGroupName">
+        <value>自動作成</value>
+    </data>
+    <data name="Ui_text_emptyPlayer">
+        <value>プレイヤーなし</value>
+    </data>
+    <data name="LootRule_Need">
+        <value>GREEDよりNEED</value>
+    </data>
+    <data name="Config_hdg_Examples">
+        <value>例</value>
+    </data>
+    <data name="ConfigUi_tab_Appearance" xml:space="preserve">
+        <value>外観</value>
+    </data>
+    <data name="LootSessionUi_resultTable_Col_Pos">
+        <value>位置</value>
+    </data>
+    <data name="LootSession_heading_results" xml:space="preserve">
+        <value>結果: {0} ({1})</value>
+    </data>
+    <data name="LootUI_Results_Rule">
+        <value>ルール</value>
+    </data>
+    <data name="LootUi_Results_hdg_NeededItems">
+        <value>必須アイテム</value>
+    </data>
+    <data name="Ui_btn_tt_PlayerDetails">
+        <value>プレイヤーの詳細を表示:</value>
+    </data>
+    <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
+        <value>追加の装備品</value>
+    </data>
+    <data name="Ui_btn_newGroupAutomatic" xml:space="preserve">
+        <value>現在のグループを編集</value>
+    </data>
+    <data name="Ui_btn_newGroupManual" xml:space="preserve">
+        <value>新規作成</value>
+    </data>
+</root>
