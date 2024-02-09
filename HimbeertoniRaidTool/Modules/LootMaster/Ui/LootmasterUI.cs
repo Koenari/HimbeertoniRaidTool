@@ -385,15 +385,15 @@ internal class LootmasterUi : HrtWindow
             //Player Column
             ImGui.TableNextColumn();
             ImGui.Text(
-                $"{player.CurJob?.Role.FriendlyName() ?? Player.DataTypeNameStatic.CapitaliezSentence()}:   {player.NickName}");
+                $"{player.MainChar.MainClass?.Role.FriendlyName() ?? Player.DataTypeNameStatic.CapitaliezSentence()}:   {player.NickName}");
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player, "##editPlayer"))
                 AddChild(EditWindowFactory.Create(player));
-            ImGui.Text($"{player}");
+            ImGui.Text($"{player.MainChar}");
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player.MainChar, "##editCharacter"))
                 AddChild(EditWindowFactory.Create(player.MainChar));
-            PlayableClass? curJob = player.CurJob;
+            PlayableClass? curJob = player.MainChar.MainClass;
             if (player.MainChar.Classes.Any())
             {
                 ImGui.SetNextItemWidth(110 * ScaleFactor);

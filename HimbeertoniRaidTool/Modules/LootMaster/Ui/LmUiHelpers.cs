@@ -145,7 +145,7 @@ internal static class LmUiHelpers
                     ? t => ImGui.TextColored(LevelColor(config, itemToDraw), t)
                     : ImGui.Text;
                 drawText(toDraw);
-                if (!extended)
+                if (!extended || !itemToDraw.Materia.Any())
                     return;
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + fullLineHeight * (multiLine ? 0.7f : 0.2f));
