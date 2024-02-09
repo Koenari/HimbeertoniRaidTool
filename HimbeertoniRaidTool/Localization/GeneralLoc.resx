@@ -254,9 +254,6 @@
     <data name="CommonTerms_BiS">
         <value>BiS</value>
     </data>
-    <data name="CommonTerms_NotAvail_Abbrev">
-        <value>n.A.</value>
-    </data>
     <data name="General_btn_tt_delete">
         <value>Delete {0} {1}</value>
         <comment>{0} type {1} name</comment>

@@ -159,15 +159,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to n.A..
-        /// </summary>
-        internal static string CommonTerms_NotAvail_Abbrev {
-            get {
-                return ResourceManager.GetString("CommonTerms_NotAvail_Abbrev", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to R.
         /// </summary>
         internal static string CommonTerms_Right_Abbrev {

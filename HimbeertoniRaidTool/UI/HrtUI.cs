@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
@@ -38,7 +39,7 @@ public abstract class HrtWindowWithModalChild : HrtWindow
         if (!open)
             ModalChild.IsOpen = open;
     }
-    public bool AddChild(HrtWindow child)
+    public bool AddChild(HrtWindow? child)
     {
         if (_modalChild != null)
             return false;
@@ -50,21 +51,23 @@ public abstract class HrtWindowWithModalChild : HrtWindow
 public abstract class HrtWindow : Window, IEquatable<HrtWindow>
 {
     private readonly string _id;
-    protected string Title;
-    protected Vector2 MinSize = default;
-    protected Vector2 MaxSize = ImGui.GetIO().DisplaySize * 0.9f;
-    protected bool OpenCentered = false;
-    private bool _shouldResize = false;
-    private bool _hasResizedLastFrame = false;
-    private ImGuiCond _savedSizingCond = ImGuiCond.None;
+    private bool _hasResizedLastFrame;
     private Vector2 _newSize;
-    public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
+    private ImGuiCond _savedSizingCond = ImGuiCond.None;
+    private bool _shouldResize;
+    protected Vector2 MaxSize = ImGui.GetIO().DisplaySize * 0.9f;
+    protected Vector2 MinSize = default;
+    protected bool OpenCentered;
+    protected string Title;
 
-    protected HrtWindow(string? id = null, ImGuiWindowFlags flags = ImGuiWindowFlags.None) : base(id ?? $"##{Guid.NewGuid()}",flags)
+    protected HrtWindow(string? id = null, ImGuiWindowFlags flags = ImGuiWindowFlags.None) : base(
+        id ?? $"##{Guid.NewGuid()}", flags)
     {
         _id = WindowName;
         Title = "";
     }
+    public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
+    public bool Equals(HrtWindow? other) => _id.Equals(other?._id);
     public void Show() => IsOpen = true;
     public void Hide() => IsOpen = false;
     public override void Update()
@@ -76,9 +79,10 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
             MaximumSize = MaxSize,
         };
     }
-    public override bool DrawConditions() => !(ServiceManager.CoreModule.HideInCombat && ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.InCombat])
-                                             && !ServiceManager.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BetweenAreas]
-                                             && base.DrawConditions();
+    public override bool DrawConditions() =>
+        !(ServiceManager.CoreModule.HideInCombat && ServiceManager.Condition[ConditionFlag.InCombat])
+     && !ServiceManager.Condition[ConditionFlag.BetweenAreas]
+     && base.DrawConditions();
     public override void PreDraw()
     {
         if (OpenCentered)
@@ -110,21 +114,20 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
         _shouldResize = true;
     }
     public override bool Equals(object? obj) => Equals(obj as HrtWindow);
-    public bool Equals(HrtWindow? other) => _id.Equals(other?._id);
 
     public override int GetHashCode() => _id.GetHashCode();
 }
 
 public class HrtUiMessage
 {
-    public static HrtUiMessage Empty => new("", HrtUiMessageType.Discard);
-    public HrtUiMessageType MessageType;
     public string Message;
+    public HrtUiMessageType MessageType;
     public HrtUiMessage(string msg, HrtUiMessageType msgType = HrtUiMessageType.Info)
     {
         MessageType = msgType;
         Message = msg;
     }
+    public static HrtUiMessage Empty => new("", HrtUiMessageType.Discard);
 }
 
 public enum HrtUiMessageType

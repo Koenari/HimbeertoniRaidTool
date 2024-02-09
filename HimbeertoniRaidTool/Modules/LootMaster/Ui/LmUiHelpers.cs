@@ -43,7 +43,7 @@ internal static class LmUiHelpers
         };
     internal static void DrawGearSetCombo(string id, GearSet current, IEnumerable<GearSet> list,
                                           Action<GearSet> changeCallback,
-                                          Func<HrtWindow, bool> addWindow, Job job = Job.ADV,
+                                          Func<HrtWindow?, bool> addWindow, Job job = Job.ADV,
                                           float width = 85f)
     {
         ImGui.SetNextItemWidth(width);
@@ -56,7 +56,7 @@ internal static class LmUiHelpers
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_Add_new))
             {
-                addWindow(new EditGearSetWindow(new GearSet(), job, changeCallback));
+                addWindow(EditWindowFactory.Create(new GearSet(), changeCallback));
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_AddFromDB))
             {
