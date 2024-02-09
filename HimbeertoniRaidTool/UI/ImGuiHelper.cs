@@ -32,7 +32,7 @@ public static class ImGuiHelper
                   size ?? new Vector2(50f, 25f));
     public static bool EditButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
         where T : IHrtDataType
-        => Button(FontAwesomeIcon.Edit, id, string.Format(GeneralLoc.Ui_btn_tt_add, data.DataTypeName, ""),
+        => Button(FontAwesomeIcon.Edit, id, string.Format(GeneralLoc.General_btn_tt_edit, data.DataTypeName, ""),
                   enabled, size);
     public static bool DeleteButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
         where T : IHrtDataType =>
