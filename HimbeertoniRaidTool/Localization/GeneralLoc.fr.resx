@@ -202,9 +202,6 @@
   <data name="CommonTerms_Gear">
     <value>équipement</value>
   </data>
-  <data name="CommonTerms_NotAvail_Abbrev">
-    <value>N/A</value>
-  </data>
   <data name="LodestoneConnector_err_CharNotFound">
     <value>Personnage introuvable sur Lodestone.</value>
   </data>
