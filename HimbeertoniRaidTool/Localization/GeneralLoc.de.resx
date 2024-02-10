@@ -236,9 +236,6 @@
   <data name="CommonTerms_Gear">
     <value>Ausrüstung</value>
   </data>
-  <data name="CommonTerms_NotAvail_Abbrev">
-    <value>n.V.</value>
-  </data>
   <data name="General_btn_tt_delete">
     <value>{0} {1} löschen</value>
     <comment>{0} type {1} name</comment>
