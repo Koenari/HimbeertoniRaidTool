@@ -64,8 +64,6 @@ internal class PluginManifest
     public string author;
     public string changelog;
     public string description;
-    public string icon_url;
-    public List<string> image_urls;
     public string internal_name;
     public string name;
     public string punchline;

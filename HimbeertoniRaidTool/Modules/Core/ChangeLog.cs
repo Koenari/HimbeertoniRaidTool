@@ -13,6 +13,7 @@ public class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Translation, "Fixed edit buttons tooltip to not say \"add\""),
                 new ChangeLogEntry(ChangeLogEntryCategory.Gear,
                                    "You can restrict automatic overrides for irrelevant gear (see config)"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Translation, "German (Deutsch) translation updated"),
             },
         },
         new(new Version(1, 5, 2, 2))
