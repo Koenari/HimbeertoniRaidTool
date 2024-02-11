@@ -7,11 +7,11 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
-internal sealed class CoreConfig : HrtConfiguration<CoreConfig.ConfigData>
+internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
 {
     private const int TARGET_VERSION = 1;
     private readonly PeriodicTask _saveTask;
-    public CoreConfig(CoreModule module) : base(module.InternalName, CoreLoc.ConfigUi_Title)
+    public CoreConfig(CoreModule module) : base(module)
     {
         Ui = new ConfigUi(this);
         _saveTask = new PeriodicTask(PeriodicSave, module.HandleMessage, "Automatic Save",

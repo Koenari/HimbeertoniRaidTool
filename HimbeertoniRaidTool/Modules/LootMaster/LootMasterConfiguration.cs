@@ -10,12 +10,12 @@ using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
-internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguration.ConfigData>, IHrtConfiguration
+internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfiguration.ConfigData>, IHrtConfiguration
 {
     private const int TARGET_VERSION = 2;
 
     private bool _fullyLoaded;
-    public LootMasterConfiguration(IHrtModule hrtModule) : base(hrtModule.InternalName, hrtModule.Name)
+    public LootMasterConfiguration(IHrtModule hrtModule) : base(hrtModule)
     {
         Ui = new ConfigUi(this);
 
@@ -103,7 +103,7 @@ internal class LootMasterConfiguration : HrtConfiguration<LootMasterConfiguratio
                 ImGui.BeginDisabled(!_dataCopy.ColoredItemNames);
                 ImGui.Text(LootmasterLoc.Configui_hdg_Colors);
                 ImGui.NewLine();
-                uint iLvL = _config.Data.SelectedRaidTier.ArmorItemLevel;
+                int iLvL = _config.Data.SelectedRaidTier.ArmorItemLevel;
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.CalcTextSize($"{iLvL} > ").X);
                 ImGui.Text($"{GeneralLoc.CommonTerms_itemLvl_abbrev} >= {iLvL}");
                 ImGui.SameLine();

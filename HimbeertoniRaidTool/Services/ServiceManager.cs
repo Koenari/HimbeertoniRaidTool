@@ -11,7 +11,6 @@ using HimbeertoniRaidTool.Plugin.Modules.Core;
 #pragma warning disable CS8618
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-
 internal static class ServiceManager
 {
     private static bool _initialized;
@@ -34,6 +33,7 @@ internal static class ServiceManager
     internal static ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
     internal static ExamineGearDataProvider ExamineGearDataProvider { get; private set; }
     internal static OwnCharacterDataProvider OwnCharacterDataProvider { get; private set; }
+    internal static GameInfo GameInfo => Common.Services.ServiceManager.GameInfo;
 
     private static DalamudServiceWrapper DalamudServices { get; set; }
 
@@ -42,7 +42,7 @@ internal static class ServiceManager
         if (_initialized) return false;
         _initialized = true;
         DalamudServices = pluginInterface.Create<DalamudServiceWrapper>()
-                        ?? throw new FailedToLoadException("Could not initialize Service Manager");
+                       ?? throw new FailedToLoadException("Could not initialize Service Manager");
         PluginLog = new LoggingProxy(DalamudServices.PluginLog);
         Chat = new DalamudChatProxy(DalamudServices.ChatGui);
         Common.Services.ServiceManager.Init(DataManager.Excel, pluginInterface.UiLanguage);
@@ -63,6 +63,7 @@ internal static class ServiceManager
         TaskManager.Dispose();
         IconCache.Dispose();
     }
+
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]

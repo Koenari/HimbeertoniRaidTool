@@ -3,6 +3,7 @@ using Dalamud.Configuration;
 using Dalamud.Interface.Windowing;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
+using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 
@@ -158,14 +159,14 @@ public interface IHrtConfiguration
     public void AfterLoad();
 }
 
-internal abstract class HrtConfiguration<T> : IHrtConfiguration where T : IHrtConfigData, new()
+internal abstract class ModuleConfiguration<T> : IHrtConfiguration where T : IHrtConfigData, new()
 {
 
     private T _data = new();
-    protected HrtConfiguration(string parentInternalName, string parentName)
+    private readonly IHrtModule _module;
+    protected ModuleConfiguration(IHrtModule module)
     {
-        ParentInternalName = parentInternalName;
-        ParentName = parentName;
+        _module = module;
     }
 
     public T Data
@@ -177,8 +178,9 @@ internal abstract class HrtConfiguration<T> : IHrtConfiguration where T : IHrtCo
             OnConfigChange?.Invoke();
         }
     }
-    public string ParentInternalName { get; }
-    public string ParentName { get; }
+
+    public string ParentInternalName => _module.InternalName;
+    public string ParentName => _module.Name;
     public abstract IHrtConfigUi? Ui { get; }
 
     public event Action? OnConfigChange;

@@ -9,26 +9,26 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class LocalIdProvider : IIdProvider
 {
-    private static readonly RandomNumberGenerator _numberGenerator = RandomNumberGenerator.Create();
-    private const string INTERNAL_NAME = "LocalIDProvider";
-    private readonly HMACSHA512 _signingProvider;
+    private const string CONFIG_FILE_NAME = "LocalIDProvider";
     private const int SIGNATURE_SIZE = HMACSHA512.HashSizeInBytes;
     private const int KEY_SIZE = 1024;
     private const int KEY_SIZE_BYTES = KEY_SIZE / 8;
-    private readonly HrtDataManager _dataManager;
+    private static readonly RandomNumberGenerator _numberGenerator = RandomNumberGenerator.Create();
     private readonly ConfigData _data = new();
+    private readonly HrtDataManager _dataManager;
+    private readonly HMACSHA512 _signingProvider;
     internal LocalIdProvider(HrtDataManager dataManager)
     {
         _dataManager = dataManager;
         _signingProvider = new HMACSHA512();
-        dataManager.ModuleConfigurationManager.LoadConfiguration(INTERNAL_NAME, ref _data);
-        if (_data.Authority == 0)
-        {
-            SecureRandom(ref _data.Authority);
-            _numberGenerator.GetBytes(_data.Key);
-            if (!dataManager.ModuleConfigurationManager.SaveConfiguration(INTERNAL_NAME, _data))
-                throw new FailedToLoadException("Could not create ID Authority");
-        }
+        if (!dataManager.ModuleConfigurationManager.LoadConfiguration(CONFIG_FILE_NAME, ref _data))
+            throw new FailedToLoadException("Could not create ID Authority");
+        if (_data.Authority != 0)
+            return;
+        SecureRandom(ref _data.Authority);
+        _numberGenerator.GetBytes(_data.Key);
+        if (!dataManager.ModuleConfigurationManager.SaveConfiguration(CONFIG_FILE_NAME, _data))
+            throw new FailedToLoadException("Could not create ID Authority");
     }
     //Public Functions
     public uint GetAuthorityIdentifier() => _data.Authority;
@@ -41,8 +41,6 @@ internal class LocalIdProvider : IIdProvider
     }
     public HrtId CreateId(HrtId.IdType type) =>
         new(_data.Authority, type, CreateUniqueSequence(type));
-    public HrtId CreateGearId(ulong seq) => new(_data.Authority, HrtId.IdType.Gear, seq);
-    internal HrtId CreateCharId(ulong seq) => new(_data.Authority, HrtId.IdType.Character, seq);
     public bool VerifySignature(HrtId id)
     {
         if (!IsInMyAuthority(id))
@@ -53,18 +51,17 @@ internal class LocalIdProvider : IIdProvider
         return correctSig.SequenceEqual(id.Signature);
 
     }
+    public HrtId CreateGearId(ulong seq) => new(_data.Authority, HrtId.IdType.Gear, seq);
+    internal HrtId CreateCharId(ulong seq) => new(_data.Authority, HrtId.IdType.Character, seq);
     private bool IsInMyAuthority(HrtId id) => id.Authority == _data.Authority;
-    private ulong CreateUniqueSequence(HrtId.IdType type)
+    private ulong CreateUniqueSequence(HrtId.IdType type) => type switch
     {
-        return type switch
-        {
-            HrtId.IdType.Gear => _dataManager.GearDb.GetNextSequence(),
-            HrtId.IdType.Character => _dataManager.CharDb.GetNextSequence(),
-            HrtId.IdType.Player => _dataManager.PlayerDb.GetNextSequence(),
-            HrtId.IdType.Group => _dataManager.RaidGroupDb.GetNextSequence(),
-            _ => _data.Counter++,
-        };
-    }
+        HrtId.IdType.Gear      => _dataManager.GearDb.GetNextSequence(),
+        HrtId.IdType.Character => _dataManager.CharDb.GetNextSequence(),
+        HrtId.IdType.Player    => _dataManager.PlayerDb.GetNextSequence(),
+        HrtId.IdType.Group     => _dataManager.RaidGroupDb.GetNextSequence(),
+        _                      => _data.Counter++,
+    };
     private byte[] CalcSignature(HrtId id)
     {
         byte[] input = Encoding.UTF8.GetBytes(id.ToString());
@@ -80,9 +77,9 @@ internal class LocalIdProvider : IIdProvider
 
     public class ConfigData : IHrtConfigData
     {
-        [JsonProperty] public uint Authority = 0;
-        [JsonProperty] public byte[] Key = new byte[KEY_SIZE_BYTES];
+        [JsonProperty] public uint Authority;
         [JsonProperty] public ulong Counter = 1;
+        [JsonProperty] public byte[] Key = new byte[KEY_SIZE_BYTES];
 
         public void AfterLoad() { }
 

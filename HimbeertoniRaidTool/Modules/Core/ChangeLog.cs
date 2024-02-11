@@ -8,13 +8,16 @@ public class ChangeLog
     {
         new(new Version(1, 5, 2, 2))
         {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Selecting gear from database now works"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Adding gear sets in solo view works again"),
+            },
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.General,
                                    "Gear updates by examining now use the same restrictions as own data collection"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Translation, "Redone translation"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Selecting gear from database now works"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Adding gear sets in solo view works again"),
             },
         },
         new(new Version(1, 5, 1, 0))

@@ -617,12 +617,12 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
     private readonly bool _lockSlot;
     private List<Item> _items;
     private Job? _job;
-    private uint _maxILvl;
-    private uint _minILvl;
+    private int _maxILvl;
+    private int _minILvl;
     private IEnumerable<GearSetSlot> _slots;
 
     public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? currentItem = null,
-                                GearSetSlot? slot = null, Job? job = null, uint maxItemLevel = 0) : base(
+                                GearSetSlot? slot = null, Job? job = null, int maxItemLevel = 0) : base(
         onSave, onCancel)
     {
         Item = currentItem;
@@ -667,19 +667,19 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         ImGui.SameLine();
         ImGui.EndDisabled();
         ImGui.SetNextItemWidth(100f * ScaleFactor);
-        int min = (int)_minILvl;
+        int min = _minILvl;
         if (ImGui.InputInt("-##min", ref min, 5))
         {
-            _minILvl = (uint)min;
+            _minILvl = min;
             ReevaluateItems();
         }
 
         ImGui.SameLine();
-        int max = (int)_maxILvl;
+        int max = _maxILvl;
         ImGui.SetNextItemWidth(100f * ScaleFactor);
         if (ImGui.InputInt("iLvL##Max", ref max, 5))
         {
-            _maxILvl = (uint)max;
+            _maxILvl = max;
             ReevaluateItems();
         }
 
