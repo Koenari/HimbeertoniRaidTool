@@ -176,6 +176,9 @@
   <data name="Configui_in_tt_OpenOnLogin">
     <value>Öffnet die Gruppenübersicht nach dem Einloggen</value>
   </data>
+  <data name="Ui_Title">
+    <value>Loot Master</value>
+  </data>
   <data name="LootUi_Results_GreedOnly">
     <value>Nur Gier</value>
   </data>
@@ -266,6 +269,9 @@
   <data name="QuickCompareUi_hdg_NewGear">
     <value>Neue Ausrüstung</value>
   </data>
+  <data name="QuickCompareUi_Title" xml:space="preserve">
+        <value>Vergleichen</value>
+    </data>
   <data name="LootSession_text_rolePriority">
     <value>Rollenpriorität</value>
   </data>
@@ -273,12 +279,24 @@
         <value>Ergebnisse für {0} ({1})</value>
         <comment>{0} fight {1} group</comment>
     </data>
+  <data name="GearSetSelect_Add_new" xml:space="preserve">
+        <value>+ Neu hinzufügen</value>
+    </data>
+  <data name="GearSetSelect_AddFromDB" xml:space="preserve">
+        <value>+ Vorhande Sets durchsuchen</value>
+    </data>
   <data name="StatTable_MainStats_Title">
     <value>Attribute</value>
   </data>
   <data name="StatTable_SecondaryStats_Title">
     <value>Sekundäre Attribute</value>
   </data>
+  <data name="GearSetSearchWindow_iLvlRange" xml:space="preserve">
+        <value>iLvl Bereich:</value>
+    </data>
+  <data name="GearSetSearchWindow_button_Select" xml:space="preserve">
+        <value>Gear Set auswählen</value>
+    </data>
   <data name="LootRule_Draw_cb_tt_active">
     <value>Aktiviert</value>
   </data>
@@ -312,6 +330,16 @@
   <data name="Ui_btn_newGroupManual" xml:space="preserve">
         <value>Von Grund auf</value>
     </data>
+  <data name="Ui_txt_noJobs" xml:space="preserve">
+        <value>Keine Jobs erstellt</value>
+    </data>
+  <data name="Ui_btn_tt_etroUpdate" xml:space="preserve">
+        <value>Aktualisiere {0} ({1}) von etro.gg</value>
+        <comment>{0} name {1} etroId</comment>
+    </data>
+  <data name="InventoryUi_Title" xml:space="preserve">
+        <value>Inventar von {0}</value>
+    </data>
   <data name="Ui_text_emptyPlayer">
     <value>Kein Spieler</value>
   </data>
@@ -330,8 +358,20 @@
   <data name="Config_hdg_Examples">
     <value>Beispiele</value>
   </data>
+  <data name="Ui_MainTable_Col_Sort" xml:space="preserve">
+        <value>Sortierung</value>
+    </data>
+  <data name="Ui_MainTable_Col_Player" xml:space="preserve">
+        <value>Spieler</value>
+    </data>
   <data name="ConfigUi_tab_Appearance" xml:space="preserve">
     <value>Aussehen</value>
+  </data>
+  <data name="chat_usage_heading" xml:space="preserve">
+        <value>Befehle für Loot Master:</value>
+    </data>
+  <data name="LootSessionUi_resultTable_Col_Pos">
+    <value>Pos</value>
   </data>
   <data name="LootUI_Results_Rule">
     <value>Regel</value>
@@ -345,9 +385,18 @@
   <data name="Ui_btn_tt_PlayerDetails">
     <value>Spielerdetails anzeigen für</value>
   </data>
+  <data name="LootRule_DataTypeName" xml:space="preserve">
+        <value>Beute Regel</value>
+    </data>
   <data name="Ui_tt_Dmgper100">
     <value>Durchschnittlicher Schaden mit einer 100 Potenz Fähigkeiten angepasst für schnellere
             GCDs
         </value>
   </data>
+  <data name="command_show_helpText" xml:space="preserve">
+        <value>Öffnet das Loot Master Fenster</value>
+    </data>
+  <data name="command_toggle_helpText" xml:space="preserve">
+        <value>Öffnet/Schließt das Loot Master Fenster</value>
+    </data>
 </root>
