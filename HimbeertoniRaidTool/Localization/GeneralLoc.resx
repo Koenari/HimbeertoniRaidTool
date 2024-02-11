@@ -320,13 +320,6 @@
     <data name="GetCharacterWindow_Title" xml:space="preserve">
         <value>Get character from DB</value>
     </data>
-    <data name="EditCharUi_Title" xml:space="preserve">
-        <value>Edit character {0}</value>
-    </data>
-    <data name="EditPlayerUi_btn_tt_editChar" xml:space="preserve">
-        <value> Edit {0} @ {1}</value>
-        <comment>{0} Name {1} World</comment>
-    </data>
     <data name="Ui_btn_tt_removeFrom" xml:space="preserve">
         <value>remove {0} from {1}</value>
         <comment>{0} to be removed {1} removed from</comment>
@@ -339,9 +332,6 @@
     </data>
     <data name="EditCharUi_text_BisNotice" xml:space="preserve">
         <value>BiS sets are now changed by editing the respective BiS set directly</value>
-    </data>
-    <data name="EditGearSetUi_Title" xml:space="preserve">
-        <value>Edit gear set {0}</value>
     </data>
     <data name="EditGearSetUi_text_getEtro" xml:space="preserve">
         <value>Replace with set from etro</value>
@@ -380,9 +370,6 @@ You need to update to use this plugin!</value>
     </data>
     <data name="ItemTable_heading_LootedIn" xml:space="preserve">
         <value>Looted in</value>
-    </data>
-    <data name="EditGroupUi_Title" xml:space="preserve">
-        <value>Edit group {0}</value>
     </data>
     <data name="CommonTerms_Right_Abbrev" xml:space="preserve">
         <value>R</value>
@@ -431,5 +418,9 @@ You need to update to use this plugin!</value>
     </data>
     <data name="DBSearchWindowGear_Title" xml:space="preserve">
         <value>Select gear set from database</value>
+    </data>
+    <data name="EditUi_Title" xml:space="preserve">
+        <value>Edit {0} {1}</value>
+        <comment>{0} type {1} name eg. Edit player Toni</comment>
     </data>
 </root>

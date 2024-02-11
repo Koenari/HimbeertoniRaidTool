@@ -63,7 +63,7 @@ public static class EditWindowFactory
         _                 => null,
     };
 
-    private abstract class EditWindow<T> : HrtWindowWithModalChild where T : IHasHrtId
+    private abstract class EditWindow<T> : HrtWindowWithModalChild where T : IHrtDataTypeWithId
     {
         private readonly Action<T>? _onCancel;
 
@@ -78,6 +78,7 @@ public static class EditWindowFactory
             DataCopy = _original.Clone();
             _onCancel = onCancel;
             _onSave = onSave;
+            Title = string.Format(GeneralLoc.EditUi_Title, _original.DataTypeName, _original.Name).CapitaliezSentence();
         }
         public override sealed void Draw()
         {
@@ -121,7 +122,6 @@ public static class EditWindowFactory
         {
             Size = new Vector2(500, 170 + (group.RolePriority != null ? 180 : 0));
             SizeCondition = ImGuiCond.Appearing;
-            Title = string.Format(GeneralLoc.EditGroupUi_Title, DataCopy.Name);
         }
 
         protected override void Save(RaidGroup destination)
@@ -169,7 +169,6 @@ public static class EditWindowFactory
         {
             Size = new Vector2(450, 250);
             SizeCondition = ImGuiCond.Appearing;
-            Title = $"{GeneralLoc.General_btn_tt_edit} {DataCopy.NickName}";
         }
 
         protected override void Cancel() { }
@@ -260,7 +259,6 @@ public static class EditWindowFactory
         {
             Size = new Vector2(500, 295 + CLASS_HEIGHT * DataCopy.Classes.Count());
             SizeCondition = ImGuiCond.Appearing;
-            Title = string.Format(GeneralLoc.EditCharUi_Title, DataCopy.Name);
         }
 
         protected override void Cancel() { }
@@ -407,7 +405,6 @@ public static class EditWindowFactory
             base(original, onSave, onCancel)
         {
             _job = job ?? original[GearSetSlot.MainHand].Jobs.First();
-            Title = string.Format(GeneralLoc.EditGearSetUi_Title, original.Name);
             MinSize = new Vector2(550, 300);
         }
 

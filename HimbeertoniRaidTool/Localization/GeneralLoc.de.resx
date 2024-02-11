@@ -296,4 +296,7 @@
     <data name="Ui_btn_tt_addEmpty" xml:space="preserve">
         <value>Leere(s/n) {0} hinzufügen</value>
     </data>
+    <data name="EditUi_Title" xml:space="preserve">
+        <value>{0} {1} bearbeiten</value>
+    </data>
 </root>

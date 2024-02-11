@@ -314,15 +314,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Edit character {0}.
-        /// </summary>
-        internal static string EditCharUi_Title {
-            get {
-                return ResourceManager.GetString("EditCharUi_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Custom.
         /// </summary>
         internal static string EditGearSetUi_btn_CustomEtro {
@@ -416,15 +407,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Edit gear set {0}.
-        /// </summary>
-        internal static string EditGearSetUi_Title {
-            get {
-                return ResourceManager.GetString("EditGearSetUi_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Last Change: {0}.
         /// </summary>
         internal static string EditGearSetUi_txt_LastChange {
@@ -470,15 +452,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Edit group {0}.
-        /// </summary>
-        internal static string EditGroupUi_Title {
-            get {
-                return ResourceManager.GetString("EditGroupUi_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Is Main.
         /// </summary>
         internal static string EditPlayerUi_btn_IsMain {
@@ -497,15 +470,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  Edit {0} @ {1}.
-        /// </summary>
-        internal static string EditPlayerUi_btn_tt_editChar {
-            get {
-                return ResourceManager.GetString("EditPlayerUi_btn_tt_editChar", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Character Data.
         /// </summary>
         internal static string EditPlayerUi_hdg_characterData {
@@ -520,6 +484,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string EditPlayerUi_hdg_playerData {
             get {
                 return ResourceManager.GetString("EditPlayerUi_hdg_playerData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit {0} {1}.
+        /// </summary>
+        internal static string EditUi_Title {
+            get {
+                return ResourceManager.GetString("EditUi_Title", resourceCulture);
             }
         }
         
