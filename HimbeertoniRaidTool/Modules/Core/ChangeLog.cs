@@ -6,6 +6,15 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 5, 2, 3))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.Translation, "Fixed edit buttons tooltip to not say \"add\""),
+                new ChangeLogEntry(ChangeLogEntryCategory.Gear,
+                                   "You can restrict automatic overrides for irrelevant gear (see config)"),
+            },
+        },
         new(new Version(1, 5, 2, 2))
         {
             NotableFeatures =

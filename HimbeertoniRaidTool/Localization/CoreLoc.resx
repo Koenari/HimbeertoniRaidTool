@@ -202,7 +202,7 @@
             crashes)
         </value>
     </data>
-    <data name="ConfigUi_Title" xml:space="preserve">
+    <data name="ConfigUi_tab_general" xml:space="preserve">
         <value>General</value>
     </data>
     <data name="WelcomeUi_btn_OpenLootMaster">
@@ -309,5 +309,20 @@
     </data>
     <data name="Module_Name" xml:space="preserve">
         <value>Core Functions</value>
+    </data>
+    <data name="ConfigUi_tab_GearUpdates" xml:space="preserve">
+        <value>Gear updates</value>
+    </data>
+    <data name="ConfigUi_cb_ignorePrevTierGear" xml:space="preserve">
+        <value>Ignore gear from previous tiers</value>
+    </data>
+    <data name="ConfigUi_cb_tt_ignorePrevTierGear" xml:space="preserve">
+        <value>Do not downgrade to gear items not from current raid tier</value>
+    </data>
+    <data name="ConfigUi_cb_ignoreCustomILvlGear" xml:space="preserve">
+        <value>Ignore gear under item level</value>
+    </data>
+    <data name="ConfigUi_cb_tt_ignoreCustomILvlGear" xml:space="preserve">
+        <value>Do not downgrade gear in gear sets to items below item level threshold</value>
     </data>
 </root>

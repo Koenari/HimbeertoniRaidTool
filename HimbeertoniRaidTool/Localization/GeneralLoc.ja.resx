@@ -223,7 +223,7 @@
   <data name="ItemTable_heading_Header" xml:space="preserve">
         <value>ヘッダ</value>
     </data>
-  <data name="ItemTable_heading_iLvl" xml:space="preserve">
+  <data name="CommonTerms_itemLevel" xml:space="preserve">
         <value>アイテムレベル</value>
     </data>
   <data name="ItemTable_heading_LootedIn" xml:space="preserve">

@@ -12,8 +12,6 @@ internal class ExamineGearDataProvider : IGearDataProvider
 {
     private readonly Hook<CharacterInspectOnRefresh>? _hook;
 
-    private unsafe delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
-
     private GearDataProviderConfiguration _configuration;
 
     internal ExamineGearDataProvider(IGameInteropProvider iopProvider)
@@ -46,6 +44,13 @@ internal class ExamineGearDataProvider : IGearDataProvider
         _hook?.Disable();
     }
 
+    public void Dispose()
+    {
+        if (_hook is null || _hook.IsDisposed)
+            return;
+        _hook.Dispose();
+    }
+
     private unsafe byte OnExamineRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* loadingStage)
     {
         byte result = _hook!.Original(atkUnitBase, a2, loadingStage);
@@ -75,7 +80,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
 
         //Do not execute on characters not already known
         if (!ServiceManager.HrtDataManager.CharDb.SearchCharacter(sourceChar.HomeWorld.Id, sourceChar.Name.TextValue,
-                out Character? targetChar))
+                                                                  out Character? targetChar))
         {
             ServiceManager.PluginLog.Debug(
                 $"Did not find character in db:{sourceChar.Name}@{sourceChar.HomeWorld.GameData?.Name}");
@@ -90,8 +95,8 @@ internal class ExamineGearDataProvider : IGearDataProvider
 
         Job targetJob = sourceChar.GetJob();
         if (targetJob.IsCombatJob() && !_configuration.CombatJobsEnabled
-            || targetJob.IsDoH() && !_configuration.DoHEnabled
-            || targetJob.IsDoL() && !_configuration.DoLEnabled)
+         || targetJob.IsDoH() && !_configuration.DoHEnabled
+         || targetJob.IsDoL() && !_configuration.DoLEnabled)
             return;
         PlayableClass? targetClass = targetChar[targetJob];
         if (targetClass == null)
@@ -126,20 +131,16 @@ internal class ExamineGearDataProvider : IGearDataProvider
             targetClass.Level = sourceChar.Level;
         try
         {
-            CsHelpers.UpdateGearFromInventoryContainer(InventoryType.Examine, targetClass);
+            CsHelpers.UpdateGearFromInventoryContainer(InventoryType.Examine, targetClass,
+                                                       _configuration.MinILvlDowngrade);
             ServiceManager.PluginLog.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
         }
         catch (Exception e)
         {
             ServiceManager.PluginLog.Error(e,
-                $"Something went wrong while updating gear for:{targetChar.Name} @ {targetChar.HomeWorld?.Name}");
+                                           $"Something went wrong while updating gear for:{targetChar.Name} @ {targetChar.HomeWorld?.Name}");
         }
     }
 
-    public void Dispose()
-    {
-        if (_hook is null || _hook.IsDisposed)
-            return;
-        _hook.Dispose();
-    }
+    private unsafe delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
 }

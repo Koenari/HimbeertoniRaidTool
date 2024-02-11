@@ -22,7 +22,7 @@ public static class DrawDataExtension
             DrawRow(GeneralLoc.ItemTable_heading_name,
                     $"{item.Name} {(item is GearItem { IsHq: true } ? "(HQ)" : "")}");
             if (item.ItemLevel > 1)
-                DrawRow(GeneralLoc.ItemTable_heading_iLvl, item.ItemLevel);
+                DrawRow(GeneralLoc.CommonTerms_itemLevel, item.ItemLevel);
             DrawRow(GeneralLoc.ItemTable_heading_source, item.Source);
             //Materia Stats
             if (item is HrtMateria matItem)

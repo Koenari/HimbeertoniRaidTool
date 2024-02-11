@@ -96,6 +96,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Item Level.
+        /// </summary>
+        internal static string CommonTerms_itemLevel {
+            get {
+                return ResourceManager.GetString("CommonTerms_itemLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to iLvl.
         /// </summary>
         internal static string CommonTerms_itemLvl_abbrev {
@@ -646,15 +655,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string ItemTable_heading_Header {
             get {
                 return ResourceManager.GetString("ItemTable_heading_Header", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Item Level.
-        /// </summary>
-        internal static string ItemTable_heading_iLvl {
-            get {
-                return ResourceManager.GetString("ItemTable_heading_iLvl", resourceCulture);
             }
         }
         

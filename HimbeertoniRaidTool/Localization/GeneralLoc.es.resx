@@ -196,7 +196,7 @@
   <data name="ItemTable_heading_Header" xml:space="preserve">
         <value>Encabezado</value>
     </data>
-  <data name="ItemTable_heading_iLvl" xml:space="preserve">
+  <data name="CommonTerms_itemLevel" xml:space="preserve">
         <value>Nivel de objetos</value>
     </data>
   <data name="Ui_btn_tt_addEmpty" xml:space="preserve">

@@ -365,7 +365,7 @@ You need to update to use this plugin!</value>
     <data name="ItemTable_heading_name" xml:space="preserve">
         <value>Name</value>
     </data>
-    <data name="ItemTable_heading_iLvl" xml:space="preserve">
+    <data name="CommonTerms_itemLevel" xml:space="preserve">
         <value>Item Level</value>
     </data>
     <data name="ItemTable_heading_LootedIn" xml:space="preserve">

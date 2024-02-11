@@ -174,8 +174,19 @@ internal class CoreModule : IHrtModule
     internal void MigrateBisUpdateInterval(int interval) => _config.Data.EtroUpdateIntervalDays = interval;
     private void UpdateGearDataProviderConfig()
     {
+        int minILvl = (_config.Data.RestrictToCurrentTier, _config.Data.RestrictToCustomILvL) switch
+        {
+            (true, true) => Math.Min(
+                (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel ?? 30) - 30,
+                _config.Data.CustomGearUpdateILvlCutoff),
+            (true, false) => (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel ?? 30) - 30,
+            (false, true) => _config.Data.CustomGearUpdateILvlCutoff,
+            _             => 0,
+        };
+
         var newConfig = new GearDataProviderConfiguration(_config.Data.UpdateOwnData, _config.Data.UpdateCombatJobs,
-                                                          _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs);
+                                                          _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs,
+                                                          minILvl);
         ServiceManager.OwnCharacterDataProvider.Enable(newConfig);
         ServiceManager.ExamineGearDataProvider.Enable(newConfig);
     }

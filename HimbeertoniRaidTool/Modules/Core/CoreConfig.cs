@@ -68,34 +68,55 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
 
     internal sealed class ConfigData : IHrtConfigData
     {
-        [JsonProperty] public ChangelogShowOptions ChangelogNotificationOptions = ChangelogShowOptions.ShowAll;
-        [JsonProperty] public int EtroUpdateIntervalDays = 7;
-        [JsonProperty] public bool HideInCombat = true;
-        /*
-         * ChangeLog
-         */
-        [JsonProperty] public Version LastSeenChangelog = new(0, 0, 0, 0);
-        [JsonProperty] public int SaveIntervalMinutes = 30;
-        [JsonProperty] public bool SavePeriodically = true;
-        [JsonProperty] public bool ShowWelcomeWindow = true;
-        [JsonProperty] public bool UpdateCombatJobs = true;
-        [JsonProperty] public bool UpdateDoHJobs;
-        [JsonProperty] public bool UpdateDoLJobs;
-        /**
-         * BiS
-         */
-        [JsonProperty] public bool UpdateEtroBisOnStartup = true;
-        [JsonProperty] public bool UpdateGearOnExamine = true;
-        /*
-         * Data providers
-         */
-        [JsonProperty] public bool UpdateOwnData = true;
-        [JsonProperty] public int Version = 1;
 
+        #region ChangLog
+
+        [JsonProperty] public ChangelogShowOptions ChangelogNotificationOptions = ChangelogShowOptions.ShowAll;
+
+        #endregion
+        #region Ui
+
+        [JsonProperty] public bool HideInCombat = true;
+
+        #endregion
 
         public void AfterLoad() { }
 
         public void BeforeSave() { }
+        #region Internal
+
+        [JsonProperty] public bool ShowWelcomeWindow = true;
+        [JsonProperty] public int Version = 1;
+        [JsonProperty] public Version LastSeenChangelog = new(0, 0, 0, 0);
+
+        #endregion
+
+        #region BiS
+
+        [JsonProperty] public int EtroUpdateIntervalDays = 7;
+        [JsonProperty] public bool UpdateEtroBisOnStartup = true;
+
+        #endregion
+
+        #region AutoSave
+
+        [JsonProperty] public int SaveIntervalMinutes = 30;
+        [JsonProperty] public bool SavePeriodically = true;
+
+        #endregion
+
+        #region DataProviders
+
+        [JsonProperty] public bool UpdateCombatJobs = true;
+        [JsonProperty] public bool UpdateDoHJobs;
+        [JsonProperty] public bool UpdateDoLJobs;
+        [JsonProperty] public bool UpdateOwnData = true;
+        [JsonProperty] public bool UpdateGearOnExamine = true;
+        [JsonProperty] public bool RestrictToCurrentTier;
+        [JsonProperty] public bool RestrictToCustomILvL;
+        [JsonProperty] public int CustomGearUpdateILvlCutoff;
+
+        #endregion
     }
 
     internal class ConfigUi : IHrtConfigUi
@@ -115,46 +136,83 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
 
         public void Draw()
         {
-            ImGui.Text(CoreLoc.ConfigUi_hdg_dataUpdate);
-            ImGui.Checkbox(CoreLoc.ConfigUi_cb_ownData, ref _dataCopy.UpdateOwnData);
-            ImGuiHelper.AddTooltip(CoreLoc.ConfigUi_cb_tt_ownData);
-            ImGui.Checkbox(CoreLoc.ConfigUi_cb_examine, ref _dataCopy.UpdateGearOnExamine);
-            ImGui.BeginDisabled(_dataCopy is { UpdateOwnData: false, UpdateGearOnExamine: false });
-            ImGui.Text(CoreLoc.ConfigUi_text_dataUpdateJobs);
-            ImGui.Indent(25);
-            ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateCombatJobs, ref _dataCopy.UpdateCombatJobs);
-            ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDohJobs, ref _dataCopy.UpdateDoHJobs);
-            ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDolJobs, ref _dataCopy.UpdateDoLJobs);
-            ImGui.Indent(-25);
-            ImGui.EndDisabled();
-            ImGui.Separator();
-            ImGui.Text(CoreLoc.ConfigUi_hdg_ui);
-            ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_hideInCombat, ref _dataCopy.HideInCombat,
-                                 CoreLoc.ConfigUi_cb_tt_hideInCombat);
-            ImGui.Separator();
-            ImGui.Text(CoreLoc.ConfigUi_hdg_AutoSave);
-            ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_periodicSave, ref _dataCopy.SavePeriodically,
-                                 CoreLoc.ConfigUi_cb_tt_periodicSave);
-            ImGui.BeginDisabled(!_dataCopy.SavePeriodically);
-            ImGui.TextWrapped($"{CoreLoc.ConfigUi_in_autoSaveInterval}:");
-            ImGui.SetNextItemWidth(150 * HrtWindow.ScaleFactor);
-            if (ImGui.InputInt("##AutoSave_interval_min", ref _dataCopy.SaveIntervalMinutes))
-                if (_dataCopy.SaveIntervalMinutes < 1)
-                    _dataCopy.SaveIntervalMinutes = 1;
-            ImGui.EndDisabled();
-            ImGui.Separator();
-            ImGui.Text(CoreLoc.ConfigUi_hdg_changelog);
-            ImGuiHelper.Combo("##showChangelog", ref _dataCopy.ChangelogNotificationOptions,
-                              t => t.LocalizedDescription());
-            ImGui.Separator();
-            ImGui.Text(CoreLoc.ConfigUi_hdg_etroUpdates);
-            ImGui.Checkbox(CoreLoc.ConfigUi_cb_autoEtroUpdate, ref _dataCopy.UpdateEtroBisOnStartup);
-            ImGui.BeginDisabled(!_dataCopy.UpdateEtroBisOnStartup);
-            ImGui.SetNextItemWidth(150f * HrtWindow.ScaleFactor);
-            if (ImGui.InputInt(CoreLoc.ConfigUi_in_etroUpdateInterval, ref _dataCopy.EtroUpdateIntervalDays))
-                if (_dataCopy.EtroUpdateIntervalDays < 1)
-                    _dataCopy.EtroUpdateIntervalDays = 1;
-            ImGui.EndDisabled();
+            if (!ImGui.BeginTabBar("##coreTabs"))
+                return;
+            if (ImGui.BeginTabItem(CoreLoc.ConfigUi_tab_general))
+            {
+                //Ui
+                ImGui.Text(CoreLoc.ConfigUi_hdg_ui);
+                ImGui.Indent(10);
+                ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_hideInCombat, ref _dataCopy.HideInCombat,
+                                     CoreLoc.ConfigUi_cb_tt_hideInCombat);
+                ImGui.Indent(-10);
+                ImGui.Separator();
+                //AutoSave
+                ImGui.Text(CoreLoc.ConfigUi_hdg_AutoSave);
+                ImGui.Indent(10);
+                ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_periodicSave, ref _dataCopy.SavePeriodically,
+                                     CoreLoc.ConfigUi_cb_tt_periodicSave);
+                ImGui.BeginDisabled(!_dataCopy.SavePeriodically);
+                ImGui.TextWrapped($"{CoreLoc.ConfigUi_in_autoSaveInterval}:");
+                ImGui.SetNextItemWidth(150 * HrtWindow.ScaleFactor);
+                if (ImGui.InputInt("##AutoSave_interval_min", ref _dataCopy.SaveIntervalMinutes))
+                    if (_dataCopy.SaveIntervalMinutes < 1)
+                        _dataCopy.SaveIntervalMinutes = 1;
+                ImGui.EndDisabled();
+                ImGui.Indent(-10);
+                ImGui.Separator();
+                //Changelog
+                ImGui.Text(CoreLoc.ConfigUi_hdg_changelog);
+                ImGui.Indent(10);
+                ImGuiHelper.Combo("##showChangelog", ref _dataCopy.ChangelogNotificationOptions,
+                                  t => t.LocalizedDescription());
+                ImGui.Indent(-10);
+                ImGui.Separator();
+                //Etro.gg
+                ImGui.Text(CoreLoc.ConfigUi_hdg_etroUpdates);
+                ImGui.Indent(10);
+                ImGui.Checkbox(CoreLoc.ConfigUi_cb_autoEtroUpdate, ref _dataCopy.UpdateEtroBisOnStartup);
+                ImGui.BeginDisabled(!_dataCopy.UpdateEtroBisOnStartup);
+                ImGui.SetNextItemWidth(150f * HrtWindow.ScaleFactor);
+                if (ImGui.InputInt(CoreLoc.ConfigUi_in_etroUpdateInterval, ref _dataCopy.EtroUpdateIntervalDays))
+                    if (_dataCopy.EtroUpdateIntervalDays < 1)
+                        _dataCopy.EtroUpdateIntervalDays = 1;
+                ImGui.EndDisabled();
+                ImGui.Indent(-10);
+                ImGui.EndTabItem();
+            }
+            if (ImGui.BeginTabItem(CoreLoc.ConfigUi_tab_GearUpdates))
+            {
+                //Automatic gear
+                ImGui.Text(CoreLoc.ConfigUi_hdg_dataUpdate);
+                ImGui.Indent(10);
+                ImGui.Checkbox(CoreLoc.ConfigUi_cb_ownData, ref _dataCopy.UpdateOwnData);
+                ImGuiHelper.AddTooltip(CoreLoc.ConfigUi_cb_tt_ownData);
+                ImGui.Checkbox(CoreLoc.ConfigUi_cb_examine, ref _dataCopy.UpdateGearOnExamine);
+                ImGui.BeginDisabled(_dataCopy is { UpdateOwnData: false, UpdateGearOnExamine: false });
+                ImGui.Text(CoreLoc.ConfigUi_text_dataUpdateJobs);
+                ImGui.Indent(25);
+                ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateCombatJobs, ref _dataCopy.UpdateCombatJobs);
+                ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDohJobs, ref _dataCopy.UpdateDoHJobs);
+                ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDolJobs, ref _dataCopy.UpdateDoLJobs);
+                ImGui.Indent(-25);
+                ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignorePrevTierGear, ref _dataCopy.RestrictToCurrentTier,
+                                     CoreLoc.ConfigUi_cb_tt_ignorePrevTierGear);
+                ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignoreCustomILvlGear, ref _dataCopy.RestrictToCustomILvL,
+                                     CoreLoc.ConfigUi_cb_tt_ignoreCustomILvlGear);
+                ImGui.BeginDisabled(!_dataCopy.RestrictToCustomILvL);
+                ImGui.Indent(25);
+                ImGui.InputInt(GeneralLoc.CommonTerms_itemLevel , ref _dataCopy.CustomGearUpdateILvlCutoff);
+                ImGui.Indent(-25);
+                ImGui.EndDisabled();
+                ImGui.EndDisabled();
+                ImGui.Indent(-10);
+                ImGui.EndTabItem();
+            }
+
+            ImGui.EndTabBar();
+
+
         }
 
         public void OnHide()

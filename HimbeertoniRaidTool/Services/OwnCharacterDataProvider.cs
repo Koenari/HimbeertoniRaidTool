@@ -1,8 +1,8 @@
-﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using System.Diagnostics.CodeAnalysis;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using HimbeertoniRaidTool.Common.Data;
-using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -10,24 +10,24 @@ internal class OwnCharacterDataProvider : IGearDataProvider
 {
     private readonly IClientState _clientState;
     private readonly IFramework _framework;
-    private Character? _curChar = null;
-    private PlayerCharacter? _self = null;
-    private GearDataProviderConfiguration _config = new(false, false, false, false);
-    private static GearDataProviderConfiguration DisabledConfig => new(false, false, false, false);
+    private readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
+    private readonly TimeSpan _timeBetweenWalletUpdates = new(30 * TimeSpan.TicksPerSecond);
+
     private readonly HashSet<Currency> _trackedCurrencies = new()
     {
         Currency.Gil,
         Currency.TomestoneOfCausality,
         Currency.TomestoneOfComedy,
     };
-    private TimeSpan _timeSinceLastWalletUpdate;
-    private readonly TimeSpan _timeBetweenWalletUpdates = new(30 * TimeSpan.TicksPerSecond);
+    private GearDataProviderConfiguration _config = GearDataProviderConfiguration.Disabled;
+    private Character? _curChar;
+
+    private bool _disposed;
+    private uint _lastSeenJob;
+    private PlayerCharacter? _self;
 
     private TimeSpan _timeSinceLastGearUpdate;
-    private readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
-    private uint _lastSeenJob = 0;
-
-    private bool _disposed = false;
+    private TimeSpan _timeSinceLastWalletUpdate;
     public OwnCharacterDataProvider(IClientState clientState, IFramework framework)
     {
         _clientState = clientState;
@@ -44,7 +44,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         if (_clientState.IsLoggedIn)
             OnLogin();
     }
-    public void Disable() => _config = DisabledConfig;
+    public void Disable() => _config = GearDataProviderConfiguration.Disabled;
     public void Dispose()
     {
         if (_disposed) return;
@@ -72,7 +72,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         _lastSeenJob = _self?.ClassJob.Id ?? 0;
     }
     private static bool GetChar([NotNullWhen(true)] out Character? target,
-        [NotNullWhen(true)] out PlayerCharacter? source)
+                                [NotNullWhen(true)] out PlayerCharacter? source)
     {
         target = null;
         source = ServiceManager.ClientState.LocalPlayer;
@@ -83,7 +83,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         if (ServiceManager.HrtDataManager.CharDb.TryGetCharacterByCharId(charId, out target))
             return true;
         if (ServiceManager.HrtDataManager.CharDb.SearchCharacter(source.HomeWorld.Id, source.Name.TextValue,
-                out target))
+                                                                 out target))
         {
             target.CharId = charId;
             return true;
@@ -115,7 +115,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         if (job.IsDoL() && !_config.DoLEnabled) return;
         PlayableClass targetClass = _curChar[job] ?? _curChar.AddClass(job);
         if (targetClass.Level < _self.Level) targetClass.Level = _self.Level;
-        CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass);
+        CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass, _config.MinILvlDowngrade);
         _timeSinceLastGearUpdate = TimeSpan.Zero;
     }
 }

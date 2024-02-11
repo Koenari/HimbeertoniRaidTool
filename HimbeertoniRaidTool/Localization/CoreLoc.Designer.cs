@@ -339,6 +339,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ignore gear under item level.
+        /// </summary>
+        internal static string ConfigUi_cb_ignoreCustomILvlGear {
+            get {
+                return ResourceManager.GetString("ConfigUi_cb_ignoreCustomILvlGear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore gear from previous tiers.
+        /// </summary>
+        internal static string ConfigUi_cb_ignorePrevTierGear {
+            get {
+                return ResourceManager.GetString("ConfigUi_cb_ignorePrevTierGear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Automatically update own data.
         /// </summary>
         internal static string ConfigUi_cb_ownData {
@@ -362,6 +380,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string ConfigUi_cb_tt_hideInCombat {
             get {
                 return ResourceManager.GetString("ConfigUi_cb_tt_hideInCombat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do not downgrade gear in gear sets to items below item level threshold.
+        /// </summary>
+        internal static string ConfigUi_cb_tt_ignoreCustomILvlGear {
+            get {
+                return ResourceManager.GetString("ConfigUi_cb_tt_ignoreCustomILvlGear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do not downgrade to gear items not from current raid tier.
+        /// </summary>
+        internal static string ConfigUi_cb_tt_ignorePrevTierGear {
+            get {
+                return ResourceManager.GetString("ConfigUi_cb_tt_ignorePrevTierGear", resourceCulture);
             }
         }
         
@@ -476,20 +512,29 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Job specific config (affects all options above).
+        ///   Looks up a localized string similar to Gear updates.
         /// </summary>
-        internal static string ConfigUi_text_dataUpdateJobs {
+        internal static string ConfigUi_tab_GearUpdates {
             get {
-                return ResourceManager.GetString("ConfigUi_text_dataUpdateJobs", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_tab_GearUpdates", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to General.
         /// </summary>
-        internal static string ConfigUi_Title {
+        internal static string ConfigUi_tab_general {
             get {
-                return ResourceManager.GetString("ConfigUi_Title", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_tab_general", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Job specific config (affects all options above).
+        /// </summary>
+        internal static string ConfigUi_text_dataUpdateJobs {
+            get {
+                return ResourceManager.GetString("ConfigUi_text_dataUpdateJobs", resourceCulture);
             }
         }
         
