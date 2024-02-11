@@ -116,6 +116,9 @@
   <data name="UiMessage_PeriodicSaveSuccessful">
     <value>Daten erfolgreich gespeichert</value>
   </data>
+  <data name="ConfigUi_hdg_etroUpdates" xml:space="preserve">
+		<value>Etro Ausrüstungs Updates</value>
+	</data>
   <data name="WelcomeUi_text">
     <value>Willkommen zum Himbeertoni Raid Tool. Dein Begleiter beim verwalten deiner Raid
             Gruppe. Starte am besten, indem du den LootMaster öffnest, tippe dazu "/lootmaster"
@@ -146,6 +149,33 @@
   <data name="ConfigUi_in_etroUpdateInterval">
     <value>Aktualisierungsintervall (in Tagen)</value>
   </data>
+  <data name="ConfigUi_hdg_changelog" xml:space="preserve">
+        <value>Changelog Optionen</value>
+    </data>
+  <data name="ConfigUi_cb_ownData" xml:space="preserve">
+        <value>Eigene Daten automatisch aktualisieren</value>
+    </data>
+  <data name="ConfigUi_cb_updateCombatJobs" xml:space="preserve">
+        <value>Kampfjobs aktualisieren</value>
+    </data>
+  <data name="ConfigUi_hdg_dataUpdate" xml:space="preserve">
+        <value>Automatisches Datenupdate</value>
+    </data>
+  <data name="ConfigUi_cb_updateDohJobs" xml:space="preserve">
+        <value>Handwerker Jobs aktualisieren</value>
+    </data>
+  <data name="ConfigUi_cb_updateDolJobs" xml:space="preserve">
+        <value>Sammler Jobs aktualisieren</value>
+    </data>
+  <data name="ConfigUi_cb_tt_ownData" xml:space="preserve">
+        <value>Hält Ausrüstung und Klassen des eingeloggten Charakters aktuell</value>
+    </data>
+  <data name="ConfigUi_cb_examine" xml:space="preserve">
+        <value>Ausrüstung aktualisieren beim Untersuchen</value>
+    </data>
+  <data name="ConfigUi_text_dataUpdateJobs" xml:space="preserve">
+        <value>Jobspezifische Konfiguration (betrifft alle vorangegangen Optionen)</value>
+    </data>
   <data name="ConfigUi_hdg_ui">
     <value>Benutzeroberfläche</value>
   </data>
@@ -199,4 +229,82 @@
   <data name="WelcomeUi_btn_tt_close">
     <value>Dieses Fenster schließen</value>
   </data>
+  <data name="Chat_configUpgradeError" xml:space="preserve">
+        <value>Fehler beim Aktualisieren der Core-Konfiguration von Version {0}</value>
+    </data>
+  <data name="ChangeLogUi_btn_haveRead" xml:space="preserve">
+        <value>Jawoll, alles gelesen!</value>
+    </data>
+  <data name="ChangelogCategory_General" xml:space="preserve">
+        <value>Allgemein</value>
+    </data>
+  <data name="ChangeLogUi_text_issueLink" xml:space="preserve">
+        <value>Behebt Problem #{0}</value>
+    </data>
+  <data name="ChangeLogUi_text_issueLink_tooltip" xml:space="preserve">
+        <value>Auf GitHub öffnen</value>
+    </data>
+  <data name="ChangeLogUi_hdg_KnownIssues" xml:space="preserve">
+        <value>Bekannte Probleme</value>
+    </data>
+  <data name="ChangeLogUi_hdg_version" xml:space="preserve">
+        <value>Version {0}</value>
+    </data>
+  <data name="ChangelogCategory_NewFeature" xml:space="preserve">
+        <value>Neue Funktion</value>
+    </data>
+  <data name="ChangelogCategory_Bugfix" xml:space="preserve">
+        <value>Bugfix</value>
+    </data>
+  <data name="ChangelogCategory_Configuration" xml:space="preserve">
+        <value>Konfiguration</value>
+    </data>
+  <data name="ChangelogCategory_UserInterface" xml:space="preserve">
+        <value>Benutzeroberfläche</value>
+    </data>
+  <data name="ChangelogCategory_LootMaster" xml:space="preserve">
+        <value>Loot Master</value>
+    </data>
+  <data name="ChangelogCategory_LootSession" xml:space="preserve">
+        <value>Beute-Session</value>
+    </data>
+  <data name="ChangelogCategory_BiS" xml:space="preserve">
+        <value>BiS</value>
+    </data>
+  <data name="ChangelogCategory_System" xml:space="preserve">
+        <value>System</value>
+    </data>
+  <data name="ChangelogCategory_Localization" xml:space="preserve">
+        <value>Übersetzung</value>
+    </data>
+  <data name="ChangelogCategory_Performance" xml:space="preserve">
+        <value>Leistung</value>
+    </data>
+  <data name="ChangelogCategory_Gear" xml:space="preserve">
+        <value>Ausrüstung</value>
+    </data>
+  <data name="ChangelogShowOption_ShowNone" xml:space="preserve">
+        <value>KEINE Änderungen anzeigen</value>
+    </data>
+  <data name="ChangelogShowOption_ShowNotable" xml:space="preserve">
+        <value>Zeige mir wichtige Änderungen</value>
+    </data>
+  <data name="ChangelogShowOption_ShowAll" xml:space="preserve">
+        <value>Zeige mir alle Änderungen</value>
+    </data>
+  <data name="ChangeLogUi_hdg_seen" xml:space="preserve">
+        <value>Vorherige Changelogs</value>
+    </data>
+  <data name="ChangeLogUi_Title" xml:space="preserve">
+        <value>Himbeertoni Raid Tool Changelog</value>
+    </data>
+  <data name="command_hrt_changelog" xml:space="preserve">
+        <value>Zeigt das Changelog</value>
+    </data>
+  <data name="Module_Description" xml:space="preserve">
+        <value>Kernfunktionalität des Himbeertoni Raid-Tools</value>
+    </data>
+  <data name="Module_Name" xml:space="preserve">
+        <value>Kernfunktionen</value>
+    </data>
 </root>
