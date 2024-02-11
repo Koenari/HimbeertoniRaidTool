@@ -112,9 +112,9 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
         [JsonProperty] public bool UpdateDoLJobs;
         [JsonProperty] public bool UpdateOwnData = true;
         [JsonProperty] public bool UpdateGearOnExamine = true;
-        [JsonProperty] public bool RestrictToCurrentTier;
-        [JsonProperty] public bool RestrictToCustomILvL;
-        [JsonProperty] public int CustomGearUpdateILvlCutoff;
+        [JsonProperty] public bool GearUpdateRestrictToCurrentTier = true;
+        [JsonProperty] public bool GearUpdateRestrictToCustomILvL;
+        [JsonProperty] public int GearUpdateCustomILvlCutoff;
 
         #endregion
     }
@@ -196,13 +196,15 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
                 ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDohJobs, ref _dataCopy.UpdateDoHJobs);
                 ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDolJobs, ref _dataCopy.UpdateDoLJobs);
                 ImGui.Indent(-25);
-                ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignorePrevTierGear, ref _dataCopy.RestrictToCurrentTier,
+                ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignorePrevTierGear,
+                                     ref _dataCopy.GearUpdateRestrictToCurrentTier,
                                      CoreLoc.ConfigUi_cb_tt_ignorePrevTierGear);
-                ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignoreCustomILvlGear, ref _dataCopy.RestrictToCustomILvL,
+                ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignoreCustomILvlGear,
+                                     ref _dataCopy.GearUpdateRestrictToCustomILvL,
                                      CoreLoc.ConfigUi_cb_tt_ignoreCustomILvlGear);
-                ImGui.BeginDisabled(!_dataCopy.RestrictToCustomILvL);
+                ImGui.BeginDisabled(!_dataCopy.GearUpdateRestrictToCustomILvL);
                 ImGui.Indent(25);
-                ImGui.InputInt(GeneralLoc.CommonTerms_itemLevel , ref _dataCopy.CustomGearUpdateILvlCutoff);
+                ImGui.InputInt(GeneralLoc.CommonTerms_itemLevel, ref _dataCopy.GearUpdateCustomILvlCutoff);
                 ImGui.Indent(-25);
                 ImGui.EndDisabled();
                 ImGui.EndDisabled();
