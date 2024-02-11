@@ -3,19 +3,12 @@ name: Himbeertoni Raid Tool
 punchline: All you need for Raiding
 description: A collection of useful tools for raid groups, including loot management
 tags:
-- Raid
-- Loot
-- Equipment
-- Gear
+  - Raid
+  - Loot
+  - Equipment
+  - Gear
 internal_name: HimbeertoniRaidTool
-repo_url: https://github.com/Koenari/HimbeertoniRaidTool/wiki
-icon_url: https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/images/icon.png
-image_urls:
-- https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/loot_session.png
-- https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/raid_view.png
-- https://raw.githubusercontent.com/Koenari/HimbeertoniRaidTool/master/OtherResources/assets/solo_view.png
+repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      General: Gear updates by examining now use the same restrictions as own data collection
-      Localization: Redone translation
-      Bugfix: Selecting gear from database now works
-      Bugfix: Adding gear sets in solo view works again
+      Localization: Fixed edit buttons tooltip to not say "add"
+      Gear: You can restrict automatic overrides for irrelevant gear (see config)
