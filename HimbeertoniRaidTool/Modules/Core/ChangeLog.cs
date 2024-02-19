@@ -6,7 +6,7 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
-        new(new Version(1, 5, 2, 4))
+        new(new Version(1, 5, 2, 5))
         {
             MinorFeatures =
             {
