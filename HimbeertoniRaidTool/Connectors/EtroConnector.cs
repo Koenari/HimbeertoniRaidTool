@@ -307,7 +307,7 @@ internal class EtroConnector : WebConnector
 
     private class EtroMateriaTier
     {
-        public ushort Id { get; }
+        public ushort Id { get; set; }
     }
 
 
@@ -316,7 +316,7 @@ internal class EtroConnector : WebConnector
     {
         [JsonIgnore]
         public readonly EtroMateriaTier[] Tiers = new EtroMateriaTier[10];
-        public uint Id { get; }
+        public uint Id { get; set; }
         public EtroMateriaTier Tier1 { get => Tiers[0]; set => Tiers[0] = value; }
         public EtroMateriaTier Tier2 { get => Tiers[1]; set => Tiers[1] = value; }
         public EtroMateriaTier Tier3 { get => Tiers[2]; set => Tiers[2] = value; }
