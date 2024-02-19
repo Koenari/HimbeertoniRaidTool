@@ -6,6 +6,14 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 5, 2, 4))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix,
+                                   "Fixed broken materia in etro.gg sets\n(affected sets need to be updated by pressing the button\n  or automatic updates if activated)"),
+            },
+        },
         new(new Version(1, 5, 2, 3))
         {
             NotableFeatures =
