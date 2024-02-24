@@ -10,6 +10,5 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      Bugfix: Fixed broken materia in etro.gg sets
-  (affected sets need to be updated by pressing the button
-    or automatic updates if activated)
+      Bugfix: Fixes being unable to add new gear sets
+      User Interface: Add job selection (for BiS and item selection) to gear set edit user interface
