@@ -6,6 +6,15 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 5, 2, 6))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.Bugfix, "Fixes being unable to add new gear sets"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui,
+                                   "Add job selection (for BiS and item selection) to gear set edit user interface"),
+            },
+        },
         new(new Version(1, 5, 2, 5))
         {
             MinorFeatures =

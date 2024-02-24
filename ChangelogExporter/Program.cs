@@ -3,9 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
 using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 using YamlDotNet.Serialization;
@@ -19,7 +21,8 @@ if (args.Length < 2) return -1;
 
 string fileName = args[0];
 string internalName = args[1];
-
+Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
+Thread.CurrentThread.CurrentCulture = new CultureInfo("en");
 SingleVersionChangelog currentVersion = args.Length > 2
     ? ChangeLog.Entries.First(entry => entry.Version == new Version(args[2])) : ChangeLog.Entries[0];
 StringBuilder programOutput = new();
