@@ -1,2 +1,7 @@
+###############################################################################
+# Set default behavior to automatically normalize line endings.
+###############################################################################
+* text=auto
+
 **/Localization/*.resx linguist-generated
 **/Localization/*.Designer.cs linguist-generated 

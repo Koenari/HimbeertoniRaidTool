@@ -416,6 +416,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Gear set is meant for Job:.
+        /// </summary>
+        internal static string EditGearSetUi_txt_job {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_txt_job", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Last Change: {0}.
         /// </summary>
         internal static string EditGearSetUi_txt_LastChange {

@@ -398,13 +398,13 @@ public static class EditWindowFactory
 
     private class EditGearSetWindow : EditWindow<GearSet>
     {
-        private readonly Job _job;
+        private Job _job;
         private string _etroIdInput = "";
         internal EditGearSetWindow(GearSet original, Action<GearSet>? onSave = null,
                                    Action<GearSet>? onCancel = null, Job? job = null) :
             base(original, onSave, onCancel)
         {
-            _job = job ?? original[GearSetSlot.MainHand].Jobs.First();
+            _job = job ?? original[GearSetSlot.MainHand].Jobs.FirstOrDefault(Job.ADV);
             MinSize = new Vector2(550, 300);
         }
 
@@ -507,6 +507,10 @@ public static class EditWindowFactory
                     ImGui.TextColored(Colors.TextRed, GeneralLoc.Gearset_Warning_SysManaged);
             }
             //
+            ImGui.Text(GeneralLoc.EditGearSetUi_txt_job);
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(60 * ScaleFactor);
+            ImGuiHelper.Combo("##JobSelection", ref _job);
             ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_txt_LastChange, DataCopy.TimeStamp));
             ImGui.BeginDisabled(isFromEtro);
             ImGui.Text($"{GeneralLoc.CommonTerms_Name}: ");

@@ -154,7 +154,7 @@ public class LootSession
         if (toAward.Slots.Count() > 1 && altSlot)
             slot = toAward.Slots.Skip(1).First();
         else
-            slot = toAward.Slots.First();
+            slot = toAward.Slots.FirstOrDefault(GearSetSlot.None);
         PlayableClass? c = Results[loot].AwardedTo?.ApplicableJob;
         if (c != null)
         {

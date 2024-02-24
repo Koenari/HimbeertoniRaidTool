@@ -423,4 +423,7 @@ You need to update to use this plugin!</value>
         <value>Edit {0} {1}</value>
         <comment>{0} type {1} name eg. Edit player Toni</comment>
     </data>
+    <data name="EditGearSetUi_txt_job" xml:space="preserve">
+        <value>Gear set is meant for Job:</value>
+    </data>
 </root>

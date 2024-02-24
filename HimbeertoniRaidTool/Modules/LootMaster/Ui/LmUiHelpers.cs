@@ -34,7 +34,7 @@ internal static class LmUiHelpers
     }
 
     public static Vector4 LevelColor(LootMasterConfiguration.ConfigData config, GearItem item) =>
-        (config.SelectedRaidTier.ItemLevel(item.Slots.First()) - (int)item.ItemLevel) switch
+        (config.SelectedRaidTier.ItemLevel(item.Slots.FirstOrDefault(GearSetSlot.None)) - (int)item.ItemLevel) switch
         {
             <= 0  => config.ItemLevelColors[0],
             <= 10 => config.ItemLevelColors[1],

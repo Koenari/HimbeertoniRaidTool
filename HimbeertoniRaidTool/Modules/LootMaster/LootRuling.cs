@@ -184,7 +184,7 @@ public static class LootRulesExtension
             if (item is null)
             {
                 item ??= i.Clone();
-                foreach (HrtMateria? mat in curClass.CurGear[i.Slots.First()].Materia)
+                foreach (HrtMateria? mat in curClass.CurGear[i.Slots.FirstOrDefault(GearSetSlot.None)].Materia)
                 {
                     item.AddMateria(mat);
                 }
