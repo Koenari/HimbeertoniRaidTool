@@ -11,12 +11,12 @@ using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class GearDb : DataBaseTable<GearSet, GearSet>
+internal class GearDb : DataBaseTable<GearSet>
 {
     private readonly Dictionary<string, HrtId> _etroLookup = new();
 
     internal GearDb(IIdProvider idProvider, string gearData, JsonSerializerSettings settings) : base(
-        idProvider, gearData, null, settings)
+        idProvider, gearData, Array.Empty<JsonConverter>(), settings)
     {
         if (LoadError)
             return;

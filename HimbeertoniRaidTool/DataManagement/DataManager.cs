@@ -140,18 +140,21 @@ public class HrtDataManager
         try
         {
             _gearDb = new GearDb(IdProvider, gearJson, _jsonSettings);
-        } catch (JsonSerializationException)
+        }
+        catch (JsonSerializationException)
         {
             _gearDb = new GearDb(IdProvider, string.Empty, _jsonSettings);
         }
+        var gearRefConv = new HrtIdReferenceConverter<GearSet>(_gearDb);
         try
         {
-            _characterDb = new CharacterDb(IdProvider, charDbJson, new HrtIdReferenceConverter<GearSet>(_gearDb), _jsonSettings);
-        } catch(JsonSerializationException)
-        {
-            _characterDb = new CharacterDb(IdProvider, string.Empty, new HrtIdReferenceConverter<GearSet>(_gearDb), _jsonSettings);
+            _characterDb = new CharacterDb(IdProvider, charDbJson, new[] { gearRefConv }, _jsonSettings);
         }
-        
+        catch (JsonSerializationException)
+        {
+            _characterDb = new CharacterDb(IdProvider, string.Empty, new[] { gearRefConv }, _jsonSettings);
+        }
+
         var charRefConv = new HrtIdReferenceConverter<Character>(_characterDb);
         //Migration
         if (raidGroupJsonFile.Exists)
@@ -159,11 +162,11 @@ public class HrtDataManager
             loadedSuccessful = TryRead(raidGroupJsonFile, out string raidGroupJson);
             _jsonSettings.Converters.Add(charRefConv);
             _groups = JsonConvert.DeserializeObject<List<RaidGroup>>(raidGroupJson, _jsonSettings)
-                      ?? new List<RaidGroup>();
+                   ?? new List<RaidGroup>();
             _jsonSettings.Converters.Remove(charRefConv);
-            _playerDb = new PlayerDb(IdProvider, "[]", charRefConv, _jsonSettings);
-            _raidGroupDb = new RaidGroupDb(IdProvider, "[]", new HrtIdReferenceConverter<Player>(_playerDb),
-                _jsonSettings);
+            _playerDb = new PlayerDb(IdProvider, "[]", new[] { charRefConv }, _jsonSettings);
+            _raidGroupDb = new RaidGroupDb(IdProvider, "[]", new[] { new HrtIdReferenceConverter<Player>(_playerDb) },
+                                           _jsonSettings);
             foreach (RaidGroup group in _groups)
             {
                 foreach (Player player in group)
@@ -185,16 +188,23 @@ public class HrtDataManager
                 }
             Initialized = false;
             //Remove old backup files
-            File.Delete($"{configDirName}{Path.DirectorySeparatorChar}HrtGearDB.json.bak");
-            File.Delete($"{configDirName}{Path.DirectorySeparatorChar}EtroGearDB.json.bak");
-            File.Delete($"{configDirName}{Path.DirectorySeparatorChar}CharacterDB.json.bak");
+            try
+            {
+                File.Delete($"{configDirName}{Path.DirectorySeparatorChar}HrtGearDB.json.bak");
+                File.Delete($"{configDirName}{Path.DirectorySeparatorChar}EtroGearDB.json.bak");
+                File.Delete($"{configDirName}{Path.DirectorySeparatorChar}CharacterDB.json.bak");
+            }
+            catch (Exception e) when (e is ArgumentException or ArgumentNullException or DirectoryNotFoundException
+                                        or IOException or NotSupportedException or PathTooLongException
+                                        or UnauthorizedAccessException) { }
+
         }
         loadedSuccessful &= TryRead(_playerDbJsonFile, out string playerDbJson);
         loadedSuccessful &= TryRead(_raidGroupDbJsonFile, out string raidGroupDbJson);
-        _playerDb = new PlayerDb(IdProvider, playerDbJson, new HrtIdReferenceConverter<Character>(_characterDb),
-            _jsonSettings);
-        _raidGroupDb = new RaidGroupDb(IdProvider, raidGroupDbJson, new HrtIdReferenceConverter<Player>(_playerDb),
-            _jsonSettings);
+        _playerDb = new PlayerDb(IdProvider, playerDbJson,
+                                 new[] { new HrtIdReferenceConverter<Character>(_characterDb) }, _jsonSettings);
+        _raidGroupDb = new RaidGroupDb(IdProvider, raidGroupDbJson,
+                                       new[] { new HrtIdReferenceConverter<Player>(_playerDb) }, _jsonSettings);
         Initialized = loadedSuccessful;
     }
 

@@ -11,15 +11,15 @@ using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class CharacterDb : DataBaseTable<Character, GearSet>
+internal class CharacterDb : DataBaseTable<Character>
 {
     private readonly Dictionary<ulong, HrtId> _charIdLookup = new();
     private readonly Dictionary<HrtId, HrtId> _idReplacement = new();
     private readonly Dictionary<(uint, string), HrtId> _nameLookup = new();
     private readonly HashSet<uint> _usedWorlds = new();
 
-    internal CharacterDb(IIdProvider idProvider, string serializedData, HrtIdReferenceConverter<GearSet> conv,
-                         JsonSerializerSettings settings) : base(idProvider, serializedData, conv, settings)
+    internal CharacterDb(IIdProvider idProvider, string serializedData, IEnumerable<JsonConverter> converters,
+                         JsonSerializerSettings settings) : base(idProvider, serializedData, converters, settings)
     {
         if (LoadError) return;
         foreach (Character c in Data.Values)

@@ -8,11 +8,11 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class PlayerDb : DataBaseTable<Player, Character>
+internal class PlayerDb : DataBaseTable<Player>
 {
 
-    public PlayerDb(IIdProvider idProvider, string serializedData, HrtIdReferenceConverter<Character> conv,
-                    JsonSerializerSettings settings) : base(idProvider, serializedData, conv, settings)
+    public PlayerDb(IIdProvider idProvider, string serializedData, IEnumerable<JsonConverter> converters,
+                    JsonSerializerSettings settings) : base(idProvider, serializedData, converters, settings)
     {
     }
 

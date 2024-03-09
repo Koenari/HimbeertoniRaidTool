@@ -2,12 +2,8 @@
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -24,22 +20,26 @@ public interface IDataBaseTable<T> where T : IHasHrtId
     public void FixEntries();
 }
 
-public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, IHasHrtId where S : IHasHrtId, new()
+public abstract class DataBaseTable<T> : IDataBaseTable<T> where T : class, IHasHrtId
 {
 
     protected readonly Dictionary<HrtId, T> Data = new();
-    protected readonly HrtIdReferenceConverter<S>? RefConv;
+    protected readonly IImmutableList<JsonConverter> RefConverters;
     protected readonly IIdProvider IdProvider;
     protected ulong NextSequence = 0;
     protected bool LoadError = false;
-    protected DataBaseTable(IIdProvider idProvider, string serializedData, HrtIdReferenceConverter<S>? conv,
-        JsonSerializerSettings settings)
+    protected DataBaseTable(IIdProvider idProvider, string serializedData, IEnumerable<JsonConverter> converters,
+                            JsonSerializerSettings settings)
     {
         IdProvider = idProvider;
-        RefConv = conv;
-        if (RefConv is not null) settings.Converters.Add(RefConv);
+        RefConverters = ImmutableList.CreateRange(converters);
+        List<JsonConverter> savedConverters = new(settings.Converters);
+        foreach (JsonConverter jsonConverter in RefConverters)
+        {
+            settings.Converters.Add(jsonConverter);
+        }
         var data = JsonConvert.DeserializeObject<List<T>>(serializedData, settings);
-        if (RefConv is not null) settings.Converters.Remove(RefConv);
+        settings.Converters = savedConverters;
         if (data is null)
         {
             ServiceManager.PluginLog.Error($"Could not load {typeof(T)} database");
@@ -84,9 +84,13 @@ public abstract class DataBaseTable<T, S> : IDataBaseTable<T> where T : class, I
     public abstract HrtWindow OpenSearchWindow(Action<T> onSelect, Action? onCancel = null);
     internal string Serialize(JsonSerializerSettings settings)
     {
-        if (RefConv is not null) settings.Converters.Add(RefConv);
+        List<JsonConverter> savedConverters = new(settings.Converters);
+        foreach (JsonConverter jsonConverter in RefConverters)
+        {
+            settings.Converters.Add(jsonConverter);
+        }
         string result = JsonConvert.SerializeObject(Data.Values, settings);
-        if (RefConv is not null) settings.Converters.Remove(RefConv);
+        settings.Converters = savedConverters;
         return result;
     }
     public abstract HashSet<HrtId> GetReferencedIds();

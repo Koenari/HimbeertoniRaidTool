@@ -10,10 +10,10 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class RaidGroupDb : DataBaseTable<RaidGroup, Player>
+internal class RaidGroupDb : DataBaseTable<RaidGroup>
 {
-    public RaidGroupDb(IIdProvider idProvider, string serializedData, HrtIdReferenceConverter<Player>? conv,
-        JsonSerializerSettings settings) : base(idProvider, serializedData, conv, settings)
+    public RaidGroupDb(IIdProvider idProvider, string serializedData, IEnumerable<JsonConverter> converters,
+                       JsonSerializerSettings settings) : base(idProvider, serializedData, converters, settings)
     {
     }
 
