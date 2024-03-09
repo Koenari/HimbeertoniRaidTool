@@ -17,6 +17,7 @@ public class HrtDataManager
     private readonly DataBaseWrapper<CharacterDb, Character> _characterDb;
     private readonly DataBaseWrapper<PlayerDb, Player> _playerDb;
     private readonly DataBaseWrapper<RaidGroupDb, RaidGroup> _raidGroupDb;
+    private readonly DataBaseWrapper<RaidSessionDb, RaidSession> _raidSessionDb;
     private readonly List<RaidGroup>? _groups;
 
     //Directly Accessed Members
@@ -25,6 +26,7 @@ public class HrtDataManager
     [Obsolete]
     internal List<RaidGroup> Groups => _groups ?? new List<RaidGroup>();
 
+    internal IDataBaseTable<RaidSession> RaidSessionDb => _raidSessionDb.Database;
     internal IDataBaseTable<RaidGroup> RaidGroupDb => _raidGroupDb.Database;
     internal IDataBaseTable<Player> PlayerDb => _playerDb.Database;
     internal CharacterDb CharDb => _characterDb.Database;
@@ -64,9 +66,16 @@ public class HrtDataManager
         var charRefConv = new HrtIdReferenceConverter<Character>(_characterDb.Database);
         _playerDb = new DataBaseWrapper<PlayerDb, Player>(this, new PlayerDb(IdProvider, new[] { charRefConv }),
                                                           "PlayerDB.json");
+        var playerRefConv = new HrtIdReferenceConverter<Player>(_playerDb.Database);
         _raidGroupDb = new DataBaseWrapper<RaidGroupDb, RaidGroup>(
-            this, new RaidGroupDb(IdProvider, new[] { new HrtIdReferenceConverter<Player>(_playerDb.Database) }),
+            this, new RaidGroupDb(IdProvider, new[] { playerRefConv }),
             "RaidGroupDB.json");
+        _raidSessionDb = new DataBaseWrapper<RaidSessionDb, RaidSession>(
+            this,
+            new RaidSessionDb(
+                IdProvider,
+                new JsonConverter[] { playerRefConv, new HrtIdReferenceConverter<RaidGroup>(_raidGroupDb.Database) }),
+            "RaidSessionDB.json");
 
         loadedSuccessful &= _gearDb.Load();
         loadedSuccessful &= _characterDb.Load();
@@ -115,6 +124,7 @@ public class HrtDataManager
         }
         loadedSuccessful &= _playerDb.Load();
         loadedSuccessful &= _raidGroupDb.Load();
+        loadedSuccessful &= _raidSessionDb.Load();
 
         Initialized = loadedSuccessful;
     }
@@ -129,6 +139,7 @@ public class HrtDataManager
          * CharDb.RemoveUnused(PlayerDb.GetReferencedIds());
          */
         GearDb.RemoveUnused(CharDb.GetReferencedIds());
+        RaidSessionDb.FixEntries();
         RaidGroupDb.FixEntries();
         PlayerDb.FixEntries();
         CharDb.FixEntries();
@@ -164,6 +175,8 @@ public class HrtDataManager
             savedSuccessful &= _playerDb.Save();
         if (savedSuccessful)
             savedSuccessful &= _raidGroupDb.Save();
+        if (savedSuccessful)
+            savedSuccessful &= _raidSessionDb.Save();
         _saving = false;
         DateTime time2 = DateTime.Now;
         ServiceManager.Logger.Debug($"Database saving time: {time2 - time1}");
