@@ -18,10 +18,13 @@ internal class CharacterDb : DataBaseTable<Character>
     private readonly Dictionary<(uint, string), HrtId> _nameLookup = new();
     private readonly HashSet<uint> _usedWorlds = new();
 
-    internal CharacterDb(IIdProvider idProvider, string serializedData, IEnumerable<JsonConverter> converters,
-                         JsonSerializerSettings settings) : base(idProvider, serializedData, converters, settings)
+    internal CharacterDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters) : base(idProvider, converters)
     {
-        if (LoadError) return;
+    }
+    public new bool Load(JsonSerializerSettings settings, string data)
+    {
+        base.Load(settings, data);
+        if (LoadError) return false;
         foreach (Character c in Data.Values)
         {
             /*
@@ -43,6 +46,7 @@ internal class CharacterDb : DataBaseTable<Character>
             if (c.CharId > 0)
                 _charIdLookup.TryAdd(c.CharId, c.LocalId);
         }
+        return IsLoaded;
     }
     public override bool TryAdd(in Character c)
     {

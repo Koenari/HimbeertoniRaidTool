@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using Dalamud.Plugin;
 using Newtonsoft.Json;
 
@@ -39,7 +40,17 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
         configData.BeforeSave();
         FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
         string json = JsonConvert.SerializeObject(configData, _jsonSerializerSettings);
-        return HrtDataManager.TryWrite(file, json);
+        bool writeSuccess;
+        try
+        {
+            Dalamud.Utility.Util.WriteAllTextSafe(file.FullName, json);
+            writeSuccess = true;
+        }
+        catch (Win32Exception e)
+        {
+            writeSuccess = false;
+        }
+        return writeSuccess;
     }
     public bool LoadConfiguration<T>(string internalName, ref T configData) where T : IHrtConfigData, new()
     {
@@ -60,13 +71,4 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
         }
         return true;
     }
-}
-
-internal class NotLoadedModuleConfigurationManager : IModuleConfigurationManager
-{
-    public bool LoadConfiguration<T>(string internalName, ref T configData) where T : IHrtConfigData, new()
-        => false;
-
-    public bool SaveConfiguration<T>(string internalName, T configData) where T : IHrtConfigData, new()
-        => false;
 }

@@ -15,18 +15,21 @@ internal class GearDb : DataBaseTable<GearSet>
 {
     private readonly Dictionary<string, HrtId> _etroLookup = new();
 
-    internal GearDb(IIdProvider idProvider, string gearData, JsonSerializerSettings settings) : base(
-        idProvider, gearData, Array.Empty<JsonConverter>(), settings)
+    internal GearDb(IIdProvider idProvider) : base(
+        idProvider, Array.Empty<JsonConverter>())
     {
+    }
+    public new bool Load(JsonSerializerSettings settings, string serializedData)
+    {
+        base.Load(settings, serializedData);
         if (LoadError)
-            return;
+            return false;
         foreach ((HrtId id, GearSet set) in Data)
         {
             if (set.ManagedBy == GearSetManager.Etro)
                 _etroLookup.TryAdd(set.EtroId, id);
         }
-
-
+        return IsLoaded & !LoadError;
     }
     internal bool TryGetSetByEtroId(string etroId, [NotNullWhen(true)] out GearSet? set)
     {

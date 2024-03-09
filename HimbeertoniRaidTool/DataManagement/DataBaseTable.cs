@@ -9,6 +9,7 @@ namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
 public interface IDataBaseTable<T> where T : IHasHrtId
 {
+    internal bool Load(JsonSerializerSettings jsonSettings, string data);
     internal bool TryGet(HrtId id, [NotNullWhen(true)] out T? value);
     internal bool TryAdd(in T value);
     internal IEnumerable<T> GetValues();
@@ -18,6 +19,7 @@ public interface IDataBaseTable<T> where T : IHasHrtId
     internal bool Contains(HrtId hrtId);
     public void RemoveUnused(HashSet<HrtId> referencedIds);
     public void FixEntries();
+    internal string Serialize(JsonSerializerSettings settings);
 }
 
 public abstract class DataBaseTable<T> : IDataBaseTable<T> where T : class, IHasHrtId
@@ -28,11 +30,15 @@ public abstract class DataBaseTable<T> : IDataBaseTable<T> where T : class, IHas
     protected readonly IIdProvider IdProvider;
     protected ulong NextSequence = 0;
     protected bool LoadError = false;
-    protected DataBaseTable(IIdProvider idProvider, string serializedData, IEnumerable<JsonConverter> converters,
-                            JsonSerializerSettings settings)
+    protected bool IsLoaded = false;
+    protected DataBaseTable(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
     {
         IdProvider = idProvider;
         RefConverters = ImmutableList.CreateRange(converters);
+
+    }
+    public bool Load(JsonSerializerSettings settings, string serializedData)
+    {
         List<JsonConverter> savedConverters = new(settings.Converters);
         foreach (JsonConverter jsonConverter in RefConverters)
         {
@@ -44,7 +50,7 @@ public abstract class DataBaseTable<T> : IDataBaseTable<T> where T : class, IHas
         {
             ServiceManager.PluginLog.Error($"Could not load {typeof(T)} database");
             LoadError = true;
-            return;
+            return IsLoaded;
         }
         foreach (T value in data)
         {
@@ -59,6 +65,8 @@ public abstract class DataBaseTable<T> : IDataBaseTable<T> where T : class, IHas
         }
         NextSequence++;
         ServiceManager.PluginLog.Information($"Database contains {Data.Count} entries of type {typeof(T).Name}");
+        IsLoaded = true;
+        return IsLoaded;
     }
     public virtual bool TryGet(HrtId id, [NotNullWhen(true)] out T? value) => Data.TryGetValue(id, out value);
     public virtual bool TryAdd(in T c)
@@ -82,7 +90,7 @@ public abstract class DataBaseTable<T> : IDataBaseTable<T> where T : class, IHas
     public IEnumerable<T> GetValues() => Data.Values;
     public ulong GetNextSequence() => NextSequence++;
     public abstract HrtWindow OpenSearchWindow(Action<T> onSelect, Action? onCancel = null);
-    internal string Serialize(JsonSerializerSettings settings)
+    public string Serialize(JsonSerializerSettings settings)
     {
         List<JsonConverter> savedConverters = new(settings.Converters);
         foreach (JsonConverter jsonConverter in RefConverters)

@@ -1,12 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using Newtonsoft.Json;
 using System.IO;
 using System.Threading;
-using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -14,73 +12,23 @@ public class HrtDataManager
 {
     public readonly bool Initialized;
     private volatile bool _saving = false;
-    private volatile bool _serializing = false;
     //Data
-    private readonly GearDb _gearDb;
-    private readonly CharacterDb _characterDb;
-    private readonly PlayerDb _playerDb;
-    private readonly RaidGroupDb _raidGroupDb;
+    private readonly DataBaseWrapper<GearDb, GearSet> _gearDb;
+    private readonly DataBaseWrapper<CharacterDb, Character> _characterDb;
+    private readonly DataBaseWrapper<PlayerDb, Player> _playerDb;
+    private readonly DataBaseWrapper<RaidGroupDb, RaidGroup> _raidGroupDb;
     private readonly List<RaidGroup>? _groups;
-    //File names
-    private const string GEAR_DB_JSON_FILE_NAME = "GearDB.json";
-    private const string CHAR_DB_JSON_FILE_NAME = "CharacterDB.json";
-    private const string PLAYER_DB_JSON_FILE_NAME = "PlayerDB.json";
-    private const string RAID_GROUP_DB_JSON_FILE_NAME = "RaidGroupDB.json";
-    private const string RAID_GROUP_JSON_FILE_NAME = "RaidGroups.json";
-    //Files
-    private readonly FileInfo _gearDbJsonFile;
-    private readonly FileInfo _charDbJsonFile;
-    private readonly FileInfo _playerDbJsonFile;
-    private readonly FileInfo _raidGroupDbJsonFile;
+
     //Directly Accessed Members
-    public bool Ready => Initialized && !_serializing;
+    public bool Ready => Initialized && !_saving;
+    internal readonly string SaveDir;
     [Obsolete]
     internal List<RaidGroup> Groups => _groups ?? new List<RaidGroup>();
 
-    internal IDataBaseTable<RaidGroup> RaidGroupDb
-    {
-        get
-        {
-            while (_serializing)
-            {
-                Thread.Sleep(1);
-            }
-            return _raidGroupDb;
-        }
-    }
-    internal IDataBaseTable<Player> PlayerDb
-    {
-        get
-        {
-            while (_serializing)
-            {
-                Thread.Sleep(1);
-            }
-            return _playerDb;
-        }
-    }
-    internal CharacterDb CharDb
-    {
-        get
-        {
-            while (_serializing)
-            {
-                Thread.Sleep(1);
-            }
-            return _characterDb;
-        }
-    }
-    internal GearDb GearDb
-    {
-        get
-        {
-            while (_serializing)
-            {
-                Thread.Sleep(1);
-            }
-            return _gearDb;
-        }
-    }
+    internal IDataBaseTable<RaidGroup> RaidGroupDb => _raidGroupDb.Database;
+    internal IDataBaseTable<Player> PlayerDb => _playerDb.Database;
+    internal CharacterDb CharDb => _characterDb.Database;
+    internal GearDb GearDb => _gearDb.Database;
     internal readonly IModuleConfigurationManager ModuleConfigurationManager;
     internal readonly IIdProvider IdProvider;
     private static readonly JsonSerializerSettings _jsonSettings = new()
@@ -93,9 +41,7 @@ public class HrtDataManager
     };
     public HrtDataManager(DalamudPluginInterface pluginInterface)
     {
-
         bool loadedSuccessful = true;
-        string configDirName = pluginInterface.ConfigDirectory.FullName;
         //Set up files &folders
         try
         {
@@ -105,58 +51,28 @@ public class HrtDataManager
         catch (IOException ioe)
         {
             ServiceManager.PluginLog.Error(ioe, "Could not create data directory");
-            loadedSuccessful = false;
+            throw new FailedToLoadException("Could not create data directory");
         }
+        SaveDir = pluginInterface.ConfigDirectory.FullName;
         ModuleConfigurationManager = new ModuleConfigurationManager(pluginInterface);
         IdProvider = new LocalIdProvider(this);
-        var raidGroupJsonFile =
-            new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{RAID_GROUP_JSON_FILE_NAME}");
-        _playerDbJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{PLAYER_DB_JSON_FILE_NAME}");
-        _charDbJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{CHAR_DB_JSON_FILE_NAME}");
-        _raidGroupDbJsonFile =
-            new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{RAID_GROUP_DB_JSON_FILE_NAME}");
-        _gearDbJsonFile = new FileInfo($"{configDirName}{Path.DirectorySeparatorChar}{GEAR_DB_JSON_FILE_NAME}");
+        _gearDb = new DataBaseWrapper<GearDb, GearSet>(this, new GearDb(IdProvider), "GearDB.json");
+        var gearRefConv = new HrtIdReferenceConverter<GearSet>(_gearDb.Database);
+        _characterDb =
+            new DataBaseWrapper<CharacterDb, Character>(this, new CharacterDb(IdProvider, new[] { gearRefConv }),
+                                                        "CharacterDB.json");
+        var charRefConv = new HrtIdReferenceConverter<Character>(_characterDb.Database);
+        _playerDb = new DataBaseWrapper<PlayerDb, Player>(this, new PlayerDb(IdProvider, new[] { charRefConv }),
+                                                          "PlayerDB.json");
+        _raidGroupDb = new DataBaseWrapper<RaidGroupDb, RaidGroup>(
+            this, new RaidGroupDb(IdProvider, new[] { new HrtIdReferenceConverter<Player>(_playerDb.Database) }),
+            "RaidGroupDB.json");
 
-        try
-        {
-            if (!_playerDbJsonFile.Exists)
-                _playerDbJsonFile.Create().Close();
-            if (!_charDbJsonFile.Exists)
-                _charDbJsonFile.Create().Close();
-            if (!_raidGroupDbJsonFile.Exists)
-                _raidGroupDbJsonFile.Create().Close();
-            if (!_gearDbJsonFile.Exists)
-                _gearDbJsonFile.Create().Close();
-        }
-        catch (IOException)
-        {
-            loadedSuccessful = false;
-        }
+        loadedSuccessful &= _gearDb.Load();
+        loadedSuccessful &= _characterDb.Load();
 
-        //Read files
-        loadedSuccessful &= TryRead(_gearDbJsonFile, out string gearJson);
-        loadedSuccessful &= TryRead(_charDbJsonFile, out string charDbJson);
-
-        try
-        {
-            _gearDb = new GearDb(IdProvider, gearJson, _jsonSettings);
-        }
-        catch (JsonSerializationException)
-        {
-            _gearDb = new GearDb(IdProvider, string.Empty, _jsonSettings);
-        }
-        var gearRefConv = new HrtIdReferenceConverter<GearSet>(_gearDb);
-        try
-        {
-            _characterDb = new CharacterDb(IdProvider, charDbJson, new[] { gearRefConv }, _jsonSettings);
-        }
-        catch (JsonSerializationException)
-        {
-            _characterDb = new CharacterDb(IdProvider, string.Empty, new[] { gearRefConv }, _jsonSettings);
-        }
-
-        var charRefConv = new HrtIdReferenceConverter<Character>(_characterDb);
         //Migration
+        var raidGroupJsonFile = new FileInfo($"{SaveDir}{Path.DirectorySeparatorChar}RaidGroups.json");
         if (raidGroupJsonFile.Exists)
         {
             loadedSuccessful = TryRead(raidGroupJsonFile, out string raidGroupJson);
@@ -164,23 +80,21 @@ public class HrtDataManager
             _groups = JsonConvert.DeserializeObject<List<RaidGroup>>(raidGroupJson, _jsonSettings)
                    ?? new List<RaidGroup>();
             _jsonSettings.Converters.Remove(charRefConv);
-            _playerDb = new PlayerDb(IdProvider, "[]", new[] { charRefConv }, _jsonSettings);
-            _raidGroupDb = new RaidGroupDb(IdProvider, "[]", new[] { new HrtIdReferenceConverter<Player>(_playerDb) },
-                                           _jsonSettings);
+            _playerDb.LoadEmpty();
+            _raidGroupDb.LoadEmpty();
             foreach (RaidGroup group in _groups)
             {
                 foreach (Player player in group)
                 {
-                    _playerDb.TryAdd(player);
+                    _playerDb.Database.TryAdd(player);
                 }
-                _raidGroupDb.TryAdd(group);
+                _raidGroupDb.Database.TryAdd(group);
             }
             Initialized = true;
             if (Save())
                 try
                 {
-                    raidGroupJsonFile.MoveTo(
-                        $"{configDirName}{Path.DirectorySeparatorChar}{RAID_GROUP_JSON_FILE_NAME}.bak", true);
+                    raidGroupJsonFile.MoveTo(raidGroupJsonFile.FullName + ".bak", true);
                 }
                 catch (Exception)
                 {
@@ -190,21 +104,18 @@ public class HrtDataManager
             //Remove old backup files
             try
             {
-                File.Delete($"{configDirName}{Path.DirectorySeparatorChar}HrtGearDB.json.bak");
-                File.Delete($"{configDirName}{Path.DirectorySeparatorChar}EtroGearDB.json.bak");
-                File.Delete($"{configDirName}{Path.DirectorySeparatorChar}CharacterDB.json.bak");
+                File.Delete($"{SaveDir}{Path.DirectorySeparatorChar}HrtGearDB.json.bak");
+                File.Delete($"{SaveDir}{Path.DirectorySeparatorChar}EtroGearDB.json.bak");
+                File.Delete($"{SaveDir}{Path.DirectorySeparatorChar}CharacterDB.json.bak");
             }
             catch (Exception e) when (e is ArgumentException or ArgumentNullException or DirectoryNotFoundException
                                         or IOException or NotSupportedException or PathTooLongException
                                         or UnauthorizedAccessException) { }
 
         }
-        loadedSuccessful &= TryRead(_playerDbJsonFile, out string playerDbJson);
-        loadedSuccessful &= TryRead(_raidGroupDbJsonFile, out string raidGroupDbJson);
-        _playerDb = new PlayerDb(IdProvider, playerDbJson,
-                                 new[] { new HrtIdReferenceConverter<Character>(_characterDb) }, _jsonSettings);
-        _raidGroupDb = new RaidGroupDb(IdProvider, raidGroupDbJson,
-                                       new[] { new HrtIdReferenceConverter<Player>(_playerDb) }, _jsonSettings);
+        loadedSuccessful &= _playerDb.Load();
+        loadedSuccessful &= _raidGroupDb.Load();
+
         Initialized = loadedSuccessful;
     }
 
@@ -239,47 +150,82 @@ public class HrtDataManager
             return false;
         }
     }
-    internal static bool TryWrite(FileInfo file, in string data)
-    {
-
-        try
-        {
-            using StreamWriter writer = file.CreateText();
-            writer.Write(data);
-            return true;
-        }
-        catch (Exception e)
-        {
-            ServiceManager.PluginLog.Error(e, "Could not write data file");
-            return false;
-        }
-    }
     public bool Save()
     {
         if (!Initialized || _saving)
             return false;
+        //Saving all data (functions are locked while this happens)
         _saving = true;
         DateTime time1 = DateTime.Now;
-        //Serialize all data (functions are locked while this happens)
-        _serializing = true;
-        string groupData = _raidGroupDb.Serialize(_jsonSettings);
-        string playerData = _playerDb.Serialize(_jsonSettings);
-        string characterData = _characterDb.Serialize(_jsonSettings);
-        string gearData = _gearDb.Serialize(_jsonSettings);
-        _serializing = false;
-        //Write serialized data
-        DateTime time2 = DateTime.Now;
-        bool hasError = !TryWrite(_gearDbJsonFile, gearData);
-        if (!hasError)
-            hasError |= !TryWrite(_charDbJsonFile, characterData);
-        if (!hasError)
-            hasError |= !TryWrite(_playerDbJsonFile, playerData);
-        if (!hasError)
-            hasError |= !TryWrite(_raidGroupDbJsonFile, groupData);
+        bool savedSuccessful = _gearDb.Save();
+        if (savedSuccessful)
+            savedSuccessful &= _characterDb.Save();
+        if (savedSuccessful)
+            savedSuccessful &= _playerDb.Save();
+        if (savedSuccessful)
+            savedSuccessful &= _raidGroupDb.Save();
         _saving = false;
-        DateTime time3 = DateTime.Now;
-        ServiceManager.PluginLog.Debug($"Database serializing time: {time2 - time1}");
-        ServiceManager.PluginLog.Debug($"Database saving IO time: {time3 - time2}");
-        return !hasError;
+        DateTime time2 = DateTime.Now;
+        ServiceManager.PluginLog.Debug($"Database saving time: {time2 - time1}");
+        return savedSuccessful;
+    }
+
+    private class DataBaseWrapper<TDb, TEntry> where TDb : IDataBaseTable<TEntry> where TEntry : IHasHrtId
+    {
+        private readonly HrtDataManager _parent;
+        private readonly TDb _database;
+        internal TDb Database
+        {
+            get
+            {
+                while (_parent._saving)
+                {
+                    Thread.Sleep(1);
+                }
+                return _database;
+            }
+        }
+        private readonly FileInfo _file;
+
+        internal DataBaseWrapper(HrtDataManager parent, TDb database, string fileName)
+        {
+            _parent = parent;
+            _database = database;
+            _file = new FileInfo($"{parent.SaveDir}{Path.DirectorySeparatorChar}{fileName}");
+        }
+        internal bool Load()
+        {
+            if (!_file.Exists)
+                return LoadEmpty();
+            if (!TryRead(_file, out string jsonData))
+            {
+                LoadEmpty();
+                return false;
+            }
+            try
+            {
+                return _database.Load(_jsonSettings, jsonData);
+            }
+            catch (JsonSerializationException)
+            {
+                LoadEmpty();
+                return false;
+            }
+        }
+        internal bool LoadEmpty() => _database.Load(_jsonSettings, "");
+        internal bool Save()
+        {
+            string data = _database.Serialize(_jsonSettings);
+            try
+            {
+                Dalamud.Utility.Util.WriteAllTextSafe(_file.FullName, data);
+                return true;
+            }
+            catch (Win32Exception e)
+            {
+                ServiceManager.PluginLog.Error(e, "Could not write data file");
+                return false;
+            }
+        }
     }
 }
