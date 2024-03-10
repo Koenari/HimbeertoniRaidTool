@@ -20,15 +20,16 @@ internal class LocalIdProvider : IIdProvider
     internal LocalIdProvider(HrtDataManager dataManager)
     {
         _dataManager = dataManager;
-        _signingProvider = new HMACSHA512();
         if (!dataManager.ModuleConfigurationManager.LoadConfiguration(CONFIG_FILE_NAME, ref _data))
             throw new FailedToLoadException("Could not create ID Authority");
+        _signingProvider = new HMACSHA512(_data.Key);
         if (_data.Authority != 0)
             return;
         SecureRandom(ref _data.Authority);
         _numberGenerator.GetBytes(_data.Key);
         if (!dataManager.ModuleConfigurationManager.SaveConfiguration(CONFIG_FILE_NAME, _data))
             throw new FailedToLoadException("Could not create ID Authority");
+        _signingProvider = new HMACSHA512(_data.Key);
     }
     //Public Functions
     public uint GetAuthorityIdentifier() => _data.Authority;
