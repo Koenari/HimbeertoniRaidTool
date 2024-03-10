@@ -60,6 +60,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Calendar.
+        /// </summary>
+        internal static string CalendarUi_Title {
+            get {
+                return ResourceManager.GetString("CalendarUi_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Shows the calendar.
         /// </summary>
         internal static string Commands_calenadr_helpText {

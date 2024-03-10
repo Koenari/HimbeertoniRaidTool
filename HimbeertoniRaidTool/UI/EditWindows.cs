@@ -40,6 +40,10 @@ public static class EditWindowFactory
                 if (DataManager.GearDb.TryGet(id, out GearSet? gearSet))
                     return Create(gearSet, onSave as Action<GearSet>, onCancel, param);
                 break;
+            case HrtId.IdType.RaidSession:
+                if (DataManager.RaidSessionDb.TryGet(id, out RaidSession? raidSession))
+                    return Create(raidSession, onSave as Action<RaidSession>, onCancel, param);
+                break;
             case HrtId.IdType.None:
             default:
                 return null;
@@ -57,6 +61,8 @@ public static class EditWindowFactory
         HrtId.IdType.Gear when data is GearSet gs => new EditGearSetWindow(
             gs, onSave as Action<GearSet>, onCancel, param as Job?),
         HrtId.IdType.Group when data is RaidGroup rg => new EditGroupWindow(rg, onSave as Action<RaidGroup>, onCancel),
+        HrtId.IdType.RaidSession when data is RaidSession rs => new EditRaidSessionWindow(
+            rs, onSave as Action<RaidSession>, onCancel),
         HrtId.IdType.None => null,
         _                 => null,
     };
@@ -77,6 +83,7 @@ public static class EditWindowFactory
             _onCancel = onCancel;
             _onSave = onSave;
             Title = string.Format(GeneralLoc.EditUi_Title, _original.DataTypeName, _original.Name).CapitaliezSentence();
+            Show();
         }
         public override sealed void Draw()
         {
@@ -563,5 +570,29 @@ public static class EditWindowFactory
             destination.CopyFrom(DataCopy);
             ServiceManager.HrtDataManager.Save();
         }
+    }
+}
+
+    private class EditRaidSessionWindow : EditWindow<RaidSession>
+    {
+
+        public EditRaidSessionWindow(RaidSession original, Action<RaidSession>? onSave, Action? onCancel) :
+            base(original, onSave, onCancel)
+        {
+        }
+        protected override void DrawContent()
+        {
+            ImGui.Text($"{DataCopy.Name} @ {DataCopy.StartTime:f}");
+            ImGui.Text("Participants");
+            foreach (Participant participant in DataCopy.Participants)
+            {
+                ImGui.Text($"{participant.Player.NickName}: {participant.InvitationStatus}");
+            }
+        }
+        protected override void Save(RaidSession destination)
+        {
+
+        }
+        protected override void Cancel() { }
     }
 }

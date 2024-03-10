@@ -38,7 +38,9 @@ internal class CalendarModuleConfig : ModuleConfiguration<CalendarModuleConfig.C
              * Ui
              */
             ImGui.Text("Ui");
-            ImGuiHelper.Combo("First day", ref _dataCopy.FirstDayOfWeek);
+            ImGui.Text("Weeks start on");
+            ImGui.SameLine();
+            ImGuiHelper.Combo("##FirstDayOfWeek", ref _dataCopy.FirstDayOfWeek);
         }
 
         public void OnHide() { }
