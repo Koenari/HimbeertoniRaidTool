@@ -64,7 +64,7 @@ public class CalendarModule : IHrtModule
 
 
     public void OnLogin() => UiReady?.Invoke();
-    public void AfterFullyLoaded() { }
+    public void AfterFullyLoaded() => _calendarUi.Show(); //Todo: Remove after testing
 
     public void OnLanguageChange(string langCode) => CalendarLoc.Culture = new CultureInfo(langCode);
     public void Dispose() { }

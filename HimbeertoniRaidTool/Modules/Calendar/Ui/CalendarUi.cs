@@ -1,4 +1,6 @@
 using System.Numerics;
+using Dalamud.Interface.Utility;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -18,24 +20,25 @@ internal class CalendarUi : HrtWindow
     private Month _month;
 
     private Vector2 _daySize = new(200, 100);
-    public Vector2 DaySize => _daySize * ScaleFactor;
+    public Vector2 DaySize => _daySize;
 
     public DayOfWeek FirstDayOfWeek => _module.ModuleConfigImpl.Data.FirstDayOfWeek;
 
-    public CalendarUi(CalendarModule module) : base()
+    public CalendarUi(CalendarModule module) : base("##calendarUi")
     {
         _module = module;
-        Title = "Calendar";
+        Title = CalendarLoc.CalendarUi_Title;
         DateTime now = DateTime.Now;
         _year = now.Year;
         _inputYear = now.Year;
         _month = (Month)now.Month;
         _inputLastChanged = now;
+        (Size, SizeCondition) = (ImGui.GetIO().DisplaySize / 3, ImGuiCond.Appearing); //Todo: change to first time
     }
 
     public override void Draw()
     {
-        _daySize.X = ImGui.GetWindowSize().X / 7.0f / ScaleFactor;
+        _daySize.X = ImGui.GetWindowSize().X / 8f;
         DrawHeader();
         ProcessInput();
         ImGui.NewLine();
@@ -84,7 +87,7 @@ internal class CalendarUi : HrtWindow
 
     private void DrawCalendar()
     {
-        if (!ImGui.BeginTable("Calendar", 7, ImGuiTableFlags.Borders)) return;
+        if (!ImGui.BeginTable("##calendar", 7, ImGuiTableFlags.Borders)) return;
         DateOnly day = new(_year, (int)_month, 1);
         ImGui.TableSetupColumn(Weekday.Monday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
         ImGui.TableSetupColumn(Weekday.Tuesday.Name(), ImGuiTableColumnFlags.WidthFixed,
@@ -118,7 +121,7 @@ internal class CalendarUi : HrtWindow
 
     private void DrawDay(DateOnly date, IEnumerable<RaidSession> entries)
     {
-
+        ImGui.BeginGroup();
         ImGui.BeginDisabled(date.Month != (int)_month);
         ImGui.Text($"{date.Day}");
         bool hasDrawn = false;
@@ -132,5 +135,21 @@ internal class CalendarUi : HrtWindow
 
         if (!hasDrawn) ImGui.Text(CalendarLoc.UI_Calendar_Day_Nothing);
         ImGui.EndDisabled();
+        ImGui.EndGroup();
+        string newEntryPopupId = $"NewCalendarEntryPopup{date}";
+        if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+            ImGui.OpenPopup(newEntryPopupId);
+        if (ImGui.BeginPopup(newEntryPopupId))
+        {
+            if (ImGuiHelper.AddButton(RaidSession.DataTypeNameStatic, "#add"))
+            {
+                HrtWindowWithModalChild? window =
+                    EditWindowFactory.Create(new RaidSession(date.ToDateTime(TimeOnly.MinValue)));
+                if (window is not null)
+                    _module.WindowSystem.AddWindow(window);
+                ImGui.CloseCurrentPopup();
+            }
+            ImGui.EndPopup();
+        }
     }
 }

@@ -42,6 +42,10 @@ public static class EditWindowFactory
                 if (DataManager.GearDb.TryGet(id, out GearSet? gearSet))
                     return Create(gearSet, onSave as Action<GearSet>, onCancel, param);
                 break;
+            case HrtId.IdType.RaidSession:
+                if (DataManager.RaidSessionDb.TryGet(id, out RaidSession? raidSession))
+                    return Create(raidSession, onSave as Action<RaidSession>, onCancel, param);
+                break;
             case HrtId.IdType.None:
             default:
                 return null;
@@ -59,6 +63,8 @@ public static class EditWindowFactory
         HrtId.IdType.Gear when data is GearSet gs => new EditGearSetWindow(
             gs, onSave as Action<GearSet>, onCancel, param as Job?),
         HrtId.IdType.Group when data is RaidGroup rg => new EditGroupWindow(rg, onSave as Action<RaidGroup>, onCancel),
+        HrtId.IdType.RaidSession when data is RaidSession rs => new EditRaidSessionWindow(
+            rs, onSave as Action<RaidSession>, onCancel),
         HrtId.IdType.None => null,
         _                 => null,
     };
@@ -79,6 +85,7 @@ public static class EditWindowFactory
             _onCancel = onCancel;
             _onSave = onSave;
             Title = string.Format(GeneralLoc.EditUi_Title, _original.DataTypeName, _original.Name).CapitaliezSentence();
+            Show();
         }
         public override sealed void Draw()
         {
@@ -566,236 +573,27 @@ public static class EditWindowFactory
             ServiceManager.HrtDataManager.Save();
         }
     }
-}
 
-internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
-{
-    // ReSharper disable once StaticMemberInGenericType
-    protected static readonly ExcelSheet<Item> Sheet = ServiceManager.DataManager.GetExcelSheet<Item>()!;
-    private readonly Action<T?> _onCancel;
-    private readonly Action<T> _onSave;
-    protected T? Item;
-
-    internal SelectItemWindow(Action<T> onSave, Action<T?> onCancel)
+    private class EditRaidSessionWindow : EditWindow<RaidSession>
     {
-        (_onSave, _onCancel) = (onSave, onCancel);
-        Flags = ImGuiWindowFlags.NoCollapse;
-    }
-    protected virtual bool CanSave { get; set; } = true;
 
-
-    public override void Draw()
-    {
-        if (CanSave && ImGuiHelper.SaveButton())
-            Save();
-        ImGui.SameLine();
-        if (ImGuiHelper.CancelButton())
-            Cancel();
-        DrawItemSelection();
-        ImGui.End();
-    }
-
-    protected void Save(T? item = null)
-    {
-        if (item != null)
-            Item = item;
-        if (Item != null)
-            _onSave(Item);
-        else
-            _onCancel(Item);
-        Hide();
-    }
-
-    protected void Cancel()
-    {
-        _onCancel(Item);
-        Hide();
-    }
-
-    protected abstract void DrawItemSelection();
-}
-
-internal class SelectGearItemWindow : SelectItemWindow<GearItem>
-{
-    private readonly bool _lockJob;
-    private readonly bool _lockSlot;
-    private List<Item> _items;
-    private Job? _job;
-    private int _maxILvl;
-    private int _minILvl;
-    private IEnumerable<GearSetSlot> _slots;
-
-    public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? currentItem = null,
-                                GearSetSlot? slot = null, Job? job = null, int maxItemLevel = 0) : base(
-        onSave, onCancel)
-    {
-        Item = currentItem;
-        if (slot.HasValue)
+        public EditRaidSessionWindow(RaidSession original, Action<RaidSession>? onSave, Action? onCancel) :
+            base(original, onSave, onCancel)
         {
-            _lockSlot = true;
-            _slots = new[] { slot.Value };
         }
-        else
+        protected override void DrawContent()
         {
-            _slots = Item?.Slots ?? Array.Empty<GearSetSlot>();
-        }
-
-        _lockJob = job.HasValue;
-        _job = job;
-        Title = GeneralLoc.SelectGearItemui_Title
-              + $"{string.Join(',', _slots.Select((e, _) => e.FriendlyName()))}";
-        _maxILvl = maxItemLevel;
-        _minILvl = _maxILvl > 30 ? _maxILvl - 30 : 0;
-        _items = ReevaluateItems();
-    }
-    protected override bool CanSave => false;
-
-    protected override void DrawItemSelection()
-    {
-        //Draw selection bar
-        ImGui.SetNextItemWidth(65f * ScaleFactor);
-        ImGui.BeginDisabled(_lockJob);
-        if (ImGuiHelper.Combo("##job", ref _job))
-            ReevaluateItems();
-        ImGui.EndDisabled();
-        ImGui.SameLine();
-        ImGui.SetNextItemWidth(125f * ScaleFactor);
-        ImGui.BeginDisabled(_lockSlot);
-        GearSetSlot slot = _slots.FirstOrDefault(GearSetSlot.None);
-        if (ImGuiHelper.Combo("##slot", ref slot, t => t.FriendlyName()))
-        {
-            _slots = new[] { slot };
-            ReevaluateItems();
-        }
-
-        ImGui.SameLine();
-        ImGui.EndDisabled();
-        ImGui.SetNextItemWidth(100f * ScaleFactor);
-        int min = _minILvl;
-        if (ImGui.InputInt("-##min", ref min, 5))
-        {
-            _minILvl = min;
-            ReevaluateItems();
-        }
-
-        ImGui.SameLine();
-        int max = _maxILvl;
-        ImGui.SetNextItemWidth(100f * ScaleFactor);
-        if (ImGui.InputInt("iLvL##Max", ref max, 5))
-        {
-            _maxILvl = max;
-            ReevaluateItems();
-        }
-
-        //Draw item list
-        foreach (Item item in _items)
-        {
-            bool isCurrentItem = item.RowId == Item?.Id;
-            if (isCurrentItem)
-                ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
-            if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", GeneralLoc.SelectItemUi_btn_tt_useThis,
-                                   true,
-                                   new Vector2(32f, 32f)))
+            ImGui.Text($"{DataCopy.Name} @ {DataCopy.StartTime:f}");
+            ImGui.Text("Participants");
+            foreach (Participant participant in DataCopy.Participants)
             {
-                if (isCurrentItem)
-                    Cancel();
-                else
-                    Save(new GearItem(item.RowId) { IsHq = item.CanBeHq });
-            }
-
-            if (isCurrentItem)
-                ImGui.PopStyleColor();
-            ImGui.SameLine();
-            ImGui.BeginGroup();
-            ImGui.Image(ServiceManager.IconCache.LoadIcon(item.Icon, item.CanBeHq).ImGuiHandle,
-                        new Vector2(32f, 32f));
-            ImGui.SameLine();
-            ImGui.Text($"{item.Name.RawString} (IL {item.LevelItem.Row})");
-            ImGui.EndGroup();
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                item.Draw();
-                ImGui.EndTooltip();
+                ImGui.Text($"{participant.Player.NickName}: {participant.InvitationStatus}");
             }
         }
-    }
-
-    private List<Item> ReevaluateItems()
-    {
-        _items = Sheet.Where(x =>
-                                 x.ClassJobCategory.Row != 0
-                              && (!_slots.Any() ||
-                                  _slots.Any(slot => slot == GearSetSlot.None
-                                                  || x.EquipSlotCategory.Value.Contains(slot)))
-                              && (_maxILvl == 0 || x.LevelItem.Row <= _maxILvl)
-                              && x.LevelItem.Row >= _minILvl
-                              && (_job.GetValueOrDefault(0) == 0
-                               || x.ClassJobCategory.Value.Contains(_job.GetValueOrDefault()))
-        ).Take(50).ToList();
-        _items.Sort((x, y) => (int)y.LevelItem.Row - (int)x.LevelItem.Row);
-        return _items;
-    }
-}
-
-internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
-{
-    private static readonly Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>> _allMateria;
-
-    private readonly MateriaLevel _maxLvl;
-
-    static SelectMateriaWindow()
-    {
-        _allMateria = new Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>>();
-        foreach (MateriaLevel lvl in Enum.GetValues<MateriaLevel>())
+        protected override void Save(RaidSession destination)
         {
-            Dictionary<MateriaCategory, HrtMateria> mats = new();
-            foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>())
-            {
-                mats[cat] = new HrtMateria(cat, lvl);
-            }
-            _allMateria[lvl] = mats;
+
         }
-    }
-
-    public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, MateriaLevel maxMatLvl,
-                               MateriaLevel? matLevel = null) : base(onSave, onCancel)
-    {
-        _maxLvl = matLevel ?? maxMatLvl;
-        Title = GeneralLoc.SelectMateriaUi_Title;
-        string longestName = Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "";
-        Size = new Vector2(ImGui.CalcTextSize(longestName).X + 200f, 120f);
-    }
-    protected override bool CanSave => false;
-
-    protected override void DrawItemSelection()
-    {
-        //1 Row per Level
-        for (MateriaLevel lvl = _maxLvl; lvl != MateriaLevel.None; --lvl)
-        {
-            ImGui.Text($"{lvl}");
-            foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>())
-            {
-                if (cat == MateriaCategory.None) continue;
-                DrawButton(cat, lvl);
-                ImGui.SameLine();
-            }
-
-            ImGui.NewLine();
-            ImGui.Separator();
-        }
-
-        void DrawButton(MateriaCategory cat, MateriaLevel lvl)
-        {
-            HrtMateria mat = _allMateria[lvl][cat];
-            if (ImGui.ImageButton(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new Vector2(32)))
-                Save(mat);
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                mat.Draw();
-                ImGui.EndTooltip();
-            }
-        }
+        protected override void Cancel() { }
     }
 }

@@ -41,4 +41,7 @@
     <data name="Commands_calenadr_helpText" xml:space="preserve">
         <value>Shows the calendar</value>
     </data>
+    <data name="CalendarUi_Title" xml:space="preserve">
+        <value>Calendar</value>
+    </data>
 </root>
