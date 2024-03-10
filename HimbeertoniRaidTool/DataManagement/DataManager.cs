@@ -212,7 +212,7 @@ public class HrtDataManager
                 return false;
             }
         }
-        internal bool LoadEmpty() => _database.Load(_jsonSettings, "");
+        internal bool LoadEmpty() => _database.Load(_jsonSettings, "[]");
         internal bool Save()
         {
             string data = _database.Serialize(_jsonSettings);

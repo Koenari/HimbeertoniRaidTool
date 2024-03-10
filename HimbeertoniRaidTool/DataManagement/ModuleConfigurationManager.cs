@@ -46,7 +46,7 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
             Dalamud.Utility.Util.WriteAllTextSafe(file.FullName, json);
             writeSuccess = true;
         }
-        catch (Win32Exception e)
+        catch (Win32Exception)
         {
             writeSuccess = false;
         }
