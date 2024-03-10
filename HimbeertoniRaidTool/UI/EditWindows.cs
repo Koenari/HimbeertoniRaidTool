@@ -9,37 +9,38 @@ using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
+using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
 public static class EditWindowFactory
 {
     private static HrtDataManager DataManager => ServiceManager.HrtDataManager;
-    public static HrtWindowWithModalChild? Create<T>(HrtId id, Action<T>? onSave = null, Action<T>? onCancel = null,
-                                                     object? param = null)
-        where T : IHasHrtId, new()
+    public static HrtWindowWithModalChild? Create<TData>(HrtId id, Action<TData>? onSave = null,
+                                                         Action? onCancel = null,
+                                                         object? param = null)
+        where TData : IHasHrtId, new()
     {
-        HrtId.IdType type = new T().IdType;
+        HrtId.IdType type = new TData().IdType;
         if (id.Type != type) return null;
         switch (type)
         {
             case HrtId.IdType.Group:
                 if (DataManager.RaidGroupDb.TryGet(id, out RaidGroup? group))
-                    return Create(group, onSave as Action<RaidGroup>, onCancel as Action<RaidGroup>, param);
+                    return Create(group, onSave as Action<RaidGroup>, onCancel, param);
                 break;
             case HrtId.IdType.Player:
                 if (DataManager.PlayerDb.TryGet(id, out Player? player))
-                    return Create(player, onSave as Action<Player>, onCancel as Action<Player>, param);
+                    return Create(player, onSave as Action<Player>, onCancel, param);
                 break;
             case HrtId.IdType.Character:
                 if (DataManager.CharDb.TryGet(id, out Character? character))
-                    return Create(character, onSave as Action<Character>, onCancel as Action<Character>, param);
+                    return Create(character, onSave as Action<Character>, onCancel, param);
                 break;
             case HrtId.IdType.Gear:
                 if (DataManager.GearDb.TryGet(id, out GearSet? gearSet))
-                    return Create(gearSet, onSave as Action<GearSet>, onCancel as Action<GearSet>, param);
+                    return Create(gearSet, onSave as Action<GearSet>, onCancel, param);
                 break;
             case HrtId.IdType.None:
             default:
@@ -47,32 +48,31 @@ public static class EditWindowFactory
         }
         return null;
     }
-    public static HrtWindowWithModalChild? Create<S>(S data, Action<S>? onSave = null, Action<S>? onCancel = null,
-                                                     object? param = null)
-        where S : IHasHrtId => data.IdType switch
+    public static HrtWindowWithModalChild? Create<TData>(TData data, Action<TData>? onSave = null,
+                                                         Action? onCancel = null,
+                                                         object? param = null)
+        where TData : IHasHrtId => data.IdType switch
     {
-        HrtId.IdType.Player when data is Player p => new EditPlayerWindow(p, onSave as Action<Player>,
-                                                                          onCancel as Action<Player>),
-        HrtId.IdType.Character when data is Character c => new EditCharacterWindow(c, onSave as Action<Character>,
-            onCancel as Action<Character>),
-        HrtId.IdType.Gear when data is GearSet gs => new EditGearSetWindow(gs, onSave as Action<GearSet>,
-                                                                           onCancel as Action<GearSet>, param as Job?),
-        HrtId.IdType.Group when data is RaidGroup rg => new EditGroupWindow(rg, onSave as Action<RaidGroup>,
-                                                                            onCancel as Action<RaidGroup>),
+        HrtId.IdType.Player when data is Player p => new EditPlayerWindow(p, onSave as Action<Player>, onCancel),
+        HrtId.IdType.Character when data is Character c => new EditCharacterWindow(
+            c, onSave as Action<Character>, onCancel),
+        HrtId.IdType.Gear when data is GearSet gs => new EditGearSetWindow(
+            gs, onSave as Action<GearSet>, onCancel, param as Job?),
+        HrtId.IdType.Group when data is RaidGroup rg => new EditGroupWindow(rg, onSave as Action<RaidGroup>, onCancel),
         HrtId.IdType.None => null,
         _                 => null,
     };
 
-    private abstract class EditWindow<T> : HrtWindowWithModalChild where T : IHrtDataTypeWithId
+    private abstract class EditWindow<TData> : HrtWindowWithModalChild where TData : IHrtDataTypeWithId
     {
-        private readonly Action<T>? _onCancel;
+        private readonly Action? _onCancel;
 
-        private readonly Action<T>? _onSave;
+        private readonly Action<TData>? _onSave;
 
-        private T _original;
-        protected T DataCopy;
+        private TData _original;
+        protected TData DataCopy;
 
-        protected EditWindow(T original, Action<T>? onSave, Action<T>? onCancel)
+        protected EditWindow(TData original, Action<TData>? onSave, Action? onCancel)
         {
             _original = original;
             DataCopy = _original.Clone();
@@ -95,7 +95,7 @@ public static class EditWindowFactory
             if (ImGuiHelper.CancelButton())
             {
                 Cancel();
-                _onCancel?.Invoke(_original);
+                _onCancel?.Invoke();
                 Hide();
             }
             DrawContent();
@@ -103,13 +103,13 @@ public static class EditWindowFactory
         protected abstract void DrawContent();
         protected void Save() => Save(_original);
 
-        protected void ReplaceOriginal(T newOrg)
+        protected void ReplaceOriginal(TData newOrg)
         {
             _original = newOrg;
             DataCopy = _original.Clone();
         }
 
-        protected abstract void Save(T destination);
+        protected abstract void Save(TData destination);
         protected abstract void Cancel();
     }
 
@@ -117,7 +117,7 @@ public static class EditWindowFactory
     {
 
         internal EditGroupWindow(RaidGroup group, Action<RaidGroup>? onSave = null,
-                                 Action<RaidGroup>? onCancel = null) :
+                                 Action? onCancel = null) :
             base(group, onSave, onCancel)
         {
             Size = new Vector2(500, 170 + (group.RolePriority != null ? 180 : 0));
@@ -164,7 +164,7 @@ public static class EditWindowFactory
 
     private class EditPlayerWindow : EditWindow<Player>
     {
-        internal EditPlayerWindow(Player p, Action<Player>? onSave = null, Action<Player>? onCancel = null)
+        internal EditPlayerWindow(Player p, Action<Player>? onSave = null, Action? onCancel = null)
             : base(p, onSave, onCancel)
         {
             Size = new Vector2(450, 250);
@@ -255,7 +255,7 @@ public static class EditWindowFactory
         private const int CLASS_HEIGHT = 27 + 4;
         private Job _newJob = Job.ADV;
         internal EditCharacterWindow(Character character, Action<Character>? onSave = null,
-                                     Action<Character>? onCancel = null) : base(character, onSave, onCancel)
+                                     Action? onCancel = null) : base(character, onSave, onCancel)
         {
             Size = new Vector2(500, 295 + CLASS_HEIGHT * DataCopy.Classes.Count());
             SizeCondition = ImGuiCond.Appearing;
@@ -401,7 +401,7 @@ public static class EditWindowFactory
         private Job _job;
         private string _etroIdInput = "";
         internal EditGearSetWindow(GearSet original, Action<GearSet>? onSave = null,
-                                   Action<GearSet>? onCancel = null, Job? job = null) :
+                                   Action? onCancel = null, Job? job = null) :
             base(original, onSave, onCancel)
         {
             _job = job ?? original[GearSetSlot.MainHand].Jobs.FirstOrDefault(Job.ADV);
