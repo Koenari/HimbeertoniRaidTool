@@ -1,9 +1,9 @@
-﻿using HimbeertoniRaidTool.Common.Security;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -22,21 +22,17 @@ public interface IDataBaseTable<T> where T : IHasHrtId
     internal string Serialize(JsonSerializerSettings settings);
 }
 
-public abstract class DataBaseTable<T> : IDataBaseTable<T> where T : class, IHasHrtId
+public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
+    : IDataBaseTable<T>
+    where T : class, IHasHrtId
 {
 
     protected readonly Dictionary<HrtId, T> Data = new();
-    protected readonly IImmutableList<JsonConverter> RefConverters;
-    protected readonly IIdProvider IdProvider;
+    protected readonly IImmutableList<JsonConverter> RefConverters = ImmutableList.CreateRange(converters);
+    protected readonly IIdProvider IdProvider = idProvider;
     protected ulong NextSequence = 0;
     protected bool LoadError = false;
     protected bool IsLoaded = false;
-    protected DataBaseTable(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
-    {
-        IdProvider = idProvider;
-        RefConverters = ImmutableList.CreateRange(converters);
-
-    }
     public bool Load(JsonSerializerSettings settings, string serializedData)
     {
         List<JsonConverter> savedConverters = new(settings.Converters);
@@ -104,25 +100,22 @@ public abstract class DataBaseTable<T> : IDataBaseTable<T> where T : class, IHas
     public abstract HashSet<HrtId> GetReferencedIds();
     public virtual void FixEntries() { }
 
-    internal abstract class SearchWindow<Q, R> : HrtWindow where R : IDataBaseTable<Q> where Q : IHasHrtId
+    internal abstract class SearchWindow<TData, TDataBaseTable>(
+        TDataBaseTable dataBase,
+        Action<TData> onSelect,
+        Action? onCancel) : HrtWindow
+        where TDataBaseTable : IDataBaseTable<TData>
+        where TData : IHasHrtId
     {
-        protected readonly R Database;
-        private readonly Action<Q> _onSelect;
-        private readonly Action? _onCancel;
+        protected readonly TDataBaseTable Database = dataBase;
 
-        protected Q? Selected;
-        protected SearchWindow(R dataBase, Action<Q> onSelect, Action? onCancel)
-        {
-            _onSelect = onSelect;
-            _onCancel = onCancel;
-            Database = dataBase;
-        }
+        protected TData? Selected;
 
         protected void Save()
         {
             if (Selected == null)
                 return;
-            _onSelect.Invoke(Selected!);
+            onSelect.Invoke(Selected!);
             Hide();
         }
 
@@ -135,7 +128,7 @@ public abstract class DataBaseTable<T> : IDataBaseTable<T> where T : class, IHas
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
             {
-                _onCancel?.Invoke();
+                onCancel?.Invoke();
                 Hide();
             }
             DrawContent();

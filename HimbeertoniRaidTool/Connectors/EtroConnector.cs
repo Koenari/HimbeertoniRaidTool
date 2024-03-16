@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Dalamud.Plugin.Services;
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;

@@ -13,23 +13,17 @@ public interface IChatProvider
     void PrintError(SeString message, string? messageTag = null, ushort? tagColor = null);
 }
 
-internal class DalamudChatProxy : IChatProvider
+internal class DalamudChatProxy(IChatGui impl) : IChatProvider
 {
-    private readonly IChatGui _impl;
-
-    public DalamudChatProxy(IChatGui impl)
-    {
-        _impl = impl;
-    }
 
 
-    public void Print(XivChatEntry chat) => _impl.Print(chat);
+    public void Print(XivChatEntry chat) => impl.Print(chat);
     public void Print(string message, string? messageTag = null, ushort? tagColor = null) =>
-        _impl.Print(message, messageTag, tagColor);
+        impl.Print(message, messageTag, tagColor);
     public void Print(SeString message, string? messageTag = null, ushort? tagColor = null) =>
-        _impl.Print(message, messageTag, tagColor);
+        impl.Print(message, messageTag, tagColor);
     public void PrintError(string message, string? messageTag = null, ushort? tagColor = null) =>
-        _impl.PrintError(message, messageTag, tagColor);
+        impl.PrintError(message, messageTag, tagColor);
     public void PrintError(SeString message, string? messageTag = null, ushort? tagColor = null) =>
-        _impl.PrintError(message, messageTag, tagColor);
+        impl.PrintError(message, messageTag, tagColor);
 }

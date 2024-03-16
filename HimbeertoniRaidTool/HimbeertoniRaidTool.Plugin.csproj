@@ -2,18 +2,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Authors>Koenari</Authors>
-        <Company></Company>
         <Version>1.5.2.6</Version>
         <Description>A collection of useful tools for RaidGroups, including loot management</Description>
-        <Copyright></Copyright>
         <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>
         <Configurations>Release;Debug</Configurations>
     </PropertyGroup>
     <PropertyGroup>
-        <TargetFramework>net7.0-windows</TargetFramework>
+        <TargetFramework>net8.0-windows</TargetFramework>
         <Platforms>AnyCPU</Platforms>
         <Nullable>enable</Nullable>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>12</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -90,6 +88,7 @@
     </ItemGroup>
     <ItemGroup>
         <Using Include="HimbeertoniRaidTool.Plugin.Services"/>
+        <Using Include="HimbeertoniRaidTool.Common.Data"/>
         <Using Include="System"/>
         <Using Include="System.Collections.Generic"/>
         <Using Include="System.Linq"/>

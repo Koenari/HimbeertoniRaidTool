@@ -1,18 +1,18 @@
 ﻿using System.Globalization;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Calculations;
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
+using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
 using ServiceManager = HimbeertoniRaidTool.Plugin.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
 [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-public class LootRuling
+public class LootRuling : ICloneable
 {
     public static readonly LootRule Default = new(LootRuleEnum.None);
     public static readonly LootRule NeedOverGreed = new(LootRuleEnum.NeedGreed);
@@ -42,18 +42,14 @@ public class LootRuling
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class LootRule : IEquatable<LootRule>, IDrawable, IHrtDataType
+[method: JsonConstructor]
+public class LootRule(LootRuleEnum rule) : IEquatable<LootRule>, IDrawable, IHrtDataType
 {
-    [JsonProperty("Rule")] public readonly LootRuleEnum Rule;
+    [JsonProperty("Rule")] public readonly LootRuleEnum Rule = rule;
 
     [JsonProperty("Active")] public bool Active = true;
 
     [JsonProperty("IgnoreActive")] public bool IgnorePlayers;
-    [JsonConstructor]
-    public LootRule(LootRuleEnum rule)
-    {
-        Rule = rule;
-    }
     public static string DataTypeNameStatic => LootmasterLoc.LootRule_DataTypeName;
 
     public bool CanIgnore =>

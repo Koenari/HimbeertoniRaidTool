@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.IO;
 using Dalamud.Plugin;
+using Dalamud.Utility;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
@@ -43,7 +44,7 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
         bool writeSuccess;
         try
         {
-            Dalamud.Utility.Util.WriteAllTextSafe(file.FullName, json);
+            Util.WriteAllTextSafe(file.FullName, json);
             writeSuccess = true;
         }
         catch (Win32Exception)

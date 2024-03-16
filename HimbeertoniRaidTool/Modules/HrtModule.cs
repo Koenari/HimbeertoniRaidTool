@@ -30,19 +30,14 @@ public interface IWindowSystem
     void RemoveWindow(HrtWindow hrtWindow);
 }
 
-internal class DalamudWindowSystem : IWindowSystem
+internal class DalamudWindowSystem(WindowSystem implementation) : IWindowSystem
 {
-    private readonly WindowSystem _windowSystemImplementation;
-    public DalamudWindowSystem(WindowSystem implementation)
-    {
-        _windowSystemImplementation = implementation;
-    }
-    public void Draw() => _windowSystemImplementation.Draw();
+    public void Draw() => implementation.Draw();
 
-    public void AddWindow(HrtWindow window) => _windowSystemImplementation.AddWindow(window);
-    public void RemoveAllWindows() => _windowSystemImplementation.RemoveAllWindows();
-    public void RemoveWindow(HrtWindow hrtWindow) => _windowSystemImplementation.RemoveWindow(hrtWindow);
-    public IEnumerable<HrtWindow> Windows => _windowSystemImplementation.Windows.Cast<HrtWindow>();
+    public void AddWindow(HrtWindow window) => implementation.AddWindow(window);
+    public void RemoveAllWindows() => implementation.RemoveAllWindows();
+    public void RemoveWindow(HrtWindow hrtWindow) => implementation.RemoveWindow(hrtWindow);
+    public IEnumerable<HrtWindow> Windows => implementation.Windows.Cast<HrtWindow>();
 }
 
 public struct HrtCommand

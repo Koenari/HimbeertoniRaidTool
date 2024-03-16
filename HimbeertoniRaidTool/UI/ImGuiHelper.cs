@@ -3,7 +3,6 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 using ImGuiNET;

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -37,7 +38,7 @@ internal unsafe class CharacterInfoService
         {
             bool found =
                 partyMember.ObjectId == character.ObjectId
-                || partyMember.Name.Equals(character.Name) && partyMember.World.Id == character.CurrentWorld.Id;
+             || partyMember.Name.Equals(character.Name) && partyMember.World.Id == character.CurrentWorld.Id;
             if (found)
                 return (ulong)partyMember.ContentId;
         }
@@ -49,7 +50,7 @@ internal unsafe class CharacterInfoService
             var entry = PartyInfo->InfoProxyCommonList.GetEntry(i);
             if (entry == null) continue;
             if (entry->HomeWorld != character.HomeWorld.Id) continue;
-            string name = System.Text.Encoding.Default.GetString(entry->Name, 32);
+            string name = Encoding.Default.GetString(entry->Name, 32);
             if (name.Equals(character.Name.TextValue))
                 return entry->ContentId;
         }
@@ -64,7 +65,7 @@ internal unsafe class CharacterInfoService
         {
             result = _gameObjects.SearchById(id) as PlayerCharacter;
             if (result?.Name.TextValue == name
-                && (w is null || w.RowId == result.HomeWorld.Id))
+             && (w is null || w.RowId == result.HomeWorld.Id))
                 return true;
             else
                 _cache.Remove(name);
@@ -82,8 +83,8 @@ internal unsafe class CharacterInfoService
             {
                 var p = o as PlayerCharacter;
                 return p != null
-                       && p.Name.TextValue == name
-                       && (w is null || p.HomeWorld.Id == w.RowId);
+                    && p.Name.TextValue == name
+                    && (w is null || p.HomeWorld.Id == w.RowId);
             }, null) as PlayerCharacter;
         if (result != null)
         {

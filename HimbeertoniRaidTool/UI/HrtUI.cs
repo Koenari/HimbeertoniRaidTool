@@ -118,15 +118,10 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     public override int GetHashCode() => _id.GetHashCode();
 }
 
-public class HrtUiMessage
+public class HrtUiMessage(string msg, HrtUiMessageType msgType = HrtUiMessageType.Info)
 {
-    public string Message;
-    public HrtUiMessageType MessageType;
-    public HrtUiMessage(string msg, HrtUiMessageType msgType = HrtUiMessageType.Info)
-    {
-        MessageType = msgType;
-        Message = msg;
-    }
+    public string Message = msg;
+    public HrtUiMessageType MessageType = msgType;
     public static HrtUiMessage Empty => new("", HrtUiMessageType.Discard);
 }
 

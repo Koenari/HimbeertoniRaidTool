@@ -9,7 +9,7 @@ internal class ConnectorPool
 
     internal ConnectorPool(TaskManager tm, IPluginLog log)
     {
-        EtroConnector = new EtroConnector(tm,log);
+        EtroConnector = new EtroConnector(tm, log);
         LodestoneConnector = new LodestoneConnector();
     }
 }

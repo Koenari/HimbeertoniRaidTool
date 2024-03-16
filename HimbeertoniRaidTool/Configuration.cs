@@ -6,6 +6,7 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
+using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
 
 namespace HimbeertoniRaidTool.Plugin;
 
@@ -159,15 +160,10 @@ public interface IHrtConfiguration
     public void AfterLoad();
 }
 
-internal abstract class ModuleConfiguration<T> : IHrtConfiguration where T : IHrtConfigData, new()
+internal abstract class ModuleConfiguration<T>(IHrtModule module) : IHrtConfiguration
+    where T : IHrtConfigData, new()
 {
-
     private T _data = new();
-    private readonly IHrtModule _module;
-    protected ModuleConfiguration(IHrtModule module)
-    {
-        _module = module;
-    }
 
     public T Data
     {
@@ -179,8 +175,8 @@ internal abstract class ModuleConfiguration<T> : IHrtConfiguration where T : IHr
         }
     }
 
-    public string ParentInternalName => _module.InternalName;
-    public string ParentName => _module.Name;
+    public string ParentInternalName => module.InternalName;
+    public string ParentName => module.Name;
     public abstract IHrtConfigUi? Ui { get; }
 
     public event Action? OnConfigChange;
@@ -202,7 +198,7 @@ public interface IHrtConfigUi
     public void Cancel();
 }
 
-public interface IHrtConfigData
+public interface IHrtConfigData : ICloneable
 {
     public void AfterLoad();
     public void BeforeSave();

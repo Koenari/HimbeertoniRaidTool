@@ -6,22 +6,14 @@ internal interface IGearDataProvider : IDisposable
     public void Disable();
 }
 
-public readonly struct GearDataProviderConfiguration
+public readonly struct GearDataProviderConfiguration(bool enabled, bool combat, bool doh, bool dol, int minILvl)
 {
     public static GearDataProviderConfiguration Disabled => new(false, false, false, false, 0);
 
-    public readonly bool Enabled;
-    public readonly bool CombatJobsEnabled;
-    public readonly bool DoHEnabled;
-    public readonly bool DoLEnabled;
-    public readonly int MinILvlDowngrade;
+    public readonly bool Enabled = enabled;
+    public readonly bool CombatJobsEnabled = combat;
+    public readonly bool DoHEnabled = doh;
+    public readonly bool DoLEnabled = dol;
+    public readonly int MinILvlDowngrade = minILvl;
 
-    public GearDataProviderConfiguration(bool enabled, bool combat, bool doh, bool dol, int minILvl)
-    {
-        Enabled = enabled;
-        CombatJobsEnabled = combat;
-        DoHEnabled = doh;
-        DoLEnabled = dol;
-        MinILvlDowngrade = minILvl;
-    }
 }

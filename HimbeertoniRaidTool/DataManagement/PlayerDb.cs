@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -8,12 +7,9 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class PlayerDb : DataBaseTable<Player>
+internal class PlayerDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
+    : DataBaseTable<Player>(idProvider, converters)
 {
-
-    public PlayerDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters) : base(idProvider, converters)
-    {
-    }
 
     public override HashSet<HrtId> GetReferencedIds()
     {

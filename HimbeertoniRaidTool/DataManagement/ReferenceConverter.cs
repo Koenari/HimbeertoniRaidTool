@@ -1,5 +1,4 @@
-﻿using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Common.Security;
+﻿using HimbeertoniRaidTool.Common.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -23,8 +22,8 @@ public class HrtIdReferenceConverter<T> : JsonConverter<T> where T : IHasHrtId, 
         serializer.Serialize(writer, value.LocalId, typeof(HrtId));
     }
 
-    public override T? ReadJson(JsonReader reader, Type objectType, T? existingValue, bool hasExistingValue,
-        JsonSerializer serializer)
+    public override T ReadJson(JsonReader reader, Type objectType, T? existingValue, bool hasExistingValue,
+                               JsonSerializer serializer)
     {
         if (reader.TokenType == JsonToken.Null || objectType != typeof(T))
             return new T();

@@ -1,6 +1,4 @@
 ﻿using System.Numerics;
-using HimbeertoniRaidTool.Common;
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;

@@ -4,7 +4,6 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using HimbeertoniRaidTool.Common.Data;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 

@@ -1,5 +1,4 @@
-﻿using HimbeertoniRaidTool.Common;
-using HimbeertoniRaidTool.Plugin.Localization;
+﻿using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
@@ -83,6 +82,7 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
         public void AfterLoad() { }
 
         public void BeforeSave() { }
+
         #region Internal
 
         [JsonProperty] public bool ShowWelcomeWindow = true;
@@ -119,16 +119,9 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
         #endregion
     }
 
-    internal class ConfigUi : IHrtConfigUi
+    internal class ConfigUi(CoreConfig parent) : IHrtConfigUi
     {
-        private readonly CoreConfig _parent;
-        private ConfigData _dataCopy;
-
-        public ConfigUi(CoreConfig parent)
-        {
-            _parent = parent;
-            _dataCopy = parent.Data.Clone();
-        }
+        private ConfigData _dataCopy = parent.Data.Clone();
 
         public void Cancel()
         {
@@ -221,15 +214,15 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
         {
         }
 
-        public void OnShow() => _dataCopy = _parent.Data.Clone();
+        public void OnShow() => _dataCopy = parent.Data.Clone();
 
         public void Save()
         {
-            if (_dataCopy.SaveIntervalMinutes != _parent.Data.SaveIntervalMinutes)
-                _parent._saveTask.Repeat = TimeSpan.FromMinutes(_dataCopy.SaveIntervalMinutes);
-            if (_dataCopy.SavePeriodically != _parent.Data.SavePeriodically)
-                _parent._saveTask.ShouldRun = _dataCopy.SavePeriodically;
-            _parent.Data = _dataCopy;
+            if (_dataCopy.SaveIntervalMinutes != parent.Data.SaveIntervalMinutes)
+                parent._saveTask.Repeat = TimeSpan.FromMinutes(_dataCopy.SaveIntervalMinutes);
+            if (_dataCopy.SavePeriodically != parent.Data.SavePeriodically)
+                parent._saveTask.ShouldRun = _dataCopy.SavePeriodically;
+            parent.Data = _dataCopy;
         }
     }
 }

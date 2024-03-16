@@ -1,7 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using HimbeertoniRaidTool.Common.Data;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 

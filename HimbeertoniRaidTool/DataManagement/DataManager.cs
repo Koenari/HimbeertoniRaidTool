@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
-using Dalamud.Plugin;
-using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Common.Security;
-using Newtonsoft.Json;
 using System.IO;
 using System.Threading;
+using Dalamud.Plugin;
+using Dalamud.Utility;
+using HimbeertoniRaidTool.Common.Security;
+using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -218,7 +218,7 @@ public class HrtDataManager
             string data = _database.Serialize(_jsonSettings);
             try
             {
-                Dalamud.Utility.Util.WriteAllTextSafe(_file.FullName, data);
+                Util.WriteAllTextSafe(_file.FullName, data);
                 return true;
             }
             catch (Win32Exception e)

@@ -6,7 +6,6 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;

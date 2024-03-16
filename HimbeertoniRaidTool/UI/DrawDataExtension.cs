@@ -1,5 +1,4 @@
-﻿using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Plugin.Localization;
+﻿using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;

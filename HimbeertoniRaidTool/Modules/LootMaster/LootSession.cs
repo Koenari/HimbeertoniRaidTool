@@ -1,6 +1,4 @@
 ﻿using System.Collections;
-using HimbeertoniRaidTool.Common;
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.Localization;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
@@ -285,18 +283,14 @@ public class LootResult
     }
 }
 
-public class LootResultContainer : IReadOnlyList<LootResult>
+public class LootResultContainer(LootSession session) : IReadOnlyList<LootResult>
 {
-    private readonly List<LootResult> _participants = new();
-    public readonly LootSession Session;
+    private readonly List<LootResult> _participants = [];
+    public readonly LootSession Session = session;
 
     private string? _shortResultCache;
     internal bool ShowDetails = true;
 
-    public LootResultContainer(LootSession session)
-    {
-        Session = session;
-    }
     public LootResult? AwardedTo => AwardedIdx.HasValue ? this[AwardedIdx.Value] : null;
     public bool IsAwarded => AwardedTo != null;
     public bool Finished => IsAwarded || Count == 0 || this[0].Category != LootCategory.Need;
@@ -349,20 +343,15 @@ public class LootResultContainer : IReadOnlyList<LootResult>
     internal void Add(LootResult result) => _participants.Add(result);
 }
 
-internal class LootRulingComparer : IComparer<LootResult>
+internal class LootRulingComparer(IEnumerable<LootRule> rules) : IComparer<LootResult>
 {
-    private readonly IEnumerable<LootRule> _rules;
-    public LootRulingComparer(IEnumerable<LootRule> rules)
-    {
-        _rules = rules;
-    }
     public int Compare(LootResult? x, LootResult? y)
     {
         if (x is null || y is null)
             return 0;
         if (x.Category - y.Category != 0)
             return x.Category - y.Category;
-        foreach (LootRule rule in _rules)
+        foreach (LootRule rule in rules)
         {
             float result = y.EvaluatedRules[rule].val - x.EvaluatedRules[rule].val;
             switch (result)

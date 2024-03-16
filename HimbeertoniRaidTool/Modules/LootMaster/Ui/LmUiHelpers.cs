@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using HimbeertoniRaidTool.Common.Calculations;
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;

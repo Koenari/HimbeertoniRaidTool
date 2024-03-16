@@ -84,10 +84,5 @@ internal static class ServiceManager
     }
 }
 
-public class FailedToLoadException : Exception
-{
-    public FailedToLoadException(string? message) : base(message)
-    {
-    }
-}
+public class FailedToLoadException(string? message) : Exception(message);
 #pragma warning restore CS8618

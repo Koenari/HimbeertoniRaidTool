@@ -7,16 +7,11 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class TaskManager : IDisposable
 {
-    private class TaskWrapper
+    private class TaskWrapper(HrtTask task)
     {
-        public readonly Task SystemTask;
-        public readonly HrtTask InternalTask;
+        public readonly Task SystemTask = Task.Run(() => task.CallBack(task.Action()));
+        public readonly HrtTask InternalTask = task;
 
-        public TaskWrapper(HrtTask task)
-        {
-            InternalTask = task;
-            SystemTask = Task.Run(() => task.CallBack(task.Action()));
-        }
     }
 
     private readonly Timer _taskTimer;
@@ -39,6 +34,7 @@ internal class TaskManager : IDisposable
     {
         if (_disposedValue || _tasksOnce.IsEmpty) return;
         while (_tasksOnce.TryPeek(out TaskWrapper? oldestTask) && oldestTask.SystemTask.IsCompleted)
+        {
             if (_tasksOnce.TryDequeue(out TaskWrapper? completedTask))
             {
                 if (completedTask.SystemTask.IsFaulted)
@@ -48,6 +44,7 @@ internal class TaskManager : IDisposable
                     ServiceManager.PluginLog.Info(
                         $"Task \"{completedTask.InternalTask.Name}\" finished successful");
             }
+        }
     }
 
     private void OnSecondTimer(object? _)
@@ -55,11 +52,13 @@ internal class TaskManager : IDisposable
         if (_disposedValue || _tasksOnSecond.IsEmpty) return;
         DateTime executionTime = DateTime.Now;
         foreach (PeriodicTask task in _tasksOnSecond)
+        {
             if (task.ShouldRun && task.LastRun + task.Repeat < executionTime)
             {
                 task.CallBack(task.Action());
                 task.LastRun = executionTime;
             }
+        }
     }
 
     private void OnMinuteTimer(object? _)
@@ -67,11 +66,13 @@ internal class TaskManager : IDisposable
         if (_disposedValue || _tasksOnMinute.IsEmpty) return;
         DateTime executionTime = DateTime.Now;
         foreach (PeriodicTask task in _tasksOnMinute)
+        {
             if (task.ShouldRun && task.LastRun + task.Repeat < executionTime)
             {
                 task.CallBack(task.Action());
                 task.LastRun = executionTime;
             }
+        }
     }
 
     internal void RegisterTask(HrtTask task)
@@ -99,8 +100,10 @@ internal class TaskManager : IDisposable
                 _secondTimer.Dispose();
                 _minuteTimer.Dispose();
                 while (_tasksOnce.TryDequeue(out TaskWrapper? task))
+                {
                     if (task.SystemTask.Status > TaskStatus.Created)
                         task.SystemTask.Wait(1000);
+                }
             }
 
             _disposedValue = true;
@@ -122,29 +125,19 @@ internal class TaskManager : IDisposable
     }
 }
 
-internal class HrtTask
+internal class HrtTask(Func<HrtUiMessage> task, Action<HrtUiMessage> callBack, string name)
 {
-    public readonly Action<HrtUiMessage> CallBack;
-    public readonly Func<HrtUiMessage> Action;
-    public readonly string Name;
+    public readonly Action<HrtUiMessage> CallBack = callBack;
+    public readonly Func<HrtUiMessage> Action = task;
+    public readonly string Name = name;
 
-    public HrtTask(Func<HrtUiMessage> task, Action<HrtUiMessage> callBack, string name)
-    {
-        CallBack = callBack;
-        Action = task;
-        Name = name;
-    }
 }
 
-internal class PeriodicTask : HrtTask
+internal class PeriodicTask(Func<HrtUiMessage> task, Action<HrtUiMessage> callBack, string name, TimeSpan repeat)
+    : HrtTask(task, callBack, name)
 {
     public DateTime LastRun = DateTime.MinValue;
     public volatile bool ShouldRun = true;
-    public TimeSpan Repeat;
+    public TimeSpan Repeat = repeat;
 
-    public PeriodicTask(Func<HrtUiMessage> task, Action<HrtUiMessage> callBack, string name, TimeSpan repeat) : base(
-        task, callBack, name)
-    {
-        Repeat = repeat;
-    }
 }

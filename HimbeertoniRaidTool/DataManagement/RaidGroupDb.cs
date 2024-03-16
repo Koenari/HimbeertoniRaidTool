@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HimbeertoniRaidTool.Common.Data;
-using HimbeertoniRaidTool.Common.Security;
+﻿using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class RaidGroupDb : DataBaseTable<RaidGroup>
+internal class RaidGroupDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
+    : DataBaseTable<RaidGroup>(idProvider, converters)
 {
-    public RaidGroupDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters) : base(idProvider, converters)
-    {
-    }
 
     public override HashSet<HrtId> GetReferencedIds()
     {
@@ -28,12 +20,10 @@ internal class RaidGroupDb : DataBaseTable<RaidGroup>
     public override HrtWindow OpenSearchWindow(Action<RaidGroup> onSelect, Action? onCancel = null) =>
         new GroupSearchWindow(this, onSelect, onCancel);
 
-    internal class GroupSearchWindow : SearchWindow<RaidGroup, RaidGroupDb>
+    internal class GroupSearchWindow(RaidGroupDb dataBase, Action<RaidGroup> onSelect, Action? onCancel)
+        : SearchWindow<RaidGroup, RaidGroupDb>(dataBase,
+                                               onSelect, onCancel)
     {
-        public GroupSearchWindow(RaidGroupDb dataBase, Action<RaidGroup> onSelect, Action? onCancel) : base(dataBase,
-            onSelect, onCancel)
-        {
-        }
 
         protected override void DrawContent() => throw new NotImplementedException();
     }

@@ -192,22 +192,17 @@ internal class CoreModule : IHrtModule
         ServiceManager.ExamineGearDataProvider.Enable(newConfig);
     }
 
-    private class ChangelogOptionsWrapper : ChangeLog.IConfigOptions
+    private class ChangelogOptionsWrapper(CoreConfig coreConfig) : ChangeLog.IConfigOptions
     {
-        private readonly CoreConfig _coreConfig;
-        public ChangelogOptionsWrapper(CoreConfig coreConfig)
-        {
-            _coreConfig = coreConfig;
-        }
         public Version LastSeenChangelog
         {
-            get => _coreConfig.Data.LastSeenChangelog;
-            set => _coreConfig.Data.LastSeenChangelog = value;
+            get => coreConfig.Data.LastSeenChangelog;
+            set => coreConfig.Data.LastSeenChangelog = value;
         }
         public ChangelogShowOptions ChangelogNotificationOptions
         {
-            get => _coreConfig.Data.ChangelogNotificationOptions;
-            set => _coreConfig.Data.ChangelogNotificationOptions = value;
+            get => coreConfig.Data.ChangelogNotificationOptions;
+            set => coreConfig.Data.ChangelogNotificationOptions = value;
         }
     }
 }
