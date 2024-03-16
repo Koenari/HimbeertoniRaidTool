@@ -1,6 +1,5 @@
 using System.Globalization;
 using Dalamud.Interface.Windowing;
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Calendar.Ui;
 using HimbeertoniRaidTool.Plugin.UI;

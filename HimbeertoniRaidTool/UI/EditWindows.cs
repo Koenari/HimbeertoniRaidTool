@@ -573,13 +573,10 @@ public static class EditWindowFactory
     }
 }
 
-    private class EditRaidSessionWindow : EditWindow<RaidSession>
+    private class EditRaidSessionWindow(RaidSession original, Action<RaidSession>? onSave, Action? onCancel)
+        : EditWindow<RaidSession>(original, onSave, onCancel)
     {
 
-        public EditRaidSessionWindow(RaidSession original, Action<RaidSession>? onSave, Action? onCancel) :
-            base(original, onSave, onCancel)
-        {
-        }
         protected override void DrawContent()
         {
             ImGui.Text($"{DataCopy.Name} @ {DataCopy.StartTime:f}");

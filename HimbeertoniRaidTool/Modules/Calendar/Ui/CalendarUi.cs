@@ -1,7 +1,4 @@
 using System.Numerics;
-using Dalamud.Interface.Utility;
-using Dalamud.Interface.Utility.Raii;
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;

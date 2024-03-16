@@ -1,15 +1,12 @@
-using HimbeertoniRaidTool.Common.Data;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class RaidSessionDb : DataBaseTable<RaidSession>
+internal class RaidSessionDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
+    : DataBaseTable<RaidSession>(idProvider, converters)
 {
-    public RaidSessionDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters) : base(idProvider, converters)
-    {
-    }
 
     public override HrtWindow OpenSearchWindow(Action<RaidSession> onSelect, Action? onCancel = null)
         => new RaidSessionSearchWindow(this, onSelect, onCancel);
@@ -28,13 +25,9 @@ internal class RaidSessionDb : DataBaseTable<RaidSession>
         return result;
     }
 
-    private class RaidSessionSearchWindow : SearchWindow<RaidSession, RaidSessionDb>
+    private class RaidSessionSearchWindow(RaidSessionDb db, Action<RaidSession> onSelect, Action? onCancel)
+        : SearchWindow<RaidSession, RaidSessionDb>(db, onSelect, onCancel)
     {
-
-        public RaidSessionSearchWindow(RaidSessionDb db, Action<RaidSession> onSelect, Action? onCancel)
-            : base(db, onSelect, onCancel)
-        {
-        }
 
         protected override void DrawContent() => throw new NotImplementedException();
     }

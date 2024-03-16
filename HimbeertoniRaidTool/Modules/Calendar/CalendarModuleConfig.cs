@@ -1,4 +1,3 @@
-using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
@@ -13,22 +12,15 @@ internal class CalendarModuleConfig : ModuleConfiguration<CalendarModuleConfig.C
     }
 
     private readonly ConfigUi _ui;
-    public override IHrtConfigUi? Ui => _ui;
+    public override IHrtConfigUi Ui => _ui;
 
     public override void AfterLoad()
     {
     }
 
-    internal class ConfigUi : IHrtConfigUi
+    internal class ConfigUi(CalendarModuleConfig parent) : IHrtConfigUi
     {
-        private readonly CalendarModuleConfig _parent;
-        private ConfigData _dataCopy;
-
-        public ConfigUi(CalendarModuleConfig parent)
-        {
-            _parent = parent;
-            _dataCopy = parent.Data.Clone();
-        }
+        private ConfigData _dataCopy = parent.Data.Clone();
 
         public void Cancel() { }
 
@@ -45,9 +37,9 @@ internal class CalendarModuleConfig : ModuleConfiguration<CalendarModuleConfig.C
 
         public void OnHide() { }
 
-        public void OnShow() => _dataCopy = _parent.Data.Clone();
+        public void OnShow() => _dataCopy = parent.Data.Clone();
 
-        public void Save() => _parent.Data = _dataCopy;
+        public void Save() => parent.Data = _dataCopy;
     }
 
     internal class ConfigData : IHrtConfigData
