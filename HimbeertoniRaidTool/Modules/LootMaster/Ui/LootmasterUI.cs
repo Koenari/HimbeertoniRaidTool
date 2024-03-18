@@ -248,7 +248,7 @@ internal class LootmasterUi : HrtWindow
         DrawUiMessages();
         if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "##showConfig",
                                LootmasterLoc.ui_btn_tt_showConfig))
-            Services.ServiceManager.Config.Show();
+            Services.ServiceManager.ConfigManager.Show();
         ImGui.SameLine();
         DrawLootHandlerButtons();
         DrawRaidGroupSwitchBar();

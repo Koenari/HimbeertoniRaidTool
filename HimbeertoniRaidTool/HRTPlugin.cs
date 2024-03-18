@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Dalamud.Game.Command;
+using Dalamud.Interface.ImGuiNotification;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.IoC;
 using Dalamud.Plugin;
@@ -15,7 +16,6 @@ public sealed class HrtPlugin : IDalamudPlugin
 {
     private const string NAME = "Himbeertoni Raid Tool";
     private readonly ICommandManager _commandManager;
-    private readonly Configuration _configuration;
     private readonly CoreModule _coreModule;
 
     private readonly List<string> _dalamudRegisteredCommands = new();
@@ -30,20 +30,21 @@ public sealed class HrtPlugin : IDalamudPlugin
         _loadError = !ServiceManager.Init(pluginInterface);
 
         //Init Configuration    
-        ServiceManager.Config = _configuration =
-            ServiceManager.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        ServiceManager.ConfigManager = new ConfigurationManager(pluginInterface);
         _coreModule = new CoreModule();
         if (!_loadError)
         {
-            //Load and update/correct configuration + ConfigUi
-            _configuration.AfterLoad();
             LoadAllModules(_coreModule);
         }
         else
         {
-            pluginInterface.UiBuilder.AddNotification(
-                NAME + " did not load correctly. Please disable/enable to try again", "Error in HRT",
-                NotificationType.Error, 10000);
+            ServiceManager.NotificationManager.AddNotification(new Notification
+            {
+                Content = NAME + " did not load correctly. Please disable/enable to try again",
+                Title = "Error in HRT",
+                InitialDuration = TimeSpan.FromSeconds(10),
+                Type = NotificationType.Error,
+            });
             ServiceManager.Chat.PrintError(NAME + " did not load correctly. Please disable/enable to try again");
         }
         //Init Localization
@@ -59,7 +60,7 @@ public sealed class HrtPlugin : IDalamudPlugin
         }
         if (!_loadError)
         {
-            _configuration.Save();
+            ServiceManager.ConfigManager.Save();
             ServiceManager.HrtDataManager.Save();
         }
 
@@ -76,7 +77,6 @@ public sealed class HrtPlugin : IDalamudPlugin
                 ServiceManager.PluginLog.Fatal($"Unable to Dispose module \"{type}\"\n{e}");
             }
         }
-        _configuration.Dispose();
         ServiceManager.Dispose();
     }
 
@@ -93,13 +93,8 @@ public sealed class HrtPlugin : IDalamudPlugin
             if (moduleType == typeof(CoreModule)) continue;
             try
             {
-                var module = (IHrtModule?)Activator.CreateInstance(moduleType);
-                if (module is null)
-                {
-                    ServiceManager.PluginLog.Error($"Could not create module: {moduleType.Name}");
-                    continue;
-                }
-
+                if (Activator.CreateInstance(moduleType) is not IHrtModule module)
+                    throw new FailedToLoadException($"Failed to load module: {moduleType.Name}");
                 RegisterModule(module);
             }
             catch (Exception e)
@@ -125,7 +120,7 @@ public sealed class HrtPlugin : IDalamudPlugin
             {
                 AddCommand(command);
             }
-            if (_configuration.RegisterConfig(module.Configuration))
+            if (ServiceManager.ConfigManager.RegisterConfig(module.Configuration))
                 module.Configuration.AfterLoad();
             else
                 ServiceManager.PluginLog.Error($"Configuration load error:{module.Name}");
@@ -136,11 +131,6 @@ public sealed class HrtPlugin : IDalamudPlugin
         catch (Exception e)
         {
             _registeredModules.Remove(module.GetType());
-            HandleError(e);
-        }
-
-        void HandleError(Exception? e = null)
-        {
             ServiceManager.PluginLog.Error(e, $"Error loading module: {module.GetType()}");
         }
     }

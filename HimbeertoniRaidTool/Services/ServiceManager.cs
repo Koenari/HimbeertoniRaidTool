@@ -27,13 +27,14 @@ internal static class ServiceManager
     public static HrtDataManager HrtDataManager { get; private set; }
     internal static TaskManager TaskManager { get; private set; }
     internal static ConnectorPool ConnectorPool { get; private set; }
-    internal static Configuration Config { get; set; }
+    internal static ConfigurationManager ConfigManager { get; set; }
     internal static CoreModule CoreModule { get; set; }
     internal static CharacterInfoService CharacterInfoService { get; private set; }
     internal static ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
     internal static ExamineGearDataProvider ExamineGearDataProvider { get; private set; }
     internal static OwnCharacterDataProvider OwnCharacterDataProvider { get; private set; }
     internal static GameInfo GameInfo => Common.Services.ServiceManager.GameInfo;
+    internal static INotificationManager NotificationManager => DalamudServices.NotificationManager;
 
     private static DalamudServiceWrapper DalamudServices { get; set; }
 
@@ -53,11 +54,13 @@ internal static class ServiceManager
         CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList);
         ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider);
         OwnCharacterDataProvider = new OwnCharacterDataProvider(ClientState, DalamudServices.Framework);
+        ConfigManager = new ConfigurationManager(pluginInterface);
         return HrtDataManager.Initialized;
     }
 
     internal static void Dispose()
     {
+        ConfigManager.Dispose();
         ExamineGearDataProvider.Dispose();
         OwnCharacterDataProvider.Dispose();
         TaskManager.Dispose();
@@ -81,6 +84,7 @@ internal static class ServiceManager
         [PluginService] public IGameInteropProvider GameInteropProvider { get; set; }
         [PluginService] public ITextureProvider TextureProvider { get; set; }
         [PluginService] public IFramework Framework { get; set; }
+        [PluginService] public INotificationManager NotificationManager { get; set; }
     }
 }
 

@@ -33,7 +33,7 @@ internal class CoreModule : IHrtModule
 
     private IEnumerable<HrtCommand> InternalCommands => new List<HrtCommand>
     {
-        new("/options", ServiceManager.Config.Show)
+        new("/options", ServiceManager.ConfigManager.Show)
         {
             AltCommands = new List<string>
             {

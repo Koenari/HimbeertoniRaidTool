@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
-using Dalamud.Configuration;
 using Dalamud.Interface.Windowing;
+using Dalamud.Plugin;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
@@ -10,28 +10,27 @@ using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
 
 namespace HimbeertoniRaidTool.Plugin;
 
-public class Configuration : IPluginConfiguration, IDisposable
+public class ConfigurationManager : IDisposable
 {
     private readonly Dictionary<Type, IHrtConfiguration> _configurations = new();
-    private readonly int _targetVersion = 5;
     private readonly ConfigUi _ui;
-    private bool _fullyLoaded;
+    private readonly WindowSystem _windowSystem;
+    private readonly DalamudPluginInterface _pluginInterface;
 
-    public Configuration()
+    public ConfigurationManager(DalamudPluginInterface pluginInterface)
     {
+        _pluginInterface = pluginInterface;
+        _windowSystem = new WindowSystem("HRTConfig");
         _ui = new ConfigUi(this);
+        _windowSystem.AddWindow(_ui);
+        _pluginInterface.UiBuilder.OpenConfigUi += Show;
+        _pluginInterface.UiBuilder.Draw += _windowSystem.Draw;
     }
 
-    public void Dispose() => _ui.Dispose();
-    public int Version { get; set; } = 5;
-
-    internal void AfterLoad()
+    public void Dispose()
     {
-        if (_fullyLoaded)
-            return;
-        if (Version < 5)
-            Version = 5;
-        _fullyLoaded = true;
+        _pluginInterface.UiBuilder.OpenConfigUi -= Show;
+        _pluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
     }
 
     internal void Show() => _ui.Show();
@@ -45,37 +44,23 @@ public class Configuration : IPluginConfiguration, IDisposable
         return config.Load(ServiceManager.HrtDataManager.ModuleConfigurationManager);
     }
 
-    internal void Save(bool saveAll = true)
+    internal void Save()
     {
-        if (Version == _targetVersion)
+        foreach (IHrtConfiguration config in _configurations.Values)
         {
-            ServiceManager.PluginInterface.SavePluginConfig(this);
-            if (!saveAll)
-                return;
-            foreach (IHrtConfiguration config in _configurations.Values)
-            {
-                ServiceManager.PluginLog.Debug($"Saved {config.ParentInternalName} config");
-                config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
-            }
-        }
-        else
-        {
-            ServiceManager.PluginLog.Error("Configuration Version mismatch. Did not Save!");
+            ServiceManager.PluginLog.Debug($"Saved {config.ParentInternalName} config");
+            config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
         }
     }
 
-    public class ConfigUi : HrtWindow, IDisposable
+    private class ConfigUi : HrtWindow
     {
-        private readonly Configuration _configuration;
-        private readonly WindowSystem _windowSystem;
+        private readonly ConfigurationManager _configManager;
 
-        public ConfigUi(Configuration configuration) : base("HimbeerToniRaidToolConfiguration")
+        public ConfigUi(ConfigurationManager configManager) : base("HimbeerToniRaidToolConfiguration")
         {
-            _windowSystem = new WindowSystem("HRTConfig");
-            _windowSystem.AddWindow(this);
-            _configuration = configuration;
-            ServiceManager.PluginInterface.UiBuilder.OpenConfigUi += Show;
-            ServiceManager.PluginInterface.UiBuilder.Draw += _windowSystem.Draw;
+
+            _configManager = configManager;
 
             (Size, SizeCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);
             Flags = ImGuiWindowFlags.NoCollapse;
@@ -83,15 +68,9 @@ public class Configuration : IPluginConfiguration, IDisposable
             IsOpen = false;
         }
 
-        public void Dispose()
-        {
-            ServiceManager.PluginInterface.UiBuilder.OpenConfigUi -= Show;
-            ServiceManager.PluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
-        }
-
         public override void OnOpen()
         {
-            foreach (IHrtConfiguration config in _configuration._configurations.Values)
+            foreach (IHrtConfiguration config in _configManager._configurations.Values)
             {
                 config.Ui?.OnShow();
             }
@@ -99,7 +78,7 @@ public class Configuration : IPluginConfiguration, IDisposable
 
         public override void OnClose()
         {
-            foreach (IHrtConfiguration config in _configuration._configurations.Values)
+            foreach (IHrtConfiguration config in _configManager._configurations.Values)
             {
                 config.Ui?.OnHide();
             }
@@ -113,7 +92,7 @@ public class Configuration : IPluginConfiguration, IDisposable
             if (ImGuiHelper.CancelButton())
                 Cancel();
             ImGui.BeginTabBar("Modules");
-            foreach (IHrtConfiguration c in _configuration._configurations.Values)
+            foreach (IHrtConfiguration c in _configManager._configurations.Values)
             {
                 if (c.Ui == null)
                     continue;
@@ -129,17 +108,17 @@ public class Configuration : IPluginConfiguration, IDisposable
 
         private void Save()
         {
-            foreach (IHrtConfiguration c in _configuration._configurations.Values)
+            foreach (IHrtConfiguration c in _configManager._configurations.Values)
             {
                 c.Ui?.Save();
             }
-            _configuration.Save();
+            _configManager.Save();
             Hide();
         }
 
         private void Cancel()
         {
-            foreach (IHrtConfiguration c in _configuration._configurations.Values)
+            foreach (IHrtConfiguration c in _configManager._configurations.Values)
             {
                 c.Ui?.Cancel();
             }
