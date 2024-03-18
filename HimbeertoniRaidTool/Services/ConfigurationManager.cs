@@ -8,7 +8,7 @@ using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
 
-namespace HimbeertoniRaidTool.Plugin;
+namespace HimbeertoniRaidTool.Plugin.Services;
 
 public class ConfigurationManager : IDisposable
 {
