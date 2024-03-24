@@ -24,7 +24,9 @@ internal abstract class WebConnector
     private void UpdateCache()
     {
         foreach (var req in _cachedRequests.Where(e => e.Value.time + _cacheTime < DateTime.Now))
+        {
             _cachedRequests.TryRemove(req.Key, out _);
+        }
     }
 
     protected string? MakeWebRequest(string url)
@@ -40,7 +42,9 @@ internal abstract class WebConnector
     private async Task<string?> MakeAsyncWebRequest(string url)
     {
         while (RateLimitHit() || _currentRequests.ContainsKey(url))
+        {
             Thread.Sleep(1000);
+        }
         if (_cachedRequests.TryGetValue(url, out (DateTime time, string response) cached))
             return cached.response;
         _currentRequests.TryAdd(url, DateTime.Now);
@@ -55,7 +59,7 @@ internal abstract class WebConnector
         }
         catch (Exception e) when (e is HttpRequestException or UriFormatException or TaskCanceledException)
         {
-            ServiceManager.PluginLog.Error(e.Message);
+            ServiceManager.Logger.Error(e.Message);
             return null;
         }
         finally
@@ -64,9 +68,7 @@ internal abstract class WebConnector
         }
     }
 
-    private bool RateLimitHit()
-    {
-        return _currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now) >
-               _rateLimit.MaxRequests;
-    }
+    private bool RateLimitHit() =>
+        _currentRequests.Count + _cachedRequests.Count(e => e.Value.time + _rateLimit.Time > DateTime.Now) >
+        _rateLimit.MaxRequests;
 }

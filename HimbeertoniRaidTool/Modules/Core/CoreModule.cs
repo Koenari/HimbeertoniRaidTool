@@ -23,12 +23,11 @@ internal class CoreModule : IHrtModule
         WindowSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
         _changelog = new ChangeLog(this, new ChangelogOptionsWrapper(_config));
-        ServiceManager.CoreModule = this;
         foreach (HrtCommand command in InternalCommands)
         {
             AddCommand(command);
         }
-        _config.OnConfigChange += UpdateGearDataProviderConfig;
+        _config.OnConfigChange += OnConfigChange;
     }
 
     private IEnumerable<HrtCommand> InternalCommands => new List<HrtCommand>
@@ -87,10 +86,10 @@ internal class CoreModule : IHrtModule
             case HrtUiMessageType.Discard:
                 return;
             case HrtUiMessageType.Failure or HrtUiMessageType.Error:
-                ServiceManager.PluginLog.Warning(message.Message);
+                ServiceManager.Logger.Warning(message.Message);
                 break;
             default:
-                ServiceManager.PluginLog.Information(message.Message);
+                ServiceManager.Logger.Information(message.Message);
                 break;
         }
     }
@@ -126,7 +125,7 @@ internal class CoreModule : IHrtModule
 
     public void AfterFullyLoaded()
     {
-        UpdateGearDataProviderConfig();
+        OnConfigChange();
         ServiceManager.TaskManager.RegisterTask(
             new HrtTask(() =>
             {
@@ -154,7 +153,7 @@ internal class CoreModule : IHrtModule
     public void OnLanguageChange(string langCode) => CoreLoc.Culture = new CultureInfo(langCode);
     public void Dispose()
     {
-        _config.OnConfigChange -= UpdateGearDataProviderConfig;
+        _config.OnConfigChange -= OnConfigChange;
         _changelog.Dispose(this);
     }
 
@@ -168,10 +167,14 @@ internal class CoreModule : IHrtModule
         if (_registeredCommands.Any(x => x.HandlesCommand(subCommand)))
             _registeredCommands.First(x => x.HandlesCommand(subCommand)).OnCommand(subCommand, newArgs);
         else
-            ServiceManager.PluginLog.Error($"Argument {args} for command \"/hrt\" not recognized");
+            ServiceManager.Logger.Error($"Argument {args} for command \"/hrt\" not recognized");
     }
-    internal void MigrateBisUpdateConfig(bool shouldUpdate) => _config.Data.UpdateEtroBisOnStartup = shouldUpdate;
-    internal void MigrateBisUpdateInterval(int interval) => _config.Data.EtroUpdateIntervalDays = interval;
+
+    private void OnConfigChange()
+    {
+        HrtWindow.SetConfig(new UiConfig(_config.Data.HideInCombat));
+        UpdateGearDataProviderConfig();
+    }
     private void UpdateGearDataProviderConfig()
     {
         int minILvl = (RestrictToCurrentTier: _config.Data.GearUpdateRestrictToCurrentTier,

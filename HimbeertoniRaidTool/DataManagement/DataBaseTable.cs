@@ -44,7 +44,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
         settings.Converters = savedConverters;
         if (data is null)
         {
-            ServiceManager.PluginLog.Error($"Could not load {typeof(T)} database");
+            ServiceManager.Logger.Error($"Could not load {typeof(T)} database");
             LoadError = true;
             return IsLoaded;
         }
@@ -52,7 +52,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
         {
             if (value.LocalId.IsEmpty)
             {
-                ServiceManager.PluginLog.Error(
+                ServiceManager.Logger.Error(
                     $"{typeof(T).Name} {value} was missing an ID and was removed from the database");
                 continue;
             }
@@ -60,7 +60,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
                 NextSequence = Math.Max(NextSequence, value.LocalId.Sequence);
         }
         NextSequence++;
-        ServiceManager.PluginLog.Information($"Database contains {Data.Count} entries of type {typeof(T).Name}");
+        ServiceManager.Logger.Information($"Database contains {Data.Count} entries of type {typeof(T).Name}");
         IsLoaded = true;
         return IsLoaded;
     }
@@ -73,14 +73,14 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     }
     public void RemoveUnused(HashSet<HrtId> referencedIds)
     {
-        ServiceManager.PluginLog.Debug($"Begin pruning of {typeof(T).Name} database.");
+        ServiceManager.Logger.Debug($"Begin pruning of {typeof(T).Name} database.");
         IEnumerable<HrtId> keyList = new List<HrtId>(Data.Keys);
         foreach (HrtId id in keyList.Where(id => !referencedIds.Contains(id)))
         {
             Data.Remove(id);
-            ServiceManager.PluginLog.Information($"Removed {id} from {typeof(T).Name} database");
+            ServiceManager.Logger.Information($"Removed {id} from {typeof(T).Name} database");
         }
-        ServiceManager.PluginLog.Debug($"Finished pruning of {typeof(T).Name} database.");
+        ServiceManager.Logger.Debug($"Finished pruning of {typeof(T).Name} database.");
     }
     public bool Contains(HrtId hrtId) => Data.ContainsKey(hrtId);
     public IEnumerable<T> GetValues() => Data.Values;

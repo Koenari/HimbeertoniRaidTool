@@ -16,25 +16,20 @@ public sealed class HrtPlugin : IDalamudPlugin
 {
     private const string NAME = "Himbeertoni Raid Tool";
     private readonly ICommandManager _commandManager;
-    private readonly CoreModule _coreModule;
+    //private readonly CoreModule _coreModule;
 
     private readonly List<string> _dalamudRegisteredCommands = new();
-
-    private readonly bool _loadError;
+    private readonly bool _loadedSuccessfully;
     private readonly Dictionary<Type, IHrtModule> _registeredModules = new();
 
     public HrtPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
         _commandManager = commandManager;
         //Init all services
-        _loadError = !ServiceManager.Init(pluginInterface);
-
-        //Init Configuration    
-        ServiceManager.ConfigManager = new ConfigurationManager(pluginInterface);
-        _coreModule = new CoreModule();
-        if (!_loadError)
+        _loadedSuccessfully = ServiceManager.Init(pluginInterface);
+        if (_loadedSuccessfully)
         {
-            LoadAllModules(_coreModule);
+            LoadAllModules();
         }
         else
         {
@@ -58,7 +53,7 @@ public sealed class HrtPlugin : IDalamudPlugin
         {
             _commandManager.RemoveHandler(command);
         }
-        if (!_loadError)
+        if (_loadedSuccessfully)
         {
             ServiceManager.ConfigManager.Save();
             ServiceManager.HrtDataManager.Save();
@@ -74,16 +69,17 @@ public sealed class HrtPlugin : IDalamudPlugin
             }
             catch (Exception e)
             {
-                ServiceManager.PluginLog.Fatal($"Unable to Dispose module \"{type}\"\n{e}");
+                ServiceManager.Logger.Fatal($"Unable to Dispose module \"{type}\"\n{e}");
             }
         }
         ServiceManager.Dispose();
     }
 
-    private void LoadAllModules(CoreModule coreModule)
+    private void LoadAllModules()
     {
+        var coreModule = new CoreModule();
         //Ensure core module is loaded first
-        RegisterModule(coreModule);
+        RegisterModule(coreModule, coreModule.AddCommand);
         //Look for all classes in Modules namespace that implement the IHrtModule interface
         foreach (Type moduleType in GetType().Assembly.GetTypes().Where(
                      t => (t.Namespace?.StartsWith($"{GetType().Namespace}.Modules") ?? false)
@@ -95,20 +91,20 @@ public sealed class HrtPlugin : IDalamudPlugin
             {
                 if (Activator.CreateInstance(moduleType) is not IHrtModule module)
                     throw new FailedToLoadException($"Failed to load module: {moduleType.Name}");
-                RegisterModule(module);
+                RegisterModule(module, coreModule.AddCommand);
             }
             catch (Exception e)
             {
-                ServiceManager.PluginLog.Error(e, $"Failed to load module: {moduleType.Name}");
+                ServiceManager.Logger.Error(e, $"Failed to load module: {moduleType.Name}");
             }
         }
     }
 
-    private void RegisterModule(IHrtModule module)
+    private void RegisterModule(IHrtModule module, Action<HrtCommand> registerCommand)
     {
         if (_registeredModules.ContainsKey(module.GetType()))
         {
-            ServiceManager.PluginLog.Error($"Tried to register module \"{module.Name}\" twice");
+            ServiceManager.Logger.Error($"Tried to register module \"{module.Name}\" twice");
             return;
         }
 
@@ -118,24 +114,24 @@ public sealed class HrtPlugin : IDalamudPlugin
             _registeredModules.Add(module.GetType(), module);
             foreach (HrtCommand command in module.Commands)
             {
-                AddCommand(command);
+                AddCommand(command, registerCommand);
             }
             if (ServiceManager.ConfigManager.RegisterConfig(module.Configuration))
                 module.Configuration.AfterLoad();
             else
-                ServiceManager.PluginLog.Error($"Configuration load error:{module.Name}");
+                ServiceManager.Logger.Error($"Configuration load error:{module.Name}");
             ServiceManager.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
             module.AfterFullyLoaded();
-            ServiceManager.PluginLog.Information($"Successfully loaded module: {module.Name}");
+            ServiceManager.Logger.Information($"Successfully loaded module: {module.Name}");
         }
         catch (Exception e)
         {
             _registeredModules.Remove(module.GetType());
-            ServiceManager.PluginLog.Error(e, $"Error loading module: {module.GetType()}");
+            ServiceManager.Logger.Error(e, $"Error loading module: {module.GetType()}");
         }
     }
 
-    private void AddCommand(HrtCommand command)
+    private void AddCommand(HrtCommand command, Action<HrtCommand> registerCommand)
     {
         if (command.ShouldExposeToDalamud)
         {
@@ -160,12 +156,12 @@ public sealed class HrtPlugin : IDalamudPlugin
                 }
         }
 
-        _coreModule.AddCommand(command);
+        registerCommand(command);
     }
 
     private void OnLanguageChange(string languageCode)
     {
-        ServiceManager.PluginLog.Information($"Loading Localization for {languageCode}");
+        ServiceManager.Logger.Information($"Loading Localization for {languageCode}");
         Common.Services.ServiceManager.SetLanguage(languageCode);
         try
         {
@@ -178,7 +174,7 @@ public sealed class HrtPlugin : IDalamudPlugin
         }
         catch (Exception ex)
         {
-            ServiceManager.PluginLog.Error(ex, "Unable to Load Localization");
+            ServiceManager.Logger.Error(ex, "Unable to Load Localization");
         }
     }
 }

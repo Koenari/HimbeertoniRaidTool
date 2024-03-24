@@ -50,7 +50,7 @@ public class HrtDataManager
         }
         catch (IOException ioe)
         {
-            ServiceManager.PluginLog.Error(ioe, "Could not create data directory");
+            ServiceManager.Logger.Error(ioe, "Could not create data directory");
             throw new FailedToLoadException("Could not create data directory");
         }
         SaveDir = pluginInterface.ConfigDirectory.FullName;
@@ -146,7 +146,7 @@ public class HrtDataManager
         }
         catch (Exception e)
         {
-            ServiceManager.PluginLog.Error(e, "Could not load data file");
+            ServiceManager.Logger.Error(e, "Could not load data file");
             return false;
         }
     }
@@ -166,7 +166,7 @@ public class HrtDataManager
             savedSuccessful &= _raidGroupDb.Save();
         _saving = false;
         DateTime time2 = DateTime.Now;
-        ServiceManager.PluginLog.Debug($"Database saving time: {time2 - time1}");
+        ServiceManager.Logger.Debug($"Database saving time: {time2 - time1}");
         return savedSuccessful;
     }
 
@@ -223,7 +223,7 @@ public class HrtDataManager
             }
             catch (Win32Exception e)
             {
-                ServiceManager.PluginLog.Error(e, "Could not write data file");
+                ServiceManager.Logger.Error(e, "Could not write data file");
                 return false;
             }
         }

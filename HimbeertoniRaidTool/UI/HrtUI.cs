@@ -55,6 +55,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     private Vector2 _newSize;
     private ImGuiCond _savedSizingCond = ImGuiCond.None;
     private bool _shouldResize;
+    private static UiConfig _config = UiConfig.Default;
     protected Vector2 MaxSize = ImGui.GetIO().DisplaySize * 0.9f;
     protected Vector2 MinSize = default;
     protected bool OpenCentered;
@@ -66,6 +67,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
         _id = WindowName;
         Title = "";
     }
+    public static void SetConfig(UiConfig config) => _config = config;
     public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
     public bool Equals(HrtWindow? other) => _id.Equals(other?._id);
     public void Show() => IsOpen = true;
@@ -80,7 +82,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
         };
     }
     public override bool DrawConditions() =>
-        !(ServiceManager.CoreModule.HideInCombat && ServiceManager.Condition[ConditionFlag.InCombat])
+        !(_config.HideInCombat && ServiceManager.Condition[ConditionFlag.InCombat])
      && !ServiceManager.Condition[ConditionFlag.BetweenAreas]
      && base.DrawConditions();
     public override void PreDraw()
@@ -104,7 +106,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
             SizeCondition = ImGuiCond.Always;
             _hasResizedLastFrame = true;
             _shouldResize = false;
-            ServiceManager.PluginLog.Debug($"Tried Resizing to: {Size.Value.X}x{Size.Value.Y}");
+            ServiceManager.Logger.Debug($"Tried Resizing to: {Size.Value.X}x{Size.Value.Y}");
         }
 
     }
@@ -116,6 +118,13 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     public override bool Equals(object? obj) => Equals(obj as HrtWindow);
 
     public override int GetHashCode() => _id.GetHashCode();
+}
+
+public readonly struct UiConfig(bool hideInCombat)
+{
+    public static UiConfig Default => new(false);
+    public readonly bool HideInCombat = hideInCombat;
+
 }
 
 public class HrtUiMessage(string msg, HrtUiMessageType msgType = HrtUiMessageType.Info)

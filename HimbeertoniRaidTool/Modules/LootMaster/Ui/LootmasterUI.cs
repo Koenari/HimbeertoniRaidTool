@@ -62,7 +62,7 @@ internal class LootmasterUi : HrtWindow
         }
         foreach (HrtWindow w in toRemove.Where(w => !w.Equals(this)))
         {
-            Services.ServiceManager.PluginLog.Debug($"Cleaning Up Window: {w.WindowName}");
+            Services.ServiceManager.Logger.Debug($"Cleaning Up Window: {w.WindowName}");
             _lootMaster.WindowSystem.RemoveWindow(w);
         }
     }

@@ -6,7 +6,6 @@ using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
-using HimbeertoniRaidTool.Plugin.Modules.Core;
 
 #pragma warning disable CS8618
 namespace HimbeertoniRaidTool.Plugin.Services;
@@ -22,13 +21,12 @@ internal static class ServiceManager
     public static IObjectTable ObjectTable => DalamudServices.ObjectTable;
     public static IPartyList PartyList => DalamudServices.PartyList;
     public static ICondition Condition => DalamudServices.Condition;
-    public static IPluginLog PluginLog { get; private set; }
+    public static ILogger Logger { get; private set; }
     public static IconCache IconCache { get; private set; }
     public static HrtDataManager HrtDataManager { get; private set; }
     internal static TaskManager TaskManager { get; private set; }
     internal static ConnectorPool ConnectorPool { get; private set; }
     internal static ConfigurationManager ConfigManager { get; set; }
-    internal static CoreModule CoreModule { get; set; }
     internal static CharacterInfoService CharacterInfoService { get; private set; }
     internal static ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
     internal static ExamineGearDataProvider ExamineGearDataProvider { get; private set; }
@@ -44,16 +42,16 @@ internal static class ServiceManager
         _initialized = true;
         DalamudServices = pluginInterface.Create<DalamudServiceWrapper>()
                        ?? throw new FailedToLoadException("Could not initialize Service Manager");
-        PluginLog = new LoggingProxy(DalamudServices.PluginLog);
+        Logger = new LoggingProxy(DalamudServices.PluginLog);
         Chat = new DalamudChatProxy(DalamudServices.ChatGui);
         Common.Services.ServiceManager.Init(DataManager.Excel, pluginInterface.UiLanguage);
         IconCache = new IconCache(PluginInterface, DataManager, DalamudServices.TextureProvider);
         HrtDataManager = new HrtDataManager(PluginInterface);
         TaskManager = new TaskManager();
-        ConnectorPool = new ConnectorPool(TaskManager, PluginLog);
+        ConnectorPool = new ConnectorPool(TaskManager, Logger);
         CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList);
         ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider);
-        OwnCharacterDataProvider = new OwnCharacterDataProvider(ClientState, DalamudServices.Framework);
+        OwnCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.ClientState, DalamudServices.Framework);
         ConfigManager = new ConfigurationManager(pluginInterface);
         return HrtDataManager.Initialized;
     }

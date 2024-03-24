@@ -55,7 +55,7 @@ internal static class CsHelpers
         }
         catch (Exception e)
         {
-            ServiceManager.PluginLog.Error(e, $"Could not inspect character {@object.Name}");
+            ServiceManager.Logger.Error(e, $"Could not inspect character {@object.Name}");
         }
     }
 }

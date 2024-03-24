@@ -40,7 +40,7 @@ public class ConfigurationManager : IDisposable
         if (_configurations.ContainsKey(config.GetType()))
             return false;
         _configurations.Add(config.GetType(), config);
-        ServiceManager.PluginLog.Debug($"Registered {config.ParentInternalName} config");
+        ServiceManager.Logger.Debug($"Registered {config.ParentInternalName} config");
         return config.Load(ServiceManager.HrtDataManager.ModuleConfigurationManager);
     }
 
@@ -48,7 +48,7 @@ public class ConfigurationManager : IDisposable
     {
         foreach (IHrtConfiguration config in _configurations.Values)
         {
-            ServiceManager.PluginLog.Debug($"Saved {config.ParentInternalName} config");
+            ServiceManager.Logger.Debug($"Saved {config.ParentInternalName} config");
             config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
         }
     }

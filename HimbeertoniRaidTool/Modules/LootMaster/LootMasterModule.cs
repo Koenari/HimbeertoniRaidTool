@@ -61,7 +61,7 @@ internal sealed class LootMasterModule : IHrtModule
             };
             if (ServiceManager.HrtDataManager.RaidGroupDb.TryAdd(solo))
             {
-                ServiceManager.PluginLog.Info("Add solo group");
+                ServiceManager.Logger.Info("Add solo group");
                 RaidGroups.Insert(0, solo);
             }
 
@@ -107,9 +107,9 @@ internal sealed class LootMasterModule : IHrtModule
     public void HandleMessage(HrtUiMessage message)
     {
         if (message.MessageType is HrtUiMessageType.Failure or HrtUiMessageType.Error)
-            ServiceManager.PluginLog.Warning(message.Message);
+            ServiceManager.Logger.Warning(message.Message);
         else
-            ServiceManager.PluginLog.Information(message.Message);
+            ServiceManager.Logger.Information(message.Message);
         _ui.HandleMessage(message);
     }
     public void OnLogin()
@@ -160,9 +160,9 @@ internal sealed class LootMasterModule : IHrtModule
 
     private bool FillCharacter(Character destination, PlayerCharacter source)
     {
-        ServiceManager.PluginLog.Debug($"Filling Player for character: {source.Name}");
+        ServiceManager.Logger.Debug($"Filling Player for character: {source.Name}");
         Job curJob = source.GetJob();
-        ServiceManager.PluginLog.Debug($"Found job: {curJob}");
+        ServiceManager.Logger.Debug($"Found job: {curJob}");
         if (!curJob.IsCombatJob()) return false;
         bool isNew = destination[curJob] is null;
         PlayableClass curClass = destination[curJob] ?? destination.AddClass(curJob);
@@ -310,7 +310,7 @@ internal sealed class LootMasterModule : IHrtModule
 
     public void OnCommand(string command, string args)
     {
-        ServiceManager.PluginLog.Debug($"Lootmaster module handling command: {command} args: \"{args}\"");
+        ServiceManager.Logger.Debug($"Lootmaster module handling command: {command} args: \"{args}\"");
         switch (args)
         {
             case "toggle":

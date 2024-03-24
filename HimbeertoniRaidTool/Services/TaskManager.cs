@@ -38,10 +38,10 @@ internal class TaskManager : IDisposable
             if (_tasksOnce.TryDequeue(out TaskWrapper? completedTask))
             {
                 if (completedTask.SystemTask.IsFaulted)
-                    ServiceManager.PluginLog.Error(
+                    ServiceManager.Logger.Error(
                         $"Task \"{completedTask.InternalTask.Name}\" finished with an error");
                 else
-                    ServiceManager.PluginLog.Info(
+                    ServiceManager.Logger.Info(
                         $"Task \"{completedTask.InternalTask.Name}\" finished successful");
             }
         }

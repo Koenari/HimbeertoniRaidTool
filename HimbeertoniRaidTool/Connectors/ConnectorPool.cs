@@ -7,7 +7,7 @@ internal class ConnectorPool
     internal readonly EtroConnector EtroConnector;
     internal readonly LodestoneConnector LodestoneConnector;
 
-    internal ConnectorPool(TaskManager tm, IPluginLog log)
+    internal ConnectorPool(TaskManager tm, ILogger log)
     {
         EtroConnector = new EtroConnector(tm, log);
         LodestoneConnector = new LodestoneConnector();

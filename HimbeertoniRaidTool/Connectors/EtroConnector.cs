@@ -22,7 +22,7 @@ internal class EtroConnector : WebConnector
     private readonly Dictionary<Job, Dictionary<string, string>> _bisCache;
     private readonly ConcurrentDictionary<uint, (MateriaCategory, MateriaLevel)> _materiaCache = new();
     private bool _materiaCacheReady;
-    internal EtroConnector(TaskManager tm, IPluginLog log) : base(new RateLimit(4, new TimeSpan(0, 0, 30)))
+    internal EtroConnector(TaskManager tm, ILogger log) : base(new RateLimit(4, new TimeSpan(0, 0, 30)))
     {
         tm.RegisterTask(new HrtTask(() => FillMateriaCache(_materiaCache),
                                     msg =>
@@ -151,7 +151,7 @@ internal class EtroConnector : WebConnector
                     FillRelicItem(relic, GearSetSlot.MainHand);
                     break;
                 default:
-                    ServiceManager.PluginLog.Error(string.Format(GeneralLoc.EtroConnector_GetGearSet_RelicError, slot));
+                    ServiceManager.Logger.Error(string.Format(GeneralLoc.EtroConnector_GetGearSet_RelicError, slot));
                     break;
             }
         }
@@ -204,7 +204,7 @@ internal class EtroConnector : WebConnector
             {
                 HrtUiMessage message = GetGearSet(gearSet);
                 if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
-                    ServiceManager.PluginLog.Error(message.Message);
+                    ServiceManager.Logger.Error(message.Message);
                 updateCount++;
             }
         }

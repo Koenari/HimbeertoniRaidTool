@@ -100,7 +100,7 @@ internal class LodestoneConnector : NetStoneBase
                 Item? itemEntry = GetItemByName(gearPiece.ItemName, out isHq);
                 if (itemEntry == null)
                 {
-                    ServiceManager.PluginLog.Warning(
+                    ServiceManager.Logger.Warning(
                         $"Tried parsing the item <{gearPiece.ItemName}> but found nothing.");
                     classToChange.CurGear[slot] = new GearItem();
                     return;
@@ -139,7 +139,7 @@ internal class LodestoneConnector : NetStoneBase
         }
         catch (Exception e)
         {
-            ServiceManager.PluginLog.Error(e, "Error in Lodestone Gear fetch");
+            ServiceManager.Logger.Error(e, "Error in Lodestone Gear fetch");
             return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_GeneralFailure, HrtUiMessageType.Error);
         }
     }
@@ -210,7 +210,7 @@ internal class NetStoneBase
         }
         catch (Exception)
         {
-            ServiceManager.PluginLog.Error("Lodestone Connector could not be initialized");
+            ServiceManager.Logger.Error("Lodestone Connector could not be initialized");
             _lodestoneClient = null!;
         }
 
@@ -254,7 +254,7 @@ internal class NetStoneBase
             {
                 if (c.HomeWorldId == 0 || homeWorld == null)
                     return null;
-                ServiceManager.PluginLog.Info("Using name and home world to search...");
+                ServiceManager.Logger.Info("Using name and home world to search...");
                 CharacterSearchPage? netStoneResponse = await _lodestoneClient.SearchCharacter(new CharacterSearchQuery
                 {
                     CharacterName = c.Name,
@@ -263,12 +263,12 @@ internal class NetStoneBase
                 CharacterSearchEntry? characterEntry = netStoneResponse?.Results.FirstOrDefault(
                     res => res.Name == c.Name);
                 if (!int.TryParse(characterEntry?.Id, out c.LodestoneId))
-                    ServiceManager.PluginLog.Warning("Tried parsing LodestoneID but failed.");
+                    ServiceManager.Logger.Warning("Tried parsing LodestoneID but failed.");
                 foundCharacter = characterEntry?.GetCharacter().Result;
             }
             else
             {
-                ServiceManager.PluginLog.Information("Using ID to search...");
+                ServiceManager.Logger.Information("Using ID to search...");
                 foundCharacter = await _lodestoneClient.GetCharacter(c.LodestoneId.ToString());
             }
 
@@ -279,7 +279,7 @@ internal class NetStoneBase
         }
         catch (Exception e)
         {
-            ServiceManager.PluginLog.Error(e.Message);
+            ServiceManager.Logger.Error(e.Message);
             return null;
         }
         finally

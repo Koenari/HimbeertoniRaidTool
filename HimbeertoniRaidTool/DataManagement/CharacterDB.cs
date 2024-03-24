@@ -32,7 +32,7 @@ internal class CharacterDb : DataBaseTable<Character>
             _usedWorlds.Add(c.HomeWorldId);
             if (!_nameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId))
             {
-                ServiceManager.PluginLog.Warning(
+                ServiceManager.Logger.Warning(
                     $"Database contained {c.Name} @ {c.HomeWorld?.Name} twice. Characters were merged");
                 if (Data.TryGetValue(_nameLookup[(c.HomeWorldId, c.Name)], out Character? other))
                 {
@@ -72,7 +72,7 @@ internal class CharacterDb : DataBaseTable<Character>
             return true;
         }
 
-        ServiceManager.PluginLog.Debug($"Did not find character with ID: {charId} in database");
+        ServiceManager.Logger.Debug($"Did not find character with ID: {charId} in database");
         return false;
     }
 
@@ -89,7 +89,7 @@ internal class CharacterDb : DataBaseTable<Character>
             return true;
         }
 
-        ServiceManager.PluginLog.Debug($"Did not find character {name}@{worldId} in database");
+        ServiceManager.Logger.Debug($"Did not find character {name}@{worldId} in database");
         return false;
     }
 
@@ -111,7 +111,7 @@ internal class CharacterDb : DataBaseTable<Character>
     }
     public override HashSet<HrtId> GetReferencedIds()
     {
-        ServiceManager.PluginLog.Debug("Begin calculation of referenced Ids in character database");
+        ServiceManager.Logger.Debug("Begin calculation of referenced Ids in character database");
         HashSet<HrtId> referencedIds = new();
         foreach (PlayableClass playableClass in Data.Values.SelectMany(character => character))
         {
@@ -124,7 +124,7 @@ internal class CharacterDb : DataBaseTable<Character>
                 referencedIds.Add(gearSet.LocalId);
             }
         }
-        ServiceManager.PluginLog.Debug("Finished calculation of referenced Ids in character database");
+        ServiceManager.Logger.Debug("Finished calculation of referenced Ids in character database");
         return referencedIds;
     }
     public override void FixEntries()

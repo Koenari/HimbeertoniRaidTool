@@ -27,7 +27,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
         catch (Exception e)
         {
             _hook = null;
-            ServiceManager.PluginLog.Error(e, "Unable to load examine hook");
+            ServiceManager.Logger.Error(e, "Unable to load examine hook");
         }
 
     }
@@ -69,10 +69,10 @@ internal class ExamineGearDataProvider : IGearDataProvider
         }
         if (ServiceManager.ObjectTable.SearchById(objId) is not PlayerCharacter
             sourceChar) return;
-        ServiceManager.PluginLog.Debug("Examine character found");
+        ServiceManager.Logger.Debug("Examine character found");
         if (!ServiceManager.HrtDataManager.Ready)
         {
-            ServiceManager.PluginLog.Error(
+            ServiceManager.Logger.Error(
                 $"Database is busy. Did not update gear for:{sourceChar.Name}@{sourceChar.HomeWorld.GameData?.Name}");
             return;
         }
@@ -81,7 +81,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
         if (!ServiceManager.HrtDataManager.CharDb.SearchCharacter(sourceChar.HomeWorld.Id, sourceChar.Name.TextValue,
                                                                   out Character? targetChar))
         {
-            ServiceManager.PluginLog.Debug(
+            ServiceManager.Logger.Debug(
                 $"Did not find character in db:{sourceChar.Name}@{sourceChar.HomeWorld.GameData?.Name}");
             return;
         }
@@ -102,7 +102,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
         {
             if (!ServiceManager.HrtDataManager.Ready)
             {
-                ServiceManager.PluginLog.Error(
+                ServiceManager.Logger.Error(
                     $"Database is busy. Did not update gear for:{targetChar.Name}@{targetChar.HomeWorld?.Name}");
                 return;
             }
@@ -119,7 +119,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
             }
             if (!ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.CurGear))
             {
-                ServiceManager.PluginLog.Error(
+                ServiceManager.Logger.Error(
                     $"Could not create gearset for new job {targetJob} for {targetChar.Name}@{targetChar.HomeWorld?.Name}");
                 return;
             }
@@ -132,12 +132,12 @@ internal class ExamineGearDataProvider : IGearDataProvider
         {
             CsHelpers.UpdateGearFromInventoryContainer(InventoryType.Examine, targetClass,
                                                        _configuration.MinILvlDowngrade);
-            ServiceManager.PluginLog.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
+            ServiceManager.Logger.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
         }
         catch (Exception e)
         {
-            ServiceManager.PluginLog.Error(e,
-                                           $"Something went wrong while updating gear for:{targetChar.Name} @ {targetChar.HomeWorld?.Name}");
+            ServiceManager.Logger.Error(e,
+                                        $"Something went wrong while updating gear for:{targetChar.Name} @ {targetChar.HomeWorld?.Name}");
         }
     }
 

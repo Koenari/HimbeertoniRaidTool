@@ -27,7 +27,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         {
             const string msg = "Tried loading a configuration from a newer version of the plugin." +
                                "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
-            Services.ServiceManager.PluginLog.Fatal(msg);
+            Services.ServiceManager.Logger.Fatal(msg);
             Services.ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
         }
@@ -44,7 +44,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             if (Data.Version > oldVersion)
                 continue;
             string msg = $"Error upgrading Lootmaster configuration from version {oldVersion}";
-            Services.ServiceManager.PluginLog.Fatal(msg);
+            Services.ServiceManager.Logger.Fatal(msg);
             Services.ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new InvalidOperationException(msg);
 

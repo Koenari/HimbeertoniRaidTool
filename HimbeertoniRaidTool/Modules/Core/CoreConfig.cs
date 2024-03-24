@@ -26,7 +26,7 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
         if (Data.Version > TARGET_VERSION)
         {
             string msg = GeneralLoc.Config_Error_Downgrade;
-            ServiceManager.PluginLog.Fatal(msg);
+            ServiceManager.Logger.Fatal(msg);
             ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
         }
@@ -46,7 +46,7 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
             if (Data.Version > oldVersion)
                 continue;
             string msg = string.Format(CoreLoc.Chat_configUpgradeError, oldVersion);
-            ServiceManager.PluginLog.Fatal(msg);
+            ServiceManager.Logger.Fatal(msg);
             ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new InvalidOperationException(msg);
 

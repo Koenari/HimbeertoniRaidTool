@@ -3,7 +3,7 @@ using Serilog.Events;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal class LoggingProxy : IPluginLog
+internal class LoggingProxy : ILogger
 {
     private readonly IPluginLog _impl;
     internal LoggingProxy(IPluginLog implementation)
@@ -57,4 +57,24 @@ internal class LoggingProxy : IPluginLog
     {
 
     }
+}
+
+public interface ILogger
+{
+    public LogEventLevel MinimumLogLevel { get; set; }
+    public void Fatal(string messageTemplate, params object[] values);
+    public void Fatal(Exception? exception, string messageTemplate, params object[] values);
+    public void Error(string messageTemplate, params object[] values);
+    public void Error(Exception? exception, string messageTemplate, params object[] values);
+    public void Warning(string messageTemplate, params object[] values);
+    public void Warning(Exception? exception, string messageTemplate, params object[] values);
+    public void Information(string messageTemplate, params object[] values);
+    public void Information(Exception? exception, string messageTemplate, params object[] values);
+    public void Info(string messageTemplate, params object[] values);
+    public void Info(Exception? exception, string messageTemplate, params object[] values);
+    public void Debug(string messageTemplate, params object[] values);
+    public void Debug(Exception? exception, string messageTemplate, params object[] values);
+    public void Verbose(string messageTemplate, params object[] values);
+    public void Verbose(Exception? exception, string messageTemplate, params object[] values);
+    public void Write(LogEventLevel level, Exception? exception, string messageTemplate, params object[] values);
 }
