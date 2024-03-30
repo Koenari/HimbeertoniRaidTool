@@ -1,7 +1,3 @@
-[submodule "NetStone"]
-	path = lib/NetStone
-	url = https://github.com/xivapi/NetStone.git
-    branch = for_plugin
 [submodule "lib/HimbeertoniRaidTool.Common"]
 	path = lib/HimbeertoniRaidTool.Common
 	url = https://github.com/Koenari/HimbeertoniRaidTool.Common.git

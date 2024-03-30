@@ -8,6 +8,17 @@
         "resolved": "2.1.12",
         "contentHash": "Sc0PVxvgg4NQjcI8n10/VfUQBAS4O+Fw2pZrAqBdRMbthYGeogzu5+xmIGCGmsEZ/ukMOBuAqiNiB5qA3MRalg=="
       },
+      "NetStone": {
+        "type": "Direct",
+        "requested": "[1.1.1, )",
+        "resolved": "1.1.1",
+        "contentHash": "7AWc3j6082Ut3xTbJTWBhsZC2Zd7hYVprQiNiei+FGxSSvGacv+xQMBpBIfAnQnnmsKnEQ47NExNgZpt6UcI4A==",
+        "dependencies": {
+          "HtmlAgilityPack": "1.11.46",
+          "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "0.0.2",
+          "Newtonsoft.Json": "13.0.3"
+        }
+      },
       "HtmlAgilityPack": {
         "type": "Transitive",
         "resolved": "1.11.46",
@@ -53,14 +64,6 @@
           "Lumina.Excel": "[6.5.2, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "XIVCalc": "[0.1.3, )"
-        }
-      },
-      "netstone": {
-        "type": "Project",
-        "dependencies": {
-          "HtmlAgilityPack": "[1.11.46, )",
-          "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "[0.0.2, )",
-          "Newtonsoft.Json": "[13.0.3, )"
         }
       }
     }

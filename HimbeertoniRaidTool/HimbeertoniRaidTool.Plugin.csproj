@@ -33,6 +33,7 @@
 
     <ItemGroup>
         <PackageReference Include="DalamudPackager" Version="2.1.12"/>
+        <PackageReference Include="NetStone" Version="1.1.1" />
         <Reference Include="FFXIVClientStructs">
             <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
             <Private>false</Private>
@@ -84,7 +85,6 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\lib\HimbeertoniRaidTool.Common\HimbeertoniRaidTool.Common.csproj"/>
-        <ProjectReference Include="..\lib\NetStone\NetStone\NetStone.csproj"/>
     </ItemGroup>
     <ItemGroup>
         <Using Include="HimbeertoniRaidTool.Plugin.Services"/>
