@@ -28,15 +28,14 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
 {
 
     protected readonly Dictionary<HrtId, T> Data = new();
-    protected readonly IImmutableList<JsonConverter> RefConverters = ImmutableList.CreateRange(converters);
-    protected readonly IIdProvider IdProvider = idProvider;
-    protected ulong NextSequence = 0;
+    private readonly IImmutableList<JsonConverter> _refConverters = ImmutableList.CreateRange(converters);
+    private ulong _nextSequence = 0;
     protected bool LoadError = false;
     protected bool IsLoaded = false;
-    public bool Load(JsonSerializerSettings settings, string serializedData)
+    public virtual bool Load(JsonSerializerSettings settings, string serializedData)
     {
-        List<JsonConverter> savedConverters = new(settings.Converters);
-        foreach (JsonConverter jsonConverter in RefConverters)
+        List<JsonConverter> savedConverters = [..settings.Converters];
+        foreach (JsonConverter jsonConverter in _refConverters)
         {
             settings.Converters.Add(jsonConverter);
         }
@@ -57,9 +56,9 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
                 continue;
             }
             if (Data.TryAdd(value.LocalId, value))
-                NextSequence = Math.Max(NextSequence, value.LocalId.Sequence);
+                _nextSequence = Math.Max(_nextSequence, value.LocalId.Sequence);
         }
-        NextSequence++;
+        _nextSequence++;
         ServiceManager.Logger.Information($"Database contains {Data.Count} entries of type {typeof(T).Name}");
         IsLoaded = true;
         return IsLoaded;
@@ -68,7 +67,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     public virtual bool TryAdd(in T c)
     {
         if (c.LocalId.IsEmpty)
-            c.LocalId = IdProvider.CreateId(c.IdType);
+            c.LocalId = idProvider.CreateId(c.IdType);
         return Data.TryAdd(c.LocalId, c);
     }
     public void RemoveUnused(HashSet<HrtId> referencedIds)
@@ -84,12 +83,12 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     }
     public bool Contains(HrtId hrtId) => Data.ContainsKey(hrtId);
     public IEnumerable<T> GetValues() => Data.Values;
-    public ulong GetNextSequence() => NextSequence++;
+    public ulong GetNextSequence() => _nextSequence++;
     public abstract HrtWindow OpenSearchWindow(Action<T> onSelect, Action? onCancel = null);
     public string Serialize(JsonSerializerSettings settings)
     {
-        List<JsonConverter> savedConverters = new(settings.Converters);
-        foreach (JsonConverter jsonConverter in RefConverters)
+        List<JsonConverter> savedConverters = [..settings.Converters];
+        foreach (JsonConverter jsonConverter in _refConverters)
         {
             settings.Converters.Add(jsonConverter);
         }

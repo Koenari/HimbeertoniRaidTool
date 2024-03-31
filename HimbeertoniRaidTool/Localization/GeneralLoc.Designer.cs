@@ -60,6 +60,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} classes.
+        /// </summary>
+        internal static string CharacterSearchUi_txt_classCount {
+            get {
+                return ResourceManager.GetString("CharacterSearchUi_txt_classCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All.
+        /// </summary>
+        internal static string CommonTerms_All {
+            get {
+                return ResourceManager.GetString("CommonTerms_All", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to BiS.
         /// </summary>
         internal static string CommonTerms_BiS {
@@ -747,6 +765,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string LodestoneConnector_msg_Success {
             get {
                 return ResourceManager.GetString("LodestoneConnector_msg_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select {0} {1}.
+        /// </summary>
+        internal static string SearchWindow_btn_tt_SelectEnty {
+            get {
+                return ResourceManager.GetString("SearchWindow_btn_tt_SelectEnty", resourceCulture);
             }
         }
         

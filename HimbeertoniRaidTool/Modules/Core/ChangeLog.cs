@@ -7,6 +7,13 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 5, 2, 7))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New interface for searching characters from database"),
+            },
+        },
         new(new Version(1, 5, 2, 6))
         {
             MinorFeatures =
@@ -271,6 +278,7 @@ public class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(Bugfix,
+                                   // ReSharper disable once StringLiteralTypo
                                    "Corrected loot for Anabaseios Savage (Thanks to Zeppy for helping)"),
                 new ChangeLogEntry(Bugfix, "Dungeon/Trial Gear is now shown correctly"),
                 new ChangeLogEntry(Bugfix,
@@ -303,8 +311,7 @@ public class ChangeLog
         module.WindowSystem.AddWindow(_ui);
         module.UiReady += OnStartup;
     }
-    public Version CurrentVersion => Entries[0].Version;
-    public Version LastMinor => Entries.First(e => e.Version.Minor != CurrentVersion.Minor).Version;
+    public static Version CurrentVersion => Entries[0].Version;
     public IEnumerable<SingleVersionChangelog> UnseenChangeLogs =>
         Entries.Where(e => e.Version > Config.LastSeenChangelog);
     public IEnumerable<SingleVersionChangelog> SeenChangeLogs =>
@@ -313,7 +320,7 @@ public class ChangeLog
     private void OnStartup()
     {
         if (Config.LastSeenChangelog is { Major: 0, Minor: 0, Revision: 0, Build: 0 })
-            Config.LastSeenChangelog = LastMinor;
+            Config.LastSeenChangelog = Entries.First(e => e.Version.Minor != CurrentVersion.Minor).Version;
         switch (Config.ChangelogNotificationOptions)
         {
             case ChangelogShowOptions.ShowAll when UnseenChangeLogs.Any():

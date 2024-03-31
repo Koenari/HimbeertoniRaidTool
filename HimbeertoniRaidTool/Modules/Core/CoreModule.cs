@@ -142,7 +142,7 @@ internal class CoreModule : IHrtModule
         if (_config.Data.ShowWelcomeWindow)
         {
             _config.Data.ShowWelcomeWindow = false;
-            _config.Data.LastSeenChangelog = _changelog.CurrentVersion;
+            _config.Data.LastSeenChangelog = ChangeLog.CurrentVersion;
             _config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
             _wcw.Show();
         }

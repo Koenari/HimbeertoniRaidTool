@@ -426,4 +426,14 @@ You need to update to use this plugin!</value>
     <data name="EditGearSetUi_txt_job" xml:space="preserve">
         <value>Gear set is meant for Job:</value>
     </data>
+    <data name="SearchWindow_btn_tt_SelectEnty" xml:space="preserve">
+        <value>Select {0} {1}</value>
+    </data>
+    <data name="CharacterSearchUi_txt_classCount" xml:space="preserve">
+        <value>{0} classes</value>
+        <comment>{0} is a number</comment>
+    </data>
+    <data name="CommonTerms_All" xml:space="preserve">
+        <value>All</value>
+    </data>
 </root>

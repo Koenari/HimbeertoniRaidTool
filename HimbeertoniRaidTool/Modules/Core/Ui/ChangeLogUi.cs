@@ -47,7 +47,7 @@ internal class ChangeLogUi : HrtWindow
         if (ImGuiHelper.Button(CoreLoc.ChangeLogUi_btn_haveRead, null))
         {
             _log.Config.ChangelogNotificationOptions = _options;
-            _log.Config.LastSeenChangelog = _log.CurrentVersion;
+            _log.Config.LastSeenChangelog = ChangeLog.CurrentVersion;
             Hide();
         }
     }
