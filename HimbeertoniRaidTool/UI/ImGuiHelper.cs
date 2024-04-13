@@ -52,7 +52,7 @@ public static class ImGuiHelper
     public static bool Button(string label, string? tooltip, bool enabled = true, Vector2 size = default)
     {
         ImGui.BeginDisabled(!enabled);
-        bool result = ImGui.Button(label.CapitaliezSentence(), size);
+        bool result = ImGui.Button(label.CapitalizedSentence(), size);
         ImGui.EndDisabled();
         if (tooltip is not null && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip(tooltip);
@@ -150,7 +150,7 @@ public static class ImGuiHelper
     public static void AddTooltip(string tooltip)
     {
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip(tooltip.CapitaliezSentence());
+            ImGui.SetTooltip(tooltip.CapitalizedSentence());
     }
 
 
@@ -309,7 +309,7 @@ public static class ImGuiHelper
 
 public static class StringExtensions
 {
-    public static string CapitaliezSentence(this string input)
+    public static string CapitalizedSentence(this string input)
     {
         if (string.IsNullOrEmpty(input))
         {

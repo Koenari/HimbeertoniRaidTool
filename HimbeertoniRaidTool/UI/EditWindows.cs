@@ -76,7 +76,8 @@ public static class EditWindowFactory
             DataCopy = _original.Clone();
             _onCancel = onCancel;
             _onSave = onSave;
-            Title = string.Format(GeneralLoc.EditUi_Title, _original.DataTypeName, _original.Name).CapitaliezSentence();
+            Title = string.Format(GeneralLoc.EditUi_Title, _original.DataTypeName, _original.Name)
+                          .CapitalizedSentence();
         }
         public override sealed void Draw()
         {
@@ -144,7 +145,7 @@ public static class EditWindowFactory
             if (ImGui.Checkbox(GeneralLoc.EditGroupUi_cb_OverrideRolePriority, ref overrideRolePriority))
             {
                 DataCopy.RolePriority = overrideRolePriority ? new RolePriority() : null;
-                Vector2 curSize = ImGui.GetWindowSize();
+                Vector2 curSize = Size!.Value;
                 Resize(curSize with
                 {
                     Y = curSize.Y + (overrideRolePriority ? 1 : -1) * 180f * ScaleFactor,

@@ -12,6 +12,8 @@ public class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New interface for searching characters from database"),
+                new ChangeLogEntry(General, "Fix \"Dmg\" Calc being slightly off"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Some minor Ui improvements"),
             },
         },
         new(new Version(1, 5, 2, 6))

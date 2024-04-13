@@ -147,7 +147,7 @@ internal class LootmasterUi : HrtWindow
             /*
              * Current Gear
              */
-            ImGui.Text(GeneralLoc.CommonTerms_Gear);
+            ImGui.Text(GeneralLoc.CommonTerms_Gear.CapitalizedSentence());
             ImGui.SameLine();
             LmUiHelpers.DrawGearSetCombo("##curGear", playableClass.CurGear, playableClass.GearSets,
                                          s => playableClass.CurGear = s,
@@ -188,56 +188,70 @@ internal class LootmasterUi : HrtWindow
          * Stat Table
          */
         ImGui.NextColumn();
-        if (curClass is not null)
-            LmUiHelpers.DrawStatTable(curClass, p.MainChar.Tribe, curClass.CurGear, curClass.CurBis,
-                                      LootmasterLoc.CurrentGear, " ", GeneralLoc.CommonTerms_BiS,
-                                      LmUiHelpers.StatTableCompareMode.DoCompare
-                                    | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
+        if (ImGui.BeginChild("##statsChild"))
+        {
+
+            if (curClass is not null)
+                LmUiHelpers.DrawStatTable(curClass, p.MainChar.Tribe, curClass.CurGear, curClass.CurBis,
+                                          LootmasterLoc.CurrentGear, " ", GeneralLoc.CommonTerms_BiS,
+                                          LmUiHelpers.StatTableCompareMode.DoCompare
+                                        | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
+            ImGui.EndChild();
+        }
+
 
         /*
          * Show Gear
          */
         ImGui.NextColumn();
-        ImGui.BeginTable("##soloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
-        ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear);
-        ImGui.TableSetupColumn("");
-        ImGui.TableHeadersRow();
-        if (curClass is not null)
+        if (ImGui.BeginChild("##soloGearChild"))
         {
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.MainHand], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.OffHand], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.Head], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.Ear], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.Body], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.Neck], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.Hands], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.Wrist], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.Legs], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.Ring1], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.Feet], SlotDrawFlags.ExtendedView);
-            ImGui.TableNextColumn();
-            DrawSlot(curClass[GearSetSlot.Ring2], SlotDrawFlags.ExtendedView);
-        }
-        else
-        {
-            for (int i = 0; i < GearSet.NUM_SLOTS; i++)
+            if (ImGui.BeginTable("##soloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders))
             {
-                ImGui.TableNextColumn();
+                ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.CapitalizedSentence());
+                ImGui.TableSetupColumn("");
+                ImGui.TableHeadersRow();
+                if (curClass is not null)
+                {
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.MainHand], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.OffHand], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.Head], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.Ear], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.Body], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.Neck], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.Hands], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.Wrist], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.Legs], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.Ring1], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.Feet], SlotDrawFlags.ExtendedView);
+                    ImGui.TableNextColumn();
+                    DrawSlot(curClass[GearSetSlot.Ring2], SlotDrawFlags.ExtendedView);
+                }
+                else
+                {
+                    for (int i = 0; i < GearSet.NUM_SLOTS; i++)
+                    {
+                        ImGui.TableNextColumn();
+                    }
+                }
+
+                ImGui.EndTable();
             }
+            ImGui.EndChild();
         }
 
-        ImGui.EndTable();
+
         ImGui.EndChild();
     }
 
@@ -384,7 +398,7 @@ internal class LootmasterUi : HrtWindow
             //Player Column
             ImGui.TableNextColumn();
             ImGui.Text(
-                $"{player.MainChar.MainClass?.Role.FriendlyName() ?? Player.DataTypeNameStatic.CapitaliezSentence()}:   {player.NickName}");
+                $"{player.MainChar.MainClass?.Role.FriendlyName() ?? Player.DataTypeNameStatic.CapitalizedSentence()}:   {player.NickName}");
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player, "##editPlayer"))
                 AddChild(EditWindowFactory.Create(player));
