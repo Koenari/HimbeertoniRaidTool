@@ -57,8 +57,8 @@ public static class EditWindowFactory
         HrtId.IdType.Gear when data is GearSet gs => new EditGearSetWindow(
             gs, onSave as Action<GearSet>, onCancel, param as Job?),
         HrtId.IdType.Group when data is RaidGroup rg => new EditGroupWindow(rg, onSave as Action<RaidGroup>, onCancel),
-        HrtId.IdType.None => null,
-        _                 => null,
+        HrtId.IdType.None                            => null,
+        _                                            => null,
     };
 
     private abstract class EditWindow<TData> : HrtWindowWithModalChild where TData : IHrtDataTypeWithId
@@ -396,12 +396,14 @@ public static class EditWindowFactory
 
     private class EditGearSetWindow : EditWindow<GearSet>
     {
+        private readonly Job? _providedJob;
         private Job _job;
         private string _etroIdInput = "";
         internal EditGearSetWindow(GearSet original, Action<GearSet>? onSave = null,
                                    Action? onCancel = null, Job? job = null) :
             base(original, onSave, onCancel)
         {
+            _providedJob = job;
             _job = job ?? original[GearSetSlot.MainHand].Jobs.FirstOrDefault(Job.ADV);
             MinSize = new Vector2(550, 300);
         }
@@ -508,7 +510,9 @@ public static class EditWindowFactory
             ImGui.Text(GeneralLoc.EditGearSetUi_txt_job);
             ImGui.SameLine();
             ImGui.SetNextItemWidth(60 * ScaleFactor);
+            ImGui.BeginDisabled(_providedJob is not null);
             ImGuiHelper.Combo("##JobSelection", ref _job);
+            ImGui.EndDisabled();
             ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_txt_LastChange, DataCopy.TimeStamp));
             ImGui.BeginDisabled(isFromEtro);
             ImGui.Text($"{GeneralLoc.CommonTerms_Name}: ");

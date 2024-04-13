@@ -55,7 +55,7 @@ internal static class LmUiHelpers
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_Add_new))
             {
-                addWindow(EditWindowFactory.Create(new GearSet(), changeCallback));
+                addWindow(EditWindowFactory.Create(new GearSet(), changeCallback, null, job));
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_AddFromDB))
             {
@@ -179,7 +179,7 @@ internal static class LmUiHelpers
         DrawStatRow(StatType.CriticalHit);
         DrawStatRow(StatType.Determination);
         DrawStatRow(StatType.DirectHitRate);
-        if (curRole == Role.Healer || curRole == Role.Caster)
+        if (curRole is Role.Healer or Role.Caster)
         {
             DrawStatRow(StatType.SpellSpeed);
             if (curRole == Role.Healer)
@@ -193,17 +193,9 @@ internal static class LmUiHelpers
         }
         ImGui.EndTable();
         ImGui.NewLine();
+        return;
         void DrawStatRow(StatType type)
         {
-            Vector4 Color(double diff)
-            {
-                bool negative;
-                if (compareMode.HasFlag(StatTableCompareMode.DiffRightToLeft))
-                    negative = diff > 0;
-                else
-                    negative = diff < 0;
-                return negative ? new Vector4(0.85f, 0.17f, 0.17f, 1f) : new Vector4(0.17f, 0.85f, 0.17f, 1f);
-            }
             int numEvals = 1;
             if (type == StatType.CriticalHit || type == StatType.Tenacity || type == StatType.SpellSpeed
              || type == StatType.SkillSpeed)
@@ -275,6 +267,16 @@ internal static class LmUiHelpers
             for (int i = 0; i < numEvals; i++)
             {
                 ImGui.Text(units[i]);
+            }
+            return;
+            Vector4 Color(double diff)
+            {
+                bool negative;
+                if (compareMode.HasFlag(StatTableCompareMode.DiffRightToLeft))
+                    negative = diff > 0;
+                else
+                    negative = diff < 0;
+                return negative ? Colors.TextRed : Colors.TextGreen;
             }
         }
         void BeginAndSetupTable(string id, string name)
