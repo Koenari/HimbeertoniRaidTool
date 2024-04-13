@@ -571,8 +571,6 @@ public static class EditWindowFactory
             ServiceManager.HrtDataManager.Save();
         }
     }
-}
-
     private class EditRaidSessionWindow(RaidSession original, Action<RaidSession>? onSave, Action? onCancel)
         : EditWindow<RaidSession>(original, onSave, onCancel)
     {

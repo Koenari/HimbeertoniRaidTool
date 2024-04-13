@@ -73,10 +73,10 @@ public class CalendarModule : IHrtModule
         switch (message.MessageType)
         {
             case HrtUiMessageType.Error or HrtUiMessageType.Failure:
-                ServiceManager.PluginLog.Error(message.Message);
+                ServiceManager.Logger.Error(message.Message);
                 break;
             default:
-                ServiceManager.PluginLog.Information(message.Message);
+                ServiceManager.Logger.Information(message.Message);
                 break;
         }
     }
