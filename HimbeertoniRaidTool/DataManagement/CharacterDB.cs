@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
+﻿using System.Numerics;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -11,101 +10,16 @@ using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class CharacterDb : DataBaseTable<Character>
+internal class CharacterDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
+    : DataBaseTable<Character>(idProvider, converters)
 {
-    private readonly Dictionary<ulong, HrtId> _charIdLookup = new();
-    private readonly Dictionary<HrtId, HrtId> _idReplacement = new();
-    private readonly Dictionary<(uint, string), HrtId> _nameLookup = new();
-
-    internal CharacterDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters) : base(idProvider, converters)
+    public static Func<Character?, bool> GetStandardPredicate(ulong charId, uint worldId, string name) => character =>
     {
-    }
-    public new bool Load(JsonSerializerSettings settings, string data)
-    {
-        base.Load(settings, data);
-        if (LoadError) return false;
-        foreach (Character c in Data.Values)
-        {
-            /*
-             * Fill up indices
-             */
-            if (!_nameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId))
-            {
-                ServiceManager.Logger.Warning(
-                    $"Database contained {c.Name} @ {c.HomeWorld?.Name} twice. Characters were merged");
-                if (Data.TryGetValue(_nameLookup[(c.HomeWorldId, c.Name)], out Character? other))
-                {
-                    _idReplacement.Add(c.LocalId, other.LocalId);
-                    other.MergeInfos(c);
-                    Data.Remove(c.LocalId);
-                }
-                continue;
-            }
-            if (c.CharId > 0)
-                _charIdLookup.TryAdd(c.CharId, c.LocalId);
-        }
-        return IsLoaded;
-    }
-    public override bool TryAdd(in Character c)
-    {
-        if (!base.TryAdd(c))
-            return false;
-        //Add to indices
-        _nameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId);
-        if (c.CharId > 0)
-            _charIdLookup.TryAdd(c.CharId, c.LocalId);
-        return true;
-    }
-
-    internal bool TryGetCharacterByCharId(ulong charId, [NotNullWhen(true)] out Character? c)
-    {
-        c = null;
-        if (_charIdLookup.TryGetValue(charId, out HrtId? id))
-            return TryGet(id, out c);
-        id = Data.FirstOrDefault(x => x.Value.CharId == charId).Key;
-        if (id is not null)
-        {
-            _charIdLookup.Add(charId, id);
-            c = Data[id];
-            return true;
-        }
-
-        ServiceManager.Logger.Debug($"Did not find character with ID: {charId} in database");
-        return false;
-    }
-
-    internal bool SearchCharacter(uint worldId, string name, [NotNullWhen(true)] out Character? c)
-    {
-        c = null;
-        if (_nameLookup.TryGetValue((worldId, name), out HrtId? id))
-            return TryGet(id, out c);
-        id = Data.FirstOrDefault(x => x.Value.HomeWorldId == worldId && x.Value.Name.Equals(name)).Key;
-        if (id is not null)
-        {
-            _nameLookup.Add((worldId, name), id);
-            c = Data[id];
-            return true;
-        }
-
-        ServiceManager.Logger.Debug($"Did not find character {name}@{worldId} in database");
-        return false;
-    }
-
-    public override bool TryGet(HrtId id, [NotNullWhen(true)] out Character? c)
-    {
-        if (_idReplacement.TryGetValue(id, out HrtId? value))
-            id = value;
-        return Data.TryGetValue(id, out c);
-    }
-
-    internal void ReindexCharacter(HrtId localId)
-    {
-        if (!TryGet(localId, out Character? c))
-            return;
-        _nameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId);
-        if (c.CharId > 0)
-            _charIdLookup.TryAdd(c.CharId, c.LocalId);
-    }
+        if (character is null) return false;
+        if (charId > 0 && character.CharId == charId) return true;
+        return worldId > 0 && name.Length > 0 && character.HomeWorldId == worldId
+            && character.Name.Equals(name);
+    };
     public override HashSet<HrtId> GetReferencedIds()
     {
         ServiceManager.Logger.Debug("Begin calculation of referenced Ids in character database");

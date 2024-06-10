@@ -13,24 +13,21 @@ public class HrtDataManager
     public readonly bool Initialized;
     private volatile bool _saving = false;
     //Data
-    private readonly DataBaseWrapper<GearDb, GearSet> _gearDb;
-    private readonly DataBaseWrapper<CharacterDb, Character> _characterDb;
-    private readonly DataBaseWrapper<PlayerDb, Player> _playerDb;
-    private readonly DataBaseWrapper<RaidGroupDb, RaidGroup> _raidGroupDb;
-    private readonly List<RaidGroup>? _groups;
+    private readonly DataBaseWrapper<GearSet> _gearDb;
+    private readonly DataBaseWrapper<Character> _characterDb;
+    private readonly DataBaseWrapper<Player> _playerDb;
+    private readonly DataBaseWrapper<RaidGroup> _raidGroupDb;
 
     //Directly Accessed Members
     public bool Ready => Initialized && !_saving;
-    internal readonly string SaveDir;
-    [Obsolete]
-    internal List<RaidGroup> Groups => _groups ?? new List<RaidGroup>();
+    private readonly string _saveDir;
 
     internal IDataBaseTable<RaidGroup> RaidGroupDb => _raidGroupDb.Database;
     internal IDataBaseTable<Player> PlayerDb => _playerDb.Database;
-    internal CharacterDb CharDb => _characterDb.Database;
-    internal GearDb GearDb => _gearDb.Database;
+    internal IDataBaseTable<Character> CharDb => _characterDb.Database;
+    internal IDataBaseTable<GearSet> GearDb => _gearDb.Database;
     internal readonly IModuleConfigurationManager ModuleConfigurationManager;
-    internal readonly IIdProvider IdProvider;
+    private readonly List<JsonConverter> _idRefConverters = [];
     private static readonly JsonSerializerSettings _jsonSettings = new()
     {
         Formatting = Formatting.Indented,
@@ -53,66 +50,19 @@ public class HrtDataManager
             ServiceManager.Logger.Error(ioe, "Could not create data directory");
             throw new FailedToLoadException("Could not create data directory");
         }
-        SaveDir = pluginInterface.ConfigDirectory.FullName;
+        _saveDir = pluginInterface.ConfigDirectory.FullName;
         ModuleConfigurationManager = new ModuleConfigurationManager(pluginInterface);
-        IdProvider = new LocalIdProvider(this);
-        _gearDb = new DataBaseWrapper<GearDb, GearSet>(this, new GearDb(IdProvider), "GearDB.json");
-        var gearRefConv = new HrtIdReferenceConverter<GearSet>(_gearDb.Database);
+        IIdProvider idProvider = new LocalIdProvider(this);
+        _gearDb = new DataBaseWrapper<GearSet>(this, new GearDb(idProvider), "GearDB.json");
         _characterDb =
-            new DataBaseWrapper<CharacterDb, Character>(this, new CharacterDb(IdProvider, new[] { gearRefConv }),
-                                                        "CharacterDB.json");
-        var charRefConv = new HrtIdReferenceConverter<Character>(_characterDb.Database);
-        _playerDb = new DataBaseWrapper<PlayerDb, Player>(this, new PlayerDb(IdProvider, new[] { charRefConv }),
-                                                          "PlayerDB.json");
-        _raidGroupDb = new DataBaseWrapper<RaidGroupDb, RaidGroup>(
-            this, new RaidGroupDb(IdProvider, new[] { new HrtIdReferenceConverter<Player>(_playerDb.Database) }),
-            "RaidGroupDB.json");
+            new DataBaseWrapper<Character>(this, new CharacterDb(idProvider, _idRefConverters), "CharacterDB.json");
+
+        _playerDb = new DataBaseWrapper<Player>(this, new PlayerDb(idProvider, _idRefConverters), "PlayerDB.json");
+        _raidGroupDb =
+            new DataBaseWrapper<RaidGroup>(this, new RaidGroupDb(idProvider, _idRefConverters), "RaidGroupDB.json");
 
         loadedSuccessful &= _gearDb.Load();
         loadedSuccessful &= _characterDb.Load();
-
-        //Migration
-        var raidGroupJsonFile = new FileInfo($"{SaveDir}{Path.DirectorySeparatorChar}RaidGroups.json");
-        if (raidGroupJsonFile.Exists)
-        {
-            loadedSuccessful = TryRead(raidGroupJsonFile, out string raidGroupJson);
-            _jsonSettings.Converters.Add(charRefConv);
-            _groups = JsonConvert.DeserializeObject<List<RaidGroup>>(raidGroupJson, _jsonSettings)
-                   ?? new List<RaidGroup>();
-            _jsonSettings.Converters.Remove(charRefConv);
-            _playerDb.LoadEmpty();
-            _raidGroupDb.LoadEmpty();
-            foreach (RaidGroup group in _groups)
-            {
-                foreach (Player player in group)
-                {
-                    _playerDb.Database.TryAdd(player);
-                }
-                _raidGroupDb.Database.TryAdd(group);
-            }
-            Initialized = true;
-            if (Save())
-                try
-                {
-                    raidGroupJsonFile.MoveTo(raidGroupJsonFile.FullName + ".bak", true);
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-            Initialized = false;
-            //Remove old backup files
-            try
-            {
-                File.Delete($"{SaveDir}{Path.DirectorySeparatorChar}HrtGearDB.json.bak");
-                File.Delete($"{SaveDir}{Path.DirectorySeparatorChar}EtroGearDB.json.bak");
-                File.Delete($"{SaveDir}{Path.DirectorySeparatorChar}CharacterDB.json.bak");
-            }
-            catch (Exception e) when (e is ArgumentException or ArgumentNullException or DirectoryNotFoundException
-                                        or IOException or NotSupportedException or PathTooLongException
-                                        or UnauthorizedAccessException) { }
-
-        }
         loadedSuccessful &= _playerDb.Load();
         loadedSuccessful &= _raidGroupDb.Load();
 
@@ -170,11 +120,11 @@ public class HrtDataManager
         return savedSuccessful;
     }
 
-    private class DataBaseWrapper<TDb, TEntry> where TDb : IDataBaseTable<TEntry> where TEntry : IHasHrtId
+    private class DataBaseWrapper<TEntry> where TEntry : IHasHrtId, new()
     {
         private readonly HrtDataManager _parent;
-        private readonly TDb _database;
-        internal TDb Database
+        private readonly IDataBaseTable<TEntry> _database;
+        internal IDataBaseTable<TEntry> Database
         {
             get
             {
@@ -187,11 +137,12 @@ public class HrtDataManager
         }
         private readonly FileInfo _file;
 
-        internal DataBaseWrapper(HrtDataManager parent, TDb database, string fileName)
+        internal DataBaseWrapper(HrtDataManager parent, IDataBaseTable<TEntry> database, string fileName)
         {
             _parent = parent;
             _database = database;
-            _file = new FileInfo($"{parent.SaveDir}{Path.DirectorySeparatorChar}{fileName}");
+            _file = new FileInfo($"{parent._saveDir}{Path.DirectorySeparatorChar}{fileName}");
+            _parent._idRefConverters.Add(_database.GetRefConverter());
         }
         internal bool Load()
         {
@@ -212,7 +163,7 @@ public class HrtDataManager
                 return false;
             }
         }
-        internal bool LoadEmpty() => _database.Load(_jsonSettings, "[]");
+        private bool LoadEmpty() => _database.Load(_jsonSettings, "[]");
         internal bool Save()
         {
             string data = _database.Serialize(_jsonSettings);

@@ -138,14 +138,10 @@ internal sealed class LootMasterModule : IHrtModule
         if (player.NickName.IsNullOrEmpty())
             player.NickName = source.Name.TextValue.Split(' ')[0];
         ulong contentId = ServiceManager.CharacterInfoService.GetContentId(source);
-        CharacterDb characterDb = ServiceManager.HrtDataManager.CharDb;
+        var characterDb = ServiceManager.HrtDataManager.CharDb;
         ulong charId = Character.CalcCharId(contentId);
-        Character? c = null;
-        if (charId > 0)
-            characterDb.TryGetCharacterByCharId(charId, out c);
-        if (c is null)
-            characterDb.SearchCharacter(source.HomeWorld.Id, source.Name.TextValue, out c);
-        if (c is null)
+        if (!characterDb.Search(CharacterDb.GetStandardPredicate(charId, source.HomeWorld.Id, source.Name.TextValue),
+                                out Character? c))
         {
             c = new Character(source.Name.TextValue, source.HomeWorld.Id)
             {
@@ -169,9 +165,10 @@ internal sealed class LootMasterModule : IHrtModule
         if (isNew)
         {
             curClass.Level = source.Level;
-            GearDb gearDb = ServiceManager.HrtDataManager.GearDb;
-            if (!gearDb.TryGetSetByEtroId(ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
-                                          out GearSet? etroSet))
+            var gearDb = ServiceManager.HrtDataManager.GearDb;
+            if (!gearDb.Search(
+                    entry => entry?.EtroId == ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
+                    out GearSet? etroSet))
             {
                 etroSet = new GearSet(GearSetManager.Etro)
                 {
@@ -277,15 +274,15 @@ internal sealed class LootMasterModule : IHrtModule
             if (pos > 7) break;
             FillPosition(pos, pm);
         }
+        ServiceManager.HrtDataManager.Save();
+        return;
         void FillPosition(int pos, PartyMember pm)
         {
             Player p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
-            if (!ServiceManager.HrtDataManager.CharDb.TryGetCharacterByCharId
-                    (Character.CalcCharId((ulong)pm.ContentId), out Character? character))
-                ServiceManager.HrtDataManager.CharDb.SearchCharacter
-                    (pm.World.Id, pm.Name.TextValue, out character);
-            if (character is null)
+            if (!ServiceManager.HrtDataManager.CharDb.Search(
+                    CharacterDb.GetStandardPredicate(Character.CalcCharId((ulong)pm.ContentId), pm.World.Id,
+                                                     pm.Name.TextValue), out Character? character))
             {
                 character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
                 ServiceManager.HrtDataManager.CharDb.TryAdd(character);
@@ -305,7 +302,6 @@ internal sealed class LootMasterModule : IHrtModule
             }
             p.MainChar = character;
         }
-        ServiceManager.HrtDataManager.Save();
     }
 
     public void OnCommand(string command, string args)

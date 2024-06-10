@@ -57,10 +57,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         switch (Data.Version)
         {
             case 1:
-                Data.RaidGroups.Clear();
-#pragma warning disable CS0612
-                Data.RaidGroups = Services.ServiceManager.HrtDataManager.Groups;
-#pragma warning restore CS0612
+                //Migration period ended
                 Data.Version = 2;
                 break;
         }

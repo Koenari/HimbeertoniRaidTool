@@ -2,6 +2,7 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -12,12 +13,12 @@ internal class OwnCharacterDataProvider : IGearDataProvider
     private readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
     private readonly TimeSpan _timeBetweenWalletUpdates = new(30 * TimeSpan.TicksPerSecond);
 
-    private readonly HashSet<Currency> _trackedCurrencies = new()
-    {
+    private readonly HashSet<Currency> _trackedCurrencies =
+    [
         Currency.Gil,
         Currency.TomestoneOfCausality,
         Currency.TomestoneOfComedy,
-    };
+    ];
     private GearDataProviderConfiguration _config = GearDataProviderConfiguration.Disabled;
     private Character? _curChar;
 
@@ -70,24 +71,20 @@ internal class OwnCharacterDataProvider : IGearDataProvider
             UpdateGear();
         _lastSeenJob = _self?.ClassJob.Id ?? 0;
     }
-    private static bool GetChar([NotNullWhen(true)] out Character? target,
+    private static void GetChar([NotNullWhen(true)] out Character? target,
                                 [NotNullWhen(true)] out PlayerCharacter? source)
     {
         target = null;
         source = ServiceManager.ClientState.LocalPlayer;
-        if (source == null)
-            return false;
+        if (source == null) return;
 
         ulong charId = Character.CalcCharId(ServiceManager.ClientState.LocalContentId);
-        if (ServiceManager.HrtDataManager.CharDb.TryGetCharacterByCharId(charId, out target))
-            return true;
-        if (ServiceManager.HrtDataManager.CharDb.SearchCharacter(source.HomeWorld.Id, source.Name.TextValue,
-                                                                 out target))
-        {
+
+        if (!ServiceManager.HrtDataManager.CharDb.Search(
+                CharacterDb.GetStandardPredicate(charId, source.HomeWorld.Id, source.Name.TextValue),
+                out target)) return;
+        if (target.CharId == 0)
             target.CharId = charId;
-            return true;
-        }
-        return false;
     }
 
     private unsafe void UpdateWallet()

@@ -15,9 +15,9 @@ namespace HimbeertoniRaidTool.Plugin.UI;
 public static class EditWindowFactory
 {
     private static HrtDataManager DataManager => ServiceManager.HrtDataManager;
-    public static HrtWindowWithModalChild? Create<TData>(HrtId id, Action<TData>? onSave = null,
-                                                         Action? onCancel = null,
-                                                         object? param = null)
+    public static HrtWindow? Create<TData>(HrtId id, Action<TData>? onSave = null,
+                                           Action? onCancel = null,
+                                           object? param = null)
         where TData : IHasHrtId, new()
     {
         HrtId.IdType type = new TData().IdType;
@@ -46,9 +46,9 @@ public static class EditWindowFactory
         }
         return null;
     }
-    public static HrtWindowWithModalChild? Create<TData>(TData data, Action<TData>? onSave = null,
-                                                         Action? onCancel = null,
-                                                         object? param = null)
+    public static HrtWindow? Create<TData>(TData data, Action<TData>? onSave = null,
+                                           Action? onCancel = null,
+                                           object? param = null)
         where TData : IHasHrtId => data.IdType switch
     {
         HrtId.IdType.Player when data is Player p => new EditPlayerWindow(p, onSave as Action<Player>, onCancel),
@@ -360,7 +360,6 @@ public static class EditWindowFactory
             {
                 destination.Name = DataCopy.Name;
                 destination.HomeWorldId = DataCopy.HomeWorldId;
-                ServiceManager.HrtDataManager.CharDb.ReindexCharacter(destination.LocalId);
             }
 
             destination.TribeId = DataCopy.TribeId;
@@ -378,7 +377,7 @@ public static class EditWindowFactory
             foreach (PlayableClass c in DataCopy.Classes)
             {
                 PlayableClass? target = destination[c.Job];
-                GearDb gearSetDb = ServiceManager.HrtDataManager.GearDb;
+                var gearSetDb = ServiceManager.HrtDataManager.GearDb;
 
                 if (target == null)
                 {
@@ -432,7 +431,8 @@ public static class EditWindowFactory
                 ImGui.SameLine();
                 if (ImGuiHelper.Button($"{name}##BIS#{etroId}", $"{etroId}"))
                 {
-                    if (ServiceManager.HrtDataManager.GearDb.TryGetSetByEtroId(etroId, out GearSet? newSet))
+                    if (ServiceManager.HrtDataManager.GearDb.Search(gearSet => gearSet?.EtroId == etroId,
+                                                                    out GearSet? newSet))
                     {
                         ReplaceOriginal(newSet);
                         return;
@@ -462,7 +462,8 @@ public static class EditWindowFactory
                 {
                     if (_etroIdInput.StartsWith(EtroConnector.GEARSET_WEB_BASE_URL))
                         _etroIdInput = _etroIdInput[EtroConnector.GEARSET_WEB_BASE_URL.Length..];
-                    if (ServiceManager.HrtDataManager.GearDb.TryGetSetByEtroId(_etroIdInput, out GearSet? newSet))
+                    if (ServiceManager.HrtDataManager.GearDb.Search(gearSet => gearSet?.EtroId == _etroIdInput,
+                                                                    out GearSet? newSet))
                     {
                         ReplaceOriginal(newSet);
                         return;

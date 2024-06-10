@@ -4,6 +4,7 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -78,8 +79,9 @@ internal class ExamineGearDataProvider : IGearDataProvider
         }
 
         //Do not execute on characters not already known
-        if (!ServiceManager.HrtDataManager.CharDb.SearchCharacter(sourceChar.HomeWorld.Id, sourceChar.Name.TextValue,
-                                                                  out Character? targetChar))
+        if (!ServiceManager.HrtDataManager.CharDb.Search(
+                CharacterDb.GetStandardPredicate(0, sourceChar.HomeWorld.Id, sourceChar.Name.TextValue),
+                out Character? targetChar))
         {
             ServiceManager.Logger.Debug(
                 $"Did not find character in db:{sourceChar.Name}@{sourceChar.HomeWorld.GameData?.Name}");
@@ -109,7 +111,8 @@ internal class ExamineGearDataProvider : IGearDataProvider
 
             targetClass = targetChar.AddClass(targetJob);
             string bisEtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(targetJob);
-            if (ServiceManager.HrtDataManager.GearDb.TryGetSetByEtroId(bisEtroId, out GearSet? existingBis))
+            if (ServiceManager.HrtDataManager.GearDb.Search(entry => entry?.EtroId == bisEtroId,
+                                                            out GearSet? existingBis))
                 targetClass.CurBis = existingBis;
             else
             {

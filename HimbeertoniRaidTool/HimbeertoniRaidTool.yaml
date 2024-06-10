@@ -11,3 +11,5 @@ internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
       User Interface: New interface for searching characters from database
+      General: Fix "Dmg" Calc being slightly off
+      User Interface: Some minor Ui improvements
