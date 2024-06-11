@@ -7,10 +7,12 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
-        new(new Version(1, 5, 2, 7))
+        new(new Version(1, 5, 3, 0))
         {
             MinorFeatures =
             {
+                new ChangeLogEntry(ChangeLogEntryCategory.System,
+                                   "Changes to data storage (drops support for data from versions < 1.4.0)"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New interface for searching characters from database"),
                 new ChangeLogEntry(General, "Fix \"Dmg\" Calc being slightly off"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Some minor Ui improvements"),
