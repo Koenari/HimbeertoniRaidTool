@@ -10,18 +10,19 @@ internal class ChangeLogUi : HrtWindow
 {
     private readonly ChangeLog _log;
     private ChangelogShowOptions _options;
-    public ChangeLogUi(ChangeLog log) : base(null, ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize)
+    private readonly Vector2 _size = new(700, 500);
+    public ChangeLogUi(ChangeLog log) : base(null, ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize)
     {
         _log = log;
-        Size = new Vector2(600, 500);
-        SizeCondition = ImGuiCond.Appearing;
         OpenCentered = true;
+        Size = _size;
+        SizeCondition = ImGuiCond.Appearing;
         Title = CoreLoc.ChangeLogUi_Title;
         _options = _log.Config.ChangelogNotificationOptions;
     }
     public override void Draw()
     {
-        if (ImGui.BeginChildFrame(1, Size!.Value with { Y = Size.Value.Y - 100 }))
+        if (ImGui.BeginChildFrame(1, _size with { Y = _size.Y - 100 }))
         {
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (SingleVersionChangelog versionEntry in _log.UnseenChangeLogs)
@@ -39,11 +40,11 @@ internal class ChangeLogUi : HrtWindow
         }
         const int comboWidth = 200;
         ImGui.SetNextItemWidth(comboWidth * ScaleFactor);
-        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (Size.Value.X - comboWidth) / 2);
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (_size.X - comboWidth) / 2);
         ImGuiHelper.Combo("##opt", ref _options, t => t.LocalizedDescription());
         float buttonWidth = ImGui.CalcTextSize(CoreLoc.ChangeLogUi_btn_haveRead).X + 20;
         ImGui.SetNextItemWidth(buttonWidth);
-        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (Size.Value.X - buttonWidth) / 2);
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (_size.X - buttonWidth) / 2);
         if (ImGuiHelper.Button(CoreLoc.ChangeLogUi_btn_haveRead, null))
         {
             _log.Config.ChangelogNotificationOptions = _options;
