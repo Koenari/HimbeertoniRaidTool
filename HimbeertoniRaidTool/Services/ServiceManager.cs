@@ -26,7 +26,7 @@ internal static class ServiceManager
     public static HrtDataManager HrtDataManager { get; private set; }
     internal static TaskManager TaskManager { get; private set; }
     internal static ConnectorPool ConnectorPool { get; private set; }
-    internal static ConfigurationManager ConfigManager { get; set; }
+    internal static ConfigurationManager ConfigManager { get; private set; }
     internal static CharacterInfoService CharacterInfoService { get; private set; }
     internal static ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
     internal static ExamineGearDataProvider ExamineGearDataProvider { get; private set; }
