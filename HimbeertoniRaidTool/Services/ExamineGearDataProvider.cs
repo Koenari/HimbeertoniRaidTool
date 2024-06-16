@@ -66,7 +66,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
         uint objId;
         unsafe
         {
-            objId = AgentInspect.Instance()->CurrentObjectID;
+            objId = AgentInspect.Instance()->CurrentEntityId;
         }
         if (ServiceManager.ObjectTable.SearchById(objId) is not PlayerCharacter
             sourceChar) return;

@@ -94,7 +94,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         for (int i = 0; i < container->Size; i++)
         {
             InventoryItem item = container->Items[i];
-            var type = (Currency)item.ItemID;
+            var type = (Currency)item.ItemId;
             if (_trackedCurrencies.Contains(type))
             {
                 _curChar.Wallet[type] = item.Quantity;

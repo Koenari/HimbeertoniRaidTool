@@ -21,13 +21,13 @@ internal static class CsHelpers
         {
             if (i == (int)GearSetSlot.Waist) continue;
             var slot = container->GetInventorySlot(i);
-            if (slot->ItemID == 0) continue;
+            if (slot->ItemId == 0) continue;
             GearItem oldItem = targetGearSet[(GearSetSlot)i];
             //ToDo: correctly read stats of relics, until then do not override
-            if (oldItem.IsRelic() && oldItem.Id == slot->ItemID) continue;
-            var newItem = new GearItem(slot->ItemID)
+            if (oldItem.IsRelic() && oldItem.Id == slot->ItemId) continue;
+            var newItem = new GearItem(slot->ItemId)
             {
-                IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HQ),
+                IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HighQuality),
             };
             if (newItem.ItemLevel < oldItem.ItemLevel && newItem.ItemLevel < noDowngradeBelow) continue;
             targetGearSet[(GearSetSlot)i] = newItem;
@@ -36,7 +36,7 @@ internal static class CsHelpers
                 if (slot->Materia[j] == 0) break;
                 targetGearSet[(GearSetSlot)i].AddMateria(new HrtMateria(
                                                              (MateriaCategory)slot->Materia[j],
-                                                             (MateriaLevel)slot->MateriaGrade[j]));
+                                                             (MateriaLevel)slot->MateriaGrades[j]));
             }
         }
         targetGearSet.TimeStamp = DateTime.UtcNow;
@@ -49,7 +49,7 @@ internal static class CsHelpers
         {
             unsafe
             {
-                AgentInspect.Instance()->ExamineCharacter(@object.ObjectId);
+                AgentInspect.Instance()->ExamineCharacter(@object.EntityId);
             }
 
         }

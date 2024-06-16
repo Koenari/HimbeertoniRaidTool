@@ -14,8 +14,9 @@ internal unsafe class CharacterInfoService
     private readonly IObjectTable _gameObjects;
     private readonly IPartyList _partyList;
     private readonly InfoModule* _infoModule;
-    private InfoProxyParty* PartyInfo => (InfoProxyParty*)_infoModule->GetInfoProxyById(InfoProxyId.Party);
-    private readonly Dictionary<string, uint> _cache = new();
+    private InfoProxyPartyMember* PartyInfo =>
+        (InfoProxyPartyMember*)_infoModule->GetInfoProxyById(InfoProxyId.PartyMember);
+    private readonly Dictionary<string, ulong> _cache = new();
     private readonly HashSet<string> _notFound = new();
     private DateTime _lastPrune;
     private static readonly TimeSpan _pruneInterval = TimeSpan.FromSeconds(10);
@@ -25,7 +26,7 @@ internal unsafe class CharacterInfoService
         _gameObjects = gameObjects;
         _partyList = partyList;
         _lastPrune = DateTime.Now;
-        _infoModule = Framework.Instance()->GetUiModule()->GetInfoModule();
+        _infoModule = Framework.Instance()->UIModule->GetInfoModule();
     }
 
     public long GetLocalPlayerContentId() => (long)_infoModule->LocalContentId;
@@ -37,7 +38,7 @@ internal unsafe class CharacterInfoService
         foreach (PartyMember partyMember in _partyList)
         {
             bool found =
-                partyMember.ObjectId == character.ObjectId
+                partyMember.ObjectId == character.GameObjectId
              || partyMember.Name.Equals(character.Name) && partyMember.World.Id == character.CurrentWorld.Id;
             if (found)
                 return (ulong)partyMember.ContentId;
@@ -50,7 +51,7 @@ internal unsafe class CharacterInfoService
             var entry = PartyInfo->InfoProxyCommonList.GetEntry(i);
             if (entry == null) continue;
             if (entry->HomeWorld != character.HomeWorld.Id) continue;
-            string name = Encoding.Default.GetString(entry->Name, 32);
+            string name = entry->Name.ToString();
             if (name.Equals(character.Name.TextValue))
                 return entry->ContentId;
         }
@@ -61,7 +62,7 @@ internal unsafe class CharacterInfoService
     public bool TryGetChar([NotNullWhen(true)] out PlayerCharacter? result, string name, World? w = null)
     {
         Update();
-        if (_cache.TryGetValue(name, out uint id))
+        if (_cache.TryGetValue(name, out ulong id))
         {
             result = _gameObjects.SearchById(id) as PlayerCharacter;
             if (result?.Name.TextValue == name
@@ -88,7 +89,7 @@ internal unsafe class CharacterInfoService
             }, null) as PlayerCharacter;
         if (result != null)
         {
-            _cache.Add(name, result.ObjectId);
+            _cache.Add(name, result.GameObjectId);
             return true;
         }
         else

@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using Dalamud.Game.Command;
 using Dalamud.Interface.ImGuiNotification;
-using Dalamud.Interface.Internal.Notifications;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;

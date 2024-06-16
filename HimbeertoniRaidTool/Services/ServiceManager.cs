@@ -45,7 +45,7 @@ internal static class ServiceManager
         Logger = new LoggingProxy(DalamudServices.PluginLog);
         Chat = new DalamudChatProxy(DalamudServices.ChatGui);
         Common.Services.ServiceManager.Init(DataManager.Excel, pluginInterface.UiLanguage);
-        IconCache = new IconCache(PluginInterface, DataManager, DalamudServices.TextureProvider);
+        IconCache = new IconCache(DalamudServices.TextureProvider);
         HrtDataManager = new HrtDataManager(PluginInterface);
         TaskManager = new TaskManager();
         ConnectorPool = new ConnectorPool(TaskManager, Logger);
@@ -63,7 +63,6 @@ internal static class ServiceManager
         ExamineGearDataProvider.Dispose();
         OwnCharacterDataProvider.Dispose();
         TaskManager.Dispose();
-        IconCache.Dispose();
     }
 
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
