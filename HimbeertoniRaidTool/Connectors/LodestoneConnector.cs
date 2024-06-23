@@ -190,7 +190,7 @@ internal class LodestoneConnector : NetStoneBase
     }
 }
 
-internal class NetStoneBase
+internal class NetStoneBase : IDisposable
 {
     private readonly ConcurrentDictionary<string, (DateTime time, LodestoneCharacter response)> _cachedRequests;
     private readonly TimeSpan _cacheTime;
@@ -213,7 +213,7 @@ internal class NetStoneBase
             ServiceManager.Logger.Error("Lodestone Connector could not be initialized");
             _lodestoneClient = null!;
         }
-
+        _lodestoneClient.Dispose();
         _rateLimit = rateLimit;
         _cacheTime = cacheTime ?? new TimeSpan(1, 30, 0);
         _currentRequests = new ConcurrentDictionary<string, DateTime>();
@@ -298,4 +298,6 @@ internal class NetStoneBase
         result.Wait();
         return result.Result;
     }
+
+    public void Dispose() => _lodestoneClient.Dispose();
 }

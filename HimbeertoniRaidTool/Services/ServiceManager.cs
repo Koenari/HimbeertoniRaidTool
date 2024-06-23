@@ -58,6 +58,7 @@ internal static class ServiceManager
 
     internal static void Dispose()
     {
+        ConnectorPool.Dispose();
         ConfigManager.Dispose();
         ExamineGearDataProvider.Dispose();
         OwnCharacterDataProvider.Dispose();

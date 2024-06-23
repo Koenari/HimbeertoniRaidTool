@@ -2,7 +2,7 @@
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
-internal class ConnectorPool
+internal class ConnectorPool : IDisposable
 {
     internal readonly EtroConnector EtroConnector;
     internal readonly LodestoneConnector LodestoneConnector;
@@ -12,4 +12,6 @@ internal class ConnectorPool
         EtroConnector = new EtroConnector(tm, log);
         LodestoneConnector = new LodestoneConnector();
     }
+
+    public void Dispose() => LodestoneConnector.Dispose();
 }
