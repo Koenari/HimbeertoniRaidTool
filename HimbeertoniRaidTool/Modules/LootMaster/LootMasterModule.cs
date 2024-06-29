@@ -124,15 +124,15 @@ internal sealed class LootMasterModule : IHrtModule
     public bool FillPlayerFromTarget(Player player)
     {
 
-        GameObject? target = ServiceManager.TargetManager.Target;
-        return target is PlayerCharacter character && FillPlayer(player, character);
+        IGameObject? target = ServiceManager.TargetManager.Target;
+        return target is IPlayerCharacter character && FillPlayer(player, character);
     }
     public bool FillPlayerFromSelf(Player player)
     {
-        PlayerCharacter? character = ServiceManager.ClientState.LocalPlayer;
+        IPlayerCharacter? character = ServiceManager.ClientState.LocalPlayer;
         return character != null && FillPlayer(player, character);
     }
-    private bool FillPlayer(Player player, PlayerCharacter source)
+    private bool FillPlayer(Player player, IPlayerCharacter source)
     {
         if (player.LocalId.IsEmpty && !ServiceManager.HrtDataManager.PlayerDb.TryAdd(player)) return false;
         if (player.NickName.IsNullOrEmpty())
@@ -154,7 +154,7 @@ internal sealed class LootMasterModule : IHrtModule
         return FillCharacter(c, source);
     }
 
-    private bool FillCharacter(Character destination, PlayerCharacter source)
+    private bool FillCharacter(Character destination, IPlayerCharacter source)
     {
         ServiceManager.Logger.Debug($"Filling Player for character: {source.Name}");
         Job curJob = source.GetJob();
@@ -200,7 +200,7 @@ internal sealed class LootMasterModule : IHrtModule
         //Get Infos
         if (group.Type == GroupType.Solo)
         {
-            if (ServiceManager.TargetManager.Target is PlayerCharacter target)
+            if (ServiceManager.TargetManager.Target is IPlayerCharacter target)
             {
                 group[0].NickName = target.Name.TextValue;
                 group[0].MainChar.Name = target.Name.TextValue;
@@ -287,7 +287,7 @@ internal sealed class LootMasterModule : IHrtModule
                 character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
                 ServiceManager.HrtDataManager.CharDb.TryAdd(character);
                 bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
-                if (ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, p.MainChar.Name,
+                if (ServiceManager.CharacterInfoService.TryGetChar(out IPlayerCharacter? pc, p.MainChar.Name,
                                                                    p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                 {
                     p.MainChar.MainJob = c;

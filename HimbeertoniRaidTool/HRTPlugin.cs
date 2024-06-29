@@ -1,8 +1,6 @@
 ﻿using System.Globalization;
 using Dalamud.Game.Command;
 using Dalamud.Interface.ImGuiNotification;
-using Dalamud.Interface.Internal.Notifications;
-using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -16,13 +14,13 @@ public sealed class HrtPlugin : IDalamudPlugin
 {
     private const string NAME = "Himbeertoni Raid Tool";
     private readonly ICommandManager _commandManager;
-    //private readonly CoreModule _coreModule;
+    //private readonly CoreModule _coreModule;f
 
     private readonly List<string> _dalamudRegisteredCommands = new();
     private readonly bool _loadedSuccessfully;
     private readonly Dictionary<Type, IHrtModule> _registeredModules = new();
 
-    public HrtPlugin([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface, ICommandManager commandManager)
+    public HrtPlugin(DalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
         _commandManager = commandManager;
         //Init all services

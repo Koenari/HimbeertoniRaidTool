@@ -8,7 +8,7 @@ namespace HimbeertoniRaidTool.Plugin.Connectors;
 
 internal abstract class WebConnector
 {
-    private readonly ConcurrentDictionary<string, (DateTime time, string response)> _cachedRequests;
+    private readonly ConcurrentDictionary<string, (DateTime time, HttpResponseMessage response)> _cachedRequests;
     private readonly TimeSpan _cacheTime;
     private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
     private readonly RateLimit _rateLimit;
@@ -16,7 +16,7 @@ internal abstract class WebConnector
     internal WebConnector(RateLimit rateLimit = default, TimeSpan? cacheTime = null)
     {
         _rateLimit = rateLimit;
-        _cachedRequests = new ConcurrentDictionary<string, (DateTime time, string response)>();
+        _cachedRequests = new ConcurrentDictionary<string, (DateTime time, HttpResponseMessage response)>();
         _currentRequests = new ConcurrentDictionary<string, DateTime>();
         _cacheTime = cacheTime ?? new TimeSpan(0, 15, 0);
     }
@@ -29,33 +29,39 @@ internal abstract class WebConnector
         }
     }
 
-    protected string? MakeWebRequest(string url)
+    protected static string? GetContent(HttpResponseMessage? httpResponseMessage)
+    {
+        if (httpResponseMessage is null) return null;
+        var stringTask = httpResponseMessage.Content.ReadAsStringAsync();
+        stringTask.Wait();
+        return stringTask.Result;
+    }
+
+    protected HttpResponseMessage? MakeWebRequest(string url)
     {
         UpdateCache();
-        if (_cachedRequests.TryGetValue(url, out (DateTime time, string response) result))
+        if (_cachedRequests.TryGetValue(url, out (DateTime time, HttpResponseMessage response) result))
             return result.response;
         var requestTask = MakeAsyncWebRequest(url);
         requestTask.Wait();
         return requestTask.Result;
     }
 
-    private async Task<string?> MakeAsyncWebRequest(string url)
+    private async Task<HttpResponseMessage?> MakeAsyncWebRequest(string url)
     {
         while (RateLimitHit() || _currentRequests.ContainsKey(url))
         {
             Thread.Sleep(1000);
         }
-        if (_cachedRequests.TryGetValue(url, out (DateTime time, string response) cached))
+        if (_cachedRequests.TryGetValue(url, out (DateTime time, HttpResponseMessage response) cached))
             return cached.response;
         _currentRequests.TryAdd(url, DateTime.Now);
         try
         {
             HttpClient client = new();
             HttpResponseMessage response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            string result = await response.Content.ReadAsStringAsync();
-            _cachedRequests.TryAdd(url, (DateTime.Now, result));
-            return result;
+            _cachedRequests.TryAdd(url, (DateTime.Now, response));
+            return response;
         }
         catch (Exception e) when (e is HttpRequestException or UriFormatException or TaskCanceledException)
         {

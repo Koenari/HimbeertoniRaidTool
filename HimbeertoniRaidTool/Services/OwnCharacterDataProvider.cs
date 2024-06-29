@@ -24,7 +24,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
 
     private bool _disposed;
     private uint _lastSeenJob;
-    private PlayerCharacter? _self;
+    private IPlayerCharacter? _self;
 
     private TimeSpan _timeSinceLastGearUpdate;
     private TimeSpan _timeSinceLastWalletUpdate;
@@ -72,7 +72,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         _lastSeenJob = _self?.ClassJob.Id ?? 0;
     }
     private static void GetChar([NotNullWhen(true)] out Character? target,
-                                [NotNullWhen(true)] out PlayerCharacter? source)
+                                [NotNullWhen(true)] out IPlayerCharacter? source)
     {
         target = null;
         source = ServiceManager.ClientState.LocalPlayer;
@@ -94,7 +94,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         for (int i = 0; i < container->Size; i++)
         {
             InventoryItem item = container->Items[i];
-            var type = (Currency)item.ItemID;
+            var type = (Currency)item.ItemId;
             if (_trackedCurrencies.Contains(type))
             {
                 _curChar.Wallet[type] = item.Quantity;
