@@ -68,7 +68,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
         {
             objId = AgentInspect.Instance()->CurrentEntityId;
         }
-        if (ServiceManager.ObjectTable.SearchById(objId) is not PlayerCharacter
+        if (ServiceManager.ObjectTable.SearchById(objId) is not IPlayerCharacter
             sourceChar) return;
         ServiceManager.Logger.Debug("Examine character found");
         if (!ServiceManager.HrtDataManager.Ready)

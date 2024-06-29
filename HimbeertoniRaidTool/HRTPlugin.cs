@@ -14,7 +14,7 @@ public sealed class HrtPlugin : IDalamudPlugin
 {
     private const string NAME = "Himbeertoni Raid Tool";
     private readonly ICommandManager _commandManager;
-    //private readonly CoreModule _coreModule;
+    //private readonly CoreModule _coreModule;f
 
     private readonly List<string> _dalamudRegisteredCommands = new();
     private readonly bool _loadedSuccessfully;

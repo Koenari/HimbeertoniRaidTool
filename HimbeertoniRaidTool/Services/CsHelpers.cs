@@ -41,7 +41,7 @@ internal static class CsHelpers
         }
         targetGearSet.TimeStamp = DateTime.UtcNow;
     }
-    internal static void SafeguardedOpenExamine(PlayerCharacter? @object)
+    internal static void SafeguardedOpenExamine(IPlayerCharacter? @object)
     {
         if (@object is null)
             return;

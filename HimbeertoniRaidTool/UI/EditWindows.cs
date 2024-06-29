@@ -268,7 +268,7 @@ public static class EditWindowFactory
                                - ImGui.CalcTextSize(GeneralLoc.EditPlayerUi_hdg_characterData).X) / 2f);
             ImGui.Text(GeneralLoc.EditPlayerUi_hdg_characterData);
             if (ImGui.InputText(GeneralLoc.CommonTerms_Name, ref DataCopy.Name, 50)
-             && ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, DataCopy.Name))
+             && ServiceManager.CharacterInfoService.TryGetChar(out IPlayerCharacter? pc, DataCopy.Name))
                 DataCopy.HomeWorld ??= pc.HomeWorld.GameData;
             if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.EditCharUi_in_HomeWorld + "##" + Title, out World? w,
                                             _ => DataCopy.HomeWorld?.Name.RawString ?? "",

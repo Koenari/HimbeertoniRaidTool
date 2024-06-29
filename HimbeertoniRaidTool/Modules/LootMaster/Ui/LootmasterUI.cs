@@ -2,6 +2,7 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures.TextureWraps;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
@@ -547,7 +548,7 @@ internal class LootmasterUi : HrtWindow
                                    Services.ServiceManager.TargetManager.Target is not null, ButtonSize))
             {
                 _lootMaster.FillPlayerFromTarget(player);
-                if (Services.ServiceManager.TargetManager.Target is PlayerCharacter target)
+                if (Services.ServiceManager.TargetManager.Target is IPlayerCharacter target)
                     CsHelpers.SafeguardedOpenExamine(target);
             }
             ImGui.SameLine();

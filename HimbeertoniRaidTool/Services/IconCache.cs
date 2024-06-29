@@ -1,10 +1,9 @@
-﻿using Dalamud.Interface.Internal;
-using Dalamud.Interface.Textures;
+﻿using Dalamud.Interface.Textures;
+using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Plugin.Services;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-//Inspired by InventoryTools by Critical-Impact 
 public class IconCache(ITextureProvider textureProvider)
 {
     private readonly Dictionary<uint, ISharedImmediateTexture> _icons = new();

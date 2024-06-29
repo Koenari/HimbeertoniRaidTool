@@ -90,7 +90,7 @@ public static class ImGuiHelper
         bool result = false;
         string inspectTooltip = GeneralLoc.Ui_btn_Inspect_tt;
         bool canInspect = true;
-        if (!ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? playerChar, p.MainChar.Name,
+        if (!ServiceManager.CharacterInfoService.TryGetChar(out IPlayerCharacter? playerChar, p.MainChar.Name,
                                                             p.MainChar.HomeWorld))
         {
             canInspect = false;

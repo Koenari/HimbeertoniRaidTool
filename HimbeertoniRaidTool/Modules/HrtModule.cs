@@ -50,7 +50,7 @@ public struct HrtCommand
     internal IEnumerable<string> AltCommands = Array.Empty<string>();
     internal string Description = string.Empty;
     internal bool ShowInHelp = true;
-    internal CommandInfo.HandlerDelegate OnCommand = (_, _) => { };
+    internal IReadOnlyCommandInfo.HandlerDelegate OnCommand = (_, _) => { };
     internal bool ShouldExposeToDalamud = false;
     internal bool ShouldExposeAltsToDalamud = false;
 
@@ -58,7 +58,7 @@ public struct HrtCommand
     {
     }
 
-    public HrtCommand(string command, CommandInfo.HandlerDelegate onCommand)
+    public HrtCommand(string command, IReadOnlyCommandInfo.HandlerDelegate onCommand)
     {
         Command = command;
         OnCommand = onCommand;

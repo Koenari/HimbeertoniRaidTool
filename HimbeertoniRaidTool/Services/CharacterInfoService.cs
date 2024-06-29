@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -31,11 +30,11 @@ internal unsafe class CharacterInfoService
 
     public long GetLocalPlayerContentId() => (long)_infoModule->LocalContentId;
 
-    public ulong GetContentId(PlayerCharacter? character)
+    public ulong GetContentId(IPlayerCharacter? character)
     {
         if (character == null)
             return 0;
-        foreach (PartyMember partyMember in _partyList)
+        foreach (IPartyMember partyMember in _partyList)
         {
             bool found =
                 partyMember.ObjectId == character.GameObjectId
@@ -59,12 +58,12 @@ internal unsafe class CharacterInfoService
         return 0;
     }
 
-    public bool TryGetChar([NotNullWhen(true)] out PlayerCharacter? result, string name, World? w = null)
+    public bool TryGetChar([NotNullWhen(true)] out IPlayerCharacter? result, string name, World? w = null)
     {
         Update();
         if (_cache.TryGetValue(name, out ulong id))
         {
-            result = _gameObjects.SearchById(id) as PlayerCharacter;
+            result = _gameObjects.SearchById(id) as IPlayerCharacter;
             if (result?.Name.TextValue == name
              && (w is null || w.RowId == result.HomeWorld.Id))
                 return true;
@@ -82,11 +81,11 @@ internal unsafe class CharacterInfoService
         result = ServiceManager.ObjectTable.FirstOrDefault(
             o =>
             {
-                var p = o as PlayerCharacter;
+                var p = o as IPlayerCharacter;
                 return p != null
                     && p.Name.TextValue == name
                     && (w is null || p.HomeWorld.Id == w.RowId);
-            }, null) as PlayerCharacter;
+            }, null) as IPlayerCharacter;
         if (result != null)
         {
             _cache.Add(name, result.GameObjectId);
