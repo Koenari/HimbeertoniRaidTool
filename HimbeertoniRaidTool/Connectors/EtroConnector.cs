@@ -1,7 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
-using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -65,7 +66,7 @@ internal class EtroConnector : WebConnector
     private HrtUiMessage FillBisList()
     {
         HrtUiMessage failureMessage = new(GeneralLoc.EtroConnector_FillBisList_ErrorMessaeg, HrtUiMessageType.Failure);
-        string? jsonResponse = MakeWebRequest(BIS_API_BASE_URL);
+        string? jsonResponse = GetContent(MakeWebRequest(BIS_API_BASE_URL));
         if (jsonResponse == null)
             return failureMessage;
         var sets = JsonConvert.DeserializeObject<EtroGearSet[]>(jsonResponse, JsonSettings);
@@ -81,7 +82,7 @@ internal class EtroConnector : WebConnector
     private HrtUiMessage FillMateriaCache(ConcurrentDictionary<uint, (MateriaCategory, MateriaLevel)> materiaCache)
     {
         var errorMessage = new HrtUiMessage(GeneralLoc.EtroConnector_FillMateriaCache_Error, HrtUiMessageType.Failure);
-        string? jsonResponse = MakeWebRequest(MATERIA_API_BASE_URL);
+        string? jsonResponse = GetContent(MakeWebRequest(MATERIA_API_BASE_URL));
         if (jsonResponse == null) return errorMessage;
         var matList = JsonConvert.DeserializeObject<EtroMateria[]>(jsonResponse, JsonSettings);
         if (matList == null) return errorMessage;
@@ -105,7 +106,7 @@ internal class EtroConnector : WebConnector
 
     private EtroRelic? GetRelicItem(string id)
     {
-        string? relicJson = MakeWebRequest(RELIC_API_BASE_URL + id);
+        string? relicJson = GetContent(MakeWebRequest(RELIC_API_BASE_URL + id));
         return relicJson == null ? null : JsonConvert.DeserializeObject<EtroRelic>(relicJson, JsonSettings);
     }
 
@@ -116,10 +117,20 @@ internal class EtroConnector : WebConnector
         if (set.EtroId.Equals(""))
             return errorMessage;
         errorMessage.Message = $"{errorMessage.Message} ({set.EtroId})";
-        string? jsonResponse = MakeWebRequest(GEARSET_API_BASE_URL + set.EtroId);
-        if (jsonResponse == null)
+
+        HttpResponseMessage? httpResponse = MakeWebRequest(GEARSET_API_BASE_URL + set.EtroId);
+        if (httpResponse == null)
             return errorMessage;
-        var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(jsonResponse, JsonSettings);
+        if (httpResponse.StatusCode == HttpStatusCode.NotFound)
+        {
+            set.ManagedBy = GearSetManager.Hrt;
+            set.EtroId = string.Empty;
+            return new HrtUiMessage($"Set {set.Name} is not available at etro.gg. It is now managed locally",
+                                    HrtUiMessageType.Warning);
+        }
+        var readTask = httpResponse.Content.ReadAsStringAsync();
+        readTask.Wait();
+        var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(readTask.Result, JsonSettings);
         if (etroSet == null)
             return errorMessage;
         set.Name = etroSet.name ?? "";
@@ -205,6 +216,8 @@ internal class EtroConnector : WebConnector
                 HrtUiMessage message = GetGearSet(gearSet);
                 if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
                     ServiceManager.Logger.Error(message.Message);
+                if (message.MessageType is HrtUiMessageType.Warning)
+                    ServiceManager.Logger.Warning(message.Message);
                 updateCount++;
             }
         }
