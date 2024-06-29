@@ -7,6 +7,16 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 6, 0, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(General, "Updated for 7.0"),
+                new ChangeLogEntry(Bis, "Automatically converts non existent etro set s to local sets"),
+                new ChangeLogEntry(
+                    General, "Item categorization and raid infos will be patched in once speculation becomes fact"),
+            },
+        },
         new(new Version(1, 5, 3, 0))
         {
             MinorFeatures =

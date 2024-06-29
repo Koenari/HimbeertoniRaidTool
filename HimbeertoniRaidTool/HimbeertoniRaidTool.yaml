@@ -3,15 +3,12 @@ name: Himbeertoni Raid Tool
 punchline: All you need for Raiding
 description: A collection of useful tools for raid groups, including loot management
 tags:
-  - Raid
-  - Loot
-  - Equipment
-  - Gear
+- Raid
+- Loot
+- Equipment
+- Gear
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
-dalamud_api_level: 10
 changelog: >2+
-      System: Changes to data storage (drops support for data from versions < 1.4.0)
-      User Interface: New interface for searching characters from database
-      General: Fix "Dmg" Calc being slightly off
-      User Interface: Some minor Ui improvements
+      General: Updated for 7.0
+      BiS: Automatically converts non existent etro set s to local sets
