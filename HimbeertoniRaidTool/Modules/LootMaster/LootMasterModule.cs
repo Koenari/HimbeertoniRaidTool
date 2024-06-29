@@ -212,10 +212,10 @@ internal sealed class LootMasterModule : IHrtModule
             return;
         }
 
-        List<PartyMember> fill = new();
+        List<IPartyMember> fill = new();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         var players = ServiceManager.PartyList.Where(p => p != null).ToList();
-        foreach (PartyMember p in players)
+        foreach (IPartyMember p in players)
         {
             if (!Enum.TryParse(p.ClassJob.GameData?.Abbreviation.RawString, out Job c))
             {
@@ -267,7 +267,7 @@ internal sealed class LootMasterModule : IHrtModule
                     break;
             }
         }
-        foreach (PartyMember pm in fill)
+        foreach (IPartyMember pm in fill)
         {
             int pos = 0;
             while (group[pos].Filled) { pos++; }
@@ -276,7 +276,7 @@ internal sealed class LootMasterModule : IHrtModule
         }
         ServiceManager.HrtDataManager.Save();
         return;
-        void FillPosition(int pos, PartyMember pm)
+        void FillPosition(int pos, IPartyMember pm)
         {
             Player p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
