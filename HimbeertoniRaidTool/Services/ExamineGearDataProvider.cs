@@ -21,7 +21,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
             unsafe
             {
                 _hook = iopProvider.HookFromSignature<CharacterInspectOnRefresh>(
-                    "48 89 5C 24 ?? 57 48 83 EC 20 49 8B D8 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2",
+                    "40 56 57 48 83 EC ?? 49 8B F0 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2",
                     OnExamineRefresh);
             }
         }
