@@ -15,9 +15,9 @@ public class ConfigurationManager : IDisposable
     private readonly Dictionary<Type, IHrtConfiguration> _configurations = new();
     private readonly ConfigUi _ui;
     private readonly WindowSystem _windowSystem;
-    private readonly DalamudPluginInterface _pluginInterface;
+    private readonly IDalamudPluginInterface _pluginInterface;
 
-    public ConfigurationManager(DalamudPluginInterface pluginInterface)
+    public ConfigurationManager(IDalamudPluginInterface pluginInterface)
     {
         _pluginInterface = pluginInterface;
         _windowSystem = new WindowSystem("HRTConfig");

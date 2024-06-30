@@ -20,7 +20,7 @@ public sealed class HrtPlugin : IDalamudPlugin
     private readonly bool _loadedSuccessfully;
     private readonly Dictionary<Type, IHrtModule> _registeredModules = new();
 
-    public HrtPlugin(DalamudPluginInterface pluginInterface, ICommandManager commandManager)
+    public HrtPlugin(IDalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
         _commandManager = commandManager;
         //Init all services

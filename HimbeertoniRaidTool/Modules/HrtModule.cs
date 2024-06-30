@@ -16,7 +16,6 @@ public interface IHrtModule
     void HandleMessage(HrtUiMessage message);
     void AfterFullyLoaded();
     void PrintUsage(string command, string args);
-    void Update();
     void OnLanguageChange(string langCode);
     void Dispose();
 }

@@ -16,7 +16,7 @@ internal static class ServiceManager
     public static IChatProvider Chat { get; private set; }
     public static IDataManager DataManager => DalamudServices.DataManager;
     public static ITargetManager TargetManager => DalamudServices.TargetManager;
-    public static DalamudPluginInterface PluginInterface => DalamudServices.PluginInterface;
+    public static IDalamudPluginInterface PluginInterface => DalamudServices.PluginInterface;
     public static IClientState ClientState => DalamudServices.ClientState;
     public static IObjectTable ObjectTable => DalamudServices.ObjectTable;
     public static IPartyList PartyList => DalamudServices.PartyList;
@@ -36,7 +36,7 @@ internal static class ServiceManager
 
     private static DalamudServiceWrapper DalamudServices { get; set; }
 
-    internal static bool Init(DalamudPluginInterface pluginInterface)
+    internal static bool Init(IDalamudPluginInterface pluginInterface)
     {
         if (_initialized) return false;
         _initialized = true;
@@ -73,7 +73,7 @@ internal static class ServiceManager
         [PluginService] public IChatGui ChatGui { get; set; }
         [PluginService] public IDataManager DataManager { get; set; }
         [PluginService] public ITargetManager TargetManager { get; set; }
-        [PluginService] public DalamudPluginInterface PluginInterface { get; set; }
+        [PluginService] public IDalamudPluginInterface PluginInterface { get; set; }
         [PluginService] public IClientState ClientState { get; set; }
         [PluginService] public IObjectTable ObjectTable { get; set; }
         [PluginService] public IPartyList PartyList { get; set; }

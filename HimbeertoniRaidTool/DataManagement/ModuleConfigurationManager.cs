@@ -23,7 +23,7 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
         NullValueHandling = NullValueHandling.Ignore,
 
     };
-    internal ModuleConfigurationManager(DalamudPluginInterface pluginInterface)
+    internal ModuleConfigurationManager(IDalamudPluginInterface pluginInterface)
     {
         _moduleConfigDir = new DirectoryInfo(pluginInterface.ConfigDirectory.FullName + "\\moduleConfigs\\");
         try

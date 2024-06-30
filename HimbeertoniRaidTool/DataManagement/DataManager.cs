@@ -36,7 +36,7 @@ public class HrtDataManager
         NullValueHandling = NullValueHandling.Ignore,
         ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
     };
-    public HrtDataManager(DalamudPluginInterface pluginInterface)
+    public HrtDataManager(IDalamudPluginInterface pluginInterface)
     {
         bool loadedSuccessful = true;
         //Set up files &folders
