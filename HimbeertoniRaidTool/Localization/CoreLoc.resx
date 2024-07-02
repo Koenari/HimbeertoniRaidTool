@@ -325,4 +325,7 @@
     <data name="ConfigUi_cb_tt_ignoreCustomILvlGear" xml:space="preserve">
         <value>Do not downgrade gear in gear sets to items below item level threshold</value>
     </data>
+    <data name="ChangelogCategory_KnownIssues" xml:space="preserve">
+        <value>Known Issue</value>
+    </data>
 </root>

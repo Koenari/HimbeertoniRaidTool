@@ -105,6 +105,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Known Issue.
+        /// </summary>
+        internal static string ChangelogCategory_KnownIssues {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_KnownIssues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Localization.
         /// </summary>
         internal static string ChangelogCategory_Localization {

@@ -12,9 +12,10 @@ public class ChangeLog
             NotableFeatures =
             {
                 new ChangeLogEntry(General, "Updated for 7.0"),
-                new ChangeLogEntry(Bis, "Automatically converts non existent etro set s to local sets"),
+                new ChangeLogEntry(Bis, "Automatically converts non existent etro sets to local sets"),
                 new ChangeLogEntry(
-                    General, "Item categorization and raid infos will be patched in once speculation becomes fact"),
+                    KnownIssues, "Item categorization and raid infos will be amended once available"),
+                new ChangeLogEntry(KnownIssues, "Stat calculations (e.g. HP) are most likely not correct yet"),
             },
         },
         new(new Version(1, 5, 3, 0))
@@ -393,6 +394,7 @@ public enum ChangeLogEntryCategory
     Translation,
     Performance,
     Gear,
+    KnownIssues,
 }
 
 public enum ChangelogShowOptions
