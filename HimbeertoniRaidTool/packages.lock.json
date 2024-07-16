@@ -10,9 +10,9 @@
       },
       "NetStone": {
         "type": "Direct",
-        "requested": "[1.1.2, )",
-        "resolved": "1.1.2",
-        "contentHash": "y4Ycg/Ngz3q7yZJYW7zoZysigVyhdUkPpMn6/XLOKXw5VzKsqE4owj2rrybK42xx653zcDZ7FmybFAFMtIoJOQ==",
+        "requested": "[1.2.1, )",
+        "resolved": "1.2.1",
+        "contentHash": "jK2GEJrBIfie0J7QvVcu3J/bph+IR8IouLF/f4Bv/7qvK7n+G5AnjM2XGqJre3Ifk5HOtGDnt+c8VJdq+ml36w==",
         "dependencies": {
           "HtmlAgilityPack": "1.11.46",
           "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "0.0.2",
@@ -39,8 +39,8 @@
       },
       "Lumina.Excel": {
         "type": "Transitive",
-        "resolved": "7.0.0",
-        "contentHash": "hZ0Nydtz9ln9k6P4hjZtE+RJbS3E0GsPhkhUy5NOVTHaSRYgkB/SCrBh0Cv8O1+5oOh7cOXfdHHaykYtS0Cn9w==",
+        "resolved": "7.0.1",
+        "contentHash": "6jLesCVDfBW1PAMOBtzzrk+zS4F+WEKI/y3iKuV2lTXqWnuguVuFXdZQvhRQryQ5ruNczFmNo8pZeU0yOfqIKA==",
         "dependencies": {
           "Lumina": "3.15.2"
         }
@@ -52,18 +52,18 @@
       },
       "XIVCalc": {
         "type": "Transitive",
-        "resolved": "0.2.0-alpha",
-        "contentHash": "76S8O5gP9235ASZ1V4JRPgFPngPRx04eEk3w23t5gr/18QK56LM3BhfKsvZnuFhFPA7RZl4Gkq9xTq4fYElGRw==",
+        "resolved": "0.2.0",
+        "contentHash": "2zMdJtvkfqTSipU9rYP0RrmD3mG0Lg5i5u0ud661HBhRn+qNh5Z4n17vPCKuO72ujrH1s8fTo6i3ZHb8b09REg==",
         "dependencies": {
           "Lumina.Excel": "7.0.0"
         }
       },
-      "Himbeertoniraidtool.common": {
+      "himbeertoniraidtool.common": {
         "type": "Project",
         "dependencies": {
-          "Lumina.Excel": "[7.0.0, )",
+          "Lumina.Excel": "[7.0.1, )",
           "Newtonsoft.Json": "[13.0.3, )",
-          "XIVCalc": "[0.2.0-alpha, )"
+          "XIVCalc": "[0.2.0, )"
         }
       }
     }
