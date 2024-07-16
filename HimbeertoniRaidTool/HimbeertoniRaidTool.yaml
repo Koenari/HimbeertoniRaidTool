@@ -10,7 +10,6 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      General: Updated for 7.0
-      BiS: Automatically converts non existent etro sets to local sets
-      Known Issue: Item categorization and raid infos will be amended once available
-      Known Issue: Stat calculations (e.g. HP) are most likely not correct yet
+      General: Added loot information for normal raids and extremes
+      General: Corrected HP calculation for levels above 90
+      Lodestone Connector: PCT and VIP fixed
