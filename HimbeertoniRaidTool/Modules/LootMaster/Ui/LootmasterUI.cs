@@ -36,7 +36,6 @@ internal class LootmasterUi : HrtWindow
     protected Vector2 ButtonSize => _buttonSize * ScaleFactor;
     protected Vector2 ButtonSizeVertical => _buttonSizeVertical * ScaleFactor;
 
-    // ReSharper disable once UnusedMethodReturnValue.Local
     private bool AddChild(HrtWindow? child)
     {
         if (child is null) return false;
@@ -594,7 +593,7 @@ internal class LootmasterUi : HrtWindow
 
         foreach (InstanceWithLoot lootSource in CurConfig.SelectedRaidTier.Bosses)
         {
-            if (ImGuiHelper.Button(lootSource.Name, null))
+            if (ImGuiHelper.Button(lootSource.Name, null, lootSource.IsAvailable))
                 AddChild(new LootSessionUi(lootSource, CurrentGroup, CurConfig.RaidGroups, CurConfig.LootRuling,
                                            CurConfig.RolePriority));
             ImGui.SameLine();
