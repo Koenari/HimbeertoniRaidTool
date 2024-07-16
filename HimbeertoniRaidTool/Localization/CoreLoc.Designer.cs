@@ -123,6 +123,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lodestone Connector.
+        /// </summary>
+        internal static string ChangelogCategory_Lodestone {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_Lodestone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Loot Master.
         /// </summary>
         internal static string ChangelogCategory_LootMaster {

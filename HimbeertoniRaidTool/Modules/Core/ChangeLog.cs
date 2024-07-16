@@ -7,6 +7,15 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 6, 1, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(General, "Added loot information for normal raids and extremes"),
+                new ChangeLogEntry(General, "Corrected HP calculation for levels above 90"),
+                new ChangeLogEntry(Lodestone, "PCT and VIP fixed"),
+            },
+        },
         new(new Version(1, 6, 0, 0))
         {
             NotableFeatures =
@@ -395,6 +404,7 @@ public enum ChangeLogEntryCategory
     Performance,
     Gear,
     KnownIssues,
+    Lodestone,
 }
 
 public enum ChangelogShowOptions

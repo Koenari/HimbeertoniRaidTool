@@ -328,4 +328,7 @@
     <data name="ChangelogCategory_KnownIssues" xml:space="preserve">
         <value>Known Issue</value>
     </data>
+    <data name="ChangelogCategory_Lodestone" xml:space="preserve">
+        <value>Lodestone Connector</value>
+    </data>
 </root>
