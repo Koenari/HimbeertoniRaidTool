@@ -417,4 +417,14 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
         <value>{0} {1} bearbeiten</value>
         <comment>{0} type {1} name eg. Edit player Toni</comment>
     </data>
+  <data name="SearchWindow_btn_tt_SelectEnty" xml:space="preserve">
+        <value>{0} {1} auswählen</value>
+    </data>
+  <data name="CharacterSearchUi_txt_classCount" xml:space="preserve">
+        <value>{0} Klassen</value>
+        <comment>{0} is a number</comment>
+    </data>
+  <data name="CommonTerms_All" xml:space="preserve">
+        <value>Alle</value>
+    </data>
 </root>
