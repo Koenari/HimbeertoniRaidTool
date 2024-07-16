@@ -322,4 +322,10 @@
   <data name="ConfigUi_cb_tt_ignoreCustomILvlGear" xml:space="preserve">
         <value>Ausrüstung in Sets wird nicht durch getragenen Ausrüstung ersetzt, die weniger als das hier angegebene Item Level hat</value>
     </data>
+  <data name="ChangelogCategory_KnownIssues" xml:space="preserve">
+        <value>Bekanntes Problem</value>
+    </data>
+  <data name="ChangelogCategory_Lodestone" xml:space="preserve">
+        <value>Lodestone Verbindung</value>
+    </data>
 </root>
