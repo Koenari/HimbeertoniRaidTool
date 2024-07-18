@@ -9,7 +9,7 @@ on:
   pull_request:
     branches: [ "master" ]
 env:
-  AppData: /home/runner/appdata
+  AppData: ~/appdata
 jobs:
   build:
     runs-on: ubuntu-latest
