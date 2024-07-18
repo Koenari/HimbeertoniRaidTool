@@ -1,7 +1,6 @@
 name: Distribute Update
 
-on:
-  push:
+on: push
 env:
   PLUGIN_NAME: 'Himbeertoni Raid Tool'
   PLUGIN_NAME_INTERNAL: 'HimbeertoniRaidTool'
