@@ -26,7 +26,7 @@ internal class GearDb : DataBaseTable<GearSet>
         foreach ((HrtId id, GearSet set) in Data)
         {
             if (set.ManagedBy == GearSetManager.Etro)
-                _etroLookup.TryAdd(set.EtroId, id);
+                _etroLookup.TryAdd(set.ExternalId, id);
         }
         return IsLoaded & !LoadError;
     }
@@ -34,7 +34,7 @@ internal class GearDb : DataBaseTable<GearSet>
     {
         if (_etroLookup.TryGetValue(etroId, out HrtId? id))
             return TryGet(id, out set);
-        id = Data.FirstOrDefault(s => s.Value.EtroId == etroId).Key;
+        id = Data.FirstOrDefault(s => s.Value.ExternalId == etroId).Key;
         if (id is not null)
         {
             _etroLookup.Add(etroId, id);
@@ -48,7 +48,7 @@ internal class GearDb : DataBaseTable<GearSet>
     {
         foreach (GearSet dataValue in Data.Values.Where(dataValue =>
                                                             dataValue is
-                                                                { ManagedBy: GearSetManager.Etro, EtroId: "" }))
+                                                                { ManagedBy: GearSetManager.Etro, ExternalId: "" }))
         {
             dataValue.ManagedBy = GearSetManager.Hrt;
         }

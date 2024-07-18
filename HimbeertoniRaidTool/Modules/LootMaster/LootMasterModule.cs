@@ -167,15 +167,16 @@ internal sealed class LootMasterModule : IHrtModule
             curClass.Level = source.Level;
             var gearDb = ServiceManager.HrtDataManager.GearDb;
             if (!gearDb.Search(
-                    entry => entry?.EtroId == ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
+                    entry => entry?.ExternalId
+                          == ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
                     out GearSet? etroSet))
             {
                 etroSet = new GearSet(GearSetManager.Etro)
                 {
-                    EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
+                    ExternalId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
                 };
                 gearDb.TryAdd(etroSet);
-                ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(etroSet, HandleMessage);
+                ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(etroSet, HandleMessage);
             }
             curClass.CurBis = etroSet;
             gearDb.TryAdd(curClass.CurGear);
@@ -294,7 +295,7 @@ internal sealed class LootMasterModule : IHrtModule
                     p.MainChar.MainClass!.Level = pc.Level;
                     GearSet bis = new(GearSetManager.Etro)
                     {
-                        EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c),
+                        ExternalId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(c),
                     };
                     ServiceManager.HrtDataManager.GearDb.TryAdd(bis);
                     p.MainChar.MainClass.CurBis = bis;

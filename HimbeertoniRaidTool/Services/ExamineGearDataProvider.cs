@@ -111,14 +111,14 @@ internal class ExamineGearDataProvider : IGearDataProvider
 
             targetClass = targetChar.AddClass(targetJob);
             string bisEtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(targetJob);
-            if (ServiceManager.HrtDataManager.GearDb.Search(entry => entry?.EtroId == bisEtroId,
+            if (ServiceManager.HrtDataManager.GearDb.Search(entry => entry?.ExternalId == bisEtroId,
                                                             out GearSet? existingBis))
                 targetClass.CurBis = existingBis;
             else
             {
-                targetClass.CurBis.EtroId = bisEtroId;
+                targetClass.CurBis.ExternalId = bisEtroId;
                 if (ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.CurBis))
-                    ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(targetClass.CurBis);
+                    ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(targetClass.CurBis);
             }
             if (!ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.CurGear))
             {
