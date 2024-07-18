@@ -21,7 +21,7 @@ jobs:
         fetch-depth: 2
     - name: Get new version
       id: newver
-      uses: mavrosxristoforos/get-xml-info@1.2.1
+      uses: mavrosxristoforos/get-xml-info@2.0
       with:
         xml-file: ${{env.PROJ_FILE}}
         xpath: '/Project/PropertyGroup/Version'
@@ -29,7 +29,7 @@ jobs:
       run: 'git checkout HEAD^'
     - name: Get old version
       id: oldver
-      uses: mavrosxristoforos/get-xml-info@1.2.1
+      uses: mavrosxristoforos/get-xml-info@2.0
       with:
         xml-file: ${{env.PROJ_FILE}}
         xpath: '/Project/PropertyGroup/Version'
