@@ -8,12 +8,11 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
+env:
+  AppData: /home/runner/appdata
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      AppData: /home/runner/appdata
     steps:
     - uses: actions/checkout@v3
       with:
@@ -25,7 +24,7 @@ jobs:
     - name: Download Dalamud
       run: |
         curl -O https://goatcorp.github.io/dalamud-distrib/${{vars.DALAMUD_BRANCH}}/latest.zip
-        unzip latest.zip -d "$env:AppData/XIVLauncher/addon/Hooks/dev/"
+        unzip latest.zip -d "$AppData/XIVLauncher/addon/Hooks/dev/"
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
