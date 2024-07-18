@@ -920,5 +920,14 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
                 return ResourceManager.GetString("Ui_rightClickHint", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string XivGearAppConnector_GetGearSet_Error {
+            get {
+                return ResourceManager.GetString("XivGearAppConnector_GetGearSet_Error", resourceCulture);
+            }
+        }
     }
 }

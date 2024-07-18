@@ -12,7 +12,7 @@ internal class ConnectorPool : IDisposable
     {
         EtroConnector = new EtroConnector(tm, log);
         LodestoneConnector = new LodestoneConnector();
-        XivGearAppConnector = new XivGearAppConnector();
+        XivGearAppConnector = new XivGearAppConnector(tm);
     }
 
     public IReadOnlyGearConnector GetConnector(GearSetManager type) => type switch

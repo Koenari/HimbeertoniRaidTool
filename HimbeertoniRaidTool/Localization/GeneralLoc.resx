@@ -436,4 +436,7 @@ You need to update to use this plugin!</value>
     <data name="CommonTerms_All" xml:space="preserve">
         <value>All</value>
     </data>
+    <data name="XivGearAppConnector_GetGearSet_Error" xml:space="preserve">
+        <value/>
+    </data>
 </root>
