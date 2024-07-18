@@ -24,6 +24,7 @@ jobs:
     - name: Download Dalamud
       run: |
         curl -O https://goatcorp.github.io/dalamud-distrib/${{vars.DALAMUD_BRANCH}}/latest.zip
+        mkdir $AppData
         unzip latest.zip -d "$AppData/XIVLauncher/addon/Hooks/dev/"
     - name: Restore dependencies
       run: dotnet restore
