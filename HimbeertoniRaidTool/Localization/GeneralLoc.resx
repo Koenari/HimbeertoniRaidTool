@@ -178,8 +178,8 @@
             Only local Gear Sets can be edited
         </value>
     </data>
-    <data name="CommonTerms_EtroID">
-        <value>Etro ID</value>
+    <data name="CommonTerms_ExternalID">
+        <value>ID</value>
     </data>
     <data name="EditUi_Txt_LocalId">
         <value>Local ID</value>
@@ -333,14 +333,14 @@
     <data name="EditCharUi_text_BisNotice" xml:space="preserve">
         <value>BiS sets are now changed by editing the respective BiS set directly</value>
     </data>
-    <data name="EditGearSetUi_text_getEtro" xml:space="preserve">
-        <value>Replace with set from etro</value>
+    <data name="EditGearSetUi_text_getEtroBis" xml:space="preserve">
+        <value>Replace with bis from etro</value>
     </data>
-    <data name="EditGearSetUi_btn_CustomEtro" xml:space="preserve">
-        <value>Custom</value>
+    <data name="EditGearSetUi_btn_GetExternal" xml:space="preserve">
+        <value>Replace</value>
     </data>
-    <data name="EditGearSetUi_btn_tt_CustomEtro" xml:space="preserve">
-        <value>Provide custom id</value>
+    <data name="EditGearSetUi_btn_tt_GetExternal" xml:space="preserve">
+        <value>Dwonlad set and replace current one</value>
     </data>
     <data name="EditGearSetUi_btn_tt_cutsomEtro" xml:space="preserve">
         <value>Get</value>

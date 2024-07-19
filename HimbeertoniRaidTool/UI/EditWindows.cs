@@ -398,13 +398,16 @@ public static class EditWindowFactory
     {
         private readonly Job? _providedJob;
         private Job _job;
-        private string _etroIdInput = "";
+        private string _externalIdInput = "";
+        private GearSetManager _curSetManager;
+        private List<string> _xivGearSetList = [];
         internal EditGearSetWindow(GearSet original, Action<GearSet>? onSave = null,
                                    Action? onCancel = null, Job? job = null) :
             base(original, onSave, onCancel)
         {
             _providedJob = job;
             _job = job ?? original[GearSetSlot.MainHand].Jobs.FirstOrDefault(Job.ADV);
+            _curSetManager = original.ManagedBy;
             MinSize = new Vector2(550, 300);
         }
 
@@ -412,7 +415,6 @@ public static class EditWindowFactory
 
         protected override void DrawContent()
         {
-            bool isFromEtro = DataCopy.ManagedBy == GearSetManager.Etro;
             ImGui.SameLine();
             if (ImGuiHelper.DeleteButton(DataCopy, "##delete", true, new Vector2(50, 25)))
             {
@@ -425,63 +427,102 @@ public static class EditWindowFactory
                 }
             }
             //Replace with etro section
-            ImGui.Text(GeneralLoc.EditGearSetUi_text_getEtro);
-            foreach ((string etroId, string name) in ServiceManager.ConnectorPool.EtroConnector.GetBiS(_job))
+            var etroBisSets = ServiceManager.ConnectorPool.EtroConnector.GetBiS(_job);
+            if (etroBisSets.Any())
             {
-                ImGui.SameLine();
-                if (ImGuiHelper.Button($"{name}##BIS#{etroId}", $"{etroId}"))
+                ImGui.Text(GeneralLoc.EditGearSetUi_text_getEtroBis);
+                foreach ((string etroId, string name) in etroBisSets)
                 {
-                    if (ServiceManager.HrtDataManager.GearDb.Search(gearSet => gearSet?.ExternalId == etroId,
-                                                                    out GearSet? newSet))
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button($"{name}##BIS#{etroId}", $"{etroId}"))
                     {
-                        ReplaceOriginal(newSet);
+                        if (ServiceManager.HrtDataManager.GearDb.Search(gearSet => gearSet?.ExternalId == etroId,
+                                                                        out GearSet? newSet))
+                        {
+                            ReplaceOriginal(newSet);
+                            return;
+                        }
+                        ReplaceOriginal(new GearSet(GearSetManager.Etro, name)
+                        {
+                            ExternalId = etroId,
+                        });
+                        ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(DataCopy);
                         return;
                     }
-                    ReplaceOriginal(new GearSet(GearSetManager.Etro, name)
-                    {
-                        ExternalId = etroId,
-                    });
-                    ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(DataCopy);
-                    return;
                 }
             }
-            const string customEtroPopupId = "customEtroPopupID";
+            ImGui.Text("Replace with: ");
             ImGui.SameLine();
-            if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_CustomEtro,
-                                   GeneralLoc.EditGearSetUi_btn_tt_CustomEtro))
+            ImGui.SetNextItemWidth(100 * ScaleFactor);
+            ImGuiHelper.Combo("##manager", ref _curSetManager, null, val => val != GearSetManager.Hrt);
+            ImGui.SetNextItemWidth(200 * ScaleFactor);
+            ImGui.SameLine();
+            if (ImGui.InputText("ID/Url", ref _externalIdInput, 255))
             {
-                _etroIdInput = "";
-                ImGui.OpenPopup(customEtroPopupId);
-            }
-
-            if (ImGui.BeginPopupContextItem(customEtroPopupId))
-            {
-                ImGui.InputText("CustomEtroID", ref _etroIdInput, 200);
-                if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_tt_cutsomEtro,
-                                       GeneralLoc.EditGearSetUi_btn_tt_cutsomEtro_Get))
+                _xivGearSetList = [];
+                if (_externalIdInput.StartsWith(EtroConnector.GEARSET_WEB_BASE_URL))
                 {
-                    if (_etroIdInput.StartsWith(EtroConnector.GEARSET_WEB_BASE_URL))
-                        _etroIdInput = _etroIdInput[EtroConnector.GEARSET_WEB_BASE_URL.Length..];
-                    if (ServiceManager.HrtDataManager.GearDb.Search(gearSet => gearSet?.ExternalId == _etroIdInput,
-                                                                    out GearSet? newSet))
+                    _curSetManager = GearSetManager.Etro;
+                    _externalIdInput = ServiceManager.ConnectorPool.EtroConnector.GetId(_externalIdInput);
+                }
+                if (ServiceManager.ConnectorPool.XivGearAppConnector.BelongsToThisService(_externalIdInput))
+                {
+                    _curSetManager = GearSetManager.XivGear;
+                    _externalIdInput = ServiceManager.ConnectorPool.XivGearAppConnector.GetId(_externalIdInput);
+                }
+                //ToDO: Do not load on main Thread
+                if (_curSetManager == GearSetManager.XivGear
+                 && ServiceManager.ConnectorPool.XivGearAppConnector.IsSheet(_externalIdInput))
+                {
+                    _xivGearSetList = ServiceManager.ConnectorPool.XivGearAppConnector.GetSetNames(_externalIdInput);
+                }
+            }
+            if (_xivGearSetList.Count > 0)
+            {
+                ImGui.SetNextItemWidth(200 * ScaleFactor);
+                int idx = 0;
+                if (ImGui.BeginCombo("idx", _xivGearSetList[DataCopy.ExternalIdx]))
+                {
+                    foreach (string name in _xivGearSetList)
                     {
-                        ReplaceOriginal(newSet);
-                        return;
+                        if (ImGui.Selectable(name))
+                            DataCopy.ExternalIdx = idx;
+                        idx++;
                     }
-                    ReplaceOriginal(new GearSet(GearSetManager.Etro)
-                    {
-                        ExternalId = _etroIdInput,
-                    });
-                    ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(DataCopy);
-                    ImGui.CloseCurrentPopup();
+
+                    ImGui.EndCombo();
+                }
+            }
+            ImGui.SameLine();
+            if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_GetExternal,
+                                   GeneralLoc.EditGearSetUi_btn_tt_GetExternal))
+            {
+                if (ServiceManager.HrtDataManager.GearDb.Search(
+                        gearSet => gearSet?.ManagedBy == _curSetManager && gearSet?.ExternalId == _externalIdInput,
+                        out GearSet? newSet))
+                {
+                    ReplaceOriginal(newSet);
                     return;
                 }
-                ImGui.EndPopup();
+                ReplaceOriginal(new GearSet(_curSetManager)
+                {
+                    ExternalId = _externalIdInput,
+                    ExternalIdx = DataCopy.ExternalIdx,
+                });
+                if (DataCopy.ManagedBy == GearSetManager.Etro)
+                {
+                    ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(DataCopy);
+                }
+                else if (DataCopy.ManagedBy == GearSetManager.XivGear)
+                {
+                    ServiceManager.ConnectorPool.XivGearAppConnector.RequestGearSetUpdate(DataCopy);
+                }
             }
+            ImGui.Separator();
             //Source information
-            if (isFromEtro)
+            if (DataCopy.IsManagedExternally)
             {
-                ImGui.Text($"{GeneralLoc.EditGearSetUi_Source}: {GearSetManager.Etro.FriendlyName()}");
+                ImGui.Text($"{GeneralLoc.EditGearSetUi_Source}: {DataCopy.ManagedBy.FriendlyName()}");
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_MakeLocal,
                                        GeneralLoc.EditGearSetUi_btn_tt_MakeLocal))
@@ -495,7 +536,7 @@ public static class EditWindowFactory
                     ReplaceOriginal(newSet);
                 }
 
-                ImGui.Text($"{GeneralLoc.CommonTerms_EtroID}: {DataCopy.ExternalId}");
+                ImGui.Text($"{GeneralLoc.CommonTerms_ExternalID}: {DataCopy.ExternalId}");
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_openEtro, null))
                     Util.OpenLink(EtroConnector.GEARSET_WEB_BASE_URL + DataCopy.ExternalId);
@@ -516,7 +557,8 @@ public static class EditWindowFactory
             ImGuiHelper.Combo("##JobSelection", ref _job);
             ImGui.EndDisabled();
             ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_txt_LastChange, DataCopy.TimeStamp));
-            ImGui.BeginDisabled(isFromEtro);
+            ImGui.Separator();
+            ImGui.BeginDisabled(DataCopy.IsManagedExternally);
             ImGui.Text($"{GeneralLoc.CommonTerms_Name}: ");
             ImGui.SameLine();
             ImGui.InputText("", ref DataCopy.Name, 100);

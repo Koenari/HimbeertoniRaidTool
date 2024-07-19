@@ -99,6 +99,8 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
         return new HrtUiMessage(GeneralLoc.EtroConnector_FillMateriaCache_Success, HrtUiMessageType.Success);
     }
 
+    public bool BelongsToThisService(string url) => url.StartsWith(WEB_BASE_URL);
+    public string GetId(string url) => url[GEARSET_WEB_BASE_URL.Length..];
     public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
                                      string taskName = "Etro Update")
     {

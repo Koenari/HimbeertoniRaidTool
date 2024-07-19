@@ -6,7 +6,7 @@ internal class ConnectorPool : IDisposable
 {
     internal readonly EtroConnector EtroConnector;
     internal readonly LodestoneConnector LodestoneConnector;
-    internal readonly IReadOnlyGearConnector XivGearAppConnector;
+    internal readonly XivGearAppConnector XivGearAppConnector;
 
     internal ConnectorPool(TaskManager tm, ILogger log)
     {
@@ -17,9 +17,10 @@ internal class ConnectorPool : IDisposable
 
     public IReadOnlyGearConnector GetConnector(GearSetManager type) => type switch
     {
-        GearSetManager.Etro       => EtroConnector,
-        GearSetManager.XivGearApp => XivGearAppConnector,
-        _                         => throw new NotImplementedException(),
+        GearSetManager.Etro    => EtroConnector,
+        GearSetManager.XivGear => XivGearAppConnector,
+        GearSetManager.Hrt     => throw new NotImplementedException(),
+        _                      => throw new NotImplementedException(),
     };
 
     public void Dispose() => LodestoneConnector.Dispose();

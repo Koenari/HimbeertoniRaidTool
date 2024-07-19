@@ -26,6 +26,36 @@ internal class XivGearAppConnector(TaskManager taskManager)
         MissingMemberHandling = MissingMemberHandling.Ignore,
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
     };
+
+
+    public bool BelongsToThisService(string url) => url.StartsWith(WEB_BASE_URL) || url.StartsWith(API_BASE_URL);
+    public string GetId(string url) => url.Split("%7C")[^1];
+
+
+    public bool IsSheet(string id)
+    {
+        HttpResponseMessage? httpResponse = MakeWebRequest(GEAR_API_BASE_URL + id);
+        if (httpResponse is null || !httpResponse.IsSuccessStatusCode) return false;
+        var readTask = httpResponse.Content.ReadAsStringAsync();
+        readTask.Wait();
+        return IsSheetInternal(readTask.Result);
+    }
+    private static bool IsSheetInternal(string content)
+    {
+        var sheet = JsonConvert.DeserializeObject<XivGearSheet>(content);
+        return sheet is not null && sheet.sets.Count != 0;
+    }
+
+    public List<string> GetSetNames(string id)
+    {
+        HttpResponseMessage? httpResponse = MakeWebRequest(GEAR_API_BASE_URL + id);
+        if (httpResponse is null || !httpResponse.IsSuccessStatusCode) return [];
+        var readTask = httpResponse.Content.ReadAsStringAsync();
+        readTask.Wait();
+        var sheet = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result);
+        return sheet?.sets.ConvertAll(set => set.name ?? "") ?? [];
+    }
+
     public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
                                      string taskName = "Gearset Update")
     {
@@ -52,8 +82,16 @@ internal class XivGearAppConnector(TaskManager taskManager)
         }
         var readTask = httpResponse.Content.ReadAsStringAsync();
         readTask.Wait();
-        var xivGearSheet = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result, JsonSettings);
-        XivGearSet? xivSet = xivGearSheet?.sets[0];
+        XivGearSet? xivSet;
+        if (IsSheetInternal(readTask.Result))
+        {
+            var xivGearSheet = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result, JsonSettings);
+            xivSet = xivGearSheet?.sets[set.ExternalIdx];
+        }
+        else
+        {
+            xivSet = JsonConvert.DeserializeObject<XivGearSet>(readTask.Result, JsonSettings);
+        }
         if (xivSet == null)
             return errorMessage;
         set.Name = xivSet.name ?? "";
@@ -83,15 +121,19 @@ internal class XivGearAppConnector(TaskManager taskManager)
             };
             foreach (XivItem materia in item.materia)
             {
-                //set[slot].AddMateria(new HrtMateria(materia.id));
+                set[slot].AddMateria(new HrtMateria(materia.id));
             }
         }
     }
 
-
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
+    // ReSharper disable InconsistentNaming
+    // ReSharper disable CollectionNeverUpdated.Local
+    // ReSharper disable ClassNeverInstantiated.Local
     private class XivGearSheet
     {
-        public string name;
+        public string? name;
         public List<XivGearSet> sets;
         public string job;
         public string description;
@@ -99,7 +141,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
 
     private class XivGearSet
     {
-        public string name;
+        public string? name;
         public Dictionary<string, XivItem> items;
         public uint food;
     }
@@ -108,6 +150,10 @@ internal class XivGearAppConnector(TaskManager taskManager)
     {
         public uint id;
         public List<XivItem> materia;
-
     }
+    // ReSharper restore ClassNeverInstantiated.Local
+    // ReSharper restore InconsistentNaming
+    // ReSharper restore CollectionNeverUpdated.Local
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }

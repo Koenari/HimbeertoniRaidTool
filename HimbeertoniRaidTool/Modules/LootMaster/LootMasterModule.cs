@@ -313,14 +313,6 @@ internal sealed class LootMasterModule : IHrtModule
             case "toggle":
                 _ui.IsOpen = !_ui.IsOpen;
                 break;
-            case "crash":
-                var set = new GearSet(GearSetManager.XivGearApp, "")
-                {
-                    ExternalId = "a0544a3b-da50-4f46-8f71-40ded84eaabe",
-                };
-                ServiceManager.ConnectorPool.XivGearAppConnector.UpdateGearSet(set);
-                RaidGroups[0][0].MainChar[Job.WHM].CurBis = set;
-                break;
             case "help":
                 PrintUsage("/help", "");
                 break;
