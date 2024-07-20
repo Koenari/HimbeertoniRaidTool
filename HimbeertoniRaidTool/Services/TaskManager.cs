@@ -11,13 +11,23 @@ internal class TaskManager : IDisposable
     {
         public Task SystemTask { get; }
         public string Name { get; }
+        public bool HasError { get; }
+        public string ErrorMsg { get; }
     }
 
     private class TaskWrapper<TData>(HrtTask<TData> task) : ITaskWrapper
     {
-        public Task SystemTask { get; } = Task.Run(() => task.CallBack(task.Action()));
-        public string Name => InternalTask.Name;
-        private readonly HrtTask<TData> InternalTask = task;
+        public Task SystemTask { get; } = Task.Run(() =>
+        {
+            task.Result = task.Action();
+            task.CallBack(task.Result);
+        });
+        public string Name => task.Name;
+        public bool HasError => task.Result is HrtUiMessage
+        {
+            MessageType: HrtUiMessageType.Failure or HrtUiMessageType.Error,
+        };
+        public string ErrorMsg => task.Result is HrtUiMessage msg ? msg.Message : string.Empty;
 
     }
 
@@ -46,7 +56,10 @@ internal class TaskManager : IDisposable
             {
                 if (completedTask.SystemTask.IsFaulted)
                     ServiceManager.Logger.Error(completedTask.SystemTask.Exception,
-                        $"Task \"{completedTask.Name}\" finished with an error");
+                                                $"Task \"{completedTask.Name}\" finished with an error");
+                else if (completedTask.HasError)
+                    ServiceManager.Logger.Error(
+                        $"Task \"{completedTask.Name}\" finished with an error: {completedTask.ErrorMsg}");
                 else
                     ServiceManager.Logger.Info(
                         $"Task \"{completedTask.Name}\" finished successful");
@@ -135,6 +148,7 @@ internal class TaskManager : IDisposable
 internal class HrtTask<TReturn>(Func<TReturn> task, Action<TReturn> callBack, string name)
 {
     public readonly Action<TReturn> CallBack = callBack;
+    public TReturn? Result;
     public readonly Func<TReturn> Action = task;
     public readonly string Name = name;
 
