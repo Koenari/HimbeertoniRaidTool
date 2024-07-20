@@ -139,8 +139,8 @@ public static class ImGuiHelper
                 module.HandleMessage(
                     new HrtUiMessage($"{GeneralLoc.LodestonConnetor_msg_UpdateStarted} {p.MainChar.Name}"));
                 ServiceManager.TaskManager.RegisterTask(
-                    new HrtTask(() => ServiceManager.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
-                                module.HandleMessage, $"Update {p.MainChar.Name} from Lodestone"));
+                    new HrtTask<HrtUiMessage>(() => ServiceManager.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
+                                              module.HandleMessage, $"Update {p.MainChar.Name} from Lodestone"));
                 return true;
             }
             return false;

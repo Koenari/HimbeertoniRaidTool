@@ -27,28 +27,28 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
     internal EtroConnector(TaskManager tm, ILogger log) : base(new RateLimit(4, new TimeSpan(0, 0, 30)))
     {
         _taskManager = tm;
-        _taskManager.RegisterTask(new HrtTask(() => FillMateriaCache(_materiaCache),
-                                              msg =>
-                                              {
-                                                  if (msg.MessageType == HrtUiMessageType.Failure)
-                                                      log.Error(msg.Message);
-                                                  else
-                                                      log.Info(msg.Message);
-                                              }
-                                            , "Get Etro Materia definitions"));
+        _taskManager.RegisterTask(new HrtTask<HrtUiMessage>(() => FillMateriaCache(_materiaCache),
+                                                            msg =>
+                                                            {
+                                                                if (msg.MessageType == HrtUiMessageType.Failure)
+                                                                    log.Error(msg.Message);
+                                                                else
+                                                                    log.Info(msg.Message);
+                                                            }
+                                                          , "Get Etro Materia definitions"));
         _bisCache = new Dictionary<Job, Dictionary<string, string>>();
         foreach (Job job in Enum.GetValues<Job>())
         {
             _bisCache.Add(job, new Dictionary<string, string>());
         }
-        _taskManager.RegisterTask(new HrtTask(FillBisList,
-                                              msg =>
-                                              {
-                                                  if (msg.MessageType == HrtUiMessageType.Failure)
-                                                      log.Error(msg.Message);
-                                                  else
-                                                      log.Info(msg.Message);
-                                              }, "Load BiS list from etro"));
+        _taskManager.RegisterTask(new HrtTask<HrtUiMessage>(FillBisList,
+                                                            msg =>
+                                                            {
+                                                                if (msg.MessageType == HrtUiMessageType.Failure)
+                                                                    log.Error(msg.Message);
+                                                                else
+                                                                    log.Info(msg.Message);
+                                                            }, "Load BiS list from etro"));
     }
     private static JsonSerializerSettings JsonSettings => new()
     {
@@ -105,7 +105,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
                                      string taskName = "Etro Update")
     {
         messageCallback ??= _ => { };
-        _taskManager.RegisterTask(new HrtTask(() => UpdateGearSet(set), messageCallback, taskName));
+        _taskManager.RegisterTask(new HrtTask<HrtUiMessage>(() => UpdateGearSet(set), messageCallback, taskName));
     }
 
     private EtroRelic? GetRelicItem(string id)

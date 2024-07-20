@@ -60,7 +60,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
                                      string taskName = "Gearset Update")
     {
         messageCallback ??= _ => { };
-        taskManager.RegisterTask(new HrtTask(() => UpdateGearSet(set), messageCallback, taskName));
+        taskManager.RegisterTask(new HrtTask<HrtUiMessage>(() => UpdateGearSet(set), messageCallback, taskName));
     }
     public HrtUiMessage UpdateGearSet(GearSet set)
     {
