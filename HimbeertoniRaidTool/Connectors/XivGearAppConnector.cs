@@ -43,7 +43,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
     private static bool IsSheetInternal(string content)
     {
         var sheet = JsonConvert.DeserializeObject<XivGearSheet>(content);
-        return sheet is not null && sheet.sets.Count != 0;
+        return sheet?.sets?.Count > 0;
     }
 
     public List<string> GetSetNames(string id)
@@ -53,7 +53,10 @@ internal class XivGearAppConnector(TaskManager taskManager)
         var readTask = httpResponse.Content.ReadAsStringAsync();
         readTask.Wait();
         var sheet = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result);
-        return sheet?.sets.ConvertAll(set => set.name ?? "") ?? [];
+        if (sheet?.sets != null)
+            return sheet.sets?.ConvertAll(set => set.name ?? "") ?? [];
+        var set = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result);
+        return set is null ? [] : [set.name ?? ""];
     }
 
     public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
@@ -86,7 +89,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
         if (IsSheetInternal(readTask.Result))
         {
             var xivGearSheet = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result, JsonSettings);
-            xivSet = xivGearSheet?.sets[set.ExternalIdx];
+            xivSet = xivGearSheet?.sets?[set.ExternalIdx];
         }
         else
         {
@@ -115,13 +118,15 @@ internal class XivGearAppConnector(TaskManager taskManager)
 
         void FillItem(XivItem item, GearSetSlot slot)
         {
-            set[slot] = new GearItem(item.id)
+            if (item.id < 0) return;
+            set[slot] = new GearItem((uint)item.id)
             {
-                IsHq = ServiceManager.ItemInfo.CanBeCrafted(item.id),
+                IsHq = ServiceManager.ItemInfo.CanBeCrafted((uint)item.id),
             };
             foreach (XivItem materia in item.materia)
             {
-                set[slot].AddMateria(new HrtMateria(materia.id));
+                if (materia.id < 0) continue;
+                set[slot].AddMateria(new HrtMateria((uint)materia.id));
             }
         }
     }
@@ -134,7 +139,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
     private class XivGearSheet
     {
         public string? name;
-        public List<XivGearSet> sets;
+        public List<XivGearSet>? sets;
         public string job;
         public string description;
     }
@@ -142,13 +147,14 @@ internal class XivGearAppConnector(TaskManager taskManager)
     private class XivGearSet
     {
         public string? name;
+        public string job;
         public Dictionary<string, XivItem> items;
         public uint food;
     }
 
     private class XivItem
     {
-        public uint id;
+        public int id;
         public List<XivItem> materia;
     }
     // ReSharper restore ClassNeverInstantiated.Local

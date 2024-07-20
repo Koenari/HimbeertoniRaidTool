@@ -484,16 +484,9 @@ public static class EditWindowFactory
                         DataCopy.ExternalIdx = 0;
                         _loadedExternalId = _externalIdInput;
                         ServiceManager.TaskManager.RegisterTask(new HrtTask<List<string>>(
-                                                                    () =>
-                                                                    {
-                                                                        if (!ServiceManager.ConnectorPool
-                                                                                .XivGearAppConnector
-                                                                                .IsSheet(_externalIdInput))
-                                                                            return [];
-                                                                        return ServiceManager.ConnectorPool
-                                                                            .XivGearAppConnector
-                                                                            .GetSetNames(_externalIdInput);
-                                                                    },
+                                                                    () => ServiceManager.ConnectorPool
+                                                                        .XivGearAppConnector
+                                                                        .GetSetNames(_externalIdInput),
                                                                     list =>
                                                                     {
                                                                         _xivGearSetList = list;
@@ -534,7 +527,7 @@ public static class EditWindowFactory
                     {
                         ImGui.SetNextItemWidth(200 * ScaleFactor);
                         int idx = 0;
-                        if (ImGui.BeginCombo("idx", _xivGearSetList[DataCopy.ExternalIdx]))
+                        if (ImGui.BeginCombo("##idx", _xivGearSetList[DataCopy.ExternalIdx]))
                         {
                             foreach (string name in _xivGearSetList)
                             {
@@ -550,17 +543,19 @@ public static class EditWindowFactory
                     }
                     case GearSetManager.Etro:
                         ImGui.Text(_etroName);
+                        ImGui.SameLine();
                         break;
                     case GearSetManager.Hrt:
                     default:
                         ImGui.Text("No set");
+                        ImGui.SameLine();
                         break;
                 }
             if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_GetExternal,
                                    GeneralLoc.EditGearSetUi_btn_tt_GetExternal, !_backgroundTaskBusy))
             {
                 if (ServiceManager.HrtDataManager.GearDb.Search(
-                        gearSet => gearSet?.ManagedBy == _curSetManager && gearSet?.ExternalId == _externalIdInput,
+                        gearSet => gearSet?.ManagedBy == _curSetManager && gearSet.ExternalId == _externalIdInput,
                         out GearSet? newSet))
                 {
                     ReplaceOriginal(newSet);
