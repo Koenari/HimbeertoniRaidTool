@@ -127,14 +127,14 @@ internal class CoreModule : IHrtModule
     {
         OnConfigChange();
         ServiceManager.TaskManager.RegisterTask(
-            new HrtTask(() =>
+            new HrtTask<HrtUiMessage>(() =>
             {
                 ServiceManager.HrtDataManager.CleanupDatabase();
                 return HrtUiMessage.Empty;
             }, HandleMessage, "Cleanup database")
         );
         ServiceManager.TaskManager.RegisterTask(
-            new HrtTask(
+            new HrtTask<HrtUiMessage>(
                 () => ServiceManager.ConnectorPool.EtroConnector.UpdateEtroSets(_config.Data.UpdateEtroBisOnStartup,
                     _config.Data.EtroUpdateIntervalDays),
                 HandleMessage, "Update etro sets")

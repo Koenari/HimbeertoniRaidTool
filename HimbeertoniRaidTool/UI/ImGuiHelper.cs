@@ -139,8 +139,8 @@ public static class ImGuiHelper
                 module.HandleMessage(
                     new HrtUiMessage($"{GeneralLoc.LodestonConnetor_msg_UpdateStarted} {p.MainChar.Name}"));
                 ServiceManager.TaskManager.RegisterTask(
-                    new HrtTask(() => ServiceManager.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
-                                module.HandleMessage, $"Update {p.MainChar.Name} from Lodestone"));
+                    new HrtTask<HrtUiMessage>(() => ServiceManager.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
+                                              module.HandleMessage, $"Update {p.MainChar.Name} from Lodestone"));
                 return true;
             }
             return false;
@@ -154,27 +154,30 @@ public static class ImGuiHelper
     }
 
 
-    public static bool Combo<T>(string label, ref T value, Func<T, string>? toName = null) where T : struct, Enum
+    public static bool Combo<T>(string label, ref T value, Func<T, string>? toName = null, Func<T, bool>? select = null)
+        where T : struct, Enum
     {
         T? value2 = value;
         Func<T?, string>? toNameInternal = toName is null ? null : t => t.HasValue ? toName(t.Value) : "";
-        bool result = Combo(label, ref value2, toNameInternal);
+        bool result = Combo(label, ref value2, toNameInternal, select);
         if (result && value2.HasValue)
             value = value2.Value;
         return result;
     }
 
 
-    public static bool Combo<T>(string label, ref T? value, Func<T?, string>? toName = null) where T : struct, Enum
+    public static bool Combo<T>(string label, ref T? value, Func<T?, string>? toName = null,
+                                Func<T, bool>? select = null) where T : struct, Enum
     {
         string[] names = Enum.GetNames(typeof(T));
         toName ??= t => names[t.HasValue ? Array.IndexOf(Enum.GetValues(typeof(T)), t) : 0];
+        select ??= t => true;
         bool result = false;
         if (ImGui.BeginCombo(label, toName(value)))
         {
             foreach (T choice in Enum.GetValues<T>())
             {
-                if (ImGui.Selectable(toName(choice)))
+                if (select(choice) && ImGui.Selectable(toName(choice)))
                 {
                     value = choice;
                     result = true;

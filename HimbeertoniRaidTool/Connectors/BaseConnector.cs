@@ -3,8 +3,18 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
+using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
+
+public interface IReadOnlyGearConnector
+{
+    public bool BelongsToThisService(string url);
+    public string GetId(string url);
+    public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
+                                     string taskName = "Gearset Update");
+    public HrtUiMessage UpdateGearSet(GearSet set);
+}
 
 internal abstract class WebConnector
 {

@@ -96,11 +96,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Etro ID.
+        ///   Looks up a localized string similar to ID.
         /// </summary>
-        internal static string CommonTerms_EtroID {
+        internal static string CommonTerms_ExternalID {
             get {
-                return ResourceManager.GetString("CommonTerms_EtroID", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_ExternalID", resourceCulture);
             }
         }
         
@@ -341,11 +341,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Custom.
+        ///   Looks up a localized string similar to Replace.
         /// </summary>
-        internal static string EditGearSetUi_btn_CustomEtro {
+        internal static string EditGearSetUi_btn_GetExternal {
             get {
-                return ResourceManager.GetString("EditGearSetUi_btn_CustomEtro", resourceCulture);
+                return ResourceManager.GetString("EditGearSetUi_btn_GetExternal", resourceCulture);
             }
         }
         
@@ -368,15 +368,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Provide custom id.
-        /// </summary>
-        internal static string EditGearSetUi_btn_tt_CustomEtro {
-            get {
-                return ResourceManager.GetString("EditGearSetUi_btn_tt_CustomEtro", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Get.
         /// </summary>
         internal static string EditGearSetUi_btn_tt_cutsomEtro {
@@ -391,6 +382,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string EditGearSetUi_btn_tt_cutsomEtro_Get {
             get {
                 return ResourceManager.GetString("EditGearSetUi_btn_tt_cutsomEtro_Get", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dwonlad set and replace current one.
+        /// </summary>
+        internal static string EditGearSetUi_btn_tt_GetExternal {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_tt_GetExternal", resourceCulture);
             }
         }
         
@@ -425,11 +425,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Replace with set from etro.
+        ///   Looks up a localized string similar to Replace with bis from etro.
         /// </summary>
-        internal static string EditGearSetUi_text_getEtro {
+        internal static string EditGearSetUi_text_getEtroBis {
             get {
-                return ResourceManager.GetString("EditGearSetUi_text_getEtro", resourceCulture);
+                return ResourceManager.GetString("EditGearSetUi_text_getEtroBis", resourceCulture);
             }
         }
         
@@ -918,6 +918,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string Ui_rightClickHint {
             get {
                 return ResourceManager.GetString("Ui_rightClickHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string XivGearAppConnector_GetGearSet_Error {
+            get {
+                return ResourceManager.GetString("XivGearAppConnector_GetGearSet_Error", resourceCulture);
             }
         }
     }

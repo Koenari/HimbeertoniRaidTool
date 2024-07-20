@@ -172,13 +172,15 @@ internal class LootmasterUi : HrtWindow
             if (ImGuiHelper.EditButton(playableClass.CurBis, "##editBIS"))
                 AddChild(EditWindowFactory.Create(playableClass.CurBis, g => playableClass.CurBis = g));
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.CurBis.EtroId,
+            if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.CurBis.ExternalId,
                                    string.Format(LootmasterLoc.Ui_btn_tt_UpdateFrmEtro, playableClass.CurBis.Name),
-                                   playableClass.CurBis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }))
-                Services.ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(playableClass.CurBis,
+                                   playableClass.CurBis is { ManagedBy: GearSetManager.Etro, ExternalId.Length: > 0 }))
+                Services.ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(playableClass.CurBis,
                     HandleMessage,
-                    string.Format(LootmasterLoc.Ui_btn_tt_etroUpdate,
-                                  playableClass.CurBis.Name, playableClass.CurBis.EtroId));
+                    string.Format(
+                        LootmasterLoc.Ui_btn_tt_etroUpdate,
+                        playableClass.CurBis.Name,
+                        playableClass.CurBis.ExternalId));
             ImGui.Spacing();
             ImGui.PopID();
         }
@@ -471,13 +473,13 @@ internal class LootmasterUi : HrtWindow
                     AddChild(EditWindowFactory.Create(bis, g => curJob.CurBis = g, null, curJob.Job));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualBottomRowY);
-                if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.EtroId,
+                if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.ExternalId,
                                        string.Format(LootmasterLoc.Ui_btn_tt_etroUpdate,
-                                                     bis.Name, bis.EtroId),
-                                       bis is { ManagedBy: GearSetManager.Etro, EtroId.Length: > 0 }, ButtonSize))
-                    Services.ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(bis, HandleMessage,
+                                                     bis.Name, bis.ExternalId),
+                                       bis is { ManagedBy: GearSetManager.Etro, ExternalId.Length: > 0 }, ButtonSize))
+                    Services.ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(bis, HandleMessage,
                         string.Format(LootmasterLoc.Ui_btn_tt_etroUpdate, bis.Name,
-                                      bis.EtroId));
+                                      bis.ExternalId));
                 ImGui.PopID();
                 foreach ((GearSetSlot slot, (GearItem, GearItem) itemTuple) in curJob.ItemTuples)
                 {

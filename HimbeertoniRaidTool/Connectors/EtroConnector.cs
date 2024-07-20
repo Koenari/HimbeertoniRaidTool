@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-internal class EtroConnector : WebConnector
+internal class EtroConnector : WebConnector, IReadOnlyGearConnector
 {
     public const string WEB_BASE_URL = "https://etro.gg/";
     public const string API_BASE_URL = WEB_BASE_URL + "api/";
@@ -23,30 +23,32 @@ internal class EtroConnector : WebConnector
     private readonly Dictionary<Job, Dictionary<string, string>> _bisCache;
     private readonly ConcurrentDictionary<uint, (MateriaCategory, MateriaLevel)> _materiaCache = new();
     private bool _materiaCacheReady;
+    private readonly TaskManager _taskManager;
     internal EtroConnector(TaskManager tm, ILogger log) : base(new RateLimit(4, new TimeSpan(0, 0, 30)))
     {
-        tm.RegisterTask(new HrtTask(() => FillMateriaCache(_materiaCache),
-                                    msg =>
-                                    {
-                                        if (msg.MessageType == HrtUiMessageType.Failure)
-                                            log.Error(msg.Message);
-                                        else
-                                            log.Info(msg.Message);
-                                    }
-                                  , "Get Etro Materia definitions"));
+        _taskManager = tm;
+        _taskManager.RegisterTask(new HrtTask<HrtUiMessage>(() => FillMateriaCache(_materiaCache),
+                                                            msg =>
+                                                            {
+                                                                if (msg.MessageType == HrtUiMessageType.Failure)
+                                                                    log.Error(msg.Message);
+                                                                else
+                                                                    log.Info(msg.Message);
+                                                            }
+                                                          , "Get Etro Materia definitions"));
         _bisCache = new Dictionary<Job, Dictionary<string, string>>();
         foreach (Job job in Enum.GetValues<Job>())
         {
             _bisCache.Add(job, new Dictionary<string, string>());
         }
-        tm.RegisterTask(new HrtTask(FillBisList,
-                                    msg =>
-                                    {
-                                        if (msg.MessageType == HrtUiMessageType.Failure)
-                                            log.Error(msg.Message);
-                                        else
-                                            log.Info(msg.Message);
-                                    }, "Load BiS list from etro"));
+        _taskManager.RegisterTask(new HrtTask<HrtUiMessage>(FillBisList,
+                                                            msg =>
+                                                            {
+                                                                if (msg.MessageType == HrtUiMessageType.Failure)
+                                                                    log.Error(msg.Message);
+                                                                else
+                                                                    log.Info(msg.Message);
+                                                            }, "Load BiS list from etro"));
     }
     private static JsonSerializerSettings JsonSettings => new()
     {
@@ -62,7 +64,16 @@ internal class EtroConnector : WebConnector
     };
     public IReadOnlyDictionary<string, string> GetBiS(Job job) => _bisCache[job];
     public string GetDefaultBiS(Job job) => _bisCache[job].Keys.FirstOrDefault("");
-
+    public string GetName(string id)
+    {
+        if (id.Equals("")) return string.Empty;
+        HttpResponseMessage? httpResponse = MakeWebRequest(GEARSET_API_BASE_URL + id);
+        if (httpResponse is not { IsSuccessStatusCode: true }) return string.Empty;
+        var readTask = httpResponse.Content.ReadAsStringAsync();
+        readTask.Wait();
+        var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(readTask.Result, JsonSettings);
+        return etroSet?.name ?? string.Empty;
+    }
     private HrtUiMessage FillBisList()
     {
         HrtUiMessage failureMessage = new(GeneralLoc.EtroConnector_FillBisList_ErrorMessaeg, HrtUiMessageType.Failure);
@@ -97,11 +108,13 @@ internal class EtroConnector : WebConnector
         return new HrtUiMessage(GeneralLoc.EtroConnector_FillMateriaCache_Success, HrtUiMessageType.Success);
     }
 
-    public void GetGearSetAsync(GearSet set, Action<HrtUiMessage>? messageCallback = null,
-                                string taskName = "Etro Update")
+    public bool BelongsToThisService(string url) => url.StartsWith(WEB_BASE_URL);
+    public string GetId(string url) => url[GEARSET_WEB_BASE_URL.Length..];
+    public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
+                                     string taskName = "Etro Update")
     {
         messageCallback ??= _ => { };
-        ServiceManager.TaskManager.RegisterTask(new HrtTask(() => GetGearSet(set), messageCallback, taskName));
+        _taskManager.RegisterTask(new HrtTask<HrtUiMessage>(() => UpdateGearSet(set), messageCallback, taskName));
     }
 
     private EtroRelic? GetRelicItem(string id)
@@ -110,21 +123,21 @@ internal class EtroConnector : WebConnector
         return relicJson == null ? null : JsonConvert.DeserializeObject<EtroRelic>(relicJson, JsonSettings);
     }
 
-    private HrtUiMessage GetGearSet(GearSet set)
+    public HrtUiMessage UpdateGearSet(GearSet set)
     {
         HrtUiMessage errorMessage = new(string.Format(GeneralLoc.EtroConnector_GetGearSet_Error, set.Name),
                                         HrtUiMessageType.Failure);
-        if (set.EtroId.Equals(""))
+        if (set.ExternalId.Equals(""))
             return errorMessage;
-        errorMessage.Message = $"{errorMessage.Message} ({set.EtroId})";
+        errorMessage.Message = $"{errorMessage.Message} ({set.ExternalId})";
 
-        HttpResponseMessage? httpResponse = MakeWebRequest(GEARSET_API_BASE_URL + set.EtroId);
+        HttpResponseMessage? httpResponse = MakeWebRequest(GEARSET_API_BASE_URL + set.ExternalId);
         if (httpResponse == null)
             return errorMessage;
         if (httpResponse.StatusCode == HttpStatusCode.NotFound)
         {
             set.ManagedBy = GearSetManager.Hrt;
-            set.EtroId = string.Empty;
+            set.ExternalId = string.Empty;
             return new HrtUiMessage($"Set {set.Name} is not available at etro.gg. It is now managed locally",
                                     HrtUiMessageType.Warning);
         }
@@ -135,7 +148,7 @@ internal class EtroConnector : WebConnector
             return errorMessage;
         set.Name = etroSet.name ?? "";
         set.TimeStamp = etroSet.lastUpdate;
-        set.EtroFetchDate = DateTime.UtcNow;
+        set.LastExternalFetchDate = DateTime.UtcNow;
         HrtUiMessage successMessage = new(string.Format(GeneralLoc.EtroConnector_GetGearSet_Success, set.Name),
                                           HrtUiMessageType.Success);
         FillItem(etroSet.weapon, GearSetSlot.MainHand);
@@ -211,9 +224,9 @@ internal class EtroConnector : WebConnector
                                                   .Where(set => set.ManagedBy == GearSetManager.Etro))
         {
             totalCount++;
-            if (gearSet.IsEmpty || gearSet.EtroFetchDate < oldestValid && updateAll)
+            if (gearSet.IsEmpty || gearSet.LastExternalFetchDate < oldestValid && updateAll)
             {
-                HrtUiMessage message = GetGearSet(gearSet);
+                HrtUiMessage message = UpdateGearSet(gearSet);
                 if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
                     ServiceManager.Logger.Error(message.Message);
                 if (message.MessageType is HrtUiMessageType.Warning)
@@ -276,6 +289,7 @@ internal class EtroConnector : WebConnector
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("Style", "IDE1006:Naming Styles")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
     private class EtroGearSet
     {
 
@@ -317,6 +331,7 @@ internal class EtroConnector : WebConnector
         public Dictionary<string, string>? relics { get; set; }
     }
 
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
     private class EtroMateriaTier
     {
         public ushort Id { get; set; }
@@ -324,6 +339,9 @@ internal class EtroConnector : WebConnector
 
 
 
+
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private class EtroMateria
     {
         [JsonIgnore]
