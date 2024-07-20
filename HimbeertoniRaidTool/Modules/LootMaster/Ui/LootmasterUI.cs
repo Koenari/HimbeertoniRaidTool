@@ -32,7 +32,7 @@ internal class LootmasterUi : HrtWindow
     private LootMasterConfiguration.ConfigData CurConfig => _lootMaster.ConfigImpl.Data;
     internal int CurrentGroupIndex { get; private set; }
     private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurrentGroupIndex];
-    private static GameExpansion CurrentExpansion => ServiceManager.GameInfo.CurrentExpansion;
+    //private GameExpansion ActiveExpansion => CurConfig.ActiveExpansion;
     protected Vector2 ButtonSize => _buttonSize * ScaleFactor;
     protected Vector2 ButtonSizeVertical => _buttonSizeVertical * ScaleFactor;
 
@@ -571,15 +571,34 @@ internal class LootmasterUi : HrtWindow
 
     private void DrawLootHandlerButtons()
     {
+        ImGui.SetNextItemWidth(ImGui.CalcTextSize(CurConfig.ActiveExpansion.Name).X + 32f * ScaleFactor);
+        if (ImGui.BeginCombo("##expansion", CurConfig.ActiveExpansion.Name))
+        {
+            var expansions = ServiceManager.GameInfo.Expansions;
+            for (int i = 0; i < expansions.Count; i++)
+            {
+                GameExpansion expansion = expansions[i];
+                if (expansion.SavageRaidTiers.Length == 0) continue;
+                if (ImGui.Selectable(expansion.Name))
+                {
+                    if (expansion == ServiceManager.GameInfo.CurrentExpansion)
+                        CurConfig.ExpansionOverride = null;
+                    else
+                        CurConfig.ExpansionOverride = i;
+                }
+            }
+            ImGui.EndCombo();
+        }
+        ImGui.SameLine();
         ImGui.SetNextItemWidth(ImGui.CalcTextSize(CurConfig.SelectedRaidTier.Name).X + 32f * ScaleFactor);
         if (ImGui.BeginCombo("##raidTier", CurConfig.SelectedRaidTier.Name))
         {
-            for (int i = 0; i < CurrentExpansion.SavageRaidTiers.Length; i++)
+            for (int i = 0; i < CurConfig.ActiveExpansion.SavageRaidTiers.Length; i++)
             {
-                RaidTier tier = CurrentExpansion.SavageRaidTiers[i];
+                RaidTier tier = CurConfig.ActiveExpansion.SavageRaidTiers[i];
                 if (ImGui.Selectable(tier.Name))
                 {
-                    if (i == CurrentExpansion.SavageRaidTiers.Length - 1)
+                    if (i == CurConfig.ActiveExpansion.SavageRaidTiers.Length - 1)
                         CurConfig.RaidTierOverride = null;
                     else
                         CurConfig.RaidTierOverride = i;
