@@ -45,7 +45,7 @@ internal class TaskManager : IDisposable
             if (_tasksOnce.TryDequeue(out ITaskWrapper? completedTask))
             {
                 if (completedTask.SystemTask.IsFaulted)
-                    ServiceManager.Logger.Error(
+                    ServiceManager.Logger.Error(completedTask.SystemTask.Exception,
                         $"Task \"{completedTask.Name}\" finished with an error");
                 else
                     ServiceManager.Logger.Info(
