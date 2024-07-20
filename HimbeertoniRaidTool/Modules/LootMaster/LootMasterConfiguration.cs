@@ -221,6 +221,8 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         public List<RaidGroup> RaidGroups = new();
         [JsonProperty("RaidTierIndex")]
         public int? RaidTierOverride;
+        [JsonProperty("ActiveExpansion")]
+        public int? ExpansionOverride;
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public RolePriority RolePriority = new()
         {
@@ -251,8 +253,11 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         public string ItemFormatString => _itemFormatStringCache ??= ParseItemFormatString(UserItemFormat);
         [JsonIgnore]
         public RaidTier SelectedRaidTier =>
-            ServiceManager.GameInfo.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
-
+            ActiveExpansion.SavageRaidTiers.Length > 0 ? ActiveExpansion.SavageRaidTiers[RaidTierOverride ?? ^1]
+                : RaidTier.Empty;
+        [JsonIgnore]
+        public GameExpansion ActiveExpansion => ExpansionOverride.HasValue
+            ? ServiceManager.GameInfo.Expansions[ExpansionOverride.Value] : ServiceManager.GameInfo.CurrentExpansion;
         public void AfterLoad()
         {
             RaidGroups.Clear();
