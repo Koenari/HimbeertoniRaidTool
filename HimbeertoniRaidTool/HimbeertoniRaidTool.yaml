@@ -10,6 +10,6 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      General: Added loot information for normal raids and extremes
-      General: Corrected HP calculation for levels above 90
-      Lodestone Connector: PCT and VIP fixed
+      General: Now supports switching back to Endwalker raid tiers
+      BiS: Added support for XivGear.app
+      Known Issue: XivGear.app sets are not automatically updated yet
