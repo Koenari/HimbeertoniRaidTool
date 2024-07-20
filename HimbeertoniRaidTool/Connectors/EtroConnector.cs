@@ -64,7 +64,16 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
     };
     public IReadOnlyDictionary<string, string> GetBiS(Job job) => _bisCache[job];
     public string GetDefaultBiS(Job job) => _bisCache[job].Keys.FirstOrDefault("");
-
+    public string GetName(string id)
+    {
+        if (id.Equals("")) return string.Empty;
+        HttpResponseMessage? httpResponse = MakeWebRequest(GEARSET_API_BASE_URL + id);
+        if (httpResponse is not { IsSuccessStatusCode: true }) return string.Empty;
+        var readTask = httpResponse.Content.ReadAsStringAsync();
+        readTask.Wait();
+        var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(readTask.Result, JsonSettings);
+        return etroSet?.name ?? string.Empty;
+    }
     private HrtUiMessage FillBisList()
     {
         HrtUiMessage failureMessage = new(GeneralLoc.EtroConnector_FillBisList_ErrorMessaeg, HrtUiMessageType.Failure);
@@ -280,6 +289,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("Style", "IDE1006:Naming Styles")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
     private class EtroGearSet
     {
 
@@ -321,6 +331,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
         public Dictionary<string, string>? relics { get; set; }
     }
 
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
     private class EtroMateriaTier
     {
         public ushort Id { get; set; }
@@ -328,6 +339,9 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
 
 
 
+
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private class EtroMateria
     {
         [JsonIgnore]

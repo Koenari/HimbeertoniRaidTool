@@ -401,6 +401,9 @@ public static class EditWindowFactory
         private string _externalIdInput = "";
         private GearSetManager _curSetManager;
         private List<string> _xivGearSetList = [];
+        private string _loadedExternalId = "";
+        private bool _backgroundTaskBusy = false;
+        private string _etroName = "";
         internal EditGearSetWindow(GearSet original, Action<GearSet>? onSave = null,
                                    Action? onCancel = null, Job? job = null) :
             base(original, onSave, onCancel)
@@ -426,7 +429,7 @@ public static class EditWindowFactory
                     Hide();
                 }
             }
-            //Replace with etro section
+            //Etro curated BiS
             var etroBisSets = ServiceManager.ConnectorPool.EtroConnector.GetBiS(_job);
             if (etroBisSets.Any())
             {
@@ -451,6 +454,7 @@ public static class EditWindowFactory
                     }
                 }
             }
+            //External set section
             ImGui.Text("Replace with: ");
             ImGui.SameLine();
             ImGui.SetNextItemWidth(100 * ScaleFactor);
@@ -459,7 +463,6 @@ public static class EditWindowFactory
             ImGui.SameLine();
             if (ImGui.InputText("ID/Url", ref _externalIdInput, 255))
             {
-                _xivGearSetList = [];
                 if (_externalIdInput.StartsWith(EtroConnector.GEARSET_WEB_BASE_URL))
                 {
                     _curSetManager = GearSetManager.Etro;
@@ -470,32 +473,91 @@ public static class EditWindowFactory
                     _curSetManager = GearSetManager.XivGear;
                     _externalIdInput = ServiceManager.ConnectorPool.XivGearAppConnector.GetId(_externalIdInput);
                 }
-                //ToDO: Do not load on main Thread
-                if (_curSetManager == GearSetManager.XivGear
-                 && ServiceManager.ConnectorPool.XivGearAppConnector.IsSheet(_externalIdInput))
-                {
-                    _xivGearSetList = ServiceManager.ConnectorPool.XivGearAppConnector.GetSetNames(_externalIdInput);
-                }
             }
-            if (_xivGearSetList.Count > 0)
+            if (!_backgroundTaskBusy && _externalIdInput != _loadedExternalId)
             {
-                ImGui.SetNextItemWidth(200 * ScaleFactor);
-                int idx = 0;
-                if (ImGui.BeginCombo("idx", _xivGearSetList[DataCopy.ExternalIdx]))
+                switch (_curSetManager)
                 {
-                    foreach (string name in _xivGearSetList)
-                    {
-                        if (ImGui.Selectable(name))
-                            DataCopy.ExternalIdx = idx;
-                        idx++;
-                    }
-
-                    ImGui.EndCombo();
+                    case GearSetManager.XivGear:
+                        _backgroundTaskBusy = true;
+                        _xivGearSetList = [];
+                        DataCopy.ExternalIdx = 0;
+                        _loadedExternalId = _externalIdInput;
+                        ServiceManager.TaskManager.RegisterTask(new HrtTask<List<string>>(
+                                                                    () =>
+                                                                    {
+                                                                        if (!ServiceManager.ConnectorPool
+                                                                                .XivGearAppConnector
+                                                                                .IsSheet(_externalIdInput))
+                                                                            return [];
+                                                                        return ServiceManager.ConnectorPool
+                                                                            .XivGearAppConnector
+                                                                            .GetSetNames(_externalIdInput);
+                                                                    },
+                                                                    list =>
+                                                                    {
+                                                                        _xivGearSetList = list;
+                                                                        _backgroundTaskBusy = false;
+                                                                    }, "GetSetNames"
+                                                                ));
+                        break;
+                    case GearSetManager.Etro:
+                        _backgroundTaskBusy = true;
+                        DataCopy.ExternalIdx = 0;
+                        _etroName = string.Empty;
+                        _loadedExternalId = _externalIdInput;
+                        ServiceManager.TaskManager.RegisterTask(new HrtTask<string>(
+                                                                    () => ServiceManager.ConnectorPool
+                                                                        .EtroConnector
+                                                                        .GetName(_externalIdInput),
+                                                                    name =>
+                                                                    {
+                                                                        _etroName = name;
+                                                                        _backgroundTaskBusy = false;
+                                                                    }, "GetSetName"
+                                                                ));
+                        break;
+                    case GearSetManager.Hrt:
+                    default:
+                        break;
                 }
             }
-            ImGui.SameLine();
+            if (_backgroundTaskBusy)
+            {
+                ImGui.Text("Loading... ");
+                ImGui.SameLine();
+            }
+            else
+                switch (_curSetManager)
+                {
+                    case GearSetManager.XivGear when _xivGearSetList.Count > 0:
+                    {
+                        ImGui.SetNextItemWidth(200 * ScaleFactor);
+                        int idx = 0;
+                        if (ImGui.BeginCombo("idx", _xivGearSetList[DataCopy.ExternalIdx]))
+                        {
+                            foreach (string name in _xivGearSetList)
+                            {
+                                if (ImGui.Selectable(name))
+                                    DataCopy.ExternalIdx = idx;
+                                idx++;
+                            }
+
+                            ImGui.EndCombo();
+                        }
+                        ImGui.SameLine();
+                        break;
+                    }
+                    case GearSetManager.Etro:
+                        ImGui.Text(_etroName);
+                        break;
+                    case GearSetManager.Hrt:
+                    default:
+                        ImGui.Text("No set");
+                        break;
+                }
             if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_GetExternal,
-                                   GeneralLoc.EditGearSetUi_btn_tt_GetExternal))
+                                   GeneralLoc.EditGearSetUi_btn_tt_GetExternal, !_backgroundTaskBusy))
             {
                 if (ServiceManager.HrtDataManager.GearDb.Search(
                         gearSet => gearSet?.ManagedBy == _curSetManager && gearSet?.ExternalId == _externalIdInput,
