@@ -251,6 +251,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Finished periodic {2} Updates. ({0}/{1}) updated.
+        /// </summary>
+        internal static string Connector_UpdateAllSets_Finished {
+            get {
+                return ResourceManager.GetString("Connector_UpdateAllSets_Finished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select player.
         /// </summary>
         internal static string DBSearchPlayerUi_hdg_selectPlayer {
@@ -601,15 +610,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string EtroConnector_GetGearSet_Success {
             get {
                 return ResourceManager.GetString("EtroConnector_GetGearSet_Success", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Finished periodic etro Updates. ({0}/{1}) updated.
-        /// </summary>
-        internal static string EtroConnector_UpdateEtroSets_Finished {
-            get {
-                return ResourceManager.GetString("EtroConnector_UpdateEtroSets_Finished", resourceCulture);
             }
         }
         

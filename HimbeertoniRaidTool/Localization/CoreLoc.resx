@@ -122,9 +122,9 @@
     <data name="UiMessage_PeriodicSaveSuccessful">
         <value>Data Saved successfully</value>
     </data>
-    <data name="ConfigUi_hdg_etroUpdates" xml:space="preserve">
-		<value>Etro Gear Updates</value>
-	</data>
+    <data name="ConfigUi_hdg_externalUpdates" xml:space="preserve">
+        <value>{0} Updates</value>
+    </data>
     <data name="WelcomeUi_text">
         <value>Welcome to Himbeertoni Raid Tool. Your companion in managing your raid group. Start
             your journey by opening LootMaster by typing "/lootmaster" (or "/lm") in chat
@@ -146,10 +146,10 @@
     <data name="WelcomeUi_Title">
         <value>Welcome to Himbeertoni Raid Tool</value>
     </data>
-    <data name="ConfigUi_cb_autoEtroUpdate">
-        <value>Update sets from etro.gg periodically</value>
+    <data name="ConfigUi_cb_extAutoUpdate">
+        <value>Update sets from {0} periodically</value>
     </data>
-    <data name="ConfigUi_in_etroUpdateInterval">
+    <data name="ConfigUi_in_externalUpdateInterval">
         <value>Update interval (days)</value>
     </data>
     <data name="ConfigUi_hdg_changelog" xml:space="preserve">

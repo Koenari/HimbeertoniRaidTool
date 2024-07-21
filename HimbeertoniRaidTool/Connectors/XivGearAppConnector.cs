@@ -131,6 +131,31 @@ internal class XivGearAppConnector(TaskManager taskManager)
         }
     }
 
+    internal HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays)
+    {
+        DateTime oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
+        int totalCount = 0;
+        int updateCount = 0;
+        foreach (GearSet gearSet in ServiceManager.HrtDataManager.GearDb.GetValues()
+                                                  .Where(set => set.ManagedBy == GearSetManager.XivGear))
+        {
+            totalCount++;
+            if (gearSet.IsEmpty || gearSet.LastExternalFetchDate < oldestValid && updateAll)
+            {
+                HrtUiMessage message = UpdateGearSet(gearSet);
+                if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
+                    ServiceManager.Logger.Error(message.Message);
+                if (message.MessageType is HrtUiMessageType.Warning)
+                    ServiceManager.Logger.Warning(message.Message);
+                updateCount++;
+            }
+        }
+
+        return new HrtUiMessage(
+            string.Format(GeneralLoc.Connector_UpdateAllSets_Finished, updateCount, totalCount, "XivGear"));
+
+    }
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
     // ReSharper disable InconsistentNaming

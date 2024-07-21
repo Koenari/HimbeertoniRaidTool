@@ -7,13 +7,24 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 6, 2, 1))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(Bis, "add auto updates for XivGear.app (see config)"),
+            },
+            MinorFeatures =
+            {
+
+            },
+        },
         new(new Version(1, 6, 2, 0))
         {
             NotableFeatures =
             {
                 new ChangeLogEntry(General, "Now supports switching back to Endwalker raid tiers"),
                 new ChangeLogEntry(Bis, "Added support for XivGear.app"),
-                new ChangeLogEntry(KnownIssues,"XivGear.app sets are not automatically updated yet"),
+                new ChangeLogEntry(KnownIssues, "XivGear.app sets are not automatically updated yet"),
             },
         },
         new(new Version(1, 6, 1, 0))

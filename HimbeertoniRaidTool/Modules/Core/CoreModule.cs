@@ -135,9 +135,16 @@ internal class CoreModule : IHrtModule
         );
         ServiceManager.TaskManager.RegisterTask(
             new HrtTask<HrtUiMessage>(
-                () => ServiceManager.ConnectorPool.EtroConnector.UpdateEtroSets(_config.Data.UpdateEtroBisOnStartup,
-                    _config.Data.EtroUpdateIntervalDays),
+                () => ServiceManager.ConnectorPool.EtroConnector.UpdateAllSets(_config.Data.UpdateEtroBisOnStartup,
+                                                                               _config.Data.EtroUpdateIntervalDays),
                 HandleMessage, "Update etro sets")
+        );
+        ServiceManager.TaskManager.RegisterTask(
+            new HrtTask<HrtUiMessage>(
+                () => ServiceManager.ConnectorPool.XivGearAppConnector.UpdateAllSets(
+                    _config.Data.UpdateEtroBisOnStartup,
+                    _config.Data.EtroUpdateIntervalDays),
+                HandleMessage, "Update XivGear sets")
         );
         if (_config.Data.ShowWelcomeWindow)
         {

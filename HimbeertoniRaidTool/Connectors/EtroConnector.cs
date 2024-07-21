@@ -211,7 +211,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
             }
         }
     }
-    internal HrtUiMessage UpdateEtroSets(bool updateAll, int maxAgeInDays)
+    internal HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays)
     {
         while (!_materiaCacheReady)
         {
@@ -236,7 +236,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
         }
 
         return new HrtUiMessage(
-            string.Format(GeneralLoc.EtroConnector_UpdateEtroSets_Finished, updateCount, totalCount));
+            string.Format(GeneralLoc.Connector_UpdateAllSets_Finished, updateCount, totalCount, "etro.gg"));
 
     }
 

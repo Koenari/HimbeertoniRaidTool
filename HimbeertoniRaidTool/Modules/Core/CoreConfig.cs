@@ -96,6 +96,9 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
         [JsonProperty] public int EtroUpdateIntervalDays = 7;
         [JsonProperty] public bool UpdateEtroBisOnStartup = true;
 
+        [JsonProperty] public int XivGearUpdateIntervalDays = 7;
+        [JsonProperty] public bool UpdateXivGearBisOnStartup = true;
+
         #endregion
 
         #region AutoSave
@@ -162,14 +165,29 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
                 ImGui.Indent(-10);
                 ImGui.Separator();
                 //Etro.gg
-                ImGui.Text(CoreLoc.ConfigUi_hdg_etroUpdates);
+                ImGui.Text(string.Format(CoreLoc.ConfigUi_hdg_externalUpdates, "etro.gg"));
                 ImGui.Indent(10);
-                ImGui.Checkbox(CoreLoc.ConfigUi_cb_autoEtroUpdate, ref _dataCopy.UpdateEtroBisOnStartup);
+                ImGui.Checkbox(string.Format(CoreLoc.ConfigUi_cb_extAutoUpdate, "etro.gg"),
+                               ref _dataCopy.UpdateEtroBisOnStartup);
                 ImGui.BeginDisabled(!_dataCopy.UpdateEtroBisOnStartup);
                 ImGui.SetNextItemWidth(150f * HrtWindow.ScaleFactor);
-                if (ImGui.InputInt(CoreLoc.ConfigUi_in_etroUpdateInterval, ref _dataCopy.EtroUpdateIntervalDays))
+                if (ImGui.InputInt(CoreLoc.ConfigUi_in_externalUpdateInterval, ref _dataCopy.EtroUpdateIntervalDays))
                     if (_dataCopy.EtroUpdateIntervalDays < 1)
                         _dataCopy.EtroUpdateIntervalDays = 1;
+                ImGui.EndDisabled();
+                ImGui.Indent(-10);
+                ImGui.EndTabItem();
+                ImGui.Separator();
+                //XIvGear.app
+                ImGui.Text(string.Format(CoreLoc.ConfigUi_hdg_externalUpdates, "XivGear"));
+                ImGui.Indent(10);
+                ImGui.Checkbox(string.Format(CoreLoc.ConfigUi_cb_extAutoUpdate, "XivGear"),
+                               ref _dataCopy.UpdateXivGearBisOnStartup);
+                ImGui.BeginDisabled(!_dataCopy.UpdateEtroBisOnStartup);
+                ImGui.SetNextItemWidth(150f * HrtWindow.ScaleFactor);
+                if (ImGui.InputInt(CoreLoc.ConfigUi_in_externalUpdateInterval, ref _dataCopy.XivGearUpdateIntervalDays))
+                    if (_dataCopy.XivGearUpdateIntervalDays < 1)
+                        _dataCopy.XivGearUpdateIntervalDays = 1;
                 ImGui.EndDisabled();
                 ImGui.Indent(-10);
                 ImGui.EndTabItem();

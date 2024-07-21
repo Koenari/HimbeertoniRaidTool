@@ -313,9 +313,9 @@
     <data name="EtroConnector_GetGearSet_RelicError" xml:space="preserve">
         <value>Cannot handle relic item for slot: {0}</value>
     </data>
-    <data name="EtroConnector_UpdateEtroSets_Finished" xml:space="preserve">
-        <value>Finished periodic etro Updates. ({0}/{1}) updated</value>
-        <comment>{0} = number updated {1} = total</comment>
+    <data name="Connector_UpdateAllSets_Finished" xml:space="preserve">
+        <value>Finished periodic {2} Updates. ({0}/{1}) updated</value>
+        <comment>{0} = number updated {1} = total {2} = service</comment>
     </data>
     <data name="GetCharacterWindow_Title" xml:space="preserve">
         <value>Get character from DB</value>
