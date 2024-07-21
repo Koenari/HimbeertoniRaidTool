@@ -15,7 +15,7 @@ public class ChangeLog
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added headline to multi item tooltips"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added headlines to multi item tooltips"),
             },
         },
         new(new Version(1, 6, 2, 0))

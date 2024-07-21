@@ -10,6 +10,5 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      General: Now supports switching back to Endwalker raid tiers
-      BiS: Added support for XivGear.app
-      Known Issue: XivGear.app sets are not automatically updated yet
+      BiS: Add auto updates for XivGear.app (see config)
+      User Interface: Added headlines to multi item tooltips
