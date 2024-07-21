@@ -115,9 +115,11 @@ internal static class LmUiHelpers
                 ImGui.BeginTooltip();
                 if (item.Filled && bis.Filled)
                     ImGui.Columns(2);
+                ImGui.TextColored(Colors.TextPetrol, LootmasterLoc.ItemTooltip_hdg_Equipped);
                 item.Draw();
                 if (item.Filled && bis.Filled)
                     ImGui.NextColumn();
+                ImGui.TextColored(Colors.TextPetrol, LootmasterLoc.ItemTooltip_hdg_bis);
                 bis.Draw();
                 ImGui.Columns();
                 ImGui.EndTooltip();

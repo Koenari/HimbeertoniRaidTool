@@ -11,11 +11,11 @@ public class ChangeLog
         {
             NotableFeatures =
             {
-                new ChangeLogEntry(Bis, "add auto updates for XivGear.app (see config)"),
+                new ChangeLogEntry(Bis, "Add auto updates for XivGear.app (see config)"),
             },
             MinorFeatures =
             {
-
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added headline to multi item tooltips"),
             },
         },
         new(new Version(1, 6, 2, 0))

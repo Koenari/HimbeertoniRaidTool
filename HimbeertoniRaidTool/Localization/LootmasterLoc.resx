@@ -403,4 +403,10 @@
     <data name="command_toggle_helpText" xml:space="preserve">
         <value>Toggles Lootmaster window</value>
     </data>
+    <data name="ItemTooltip_hdg_Equipped" xml:space="preserve">
+        <value>Equipped</value>
+    </data>
+    <data name="ItemTooltip_hdg_bis" xml:space="preserve">
+        <value>Best in Slot</value>
+    </data>
 </root>

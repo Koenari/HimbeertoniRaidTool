@@ -303,6 +303,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Best in Slot.
+        /// </summary>
+        internal static string ItemTooltip_hdg_bis {
+            get {
+                return ResourceManager.GetString("ItemTooltip_hdg_bis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Equipped.
+        /// </summary>
+        internal static string ItemTooltip_hdg_Equipped {
+            get {
+                return ResourceManager.GetString("ItemTooltip_hdg_Equipped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Greed.
         /// </summary>
         internal static string LootCategory_Greed {
