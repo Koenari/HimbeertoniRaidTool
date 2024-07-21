@@ -2,6 +2,7 @@
 using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HimbeertoniRaidTool.Plugin.DataManagement;
@@ -10,7 +11,7 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class ExamineGearDataProvider : IGearDataProvider
 {
-    private readonly Hook<CharacterInspectOnRefresh>? _hook;
+    private readonly Hook<AddonCharacterInspect.Delegates.OnRefresh>? _hook;
 
     private GearDataProviderConfiguration _configuration;
 
@@ -20,7 +21,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
         {
             unsafe
             {
-                _hook = iopProvider.HookFromSignature<CharacterInspectOnRefresh>(
+                _hook = iopProvider.HookFromSignature<AddonCharacterInspect.Delegates.OnRefresh>(
                     "40 56 57 48 83 EC ?? 49 8B F0 48 8B F9 4D 85 C0 0F 84 ?? ?? ?? ?? 85 D2",
                     OnExamineRefresh);
             }
@@ -51,9 +52,9 @@ internal class ExamineGearDataProvider : IGearDataProvider
         _hook.Dispose();
     }
 
-    private unsafe byte OnExamineRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* loadingStage)
+    private unsafe bool OnExamineRefresh(AddonCharacterInspect* atkUnitBase, uint a2, AtkValue* loadingStage)
     {
-        byte result = _hook!.Original(atkUnitBase, a2, loadingStage);
+        bool result = _hook!.Original(atkUnitBase, a2, loadingStage);
         if (loadingStage is null || a2 <= 0 || loadingStage->UInt != 3) return result;
         GetItemInfos();
         return result;
@@ -143,6 +144,4 @@ internal class ExamineGearDataProvider : IGearDataProvider
                                         $"Something went wrong while updating gear for:{targetChar.Name} @ {targetChar.HomeWorld?.Name}");
         }
     }
-
-    private unsafe delegate byte CharacterInspectOnRefresh(AtkUnitBase* atkUnitBase, int a2, AtkValue* a3);
 }
