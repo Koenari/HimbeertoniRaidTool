@@ -1,112 +1,108 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-    <!-- 
-          Microsoft ResX Schema
-  
-          Version 1.3
-  
-          The primary goals of this format is to allow a simple XML format 
-          that is mostly human readable. The generation and parsing of the 
-          various data types are done through the TypeConverter classes 
-          associated with the data types.
-  
-          Example:
-  
-          ... ado.net/XML headers & schema ...
-          <resheader name="resmimetype">text/microsoft-resx</resheader>
-          <resheader name="version">1.3</resheader>
-          <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-          <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-          <data name="Name1">this is my long string</data>
-          <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-          <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-              [base64 mime encoded serialized .NET Framework object]
-          </data>
-          <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-              [base64 mime encoded string representing a byte array form of the .NET Framework object]
-          </data>
-  
-          There are any number of "resheader" rows that contain simple 
-          name/value pairs.
-  
-          Each data row contains a name, and value. The row also contains a 
-          type or mimetype. Type corresponds to a .NET class that support 
-          text/value conversion through the TypeConverter architecture. 
-          Classes that don't support this are serialized and stored with the 
-          mimetype set.
-  
-          The mimetype is used for serialized objects, and tells the 
-          ResXResourceReader how to depersist the object. This is currently not 
-          extensible. For a given mimetype the value must be set accordingly:
-  
-          Note - application/x-microsoft.net.object.binary.base64 is the format 
-          that the ResXResourceWriter will generate, however the reader can 
-          read any of the formats listed below.
-  
-          mimetype: application/x-microsoft.net.object.binary.base64
-          value   : The object must be serialized with 
-              : System.Serialization.Formatters.Binary.BinaryFormatter
-              : and then encoded with base64 encoding.
-  
-          mimetype: application/x-microsoft.net.object.soap.base64
-          value   : The object must be serialized with 
-              : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-              : and then encoded with base64 encoding.
-  
-          mimetype: application/x-microsoft.net.object.bytearray.base64
-          value   : The object must be serialized into a byte array 
-              : using a System.ComponentModel.TypeConverter
-              : and then encoded with base64 encoding.
-      -->
-    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns="" id="root">
-        <xsd:element name="root" msdata:IsDataSet="true">
+  <!-- 
+        Microsoft ResX Schema
+
+        Version 1.3
+
+        The primary goals of this format is to allow a simple XML format 
+        that is mostly human readable. The generation and parsing of the 
+        various data types are done through the TypeConverter classes 
+        associated with the data types.
+
+        Example:
+
+        ... ado.net/XML headers & schema ...
+        <resheader name="resmimetype">text/microsoft-resx</resheader>
+        <resheader name="version">1.3</resheader>
+        <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+        <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+        <data name="Name1">this is my long string</data>
+        <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+        <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+            [base64 mime encoded serialized .NET Framework object]
+        </data>
+        <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+            [base64 mime encoded string representing a byte array form of the .NET Framework object]
+        </data>
+
+        There are any number of "resheader" rows that contain simple 
+        name/value pairs.
+
+        Each data row contains a name, and value. The row also contains a 
+        type or mimetype. Type corresponds to a .NET class that support 
+        text/value conversion through the TypeConverter architecture. 
+        Classes that don't support this are serialized and stored with the 
+        mimetype set.
+
+        The mimetype is used for serialized objects, and tells the 
+        ResXResourceReader how to depersist the object. This is currently not 
+        extensible. For a given mimetype the value must be set accordingly:
+
+        Note - application/x-microsoft.net.object.binary.base64 is the format 
+        that the ResXResourceWriter will generate, however the reader can 
+        read any of the formats listed below.
+
+        mimetype: application/x-microsoft.net.object.binary.base64
+        value   : The object must be serialized with 
+            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+        mimetype: application/x-microsoft.net.object.soap.base64
+        value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+        mimetype: application/x-microsoft.net.object.bytearray.base64
+        value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns="" id="root">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
             <xsd:complexType>
-                <xsd:choice maxOccurs="unbounded">
-                    <xsd:element name="data">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0"
-                                             msdata:Ordinal="1"/>
-                                <xsd:element name="comment" type="xsd:string" minOccurs="0"
-                                             msdata:Ordinal="2"/>
-                            </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1"/>
-                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
-                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="resheader">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0"
-                                             msdata:Ordinal="1"/>
-                            </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" use="required"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                </xsd:choice>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
             </xsd:complexType>
-        </xsd:element>
-    </xsd:schema>
-    <resheader name="resmimetype">
-        <value>text/microsoft-resx</value>
-    </resheader>
-    <resheader name="version">
-        <value>1.3</value>
-    </resheader>
-    <resheader name="reader">
-        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0,
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0,
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
-    </resheader>
-    <resheader name="writer">
-        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0,
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0,
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
-    </resheader>
-    <data name="WelcomeUi_text">
-        <value>Bienvenido a Himbeertoni Raid Tool. Tu herramienta para gestionar el grupo de raid.
+  </resheader>
+  <data name="WelcomeUi_text">
+    <value>Bienvenido a Himbeertoni Raid Tool. Tu herramienta para gestionar el grupo de raid.
             Comienza escribiendo "/lootmaster" (o "/lm") en el chat (o el botón de abajo). Ahí
             hemos añadido tu personaje. A continuación puedes conseguir tu equipo actual usando el
             botón "lupa" o examinando
@@ -122,61 +118,55 @@
             que eches un vistazo rápido a las opciones. Y ve a la wiki para instrucciones más
             detalladas :)
         </value>
-    </data>
-    <data name="WelcomeUi_Title">
-        <value>Bienvenida a Himbeertoni Raid Tool</value>
-    </data>
-    <data name="ConfigUi_cb_extAutoUpdate">
-        <value>Actualizar los sets periódicamente desde {0}</value>
-    </data>
-    <data name="ConfigUi_in_externalUpdateInterval">
-        <value>Intervalo de actualización (días)</value>
-    </data>
-    <data name="ConfigUi_hdg_ui">
-        <value>Interfaz de usuario</value>
-    </data>
-    <data name="ConfigUi_cb_tt_hideInCombat">
-        <value>Oculta todas las ventanas cuando estás en combate</value>
-    </data>
-    <data name="ConfigUi_cb_hideInCombat">
-        <value>Ocultar en combate</value>
-    </data>
-    <data name="ConfigUi_in_autoSaveInterval">
-        <value>Intervalos del autoguardado (min)</value>
-    </data>
-    <data name="ConfigUi_hdg_AutoSave">
-        <value>Autoguardado</value>
-    </data>
-    <data name="ConfigUi_cb_periodicSave">
-        <value>Guardar periódicamente</value>
-    </data>
-    <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
+  </data>
+  <data name="WelcomeUi_Title">
+    <value>Bienvenida a Himbeertoni Raid Tool</value>
+  </data>
+  <data name="ConfigUi_hdg_ui">
+    <value>Interfaz de usuario</value>
+  </data>
+  <data name="ConfigUi_cb_tt_hideInCombat">
+    <value>Oculta todas las ventanas cuando estás en combate</value>
+  </data>
+  <data name="ConfigUi_cb_hideInCombat">
+    <value>Ocultar en combate</value>
+  </data>
+  <data name="ConfigUi_in_autoSaveInterval">
+    <value>Intervalos del autoguardado (min)</value>
+  </data>
+  <data name="ConfigUi_hdg_AutoSave">
+    <value>Autoguardado</value>
+  </data>
+  <data name="ConfigUi_cb_periodicSave">
+    <value>Guardar periódicamente</value>
+  </data>
+  <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
         <value>Guarda todos los datos del Plugin periódicamente. (Ayuda a prevenir la pérdida de
       datos si el juego crashea)
     </value>
     </data>
-    <data name="WelcomeUi_btn_OpenLootMaster">
-        <value>Abrir LootMaster</value>
-    </data>
-    <data name="WelcomeUi_btn_tt_OpenLootMaster">
-        <value>Abrir la ventana principal de LootMaster (/lootmaster)</value>
-    </data>
-    <data name="WelcomeUi_btn_OpenOptions">
-        <value>Abrir Opciones</value>
-    </data>
-    <data name="WelcomeUi_btn_tt_OpenOptions">
-        <value>Mostrar opciones de configuración (/hrt config)</value>
-    </data>
-    <data name="Welcomeui_btn_openWiki">
-        <value>Abrir Wiki</value>
-    </data>
-    <data name="Welcomeui_btn_tt_openWiki">
-        <value>Abrir este enlace en el navegador</value>
-    </data>
-    <data name="WelcomeUi_btn_close">
-        <value>Cerrar</value>
-    </data>
-    <data name="WelcomeUi_btn_tt_close">
-        <value>Cerrar esta ventana</value>
-    </data>
+  <data name="WelcomeUi_btn_OpenLootMaster">
+    <value>Abrir LootMaster</value>
+  </data>
+  <data name="WelcomeUi_btn_tt_OpenLootMaster">
+    <value>Abrir la ventana principal de LootMaster (/lootmaster)</value>
+  </data>
+  <data name="WelcomeUi_btn_OpenOptions">
+    <value>Abrir Opciones</value>
+  </data>
+  <data name="WelcomeUi_btn_tt_OpenOptions">
+    <value>Mostrar opciones de configuración (/hrt config)</value>
+  </data>
+  <data name="Welcomeui_btn_openWiki">
+    <value>Abrir Wiki</value>
+  </data>
+  <data name="Welcomeui_btn_tt_openWiki">
+    <value>Abrir este enlace en el navegador</value>
+  </data>
+  <data name="WelcomeUi_btn_close">
+    <value>Cerrar</value>
+  </data>
+  <data name="WelcomeUi_btn_tt_close">
+    <value>Cerrar esta ventana</value>
+  </data>
 </root>
