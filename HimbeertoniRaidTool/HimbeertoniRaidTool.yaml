@@ -10,5 +10,4 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      BiS: Add auto updates for XivGear.app (see config)
-      User Interface: Added headlines to multi item tooltips
+      Bugfix: Fix being unable to change tabs in config

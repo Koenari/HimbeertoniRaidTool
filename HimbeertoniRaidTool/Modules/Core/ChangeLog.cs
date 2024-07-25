@@ -7,6 +7,13 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 6, 2, 2))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix being unable to change tabs in config"),
+            },
+        },
         new(new Version(1, 6, 2, 1))
         {
             NotableFeatures =
