@@ -10,4 +10,4 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      Loot Master: Add savage loot information
+      Bugfix: Fix wrongly displayed Tome gear
