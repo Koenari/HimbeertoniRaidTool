@@ -7,6 +7,13 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 6, 2, 6))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix loot being inaccurate"),
+            },
+        },
         new(new Version(1, 6, 2, 5))
         {
             MinorFeatures =
