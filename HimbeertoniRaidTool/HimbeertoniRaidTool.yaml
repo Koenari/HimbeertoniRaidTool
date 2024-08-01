@@ -3,12 +3,12 @@ name: Himbeertoni Raid Tool
 punchline: All you need for Raiding
 description: A collection of useful tools for raid groups, including loot management
 tags:
-- Raid
-- Loot
-- Equipment
-- Gear
+  - Raid
+  - Loot
+  - Equipment
+  - Gear
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      BiS: Add auto updates for XivGear.app (see config)
-      User Interface: Added headlines to multi item tooltips
+      Bugfix: Fix loot being inaccurate
+      Bugfix: Fix missing materia in etro sets

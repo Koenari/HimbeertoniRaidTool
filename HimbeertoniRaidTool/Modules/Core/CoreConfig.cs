@@ -176,7 +176,6 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
                         _dataCopy.EtroUpdateIntervalDays = 1;
                 ImGui.EndDisabled();
                 ImGui.Indent(-10);
-                ImGui.EndTabItem();
                 ImGui.Separator();
                 //XIvGear.app
                 ImGui.Text(string.Format(CoreLoc.ConfigUi_hdg_externalUpdates, "XivGear"));

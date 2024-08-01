@@ -7,6 +7,41 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 6, 2, 6))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix loot being inaccurate"),
+            },
+        },
+        new(new Version(1, 6, 2, 5))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix missing materia in etro sets"),
+            },
+        },
+        new(new Version(1, 6, 2, 4))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix wrongly displayed Tome gear"),
+            },
+        },
+        new(new Version(1, 6, 2, 3))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Lootmaster, "Add savage loot information"),
+            },
+        },
+        new(new Version(1, 6, 2, 2))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix being unable to change tabs in config"),
+            },
+        },
         new(new Version(1, 6, 2, 1))
         {
             NotableFeatures =
