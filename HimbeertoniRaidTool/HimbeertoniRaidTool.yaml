@@ -10,4 +10,4 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      Bugfix: Fix wrongly displayed Tome gear
+      Bugfix: Fix missing materia in etro sets

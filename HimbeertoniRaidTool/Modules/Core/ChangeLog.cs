@@ -7,6 +7,13 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 6, 2, 5))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix missing materia in etro sets"),
+            },
+        },
         new(new Version(1, 6, 2, 4))
         {
             MinorFeatures =
