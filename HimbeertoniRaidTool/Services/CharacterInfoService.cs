@@ -2,7 +2,6 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using Lumina.Excel.GeneratedSheets;
 
@@ -12,9 +11,7 @@ internal unsafe class CharacterInfoService
 {
     private readonly IObjectTable _gameObjects;
     private readonly IPartyList _partyList;
-    private readonly InfoModule* _infoModule;
-    private InfoProxyPartyMember* PartyInfo =>
-        (InfoProxyPartyMember*)_infoModule->GetInfoProxyById(InfoProxyId.PartyMember);
+    private static InfoProxyPartyMember* PartyInfo => InfoProxyPartyMember.Instance();
     private readonly Dictionary<string, ulong> _cache = new();
     private readonly HashSet<string> _notFound = new();
     private DateTime _lastPrune;
@@ -25,10 +22,7 @@ internal unsafe class CharacterInfoService
         _gameObjects = gameObjects;
         _partyList = partyList;
         _lastPrune = DateTime.Now;
-        _infoModule = Framework.Instance()->UIModule->GetInfoModule();
     }
-
-    public long GetLocalPlayerContentId() => (long)_infoModule->LocalContentId;
 
     public ulong GetContentId(IPlayerCharacter? character)
     {
