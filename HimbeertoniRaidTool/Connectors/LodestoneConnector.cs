@@ -214,7 +214,6 @@ internal class NetStoneBase : IDisposable
             ServiceManager.Logger.Error("Lodestone Connector could not be initialized");
             _lodestoneClient = null!;
         }
-        _lodestoneClient.Dispose();
         _rateLimit = rateLimit;
         _cacheTime = cacheTime ?? new TimeSpan(1, 30, 0);
         _currentRequests = new ConcurrentDictionary<string, DateTime>();
@@ -269,7 +268,7 @@ internal class NetStoneBase : IDisposable
             }
             else
             {
-                ServiceManager.Logger.Information("Using ID to search...");
+                ServiceManager.Logger.Information($"Using ID ({c.LodestoneId}) to search...");
                 foundCharacter = await _lodestoneClient.GetCharacter(c.LodestoneId.ToString());
             }
 
