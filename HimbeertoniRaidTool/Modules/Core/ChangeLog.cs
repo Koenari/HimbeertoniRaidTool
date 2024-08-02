@@ -7,6 +7,13 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 6, 2, 7))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix update from lodestone", 151),
+            },
+        },
         new(new Version(1, 6, 2, 6))
         {
             MinorFeatures =
