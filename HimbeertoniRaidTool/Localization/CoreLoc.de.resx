@@ -1,130 +1,123 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-    <!-- 
-          Microsoft ResX Schema
-  
-          Version 1.3
-  
-          The primary goals of this format is to allow a simple XML format 
-          that is mostly human readable. The generation and parsing of the 
-          various data types are done through the TypeConverter classes 
-          associated with the data types.
-  
-          Example:
-  
-          ... ado.net/XML headers & schema ...
-          <resheader name="resmimetype">text/microsoft-resx</resheader>
-          <resheader name="version">1.3</resheader>
-          <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-          <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-          <data name="Name1">this is my long string</data>
-          <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-          <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-              [base64 mime encoded serialized .NET Framework object]
-          </data>
-          <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-              [base64 mime encoded string representing a byte array form of the .NET Framework object]
-          </data>
-  
-          There are any number of "resheader" rows that contain simple 
-          name/value pairs.
-  
-          Each data row contains a name, and value. The row also contains a 
-          type or mimetype. Type corresponds to a .NET class that support 
-          text/value conversion through the TypeConverter architecture. 
-          Classes that don't support this are serialized and stored with the 
-          mimetype set.
-  
-          The mimetype is used for serialized objects, and tells the 
-          ResXResourceReader how to depersist the object. This is currently not 
-          extensible. For a given mimetype the value must be set accordingly:
-  
-          Note - application/x-microsoft.net.object.binary.base64 is the format 
-          that the ResXResourceWriter will generate, however the reader can 
-          read any of the formats listed below.
-  
-          mimetype: application/x-microsoft.net.object.binary.base64
-          value   : The object must be serialized with 
-              : System.Serialization.Formatters.Binary.BinaryFormatter
-              : and then encoded with base64 encoding.
-  
-          mimetype: application/x-microsoft.net.object.soap.base64
-          value   : The object must be serialized with 
-              : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-              : and then encoded with base64 encoding.
-  
-          mimetype: application/x-microsoft.net.object.bytearray.base64
-          value   : The object must be serialized into a byte array 
-              : using a System.ComponentModel.TypeConverter
-              : and then encoded with base64 encoding.
-      -->
-    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns="" id="root">
-        <xsd:element name="root" msdata:IsDataSet="true">
+  <!-- 
+        Microsoft ResX Schema
+
+        Version 1.3
+
+        The primary goals of this format is to allow a simple XML format 
+        that is mostly human readable. The generation and parsing of the 
+        various data types are done through the TypeConverter classes 
+        associated with the data types.
+
+        Example:
+
+        ... ado.net/XML headers & schema ...
+        <resheader name="resmimetype">text/microsoft-resx</resheader>
+        <resheader name="version">1.3</resheader>
+        <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+        <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+        <data name="Name1">this is my long string</data>
+        <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+        <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+            [base64 mime encoded serialized .NET Framework object]
+        </data>
+        <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+            [base64 mime encoded string representing a byte array form of the .NET Framework object]
+        </data>
+
+        There are any number of "resheader" rows that contain simple 
+        name/value pairs.
+
+        Each data row contains a name, and value. The row also contains a 
+        type or mimetype. Type corresponds to a .NET class that support 
+        text/value conversion through the TypeConverter architecture. 
+        Classes that don't support this are serialized and stored with the 
+        mimetype set.
+
+        The mimetype is used for serialized objects, and tells the 
+        ResXResourceReader how to depersist the object. This is currently not 
+        extensible. For a given mimetype the value must be set accordingly:
+
+        Note - application/x-microsoft.net.object.binary.base64 is the format 
+        that the ResXResourceWriter will generate, however the reader can 
+        read any of the formats listed below.
+
+        mimetype: application/x-microsoft.net.object.binary.base64
+        value   : The object must be serialized with 
+            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+        mimetype: application/x-microsoft.net.object.soap.base64
+        value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+        mimetype: application/x-microsoft.net.object.bytearray.base64
+        value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns="" id="root">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
             <xsd:complexType>
-                <xsd:choice maxOccurs="unbounded">
-                    <xsd:element name="data">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0"
-                                             msdata:Ordinal="1"/>
-                                <xsd:element name="comment" type="xsd:string" minOccurs="0"
-                                             msdata:Ordinal="2"/>
-                            </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1"/>
-                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
-                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="resheader">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0"
-                                             msdata:Ordinal="1"/>
-                            </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" use="required"/>
-                        </xsd:complexType>
-                    </xsd:element>
-                </xsd:choice>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
             </xsd:complexType>
-        </xsd:element>
-    </xsd:schema>
-    <resheader name="resmimetype">
-        <value>text/microsoft-resx</value>
-    </resheader>
-    <resheader name="version">
-        <value>1.3</value>
-    </resheader>
-    <resheader name="reader">
-        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0,
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0,
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
-    </resheader>
-    <resheader name="writer">
-        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0,
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0,
             Culture=neutral, PublicKeyToken=b77a5c561934e089
         </value>
-    </resheader>
-    <data name="Command_hrt_options">
-        <value>Zeigt das Konfigurationsfenster an</value>
-    </data>
-    <data name="Command_hrt_help">
-        <value>Zeigt Informationen zur Nutzung im Chat</value>
-    </data>
-    <data name="Command_hrt_welcome">
-        <value>Begrüßungsfenster mit Erklärungen öffnen</value>
-    </data>
-    <data name="UiMessage_PeriodicSaveFailed">
-        <value>Speichern fehlgeschlagen</value>
-    </data>
-    <data name="UiMessage_PeriodicSaveSuccessful">
-        <value>Daten erfolgreich gespeichert</value>
-    </data>
-    <data name="ConfigUi_hdg_externalUpdates" xml:space="preserve">
-        <value>{0} Aktualisierungen</value>
-    </data>
-    <data name="WelcomeUi_text">
-        <value>Willkommen zum Himbeertoni Raid Tool. Dein Begleiter beim verwalten deiner Raid
+  </resheader>
+  <data name="Command_hrt_options">
+    <value>Zeigt das Konfigurationsfenster an</value>
+  </data>
+  <data name="Command_hrt_help">
+    <value>Zeigt Informationen zur Nutzung im Chat</value>
+  </data>
+  <data name="Command_hrt_welcome">
+    <value>Begrüßungsfenster mit Erklärungen öffnen</value>
+  </data>
+  <data name="UiMessage_PeriodicSaveFailed">
+    <value>Speichern fehlgeschlagen</value>
+  </data>
+  <data name="UiMessage_PeriodicSaveSuccessful">
+    <value>Daten erfolgreich gespeichert</value>
+  </data>
+  <data name="WelcomeUi_text">
+    <value>Willkommen zum Himbeertoni Raid Tool. Dein Begleiter beim verwalten deiner Raid
             Gruppe. Starte am besten, indem du den LootMaster öffnest, tippe dazu "/lootmaster"
             (oder
             "/lm") in den Chat oder nutze den Knopf unten. Dein Charakter ist dort schon für dich
@@ -143,193 +136,187 @@
             Bedürfnisse anzupassen. Auch ein Blick auf das Wiki ist empfehlenswert, für
             detailliertere Anweisungen :)
         </value>
-    </data>
-    <data name="WelcomeUi_Title">
-        <value>Willkommen zum Himbeertoni Raid Tool</value>
-    </data>
-    <data name="ConfigUi_cb_extAutoUpdate">
-        <value>Ausrüstungssets von {0} regelmäßig aktualisieren</value>
-    </data>
-    <data name="ConfigUi_in_externalUpdateInterval">
-        <value>Aktualisierungsintervall (in Tagen)</value>
-    </data>
-    <data name="ConfigUi_hdg_changelog" xml:space="preserve">
+  </data>
+  <data name="WelcomeUi_Title">
+    <value>Willkommen zum Himbeertoni Raid Tool</value>
+  </data>
+  <data name="ConfigUi_hdg_changelog" xml:space="preserve">
         <value>Changelog Optionen</value>
     </data>
-    <data name="ConfigUi_cb_ownData" xml:space="preserve">
+  <data name="ConfigUi_cb_ownData" xml:space="preserve">
         <value>Eigene Daten automatisch aktualisieren</value>
     </data>
-    <data name="ConfigUi_cb_updateCombatJobs" xml:space="preserve">
+  <data name="ConfigUi_cb_updateCombatJobs" xml:space="preserve">
         <value>Kampfjobs aktualisieren</value>
     </data>
-    <data name="ConfigUi_hdg_dataUpdate" xml:space="preserve">
+  <data name="ConfigUi_hdg_dataUpdate" xml:space="preserve">
         <value>Automatisches Datenupdate</value>
     </data>
-    <data name="ConfigUi_cb_updateDohJobs" xml:space="preserve">
+  <data name="ConfigUi_cb_updateDohJobs" xml:space="preserve">
         <value>Handwerker Jobs aktualisieren</value>
     </data>
-    <data name="ConfigUi_cb_updateDolJobs" xml:space="preserve">
+  <data name="ConfigUi_cb_updateDolJobs" xml:space="preserve">
         <value>Sammler Jobs aktualisieren</value>
     </data>
-    <data name="ConfigUi_cb_tt_ownData" xml:space="preserve">
+  <data name="ConfigUi_cb_tt_ownData" xml:space="preserve">
         <value>Hält Ausrüstung und Klassen des eingeloggten Charakters aktuell</value>
     </data>
-    <data name="ConfigUi_cb_examine" xml:space="preserve">
+  <data name="ConfigUi_cb_examine" xml:space="preserve">
         <value>Ausrüstung aktualisieren beim Untersuchen</value>
     </data>
-    <data name="ConfigUi_text_dataUpdateJobs" xml:space="preserve">
+  <data name="ConfigUi_text_dataUpdateJobs" xml:space="preserve">
         <value>Jobspezifische Konfiguration (betrifft alle vorangegangen Optionen)</value>
     </data>
-    <data name="ConfigUi_hdg_ui">
-        <value>Benutzeroberfläche</value>
-    </data>
-    <data name="ConfigUi_cb_tt_hideInCombat">
-        <value>Blendet alle Fenster aus, wenn der Charakter sich im Kampf befindet</value>
-    </data>
-    <data name="ConfigUi_cb_hideInCombat">
-        <value>Im Kampf ausblenden</value>
-    </data>
-    <data name="ConfigUi_in_autoSaveInterval">
-        <value>Autospeicher-Intervall (min)</value>
-    </data>
-    <data name="ConfigUi_hdg_AutoSave">
-        <value>Automatisches Speichern</value>
-    </data>
-    <data name="ConfigUi_cb_periodicSave">
-        <value>Regelmäßig speichern</value>
-    </data>
-    <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
+  <data name="ConfigUi_hdg_ui">
+    <value>Benutzeroberfläche</value>
+  </data>
+  <data name="ConfigUi_cb_tt_hideInCombat">
+    <value>Blendet alle Fenster aus, wenn der Charakter sich im Kampf befindet</value>
+  </data>
+  <data name="ConfigUi_cb_hideInCombat">
+    <value>Im Kampf ausblenden</value>
+  </data>
+  <data name="ConfigUi_in_autoSaveInterval">
+    <value>Autospeicher-Intervall (min)</value>
+  </data>
+  <data name="ConfigUi_hdg_AutoSave">
+    <value>Automatisches Speichern</value>
+  </data>
+  <data name="ConfigUi_cb_periodicSave">
+    <value>Regelmäßig speichern</value>
+  </data>
+  <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
         <value>Speichert alle Daten dieses Plugins regelmäßig. (Hilft den Datenverlust bei einem
       Absturz deines Spiels zu verhindern)
     </value>
     </data>
-    <data name="ConfigUi_tab_general" xml:space="preserve">
+  <data name="ConfigUi_tab_general" xml:space="preserve">
         <value>Allgemein</value>
     </data>
-    <data name="WelcomeUi_btn_OpenLootMaster">
-        <value>LootMaster öffnen</value>
-    </data>
-    <data name="WelcomeUi_btn_tt_OpenLootMaster">
-        <value>Öffnet das LootMaster Fenster (/lootmaster)</value>
-    </data>
-    <data name="WelcomeUi_btn_OpenOptions">
-        <value>Optionen öffnen</value>
-    </data>
-    <data name="WelcomeUi_btn_tt_OpenOptions">
-        <value>Konfiguration öffnen (/hrt config)</value>
-    </data>
-    <data name="Chat_help_heading">
-        <value>Befehle für Himbeertoni Raid Tool:</value>
-    </data>
-    <data name="Welcomeui_btn_openWiki">
-        <value>Wiki öffnen</value>
-    </data>
-    <data name="Welcomeui_btn_tt_openWiki">
-        <value>Wiki im Standard Browser öffnen</value>
-    </data>
-    <data name="WelcomeUi_btn_close">
-        <value>Schließen</value>
-    </data>
-    <data name="WelcomeUi_btn_tt_close">
-        <value>Dieses Fenster schließen</value>
-    </data>
-    <data name="Chat_configUpgradeError" xml:space="preserve">
+  <data name="WelcomeUi_btn_OpenLootMaster">
+    <value>LootMaster öffnen</value>
+  </data>
+  <data name="WelcomeUi_btn_tt_OpenLootMaster">
+    <value>Öffnet das LootMaster Fenster (/lootmaster)</value>
+  </data>
+  <data name="WelcomeUi_btn_OpenOptions">
+    <value>Optionen öffnen</value>
+  </data>
+  <data name="WelcomeUi_btn_tt_OpenOptions">
+    <value>Konfiguration öffnen (/hrt config)</value>
+  </data>
+  <data name="Chat_help_heading">
+    <value>Befehle für Himbeertoni Raid Tool:</value>
+  </data>
+  <data name="Welcomeui_btn_openWiki">
+    <value>Wiki öffnen</value>
+  </data>
+  <data name="Welcomeui_btn_tt_openWiki">
+    <value>Wiki im Standard Browser öffnen</value>
+  </data>
+  <data name="WelcomeUi_btn_close">
+    <value>Schließen</value>
+  </data>
+  <data name="WelcomeUi_btn_tt_close">
+    <value>Dieses Fenster schließen</value>
+  </data>
+  <data name="Chat_configUpgradeError" xml:space="preserve">
         <value>Fehler beim Aktualisieren der Core-Konfiguration von Version {0}</value>
     </data>
-    <data name="ChangeLogUi_btn_haveRead" xml:space="preserve">
+  <data name="ChangeLogUi_btn_haveRead" xml:space="preserve">
         <value>Jawoll, alles gelesen!</value>
     </data>
-    <data name="ChangelogCategory_General" xml:space="preserve">
+  <data name="ChangelogCategory_General" xml:space="preserve">
         <value>Allgemein</value>
     </data>
-    <data name="ChangeLogUi_text_issueLink" xml:space="preserve">
+  <data name="ChangeLogUi_text_issueLink" xml:space="preserve">
         <value>Behebt Problem #{0}</value>
     </data>
-    <data name="ChangeLogUi_text_issueLink_tooltip" xml:space="preserve">
+  <data name="ChangeLogUi_text_issueLink_tooltip" xml:space="preserve">
         <value>Auf GitHub öffnen</value>
     </data>
-    <data name="ChangeLogUi_hdg_KnownIssues" xml:space="preserve">
+  <data name="ChangeLogUi_hdg_KnownIssues" xml:space="preserve">
         <value>Bekannte Probleme</value>
     </data>
-    <data name="ChangeLogUi_hdg_version" xml:space="preserve">
+  <data name="ChangeLogUi_hdg_version" xml:space="preserve">
         <value>Version {0}</value>
     </data>
-    <data name="ChangelogCategory_NewFeature" xml:space="preserve">
+  <data name="ChangelogCategory_NewFeature" xml:space="preserve">
         <value>Neue Funktion</value>
     </data>
-    <data name="ChangelogCategory_Bugfix" xml:space="preserve">
+  <data name="ChangelogCategory_Bugfix" xml:space="preserve">
         <value>Bugfix</value>
     </data>
-    <data name="ChangelogCategory_Configuration" xml:space="preserve">
+  <data name="ChangelogCategory_Configuration" xml:space="preserve">
         <value>Konfiguration</value>
     </data>
-    <data name="ChangelogCategory_UserInterface" xml:space="preserve">
+  <data name="ChangelogCategory_UserInterface" xml:space="preserve">
         <value>Benutzeroberfläche</value>
     </data>
-    <data name="ChangelogCategory_LootMaster" xml:space="preserve">
+  <data name="ChangelogCategory_LootMaster" xml:space="preserve">
         <value>Loot Master</value>
     </data>
-    <data name="ChangelogCategory_LootSession" xml:space="preserve">
+  <data name="ChangelogCategory_LootSession" xml:space="preserve">
         <value>Beute-Session</value>
     </data>
-    <data name="ChangelogCategory_BiS" xml:space="preserve">
+  <data name="ChangelogCategory_BiS" xml:space="preserve">
         <value>BiS</value>
     </data>
-    <data name="ChangelogCategory_System" xml:space="preserve">
+  <data name="ChangelogCategory_System" xml:space="preserve">
         <value>System</value>
     </data>
-    <data name="ChangelogCategory_Localization" xml:space="preserve">
+  <data name="ChangelogCategory_Localization" xml:space="preserve">
         <value>Übersetzung</value>
     </data>
-    <data name="ChangelogCategory_Performance" xml:space="preserve">
+  <data name="ChangelogCategory_Performance" xml:space="preserve">
         <value>Leistung</value>
     </data>
-    <data name="ChangelogCategory_Gear" xml:space="preserve">
+  <data name="ChangelogCategory_Gear" xml:space="preserve">
         <value>Ausrüstung</value>
     </data>
-    <data name="ChangelogShowOption_ShowNone" xml:space="preserve">
+  <data name="ChangelogShowOption_ShowNone" xml:space="preserve">
         <value>KEINE Änderungen anzeigen</value>
     </data>
-    <data name="ChangelogShowOption_ShowNotable" xml:space="preserve">
+  <data name="ChangelogShowOption_ShowNotable" xml:space="preserve">
         <value>Zeige mir wichtige Änderungen</value>
     </data>
-    <data name="ChangelogShowOption_ShowAll" xml:space="preserve">
+  <data name="ChangelogShowOption_ShowAll" xml:space="preserve">
         <value>Zeige mir alle Änderungen</value>
     </data>
-    <data name="ChangeLogUi_hdg_seen" xml:space="preserve">
+  <data name="ChangeLogUi_hdg_seen" xml:space="preserve">
         <value>Vorherige Changelogs</value>
     </data>
-    <data name="ChangeLogUi_Title" xml:space="preserve">
+  <data name="ChangeLogUi_Title" xml:space="preserve">
         <value>Himbeertoni Raid Tool Changelog</value>
     </data>
-    <data name="command_hrt_changelog" xml:space="preserve">
+  <data name="command_hrt_changelog" xml:space="preserve">
         <value>Zeigt das Changelog</value>
     </data>
-    <data name="Module_Description" xml:space="preserve">
+  <data name="Module_Description" xml:space="preserve">
         <value>Kernfunktionalität des Himbeertoni Raid-Tools</value>
     </data>
-    <data name="Module_Name" xml:space="preserve">
+  <data name="Module_Name" xml:space="preserve">
         <value>Kernfunktionen</value>
     </data>
-    <data name="ConfigUi_tab_GearUpdates" xml:space="preserve">
+  <data name="ConfigUi_tab_GearUpdates" xml:space="preserve">
         <value>Ausrüstungsupdates</value>
     </data>
-    <data name="ConfigUi_cb_ignorePrevTierGear" xml:space="preserve">
+  <data name="ConfigUi_cb_ignorePrevTierGear" xml:space="preserve">
         <value>Ignoriere Ausrüstung aus vorherigen Raid Tiers</value>
     </data>
-    <data name="ConfigUi_cb_tt_ignorePrevTierGear" xml:space="preserve">
+  <data name="ConfigUi_cb_tt_ignorePrevTierGear" xml:space="preserve">
         <value>Ausrüstung in Sets wird nicht durch getragenen Ausrüstung ersetzt, die älter als der aktuelle Raid ist</value>
     </data>
-    <data name="ConfigUi_cb_ignoreCustomILvlGear" xml:space="preserve">
+  <data name="ConfigUi_cb_ignoreCustomILvlGear" xml:space="preserve">
         <value>Ignoriere Ausrüstung unter diesem Item Level</value>
     </data>
-    <data name="ConfigUi_cb_tt_ignoreCustomILvlGear" xml:space="preserve">
+  <data name="ConfigUi_cb_tt_ignoreCustomILvlGear" xml:space="preserve">
         <value>Ausrüstung in Sets wird nicht durch getragenen Ausrüstung ersetzt, die weniger als das hier angegebene Item Level hat</value>
     </data>
-    <data name="ChangelogCategory_KnownIssues" xml:space="preserve">
+  <data name="ChangelogCategory_KnownIssues" xml:space="preserve">
         <value>Bekanntes Problem</value>
     </data>
-    <data name="ChangelogCategory_Lodestone" xml:space="preserve">
+  <data name="ChangelogCategory_Lodestone" xml:space="preserve">
         <value>Lodestone Verbindung</value>
     </data>
 </root>
