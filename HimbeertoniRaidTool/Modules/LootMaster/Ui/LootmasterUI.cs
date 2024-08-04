@@ -115,23 +115,24 @@ internal class LootmasterUi : HrtWindow
         if (ImGuiHelper.EditButton(p.MainChar, $"##EditCharacter{p.NickName}"))
             AddChild(EditWindowFactory.Create(p.MainChar));
         ImGui.BeginChild("JobList");
+        Action? deferredAction = null;
         foreach (PlayableClass playableClass in p.MainChar.Classes.Where(c => !c.HideInUi))
         {
             ImGui.PushID($"{playableClass.Job}");
             ImGui.Separator();
             ImGui.Spacing();
             if (ImGuiHelper.DeleteButton(playableClass, "##delete"))
-                p.MainChar.RemoveClass(playableClass.Job);
+                deferredAction = () => p.MainChar.RemoveClass(playableClass.Job);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##jobUp",
                                    string.Format(GeneralLoc.SortableList_btn_tt_moveUp, playableClass.DataTypeName),
                                    p.MainChar.CanMoveUp(playableClass)))
-                p.MainChar.MoveClassUp(playableClass);
+                deferredAction = () => p.MainChar.MoveClassUp(playableClass);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "##jobDown",
                                    string.Format(GeneralLoc.SortableList_btn_tt_moveDown, playableClass.DataTypeName),
                                    p.MainChar.CanMoveDown(playableClass)))
-                p.MainChar.MoveClassDown(playableClass);
+                deferredAction = () => p.MainChar.MoveClassDown(playableClass);
             bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
             if (isMainJob)
@@ -186,6 +187,7 @@ internal class LootmasterUi : HrtWindow
         }
 
         ImGui.EndChild();
+        deferredAction?.Invoke();
         /*
          * Stat Table
          */
