@@ -18,7 +18,7 @@ internal class LootmasterUi : HrtWindow
     private readonly Queue<HrtUiMessage> _messageQueue = new();
     private (HrtUiMessage message, DateTime time)? _currentMessage;
 
-    internal LootmasterUi(LootMasterModule lootMaster) : base("LootMaster")
+    internal LootmasterUi(LootMasterModule lootMaster) : base("LootMaster", ImGuiWindowFlags.HorizontalScrollbar)
     {
         _lootMaster = lootMaster;
         CurrentGroupIndex = 0;
@@ -285,12 +285,13 @@ internal class LootmasterUi : HrtWindow
         }
         else
         {
+            ImGui.SetNextItemWidth(800 * ScaleFactor);
             if (ImGui.BeginTable("##RaidGroup", 15,
-                                 ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg))
+                                 ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
             {
-                ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Sort);
-                ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Player);
-                ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear);
+                ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Sort, ImGuiTableColumnFlags.WidthFixed);
+                ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Player, ImGuiTableColumnFlags.WidthFixed);
+                ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear, ImGuiTableColumnFlags.WidthFixed);
                 foreach (GearSetSlot slot in GearSet.Slots)
                 {
                     if (slot == GearSetSlot.OffHand)
@@ -298,7 +299,7 @@ internal class LootmasterUi : HrtWindow
                     ImGui.TableSetupColumn(slot.FriendlyName(true));
                 }
 
-                ImGui.TableSetupColumn(string.Empty);
+                ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthFixed);
                 ImGui.TableHeadersRow();
                 for (int position = 0; position < CurrentGroup.Count; position++)
                 {

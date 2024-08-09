@@ -11,6 +11,13 @@ public class ChangeLog
         {
             MinorFeatures =
             {
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Make all buttons accessible in smaller windows"),
+            },
+        },
+        new(new Version(1, 6, 2, 7))
+        {
+            MinorFeatures =
+            {
                 new ChangeLogEntry(Bugfix, "Fix update from lodestone", 151),
             },
         },
