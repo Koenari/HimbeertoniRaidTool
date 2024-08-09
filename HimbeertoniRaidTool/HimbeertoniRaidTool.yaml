@@ -10,4 +10,5 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      Bugfix: Fix update from lodestone
+      User Interface: You can now adjust the way character names are displayed (see config)
+      User Interface: Make all buttons accessible in smaller windows
