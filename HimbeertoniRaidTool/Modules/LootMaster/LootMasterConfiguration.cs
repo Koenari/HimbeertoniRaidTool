@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -80,7 +81,15 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         {
 
         }
-
+        private static string GetCharacterNameFormatDescription(string format) => format switch
+        {
+            "ns" => LootmasterLoc.ConfigUi_CharNameFormat_ns,
+            "n"  => LootmasterLoc.ConfigUi_CharNameFormat_n,
+            "is" => LootmasterLoc.ConfigUi_CharNameFormat_is,
+            "i"  => LootmasterLoc.ConfigUi_CharNameFormat_i,
+            "a"  => LootmasterLoc.ConfigUi_CharNameFormat_a,
+            _    => CommonLoc.Unknown,
+        };
         public void Draw()
         {
             ImGui.BeginTabBar("##LootMaster");
@@ -93,6 +102,19 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
                                      LootmasterLoc.ConfigUi_cb_tt_IgnoreMateriaForBis);
                 ImGui.Checkbox(LootmasterLoc.ConfigUi_cb_IconInGroupOverview,
                                ref _dataCopy.ShowIconInGroupOverview);
+                ImGui.Text("Character Name Format");
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(200 * HrtWindow.ScaleFactor);
+                if (ImGui.BeginCombo("##CharacterNameFormat",
+                                     GetCharacterNameFormatDescription(_dataCopy.CharacterNameFormat)))
+                {
+                    if (ImGui.Selectable(GetCharacterNameFormatDescription("ns"))) _dataCopy.CharacterNameFormat = "ns";
+                    if (ImGui.Selectable(GetCharacterNameFormatDescription("n"))) _dataCopy.CharacterNameFormat = "n";
+                    if (ImGui.Selectable(GetCharacterNameFormatDescription("is"))) _dataCopy.CharacterNameFormat = "is";
+                    if (ImGui.Selectable(GetCharacterNameFormatDescription("i"))) _dataCopy.CharacterNameFormat = "i";
+                    if (ImGui.Selectable(GetCharacterNameFormatDescription("a"))) _dataCopy.CharacterNameFormat = "a";
+                    ImGui.EndCombo();
+                }
                 ImGuiHelper.Checkbox(LootmasterLoc.ConfigUi_cb_ColoredItemNames, ref _dataCopy.ColoredItemNames,
                                      LootmasterLoc.ConfigUi_cb_tt_ColoredItemNames);
                 ImGui.BeginDisabled(!_dataCopy.ColoredItemNames);
@@ -223,6 +245,8 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         public int? RaidTierOverride;
         [JsonProperty("ActiveExpansion")]
         public int? ExpansionOverride;
+        [JsonProperty("CharacterNameFormat")]
+        public string CharacterNameFormat = "ns";
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public RolePriority RolePriority = new()
         {

@@ -7,8 +7,13 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
-        new(new Version(1, 6, 2, 7))
+        new(new Version(1, 6, 2, 8))
         {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui,
+                                   "You can now adjust the way character names are displayed (see config)"),
+            },
             MinorFeatures =
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Make all buttons accessible in smaller windows"),

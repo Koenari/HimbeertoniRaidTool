@@ -104,7 +104,7 @@ internal class LootmasterUi : HrtWindow
         /*
          * Job Selection
          */
-        ImGui.Text($"{p.NickName} : {p.MainChar.Name} @ {p.MainChar.HomeWorld?.Name ?? "n.A"}");
+        ImGui.Text($"{p.NickName} : {string.Format($"{{0:{CurConfig.CharacterNameFormat}}}", p.MainChar)}");
         ImGui.SameLine();
 
         ImGuiHelper.GearUpdateButtons(p, _lootMaster, true);
@@ -407,7 +407,7 @@ internal class LootmasterUi : HrtWindow
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player, "##editPlayer"))
                 AddChild(EditWindowFactory.Create(player));
-            ImGui.Text($"{player.MainChar}");
+            ImGui.Text(string.Format($"{{0:{CurConfig.CharacterNameFormat}}}", player.MainChar));
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player.MainChar, "##editCharacter"))
                 AddChild(EditWindowFactory.Create(player.MainChar));

@@ -409,4 +409,19 @@
     <data name="ItemTooltip_hdg_bis" xml:space="preserve">
         <value>Best in Slot</value>
     </data>
+    <data name="ConfigUi_CharNameFormat_ns" xml:space="preserve">
+        <value>Name + Server</value>
+    </data>
+    <data name="ConfigUi_CharNameFormat_n" xml:space="preserve">
+        <value>Name only</value>
+    </data>
+    <data name="ConfigUi_CharNameFormat_is" xml:space="preserve">
+        <value>Initials + Server</value>
+    </data>
+    <data name="ConfigUi_CharNameFormat_i" xml:space="preserve">
+        <value>Initials only</value>
+    </data>
+    <data name="ConfigUi_CharNameFormat_a" xml:space="preserve">
+        <value>Censored</value>
+    </data>
 </root>

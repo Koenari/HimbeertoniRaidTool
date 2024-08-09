@@ -168,6 +168,51 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Censored.
+        /// </summary>
+        internal static string ConfigUi_CharNameFormat_a {
+            get {
+                return ResourceManager.GetString("ConfigUi_CharNameFormat_a", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Initials only.
+        /// </summary>
+        internal static string ConfigUi_CharNameFormat_i {
+            get {
+                return ResourceManager.GetString("ConfigUi_CharNameFormat_i", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Initials + Server.
+        /// </summary>
+        internal static string ConfigUi_CharNameFormat_is {
+            get {
+                return ResourceManager.GetString("ConfigUi_CharNameFormat_is", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name only.
+        /// </summary>
+        internal static string ConfigUi_CharNameFormat_n {
+            get {
+                return ResourceManager.GetString("ConfigUi_CharNameFormat_n", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name + Server.
+        /// </summary>
+        internal static string ConfigUi_CharNameFormat_ns {
+            get {
+                return ResourceManager.GetString("ConfigUi_CharNameFormat_ns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Configured colors.
         /// </summary>
         internal static string Configui_hdg_Colors {
