@@ -88,7 +88,7 @@ internal class ChangeLogUi : HrtWindow
     }
     private static void DrawLogEntry(ChangeLogEntry entry, bool important = false)
     {
-        Action<string> drawText = important ? s => ImGui.TextColored(Colors.TextPetrol, s) : ImGui.Text;
+        Action<string> drawText = important ? s => ImGui.TextColored(Colors.TextPetrol, s) : ImGui.TextWrapped;
         ImGui.Bullet();
         ImGui.SameLine();
         drawText($"{entry.Category.Localized()}: {entry.Description}");

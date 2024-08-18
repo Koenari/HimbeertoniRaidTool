@@ -196,11 +196,15 @@ internal class CoreModule : IHrtModule
                 _             => 0,
             };
 
-        var newConfig = new GearDataProviderConfiguration(_config.Data.UpdateOwnData, _config.Data.UpdateCombatJobs,
-                                                          _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs,
-                                                          minILvl);
-        ServiceManager.OwnCharacterDataProvider.Enable(newConfig);
-        ServiceManager.ExamineGearDataProvider.Enable(newConfig);
+        var newOwnConfig = new GearDataProviderConfiguration(_config.Data.UpdateOwnData, _config.Data.UpdateCombatJobs,
+                                                             _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs,
+                                                             minILvl);
+        var newExamineConfig = new GearDataProviderConfiguration(_config.Data.UpdateGearOnExamine,
+                                                                 _config.Data.UpdateCombatJobs,
+                                                                 _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs,
+                                                                 minILvl);
+        ServiceManager.OwnCharacterDataProvider.Enable(newOwnConfig);
+        ServiceManager.ExamineGearDataProvider.Enable(newExamineConfig);
     }
 
     private class ChangelogOptionsWrapper(CoreConfig coreConfig) : ChangeLog.IConfigOptions

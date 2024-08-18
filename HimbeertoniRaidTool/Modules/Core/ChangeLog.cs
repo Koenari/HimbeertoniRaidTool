@@ -1,4 +1,5 @@
-﻿using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
+﻿using HimbeertoniRaidTool.Plugin.Localization;
+using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 using static HimbeertoniRaidTool.Plugin.Modules.Core.ChangeLogEntryCategory;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
@@ -14,7 +15,10 @@ public class ChangeLog
             {
                 new ChangeLogEntry(
                     Bugfix,
-                    "\"Ignore gear from previous tiers\" option now works correctly if last raid tier was in a previous expansion"),
+                    $"\"{CoreLoc.ConfigUi_cb_ignorePrevTierGear}\" option now works correctly if last raid tier was in a previous expansion"),
+                new ChangeLogEntry(
+                    Bugfix,
+                    $"Updating gear by examining now works again if \"{CoreLoc.ConfigUi_cb_ownData}\" is disbaled"),
             },
         },
         new(new Version(1, 6, 2, 8))
