@@ -22,6 +22,7 @@ public sealed class HrtPlugin : IDalamudPlugin
     public HrtPlugin(IDalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
         _commandManager = commandManager;
+        GeneralLoc.Culture = new CultureInfo(pluginInterface.UiLanguage);
         //Init all services
         _loadedSuccessfully = ServiceManager.Init(pluginInterface);
         if (_loadedSuccessfully)

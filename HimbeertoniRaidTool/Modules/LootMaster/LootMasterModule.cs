@@ -21,6 +21,7 @@ internal sealed class LootMasterModule : IHrtModule
     private bool _fillSoloOnLogin;
     public LootMasterModule()
     {
+        LootmasterLoc.Culture = new CultureInfo(ServiceManager.PluginInterface.UiLanguage);
         ConfigImpl = new LootMasterConfiguration(this);
         WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
         _ui = new LootmasterUi(this);

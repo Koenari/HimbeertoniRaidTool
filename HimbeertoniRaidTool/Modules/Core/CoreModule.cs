@@ -18,6 +18,7 @@ internal class CoreModule : IHrtModule
 
     public CoreModule()
     {
+        CoreLoc.Culture = new CultureInfo(ServiceManager.PluginInterface.UiLanguage);
         WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
         _wcw = new WelcomeWindow(this);
         WindowSystem.AddWindow(_wcw);
