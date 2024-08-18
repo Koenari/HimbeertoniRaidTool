@@ -7,6 +7,16 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+
+        new(new Version(1, 6, 2, 9))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(
+                    Bugfix,
+                    "\"Ignore gear from previous tiers\" option now works correctly if last raid tier was in a previous expansion"),
+            },
+        },
         new(new Version(1, 6, 2, 8))
         {
             NotableFeatures =

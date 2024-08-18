@@ -188,9 +188,9 @@ internal class CoreModule : IHrtModule
                 RestrictToCustomILvL: _config.Data.GearUpdateRestrictToCustomILvL) switch
             {
                 (true, true) => Math.Min(
-                    (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel ?? 20) - 20,
+                    (ServiceManager.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
                     _config.Data.GearUpdateCustomILvlCutoff),
-                (true, false) => (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel ?? 20) - 20,
+                (true, false) => (ServiceManager.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
                 (false, true) => _config.Data.GearUpdateCustomILvlCutoff,
                 _             => 0,
             };

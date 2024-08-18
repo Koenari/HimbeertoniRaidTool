@@ -209,6 +209,9 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
                 ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignorePrevTierGear,
                                      ref _dataCopy.GearUpdateRestrictToCurrentTier,
                                      CoreLoc.ConfigUi_cb_tt_ignorePrevTierGear);
+                ImGui.SameLine();
+                ImGui.Text(
+                    $"({GeneralLoc.CommonTerms_itemLvl_abbrev} < {(ServiceManager.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? 0) + 10})");
                 ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignoreCustomILvlGear,
                                      ref _dataCopy.GearUpdateRestrictToCustomILvL,
                                      CoreLoc.ConfigUi_cb_tt_ignoreCustomILvlGear);

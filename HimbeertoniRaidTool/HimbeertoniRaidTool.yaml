@@ -10,5 +10,4 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      User Interface: You can now adjust the way character names are displayed (see config)
-      User Interface: Make all buttons accessible in smaller windows
+      Bugfix: "Ignore gear from previous tiers" option now works correctly if last raid tier was in a previous expansion

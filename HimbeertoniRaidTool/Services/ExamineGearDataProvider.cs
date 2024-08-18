@@ -64,14 +64,19 @@ internal class ExamineGearDataProvider : IGearDataProvider
     {
         if (!_configuration.Enabled)
             return;
-        uint objId;
+        uint entityId;
         unsafe
         {
-            objId = AgentInspect.Instance()->CurrentEntityId;
+            entityId = AgentInspect.Instance()->CurrentEntityId;
         }
-        if (ServiceManager.ObjectTable.SearchById(objId) is not IPlayerCharacter
-            sourceChar) return;
-        ServiceManager.Logger.Debug("Examine character found");
+
+        if (ServiceManager.ObjectTable.SearchByEntityId(entityId) is not IPlayerCharacter
+            sourceChar)
+        {
+            ServiceManager.Logger.Error($"Examined character not found in world");
+            return;
+        }
+        ServiceManager.Logger.Debug($"Examine character found: {sourceChar.Name}");
         if (!ServiceManager.HrtDataManager.Ready)
         {
             ServiceManager.Logger.Error(
