@@ -291,7 +291,7 @@ internal class LootmasterUi : HrtWindow
             {
                 ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Sort, ImGuiTableColumnFlags.WidthFixed);
                 ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Player, ImGuiTableColumnFlags.WidthFixed);
-                ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear, ImGuiTableColumnFlags.WidthFixed);
+                ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.CapitalizedSentence(), ImGuiTableColumnFlags.WidthFixed);
                 foreach (GearSetSlot slot in GearSet.Slots)
                 {
                     if (slot == GearSetSlot.OffHand)
