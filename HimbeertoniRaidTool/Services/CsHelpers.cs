@@ -6,12 +6,12 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal static class CsHelpers
 {
-    internal static unsafe void UpdateGearFromInventoryContainer(InventoryType type, PlayableClass targetClass,
+    internal static unsafe bool UpdateGearFromInventoryContainer(InventoryType type, PlayableClass targetClass,
                                                                  int noDowngradeBelow)
     {
-        if (type is not (InventoryType.Examine or InventoryType.EquippedItems)) return;
+        if (type is not (InventoryType.Examine or InventoryType.EquippedItems)) return false;
         var container = InventoryManager.Instance()->GetInventoryContainer(type);
-        if (container == null || container->Size < 13) return;
+        if (container == null || container->Size < 13) return false;
         GearSet targetGearSet = targetClass.AutoUpdatedGearSet;
         if (targetGearSet.LocalId.IsEmpty)
         {
@@ -29,7 +29,10 @@ internal static class CsHelpers
             {
                 IsHq = slot->Flags.HasFlag(InventoryItem.ItemFlags.HighQuality),
             };
-            if (newItem.ItemLevel < oldItem.ItemLevel && newItem.ItemLevel < noDowngradeBelow) continue;
+            if (newItem.ItemLevel < oldItem.ItemLevel && newItem.ItemLevel < noDowngradeBelow)
+            {
+                ServiceManager.Logger.Debug($"Ignored {(GearSetSlot)i} due to item level");
+            }
             targetGearSet[(GearSetSlot)i] = newItem;
             for (int j = 0; j < 5; j++)
             {
@@ -40,6 +43,7 @@ internal static class CsHelpers
             }
         }
         targetGearSet.TimeStamp = DateTime.UtcNow;
+        return true;
     }
     internal static void SafeguardedOpenExamine(IPlayerCharacter? @object)
     {
