@@ -111,7 +111,7 @@ jobs:
             sha: context.sha
           })
     - name: 'Download packaged build'
-      uses: actions/download-artifact@v3.0.2
+      uses: actions/download-artifact@v4.1.7
       with:
         name: package
         path: artifacts
@@ -149,7 +149,7 @@ jobs:
         ref: main
         path: d17repo
     - name: Downlaod Manifest
-      uses: actions/download-artifact@v3.0.2
+      uses: actions/download-artifact@v4.1.7
       with:
         name: manifest
         path: artifacts
