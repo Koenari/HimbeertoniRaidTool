@@ -32,6 +32,7 @@ internal static class CsHelpers
             if (newItem.ItemLevel < oldItem.ItemLevel && newItem.ItemLevel < noDowngradeBelow)
             {
                 ServiceManager.Logger.Debug($"Ignored {(GearSetSlot)i} due to item level");
+                continue;
             }
             targetGearSet[(GearSetSlot)i] = newItem;
             for (int j = 0; j < 5; j++)

@@ -10,5 +10,4 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      Bugfix: "Ignore gear from previous tiers" option now works correctly if last raid tier was in a previous expansion
-      Bugfix: Updating gear by examining now works again if "Automatically update own data" is disbaled
+      Bugfix: Ignoring lower ilvl gear works again

@@ -8,7 +8,10 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
-
+        new(new Version(1, 6, 2, 10))
+        {
+            MinorFeatures = { new ChangeLogEntry(Bugfix, "Ignoring lower ilvl gear works again") },
+        },
         new(new Version(1, 6, 2, 9))
         {
             MinorFeatures =
