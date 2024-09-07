@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using HimbeertoniRaidTool.Common;
-using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -166,9 +165,8 @@ public static class LootRulesExtension
     public static float DpsGain(this LootResult result)
     {
         PlayableClass curClass = result.ApplicableJob;
-        double baseDps = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage,
-                                                     curClass.CurGear.GetStatEquations(
-                                                         curClass, result.Player.MainChar.Tribe));
+        double baseDps = curClass.CurGear.GetStatEquations(curClass, result.Player.MainChar.Tribe)
+                                 .AverageSkillDamagePerSecond(100);
         double newDps = double.NegativeInfinity;
         foreach (GearItem? i in result.ApplicableItems)
         {
@@ -186,9 +184,8 @@ public static class LootRulesExtension
                     item.AddMateria(mat);
                 }
             }
-            double cur = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage,
-                                                     curClass.CurGear.With(item)
-                                                             .GetStatEquations(curClass, result.Player.MainChar.Tribe));
+            double cur = curClass.CurGear.With(item).GetStatEquations(curClass, result.Player.MainChar.Tribe)
+                                 .AverageSkillDamagePerSecond(100);
             if (cur > newDps)
                 newDps = cur;
         }
@@ -224,28 +221,28 @@ public static class LootRulesExtension
                                                                            shopEntry =>
                                                                            {
                                                                                for (int i = 0;
-                                                                                i < SpecialShop.NUM_COST;
-                                                                                i++)
+                                                                                    i < SpecialShop.NUM_COST;
+                                                                                    i++)
                                                                                {
                                                                                    SpecialShop.ItemCostEntry cost =
                                                                                        shopEntry.entry.ItemCostEntries[
                                                                                            i];
                                                                                    if (cost.Count == 0) continue;
                                                                                    if (ItemInfo.IsCurrency(
-                                                                                       cost.Item.Row)) continue;
+                                                                                            cost.Item.Row)) continue;
                                                                                    if (ItemInfo.IsTomeStone(
-                                                                                       cost.Item.Row)) continue;
+                                                                                            cost.Item.Row)) continue;
                                                                                    if (result.ApplicableJob.CurGear
-                                                                                    .Contains(
-                                                                                        new HrtItem(cost.Item.Row)))
+                                                                                        .Contains(
+                                                                                            new HrtItem(cost.Item.Row)))
                                                                                        continue;
                                                                                    if (result.Player.MainChar
-                                                                                        .MainInventory
-                                                                                        .ItemCount(cost.Item.Row)
-                                                                                  + (result.GuaranteedLoot.Any(
-                                                                                        loot => loot.Id
-                                                                                         == cost.Item.Row) ? 1 : 0)
-                                                                                 >= cost.Count) continue;
+                                                                                            .MainInventory
+                                                                                            .ItemCount(cost.Item.Row)
+                                                                                      + (result.GuaranteedLoot.Any(
+                                                                                            loot => loot.Id
+                                                                                             == cost.Item.Row) ? 1 : 0)
+                                                                                     >= cost.Count) continue;
                                                                                    return false;
                                                                                }
                                                                                return true;

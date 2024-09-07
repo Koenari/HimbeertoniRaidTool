@@ -197,7 +197,8 @@ internal class LootmasterUi : HrtWindow
 
             if (curClass is not null)
                 LmUiHelpers.DrawStatTable(curClass, p.MainChar.Tribe, curClass.CurGear, curClass.CurBis,
-                                          LootmasterLoc.CurrentGear, " ", GeneralLoc.CommonTerms_BiS,
+                                          LootmasterLoc.CurrentGear, GeneralLoc.CommonTerms_Difference,
+                                          GeneralLoc.CommonTerms_BiS,
                                           LmUiHelpers.StatTableCompareMode.DoCompare
                                         | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
             ImGui.EndChild();
@@ -291,7 +292,8 @@ internal class LootmasterUi : HrtWindow
             {
                 ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Sort, ImGuiTableColumnFlags.WidthFixed);
                 ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Player, ImGuiTableColumnFlags.WidthFixed);
-                ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.CapitalizedSentence(), ImGuiTableColumnFlags.WidthFixed);
+                ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.CapitalizedSentence(),
+                                       ImGuiTableColumnFlags.WidthFixed);
                 foreach (GearSetSlot slot in GearSet.Slots)
                 {
                     if (slot == GearSetSlot.OffHand)

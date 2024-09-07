@@ -1,9 +1,11 @@
-﻿using System.Numerics;
-using HimbeertoniRaidTool.Common.Calculations;
+﻿using System.Collections.Immutable;
+using System.Globalization;
+using System.Numerics;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
+using XIVCalc.Calculations;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
@@ -163,6 +165,8 @@ internal static class LmUiHelpers
                                      IReadOnlyGearSet right, string leftHeader, string diffHeader, string rightHeader,
                                      StatTableCompareMode compareMode = StatTableCompareMode.Default)
     {
+        IStatEquations leftStats = left.GetStatEquations(curClass, tribe);
+        IStatEquations rightStats = right.GetStatEquations(curClass, tribe);
         bool doCompare = compareMode.HasFlag(StatTableCompareMode.DoCompare);
         Job curJob = curClass.Job;
         Role curRole = curJob.GetRole();
@@ -170,54 +174,85 @@ internal static class LmUiHelpers
         StatType weaponStat = curRole is Role.Healer or Role.Caster ? StatType.MagicalDamage
             : StatType.PhysicalDamage;
         BeginAndSetupTable("##MainStats", LootmasterLoc.StatTable_MainStats_Title);
-        DrawStatRow(weaponStat);
-        DrawStatRow(StatType.Vitality);
-        DrawStatRow(mainStat);
-        DrawStatRow(StatType.Defense);
-        DrawStatRow(StatType.MagicDefense);
+        DrawStatRow(weaponStat, "WeaponDamage",
+        [
+            ("Weapon DMG Multiplier", s => s.WeaponDamageMultiplier(), val => $"{100 * val:N0} %%", false),
+            ("Dmg100/s", s => s.AverageSkillDamagePerSecond(100), val => $"{val:N0}", false),
+        ]);
+        DrawStatRow(StatType.Vitality, StatType.Vitality.FriendlyName(),
+                    [("MaxHP", s => s.MaxHp(), val => $"{val:N0} HP", false)]);
+        DrawStatRow(mainStat, mainStat.FriendlyName(),
+                    [("Main Stat Multiplier", s => s.MainStatMultiplier(), val => $"{100 * val:N0} %%", false)]);
+        DrawStatRow(StatType.Defense, StatType.Defense.FriendlyName(),
+                    [("Mitigation", s => s.PhysicalDefenseMitigation(), val => $"{val * 100:N1} %%", false)]);
+        DrawStatRow(StatType.MagicDefense, StatType.MagicDefense.FriendlyName(),
+                    [("Mitigation", s => s.MagicalDefenseMitigation(), val => $"{val * 100:N1} %%", false)]);
         ImGui.EndTable();
         ImGui.NewLine();
         BeginAndSetupTable("##SecondaryStats", LootmasterLoc.StatTable_SecondaryStats_Title);
-        DrawStatRow(StatType.CriticalHit);
-        DrawStatRow(StatType.Determination);
-        DrawStatRow(StatType.DirectHitRate);
+        DrawStatRow(StatType.CriticalHit, StatType.CriticalHit.FriendlyName(),
+        [
+            ("Chance", s => s.CritChance(), val => $"{val * 100:N1} %%", false),
+            ("Damage", s => s.CritDamage(), val => $"{val * 100:N1} %%", false),
+        ]);
+        DrawStatRow(StatType.Determination, StatType.Determination.FriendlyName(),
+                    [("Multiplier", s => s.DeterminationMultiplier(), val => $"{val * 100:N1} %%", false)]);
+        DrawStatRow(StatType.DirectHitRate, StatType.DirectHitRate.FriendlyName(),
+                    [("Chance", s => s.DirectHitChance(), val => $"{val * 100:N1} %%", false)]);
         if (curRole is Role.Healer or Role.Caster)
         {
-            DrawStatRow(StatType.SpellSpeed);
+            DrawStatRow(StatType.SpellSpeed, StatType.SpellSpeed.FriendlyName(),
+            [
+                ("Gcd", s => s.Gcd(), val => $"{val:N2} s", true),
+                ("Dot/HoT Multiplier", s => s.HotMultiplier(), val => $"{val * 100:N1} %%", false),
+            ]);
             if (curRole == Role.Healer)
-                DrawStatRow(StatType.Piety);
+                DrawStatRow(StatType.Piety, StatType.Piety.FriendlyName(),
+                            [("MP Regen", s => s.MpPerTick(), val => $"{val:N0} MP/s", false)]);
         }
         else
         {
-            DrawStatRow(StatType.SkillSpeed);
+            DrawStatRow(StatType.SkillSpeed, StatType.SkillSpeed.FriendlyName(),
+            [
+                ("Gcd", s => s.Gcd(), val => $"{val:N2} s", true),
+                ("Dot/HoT Multiplier", s => s.DotMultiplier(), val => $"{val * 100:N1} %%", false),
+            ]);
             if (curRole == Role.Tank)
-                DrawStatRow(StatType.Tenacity);
+                DrawStatRow(StatType.Tenacity, StatType.Tenacity.FriendlyName(),
+                [
+                    ("Outgoing Damage", s => s.TenacityOffensiveModifier(), val => $"{val * 100:N1} %%", false),
+                    ("Incoming Damage", s => s.TenacityDefensiveModifier(), val => $"{val * 100:N1} %%", true),
+                ]);
         }
         ImGui.EndTable();
         ImGui.NewLine();
         return;
-        void DrawStatRow(StatType type)
+        void DrawStatRow(StatType statType, string heading,
+                         (string hdg, Func<IStatEquations, double> eval, Func<double, string> format, bool lowerIsBeter)
+                             []
+                             evalDefinitions)
         {
-            int numEvals = 1;
-            if (type == StatType.CriticalHit || type == StatType.Tenacity || type == StatType.SpellSpeed
-             || type == StatType.SkillSpeed)
-                numEvals++;
-            int leftStat = curClass.GetStat(type, left, tribe);
-            int rightStat = curClass.GetStat(type, right, tribe);
-            double[] leftEvalStat = new double[numEvals];
-            double[] rightEvalStat = new double[numEvals];
-            for (int i = 0; i < numEvals; i++)
+            int leftStat = curClass.GetStat(statType, left, tribe);
+            int rightStat = curClass.GetStat(statType, right, tribe);
+            var leftEvals = evalDefinitions.Select(s => s.eval(leftStats)).ToImmutableArray();
+            var rightEvals = evalDefinitions.Select(s => s.eval(rightStats)).ToImmutableArray();
+            var formats = evalDefinitions.Select(s => s.format).ToImmutableArray();
+            var lowerIsBetters = evalDefinitions.Select(s => s.lowerIsBeter).ToImmutableArray();
+
+            ImGui.TableNextColumn();
+            ImGui.Text(heading);
+            ImGui.TableNextColumn();
+            ImGui.NewLine();
+            foreach ((string hdg, _, _, _) in evalDefinitions)
             {
-                leftEvalStat[i] = AllaganLibrary.EvaluateStat(type, left.GetStatEquations(curClass, tribe), i);
-                rightEvalStat[i] = AllaganLibrary.EvaluateStat(type, right.GetStatEquations(curClass, tribe), i);
+                ImGui.Text(hdg);
             }
             ImGui.TableNextColumn();
-            ImGui.Text(type.FriendlyName());
-            if (type is StatType.CriticalHit or StatType.SkillSpeed or StatType.SpellSpeed)
-                ImGui.Text(type.AlternativeFriendlyName());
-            //Stats
-            ImGui.TableNextColumn();
-            ImGui.Text(leftStat.ToString());
+            ImGui.Text(leftStat.ToString(LootmasterLoc.Culture));
+            for (int i = 0; i < leftEvals.Length; i++)
+            {
+                ImGui.Text(formats[i](leftEvals[i]));
+            }
             if (doCompare)
             {
                 ImGui.TableNextColumn();
@@ -226,79 +261,44 @@ internal static class LmUiHelpers
                     ImGui.Text(" - ");
                 else
                     ImGui.TextColored(Color(intDiff), $" {(intDiff < 0 ? "" : "+")}{intDiff} ");
-            }
-            ImGui.TableNextColumn();
-            ImGui.Text(rightStat.ToString());
-            ImGui.TableNextColumn();
-            //Evals
-            ImGui.TableNextColumn();
-            string[] units = new string[numEvals];
-            for (int i = 0; i < numEvals; i++)
-            {
-                (string? val, string? unit) = AllaganLibrary.FormatStatValue(leftEvalStat[i], type, i);
-                units[i] = unit;
-                ImGui.Text(val);
-            }
-            if (type == weaponStat)
-                ImGuiHelper.AddTooltip(LootmasterLoc.Ui_tt_Dmgper100);
-            if (doCompare)
-            {
-                ImGui.TableNextColumn();
-                for (int i = 0; i < numEvals; i++)
+                for (int i = 0; i < leftEvals.Length; i++)
                 {
-                    double diff = rightEvalStat[i] - leftEvalStat[i];
-                    if (double.IsNaN(diff) || diff == 0)
-                    {
+                    double diff = rightEvals[i] - leftEvals[i];
+                    if (double.IsNaN(diff) || Math.Abs(diff) < 0.001)
                         ImGui.Text(" - ");
-                    }
                     else
-                    {
-                        ImGui.TextColored(Color(diff),
-                                          $"{(diff < 0 ? "" : "+")}{AllaganLibrary.FormatStatValue(diff, type, i).Val}");
-                    }
+                        ImGui.TextColored(Color(diff, lowerIsBetters[i]),
+                                          $" {(diff < 0 ? "" : "+")}{formats[i](diff)} ");
                 }
             }
             ImGui.TableNextColumn();
-            for (int i = 0; i < numEvals; i++)
+            ImGui.Text(rightStat.ToString(CultureInfo.InvariantCulture));
+            for (int i = 0; i < rightEvals.Length; i++)
             {
-                ImGui.Text(AllaganLibrary.FormatStatValue(rightEvalStat[i], type, i).Val);
-            }
-            if (type == weaponStat)
-                ImGuiHelper.AddTooltip(LootmasterLoc.Ui_tt_Dmgper100);
-            ImGui.TableNextColumn();
-            for (int i = 0; i < numEvals; i++)
-            {
-                ImGui.Text(units[i]);
+                ImGui.Text(formats[i](rightEvals[i]));
             }
             return;
-            Vector4 Color(double diff)
-            {
-                bool negative;
-                if (compareMode.HasFlag(StatTableCompareMode.DiffRightToLeft))
-                    negative = diff > 0;
-                else
-                    negative = diff < 0;
-                return negative ? Colors.TextRed : Colors.TextGreen;
-            }
+
+        }
+        Vector4 Color(double diff, bool lowerIsBetter = false)
+        {
+            if (lowerIsBetter) diff *= -1;
+            if (compareMode.HasFlag(StatTableCompareMode.DiffRightToLeft)) diff *= -1;
+            return diff < 0 ? Colors.TextSoftRed : Colors.TextGreen;
         }
         void BeginAndSetupTable(string id, string name)
         {
-            int numCol = doCompare ? 9 : 7;
+            int numCol = doCompare ? 5 : 4;
             ImGui.BeginTable(id, numCol,
                              ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.BordersH
                                                                | ImGuiTableFlags.BordersOuterV
                                                                | ImGuiTableFlags.RowBg);
             ImGui.TableSetupColumn(name);
+            ImGui.TableSetupColumn("Effect");
             ImGui.TableSetupColumn(leftHeader);
             if (doCompare)
                 ImGui.TableSetupColumn(diffHeader);
             ImGui.TableSetupColumn(rightHeader);
-            ImGui.TableSetupColumn("     ");
-            ImGui.TableSetupColumn(leftHeader);
-            if (doCompare)
-                ImGui.TableSetupColumn(diffHeader);
-            ImGui.TableSetupColumn(rightHeader);
-            ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
         }
     }

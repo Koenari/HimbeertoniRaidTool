@@ -439,4 +439,7 @@ You need to update to use this plugin!</value>
     <data name="XivGearAppConnector_GetGearSet_Error" xml:space="preserve">
         <value/>
     </data>
+    <data name="CommonTerms_Difference" xml:space="preserve">
+        <value>Difference</value>
+    </data>
 </root>

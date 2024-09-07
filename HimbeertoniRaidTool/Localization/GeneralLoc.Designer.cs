@@ -87,6 +87,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Difference.
+        /// </summary>
+        internal static string CommonTerms_Difference {
+            get {
+                return ResourceManager.GetString("CommonTerms_Difference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Empty.
         /// </summary>
         internal static string CommonTerms_Empty {
