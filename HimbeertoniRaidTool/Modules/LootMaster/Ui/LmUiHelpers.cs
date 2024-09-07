@@ -208,8 +208,8 @@ internal static class LmUiHelpers
             double[] rightEvalStat = new double[numEvals];
             for (int i = 0; i < numEvals; i++)
             {
-                leftEvalStat[i] = AllaganLibrary.EvaluateStat(type, curClass, left, tribe, i);
-                rightEvalStat[i] = AllaganLibrary.EvaluateStat(type, curClass, right, tribe, i);
+                leftEvalStat[i] = AllaganLibrary.EvaluateStat(type, left.GetStatEquations(curClass, tribe), i);
+                rightEvalStat[i] = AllaganLibrary.EvaluateStat(type, right.GetStatEquations(curClass, tribe), i);
             }
             ImGui.TableNextColumn();
             ImGui.Text(type.FriendlyName());

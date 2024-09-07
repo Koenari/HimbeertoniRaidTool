@@ -52,8 +52,8 @@
       },
       "XIVCalc": {
         "type": "Transitive",
-        "resolved": "0.2.0",
-        "contentHash": "2zMdJtvkfqTSipU9rYP0RrmD3mG0Lg5i5u0ud661HBhRn+qNh5Z4n17vPCKuO72ujrH1s8fTo6i3ZHb8b09REg==",
+        "resolved": "0.3.0-alpha1",
+        "contentHash": "fdTbyaeg3HO1aghotZpV+VVxQCafHOqdG9dgCj3ZYNyqAwQMUEEl131ySFNlCiYb97ZR3PXugDHthYRdENPBDQ==",
         "dependencies": {
           "Lumina.Excel": "7.0.0"
         }
@@ -63,7 +63,7 @@
         "dependencies": {
           "Lumina.Excel": "[7.0.1, )",
           "Newtonsoft.Json": "[13.0.3, )",
-          "XIVCalc": "[0.2.0, )"
+          "XIVCalc": "[0.3.0-alpha1, )"
         }
       }
     }
