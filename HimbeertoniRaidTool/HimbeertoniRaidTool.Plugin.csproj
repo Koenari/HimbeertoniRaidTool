@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Authors>Koenari</Authors>
-        <Version>1.6.2.9</Version>
+        <Version>1.6.2.10</Version>
         <Description>A collection of useful tools for RaidGroups, including loot management</Description>
         <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>
         <Configurations>Release;Debug</Configurations>

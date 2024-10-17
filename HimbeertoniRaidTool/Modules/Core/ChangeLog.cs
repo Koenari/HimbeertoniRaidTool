@@ -10,7 +10,14 @@ public class ChangeLog
     {
         new(new Version(1, 6, 2, 10))
         {
-            MinorFeatures = { new ChangeLogEntry(Bugfix, "Ignoring lower ilvl gear works again") },
+            NotableFeatures =
+            {
+                new ChangeLogEntry(NewFeature, "Automatically switch character in solo tab to currently logged in one"),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Ignoring lower ilvl gear works again"),
+            },
         },
         new(new Version(1, 6, 2, 9))
         {

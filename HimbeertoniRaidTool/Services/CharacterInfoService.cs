@@ -44,7 +44,7 @@ internal unsafe class CharacterInfoService
             var entry = PartyInfo->InfoProxyCommonList.GetEntry(i);
             if (entry == null) continue;
             if (entry->HomeWorld != character.HomeWorld.Id) continue;
-            string name = entry->Name.ToString();
+            string name = entry->NameString;
             if (name.Equals(character.Name.TextValue))
                 return entry->ContentId;
         }
