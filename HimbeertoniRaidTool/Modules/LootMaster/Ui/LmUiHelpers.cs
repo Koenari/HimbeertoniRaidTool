@@ -5,7 +5,7 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
-using XIVCalc.Calculations;
+using XIVCalc.Interfaces;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
@@ -177,7 +177,7 @@ internal static class LmUiHelpers
         DrawStatRow(weaponStat, "WeaponDamage",
         [
             ("Weapon DMG Multiplier", s => s.WeaponDamageMultiplier(), val => $"{100 * val:N0} %%", false),
-            ("Dmg100/s", s => s.AverageSkillDamagePerSecond(100), val => $"{val:N0}", false),
+            ("Dmg100/s", s => s.AverageSkillDamage(100) / s.Gcd(), val => $"{val:N0}", false),
         ]);
         DrawStatRow(StatType.Vitality, StatType.Vitality.FriendlyName(),
                     [("MaxHP", s => s.MaxHp(), val => $"{val:N0} HP", false)]);

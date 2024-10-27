@@ -52,10 +52,16 @@
       },
       "XIVCalc": {
         "type": "Transitive",
-        "resolved": "0.3.0-alpha1",
-        "contentHash": "fdTbyaeg3HO1aghotZpV+VVxQCafHOqdG9dgCj3ZYNyqAwQMUEEl131ySFNlCiYb97ZR3PXugDHthYRdENPBDQ==",
+        "resolved": "0.3.0-alpha4",
+        "contentHash": "0/nFfWovK5ugHhEGqgelmPPkDwCDzJaNTnxp6krSdxwMKmA0OmMriyro3IP/SL0aYb0x48j38iRLurPWqBpC/Q=="
+      },
+      "XIVCalc.Lumina": {
+        "type": "Transitive",
+        "resolved": "7.0.0-alpha1",
+        "contentHash": "uyyC3sQbTCGx1ahDhMEbxVb0abRYVbkb7kQUIUAaZ5JLx/lHCGqw21QaYt7idCt2i1/FdWlGkpdk8gsYlONSLA==",
         "dependencies": {
-          "Lumina.Excel": "7.0.0"
+          "Lumina.Excel": "7.0.0",
+          "XIVCalc": "0.3.0-alpha3"
         }
       },
       "himbeertoniraidtool.common": {
@@ -63,7 +69,8 @@
         "dependencies": {
           "Lumina.Excel": "[7.0.1, )",
           "Newtonsoft.Json": "[13.0.3, )",
-          "XIVCalc": "[0.3.0-alpha1, )"
+          "XIVCalc": "[0.3.0-alpha4, )",
+          "XIVCalc.Lumina": "[7.0.0-alpha1, )"
         }
       }
     }
