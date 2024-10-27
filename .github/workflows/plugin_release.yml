@@ -1,6 +1,11 @@
 name: Distribute Update
 
-on: push
+on: 
+  push:
+    branches:
+      - master
+      - 'hotfix/**'
+
 env:
   PLUGIN_NAME: 'Himbeertoni Raid Tool'
   PLUGIN_NAME_INTERNAL: 'HimbeertoniRaidTool'
