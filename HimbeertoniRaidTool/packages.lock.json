@@ -10,9 +10,9 @@
       },
       "NetStone": {
         "type": "Direct",
-        "requested": "[1.2.1, )",
-        "resolved": "1.2.1",
-        "contentHash": "jK2GEJrBIfie0J7QvVcu3J/bph+IR8IouLF/f4Bv/7qvK7n+G5AnjM2XGqJre3Ifk5HOtGDnt+c8VJdq+ml36w==",
+        "requested": "[1.3.1, )",
+        "resolved": "1.3.1",
+        "contentHash": "iDfmwtpAe2iz5cuOPAj+gzEEA4RkCkOzqTgYFbpBysWYOqvJhIDd3BqeMQMiWl6RuppfcQpIjrpfsUgX+VZV2A==",
         "dependencies": {
           "HtmlAgilityPack": "1.11.46",
           "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "0.0.2",
