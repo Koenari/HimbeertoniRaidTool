@@ -1,8 +1,7 @@
 ﻿using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;
-using SpecialShop = HimbeertoniRaidTool.Common.SpecialShop;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -67,15 +66,16 @@ public static class DrawDataExtension
             if (ServiceManager.ItemInfo.CanBePurchased(item.Id))
             {
                 DrawRow(GeneralLoc.DrawItem_hdg_ShopCosts, string.Empty);
-                foreach ((string? shopName, SpecialShop.ShopEntry? shopEntry) in ServiceManager.ItemInfo
+                foreach ((string? shopName, SpecialShop.ItemStruct shopEntry) in ServiceManager.ItemInfo
                              .GetShopEntriesForItem(item.Id))
                 {
                     string content = "";
-                    foreach (SpecialShop.ItemCostEntry? cost in shopEntry.ItemCostEntries)
+                    foreach (SpecialShop.ItemStruct.ItemCostsStruct cost in shopEntry.ItemCosts)
                     {
-                        if (cost.Item.Row == 0)
+                        if (cost.ItemCost.RowId == 0)
                             continue;
-                        content += $"{cost.Item.Value?.Name} ({cost.Count})\n";
+                        //Todo: Guessed CurrencyCost. Might be wrong
+                        content += $"{cost.ItemCost.Value.Name} ({cost.CurrencyCost})\n";
                     }
                     DrawRow($"    {shopName}", content);
                 }

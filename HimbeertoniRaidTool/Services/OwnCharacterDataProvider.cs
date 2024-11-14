@@ -52,10 +52,10 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         _clientState.Login -= OnLogin;
         _clientState.Logout -= OnLogout;
         _framework.Update -= OnFrameworkUpdate;
-        OnLogout();
+        OnLogout(0, 0);
     }
     private void OnLogin() => GetChar(out _curChar, out _self);
-    private void OnLogout()
+    private void OnLogout(int type, int code)
     {
         _curChar = null;
         _self = null;
@@ -67,9 +67,9 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         _timeSinceLastGearUpdate += framework.UpdateDelta;
         if (_timeSinceLastWalletUpdate > _timeBetweenWalletUpdates)
             UpdateWallet();
-        if (_timeSinceLastGearUpdate > _timeBetweenGearUpdates || _lastSeenJob != (_self?.ClassJob.Id ?? 0))
+        if (_timeSinceLastGearUpdate > _timeBetweenGearUpdates || _lastSeenJob != (_self?.ClassJob.RowId ?? 0))
             UpdateGear();
-        _lastSeenJob = _self?.ClassJob.Id ?? 0;
+        _lastSeenJob = _self?.ClassJob.RowId ?? 0;
     }
     private static void GetChar([NotNullWhen(true)] out Character? target,
                                 [NotNullWhen(true)] out IPlayerCharacter? source)
@@ -81,7 +81,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         ulong charId = Character.CalcCharId(ServiceManager.ClientState.LocalContentId);
 
         if (!ServiceManager.HrtDataManager.CharDb.Search(
-                CharacterDb.GetStandardPredicate(charId, source.HomeWorld.Id, source.Name.TextValue),
+                CharacterDb.GetStandardPredicate(charId, source.HomeWorld.RowId, source.Name.TextValue),
                 out target)) return;
         if (target.CharId == 0)
             target.CharId = charId;

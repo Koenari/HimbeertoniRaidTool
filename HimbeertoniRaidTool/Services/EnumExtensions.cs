@@ -4,5 +4,5 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 public static class EnumExtensions
 {
-    public static Job GetJob(this IPlayerCharacter target) => (Job)target.ClassJob.Id;
+    public static Job GetJob(this IPlayerCharacter target) => (Job)target.ClassJob.RowId;
 }

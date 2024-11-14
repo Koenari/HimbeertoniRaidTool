@@ -4,7 +4,7 @@ using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using Action = System.Action;
 
@@ -60,7 +60,7 @@ internal class CharacterDb(IIdProvider idProvider, IEnumerable<JsonConverter> co
 
         private string GetWorldName(uint idx) =>
             _worldCache.TryGetValue(idx, out string? name) ? name : _worldCache[idx] =
-                ServiceManager.DataManager.GetExcelSheet<World>()?.GetRow(idx)?.Name?.RawString ?? "";
+                ServiceManager.DataManager.GetExcelSheet<World>().GetRow(idx).Name.ExtractText();
 
         public CharacterSearchWindow(CharacterDb dataBase, Action<Character> onSelect, Action? onCancel) : base(
             dataBase, onSelect, onCancel)
@@ -106,7 +106,7 @@ internal class CharacterDb(IIdProvider idProvider, IEnumerable<JsonConverter> co
                 ImGui.TableNextColumn();
                 ImGui.Text(character.Name);
                 ImGui.TableNextColumn();
-                ImGui.Text(character.HomeWorld?.Name ?? "");
+                ImGui.Text(character.HomeWorld.HasValue ? character.HomeWorld.Value.Name.ExtractText() : string.Empty);
                 ImGui.TableNextColumn();
                 ImGui.Text(string.Format(GeneralLoc.CharacterSearchUi_txt_classCount, character.Classes.Count()));
             }

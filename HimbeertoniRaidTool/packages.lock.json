@@ -34,16 +34,24 @@
       },
       "Lumina": {
         "type": "Transitive",
-        "resolved": "3.15.2",
-        "contentHash": "EnoxYEYMepcvAoXdZhaFJiv2aiDBIPjgkgzxR/+ArOxlrALzCgheTsb5yD39a9sxNIi2tNECT93ulZvYjx8fZg=="
+        "resolved": "5.2.1",
+        "contentHash": "WQld2p7eWfcItfxjFwvySpiuUCT+fmJWh9GdCHgKS7vOjYGhPH6SWq6gh0ie+vHp0eaSIB2Tigv6i4qKT+HRSA==",
+        "dependencies": {
+          "Microsoft.Extensions.ObjectPool": "8.0.7"
+        }
       },
       "Lumina.Excel": {
         "type": "Transitive",
-        "resolved": "7.0.1",
-        "contentHash": "6jLesCVDfBW1PAMOBtzzrk+zS4F+WEKI/y3iKuV2lTXqWnuguVuFXdZQvhRQryQ5ruNczFmNo8pZeU0yOfqIKA==",
+        "resolved": "7.1.0",
+        "contentHash": "rDlA336de7au4VKiEv8XhnmWSLqpJLrcRE9rGeJATj27lljm9aPkERPavifu0bWyrIy0GGhpan2w1dMJw8I25A==",
         "dependencies": {
-          "Lumina": "3.15.2"
+          "Lumina": "5.2.1"
         }
+      },
+      "Microsoft.Extensions.ObjectPool": {
+        "type": "Transitive",
+        "resolved": "8.0.7",
+        "contentHash": "2yLweyqmpuuFSRo+I3sLHMxmnAgNcI537kBJiyv49U2ZEqo00jZcG8lrnD8uCiOJp9IklYyTZULtbsXoFVzsjQ=="
       },
       "Newtonsoft.Json": {
         "type": "Transitive",
@@ -57,19 +65,18 @@
       },
       "XIVCalc.Lumina": {
         "type": "Transitive",
-        "resolved": "7.0.0",
-        "contentHash": "k0XlM3oaIMr2ekHCuHGgx7vRoB6nAySCJeQyw5WvzBfXEZhwCENp1GYsMhhgkEpLFctrF5YKmHeW7mX7OkEHvQ==",
+        "resolved": "7.1.0",
+        "contentHash": "1BSOkEJHfJyTGMVSwNll/G3jrAKXomPOUgqOlDP8q24CRmjiL/Whj7i/EdrjUmWSytIl4NkAjGKqMi+qK0NHnQ==",
         "dependencies": {
-          "Lumina.Excel": "7.0.0",
+          "Lumina.Excel": "7.1.0",
           "XIVCalc": "0.3.0"
         }
       },
       "himbeertoniraidtool.common": {
         "type": "Project",
         "dependencies": {
-          "Lumina.Excel": "[7.0.1, )",
           "Newtonsoft.Json": "[13.0.3, )",
-          "XIVCalc.Lumina": "[7.0.0, )"
+          "XIVCalc.Lumina": "[7.1.0, )"
         }
       }
     }

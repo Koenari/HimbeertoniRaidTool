@@ -81,17 +81,17 @@ internal class ExamineGearDataProvider : IGearDataProvider
         if (!ServiceManager.HrtDataManager.Ready)
         {
             ServiceManager.Logger.Error(
-                $"Database is busy. Did not update gear for:{sourceChar.Name}@{sourceChar.HomeWorld.GameData?.Name}");
+                $"Database is busy. Did not update gear for:{sourceChar.Name}@{sourceChar.HomeWorld.Value.Name}");
             return;
         }
 
         //Do not execute on characters not already known
         if (!ServiceManager.HrtDataManager.CharDb.Search(
-                CharacterDb.GetStandardPredicate(0, sourceChar.HomeWorld.Id, sourceChar.Name.TextValue),
+                CharacterDb.GetStandardPredicate(0, sourceChar.HomeWorld.RowId, sourceChar.Name.TextValue),
                 out Character? targetChar))
         {
             ServiceManager.Logger.Debug(
-                $"Did not find character in db:{sourceChar.Name}@{sourceChar.HomeWorld.GameData?.Name}");
+                $"Did not find character in db:{sourceChar.Name}@{sourceChar.HomeWorld.Value.Name}");
             return;
         }
 

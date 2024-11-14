@@ -3,7 +3,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -32,7 +32,7 @@ internal unsafe class CharacterInfoService
         {
             bool found =
                 partyMember.ObjectId == character.GameObjectId
-             || partyMember.Name.Equals(character.Name) && partyMember.World.Id == character.CurrentWorld.Id;
+             || partyMember.Name.Equals(character.Name) && partyMember.World.RowId == character.CurrentWorld.RowId;
             if (found)
                 return (ulong)partyMember.ContentId;
         }
@@ -43,7 +43,7 @@ internal unsafe class CharacterInfoService
         {
             var entry = PartyInfo->InfoProxyCommonList.GetEntry(i);
             if (entry == null) continue;
-            if (entry->HomeWorld != character.HomeWorld.Id) continue;
+            if (entry->HomeWorld != character.HomeWorld.RowId) continue;
             string name = entry->NameString;
             if (name.Equals(character.Name.TextValue))
                 return entry->ContentId;
@@ -59,7 +59,7 @@ internal unsafe class CharacterInfoService
         {
             result = _gameObjects.SearchById(id) as IPlayerCharacter;
             if (result?.Name.TextValue == name
-             && (w is null || w.RowId == result.HomeWorld.Id))
+             && (w is null || w.Value.RowId == result.HomeWorld.RowId))
                 return true;
             else
                 _cache.Remove(name);
@@ -78,7 +78,7 @@ internal unsafe class CharacterInfoService
                 var p = o as IPlayerCharacter;
                 return p != null
                     && p.Name.TextValue == name
-                    && (w is null || p.HomeWorld.Id == w.RowId);
+                    && (w is null || p.HomeWorld.Value.RowId == w.Value.RowId);
             }, null) as IPlayerCharacter;
         if (result != null)
         {

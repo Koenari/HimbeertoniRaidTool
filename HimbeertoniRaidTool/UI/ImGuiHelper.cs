@@ -189,52 +189,48 @@ public static class ImGuiHelper
     }
     //Credit to UnknownX
     //Modified to have filtering of Excel sheet and be usable by keyboard only
-    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+    public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
         => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), flags);
-    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+    public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, string, bool> searchPredicate,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
         => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), searchPredicate, flags);
-    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+    public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, bool> preFilter,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
         => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), preFilter, flags);
-    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+    public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, string, bool> searchPredicate,
                                           Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
-        where T : ExcelRow
+        where T : struct, IExcelRow<T>
         => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), searchPredicate, preFilter, flags);
-    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+    public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
         => ExcelSheetCombo(id, out selected, getPreview, toName,
                            (t, s) => toName(t).Contains(s, StringComparison.CurrentCultureIgnoreCase), flags);
-    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+    public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
                                           Func<T, string, bool> searchPredicate,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : ExcelRow
+                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
         => ExcelSheetCombo(id, out selected, getPreview, toName, searchPredicate, _ => true, flags);
-    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+    public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
                                           Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
-        where T : ExcelRow
+        where T : struct, IExcelRow<T>
         => ExcelSheetCombo(id, out selected, getPreview, toName,
                            (t, s) => toName(t).Contains(s, StringComparison.CurrentCultureIgnoreCase), preFilter,
                            flags);
-    public static bool ExcelSheetCombo<T>(string id, [NotNullWhen(true)] out T? selected,
+    public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
                                           Func<T, string, bool> searchPredicate,
                                           Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
-        where T : ExcelRow
+        where T : struct, IExcelRow<T>
     {
         var sheet = ServiceManager.DataManager.GetExcelSheet<T>();
-        if (sheet is null)
-        {
-            selected = null;
-            return false;
-        }
+
         return SearchableCombo(id, out selected, getPreview(sheet), sheet, toName, searchPredicate, preFilter, flags);
     }
 

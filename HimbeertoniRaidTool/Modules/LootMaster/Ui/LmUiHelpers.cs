@@ -4,8 +4,9 @@ using System.Numerics;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using XIVCalc.Interfaces;
+using Role = HimbeertoniRaidTool.Common.Data.Role;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 

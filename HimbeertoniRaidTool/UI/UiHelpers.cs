@@ -3,7 +3,7 @@ using Dalamud.Interface;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -33,8 +33,8 @@ internal static class UiHelpers
         ImGui.SameLine();
         //Quick select
         string itemName = item.Name;
-        if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out Item? outItem, _ => itemName,
-                                        i => i.Name.RawString, IsApplicable, ImGuiComboFlags.NoArrowButton))
+        if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out Item outItem, _ => itemName,
+                                        i => i.Name.ExtractText(), IsApplicable, ImGuiComboFlags.NoArrowButton))
         {
             onItemChange(new GearItem(outItem.RowId));
         }

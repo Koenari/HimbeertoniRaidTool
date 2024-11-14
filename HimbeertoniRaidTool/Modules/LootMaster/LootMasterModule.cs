@@ -168,14 +168,14 @@ internal sealed class LootMasterModule : IHrtModule
         ServiceManager.Logger.Debug($"Filling character: {source.Name}");
         ulong charId = Character.CalcCharId(ServiceManager.CharacterInfoService.GetContentId(source));
         if (ServiceManager.HrtDataManager.CharDb.Search(
-                CharacterDb.GetStandardPredicate(charId, source.HomeWorld.Id, source.Name.TextValue),
+                CharacterDb.GetStandardPredicate(charId, source.HomeWorld.RowId, source.Name.TextValue),
                 out Character? dbChar))
         {
             destination = dbChar;
         }
         else
         {
-            destination.HomeWorldId = source.HomeWorld.Id;
+            destination.HomeWorldId = source.HomeWorld.RowId;
             destination.Name = source.Name.TextValue;
             destination.CharId = charId;
             if (!ServiceManager.HrtDataManager.CharDb.TryAdd(destination)) return false;
@@ -228,7 +228,7 @@ internal sealed class LootMasterModule : IHrtModule
             {
                 group[0].NickName = target.Name.TextValue;
                 group[0].MainChar.Name = target.Name.TextValue;
-                group[0].MainChar.HomeWorld = target.HomeWorld.GameData;
+                group[0].MainChar.HomeWorld = target.HomeWorld.Value;
                 FillPlayer(group[0], target);
             }
             else
@@ -241,7 +241,7 @@ internal sealed class LootMasterModule : IHrtModule
         var players = ServiceManager.PartyList.Where(p => p != null).ToList();
         foreach (IPartyMember p in players)
         {
-            if (!Enum.TryParse(p.ClassJob.GameData?.Abbreviation.RawString, out Job c))
+            if (!Enum.TryParse(p.ClassJob.Value.Abbreviation.ExtractText(), out Job c))
             {
                 fill.Add(p);
                 continue;
@@ -305,12 +305,12 @@ internal sealed class LootMasterModule : IHrtModule
             Player p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
             if (!ServiceManager.HrtDataManager.CharDb.Search(
-                    CharacterDb.GetStandardPredicate(Character.CalcCharId((ulong)pm.ContentId), pm.World.Id,
+                    CharacterDb.GetStandardPredicate(Character.CalcCharId((ulong)pm.ContentId), pm.World.RowId,
                                                      pm.Name.TextValue), out Character? character))
             {
-                character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
+                character = new Character(pm.Name.TextValue, pm.World.Value.RowId);
                 ServiceManager.HrtDataManager.CharDb.TryAdd(character);
-                bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
+                bool canParseJob = Enum.TryParse(pm.ClassJob.Value.Abbreviation.ExtractText(), out Job c);
                 if (ServiceManager.CharacterInfoService.TryGetChar(out IPlayerCharacter? pc, p.MainChar.Name,
                                                                    p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                 {

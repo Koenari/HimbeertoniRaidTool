@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
-using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
+using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using XIVCalc.Interfaces;
 using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
@@ -196,55 +196,63 @@ public static class LootRulesExtension
     public static bool IsBiS(this LootResult result) =>
         result.NeededItems.Any(i => result.ApplicableJob.CurBis.Count(x => x.Equals(i, ItemComparisonMode.IdOnly))
                                  != result.ApplicableJob.CurGear.Count(x => x.Equals(i, ItemComparisonMode.IdOnly)));
+    //Todo: Guessed CurrencyCost. Might be wrong
     public static bool CanUse(this LootResult result) =>
         //Direct gear or coffer drops are always usable
         !result.DroppedItem.IsExchangableItem
      || result.NeededItems.Any(
             item => ServiceManager.ItemInfo.GetShopEntriesForItem(item.Id).Any(shopEntry =>
             {
-                for (int i = 0; i < SpecialShop.NUM_COST; i++)
+                for (int i = 0; i < shopEntry.entry.ItemCosts.Count; i++)
                 {
-                    SpecialShop.ItemCostEntry cost = shopEntry.entry.ItemCostEntries[i];
-                    if (cost.Count == 0) continue;
-                    if (cost.Item.Row == result.DroppedItem.Id) continue;
-                    if (ItemInfo.IsCurrency(cost.Item.Row)) continue;
-                    if (ItemInfo.IsTomeStone(cost.Item.Row)) continue;
-                    if (result.ApplicableJob.CurGear.Contains(new HrtItem(cost.Item.Row))) continue;
-                    if (result.Player.MainChar.MainInventory.ItemCount(cost.Item.Row) >= cost.Count) continue;
+                    SpecialShop.ItemStruct.ItemCostsStruct cost = shopEntry.entry.ItemCosts[i];
+                    if (cost.CurrencyCost == 0) continue;
+                    if (cost.ItemCost.RowId == result.DroppedItem.Id) continue;
+                    if (ItemInfo.IsCurrency(cost.ItemCost.RowId)) continue;
+                    if (ItemInfo.IsTomeStone(cost.ItemCost.RowId)) continue;
+                    if (result.ApplicableJob.CurGear.Contains(new HrtItem(cost.ItemCost.RowId))) continue;
+                    if (result.Player.MainChar.MainInventory.ItemCount(cost.ItemCost.RowId)
+                     >= cost.CurrencyCost) continue;
                     return false;
                 }
                 return true;
             })
         );
-
+    //Todo: Guessed CurrencyCost. Might be wrong
     public static bool CanBuy(this LootResult result) => ServiceManager.ItemInfo
                                                                        .GetShopEntriesForItem(result.DroppedItem.Id)
                                                                        .Any(
                                                                            shopEntry =>
                                                                            {
                                                                                for (int i = 0;
-                                                                                i < SpecialShop.NUM_COST;
+                                                                                i < shopEntry.entry.ItemCosts.Count;
                                                                                 i++)
                                                                                {
-                                                                                   SpecialShop.ItemCostEntry cost =
-                                                                                       shopEntry.entry.ItemCostEntries[
-                                                                                           i];
-                                                                                   if (cost.Count == 0) continue;
+                                                                                   SpecialShop.ItemStruct.
+                                                                                       ItemCostsStruct cost =
+                                                                                           shopEntry.entry.ItemCosts[
+                                                                                               i];
+                                                                                   if (cost.CurrencyCost == 0) continue;
                                                                                    if (ItemInfo.IsCurrency(
-                                                                                       cost.Item.Row)) continue;
+                                                                                       cost.ItemCost.RowId))
+                                                                                       continue;
                                                                                    if (ItemInfo.IsTomeStone(
-                                                                                       cost.Item.Row)) continue;
+                                                                                       cost.ItemCost.RowId))
+                                                                                       continue;
                                                                                    if (result.ApplicableJob.CurGear
                                                                                     .Contains(
-                                                                                        new HrtItem(cost.Item.Row)))
+                                                                                        new HrtItem(
+                                                                                            cost.ItemCost.RowId)))
                                                                                        continue;
                                                                                    if (result.Player.MainChar
                                                                                         .MainInventory
-                                                                                        .ItemCount(cost.Item.Row)
+                                                                                        .ItemCount(
+                                                                                            cost.ItemCost.RowId)
                                                                                   + (result.GuaranteedLoot.Any(
                                                                                         loot => loot.Id
-                                                                                         == cost.Item.Row) ? 1 : 0)
-                                                                                 >= cost.Count) continue;
+                                                                                         == cost.ItemCost.RowId) ? 1
+                                                                                        : 0)
+                                                                                 >= cost.CurrencyCost) continue;
                                                                                    return false;
                                                                                }
                                                                                return true;

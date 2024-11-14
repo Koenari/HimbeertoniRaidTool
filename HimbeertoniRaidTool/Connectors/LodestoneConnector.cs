@@ -1,13 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using Dalamud;
 using Dalamud.Game;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using Lumina.Excel;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Model.Parseables.Character.Gear;
@@ -19,8 +18,8 @@ namespace HimbeertoniRaidTool.Plugin.Connectors;
 internal class LodestoneConnector : NetStoneBase
 {
     private const int NO_OF_ALLOWED_LODESTONE_REQUESTS = 8;
-    private readonly ExcelSheet<Item>? _itemSheet;
-    private readonly ExcelSheet<Materia>? _materiaSheet;
+    private readonly ExcelSheet<Item> _itemSheet;
+    private readonly ExcelSheet<Materia> _materiaSheet;
     private readonly Dictionary<char, byte> _romanNumerals;
 
     internal LodestoneConnector() : base(new RateLimit(NO_OF_ALLOWED_LODESTONE_REQUESTS, new TimeSpan(0, 1, 30)))
@@ -53,9 +52,10 @@ internal class LodestoneConnector : NetStoneBase
                 return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_CharNotFound, HrtUiMessageType.Failure);
             Job? foundJob;
             if (lodestoneCharacter.Gear.Soulcrystal != null)
-                foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Soulcrystal.ItemName, out isHq)?.ClassJobUse.Row;
+                foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Soulcrystal.ItemName, out isHq)?.ClassJobUse
+                    .RowId;
             else
-                foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand?.ItemName, out isHq)?.ClassJobUse.Row;
+                foundJob = (Job?)GetItemByName(lodestoneCharacter.Gear.Mainhand?.ItemName, out isHq)?.ClassJobUse.RowId;
             if (foundJob == null || !Enum.IsDefined(typeof(Job), foundJob))
                 return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_JobIncompatible, HrtUiMessageType.Failure);
 
@@ -98,7 +98,7 @@ internal class LodestoneConnector : NetStoneBase
                     return;
                 }
 
-                Item? itemEntry = GetItemByName(gearPiece.ItemName, out isHq);
+                var itemEntry = GetItemByName(gearPiece.ItemName, out isHq);
                 if (itemEntry == null)
                 {
                     ServiceManager.Logger.Warning(
@@ -107,7 +107,7 @@ internal class LodestoneConnector : NetStoneBase
                     return;
                 }
 
-                uint gearId = itemEntry.RowId;
+                uint gearId = itemEntry.Value.RowId;
                 //ToDO: parse relic stats, until then skip relics already present
                 if (classToChange.CurGear[slot].IsRelic() && classToChange.CurGear[slot].Id == gearId) return;
                 classToChange.CurGear[slot] = new GearItem(gearId)
@@ -118,11 +118,9 @@ internal class LodestoneConnector : NetStoneBase
                 {
                     if (string.IsNullOrEmpty(materia))
                         return;
-                    uint? materiaCategoryId = _materiaSheet?.FirstOrDefault(el =>
-                                                                                Array.Exists(
-                                                                                    el.Item,
-                                                                                    item => item.Value?.Name.RawString
-                                                                                     == materia))?.RowId;
+                    uint? materiaCategoryId = _materiaSheet.FirstOrDefault(
+                        el => el.Item.Any(
+                            item => item.Value.Name.ExtractText().Equals(materia))).RowId;
                     if (materiaCategoryId == null)
                         continue;
                     var materiaCategory = (MateriaCategory)materiaCategoryId;
@@ -162,7 +160,7 @@ internal class LodestoneConnector : NetStoneBase
             isHq = true;
         }
 
-        return _itemSheet!.FirstOrDefault(item => item.Name.RawString.Equals(
+        return _itemSheet!.FirstOrDefault(item => item.Name.ExtractText().Equals(
                                               name, StringComparison.InvariantCultureIgnoreCase));
     }
 
@@ -248,7 +246,7 @@ internal class NetStoneBase : IDisposable
         _currentRequests.TryAdd(c.Name, DateTime.Now);
         try
         {
-            World? homeWorld = c.HomeWorld;
+            var homeWorld = c.HomeWorld;
             LodestoneCharacter? foundCharacter;
             if (c.LodestoneId == 0)
             {
@@ -258,7 +256,7 @@ internal class NetStoneBase : IDisposable
                 CharacterSearchPage? netStoneResponse = await _lodestoneClient.SearchCharacter(new CharacterSearchQuery
                 {
                     CharacterName = c.Name,
-                    World = homeWorld.Name.RawString,
+                    World = homeWorld.Value.Name.ExtractText(),
                 });
                 CharacterSearchEntry? characterEntry = netStoneResponse?.Results.FirstOrDefault(
                     res => res.Name == c.Name);

@@ -7,7 +7,7 @@ using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
@@ -269,20 +269,21 @@ public static class EditWindowFactory
             ImGui.Text(GeneralLoc.EditPlayerUi_hdg_characterData);
             if (ImGui.InputText(GeneralLoc.CommonTerms_Name, ref DataCopy.Name, 50)
              && ServiceManager.CharacterInfoService.TryGetChar(out IPlayerCharacter? pc, DataCopy.Name))
-                DataCopy.HomeWorld ??= pc.HomeWorld.GameData;
-            if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.EditCharUi_in_HomeWorld + "##" + Title, out World? w,
-                                            _ => DataCopy.HomeWorld?.Name.RawString ?? "",
-                                            x => x.Name.RawString, x => x.IsPublic))
+                DataCopy.HomeWorld ??= pc.HomeWorld.Value;
+            if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.EditCharUi_in_HomeWorld + "##" + Title, out World w,
+                                            _ => DataCopy.HomeWorld?.Name.ExtractText() ?? "",
+                                            x => x.Name.ExtractText(), x => x.IsPublic))
                 DataCopy.HomeWorld = w;
 
             //ImGuiHelper.Combo(Localize("Gender", "Gender"), ref PlayerCopy.MainChar.Gender);
-            string GetGenderedTribeName(Tribe? tribe)
+            string GetGenderedTribeName(Tribe tribe)
             {
-                return (DataCopy.Gender == Gender.Male ? tribe?.Masculine.RawString : tribe?.Feminine.RawString) ??
+                return (DataCopy.Gender == Gender.Male ? tribe.Masculine.ExtractText() : tribe.Feminine.ExtractText())
+                     ??
                        string.Empty;
             }
 
-            if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.CommonTerms_Tribe + "##" + Title, out Tribe? t,
+            if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.CommonTerms_Tribe + "##" + Title, out Tribe t,
                                             _ => GetGenderedTribeName(DataCopy.Tribe), GetGenderedTribeName))
                 DataCopy.TribeId = t.RowId;
             //Class Data
