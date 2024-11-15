@@ -12,7 +12,8 @@ public static class DrawDataExtension
     {
         if (!item.Filled)
             return;
-        if (ImGui.BeginTable("ItemTable", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
+        if (ImGui.BeginTable("ItemTable", 2,
+                             ImGuiTableFlags.Borders | ImGuiTableFlags.SizingMask | ImGuiTableFlags.RowBg))
         {
             ImGui.TableSetupColumn(GeneralLoc.ItemTable_heading_Header);
             ImGui.TableSetupColumn("");
@@ -58,7 +59,7 @@ public static class DrawDataExtension
                     ImGui.TableNextColumn();
                     foreach (HrtMateria? mat in gearItem.Materia)
                     {
-                        ImGui.BulletText($"{mat.Name} ({mat.StatType.FriendlyName()} +{mat.GetStat()})");
+                        ImGui.BulletText($"{mat.Name}\r\n + {mat.GetStat()} {mat.StatType.FriendlyName()}");
                     }
                 }
             }
@@ -74,10 +75,13 @@ public static class DrawDataExtension
                     {
                         if (cost.ItemCost.RowId == 0)
                             continue;
-                        //Todo: Guessed CurrencyCost. Might be wrong
-                        content += $"{cost.ItemCost.Value.Name} ({cost.CurrencyCost})\n";
+                        Item costItem = ServiceManager.ItemInfo.AdjustItemCost(cost.ItemCost, shopEntry.PatchNumber);
+                        content += $"{costItem.Name} ({cost.CurrencyCost})\n";
                     }
-                    DrawRow($"    {shopName}", content);
+                    ImGui.TableNextColumn();
+                    ImGui.TextWrapped($"    {shopName}");
+                    ImGui.TableNextColumn();
+                    ImGui.Text($"{content}");
                 }
             }
             //Loot Data

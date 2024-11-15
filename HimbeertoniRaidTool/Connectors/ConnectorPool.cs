@@ -20,7 +20,7 @@ internal class ConnectorPool : IDisposable
         GearSetManager.Etro    => EtroConnector,
         GearSetManager.XivGear => XivGearAppConnector,
         GearSetManager.Hrt     => throw new NotImplementedException(),
-        _                      => throw new NotImplementedException(),
+        _                      => throw new ArgumentOutOfRangeException($"type {type} is not supported."),
     };
 
     public void Dispose() => LodestoneConnector.Dispose();
