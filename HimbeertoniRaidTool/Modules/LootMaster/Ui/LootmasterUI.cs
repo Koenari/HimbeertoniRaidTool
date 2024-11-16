@@ -56,11 +56,11 @@ internal class LootmasterUi : HrtWindow
     {
         base.Update();
         Queue<HrtWindow> toRemove = new();
-        foreach (HrtWindow? w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen))
+        foreach (var w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen))
         {
             toRemove.Enqueue(w);
         }
-        foreach (HrtWindow w in toRemove.Where(w => !w.Equals(this)))
+        foreach (var w in toRemove.Where(w => !w.Equals(this)))
         {
             Services.ServiceManager.Logger.Debug($"Cleaning Up Window: {w.WindowName}");
             _lootMaster.WindowSystem.RemoveWindow(w);
@@ -80,12 +80,12 @@ internal class LootmasterUi : HrtWindow
             _currentMessage.Value.time + MessageTimeByMessageType(_currentMessage.Value.message.MessageType) <
             DateTime.Now)
             _currentMessage = null;
-        while (!_currentMessage.HasValue && _messageQueue.TryDequeue(out HrtUiMessage? message))
+        while (!_currentMessage.HasValue && _messageQueue.TryDequeue(out var message))
         {
             _currentMessage = message.MessageType != HrtUiMessageType.Discard ? (message, DateTime.Now) : null;
         }
         if (!_currentMessage.HasValue) return;
-        Vector4 color = _currentMessage.Value.message.MessageType switch
+        var color = _currentMessage.Value.message.MessageType switch
         {
             HrtUiMessageType.Error or HrtUiMessageType.Failure => Colors.TextRed,
             HrtUiMessageType.Success                           => Colors.TextGreen,
@@ -98,7 +98,7 @@ internal class LootmasterUi : HrtWindow
 
     private void DrawDetailedPlayer(Player p)
     {
-        PlayableClass? curClass = p.MainChar.MainClass;
+        var curClass = p.MainChar.MainClass;
         ImGui.BeginChild("##SoloView");
         ImGui.Columns(3);
         /*
@@ -116,7 +116,7 @@ internal class LootmasterUi : HrtWindow
             AddChild(EditWindowFactory.Create(p.MainChar));
         ImGui.BeginChild("JobList");
         Action? deferredAction = null;
-        foreach (PlayableClass playableClass in p.MainChar.Classes.Where(c => !c.HideInUi))
+        foreach (var playableClass in p.MainChar.Classes.Where(c => !c.HideInUi))
         {
             ImGui.PushID($"{playableClass.Job}");
             ImGui.Separator();
@@ -294,7 +294,7 @@ internal class LootmasterUi : HrtWindow
                 ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Player, ImGuiTableColumnFlags.WidthFixed);
                 ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.CapitalizedSentence(),
                                        ImGuiTableColumnFlags.WidthFixed);
-                foreach (GearSetSlot slot in GearSet.Slots)
+                foreach (var slot in GearSet.Slots)
                 {
                     if (slot == GearSetSlot.OffHand)
                         continue;
@@ -326,7 +326,7 @@ internal class LootmasterUi : HrtWindow
             bool isPredefinedSolo = tabBarIdx == 0;
             bool isActiveGroup = tabBarIdx == CurrentGroupIndex;
 
-            RaidGroup group = _lootMaster.RaidGroups[tabBarIdx];
+            var group = _lootMaster.RaidGroups[tabBarIdx];
             if (isActiveGroup) ImGui.PushStyleColor(ImGuiCol.Tab, Colors.RedWood);
 
             if (ImGui.TabItemButton(group.Name))
@@ -382,7 +382,7 @@ internal class LootmasterUi : HrtWindow
 
     private void DrawPlayerRow(RaidGroup group, int pos)
     {
-        Player player = group[pos];
+        var player = group[pos];
         //Sort Row
         ImGui.TableNextColumn();
         float fullLineHeight = ImGui.GetTextLineHeightWithSpacing();
@@ -413,13 +413,13 @@ internal class LootmasterUi : HrtWindow
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player.MainChar, "##editCharacter"))
                 AddChild(EditWindowFactory.Create(player.MainChar));
-            PlayableClass? curJob = player.MainChar.MainClass;
+            var curJob = player.MainChar.MainClass;
             if (player.MainChar.Classes.Any())
             {
                 ImGui.SetNextItemWidth(110 * ScaleFactor);
                 if (ImGui.BeginCombo("##Class", curJob?.ToString()))
                 {
-                    foreach (PlayableClass job in player.MainChar.Where(c => !c.HideInUi))
+                    foreach (var job in player.MainChar.Where(c => !c.HideInUi))
                     {
                         if (ImGui.Selectable(job.ToString()))
                             player.MainChar.MainJob = job.Job;
@@ -447,8 +447,8 @@ internal class LootmasterUi : HrtWindow
                  * Gear Sets
                  */
                 ImGui.PushID("##gearButtons");
-                GearSet gear = curJob.CurGear;
-                GearSet bis = curJob.CurBis;
+                var gear = curJob.CurGear;
+                var bis = curJob.CurBis;
                 ImGui.TableNextColumn();
                 float comboWidth = 85f * ScaleFactor;
                 /*
@@ -486,7 +486,7 @@ internal class LootmasterUi : HrtWindow
                         string.Format(LootmasterLoc.Ui_btn_tt_etroUpdate, bis.Name,
                                       bis.ExternalId));
                 ImGui.PopID();
-                foreach ((GearSetSlot slot, (GearItem, GearItem) itemTuple) in curJob.ItemTuples)
+                foreach (var (slot, itemTuple) in curJob.ItemTuples)
                 {
                     if (slot == GearSetSlot.OffHand)
                         continue;
@@ -582,7 +582,7 @@ internal class LootmasterUi : HrtWindow
             var expansions = ServiceManager.GameInfo.Expansions;
             for (int i = 0; i < expansions.Count; i++)
             {
-                GameExpansion expansion = expansions[i];
+                var expansion = expansions[i];
                 if (expansion.SavageRaidTiers.Length == 0) continue;
                 if (ImGui.Selectable(expansion.Name))
                 {
@@ -600,7 +600,7 @@ internal class LootmasterUi : HrtWindow
         {
             for (int i = 0; i < CurConfig.ActiveExpansion.SavageRaidTiers.Length; i++)
             {
-                RaidTier tier = CurConfig.ActiveExpansion.SavageRaidTiers[i];
+                var tier = CurConfig.ActiveExpansion.SavageRaidTiers[i];
                 if (ImGui.Selectable(tier.Name))
                 {
                     if (i == CurConfig.ActiveExpansion.SavageRaidTiers.Length - 1)
@@ -617,7 +617,7 @@ internal class LootmasterUi : HrtWindow
         ImGui.Text(LootmasterLoc.Ui_text_openLootSessioon + ":");
         ImGui.SameLine();
 
-        foreach (InstanceWithLoot lootSource in CurConfig.SelectedRaidTier.Bosses)
+        foreach (var lootSource in CurConfig.SelectedRaidTier.Bosses)
         {
             if (ImGuiHelper.Button(lootSource.Name, null, lootSource.IsAvailable))
                 AddChild(new LootSessionUi(lootSource, CurrentGroup, CurConfig.RaidGroups, CurConfig.LootRuling,
@@ -645,88 +645,5 @@ internal class LootmasterUi : HrtWindow
         }
 
         public override void Draw() => _drawPlayer(_player);
-    }
-}
-
-internal class InventoryWindow : HrtWindowWithModalChild
-{
-    private readonly Inventory _inv;
-
-    internal InventoryWindow(Character c)
-    {
-        Size = new Vector2(400f, 550f);
-        SizeCondition = ImGuiCond.Appearing;
-        Title = string.Format(LootmasterLoc.InventoryUi_Title, c.Name);
-        _inv = c.MainInventory;
-        if (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage is null)
-            return;
-        foreach (HrtItem item in from boss in ServiceManager.GameInfo.CurrentExpansion.CurrentSavage
-                                                            .Bosses
-                                 from item in boss.GuaranteedItems
-                                 where !_inv.Contains(item.Id)
-                                 select item)
-        {
-            _inv[_inv.FirstFreeSlot()] = new InventoryEntry(item)
-            {
-                Quantity = 0,
-            };
-        }
-    }
-
-    public override void Draw()
-    {
-        if (ImGuiHelper.CloseButton())
-            Hide();
-        if (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage is not null)
-            foreach (InstanceWithLoot boss in ServiceManager.GameInfo.CurrentExpansion.CurrentSavage
-                                                            .Bosses)
-            {
-                foreach (HrtItem item in boss.GuaranteedItems)
-                {
-                    IDalamudTextureWrap icon = Services.ServiceManager.IconCache[item.Icon];
-                    ImGui.Image(icon.ImGuiHandle, icon.Size);
-                    ImGui.SameLine();
-                    ImGui.Text(item.Name);
-                    ImGui.SameLine();
-                    InventoryEntry entry = _inv[_inv.IndexOf(item.Id)];
-                    ImGui.SetNextItemWidth(150f * ScaleFactor);
-                    ImGui.InputInt($"##{item.Name}", ref entry.Quantity);
-                    _inv[_inv.IndexOf(item.Id)] = entry;
-                }
-            }
-
-        ImGui.Separator();
-        ImGui.Text(LootmasterLoc.InventoryUi_hdg_additionalGear);
-        Vector2 iconSize = new Vector2(37, 37) * ScaleFactor;
-        foreach ((int idx, InventoryEntry entry) in _inv.Where(e => e.Value.IsGear))
-        {
-            ImGui.PushID(idx);
-            if (entry.Item is not GearItem item)
-                continue;
-            IDalamudTextureWrap icon = Services.ServiceManager.IconCache[item.Icon];
-            if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "##delete", null, true, iconSize))
-                _inv.Remove(idx);
-            ImGui.SameLine();
-            ImGui.BeginGroup();
-            ImGui.Image(icon.ImGuiHandle, iconSize);
-            ImGui.SameLine();
-            ImGui.Text(item.Name);
-            ImGui.EndGroup();
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                item.Draw();
-                ImGui.EndTooltip();
-            }
-
-            ImGui.PopID();
-        }
-
-        ImGui.BeginDisabled(ChildIsOpen);
-        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##add", null, true, iconSize))
-            ModalChild = new SelectGearItemWindow(i => _inv.Add(_inv.FirstFreeSlot(), i), _ => { }, null, null, null,
-                                                  ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel
-                                               ?? 0);
-        ImGui.EndDisabled();
     }
 }

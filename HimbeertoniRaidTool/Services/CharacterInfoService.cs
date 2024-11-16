@@ -11,16 +11,18 @@ internal unsafe class CharacterInfoService
 {
     private readonly IObjectTable _gameObjects;
     private readonly IPartyList _partyList;
+    private readonly IClientState _clientState;
     private static InfoProxyPartyMember* PartyInfo => InfoProxyPartyMember.Instance();
     private readonly Dictionary<string, ulong> _cache = new();
     private readonly HashSet<string> _notFound = new();
     private DateTime _lastPrune;
-    private static readonly TimeSpan _pruneInterval = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan PruneInterval = TimeSpan.FromSeconds(10);
 
-    internal CharacterInfoService(IObjectTable gameObjects, IPartyList partyList)
+    internal CharacterInfoService(IObjectTable gameObjects, IPartyList partyList, IClientState clientState)
     {
         _gameObjects = gameObjects;
         _partyList = partyList;
+        _clientState = clientState;
         _lastPrune = DateTime.Now;
     }
 
@@ -28,7 +30,7 @@ internal unsafe class CharacterInfoService
     {
         if (character == null)
             return 0;
-        foreach (IPartyMember partyMember in _partyList)
+        foreach (var partyMember in _partyList)
         {
             bool found =
                 partyMember.ObjectId == character.GameObjectId
@@ -91,10 +93,11 @@ internal unsafe class CharacterInfoService
             return false;
         }
     }
+    public bool IsSelf(Character character) => Character.CalcCharId(_clientState.LocalContentId) == character.CharId;
 
     private void Update()
     {
-        if (DateTime.Now - _lastPrune <= _pruneInterval) return;
+        if (DateTime.Now - _lastPrune <= PruneInterval) return;
         _lastPrune = DateTime.Now;
         if (_notFound.Count == 0) return;
         _notFound.Clear();

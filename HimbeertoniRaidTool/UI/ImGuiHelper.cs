@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
@@ -90,7 +89,7 @@ public static class ImGuiHelper
         bool result = false;
         string inspectTooltip = GeneralLoc.Ui_btn_Inspect_tt;
         bool canInspect = true;
-        if (!ServiceManager.CharacterInfoService.TryGetChar(out IPlayerCharacter? playerChar, p.MainChar.Name,
+        if (!ServiceManager.CharacterInfoService.TryGetChar(out var playerChar, p.MainChar.Name,
                                                             p.MainChar.HomeWorld))
         {
             canInspect = false;
@@ -171,20 +170,16 @@ public static class ImGuiHelper
     {
         string[] names = Enum.GetNames(typeof(T));
         toName ??= t => names[t.HasValue ? Array.IndexOf(Enum.GetValues(typeof(T)), t) : 0];
-        select ??= t => true;
+        select ??= _ => true;
         bool result = false;
-        if (ImGui.BeginCombo(label, toName(value)))
+        if (!ImGui.BeginCombo(label, toName(value))) return result;
+        foreach (var choice in Enum.GetValues<T>())
         {
-            foreach (T choice in Enum.GetValues<T>())
-            {
-                if (select(choice) && ImGui.Selectable(toName(choice)))
-                {
-                    value = choice;
-                    result = true;
-                }
-            }
-            ImGui.EndCombo();
+            if (!select(choice) || !ImGui.Selectable(toName(choice))) continue;
+            value = choice;
+            result = true;
         }
+        ImGui.EndCombo();
         return result;
     }
     //Credit to UnknownX
@@ -192,20 +187,21 @@ public static class ImGuiHelper
     public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview,
                                           ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), flags);
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, flags);
     public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, string, bool> searchPredicate,
                                           ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), searchPredicate, flags);
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, searchPredicate, flags);
     public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, bool> preFilter,
                                           ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), preFilter, flags);
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, preFilter, flags);
     public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, string, bool> searchPredicate,
                                           Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
         where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString(), searchPredicate, preFilter, flags);
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, searchPredicate, preFilter,
+                           flags);
     public static bool ExcelSheetCombo<T>(string id, out T selected,
                                           Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
                                           ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
@@ -285,7 +281,7 @@ public static class ImGuiHelper
             _hoveredItem = 0;
         }
         int i = 0;
-        foreach (T? row in _filtered.Cast<T>())
+        foreach (var row in _filtered.Cast<T>())
         {
             bool hovered = _hoveredItem == i;
             ImGui.PushID(i);

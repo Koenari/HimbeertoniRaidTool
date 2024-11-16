@@ -330,7 +330,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Additional Gear.
+        ///   Looks up a localized string similar to Relevant gear (not equipped).
         /// </summary>
         internal static string InventoryUi_hdg_additionalGear {
             get {

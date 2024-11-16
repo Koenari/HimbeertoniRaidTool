@@ -686,6 +686,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Current Savage Books.
+        /// </summary>
+        internal static string InventoryWindow_Hdg_Current_Savage_Books {
+            get {
+                return ResourceManager.GetString("InventoryWindow_Hdg_Current_Savage_Books", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Header.
         /// </summary>
         internal static string ItemTable_heading_Header {

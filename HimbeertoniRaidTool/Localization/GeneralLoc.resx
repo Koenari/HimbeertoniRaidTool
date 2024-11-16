@@ -442,4 +442,7 @@ You need to update to use this plugin!</value>
     <data name="CommonTerms_Difference" xml:space="preserve">
         <value>Difference</value>
     </data>
+    <data name="InventoryWindow_Hdg_Current_Savage_Books" xml:space="preserve">
+        <value>Current Savage Books</value>
+    </data>
 </root>

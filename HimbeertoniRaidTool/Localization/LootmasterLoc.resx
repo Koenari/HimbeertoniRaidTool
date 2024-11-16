@@ -350,7 +350,7 @@
         <value>No Player</value>
     </data>
     <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
-        <value>Additional Gear</value>
+        <value>Relevant gear (not equipped)</value>
     </data>
     <data name="Ui_btn_addPlayerFromTarget_tt" xml:space="preserve">
         <value>Fill with target ({0}) data</value>

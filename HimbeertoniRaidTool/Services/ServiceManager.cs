@@ -49,7 +49,7 @@ internal static class ServiceManager
         HrtDataManager = new HrtDataManager(PluginInterface);
         TaskManager = new TaskManager();
         ConnectorPool = new ConnectorPool(TaskManager, Logger);
-        CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList);
+        CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList, ClientState);
         ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider);
         OwnCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.ClientState, DalamudServices.Framework);
         ConfigManager = new ConfigurationManager(pluginInterface);
