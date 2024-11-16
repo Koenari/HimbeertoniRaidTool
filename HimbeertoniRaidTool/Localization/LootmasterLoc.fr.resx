@@ -291,9 +291,6 @@
   <data name="Ui_text_emptyPlayer">
     <value>Aucun·e joueur·se</value>
   </data>
-  <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
-        <value>Équipement supplémentaire</value>
-    </data>
   <data name="Ui_text_openLootSessioon" xml:space="preserve">
         <value>Distribuer le butin pour :</value>
     </data>
