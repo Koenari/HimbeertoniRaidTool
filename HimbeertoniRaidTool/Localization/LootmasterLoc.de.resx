@@ -343,9 +343,6 @@
   <data name="Ui_text_emptyPlayer">
     <value>Kein Spieler</value>
   </data>
-  <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
-        <value>Zusätzliche Ausrüstung</value>
-    </data>
   <data name="Ui_btn_addPlayerFromTarget_tt" xml:space="preserve">
         <value>Mit Daten des Ziels ({0}) füllen</value>
     </data>
