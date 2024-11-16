@@ -234,9 +234,6 @@
   <data name="Ui_text_emptyPlayer">
     <value>プレイヤーなし</value>
   </data>
-  <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
-        <value>追加の装備品</value>
-    </data>
   <data name="Ui_text_openLootSessioon" xml:space="preserve">
         <value>戦利品の配布先：</value>
     </data>
