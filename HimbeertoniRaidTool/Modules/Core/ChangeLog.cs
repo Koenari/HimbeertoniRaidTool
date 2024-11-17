@@ -16,6 +16,7 @@ public class ChangeLog
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New layout for the stats"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Overhauled item tooltips"),
                 new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New layout for inventory/wallet"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Show gearset origin in selection dropdown"),
             },
             KnownIssues =
             {

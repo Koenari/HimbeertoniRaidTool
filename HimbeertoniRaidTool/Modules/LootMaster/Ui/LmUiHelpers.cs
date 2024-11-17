@@ -53,8 +53,11 @@ internal static class LmUiHelpers
         {
             foreach (var curJobGearSet in list)
             {
-                if (ImGui.Selectable($"{curJobGearSet}##{curJobGearSet.LocalId}"))
+                ImGui.PushStyleColor(ImGuiCol.Text, curJobGearSet.ManagedBy.TextColor());
+                if (ImGui.Selectable(
+                        $"{curJobGearSet} - {curJobGearSet.ManagedBy.FriendlyName()}##{curJobGearSet.LocalId}"))
                     changeCallback(curJobGearSet);
+                ImGui.PopStyleColor();
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_Add_new))
             {
