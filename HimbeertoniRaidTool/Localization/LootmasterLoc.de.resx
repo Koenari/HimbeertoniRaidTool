@@ -149,9 +149,6 @@
   <data name="ConfigUi_txt_currentPrio">
     <value>Aktuelle Priorität</value>
   </data>
-  <data name="Ui_btn_tt_inventory">
-    <value>Lootmaster-Inventar öffnen</value>
-  </data>
   <data name="Ui_btn_tt_quickCompare">
     <value>Ausrüstung schnell vergleichen</value>
   </data>
