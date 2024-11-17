@@ -24,7 +24,7 @@ internal class CoreModule : IHrtModule
         WindowSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
         _changelog = new ChangeLog(this, new ChangelogOptionsWrapper(_config));
-        foreach (HrtCommand command in InternalCommands)
+        foreach (var command in InternalCommands)
         {
             AddCommand(command);
         }
@@ -108,12 +108,12 @@ internal class CoreModule : IHrtModule
             return;
         }
 
-        SeStringBuilder stringBuilder = new SeStringBuilder()
-                                        .AddUiForeground("[Himbeertoni Raid Tool]", 45)
-                                        .AddUiForeground("[Help]", 62)
-                                        .AddText(CoreLoc.Chat_help_heading)
-                                        .Add(new NewLinePayload());
-        foreach (HrtCommand c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
+        var stringBuilder = new SeStringBuilder()
+                            .AddUiForeground("[Himbeertoni Raid Tool]", 45)
+                            .AddUiForeground("[Help]", 62)
+                            .AddText(CoreLoc.Chat_help_heading)
+                            .Add(new NewLinePayload());
+        foreach (var c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
         {
             stringBuilder
                 .AddUiForeground($"/hrt {c.Command[1..]}", 37)
@@ -181,7 +181,7 @@ internal class CoreModule : IHrtModule
     private void OnConfigChange()
     {
         HrtWindow.SetConfig(new UiConfig(_config.Data.HideInCombat));
-        UpdateGearDataProviderConfig();
+        ServiceManager.TaskManager.RunOnFrameworkThread(UpdateGearDataProviderConfig);
     }
     private void UpdateGearDataProviderConfig()
     {

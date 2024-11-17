@@ -47,7 +47,7 @@ internal static class ServiceManager
         Common.Services.ServiceManager.Init(DataManager.Excel, pluginInterface.UiLanguage);
         IconCache = new IconCache(DalamudServices.TextureProvider);
         HrtDataManager = new HrtDataManager(PluginInterface);
-        TaskManager = new TaskManager();
+        TaskManager = new TaskManager(DalamudServices.Framework);
         ConnectorPool = new ConnectorPool(TaskManager, Logger);
         CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList, ClientState);
         ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider);

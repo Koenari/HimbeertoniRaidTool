@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using Lumina.Excel.Sheets;
