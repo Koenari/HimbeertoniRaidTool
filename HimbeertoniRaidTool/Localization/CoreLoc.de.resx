@@ -116,6 +116,9 @@
   <data name="UiMessage_PeriodicSaveSuccessful">
     <value>Daten erfolgreich gespeichert</value>
   </data>
+  <data name="ConfigUi_hdg_externalUpdates" xml:space="preserve">
+        <value>{0} Aktualisierungen</value>
+    </data>
   <data name="WelcomeUi_text">
     <value>Willkommen zum Himbeertoni Raid Tool. Dein Begleiter beim verwalten deiner Raid
             Gruppe. Starte am besten, indem du den LootMaster öffnest, tippe dazu "/lootmaster"
@@ -139,6 +142,12 @@
   </data>
   <data name="WelcomeUi_Title">
     <value>Willkommen zum Himbeertoni Raid Tool</value>
+  </data>
+  <data name="ConfigUi_cb_extAutoUpdate">
+    <value>Ausrüstungssets von {0} regelmäßig aktualisieren</value>
+  </data>
+  <data name="ConfigUi_in_externalUpdateInterval">
+    <value>Aktualisierungsintervall (in Tagen)</value>
   </data>
   <data name="ConfigUi_hdg_changelog" xml:space="preserve">
         <value>Changelog Optionen</value>
