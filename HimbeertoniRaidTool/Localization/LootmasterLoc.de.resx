@@ -150,7 +150,7 @@
     <value>Aktuelle Priorität</value>
   </data>
   <data name="Ui_btn_tt_inventory">
-    <value>Lootmaster-Inventar öffnen</value>
+    <value>Inventar/Geldbeutel anzeigen</value>
   </data>
   <data name="Ui_btn_tt_quickCompare">
     <value>Ausrüstung schnell vergleichen</value>
@@ -333,10 +333,6 @@
   <data name="Ui_txt_noJobs" xml:space="preserve">
         <value>Keine Jobs erstellt</value>
     </data>
-  <data name="Ui_btn_tt_etroUpdate" xml:space="preserve">
-        <value>Aktualisiere {0} ({1}) von etro.gg</value>
-        <comment>{0} name {1} etroId</comment>
-    </data>
   <data name="InventoryUi_Title" xml:space="preserve">
         <value>Inventar von {0}</value>
     </data>
@@ -344,7 +340,7 @@
     <value>Kein Spieler</value>
   </data>
   <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
-        <value>Zusätzliche Ausrüstung</value>
+        <value>Relevante Ausrüstung (nicht ausgerüstet)</value>
     </data>
   <data name="Ui_btn_addPlayerFromTarget_tt" xml:space="preserve">
         <value>Mit Daten des Ziels ({0}) füllen</value>
@@ -398,5 +394,26 @@
     </data>
   <data name="command_toggle_helpText" xml:space="preserve">
         <value>Öffnet/Schließt das Loot Master Fenster</value>
+    </data>
+  <data name="ItemTooltip_hdg_Equipped" xml:space="preserve">
+        <value>Ausgerüstet</value>
+    </data>
+  <data name="ItemTooltip_hdg_bis" xml:space="preserve">
+        <value>Best in Slot</value>
+    </data>
+  <data name="ConfigUi_CharNameFormat_ns" xml:space="preserve">
+        <value>Name + Server</value>
+    </data>
+  <data name="ConfigUi_CharNameFormat_n" xml:space="preserve">
+        <value>Nur Name</value>
+    </data>
+  <data name="ConfigUi_CharNameFormat_is" xml:space="preserve">
+        <value>Initialen + Server</value>
+    </data>
+  <data name="ConfigUi_CharNameFormat_i" xml:space="preserve">
+        <value>Nur Initialen</value>
+    </data>
+  <data name="ConfigUi_CharNameFormat_a" xml:space="preserve">
+        <value>Zensiert</value>
     </data>
 </root>
