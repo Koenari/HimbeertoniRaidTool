@@ -891,7 +891,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open inventory window.
+        ///   Looks up a localized string similar to Show Inventory/Wallet.
         /// </summary>
         internal static string Ui_btn_tt_inventory {
             get {

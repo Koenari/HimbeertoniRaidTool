@@ -51,7 +51,7 @@ internal static class LmUiHelpers
         ImGui.SetNextItemWidth(width);
         if (ImGui.BeginCombo($"##{id}", $"{current}", ImGuiComboFlags.NoArrowButton))
         {
-            foreach (GearSet curJobGearSet in list)
+            foreach (var curJobGearSet in list)
             {
                 if (ImGui.Selectable($"{curJobGearSet}##{curJobGearSet.LocalId}"))
                     changeCallback(curJobGearSet);
@@ -84,9 +84,9 @@ internal static class LmUiHelpers
         float cursorSingleLarge = originalY + fullLineHeight * 0.7f + lineSpacing;
         bool extended = style.HasFlag(SlotDrawFlags.ExtendedView);
         bool singleItem = style.HasFlag(SlotDrawFlags.SingleItem);
-        ItemComparisonMode comparisonMode = config.IgnoreMateriaForBiS
+        var comparisonMode = config.IgnoreMateriaForBiS
             ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full;
-        (GearItem? item, GearItem? bis) = itemTuple;
+        var (item, bis) = itemTuple;
         if (!item.Filled && !bis.Filled)
             return;
         if (singleItem || item.Filled && bis.Filled && item.Equals(bis, comparisonMode))
@@ -117,14 +117,17 @@ internal static class LmUiHelpers
             {
                 ImGui.BeginTooltip();
                 if (item.Filled && bis.Filled)
-                    ImGui.Columns(2);
-                ImGui.TextColored(Colors.TextPetrol, LootmasterLoc.ItemTooltip_hdg_Equipped);
-                item.Draw();
-                if (item.Filled && bis.Filled)
-                    ImGui.NextColumn();
-                ImGui.TextColored(Colors.TextPetrol, LootmasterLoc.ItemTooltip_hdg_bis);
-                bis.Draw();
-                ImGui.Columns();
+                    itemTuple.Draw();
+                else if (item.Filled)
+                {
+                    ImGui.TextColored(Colors.TextPetrol, LootmasterLoc.ItemTooltip_hdg_Equipped);
+                    item.Draw();
+                }
+                else
+                {
+                    ImGui.TextColored(Colors.TextPetrol, LootmasterLoc.ItemTooltip_hdg_bis);
+                    bis.Draw();
+                }
                 ImGui.EndTooltip();
             }
         }
@@ -166,13 +169,13 @@ internal static class LmUiHelpers
                                      IReadOnlyGearSet right, string leftHeader, string diffHeader, string rightHeader,
                                      StatTableCompareMode compareMode = StatTableCompareMode.Default)
     {
-        IStatEquations leftStats = left.GetStatEquations(curClass, tribe);
-        IStatEquations rightStats = right.GetStatEquations(curClass, tribe);
+        var leftStats = left.GetStatEquations(curClass, tribe);
+        var rightStats = right.GetStatEquations(curClass, tribe);
         bool doCompare = compareMode.HasFlag(StatTableCompareMode.DoCompare);
-        Job curJob = curClass.Job;
-        Role curRole = curJob.GetRole();
-        StatType mainStat = curJob.MainStat();
-        StatType weaponStat = curRole is Role.Healer or Role.Caster ? StatType.MagicalDamage
+        var curJob = curClass.Job;
+        var curRole = curJob.GetRole();
+        var mainStat = curJob.MainStat();
+        var weaponStat = curRole is Role.Healer or Role.Caster ? StatType.MagicalDamage
             : StatType.PhysicalDamage;
         BeginAndSetupTable("##MainStats", LootmasterLoc.StatTable_MainStats_Title);
         DrawStatRow(weaponStat, "WeaponDamage",

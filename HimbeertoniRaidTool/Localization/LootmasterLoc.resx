@@ -156,7 +156,7 @@
         <value>Current priority</value>
     </data>
     <data name="Ui_btn_tt_inventory">
-        <value>Open inventory window</value>
+        <value>Show Inventory/Wallet</value>
     </data>
     <data name="Ui_btn_tt_quickCompare">
         <value>Quickly compare gear</value>

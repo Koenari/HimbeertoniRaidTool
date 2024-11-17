@@ -8,6 +8,20 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 7, 0, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(General, "Updated for 7.1"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New layout for the stats"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Overhauled item tooltips"),
+                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New layout for inventory/wallet"),
+            },
+            KnownIssues =
+            {
+                new ChangeLogEntry(KnownIssues, "Previous wallet and inventory data is lost"),
+            },
+        },
         new(new Version(1, 6, 2, 10))
         {
             NotableFeatures =
