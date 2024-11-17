@@ -10,5 +10,16 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      New Feature: Automatically switch character in solo tab to currently logged in one
-      Bugfix: Ignoring lower ilvl gear works again
+      New Feature: Gearsets can have an alias. If an alias is set it is shown instead of the name in the Ui
+        This is editable even for sets from etro or XivGearApp
+      User Interface: Gearset origin is now shown in selection dropdown
+      General: Updated for 7.1
+      User Interface: New layout for the stats
+      User Interface: Overhauled item tooltips
+      Bugfix: Deleted sets get correctly removed from the gear/bis list
+      BiS: Update gear set buttons now work for XivGearApp (like they did for etro)
+      User Interface: Searching gear from database now actually shows useful information
+      User Interface: New layout for inventory/wallet
+      User Interface: Job selection buttons are bigger to have enough space for level 100 jobs
+  Known Issues:
+      Known Issue: Previous wallet and inventory data is lost
