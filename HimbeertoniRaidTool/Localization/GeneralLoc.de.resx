@@ -172,6 +172,9 @@
             Nur lokale Ausrüstungssets können bearbeitet werden
         </value>
   </data>
+  <data name="CommonTerms_ExternalID">
+    <value>ID</value>
+  </data>
   <data name="EditUi_Txt_LocalId">
     <value>Lokale ID</value>
   </data>
@@ -304,6 +307,10 @@
   <data name="EtroConnector_GetGearSet_RelicError" xml:space="preserve">
         <value>Relikt Ausrüstung für Slot {0} wird nicht unterstützt</value>
     </data>
+  <data name="Connector_UpdateAllSets_Finished" xml:space="preserve">
+        <value>Periodische {2} Updates abgeschlossen. ({0}/{1}) aktualisiert</value>
+        <comment>{0} = number updated {1} = total {2} = service</comment>
+    </data>
   <data name="GetCharacterWindow_Title" xml:space="preserve">
         <value>Charakter von Datenbank abrufen</value>
     </data>
@@ -319,6 +326,15 @@
     </data>
   <data name="EditCharUi_text_BisNotice" xml:space="preserve">
         <value>BiS Sets werden nun durch direkte Bearbeitung der jeweiligen BiS Sets geändert</value>
+    </data>
+  <data name="EditGearSetUi_text_getEtroBis" xml:space="preserve">
+        <value>Durch etro.gg Bis Set ersetzen</value>
+    </data>
+  <data name="EditGearSetUi_btn_GetExternal" xml:space="preserve">
+        <value>Ersetzen</value>
+    </data>
+  <data name="EditGearSetUi_btn_tt_GetExternal" xml:space="preserve">
+        <value>Herunterladen und aktulles Set ersezen</value>
     </data>
   <data name="EditGearSetUi_btn_tt_cutsomEtro" xml:space="preserve">
         <value>Herunterladen</value>
@@ -401,6 +417,9 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
         <value>{0} {1} bearbeiten</value>
         <comment>{0} type {1} name eg. Edit player Toni</comment>
     </data>
+  <data name="EditGearSetUi_txt_job" xml:space="preserve">
+        <value>Ausrüstungsset ist für folgenden Job bestimmt:</value>
+    </data>
   <data name="SearchWindow_btn_tt_SelectEnty" xml:space="preserve">
         <value>{0} {1} auswählen</value>
     </data>
@@ -410,5 +429,25 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
     </data>
   <data name="CommonTerms_All" xml:space="preserve">
         <value>Alle</value>
+    </data>
+  <data name="CommonTerms_Difference" xml:space="preserve">
+        <value>Unterschied</value>
+    </data>
+  <data name="InventoryWindow_Hdg_Current_Savage_Books" xml:space="preserve">
+        <value>Aktuelle Savage Bücher</value>
+    </data>
+  <data name="Ui_btn_tt_XivGearUpdate" xml:space="preserve">
+        <value>Aktualisiere {0} ({1}) von XivGear.app</value>
+        <comment>{0} name {1} id</comment>
+    </data>
+  <data name="Ui_btn_tt_UpdateFrmEtro">
+    <value>Aktualisiere "{0}" von etro.gg</value>
+  </data>
+  <data name="Ui_btn_tt_etroUpdate" xml:space="preserve">
+        <value>Aktualisiere {0} ({1}) von etro.gg</value>
+        <comment>{0} name {1} etroId</comment>
+    </data>
+  <data name="XivGearAppConnector_GetGearSet_Success" xml:space="preserve">
+        <value>Update von XivGear.app für {0} erfolgreich</value>
     </data>
 </root>
