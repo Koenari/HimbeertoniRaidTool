@@ -61,7 +61,7 @@ internal static class LmUiHelpers
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_Add_new))
             {
-                addWindow(EditWindowFactory.Create(new GearSet(), changeCallback, null, job));
+                addWindow(EditWindowFactory.Create(new GearSet(), changeCallback, null, null, job));
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_AddFromDB))
             {

@@ -13,10 +13,16 @@ public class ChangeLog
             NotableFeatures =
             {
                 new ChangeLogEntry(General, "Updated for 7.1"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New layout for the stats"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Overhauled item tooltips"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New layout for inventory/wallet"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Show gearset origin in selection dropdown"),
+                new ChangeLogEntry(UserInterface, "New layout for the stats"),
+                new ChangeLogEntry(UserInterface, "Overhauled item tooltips"),
+                new ChangeLogEntry(UserInterface, "New layout for inventory/wallet"),
+                new ChangeLogEntry(UserInterface, "Show gearset origin in selection dropdown"),
+                new ChangeLogEntry(Bugfix, "Deleted sets get correctly removed from the gear/bis list"),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(UserInterface,
+                                   "Job selection buttons are bigger to have enough space for level 100 jobs"),
             },
             KnownIssues =
             {
@@ -50,12 +56,12 @@ public class ChangeLog
         {
             NotableFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui,
+                new ChangeLogEntry(UserInterface,
                                    "You can now adjust the way character names are displayed (see config)"),
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Make all buttons accessible in smaller windows"),
+                new ChangeLogEntry(UserInterface, "Make all buttons accessible in smaller windows"),
             },
         },
         new(new Version(1, 6, 2, 7))
@@ -108,7 +114,7 @@ public class ChangeLog
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added headlines to multi item tooltips"),
+                new ChangeLogEntry(UserInterface, "Added headlines to multi item tooltips"),
             },
         },
         new(new Version(1, 6, 2, 0))
@@ -146,9 +152,9 @@ public class ChangeLog
             {
                 new ChangeLogEntry(ChangeLogEntryCategory.System,
                                    "Changes to data storage (drops support for data from versions < 1.4.0)"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New interface for searching characters from database"),
+                new ChangeLogEntry(UserInterface, "New interface for searching characters from database"),
                 new ChangeLogEntry(General, "Fix \"Dmg\" Calc being slightly off"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Some minor Ui improvements"),
+                new ChangeLogEntry(UserInterface, "Some minor Ui improvements"),
             },
         },
         new(new Version(1, 5, 2, 6))
@@ -156,7 +162,7 @@ public class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(Bugfix, "Fixes being unable to add new gear sets"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui,
+                new ChangeLogEntry(UserInterface,
                                    "Add job selection (for BiS and item selection) to gear set edit user interface"),
             },
         },
@@ -198,7 +204,7 @@ public class ChangeLog
             NotableFeatures =
             {
                 new ChangeLogEntry(Bis, "Add support for relic weapons in etro.gg sets"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added ability to change relic stats when editing gear"),
+                new ChangeLogEntry(UserInterface, "Added ability to change relic stats when editing gear"),
                 new ChangeLogEntry(General,
                                    "You can now specify which types of jobs get automatically updated/created.\n"
                                  + "If you want single jobs to not show up, you can hide these in character edit"),
@@ -232,9 +238,8 @@ public class ChangeLog
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Made it more pretty"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui,
-                                   "You can now hide jobs (select classes when editing a character)"),
+                new ChangeLogEntry(UserInterface, "Made it more pretty"),
+                new ChangeLogEntry(UserInterface, "You can now hide jobs (select classes when editing a character)"),
                 new ChangeLogEntry(General, "Correctly handle materia for previous expansions"),
             },
         },
@@ -276,7 +281,7 @@ public class ChangeLog
             {
                 new ChangeLogEntry(NewFeature,
                                    "You can now track multiple characters per player"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Reworked group view to improve user experience")
+                new ChangeLogEntry(UserInterface, "Reworked group view to improve user experience")
                 {
                     BulletPoints =
                     {
@@ -288,7 +293,7 @@ public class ChangeLog
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Reworked windows for editing players and characters"),
+                new ChangeLogEntry(UserInterface, "Reworked windows for editing players and characters"),
                 new ChangeLogEntry(Bugfix, "Corrected behaviour when deleting main job"),
             },
         },
@@ -324,14 +329,14 @@ public class ChangeLog
         {
             NotableFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui,
+                new ChangeLogEntry(UserInterface,
                                    "You can now manage jobs directly in solo and detail view"),
                 new ChangeLogEntry(LootSession,
                                    "You can ignore players/jobs based on certain rules"),
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Old Examine button is now Quick Compare"),
+                new ChangeLogEntry(UserInterface, "Old Examine button is now Quick Compare"),
                 new ChangeLogEntry(Bugfix, "Fixed loot rule \"Can Buy\""),
                 new ChangeLogEntry(Options, "Reworked Ui for loot rules"),
                 new ChangeLogEntry(Lootmaster,
@@ -386,7 +391,7 @@ public class ChangeLog
                 new ChangeLogEntry(LootSession, "Removed manually curated DPS for players"),
                 new ChangeLogEntry(ChangeLogEntryCategory.System,
                                    "Properly handle local and etro.gg sets (Etro sets cannot be edited and need to be converted to local to edit)"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Slightly reworked Ui for editing gear"),
+                new ChangeLogEntry(UserInterface, "Slightly reworked Ui for editing gear"),
                 new ChangeLogEntry(General, "You can now edit the names of gear sets"),
             },
         },
@@ -406,7 +411,7 @@ public class ChangeLog
                                    "Multiple characters unintentionally sharing gear sets", 124),
                 new ChangeLogEntry(LootSession,
                                    "Rings can now be assigned to a slot explicitly"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added button to update BiS in group overview"),
+                new ChangeLogEntry(UserInterface, "Added button to update BiS in group overview"),
                 new ChangeLogEntry(Bis, "Always update empty sets (with valid ID) at startup"),
             },
         },
@@ -508,7 +513,7 @@ public enum ChangeLogEntryCategory
     NewFeature,
     Bugfix,
     Options,
-    Ui,
+    UserInterface,
     Lootmaster,
     LootSession,
     Bis,

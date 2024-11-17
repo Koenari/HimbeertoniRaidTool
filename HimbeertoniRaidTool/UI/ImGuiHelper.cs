@@ -28,6 +28,11 @@ public static class ImGuiHelper
     public static bool CloseButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
         => Button(FontAwesomeIcon.WindowClose, "##close", tooltip ?? GeneralLoc.General_btn_tt_close, enabled,
                   size ?? new Vector2(50f, 25f));
+    public static bool DeleteButton<T>(T data, bool enabled = true, Vector2? size = null)
+        where T : IHrtDataType =>
+        GuardedButton(FontAwesomeIcon.Eraser, "##delete",
+                      string.Format(GeneralLoc.General_btn_tt_delete, data.DataTypeName, data.Name), enabled,
+                      size ?? new Vector2(50f, 25f));
     public static bool EditButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
         where T : IHrtDataType
         => Button(FontAwesomeIcon.Edit, id, string.Format(GeneralLoc.General_btn_tt_edit, data.DataTypeName, ""),

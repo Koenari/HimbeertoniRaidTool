@@ -1,8 +1,6 @@
 ﻿using System.Numerics;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
-using Dalamud.Interface.Internal;
-using Dalamud.Interface.Textures.TextureWraps;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
@@ -33,8 +31,8 @@ internal class LootmasterUi : HrtWindow
     internal int CurrentGroupIndex { get; private set; }
     private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurrentGroupIndex];
     //private GameExpansion ActiveExpansion => CurConfig.ActiveExpansion;
-    protected Vector2 ButtonSize => _buttonSize * ScaleFactor;
-    protected Vector2 ButtonSizeVertical => _buttonSizeVertical * ScaleFactor;
+    private Vector2 ButtonSize => _buttonSize * ScaleFactor;
+    private Vector2 ButtonSizeVertical => _buttonSizeVertical * ScaleFactor;
 
     private bool AddChild(HrtWindow? child)
     {
@@ -104,9 +102,9 @@ internal class LootmasterUi : HrtWindow
         /*
          * Job Selection
          */
+        ImGui.Spacing();
         ImGui.Text($"{p.NickName} : {string.Format($"{{0:{CurConfig.CharacterNameFormat}}}", p.MainChar)}");
         ImGui.SameLine();
-
         ImGuiHelper.GearUpdateButtons(p, _lootMaster, true);
         ImGui.SameLine();
         if (ImGuiHelper.EditButton(p, $"##EditPlayer{p.NickName}"))
@@ -139,7 +137,7 @@ internal class LootmasterUi : HrtWindow
                 ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
             ImGui.SameLine();
             if (ImGuiHelper.Button($"{playableClass.Job} ({playableClass.Level:D2})", null, true,
-                                   new Vector2(62f * ScaleFactor, 0f)))
+                                   new Vector2(67f * ScaleFactor, 0f)))
                 p.MainChar.MainJob = playableClass.Job;
             if (isMainJob)
                 ImGui.PopStyleColor();
@@ -155,7 +153,9 @@ internal class LootmasterUi : HrtWindow
                                          AddChild, playableClass.Job, comboWidth);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(playableClass.CurGear, "##editGear"))
-                AddChild(EditWindowFactory.Create(playableClass.CurGear, g => playableClass.CurGear = g));
+                AddChild(EditWindowFactory.Create(playableClass.CurGear, g => playableClass.CurGear = g, () => { },
+                                                  () => playableClass.RemoveGearSet(playableClass.CurGear),
+                                                  playableClass.Job));
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, "##quickCompare",
                                    LootmasterLoc.PlayerDetail_button_quickCompare))
@@ -171,7 +171,9 @@ internal class LootmasterUi : HrtWindow
                                          AddChild, playableClass.Job, comboWidth);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(playableClass.CurBis, "##editBIS"))
-                AddChild(EditWindowFactory.Create(playableClass.CurBis, g => playableClass.CurBis = g));
+                AddChild(EditWindowFactory.Create(playableClass.CurBis, g => playableClass.CurBis = g, () => { },
+                                                  () => playableClass.RemoveBisSet(playableClass.CurBis),
+                                                  playableClass.Job));
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.CurBis.ExternalId,
                                    string.Format(LootmasterLoc.Ui_btn_tt_UpdateFrmEtro, playableClass.CurBis.Name),
@@ -192,6 +194,7 @@ internal class LootmasterUi : HrtWindow
          * Stat Table
          */
         ImGui.NextColumn();
+        ImGui.Spacing();
         if (ImGui.BeginChild("##statsChild"))
         {
 
@@ -209,6 +212,7 @@ internal class LootmasterUi : HrtWindow
          * Show Gear
          */
         ImGui.NextColumn();
+        ImGui.Spacing();
         if (ImGui.BeginChild("##soloGearChild"))
         {
             if (ImGui.BeginTable("##soloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders))
@@ -461,7 +465,8 @@ internal class LootmasterUi : HrtWindow
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualTopRowY);
                 if (ImGuiHelper.EditButton(gear, "##editCurGear", true, ButtonSize))
-                    AddChild(EditWindowFactory.Create(gear, g => curJob.CurGear = g, null, curJob.Job));
+                    AddChild(EditWindowFactory.Create(gear, g => curJob.CurGear = g, null,
+                                                      () => curJob.RemoveGearSet(curJob.CurGear), curJob.Job));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualTopRowY);
                 ImGuiHelper.GearUpdateButtons(player, _lootMaster, false, ButtonSize);
@@ -475,7 +480,8 @@ internal class LootmasterUi : HrtWindow
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualBottomRowY);
                 if (ImGuiHelper.EditButton(bis, "##editBiSGear", true, ButtonSize))
-                    AddChild(EditWindowFactory.Create(bis, g => curJob.CurBis = g, null, curJob.Job));
+                    AddChild(EditWindowFactory.Create(bis, g => curJob.CurBis = g, null,
+                                                      () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualBottomRowY);
                 if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.ExternalId,
