@@ -339,10 +339,6 @@
     <data name="Ui_txt_noJobs" xml:space="preserve">
         <value>No jobs created</value>
     </data>
-    <data name="Ui_btn_tt_etroUpdate" xml:space="preserve">
-        <value>Update {0} ({1}) from etro</value>
-        <comment>{0} name {1} etroId</comment>
-    </data>
     <data name="InventoryUi_Title" xml:space="preserve">
         <value>{0}'s inventory</value>
     </data>

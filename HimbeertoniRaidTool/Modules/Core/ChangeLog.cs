@@ -19,6 +19,7 @@ public class ChangeLog
                 new ChangeLogEntry(UserInterface, "Overhauled item tooltips"),
                 new ChangeLogEntry(UserInterface, "Show gearset origin in selection dropdown"),
                 new ChangeLogEntry(Bugfix, "Deleted sets get correctly removed from the gear/bis list"),
+                new ChangeLogEntry(Gear, "Update gear set buttons now work for XivGearApp (like they did for etro)"),
             },
             MinorFeatures =
             {

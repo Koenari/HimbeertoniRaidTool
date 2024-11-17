@@ -150,6 +150,43 @@ public static class ImGuiHelper
             return false;
         }
     }
+
+    public static bool ExternalGearUpdateButton(GearSet set, IHrtModule module, Vector2 size = default)
+    {
+        bool result;
+        ImGui.PushID(set.LocalId.ToString());
+        switch (set.ManagedBy)
+        {
+            case GearSetManager.Etro:
+                result = Button(FontAwesomeIcon.Download, set.ExternalId,
+                                string.Format(GeneralLoc.Ui_btn_tt_etroUpdate, set.Name, set.ExternalId),
+                                set is { ManagedBy: GearSetManager.Etro, ExternalId.Length: > 0 }, size);
+                if (result)
+                    ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(
+                        set, module.HandleMessage,
+                        string.Format(GeneralLoc.Ui_btn_tt_etroUpdate, set.Name, set.ExternalId));
+                break;
+            case GearSetManager.XivGear:
+                result = Button(FontAwesomeIcon.Download, set.ExternalId,
+                                string.Format(GeneralLoc.Ui_btn_tt_XivGearUpdate, set.Name, set.ExternalId),
+                                set is { ManagedBy: GearSetManager.XivGear, ExternalId.Length: > 0 }, size);
+                if (result)
+                    ServiceManager.ConnectorPool.XivGearAppConnector.RequestGearSetUpdate(
+                        set, module.HandleMessage,
+                        string.Format(GeneralLoc.Ui_btn_tt_XivGearUpdate, set.Name, set.ExternalId));
+                break;
+            case GearSetManager.Hrt:
+            default:
+                result = Button(FontAwesomeIcon.Download, set.ExternalId,
+                                "This set is not managed by an external service",
+                                false, size);
+                result = false;
+                break;
+        }
+        ;
+        ImGui.PopID();
+        return result;
+    }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void AddTooltip(string tooltip)
     {

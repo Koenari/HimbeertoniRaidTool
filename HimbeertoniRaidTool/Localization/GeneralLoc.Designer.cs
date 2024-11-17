@@ -895,6 +895,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Update {0} ({1}) from etro.
+        /// </summary>
+        internal static string Ui_btn_tt_etroUpdate {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_etroUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Download Gear from Lodestone.
         /// </summary>
         internal static string Ui_btn_tt_Lodestone {
@@ -909,6 +918,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string Ui_btn_tt_removeFrom {
             get {
                 return ResourceManager.GetString("Ui_btn_tt_removeFrom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update &quot;{0}&quot; from Etro.gg.
+        /// </summary>
+        internal static string Ui_btn_tt_UpdateFrmEtro {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_UpdateFrmEtro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update &quot;{0}&quot; ({1}) from XivGear.app.
+        /// </summary>
+        internal static string Ui_btn_tt_XivGearUpdate {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_XivGearUpdate", resourceCulture);
             }
         }
         
@@ -945,6 +972,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string XivGearAppConnector_GetGearSet_Error {
             get {
                 return ResourceManager.GetString("XivGearAppConnector_GetGearSet_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update from XivGear.app for {0} succeeded.
+        /// </summary>
+        internal static string XivGearAppConnector_GetGearSet_Success {
+            get {
+                return ResourceManager.GetString("XivGearAppConnector_GetGearSet_Success", resourceCulture);
             }
         }
     }

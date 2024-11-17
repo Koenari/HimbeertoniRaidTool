@@ -175,15 +175,7 @@ internal class LootmasterUi : HrtWindow
                                                   () => playableClass.RemoveBisSet(playableClass.CurBis),
                                                   playableClass.Job));
             ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Download, playableClass.CurBis.ExternalId,
-                                   string.Format(LootmasterLoc.Ui_btn_tt_UpdateFrmEtro, playableClass.CurBis.Name),
-                                   playableClass.CurBis is { ManagedBy: GearSetManager.Etro, ExternalId.Length: > 0 }))
-                Services.ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(playableClass.CurBis,
-                    HandleMessage,
-                    string.Format(
-                        LootmasterLoc.Ui_btn_tt_etroUpdate,
-                        playableClass.CurBis.Name,
-                        playableClass.CurBis.ExternalId));
+            ImGuiHelper.ExternalGearUpdateButton(playableClass.CurBis, _lootMaster);
             ImGui.Spacing();
             ImGui.PopID();
         }
@@ -484,13 +476,7 @@ internal class LootmasterUi : HrtWindow
                                                       () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualBottomRowY);
-                if (ImGuiHelper.Button(FontAwesomeIcon.Download, bis.ExternalId,
-                                       string.Format(LootmasterLoc.Ui_btn_tt_etroUpdate,
-                                                     bis.Name, bis.ExternalId),
-                                       bis is { ManagedBy: GearSetManager.Etro, ExternalId.Length: > 0 }, ButtonSize))
-                    Services.ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(bis, HandleMessage,
-                        string.Format(LootmasterLoc.Ui_btn_tt_etroUpdate, bis.Name,
-                                      bis.ExternalId));
+                ImGuiHelper.ExternalGearUpdateButton(bis, _lootMaster, ButtonSize);
                 ImGui.PopID();
                 foreach (var (slot, itemTuple) in curJob.ItemTuples)
                 {
