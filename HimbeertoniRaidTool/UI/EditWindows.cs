@@ -619,7 +619,14 @@ public static class EditWindowFactory
             ImGui.BeginDisabled(DataCopy.IsManagedExternally);
             ImGui.Text($"{GeneralLoc.CommonTerms_Name}: ");
             ImGui.SameLine();
-            ImGui.InputText("", ref DataCopy.Name, 100);
+            ImGui.InputText("##name", ref DataCopy.Name, 100);
+            ImGui.EndDisabled();
+            ImGui.Text("Local alias: ");
+            ImGui.SameLine();
+            string alias = DataCopy.Alias ?? "";
+            if (ImGui.InputText("##alias", ref alias, 100))
+                DataCopy.Alias = alias.IsNullOrWhitespace() ? null : alias;
+            ImGui.BeginDisabled(DataCopy.IsManagedExternally);
             ImGui.NewLine();
             //Gear slots
             if (ImGui.BeginTable("##GearEditTable", 2, ImGuiTableFlags.Borders))

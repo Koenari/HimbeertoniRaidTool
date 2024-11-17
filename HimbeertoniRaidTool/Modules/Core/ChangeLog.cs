@@ -13,14 +13,16 @@ public class ChangeLog
             NotableFeatures =
             {
                 new ChangeLogEntry(General, "Updated for 7.1"),
+                new ChangeLogEntry(
+                    Gear, "Gearset can have an alias. If set this is shown instead of the name in the Ui"),
                 new ChangeLogEntry(UserInterface, "New layout for the stats"),
                 new ChangeLogEntry(UserInterface, "Overhauled item tooltips"),
-                new ChangeLogEntry(UserInterface, "New layout for inventory/wallet"),
                 new ChangeLogEntry(UserInterface, "Show gearset origin in selection dropdown"),
                 new ChangeLogEntry(Bugfix, "Deleted sets get correctly removed from the gear/bis list"),
             },
             MinorFeatures =
             {
+                new ChangeLogEntry(UserInterface, "New layout for inventory/wallet"),
                 new ChangeLogEntry(UserInterface,
                                    "Job selection buttons are bigger to have enough space for level 100 jobs"),
             },
