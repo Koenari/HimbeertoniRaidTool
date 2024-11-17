@@ -24,11 +24,11 @@ public class LootSession
     {
         Instance = instance;
         RulingOptions = rulingOptions.Clone();
-        foreach (HrtItem item in Instance.PossibleItems)
+        foreach (var item in Instance.PossibleItems)
         {
             Loot.Add((item, 0));
         }
-        foreach (HrtItem item in instance.GuaranteedItems)
+        foreach (var item in instance.GuaranteedItems)
         {
             GuaranteedLoot[item] = false;
         }
@@ -57,7 +57,7 @@ public class LootSession
         if (Results.Count != NumLootItems && CurrentState < State.DistributionStarted)
         {
             Results.Clear();
-            foreach ((HrtItem item, int count) in Loot)
+            foreach ((var item, int count) in Loot)
             {
                 for (int i = 0; i < count; i++)
                 {
@@ -65,7 +65,7 @@ public class LootSession
                 }
             }
         }
-        foreach (LootResultContainer results in Results.Values)
+        foreach (var results in Results.Values)
         {
             results.Eval();
         }
@@ -93,15 +93,15 @@ public class LootSession
             return results;
         if (_group.Type == GroupType.Solo)
         {
-            Player player = _group.First();
-            foreach (PlayableClass job in player.MainChar.Where(j => !j.IsEmpty))
+            var player = _group.First();
+            foreach (var job in player.MainChar.Where(j => !j.IsEmpty))
             {
                 results.Add(new LootResult(this, player, possibleItems, droppedItem, job.Job));
             }
         }
         else
         {
-            foreach (Player player in Group.Where(p => p.Filled))
+            foreach (var player in Group.Where(p => p.Filled))
             {
                 if (excluded.Contains(player))
                     continue;
@@ -122,21 +122,10 @@ public class LootSession
         if (GuaranteedLoot[item] || CurrentState == State.Finished)
             return false;
         GuaranteedLoot[item] = true;
-        foreach (Player p in Group)
+        foreach (var p in Group)
         {
-            Inventory inv = p.MainChar.MainInventory;
-            int idx;
-            if (inv.Contains(item.Id))
-                idx = inv.IndexOf(item.Id);
-            else
-            {
-                idx = inv.FirstFreeSlot();
-                inv[idx] = new InventoryEntry(item)
-                {
-                    Quantity = 0,
-                };
-            }
-            inv[idx].Quantity++;
+            var inv = p.MainChar.MainInventory;
+            inv[inv.ReserveSlot(item)].Quantity++;
         }
         EvaluateFinished();
         return true;
@@ -153,11 +142,11 @@ public class LootSession
             slot = toAward.Slots.Skip(1).First();
         else
             slot = toAward.Slots.FirstOrDefault(GearSetSlot.None);
-        PlayableClass? c = Results[loot].AwardedTo?.ApplicableJob;
+        var c = Results[loot].AwardedTo?.ApplicableJob;
         if (c != null)
         {
             c.CurGear[slot] = toAward;
-            foreach (HrtMateria m in c.CurBis[slot].Materia)
+            foreach (var m in c.CurBis[slot].Materia)
             {
                 c.CurGear[slot].AddMateria(m);
             }
@@ -218,7 +207,7 @@ public class LootResult
         Player = p;
         Job = job ?? p.MainChar.MainJob ?? Job.ADV;
         DroppedItem = droppedItem;
-        PlayableClass? applicableJob = Player.MainChar[Job];
+        var applicableJob = Player.MainChar[Job];
         if (applicableJob == null)
         {
             applicableJob = Player.MainChar.AddClass(Job);
@@ -238,7 +227,7 @@ public class LootResult
     public void Evaluate()
     {
         CalcNeed();
-        foreach (LootRule rule in _session.RulingOptions.ActiveRules)
+        foreach (var rule in _session.RulingOptions.ActiveRules)
         {
             EvaluatedRules[rule] = rule.Eval(this);
         }
@@ -250,7 +239,7 @@ public class LootResult
             return LootRuling.Default;
         if (Category == LootCategory.Need && other.Category == LootCategory.Greed)
             return LootRuling.NeedOverGreed;
-        foreach (LootRule rule in _session.RulingOptions.ActiveRules)
+        foreach (var rule in _session.RulingOptions.ActiveRules)
         {
             if (EvaluatedRules[rule].val != other.EvaluatedRules[rule].val)
                 return rule;
@@ -261,7 +250,7 @@ public class LootResult
     {
         NeededItems.Clear();
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (GearItem item in ApplicableItems)
+        foreach (var item in ApplicableItems)
         {
             if (
                 //Always need if Bis and not acquired
@@ -327,7 +316,7 @@ public class LootResultContainer(LootSession session) : IReadOnlyList<LootResult
     {
         if (IsAwarded)
             return;
-        foreach (LootResult result in this)
+        foreach (var result in this)
         {
             result.Evaluate();
         }
@@ -351,7 +340,7 @@ internal class LootRulingComparer(IEnumerable<LootRule> rules) : IComparer<LootR
             return 0;
         if (x.Category - y.Category != 0)
             return x.Category - y.Category;
-        foreach (LootRule rule in rules)
+        foreach (var rule in rules)
         {
             float result = y.EvaluatedRules[rule].val - x.EvaluatedRules[rule].val;
             switch (result)

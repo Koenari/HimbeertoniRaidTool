@@ -34,7 +34,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
 
     public bool IsSheet(string id)
     {
-        HttpResponseMessage? httpResponse = MakeWebRequest(GEAR_API_BASE_URL + id);
+        var httpResponse = MakeWebRequest(GEAR_API_BASE_URL + id);
         if (httpResponse is null || !httpResponse.IsSuccessStatusCode) return false;
         var readTask = httpResponse.Content.ReadAsStringAsync();
         readTask.Wait();
@@ -48,7 +48,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
 
     public List<string> GetSetNames(string id)
     {
-        HttpResponseMessage? httpResponse = MakeWebRequest(GEAR_API_BASE_URL + id);
+        var httpResponse = MakeWebRequest(GEAR_API_BASE_URL + id);
         if (httpResponse is null || !httpResponse.IsSuccessStatusCode) return [];
         var readTask = httpResponse.Content.ReadAsStringAsync();
         readTask.Wait();
@@ -72,7 +72,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
         if (set.ExternalId.Equals(""))
             return errorMessage;
         errorMessage.Message = $"{errorMessage.Message} ({set.ExternalId})";
-        HttpResponseMessage? httpResponse = MakeWebRequest(GEAR_API_BASE_URL + set.ExternalId);
+        var httpResponse = MakeWebRequest(GEAR_API_BASE_URL + set.ExternalId);
         if (httpResponse == null)
             return errorMessage;
         if (httpResponse.StatusCode == HttpStatusCode.NotFound)
@@ -100,7 +100,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
         set.Name = xivSet.name ?? "";
         set.TimeStamp = DateTime.UtcNow;
         set.LastExternalFetchDate = DateTime.UtcNow;
-        HrtUiMessage successMessage = new(string.Format(GeneralLoc.EtroConnector_GetGearSet_Success, set.Name),
+        HrtUiMessage successMessage = new(string.Format(GeneralLoc.XivGearAppConnector_GetGearSet_Success, set.Name),
                                           HrtUiMessageType.Success);
         FillItem(xivSet.items["Weapon"], GearSetSlot.MainHand);
         FillItem(xivSet.items["Head"], GearSetSlot.Head);
@@ -123,7 +123,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
             {
                 IsHq = ServiceManager.ItemInfo.CanBeCrafted((uint)item.id),
             };
-            foreach (XivItem materia in item.materia)
+            foreach (var materia in item.materia)
             {
                 if (materia.id < 0) continue;
                 set[slot].AddMateria(new HrtMateria((uint)materia.id));
@@ -133,16 +133,16 @@ internal class XivGearAppConnector(TaskManager taskManager)
 
     internal HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays)
     {
-        DateTime oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
+        var oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
-        foreach (GearSet gearSet in ServiceManager.HrtDataManager.GearDb.GetValues()
-                                                  .Where(set => set.ManagedBy == GearSetManager.XivGear))
+        foreach (var gearSet in ServiceManager.HrtDataManager.GearDb.GetValues()
+                                              .Where(set => set.ManagedBy == GearSetManager.XivGear))
         {
             totalCount++;
             if (gearSet.IsEmpty || gearSet.LastExternalFetchDate < oldestValid && updateAll)
             {
-                HrtUiMessage message = UpdateGearSet(gearSet);
+                var message = UpdateGearSet(gearSet);
                 if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
                     ServiceManager.Logger.Error(message.Message);
                 if (message.MessageType is HrtUiMessageType.Warning)

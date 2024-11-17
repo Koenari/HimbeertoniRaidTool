@@ -1,12 +1,15 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class TaskManager : IDisposable
 {
+    private readonly IFramework _framework;
+
     private interface ITaskWrapper
     {
         public Task SystemTask { get; }
@@ -40,8 +43,9 @@ internal class TaskManager : IDisposable
     private readonly ConcurrentBag<PeriodicTask> _tasksOnMinute = new();
     private bool _disposedValue;
 
-    internal TaskManager()
+    internal TaskManager(IFramework framework)
     {
+        _framework = framework;
         _secondTimer = new Timer(OnSecondTimer, null, 1000, 1000);
         _taskTimer = new Timer(OnTaskTimer, null, 1000, 1000);
         _minuteTimer = new Timer(OnMinuteTimer, null, 1000, 60 * 1000);
@@ -50,9 +54,9 @@ internal class TaskManager : IDisposable
     private void OnTaskTimer(object? _)
     {
         if (_disposedValue || _tasksOnce.IsEmpty) return;
-        while (_tasksOnce.TryPeek(out ITaskWrapper? oldestTask) && oldestTask.SystemTask.IsCompleted)
+        while (_tasksOnce.TryPeek(out var oldestTask) && oldestTask.SystemTask.IsCompleted)
         {
-            if (_tasksOnce.TryDequeue(out ITaskWrapper? completedTask))
+            if (_tasksOnce.TryDequeue(out var completedTask))
             {
                 if (completedTask.SystemTask.IsFaulted)
                     ServiceManager.Logger.Error(completedTask.SystemTask.Exception,
@@ -70,11 +74,12 @@ internal class TaskManager : IDisposable
     private void OnSecondTimer(object? _)
     {
         if (_disposedValue || _tasksOnSecond.IsEmpty) return;
-        DateTime executionTime = DateTime.Now;
-        foreach (PeriodicTask task in _tasksOnSecond)
+        var executionTime = DateTime.Now;
+        foreach (var task in _tasksOnSecond)
         {
             if (task.ShouldRun && task.LastRun + task.Repeat < executionTime)
             {
+                ServiceManager.Logger.Info($"Starting task: {task.Name}");
                 task.CallBack(task.Action());
                 task.LastRun = executionTime;
             }
@@ -84,16 +89,19 @@ internal class TaskManager : IDisposable
     private void OnMinuteTimer(object? _)
     {
         if (_disposedValue || _tasksOnMinute.IsEmpty) return;
-        DateTime executionTime = DateTime.Now;
-        foreach (PeriodicTask task in _tasksOnMinute)
+        var executionTime = DateTime.Now;
+        foreach (var task in _tasksOnMinute)
         {
             if (task.ShouldRun && task.LastRun + task.Repeat < executionTime)
             {
+                ServiceManager.Logger.Info($"Starting task: {task.Name}");
                 task.CallBack(task.Action());
                 task.LastRun = executionTime;
             }
         }
     }
+
+    internal void RunOnFrameworkThread(Action action) => _framework.RunOnFrameworkThread(action);
 
     internal void RegisterTask<TData>(HrtTask<TData> task)
     {
@@ -106,11 +114,12 @@ internal class TaskManager : IDisposable
         }
         else
         {
+            ServiceManager.Logger.Info($"Starting task: {task.Name}");
             _tasksOnce.Enqueue(new TaskWrapper<TData>(task));
         }
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!_disposedValue)
         {
@@ -119,7 +128,7 @@ internal class TaskManager : IDisposable
                 _taskTimer.Dispose();
                 _secondTimer.Dispose();
                 _minuteTimer.Dispose();
-                while (_tasksOnce.TryDequeue(out ITaskWrapper? task))
+                while (_tasksOnce.TryDequeue(out var task))
                 {
                     if (task.SystemTask.Status > TaskStatus.Created)
                         task.SystemTask.Wait(1000);

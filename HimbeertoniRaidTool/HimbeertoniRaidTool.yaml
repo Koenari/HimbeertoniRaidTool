@@ -10,5 +10,5 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      User Interface: You can now adjust the way character names are displayed (see config)
-      User Interface: Make all buttons accessible in smaller windows
+      New Feature: Automatically switch character in solo tab to currently logged in one
+      Bugfix: Ignoring lower ilvl gear works again

@@ -18,9 +18,9 @@ internal sealed class LootMasterModule : IHrtModule
 {
     private readonly LootmasterUi _ui;
     internal readonly LootMasterConfiguration ConfigImpl;
-    private bool _fillSoloOnLogin;
     public LootMasterModule()
     {
+        LootmasterLoc.Culture = new CultureInfo(ServiceManager.PluginInterface.UiLanguage);
         ConfigImpl = new LootMasterConfiguration(this);
         WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
         _ui = new LootmasterUi(this);
@@ -66,10 +66,8 @@ internal sealed class LootMasterModule : IHrtModule
             }
 
         }
-        if (!RaidGroups[0][0].Filled || !RaidGroups[0][0].MainChar.Filled)
-            _fillSoloOnLogin = true;
         if (ServiceManager.ClientState.IsLoggedIn)
-            OnLogin();
+            ServiceManager.TaskManager.RunOnFrameworkThread(OnLogin);
     }
 
     public void Update()
@@ -79,11 +77,11 @@ internal sealed class LootMasterModule : IHrtModule
     public void OnLanguageChange(string langCode) => LootmasterLoc.Culture = new CultureInfo(langCode);
     public void PrintUsage(string command, string args)
     {
-        SeStringBuilder stringBuilder = new SeStringBuilder()
-                                        .AddUiForeground("[Himbeertoni Raid Tool]", 45)
-                                        .AddUiForeground("[Help]", 62)
-                                        .AddText(LootmasterLoc.chat_usage_heading)
-                                        .Add(new NewLinePayload());
+        var stringBuilder = new SeStringBuilder()
+                            .AddUiForeground("[Himbeertoni Raid Tool]", 45)
+                            .AddUiForeground("[Help]", 62)
+                            .AddText(LootmasterLoc.chat_usage_heading)
+                            .Add(new NewLinePayload());
 
         stringBuilder
             .AddUiForeground("/lootmaster", 37)
@@ -112,11 +110,24 @@ internal sealed class LootMasterModule : IHrtModule
             ServiceManager.Logger.Information(message.Message);
         _ui.HandleMessage(message);
     }
-    public void OnLogin()
+    private void OnLogin()
     {
-        if (_fillSoloOnLogin)
-            FillPlayerFromSelf(RaidGroups[0][0]);
-        _fillSoloOnLogin = false;
+        var soloPlayer = RaidGroups[0][0];
+        if (!soloPlayer.Filled || !soloPlayer.Characters.Any())
+            FillPlayerFromSelf(soloPlayer);
+        ulong curCharId =
+            Character.CalcCharId(
+                ServiceManager.CharacterInfoService.GetContentId(ServiceManager.ClientState.LocalPlayer));
+        ServiceManager.Logger.Debug($"OnLogin: CurCharID: {curCharId}");
+        if (curCharId != 0)
+        {
+            ServiceManager.Logger.Info("Switching Solo Char");
+            if (soloPlayer.Characters.Any(c => c.CharId == curCharId))
+                soloPlayer.MainChar = soloPlayer.Characters.First(c => c.CharId == curCharId);
+            else
+                AddCurrentCharacter(soloPlayer);
+        }
+
         if (ConfigImpl.Data.OpenOnStartup)
             _ui.Show();
         UiReady?.Invoke();
@@ -124,12 +135,12 @@ internal sealed class LootMasterModule : IHrtModule
     public bool FillPlayerFromTarget(Player player)
     {
 
-        IGameObject? target = ServiceManager.TargetManager.Target;
+        var target = ServiceManager.TargetManager.Target;
         return target is IPlayerCharacter character && FillPlayer(player, character);
     }
-    public bool FillPlayerFromSelf(Player player)
+    private bool FillPlayerFromSelf(Player player)
     {
-        IPlayerCharacter? character = ServiceManager.ClientState.LocalPlayer;
+        var character = ServiceManager.ClientState.LocalPlayer;
         return character != null && FillPlayer(player, character);
     }
     private bool FillPlayer(Player player, IPlayerCharacter source)
@@ -137,39 +148,51 @@ internal sealed class LootMasterModule : IHrtModule
         if (player.LocalId.IsEmpty && !ServiceManager.HrtDataManager.PlayerDb.TryAdd(player)) return false;
         if (player.NickName.IsNullOrEmpty())
             player.NickName = source.Name.TextValue.Split(' ')[0];
-        ulong contentId = ServiceManager.CharacterInfoService.GetContentId(source);
-        var characterDb = ServiceManager.HrtDataManager.CharDb;
-        ulong charId = Character.CalcCharId(contentId);
-        if (!characterDb.Search(CharacterDb.GetStandardPredicate(charId, source.HomeWorld.Id, source.Name.TextValue),
-                                out Character? c))
-        {
-            c = new Character(source.Name.TextValue, source.HomeWorld.Id)
-            {
-                CharId = charId,
-            };
-            if (!characterDb.TryAdd(c))
-                return false;
-        }
+        var c = new Character();
+        bool result = FillCharacter(ref c, source);
         player.MainChar = c;
-        return FillCharacter(c, source);
+        return result;
     }
 
-    private bool FillCharacter(Character destination, IPlayerCharacter source)
+    private bool AddCurrentCharacter(Player player)
     {
-        ServiceManager.Logger.Debug($"Filling Player for character: {source.Name}");
-        Job curJob = source.GetJob();
+        var sourceCharacter = ServiceManager.ClientState.LocalPlayer;
+        var character = new Character();
+        if (sourceCharacter == null) return false;
+        bool result = FillCharacter(ref character, sourceCharacter);
+        player.MainChar = character;
+        return result;
+    }
+    private bool FillCharacter(ref Character destination, IPlayerCharacter source)
+    {
+        ServiceManager.Logger.Debug($"Filling character: {source.Name}");
+        ulong charId = Character.CalcCharId(ServiceManager.CharacterInfoService.GetContentId(source));
+        if (ServiceManager.HrtDataManager.CharDb.Search(
+                CharacterDb.GetStandardPredicate(charId, source.HomeWorld.RowId, source.Name.TextValue),
+                out var dbChar))
+        {
+            destination = dbChar;
+        }
+        else
+        {
+            destination.HomeWorldId = source.HomeWorld.RowId;
+            destination.Name = source.Name.TextValue;
+            destination.CharId = charId;
+            if (!ServiceManager.HrtDataManager.CharDb.TryAdd(destination)) return false;
+        }
+        var curJob = source.GetJob();
         ServiceManager.Logger.Debug($"Found job: {curJob}");
-        if (!curJob.IsCombatJob()) return false;
-        bool isNew = destination[curJob] is null;
-        PlayableClass curClass = destination[curJob] ?? destination.AddClass(curJob);
-        if (isNew)
+        if (!curJob.IsCombatJob()) return true;
+        bool isNewJob = destination[curJob] is null;
+        var curClass = destination[curJob] ?? destination.AddClass(curJob);
+        if (isNewJob)
         {
             curClass.Level = source.Level;
             var gearDb = ServiceManager.HrtDataManager.GearDb;
             if (!gearDb.Search(
                     entry => entry?.ExternalId
                           == ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
-                    out GearSet? etroSet))
+                    out var etroSet))
             {
                 etroSet = new GearSet(GearSetManager.Etro)
                 {
@@ -205,7 +228,7 @@ internal sealed class LootMasterModule : IHrtModule
             {
                 group[0].NickName = target.Name.TextValue;
                 group[0].MainChar.Name = target.Name.TextValue;
-                group[0].MainChar.HomeWorld = target.HomeWorld.GameData;
+                group[0].MainChar.HomeWorld = target.HomeWorld.Value;
                 FillPlayer(group[0], target);
             }
             else
@@ -216,14 +239,14 @@ internal sealed class LootMasterModule : IHrtModule
         List<IPartyMember> fill = new();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         var players = ServiceManager.PartyList.Where(p => p != null).ToList();
-        foreach (IPartyMember p in players)
+        foreach (var p in players)
         {
-            if (!Enum.TryParse(p.ClassJob.GameData?.Abbreviation.RawString, out Job c))
+            if (!Enum.TryParse(p.ClassJob.Value.Abbreviation.ExtractText(), out Job c))
             {
                 fill.Add(p);
                 continue;
             }
-            Role r = c.GetRole();
+            var r = c.GetRole();
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (r)
             {
@@ -268,7 +291,7 @@ internal sealed class LootMasterModule : IHrtModule
                     break;
             }
         }
-        foreach (IPartyMember pm in fill)
+        foreach (var pm in fill)
         {
             int pos = 0;
             while (group[pos].Filled) { pos++; }
@@ -279,16 +302,16 @@ internal sealed class LootMasterModule : IHrtModule
         return;
         void FillPosition(int pos, IPartyMember pm)
         {
-            Player p = group[pos];
+            var p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
             if (!ServiceManager.HrtDataManager.CharDb.Search(
-                    CharacterDb.GetStandardPredicate(Character.CalcCharId((ulong)pm.ContentId), pm.World.Id,
-                                                     pm.Name.TextValue), out Character? character))
+                    CharacterDb.GetStandardPredicate(Character.CalcCharId((ulong)pm.ContentId), pm.World.RowId,
+                                                     pm.Name.TextValue), out var character))
             {
-                character = new Character(pm.Name.TextValue, pm.World.GameData?.RowId ?? 0);
+                character = new Character(pm.Name.TextValue, pm.World.Value.RowId);
                 ServiceManager.HrtDataManager.CharDb.TryAdd(character);
-                bool canParseJob = Enum.TryParse(pm.ClassJob.GameData?.Abbreviation.RawString, out Job c);
-                if (ServiceManager.CharacterInfoService.TryGetChar(out IPlayerCharacter? pc, p.MainChar.Name,
+                bool canParseJob = Enum.TryParse(pm.ClassJob.Value.Abbreviation.ExtractText(), out Job c);
+                if (ServiceManager.CharacterInfoService.TryGetChar(out var pc, p.MainChar.Name,
                                                                    p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
                 {
                     p.MainChar.MainJob = c;

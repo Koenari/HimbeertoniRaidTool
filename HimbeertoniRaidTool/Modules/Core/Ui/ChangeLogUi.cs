@@ -25,14 +25,14 @@ internal class ChangeLogUi : HrtWindow
         if (ImGui.BeginChildFrame(1, _size with { Y = _size.Y - 100 }))
         {
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (SingleVersionChangelog versionEntry in _log.UnseenChangeLogs)
+            foreach (var versionEntry in _log.UnseenChangeLogs)
             {
                 DrawVersionEntry(versionEntry, true);
             }
             ImGui.NewLine();
             ImGui.Separator();
             ImGui.TextColored(Colors.TextWhite, CoreLoc.ChangeLogUi_hdg_seen);
-            foreach (SingleVersionChangelog versionEntry in _log.SeenChangeLogs)
+            foreach (var versionEntry in _log.SeenChangeLogs)
             {
                 DrawVersionEntry(versionEntry);
             }
@@ -61,12 +61,12 @@ internal class ChangeLogUi : HrtWindow
                 string.Format(CoreLoc.ChangeLogUi_hdg_version, versionEntry.Version),
                 defaultOpen ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None))
         {
-            foreach (ChangeLogEntry entry in versionEntry.NotableFeatures)
+            foreach (var entry in versionEntry.NotableFeatures)
             {
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
                 DrawLogEntry(entry, true);
             }
-            foreach (ChangeLogEntry entry in versionEntry.MinorFeatures)
+            foreach (var entry in versionEntry.MinorFeatures)
             {
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
                 DrawLogEntry(entry);
@@ -75,7 +75,7 @@ internal class ChangeLogUi : HrtWindow
             {
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 5f * ScaleFactor);
                 ImGui.TextColored(Colors.TextSoftRed, CoreLoc.ChangeLogUi_hdg_KnownIssues);
-                foreach (ChangeLogEntry entry in versionEntry.KnownIssues)
+                foreach (var entry in versionEntry.KnownIssues)
                 {
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
                     DrawLogEntry(entry);
@@ -88,7 +88,7 @@ internal class ChangeLogUi : HrtWindow
     }
     private static void DrawLogEntry(ChangeLogEntry entry, bool important = false)
     {
-        Action<string> drawText = important ? s => ImGui.TextColored(Colors.TextPetrol, s) : ImGui.Text;
+        Action<string> drawText = important ? s => ImGui.TextColored(Colors.TextPetrol, s) : ImGui.TextWrapped;
         ImGui.Bullet();
         ImGui.SameLine();
         drawText($"{entry.Category.Localized()}: {entry.Description}");
@@ -115,21 +115,21 @@ public static class ChangelogEnumExtensions
 {
     public static string Localized(this ChangeLogEntryCategory cat) => cat switch
     {
-        ChangeLogEntryCategory.General     => CoreLoc.ChangelogCategory_General,
-        ChangeLogEntryCategory.NewFeature  => CoreLoc.ChangelogCategory_NewFeature,
-        ChangeLogEntryCategory.Bugfix      => CoreLoc.ChangelogCategory_Bugfix,
-        ChangeLogEntryCategory.Options     => CoreLoc.ChangelogCategory_Configuration,
-        ChangeLogEntryCategory.Ui          => CoreLoc.ChangelogCategory_UserInterface,
-        ChangeLogEntryCategory.Lootmaster  => CoreLoc.ChangelogCategory_LootMaster,
-        ChangeLogEntryCategory.LootSession => CoreLoc.ChangelogCategory_LootSession,
-        ChangeLogEntryCategory.Bis         => CoreLoc.ChangelogCategory_BiS,
-        ChangeLogEntryCategory.System      => CoreLoc.ChangelogCategory_System,
-        ChangeLogEntryCategory.Translation => CoreLoc.ChangelogCategory_Localization,
-        ChangeLogEntryCategory.Performance => CoreLoc.ChangelogCategory_Performance,
-        ChangeLogEntryCategory.Gear        => CoreLoc.ChangelogCategory_Gear,
-        ChangeLogEntryCategory.KnownIssues => CoreLoc.ChangelogCategory_KnownIssues,
-        ChangeLogEntryCategory.Lodestone   => CoreLoc.ChangelogCategory_Lodestone,
-        _                                  => GeneralLoc.CommonTerms_Unknown,
+        ChangeLogEntryCategory.General       => CoreLoc.ChangelogCategory_General,
+        ChangeLogEntryCategory.NewFeature    => CoreLoc.ChangelogCategory_NewFeature,
+        ChangeLogEntryCategory.Bugfix        => CoreLoc.ChangelogCategory_Bugfix,
+        ChangeLogEntryCategory.Options       => CoreLoc.ChangelogCategory_Configuration,
+        ChangeLogEntryCategory.UserInterface => CoreLoc.ChangelogCategory_UserInterface,
+        ChangeLogEntryCategory.Lootmaster    => CoreLoc.ChangelogCategory_LootMaster,
+        ChangeLogEntryCategory.LootSession   => CoreLoc.ChangelogCategory_LootSession,
+        ChangeLogEntryCategory.Bis           => CoreLoc.ChangelogCategory_BiS,
+        ChangeLogEntryCategory.System        => CoreLoc.ChangelogCategory_System,
+        ChangeLogEntryCategory.Translation   => CoreLoc.ChangelogCategory_Localization,
+        ChangeLogEntryCategory.Performance   => CoreLoc.ChangelogCategory_Performance,
+        ChangeLogEntryCategory.Gear          => CoreLoc.ChangelogCategory_Gear,
+        ChangeLogEntryCategory.KnownIssues   => CoreLoc.ChangelogCategory_KnownIssues,
+        ChangeLogEntryCategory.Lodestone     => CoreLoc.ChangelogCategory_Lodestone,
+        _                                    => GeneralLoc.CommonTerms_Unknown,
     };
     public static string LocalizedDescription(this ChangelogShowOptions showOption) => showOption switch
     {

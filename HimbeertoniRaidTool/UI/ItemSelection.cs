@@ -4,7 +4,7 @@ using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
 using Lumina.Excel;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -150,7 +150,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             ImGui.Image(ServiceManager.IconCache.LoadIcon(item.Icon, item.CanBeHq).ImGuiHandle,
                         new Vector2(32f, 32f));
             ImGui.SameLine();
-            ImGui.Text($"{item.Name.RawString} (IL {item.LevelItem.Row})");
+            ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
             ImGui.EndGroup();
             if (ImGui.IsItemHovered())
             {
@@ -164,16 +164,16 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
     private List<Item> ReevaluateItems()
     {
         _items = Sheet.Where(x =>
-                                 x.ClassJobCategory.Row != 0
+                                 x.ClassJobCategory.RowId != 0
                               && (!_slots.Any() ||
                                   _slots.Any(slot => slot == GearSetSlot.None
                                                   || x.EquipSlotCategory.Value.Contains(slot)))
-                              && (_maxILvl == 0 || x.LevelItem.Row <= _maxILvl)
-                              && x.LevelItem.Row >= _minILvl
+                              && (_maxILvl == 0 || x.LevelItem.RowId <= _maxILvl)
+                              && x.LevelItem.RowId >= _minILvl
                               && (_job.GetValueOrDefault(0) == 0
                                || x.ClassJobCategory.Value.Contains(_job.GetValueOrDefault()))
         ).Take(50).ToList();
-        _items.Sort((x, y) => (int)y.LevelItem.Row - (int)x.LevelItem.Row);
+        _items.Sort((x, y) => (int)y.LevelItem.RowId - (int)x.LevelItem.RowId);
         return _items;
     }
 }

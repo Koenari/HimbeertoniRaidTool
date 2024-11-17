@@ -156,7 +156,7 @@
         <value>Current priority</value>
     </data>
     <data name="Ui_btn_tt_inventory">
-        <value>Open inventory window</value>
+        <value>Show Inventory/Wallet</value>
     </data>
     <data name="Ui_btn_tt_quickCompare">
         <value>Quickly compare gear</value>
@@ -339,10 +339,6 @@
     <data name="Ui_txt_noJobs" xml:space="preserve">
         <value>No jobs created</value>
     </data>
-    <data name="Ui_btn_tt_etroUpdate" xml:space="preserve">
-        <value>Update {0} ({1}) from etro</value>
-        <comment>{0} name {1} etroId</comment>
-    </data>
     <data name="InventoryUi_Title" xml:space="preserve">
         <value>{0}'s inventory</value>
     </data>
@@ -350,7 +346,7 @@
         <value>No Player</value>
     </data>
     <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
-        <value>Additional Gear</value>
+        <value>Relevant gear (not equipped)</value>
     </data>
     <data name="Ui_btn_addPlayerFromTarget_tt" xml:space="preserve">
         <value>Fill with target ({0}) data</value>

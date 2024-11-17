@@ -2,7 +2,7 @@
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 

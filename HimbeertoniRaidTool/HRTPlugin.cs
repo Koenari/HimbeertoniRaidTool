@@ -22,6 +22,7 @@ public sealed class HrtPlugin : IDalamudPlugin
     public HrtPlugin(IDalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
         _commandManager = commandManager;
+        GeneralLoc.Culture = new CultureInfo(pluginInterface.UiLanguage);
         //Init all services
         _loadedSuccessfully = ServiceManager.Init(pluginInterface);
         if (_loadedSuccessfully)
@@ -56,7 +57,7 @@ public sealed class HrtPlugin : IDalamudPlugin
             ServiceManager.HrtDataManager.Save();
         }
 
-        foreach ((Type type, IHrtModule module) in _registeredModules)
+        foreach (var (type, module) in _registeredModules)
         {
             try
             {
@@ -78,7 +79,7 @@ public sealed class HrtPlugin : IDalamudPlugin
         //Ensure core module is loaded first
         RegisterModule(coreModule, coreModule.AddCommand);
         //Look for all classes in Modules namespace that implement the IHrtModule interface
-        foreach (Type moduleType in GetType().Assembly.GetTypes().Where(
+        foreach (var moduleType in GetType().Assembly.GetTypes().Where(
                      t => (t.Namespace?.StartsWith($"{GetType().Namespace}.Modules") ?? false)
                        && t is { IsInterface: false, IsAbstract: false }
                        && t.GetInterfaces().Any(i => i == typeof(IHrtModule))))
@@ -86,6 +87,7 @@ public sealed class HrtPlugin : IDalamudPlugin
             if (moduleType == typeof(CoreModule)) continue;
             try
             {
+                ServiceManager.Logger.Debug($"Creating instance of: {moduleType.Name}");
                 if (Activator.CreateInstance(moduleType) is not IHrtModule module)
                     throw new FailedToLoadException($"Failed to load module: {moduleType.Name}");
                 RegisterModule(module, coreModule.AddCommand);
@@ -107,9 +109,9 @@ public sealed class HrtPlugin : IDalamudPlugin
 
         try
         {
-
+            ServiceManager.Logger.Debug($"Registering module \"{module.Name}\"");
             _registeredModules.Add(module.GetType(), module);
-            foreach (HrtCommand command in module.Commands)
+            foreach (var command in module.Commands)
             {
                 AddCommand(command, registerCommand);
             }
@@ -118,6 +120,7 @@ public sealed class HrtPlugin : IDalamudPlugin
             else
                 ServiceManager.Logger.Error($"Configuration load error:{module.Name}");
             ServiceManager.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
+            ServiceManager.Logger.Debug($"Calling {module.InternalName}.AfterFullyLoaded()");
             module.AfterFullyLoaded();
             ServiceManager.Logger.Information($"Successfully loaded module: {module.Name}");
         }
@@ -164,7 +167,7 @@ public sealed class HrtPlugin : IDalamudPlugin
         {
             var newLanguage = new CultureInfo(languageCode);
             GeneralLoc.Culture = newLanguage;
-            foreach (IHrtModule module in _registeredModules.Values)
+            foreach (var module in _registeredModules.Values)
             {
                 module.OnLanguageChange(languageCode);
             }

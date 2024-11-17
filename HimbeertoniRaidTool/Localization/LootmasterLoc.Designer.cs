@@ -330,7 +330,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Additional Gear.
+        ///   Looks up a localized string similar to Relevant gear (not equipped).
         /// </summary>
         internal static string InventoryUi_hdg_additionalGear {
             get {
@@ -882,16 +882,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update {0} ({1}) from etro.
-        /// </summary>
-        internal static string Ui_btn_tt_etroUpdate {
-            get {
-                return ResourceManager.GetString("Ui_btn_tt_etroUpdate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open inventory window.
+        ///   Looks up a localized string similar to Show Inventory/Wallet.
         /// </summary>
         internal static string Ui_btn_tt_inventory {
             get {

@@ -1,11 +1,11 @@
 ﻿using System.Globalization;
-using HimbeertoniRaidTool.Common;
-using HimbeertoniRaidTool.Common.Calculations;
 using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
+using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
+using XIVCalc.Interfaces;
 using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
 using ServiceManager = HimbeertoniRaidTool.Plugin.Services.ServiceManager;
 
@@ -149,8 +149,14 @@ public class LootRule(LootRuleEnum rule) : IEquatable<LootRule>, IDrawable, IHrt
 
     public override int GetHashCode() => Rule.GetHashCode();
     public override bool Equals(object? obj) => Equals(obj as LootRule);
-    public static bool operator ==(LootRule l, LootRule r) => l.Equals(r);
-    public static bool operator !=(LootRule l, LootRule r) => !l.Equals(r);
+    public static bool operator ==(LootRule l, LootRule r)
+    {
+        return l.Equals(r);
+    }
+    public static bool operator !=(LootRule l, LootRule r)
+    {
+        return !l.Equals(r);
+    }
 }
 
 public static class LootRulesExtension
@@ -165,14 +171,14 @@ public static class LootRulesExtension
                                                        (min, i) => Math.Min((int)i.ItemLevel, min))).Prepend(0).Max();
     public static float DpsGain(this LootResult result)
     {
-        PlayableClass curClass = result.ApplicableJob;
-        double baseDps = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.CurGear,
-                                                     result.Player.MainChar.Tribe);
+        var curClass = result.ApplicableJob;
+        var stats = curClass.CurGear.GetStatEquations(curClass, result.Player.MainChar.Tribe);
+        double baseDps = stats.AverageSkillDamage(100) / stats.Gcd();
         double newDps = double.NegativeInfinity;
-        foreach (GearItem? i in result.ApplicableItems)
+        foreach (var i in result.ApplicableItems)
         {
             GearItem? item = null;
-            foreach (GearItem? bisItem in curClass.CurBis)
+            foreach (var bisItem in curClass.CurBis)
             {
                 if (bisItem.Equals(i, ItemComparisonMode.IdOnly))
                     item = bisItem.Clone();
@@ -180,13 +186,14 @@ public static class LootRulesExtension
             if (item is null)
             {
                 item ??= i.Clone();
-                foreach (HrtMateria? mat in curClass.CurGear[i.Slots.FirstOrDefault(GearSetSlot.None)].Materia)
+                foreach (var mat in curClass.CurGear[i.Slots.FirstOrDefault(GearSetSlot.None)].Materia)
                 {
                     item.AddMateria(mat);
                 }
             }
-            double cur = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.CurGear.With(item),
-                                                     result.Player.MainChar.Tribe);
+            var curStats =
+                curClass.CurGear.With(item).GetStatEquations(curClass, result.Player.MainChar.Tribe);
+            double cur = curStats.AverageSkillDamage(100) / curStats.Gcd();
             if (cur > newDps)
                 newDps = cur;
         }
@@ -195,58 +202,49 @@ public static class LootRulesExtension
     public static bool IsBiS(this LootResult result) =>
         result.NeededItems.Any(i => result.ApplicableJob.CurBis.Count(x => x.Equals(i, ItemComparisonMode.IdOnly))
                                  != result.ApplicableJob.CurGear.Count(x => x.Equals(i, ItemComparisonMode.IdOnly)));
+    //Todo: Guessed CurrencyCost. Might be wrong
     public static bool CanUse(this LootResult result) =>
         //Direct gear or coffer drops are always usable
         !result.DroppedItem.IsExchangableItem
      || result.NeededItems.Any(
             item => ServiceManager.ItemInfo.GetShopEntriesForItem(item.Id).Any(shopEntry =>
             {
-                for (int i = 0; i < SpecialShop.NUM_COST; i++)
+                for (int i = 0; i < shopEntry.entry.ItemCosts.Count; i++)
                 {
-                    SpecialShop.ItemCostEntry cost = shopEntry.entry.ItemCostEntries[i];
-                    if (cost.Count == 0) continue;
-                    if (cost.Item.Row == result.DroppedItem.Id) continue;
-                    if (ItemInfo.IsCurrency(cost.Item.Row)) continue;
-                    if (ItemInfo.IsTomeStone(cost.Item.Row)) continue;
-                    if (result.ApplicableJob.CurGear.Contains(new HrtItem(cost.Item.Row))) continue;
-                    if (result.Player.MainChar.MainInventory.ItemCount(cost.Item.Row) >= cost.Count) continue;
+                    var cost = shopEntry.entry.ItemCosts[i];
+                    if (cost.CurrencyCost == 0) continue;
+                    if (cost.ItemCost.RowId == result.DroppedItem.Id) continue;
+                    var costItem = ServiceManager.ItemInfo.AdjustItemCost(cost.ItemCost, shopEntry.entry.PatchNumber);
+                    if (ItemInfo.IsCurrency(costItem.RowId)) continue;
+                    if (ItemInfo.IsTomeStone(costItem.RowId)) continue;
+                    if (result.ApplicableJob.CurGear.Contains(new HrtItem(costItem.RowId))) continue;
+                    if (result.Player.MainChar.MainInventory.ItemCount(costItem.RowId)
+                     >= cost.CurrencyCost) continue;
                     return false;
                 }
                 return true;
             })
         );
-
-    public static bool CanBuy(this LootResult result) => ServiceManager.ItemInfo
-                                                                       .GetShopEntriesForItem(result.DroppedItem.Id)
-                                                                       .Any(
-                                                                           shopEntry =>
-                                                                           {
-                                                                               for (int i = 0;
-                                                                                    i < SpecialShop.NUM_COST;
-                                                                                    i++)
-                                                                               {
-                                                                                   SpecialShop.ItemCostEntry cost =
-                                                                                       shopEntry.entry.ItemCostEntries[
-                                                                                           i];
-                                                                                   if (cost.Count == 0) continue;
-                                                                                   if (ItemInfo.IsCurrency(
-                                                                                            cost.Item.Row)) continue;
-                                                                                   if (ItemInfo.IsTomeStone(
-                                                                                            cost.Item.Row)) continue;
-                                                                                   if (result.ApplicableJob.CurGear
-                                                                                        .Contains(
-                                                                                            new HrtItem(cost.Item.Row)))
-                                                                                       continue;
-                                                                                   if (result.Player.MainChar
-                                                                                            .MainInventory
-                                                                                            .ItemCount(cost.Item.Row)
-                                                                                      + (result.GuaranteedLoot.Any(
-                                                                                            loot => loot.Id
-                                                                                             == cost.Item.Row) ? 1 : 0)
-                                                                                     >= cost.Count) continue;
-                                                                                   return false;
-                                                                               }
-                                                                               return true;
-                                                                           }
-                                                                       );
+    public static bool CanBuy(this LootResult result)
+    {
+        var shops = ServiceManager.ItemInfo.GetShopEntriesForItem(result.DroppedItem.Id);
+        return shops.Any(
+            shopEntry =>
+            {
+                foreach (var cost in shopEntry.entry.ItemCosts)
+                {
+                    if (cost.CurrencyCost == 0) continue;
+                    var costItem = ServiceManager.ItemInfo.AdjustItemCost(cost.ItemCost, shopEntry.entry.PatchNumber);
+                    if (ItemInfo.IsCurrency(costItem.RowId)) continue;
+                    if (ItemInfo.IsTomeStone(costItem.RowId)) continue;
+                    if (result.ApplicableJob.CurGear.Contains(new HrtItem(costItem.RowId))) continue;
+                    if (result.Player.MainChar.MainInventory.ItemCount(costItem.RowId)
+                      + (result.GuaranteedLoot.Any(loot => loot.Id == costItem.RowId) ? 1 : 0)
+                     >= cost.CurrencyCost) continue;
+                    return false;
+                }
+                return true;
+            }
+        );
+    }
 }

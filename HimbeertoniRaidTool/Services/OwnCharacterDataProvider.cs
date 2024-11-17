@@ -13,12 +13,6 @@ internal class OwnCharacterDataProvider : IGearDataProvider
     private readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
     private readonly TimeSpan _timeBetweenWalletUpdates = new(30 * TimeSpan.TicksPerSecond);
 
-    private readonly HashSet<Currency> _trackedCurrencies =
-    [
-        Currency.Gil,
-        Currency.TomestoneOfCausality,
-        Currency.TomestoneOfComedy,
-    ];
     private GearDataProviderConfiguration _config = GearDataProviderConfiguration.Disabled;
     private Character? _curChar;
 
@@ -32,6 +26,8 @@ internal class OwnCharacterDataProvider : IGearDataProvider
     {
         _clientState = clientState;
         _framework = framework;
+        _timeSinceLastGearUpdate = _timeBetweenGearUpdates;
+        _timeSinceLastWalletUpdate = _timeBetweenWalletUpdates;
         _clientState.Login += OnLogin;
         _clientState.Logout += OnLogout;
         _framework.Update += OnFrameworkUpdate;
@@ -52,10 +48,10 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         _clientState.Login -= OnLogin;
         _clientState.Logout -= OnLogout;
         _framework.Update -= OnFrameworkUpdate;
-        OnLogout();
+        OnLogout(0, 0);
     }
     private void OnLogin() => GetChar(out _curChar, out _self);
-    private void OnLogout()
+    private void OnLogout(int type, int code)
     {
         _curChar = null;
         _self = null;
@@ -67,9 +63,9 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         _timeSinceLastGearUpdate += framework.UpdateDelta;
         if (_timeSinceLastWalletUpdate > _timeBetweenWalletUpdates)
             UpdateWallet();
-        if (_timeSinceLastGearUpdate > _timeBetweenGearUpdates || _lastSeenJob != (_self?.ClassJob.Id ?? 0))
+        if (_timeSinceLastGearUpdate > _timeBetweenGearUpdates || _lastSeenJob != (_self?.ClassJob.RowId ?? 0))
             UpdateGear();
-        _lastSeenJob = _self?.ClassJob.Id ?? 0;
+        _lastSeenJob = _self?.ClassJob.RowId ?? 0;
     }
     private static void GetChar([NotNullWhen(true)] out Character? target,
                                 [NotNullWhen(true)] out IPlayerCharacter? source)
@@ -81,7 +77,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         ulong charId = Character.CalcCharId(ServiceManager.ClientState.LocalContentId);
 
         if (!ServiceManager.HrtDataManager.CharDb.Search(
-                CharacterDb.GetStandardPredicate(charId, source.HomeWorld.Id, source.Name.TextValue),
+                CharacterDb.GetStandardPredicate(charId, source.HomeWorld.RowId, source.Name.TextValue),
                 out target)) return;
         if (target.CharId == 0)
             target.CharId = charId;
@@ -89,27 +85,25 @@ internal class OwnCharacterDataProvider : IGearDataProvider
 
     private unsafe void UpdateWallet()
     {
+        ServiceManager.Logger.Debug("UpdateWallet");
         if (_curChar == null) return;
         var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Currency);
         for (int i = 0; i < container->Size; i++)
         {
-            InventoryItem item = container->Items[i];
+            var item = container->Items[i];
             var type = (Currency)item.ItemId;
-            if (_trackedCurrencies.Contains(type))
-            {
-                _curChar.Wallet[type] = item.Quantity;
-            }
+            _curChar.Wallet[type] = item.Quantity;
         }
         _timeSinceLastWalletUpdate = TimeSpan.Zero;
     }
     private void UpdateGear()
     {
         if (_curChar == null || _self == null) return;
-        Job job = _self.GetJob();
+        var job = _self.GetJob();
         if (job.IsCombatJob() && !_config.CombatJobsEnabled) return;
         if (job.IsDoH() && !_config.DoHEnabled) return;
         if (job.IsDoL() && !_config.DoLEnabled) return;
-        PlayableClass targetClass = _curChar[job] ?? _curChar.AddClass(job);
+        var targetClass = _curChar[job] ?? _curChar.AddClass(job);
         if (targetClass.Level < _self.Level) targetClass.Level = _self.Level;
         CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass, _config.MinILvlDowngrade);
         _timeSinceLastGearUpdate = TimeSpan.Zero;

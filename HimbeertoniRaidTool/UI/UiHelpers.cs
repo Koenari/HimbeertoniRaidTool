@@ -3,20 +3,20 @@ using Dalamud.Interface;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
 internal static class UiHelpers
 {
-    private static readonly Vector2 _maxMateriaCatSize;
-    private static readonly Vector2 _maxMateriaLevelSize;
+    private static readonly Vector2 MaxMateriaCatSize;
+    private static readonly Vector2 MaxMateriaLevelSize;
 
     static UiHelpers()
     {
-        _maxMateriaCatSize =
+        MaxMateriaCatSize =
             ImGui.CalcTextSize(Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
-        _maxMateriaLevelSize =
+        MaxMateriaLevelSize =
             ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
     }
     public static void DrawGearEdit(HrtWindowWithModalChild parent, GearSetSlot slot,
@@ -33,8 +33,8 @@ internal static class UiHelpers
         ImGui.SameLine();
         //Quick select
         string itemName = item.Name;
-        if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out Item? outItem, _ => itemName,
-                                        i => i.Name.RawString, IsApplicable, ImGuiComboFlags.NoArrowButton))
+        if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out Item outItem, _ => itemName,
+                                        i => i.Name.ExtractText(), IsApplicable, ImGuiComboFlags.NoArrowButton))
         {
             onItemChange(new GearItem(outItem.RowId));
         }
@@ -95,7 +95,7 @@ internal static class UiHelpers
                                                           + (ImGui.GetTextLineHeightWithSpacing()
                                                            - ImGui.GetTextLineHeight()) * 2);
 
-            HrtMateria mat = item.Materia.Skip(i).First();
+            var mat = item.Materia.Skip(i).First();
             ImGui.Image(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new Vector2(24, 24));
             if (ImGui.IsItemHovered())
             {
@@ -104,10 +104,10 @@ internal static class UiHelpers
                 ImGui.EndTooltip();
             }
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(_maxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
+            ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
             if (ImGuiHelper.SearchableCombo(
                     $"##mat{slot}{i}",
-                    out MateriaCategory cat,
+                    out var cat,
                     mat.Category.PrefixName(),
                     Enum.GetValues<MateriaCategory>(),
                     category => category.PrefixName(),
@@ -123,10 +123,10 @@ internal static class UiHelpers
             ImGui.SameLine();
             ImGui.Text(GeneralLoc.CommonTerms_Materia);
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(_maxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
+            ImGui.SetNextItemWidth(MaxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
             if (ImGuiHelper.SearchableCombo(
                     $"##matLevel{slot}{i}",
-                    out MateriaLevel level,
+                    out var level,
                     mat.Level.ToString(),
                     Enum.GetValues<MateriaLevel>(),
                     val => val.ToString(),
@@ -141,16 +141,16 @@ internal static class UiHelpers
         }
         if (item.CanAffixMateria())
         {
-            MateriaLevel levelToAdd = item.MaxAffixableMateriaLevel();
+            var levelToAdd = item.MaxAffixableMateriaLevel();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}addMat", GeneralLoc.Ui_GearEdit_btn_tt_selectMat))
             {
                 parent.AddChild(new SelectMateriaWindow(item.AddMateria, _ => { }, levelToAdd));
             }
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(_maxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
+            ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
             if (ImGuiHelper.SearchableCombo(
                     $"##matAdd{slot}",
-                    out MateriaCategory cat,
+                    out var cat,
                     MateriaCategory.None.ToString(),
                     Enum.GetValues<MateriaCategory>(),
                     category => category.GetStatType().FriendlyName(),
@@ -162,11 +162,12 @@ internal static class UiHelpers
                 item.AddMateria(new HrtMateria(cat, levelToAdd));
             }
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(_maxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
+            ImGui.SetNextItemWidth(MaxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
             ImGui.BeginDisabled();
             ImGui.BeginCombo("##Undef", $"{levelToAdd}", ImGuiComboFlags.NoArrowButton);
             ImGui.EndDisabled();
         }
+        return;
         bool IsApplicable(Item itemToCheck)
         {
             return itemToCheck.ClassJobCategory.Value.Contains(curJob)

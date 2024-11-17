@@ -18,12 +18,13 @@ internal class CoreModule : IHrtModule
 
     public CoreModule()
     {
+        CoreLoc.Culture = new CultureInfo(ServiceManager.PluginInterface.UiLanguage);
         WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
         _wcw = new WelcomeWindow(this);
         WindowSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
         _changelog = new ChangeLog(this, new ChangelogOptionsWrapper(_config));
-        foreach (HrtCommand command in InternalCommands)
+        foreach (var command in InternalCommands)
         {
             AddCommand(command);
         }
@@ -107,12 +108,12 @@ internal class CoreModule : IHrtModule
             return;
         }
 
-        SeStringBuilder stringBuilder = new SeStringBuilder()
-                                        .AddUiForeground("[Himbeertoni Raid Tool]", 45)
-                                        .AddUiForeground("[Help]", 62)
-                                        .AddText(CoreLoc.Chat_help_heading)
-                                        .Add(new NewLinePayload());
-        foreach (HrtCommand c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
+        var stringBuilder = new SeStringBuilder()
+                            .AddUiForeground("[Himbeertoni Raid Tool]", 45)
+                            .AddUiForeground("[Help]", 62)
+                            .AddText(CoreLoc.Chat_help_heading)
+                            .Add(new NewLinePayload());
+        foreach (var c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
         {
             stringBuilder
                 .AddUiForeground($"/hrt {c.Command[1..]}", 37)
@@ -180,7 +181,7 @@ internal class CoreModule : IHrtModule
     private void OnConfigChange()
     {
         HrtWindow.SetConfig(new UiConfig(_config.Data.HideInCombat));
-        UpdateGearDataProviderConfig();
+        ServiceManager.TaskManager.RunOnFrameworkThread(UpdateGearDataProviderConfig);
     }
     private void UpdateGearDataProviderConfig()
     {
@@ -188,18 +189,22 @@ internal class CoreModule : IHrtModule
                 RestrictToCustomILvL: _config.Data.GearUpdateRestrictToCustomILvL) switch
             {
                 (true, true) => Math.Min(
-                    (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel ?? 20) - 20,
+                    (ServiceManager.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
                     _config.Data.GearUpdateCustomILvlCutoff),
-                (true, false) => (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel ?? 20) - 20,
+                (true, false) => (ServiceManager.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
                 (false, true) => _config.Data.GearUpdateCustomILvlCutoff,
                 _             => 0,
             };
 
-        var newConfig = new GearDataProviderConfiguration(_config.Data.UpdateOwnData, _config.Data.UpdateCombatJobs,
-                                                          _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs,
-                                                          minILvl);
-        ServiceManager.OwnCharacterDataProvider.Enable(newConfig);
-        ServiceManager.ExamineGearDataProvider.Enable(newConfig);
+        var newOwnConfig = new GearDataProviderConfiguration(_config.Data.UpdateOwnData, _config.Data.UpdateCombatJobs,
+                                                             _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs,
+                                                             minILvl);
+        var newExamineConfig = new GearDataProviderConfiguration(_config.Data.UpdateGearOnExamine,
+                                                                 _config.Data.UpdateCombatJobs,
+                                                                 _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs,
+                                                                 minILvl);
+        ServiceManager.OwnCharacterDataProvider.Enable(newOwnConfig);
+        ServiceManager.ExamineGearDataProvider.Enable(newExamineConfig);
     }
 
     private class ChangelogOptionsWrapper(CoreConfig coreConfig) : ChangeLog.IConfigOptions

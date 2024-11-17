@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -11,16 +10,18 @@ internal unsafe class CharacterInfoService
 {
     private readonly IObjectTable _gameObjects;
     private readonly IPartyList _partyList;
+    private readonly IClientState _clientState;
     private static InfoProxyPartyMember* PartyInfo => InfoProxyPartyMember.Instance();
     private readonly Dictionary<string, ulong> _cache = new();
     private readonly HashSet<string> _notFound = new();
     private DateTime _lastPrune;
-    private static readonly TimeSpan _pruneInterval = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan PruneInterval = TimeSpan.FromSeconds(10);
 
-    internal CharacterInfoService(IObjectTable gameObjects, IPartyList partyList)
+    internal CharacterInfoService(IObjectTable gameObjects, IPartyList partyList, IClientState clientState)
     {
         _gameObjects = gameObjects;
         _partyList = partyList;
+        _clientState = clientState;
         _lastPrune = DateTime.Now;
     }
 
@@ -28,11 +29,11 @@ internal unsafe class CharacterInfoService
     {
         if (character == null)
             return 0;
-        foreach (IPartyMember partyMember in _partyList)
+        foreach (var partyMember in _partyList)
         {
             bool found =
                 partyMember.ObjectId == character.GameObjectId
-             || partyMember.Name.Equals(character.Name) && partyMember.World.Id == character.CurrentWorld.Id;
+             || partyMember.Name.Equals(character.Name) && partyMember.World.RowId == character.CurrentWorld.RowId;
             if (found)
                 return (ulong)partyMember.ContentId;
         }
@@ -43,8 +44,8 @@ internal unsafe class CharacterInfoService
         {
             var entry = PartyInfo->InfoProxyCommonList.GetEntry(i);
             if (entry == null) continue;
-            if (entry->HomeWorld != character.HomeWorld.Id) continue;
-            string name = entry->Name.ToString();
+            if (entry->HomeWorld != character.HomeWorld.RowId) continue;
+            string name = entry->NameString;
             if (name.Equals(character.Name.TextValue))
                 return entry->ContentId;
         }
@@ -59,7 +60,7 @@ internal unsafe class CharacterInfoService
         {
             result = _gameObjects.SearchById(id) as IPlayerCharacter;
             if (result?.Name.TextValue == name
-             && (w is null || w.RowId == result.HomeWorld.Id))
+             && (w is null || w.Value.RowId == result.HomeWorld.RowId))
                 return true;
             else
                 _cache.Remove(name);
@@ -78,7 +79,7 @@ internal unsafe class CharacterInfoService
                 var p = o as IPlayerCharacter;
                 return p != null
                     && p.Name.TextValue == name
-                    && (w is null || p.HomeWorld.Id == w.RowId);
+                    && (w is null || p.HomeWorld.Value.RowId == w.Value.RowId);
             }, null) as IPlayerCharacter;
         if (result != null)
         {
@@ -91,10 +92,11 @@ internal unsafe class CharacterInfoService
             return false;
         }
     }
+    public bool IsSelf(Character character) => Character.CalcCharId(_clientState.LocalContentId) == character.CharId;
 
     private void Update()
     {
-        if (DateTime.Now - _lastPrune <= _pruneInterval) return;
+        if (DateTime.Now - _lastPrune <= PruneInterval) return;
         _lastPrune = DateTime.Now;
         if (_notFound.Count == 0) return;
         _notFound.Clear();

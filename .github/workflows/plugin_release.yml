@@ -1,6 +1,11 @@
 name: Distribute Update
 
-on: push
+on: 
+  push:
+    branches:
+      - master
+      - 'hotfix/**'
+
 env:
   PLUGIN_NAME: 'Himbeertoni Raid Tool'
   PLUGIN_NAME_INTERNAL: 'HimbeertoniRaidTool'
@@ -56,7 +61,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release
     - name: Test
       run: dotnet test --no-build --verbosity normal
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: package
         path: ${{env.PLUGIN_PACKAGE}}
@@ -87,7 +92,7 @@ jobs:
         file: "HimbeertoniRaidTool/manifest.toml"
         key: "plugin.changelog"
         value: "${{ steps.yaml-data.outputs.data }}"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: manifest
         path: HimbeertoniRaidTool/manifest.toml
@@ -111,7 +116,7 @@ jobs:
             sha: context.sha
           })
     - name: 'Download packaged build'
-      uses: actions/download-artifact@v3.0.2
+      uses: actions/download-artifact@v4
       with:
         name: package
         path: artifacts
@@ -149,7 +154,7 @@ jobs:
         ref: main
         path: d17repo
     - name: Downlaod Manifest
-      uses: actions/download-artifact@v3.0.2
+      uses: actions/download-artifact@v4
       with:
         name: manifest
         path: artifacts
