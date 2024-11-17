@@ -12,14 +12,17 @@ public class ChangeLog
         {
             NotableFeatures =
             {
-                new ChangeLogEntry(General, "Updated for 7.1"),
                 new ChangeLogEntry(
-                    Gear, "Gearset can have an alias. If set this is shown instead of the name in the Ui"),
+                    NewFeature,
+                    "Gearsets can have an alias. If an alias is set it is shown instead of the name in the Ui\n"
+                  + "This is editable even for sets from etro or XivGearApp"),
+                new ChangeLogEntry(UserInterface, "Gearset origin is now shown in selection dropdown"),
+                new ChangeLogEntry(General, "Updated for 7.1"),
                 new ChangeLogEntry(UserInterface, "New layout for the stats"),
                 new ChangeLogEntry(UserInterface, "Overhauled item tooltips"),
-                new ChangeLogEntry(UserInterface, "Show gearset origin in selection dropdown"),
                 new ChangeLogEntry(Bugfix, "Deleted sets get correctly removed from the gear/bis list"),
-                new ChangeLogEntry(Gear, "Update gear set buttons now work for XivGearApp (like they did for etro)"),
+                new ChangeLogEntry(Bis, "Update gear set buttons now work for XivGearApp (like they did for etro)"),
+                new ChangeLogEntry(UserInterface, "Searching gear from database now actually shows useful information"),
             },
             MinorFeatures =
             {

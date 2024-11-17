@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -23,7 +24,7 @@ internal class GearDb : DataBaseTable<GearSet>
         base.Load(settings, serializedData);
         if (LoadError)
             return false;
-        foreach ((HrtId id, GearSet set) in Data)
+        foreach (var (id, set) in Data)
         {
             if (set.ManagedBy == GearSetManager.Etro)
                 _etroLookup.TryAdd(set.ExternalId, id);
@@ -32,7 +33,7 @@ internal class GearDb : DataBaseTable<GearSet>
     }
     internal bool TryGetSetByEtroId(string etroId, [NotNullWhen(true)] out GearSet? set)
     {
-        if (_etroLookup.TryGetValue(etroId, out HrtId? id))
+        if (_etroLookup.TryGetValue(etroId, out var id))
             return TryGet(id, out set);
         id = Data.FirstOrDefault(s => s.Value.ExternalId == etroId).Key;
         if (id is not null)
@@ -46,9 +47,9 @@ internal class GearDb : DataBaseTable<GearSet>
     }
     public override void FixEntries()
     {
-        foreach (GearSet dataValue in Data.Values.Where(dataValue =>
-                                                            dataValue is
-                                                                { ManagedBy: GearSetManager.Etro, ExternalId: "" }))
+        foreach (var dataValue in Data.Values.Where(dataValue =>
+                                                        dataValue is
+                                                            { ManagedBy: GearSetManager.Etro, ExternalId: "" }))
         {
             dataValue.ManagedBy = GearSetManager.Hrt;
         }
@@ -63,12 +64,13 @@ internal class GearDb : DataBaseTable<GearSet>
         private int _iLvlMax;
         private int _iLvlMin;
         private Job _job = Job.ADV;
-        private string _name = string.Empty;
+        private GearSetManager _manager = GearSetManager.Unknown;
+        private string _searchTerm = string.Empty;
 
         public GearSearchWindow(GearDb dataBase, Action<GearSet> onSelect, Action? onCancel) : base(
             dataBase, onSelect, onCancel)
         {
-            Size = new Vector2(500, 400);
+            Size = new Vector2(800, 400);
             SizeCondition = ImGuiCond.Appearing;
             Title = GeneralLoc.DBSearchWindowGear_Title;
         }
@@ -78,13 +80,18 @@ internal class GearDb : DataBaseTable<GearSet>
             /*
              * Selection
              */
-            ImGui.Text(GeneralLoc.CommonTerms_Name);
+            ImGui.Text("Search");
             ImGui.SameLine();
             ImGui.SetNextItemWidth(150 * ScaleFactor);
-            ImGui.InputText("##Name", ref _name, 50);
+            ImGui.InputText("##Name", ref _searchTerm, 50);
             ImGui.SameLine();
             ImGui.SetNextItemWidth(55 * ScaleFactor);
             ImGuiHelper.Combo("##Job", ref _job);
+            ImGui.SameLine();
+            ImGui.Text("Service");
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(100 * ScaleFactor);
+            ImGuiHelper.Combo("##Service", ref _manager);
             ImGui.SameLine();
             ImGui.Text(LootmasterLoc.GearSetSearchWindow_iLvlRange);
             ImGui.SameLine();
@@ -98,23 +105,67 @@ internal class GearDb : DataBaseTable<GearSet>
             /*
              * List
              */
-            foreach (GearSet gearSet in Database.Data.Values.Where(set =>
-                                                                       (_job == Job.ADV || set[GearSetSlot.MainHand]
-                                                                           .Jobs.Contains(_job))
-                                                                    && (_iLvlMin == 0 || set.ItemLevel > _iLvlMin)
-                                                                    && (_iLvlMax == 0 || set.ItemLevel < _iLvlMax)
-                                                                    && (_name.Length == 0 || set.Name.Contains(_name))))
+            var table = ImRaii.Table("Sets", 7, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
+            if (!table) return;
+            ImGui.TableSetupColumn("");
+            ImGui.TableSetupColumn("Name");
+            ImGui.TableSetupColumn("iLvl");
+            ImGui.TableSetupColumn("Jobs");
+            ImGui.TableSetupColumn("ID");
+            ImGui.TableSetupColumn("Service");
+            ImGui.TableSetupColumn("External ID");
+            ImGui.TableHeadersRow();
+            foreach (var gearSet in Database.Data.Values.Where(set =>
+                                                                   (_job == Job.ADV || set[GearSetSlot.MainHand]
+                                                                       .Jobs.Contains(_job))
+                                                                && (_manager == GearSetManager.Unknown
+                                                                 || set.ManagedBy == _manager)
+                                                                && (_iLvlMin == 0 || set.ItemLevel > _iLvlMin)
+                                                                && (_iLvlMax == 0 || set.ItemLevel < _iLvlMax)
+                                                                && (_searchTerm.Length == 0
+                                                                 || set.Name.Contains(
+                                                                        _searchTerm,
+                                                                        StringComparison.InvariantCultureIgnoreCase)
+                                                                 || set.LocalId.ToString()
+                                                                       .Contains(_searchTerm,
+                                                                           StringComparison.InvariantCultureIgnoreCase)
+                                                                 || set.ExternalId.ToString()
+                                                                       .Contains(_searchTerm,
+                                                                           StringComparison.InvariantCultureIgnoreCase)
+                                                                 || set.ManagedBy.FriendlyName()
+                                                                       .Contains(_searchTerm,
+                                                                           StringComparison.InvariantCultureIgnoreCase)
+                                                                 || set.ItemLevel.ToString().Contains(_searchTerm)
+                                                                 || set[GearSetSlot.MainHand].Jobs
+                                                                        .Any(s => s.ToString()
+                                                                                 .Contains(_searchTerm,
+                                                                                     StringComparison
+                                                                                         .InvariantCultureIgnoreCase)
+                                                                        ))))
             {
+                ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{gearSet.LocalId}",
-                                       LootmasterLoc.GearSetSearchWindow_button_Select))
+                                       string.Format(GeneralLoc.SearchWindow_btn_tt_SelectEnty,
+                                                     GearSet.DataTypeNameStatic, gearSet)))
                 {
                     Selected = gearSet;
                     Save();
                 }
-                ImGui.SameLine();
+                ImGui.TableNextColumn();
                 ImGui.Text(
-                    $"{gearSet.Name} ({gearSet.ItemLevel}) {(gearSet.ManagedBy == GearSetManager.Etro ? " from Etro" : "")}");
+                    $"{gearSet.Alias ?? gearSet.Name} {(gearSet.Alias is null ? string.Empty : $"({gearSet.Name})")}");
+                ImGui.TableNextColumn();
+                ImGui.Text($"{gearSet.ItemLevel}");
+                ImGui.TableNextColumn();
+                ImGui.Text($"{string.Join(',', gearSet[GearSetSlot.MainHand].Jobs)}");
+                ImGui.TableNextColumn();
+                ImGui.Text($"{gearSet.LocalId}");
+                ImGui.TableNextColumn();
+                ImGui.Text($"{gearSet.ManagedBy.FriendlyName()}");
+                ImGui.TableNextColumn();
+                ImGui.Text($"{gearSet.ExternalId}");
             }
+            table.Dispose();
         }
     }
 }
