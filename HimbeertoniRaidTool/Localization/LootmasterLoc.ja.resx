@@ -125,9 +125,6 @@
   <data name="ConfigUi_txt_currentPrio">
     <value>現在の優先度</value>
   </data>
-  <data name="Ui_btn_tt_inventory">
-    <value>所持品を開く</value>
-  </data>
   <data name="LootCategory_Need">
     <value>NEED</value>
   </data>
