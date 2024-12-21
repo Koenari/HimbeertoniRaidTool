@@ -15,7 +15,7 @@ public class LootSession
     }
 
     public readonly InstanceWithLoot Instance;
-    internal readonly List<(HrtItem item, int count)> Loot = new();
+    internal readonly List<(Item item, int count)> Loot = new();
     public readonly RolePriority RolePriority;
     private RaidGroup _group;
     public List<Player> Excluded = new();
@@ -47,8 +47,8 @@ public class LootSession
         }
     }
 
-    public Dictionary<(HrtItem, int), LootResultContainer> Results { get; } = new();
-    public Dictionary<HrtItem, bool> GuaranteedLoot { get; } = new();
+    public Dictionary<(Item, int), LootResultContainer> Results { get; } = new();
+    public Dictionary<Item, bool> GuaranteedLoot { get; } = new();
     internal int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
     public void Evaluate()
     {
@@ -77,7 +77,7 @@ public class LootSession
         CurrentState = State.Started;
         return true;
     }
-    private LootResultContainer ConstructLootResults(HrtItem droppedItem, IEnumerable<Player>? excludeAddition = null)
+    private LootResultContainer ConstructLootResults(Item droppedItem, IEnumerable<Player>? excludeAddition = null)
     {
         List<Player> excluded = new();
         LootResultContainer results = new(this);
@@ -115,7 +115,7 @@ public class LootSession
         if (Results.Values.All(l => l.Finished) && GuaranteedLoot.Values.All(t => t))
             CurrentState = State.Finished;
     }
-    internal bool AwardGuaranteedLoot(HrtItem item)
+    internal bool AwardGuaranteedLoot(Item item)
     {
         if (CurrentState < State.DistributionStarted)
             CurrentState = State.DistributionStarted;
@@ -130,7 +130,7 @@ public class LootSession
         EvaluateFinished();
         return true;
     }
-    internal bool AwardItem((HrtItem, int) loot, GearItem toAward, int idx, bool altSlot = false)
+    internal bool AwardItem((Item, int) loot, GearItem toAward, int idx, bool altSlot = false)
     {
         if (CurrentState < State.DistributionStarted)
             CurrentState = State.DistributionStarted;
@@ -192,7 +192,7 @@ public class LootResult
     private readonly LootSession _session;
     public readonly HashSet<GearItem> ApplicableItems;
     public readonly PlayableClass ApplicableJob;
-    public readonly HrtItem DroppedItem;
+    public readonly Item DroppedItem;
     public readonly Dictionary<LootRule, (float val, string reason)> EvaluatedRules = new();
     public readonly Job Job;
     public readonly List<GearItem> NeededItems = new();
@@ -200,7 +200,7 @@ public class LootResult
     public readonly int Roll;
     public GearItem? AwardedItem;
     public LootCategory Category = LootCategory.Undecided;
-    public LootResult(LootSession session, Player p, IEnumerable<GearItem> possibleItems, HrtItem droppedItem,
+    public LootResult(LootSession session, Player p, IEnumerable<GearItem> possibleItems, Item droppedItem,
                       Job? job = null)
     {
         _session = session;
@@ -220,7 +220,7 @@ public class LootResult
         //Filter items by job
         ApplicableItems = new HashSet<GearItem>(possibleItems.Where(i => i.Jobs.Contains(Job)));
     }
-    public IEnumerable<HrtItem> GuaranteedLoot => _session.GuaranteedLoot.Keys;
+    public IEnumerable<Item> GuaranteedLoot => _session.GuaranteedLoot.Keys;
     public int RolePriority => _session.RolePriority.GetPriority(ApplicableJob.Role);
     public bool IsEvaluated { get; private set; }
     public bool ShouldIgnore => IsEvaluated && _session.RulingOptions.ActiveRules.Any(x => x.ShouldIgnore(this));

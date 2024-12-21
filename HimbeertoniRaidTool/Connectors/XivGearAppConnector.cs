@@ -126,7 +126,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
             foreach (var materia in item.materia)
             {
                 if (materia.id < 0) continue;
-                set[slot].AddMateria(new HrtMateria((uint)materia.id));
+                set[slot].AddMateria(new MateriaItem((uint)materia.id));
             }
         }
     }

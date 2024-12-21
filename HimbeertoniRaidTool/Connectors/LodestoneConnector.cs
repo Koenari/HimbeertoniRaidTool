@@ -10,21 +10,21 @@ using Lumina.Excel.Sheets;
 using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Model.Parseables.Character.Gear;
-using NetStone.Model.Parseables.Search.Character;
 using NetStone.Search.Character;
+using LuminaItem = Lumina.Excel.Sheets.Item;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
 internal class LodestoneConnector : NetStoneBase
 {
     private const int NO_OF_ALLOWED_LODESTONE_REQUESTS = 8;
-    private readonly ExcelSheet<Item> _itemSheet;
+    private readonly ExcelSheet<LuminaItem> _itemSheet;
     private readonly ExcelSheet<Materia> _materiaSheet;
     private readonly Dictionary<char, byte> _romanNumerals;
 
     internal LodestoneConnector() : base(new RateLimit(NO_OF_ALLOWED_LODESTONE_REQUESTS, new TimeSpan(0, 1, 30)))
     {
-        _itemSheet = ServiceManager.DataManager.GetExcelSheet<Item>(ClientLanguage.English);
+        _itemSheet = ServiceManager.DataManager.GetExcelSheet<LuminaItem>(ClientLanguage.English);
         _materiaSheet = ServiceManager.DataManager.GetExcelSheet<Materia>(ClientLanguage.English);
         _romanNumerals = new Dictionary<char, byte>
         {
@@ -41,13 +41,13 @@ internal class LodestoneConnector : NetStoneBase
         return updateAsync.Result;
     }
 
-    public async Task<HrtUiMessage> UpdateCharacterAsync(Player p)
+    private async Task<HrtUiMessage> UpdateCharacterAsync(Player p)
     {
         bool isHq;
 
         try
         {
-            LodestoneCharacter? lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
+            var lodestoneCharacter = await FetchCharacterFromLodestone(p.MainChar);
             if (lodestoneCharacter == null)
                 return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_CharNotFound, HrtUiMessageType.Failure);
             Job? foundJob;
@@ -59,7 +59,7 @@ internal class LodestoneConnector : NetStoneBase
             if (foundJob == null || !Enum.IsDefined(typeof(Job), foundJob))
                 return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_JobIncompatible, HrtUiMessageType.Failure);
 
-            PlayableClass? classToChange = p.MainChar[foundJob.Value];
+            var classToChange = p.MainChar[foundJob.Value];
             if (classToChange == null)
             {
                 classToChange = p.MainChar.AddClass(foundJob.Value);
@@ -76,7 +76,7 @@ internal class LodestoneConnector : NetStoneBase
             //classToChange.Parent.TribeID = (uint)lodestoneCharacter.RaceClanGender;
 
             // Populate GearSet with newGearset
-            CharacterGear newGearset = lodestoneCharacter.Gear;
+            var newGearset = lodestoneCharacter.Gear;
             FillItem(newGearset.Mainhand, GearSetSlot.MainHand);
             FillItem(newGearset.Offhand, GearSetSlot.OffHand);
             FillItem(newGearset.Head, GearSetSlot.Head);
@@ -124,11 +124,11 @@ internal class LodestoneConnector : NetStoneBase
                     if (materiaCategoryId == null)
                         continue;
                     var materiaCategory = (MateriaCategory)materiaCategoryId;
-                    MateriaLevel materiaLevel =
+                    var materiaLevel =
                         TranslateMateriaLevel(materia.Remove(0, materia.LastIndexOf(" ", StringComparison.Ordinal))
                                                      .Trim());
 
-                    classToChange.CurGear[slot].AddMateria(new HrtMateria(materiaCategory, materiaLevel));
+                    classToChange.CurGear[slot].AddMateria(new MateriaItem(materiaCategory, materiaLevel));
                 }
             }
 
@@ -145,12 +145,12 @@ internal class LodestoneConnector : NetStoneBase
 
     /// <summary>
     ///     Get an item from Lumina sheet by name.
-    ///     Also sets an Item to HQ if the last char in the item name is the HQ-Symbol.
+    ///     Also sets an LuminaItem to HQ if the last char in the item name is the HQ-Symbol.
     /// </summary>
     /// <param name="name">Name of the item to be fetched.</param>
     /// <param name="isHq">Decides if the item is HQ.</param>
     /// <returns></returns>
-    private Item? GetItemByName(string? name, out bool isHq)
+    private LuminaItem? GetItemByName(string? name, out bool isHq)
     {
         isHq = false;
         if (name == null) return null;
@@ -160,8 +160,8 @@ internal class LodestoneConnector : NetStoneBase
             isHq = true;
         }
 
-        return _itemSheet!.FirstOrDefault(item => item.Name.ExtractText().Equals(
-                                              name, StringComparison.InvariantCultureIgnoreCase));
+        return _itemSheet.FirstOrDefault(item => item.Name.ExtractText().Equals(
+                                             name, StringComparison.InvariantCultureIgnoreCase));
     }
 
     /// <summary>
@@ -240,7 +240,7 @@ internal class NetStoneBase : IDisposable
         {
             Thread.Sleep(1000);
         }
-        if (_cachedRequests.TryGetValue(c.Name, out (DateTime time, LodestoneCharacter response) result))
+        if (_cachedRequests.TryGetValue(c.Name, out var result))
             return result.response;
 
         _currentRequests.TryAdd(c.Name, DateTime.Now);
@@ -253,12 +253,12 @@ internal class NetStoneBase : IDisposable
                 if (c.HomeWorldId == 0 || homeWorld == null)
                     return null;
                 ServiceManager.Logger.Info("Using name and home world to search...");
-                CharacterSearchPage? netStoneResponse = await _lodestoneClient.SearchCharacter(new CharacterSearchQuery
+                var netStoneResponse = await _lodestoneClient.SearchCharacter(new CharacterSearchQuery
                 {
                     CharacterName = c.Name,
                     World = homeWorld.Value.Name.ExtractText(),
                 });
-                CharacterSearchEntry? characterEntry = netStoneResponse?.Results.FirstOrDefault(
+                var characterEntry = netStoneResponse?.Results.FirstOrDefault(
                     res => res.Name == c.Name);
                 if (!int.TryParse(characterEntry?.Id, out c.LodestoneId))
                     ServiceManager.Logger.Warning("Tried parsing LodestoneID but failed.");

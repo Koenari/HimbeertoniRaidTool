@@ -23,7 +23,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
     {
         _taskManager = tm;
         _bisCache = new Dictionary<Job, Dictionary<string, string>>();
-        foreach (Job job in Enum.GetValues<Job>())
+        foreach (var job in Enum.GetValues<Job>())
         {
             _bisCache.Add(job, new Dictionary<string, string>());
         }
@@ -53,7 +53,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
     public string GetName(string id)
     {
         if (id.Equals("")) return string.Empty;
-        HttpResponseMessage? httpResponse = MakeWebRequest(GEARSET_API_BASE_URL + id);
+        var httpResponse = MakeWebRequest(GEARSET_API_BASE_URL + id);
         if (httpResponse is not { IsSuccessStatusCode: true }) return string.Empty;
         var readTask = httpResponse.Content.ReadAsStringAsync();
         readTask.Wait();
@@ -68,7 +68,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
             return failureMessage;
         var sets = JsonConvert.DeserializeObject<EtroGearSet[]>(jsonResponse, JsonSettings);
         if (sets == null) return failureMessage;
-        foreach (EtroGearSet set in sets)
+        foreach (var set in sets)
         {
             if (set.id != null)
                 _bisCache[set.job][set.id] = set.name ?? set.id;
@@ -99,7 +99,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
             return errorMessage;
         errorMessage.Message = $"{errorMessage.Message} ({set.ExternalId})";
 
-        HttpResponseMessage? httpResponse = MakeWebRequest(GEARSET_API_BASE_URL + set.ExternalId);
+        var httpResponse = MakeWebRequest(GEARSET_API_BASE_URL + set.ExternalId);
         if (httpResponse == null)
             return errorMessage;
         if (httpResponse.StatusCode == HttpStatusCode.NotFound)
@@ -135,7 +135,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
             return successMessage;
         foreach ((string slot, string relicId) in etroSet.relics)
         {
-            EtroRelic? relic = GetRelicItem(relicId);
+            var relic = GetRelicItem(relicId);
             if (relic is null) continue;
             switch (slot)
             {
@@ -173,22 +173,22 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
             if (!(etroSet.materia?.TryGetValue(idString, out var materia) ?? false)) return;
             foreach (uint? matId in materia.Values.Where(matId => matId.HasValue))
             {
-                set[slot].AddMateria(new HrtMateria(matId!.Value));
+                set[slot].AddMateria(new MateriaItem(matId!.Value));
             }
         }
     }
     internal HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays)
     {
-        DateTime oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
+        var oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
-        foreach (GearSet gearSet in ServiceManager.HrtDataManager.GearDb.GetValues()
-                                                  .Where(set => set.ManagedBy == GearSetManager.Etro))
+        foreach (var gearSet in ServiceManager.HrtDataManager.GearDb.GetValues()
+                                              .Where(set => set.ManagedBy == GearSetManager.Etro))
         {
             totalCount++;
             if (gearSet.IsEmpty || gearSet.LastExternalFetchDate < oldestValid && updateAll)
             {
-                HrtUiMessage message = UpdateGearSet(gearSet);
+                var message = UpdateGearSet(gearSet);
                 if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
                     ServiceManager.Logger.Error(message.Message);
                 if (message.MessageType is HrtUiMessageType.Warning)

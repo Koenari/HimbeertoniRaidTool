@@ -3,7 +3,7 @@ using Dalamud.Interface;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using Lumina.Excel.Sheets;
+using LuminaItem = Lumina.Excel.Sheets.Item;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -22,7 +22,7 @@ internal static class UiHelpers
     public static void DrawGearEdit(HrtWindowWithModalChild parent, GearSetSlot slot,
                                     GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {
-        //Item Icon with Info
+        //LuminaItem Icon with Info
         ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle, new Vector2(24, 24));
         if (ImGui.IsItemHovered())
         {
@@ -33,7 +33,7 @@ internal static class UiHelpers
         ImGui.SameLine();
         //Quick select
         string itemName = item.Name;
-        if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out Item outItem, _ => itemName,
+        if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out LuminaItem outItem, _ => itemName,
                                         i => i.Name.ExtractText(), IsApplicable, ImGuiComboFlags.NoArrowButton))
         {
             onItemChange(new GearItem(outItem.RowId));
@@ -81,7 +81,7 @@ internal static class UiHelpers
             if (i == matCount - 1)
             {
                 if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"##delete{slot}mat{i}",
-                                       string.Format(GeneralLoc.General_btn_tt_remove, HrtMateria.DataTypeNameStatic,
+                                       string.Format(GeneralLoc.General_btn_tt_remove, MateriaItem.DataTypeNameStatic,
                                                      string.Empty)))
                 {
                     item.RemoveMateria(i);
@@ -118,7 +118,7 @@ internal static class UiHelpers
                 ) && cat != MateriaCategory.None
                )
             {
-                item.ReplaceMateria(i, new HrtMateria(cat, mat.Level));
+                item.ReplaceMateria(i, new MateriaItem(cat, mat.Level));
             }
             ImGui.SameLine();
             ImGui.Text(GeneralLoc.CommonTerms_Materia);
@@ -135,7 +135,7 @@ internal static class UiHelpers
                     ImGuiComboFlags.NoArrowButton
                 ))
             {
-                item.ReplaceMateria(i, new HrtMateria(mat.Category, level));
+                item.ReplaceMateria(i, new MateriaItem(mat.Category, level));
             }
 
         }
@@ -159,7 +159,7 @@ internal static class UiHelpers
                     ImGuiComboFlags.NoArrowButton
                 ) && cat != MateriaCategory.None)
             {
-                item.AddMateria(new HrtMateria(cat, levelToAdd));
+                item.AddMateria(new MateriaItem(cat, levelToAdd));
             }
             ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
@@ -168,7 +168,7 @@ internal static class UiHelpers
             ImGui.EndDisabled();
         }
         return;
-        bool IsApplicable(Item itemToCheck)
+        bool IsApplicable(LuminaItem itemToCheck)
         {
             return itemToCheck.ClassJobCategory.Value.Contains(curJob)
                 && itemToCheck.EquipSlotCategory.Value.Contains(slot);

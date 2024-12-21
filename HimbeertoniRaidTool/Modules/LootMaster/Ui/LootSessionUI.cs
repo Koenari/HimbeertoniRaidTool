@@ -56,7 +56,7 @@ internal class LootSessionUi : HrtWindow
         if (ImGui.BeginCombo("##RaidGroup", _session.Group.Name))
         {
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (RaidGroup group in _possibleGroups)
+            foreach (var group in _possibleGroups)
             {
                 if (ImGui.Selectable(group.Name) && group != _session.Group)
                     _session.Group = group;
@@ -97,7 +97,7 @@ internal class LootSessionUi : HrtWindow
                         break;
                     }
 
-                    HrtItem item = _session.Loot[row * itemsPerRow + col].item;
+                    var item = _session.Loot[row * itemsPerRow + col].item;
                     ImGui.TableNextColumn();
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
                     ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle,
@@ -118,7 +118,7 @@ internal class LootSessionUi : HrtWindow
                         break;
                     }
 
-                    (HrtItem item, int count) = _session.Loot[row * itemsPerRow + col];
+                    (var item, int count) = _session.Loot[row * itemsPerRow + col];
                     ImGui.TableNextColumn();
                     int count2 = count;
                     ImGui.SetNextItemWidth(ScaleFactor * (itemSize - 10f));
@@ -142,7 +142,7 @@ internal class LootSessionUi : HrtWindow
     private void DrawRulingOptions()
     {
         //Begin rule section
-        ImRaii.IEndObject rulesChild =
+        var rulesChild =
             ImRaii.Child("##Rules", new Vector2(270 * ScaleFactor, 270 * ScaleFactor), false);
         if (!rulesChild.Success)
             return;
@@ -164,11 +164,11 @@ internal class LootSessionUi : HrtWindow
                                _session.CurrentState < LootSession.State.DistributionStarted))
             _session.RevertToChooseLoot();
         ImGui.Separator();
-        //Guaranteed Item
+        //Guaranteed LuminaItem
         ImGui.Text(LootmasterLoc.LootUi_Results_hdg_GuaranteedItems);
         if (_session.GuaranteedLoot.Count == 0)
             ImGui.Text(GeneralLoc.CommonTerms_None);
-        foreach ((HrtItem item, bool awarded) in _session.GuaranteedLoot)
+        foreach ((var item, bool awarded) in _session.GuaranteedLoot)
         {
             ImGui.BeginGroup();
             ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle,
@@ -195,7 +195,7 @@ internal class LootSessionUi : HrtWindow
         ImGui.Separator();
         if (_session.Results.Count == 0)
             ImGui.Text(GeneralLoc.CommonTerms_None);
-        foreach (((HrtItem item, int nr), LootResultContainer results) in _session.Results)
+        foreach (((var item, int nr), var results) in _session.Results)
         {
             ImGui.PushID($"{item.Id}##{nr}");
             if (ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n {results.ShortResult}",
@@ -207,25 +207,25 @@ internal class LootSessionUi : HrtWindow
                     ImGui.TableSetupColumn(Player.DataTypeNameStatic.CapitalizedSentence());
                     ImGui.TableSetupColumn(LootmasterLoc.LootUi_Results_hdg_NeededItems);
                     ImGui.TableSetupColumn(LootmasterLoc.LootUI_Results_Rule);
-                    foreach (LootRule rule in _session.RulingOptions.ActiveRules)
+                    foreach (var rule in _session.RulingOptions.ActiveRules)
                     {
                         ImGui.TableSetupColumn(rule.Name);
                     }
                     ImGui.TableHeadersRow();
 
                     int place = 1;
-                    LootRule lastRule = LootRuling.Default;
+                    var lastRule = LootRuling.Default;
                     for (int i = 0; i < results.Count; i++)
                     {
-                        LootResult singleResult = results[i];
+                        var singleResult = results[i];
                         if (singleResult.ShouldIgnore) continue;
-                        LootResult? nextResult = i + 1 < results.Count ? results[i + 1] : null;
+                        var nextResult = i + 1 < results.Count ? results[i + 1] : null;
                         ImGui.TableNextColumn();
                         ImGui.Text(place.ToString());
                         ImGui.TableNextColumn();
                         ImGui.Text($"{singleResult.Player.NickName} ({singleResult.ApplicableJob})");
                         ImGui.TableNextColumn();
-                        foreach (GearItem neededItem in singleResult.NeededItems)
+                        foreach (var neededItem in singleResult.NeededItems)
                         {
                             ImGui.Text(neededItem.Name);
                             if (ImGui.IsItemHovered())
@@ -264,9 +264,9 @@ internal class LootSessionUi : HrtWindow
                         ImGui.TableNextColumn();
                         if (singleResult.Category == LootCategory.Need)
                         {
-                            LootRule decidingFactor = singleResult.DecidingFactor(nextResult);
+                            var decidingFactor = singleResult.DecidingFactor(nextResult);
                             ImGui.Text(decidingFactor.Name);
-                            foreach (LootRule rule in _session.RulingOptions.ActiveRules)
+                            foreach (var rule in _session.RulingOptions.ActiveRules)
                             {
                                 ImGui.TableNextColumn();
                                 string toPrint =
@@ -288,7 +288,7 @@ internal class LootSessionUi : HrtWindow
                         else
                         {
                             ImGui.Text(singleResult.Category.FriendlyName());
-                            foreach (LootRule _ in _session.RulingOptions.ActiveRules)
+                            foreach (var _ in _session.RulingOptions.ActiveRules)
                             {
                                 ImGui.TableNextColumn();
                                 ImGui.Text("-");

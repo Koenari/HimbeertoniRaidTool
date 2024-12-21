@@ -3,9 +3,7 @@ using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
-using XIVCalc.Interfaces;
 using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
 using ServiceManager = HimbeertoniRaidTool.Plugin.Services.ServiceManager;
 
@@ -217,7 +215,7 @@ public static class LootRulesExtension
                     var costItem = ServiceManager.ItemInfo.AdjustItemCost(cost.ItemCost, shopEntry.entry.PatchNumber);
                     if (ItemInfo.IsCurrency(costItem.RowId)) continue;
                     if (ItemInfo.IsTomeStone(costItem.RowId)) continue;
-                    if (result.ApplicableJob.CurGear.Contains(new HrtItem(costItem.RowId))) continue;
+                    if (result.ApplicableJob.CurGear.Contains(new Item(costItem.RowId))) continue;
                     if (result.Player.MainChar.MainInventory.ItemCount(costItem.RowId)
                      >= cost.CurrencyCost) continue;
                     return false;
@@ -237,7 +235,7 @@ public static class LootRulesExtension
                     var costItem = ServiceManager.ItemInfo.AdjustItemCost(cost.ItemCost, shopEntry.entry.PatchNumber);
                     if (ItemInfo.IsCurrency(costItem.RowId)) continue;
                     if (ItemInfo.IsTomeStone(costItem.RowId)) continue;
-                    if (result.ApplicableJob.CurGear.Contains(new HrtItem(costItem.RowId))) continue;
+                    if (result.ApplicableJob.CurGear.Contains(new Item(costItem.RowId))) continue;
                     if (result.Player.MainChar.MainInventory.ItemCount(costItem.RowId)
                       + (result.GuaranteedLoot.Any(loot => loot.Id == costItem.RowId) ? 1 : 0)
                      >= cost.CurrencyCost) continue;

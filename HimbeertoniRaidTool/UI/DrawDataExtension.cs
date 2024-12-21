@@ -1,14 +1,13 @@
 ﻿using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using Lumina.Excel.Sheets;
 using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
 public static class DrawDataExtension
 {
-    public static void Draw(this Item item) => new GearItem(item.RowId).Draw();
-    public static void Draw(this HrtItem item)
+    public static void Draw(this Lumina.Excel.Sheets.Item item) => new GearItem(item.RowId).Draw();
+    public static void Draw(this Item item)
     {
         if (!item.Filled)
             return;
@@ -23,7 +22,7 @@ public static class DrawDataExtension
             DrawRow(GeneralLoc.CommonTerms_itemLevel, item.ItemLevel);
         DrawRow(GeneralLoc.ItemTable_heading_source, item.Source);
         //Materia Stats
-        if (item is HrtMateria matItem)
+        if (item is MateriaItem matItem)
         {
             DrawRow(matItem.StatType.FriendlyName(), matItem.GetStat());
         }
@@ -88,8 +87,8 @@ public static class DrawDataExtension
         }
         ImGui.EndTable();
     }
-    public static void Draw(this (HrtItem cur, HrtItem bis) itemTuple) => Draw(itemTuple.cur, itemTuple.bis);
-    private static void Draw(HrtItem left, HrtItem right)
+    public static void Draw(this (Item cur, Item bis) itemTuple) => Draw(itemTuple.cur, itemTuple.bis);
+    private static void Draw(Item left, Item right)
     {
         if (!left.Filled || !right.Filled)
             return;
@@ -107,7 +106,7 @@ public static class DrawDataExtension
             DrawRow(GeneralLoc.CommonTerms_itemLevel, left.ItemLevel, right.ItemLevel);
         DrawRow(GeneralLoc.ItemTable_heading_source, left.Source, right.Source);
         //Materia Stats
-        if (left is HrtMateria leftMat && right is HrtMateria rightMat)
+        if (left is MateriaItem leftMat && right is MateriaItem rightMat)
         {
             if (leftMat.StatType == rightMat.StatType)
                 DrawRow(leftMat.StatType.FriendlyName(), leftMat.GetStat(), rightMat.GetStat());

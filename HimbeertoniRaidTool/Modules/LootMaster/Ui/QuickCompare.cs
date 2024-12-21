@@ -113,7 +113,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
     private Action<GearItem> ItemChangeCallback(GearSetSlot slot)
         => newItem =>
         {
-            foreach (HrtMateria? mat in _newGear[slot].Materia)
+            foreach (var mat in _newGear[slot].Materia)
             {
                 newItem.AddMateria(mat);
             }
