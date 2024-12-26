@@ -333,9 +333,6 @@
   <data name="EditGearSetUi_btn_GetExternal" xml:space="preserve">
         <value>Ersetzen</value>
     </data>
-  <data name="EditGearSetUi_btn_tt_GetExternal" xml:space="preserve">
-        <value>Herunterladen und aktulles Set ersezen</value>
-    </data>
   <data name="EditGearSetUi_btn_tt_cutsomEtro" xml:space="preserve">
         <value>Herunterladen</value>
     </data>
@@ -386,17 +383,11 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
   <data name="EditGearSetUi_btn_openEtro" xml:space="preserve">
         <value>Set auf etro.gg öffnen</value>
     </data>
-  <data name="EditGearSetUi_txt_lastUpdate" xml:space="preserve">
-        <value>Letzte Update-Prüfung: {0}</value>
-    </data>
   <data name="Gearset_Warning_SysManaged" xml:space="preserve">
         <value>Dieses Set wird durch das Plugin verwaltet und wird automatisch auf den aktuellen Stand des entsprechenden Charakters gebracht!</value>
     </data>
   <data name="EditGearSetUi_txt_Source" xml:space="preserve">
         <value>Ursprung</value>
-    </data>
-  <data name="EditGearSetUi_txt_LastChange" xml:space="preserve">
-        <value>Letzte Änderung: {0}</value>
     </data>
   <data name="EditCharUi_cb_hideJob" xml:space="preserve">
         <value>Diesen Job nicht anzeigen</value>
@@ -449,5 +440,6 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
     </data>
   <data name="XivGearAppConnector_GetGearSet_Success" xml:space="preserve">
         <value>Update von XivGear.app für {0} erfolgreich</value>
+        <comment>{0} name</comment>
     </data>
 </root>
