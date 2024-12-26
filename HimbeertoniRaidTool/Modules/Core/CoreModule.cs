@@ -24,6 +24,7 @@ internal class CoreModule : IHrtModule
         WindowSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
         _changelog = new ChangeLog(this, new ChangelogOptionsWrapper(_config));
+        Services = ServiceManager.GetServiceContainer(this);
         foreach (var command in InternalCommands)
         {
             AddCommand(command);
@@ -63,6 +64,7 @@ internal class CoreModule : IHrtModule
     public string Name => CoreLoc.Module_Name;
     public string Description => CoreLoc.Module_Description;
 
+    public IServiceContainer Services { get; }
     public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
     {

@@ -4,7 +4,6 @@ using Dalamud.Interface;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
@@ -12,22 +11,22 @@ internal class LootmasterUi : HrtWindow
 {
     private readonly Vector2 _buttonSize;
     private readonly Vector2 _buttonSizeVertical;
-    private readonly LootMasterModule _lootMaster;
+    private readonly LootMasterModule _module;
     private readonly Queue<HrtUiMessage> _messageQueue = new();
     private (HrtUiMessage message, DateTime time)? _currentMessage;
 
     internal LootmasterUi(LootMasterModule lootMaster) : base("LootMaster", ImGuiWindowFlags.HorizontalScrollbar)
     {
-        _lootMaster = lootMaster;
+        _module = lootMaster;
         CurrentGroupIndex = 0;
         Size = new Vector2(1720, 750);
         _buttonSize = new Vector2(30f, 25f);
         _buttonSizeVertical = new Vector2(_buttonSize.Y, _buttonSize.X);
         SizeCondition = ImGuiCond.FirstUseEver;
         Title = LootmasterLoc.Ui_Title;
-        Services.ServiceManager.PluginInterface.UiBuilder.OpenMainUi += Show;
+        ServiceManager.PluginInterface.UiBuilder.OpenMainUi += Show;
     }
-    private LootMasterConfiguration.ConfigData CurConfig => _lootMaster.ConfigImpl.Data;
+    private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
     internal int CurrentGroupIndex { get; private set; }
     private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurrentGroupIndex];
     //private GameExpansion ActiveExpansion => CurConfig.ActiveExpansion;
@@ -37,13 +36,12 @@ internal class LootmasterUi : HrtWindow
     private bool AddChild(HrtWindow? child)
     {
         if (child is null) return false;
-        if (_lootMaster.WindowSystem.Windows.Any(child.Equals))
+        if (_module.WindowSystem.Windows.Any(child.Equals))
         {
             child.Hide();
             return false;
         }
-
-        _lootMaster.WindowSystem.AddWindow(child);
+        _module.WindowSystem.AddWindow(child);
         child.Show();
         return true;
     }
@@ -54,14 +52,14 @@ internal class LootmasterUi : HrtWindow
     {
         base.Update();
         Queue<HrtWindow> toRemove = new();
-        foreach (var w in _lootMaster.WindowSystem.Windows.Where(x => !x.IsOpen))
+        foreach (var w in _module.WindowSystem.Windows.Where(x => !x.IsOpen))
         {
             toRemove.Enqueue(w);
         }
         foreach (var w in toRemove.Where(w => !w.Equals(this)))
         {
-            Services.ServiceManager.Logger.Debug($"Cleaning Up Window: {w.WindowName}");
-            _lootMaster.WindowSystem.RemoveWindow(w);
+            ServiceManager.Logger.Debug($"Cleaning Up Window: {w.WindowName}");
+            _module.WindowSystem.RemoveWindow(w);
         }
     }
 
@@ -105,13 +103,13 @@ internal class LootmasterUi : HrtWindow
         ImGui.Spacing();
         ImGui.Text($"{p.NickName} : {string.Format($"{{0:{CurConfig.CharacterNameFormat}}}", p.MainChar)}");
         ImGui.SameLine();
-        ImGuiHelper.GearUpdateButtons(p, _lootMaster, true);
+        ImGuiHelper.GearUpdateButtons(p, _module, true);
         ImGui.SameLine();
         if (ImGuiHelper.EditButton(p, $"##EditPlayer{p.NickName}"))
-            AddChild(EditWindowFactory.Create(p));
+            _module.Services.EditWindows.Create(p);
         ImGui.SameLine();
         if (ImGuiHelper.EditButton(p.MainChar, $"##EditCharacter{p.NickName}"))
-            AddChild(EditWindowFactory.Create(p.MainChar));
+            _module.Services.EditWindows.Create(p.MainChar);
         ImGui.BeginChild("JobList");
         Action? deferredAction = null;
         foreach (var playableClass in p.MainChar.Classes.Where(c => !c.HideInUi))
@@ -150,12 +148,12 @@ internal class LootmasterUi : HrtWindow
             ImGui.SameLine();
             LmUiHelpers.DrawGearSetCombo("##curGear", playableClass.CurGear, playableClass.GearSets,
                                          s => playableClass.CurGear = s,
-                                         AddChild, playableClass.Job, comboWidth);
+                                         _module, playableClass.Job, comboWidth);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(playableClass.CurGear, "##editGear"))
-                AddChild(EditWindowFactory.Create(playableClass.CurGear, g => playableClass.CurGear = g, () => { },
-                                                  () => playableClass.RemoveGearSet(playableClass.CurGear),
-                                                  playableClass.Job));
+                _module.Services.EditWindows.Create(playableClass.CurGear, g => playableClass.CurGear = g, () => { },
+                                                    () => playableClass.RemoveGearSet(playableClass.CurGear),
+                                                    playableClass.Job);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, "##quickCompare",
                                    LootmasterLoc.PlayerDetail_button_quickCompare))
@@ -168,14 +166,14 @@ internal class LootmasterUi : HrtWindow
             ImGui.SameLine();
             LmUiHelpers.DrawGearSetCombo("##curBis", playableClass.CurBis, playableClass.BisSets,
                                          s => playableClass.CurBis = s,
-                                         AddChild, playableClass.Job, comboWidth);
+                                         _module, playableClass.Job, comboWidth);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(playableClass.CurBis, "##editBIS"))
-                AddChild(EditWindowFactory.Create(playableClass.CurBis, g => playableClass.CurBis = g, () => { },
-                                                  () => playableClass.RemoveBisSet(playableClass.CurBis),
-                                                  playableClass.Job));
+                _module.Services.EditWindows.Create(playableClass.CurBis, g => playableClass.CurBis = g, () => { },
+                                                    () => playableClass.RemoveBisSet(playableClass.CurBis),
+                                                    playableClass.Job);
             ImGui.SameLine();
-            ImGuiHelper.ExternalGearUpdateButton(playableClass.CurBis, _lootMaster);
+            ImGuiHelper.ExternalGearUpdateButton(playableClass.CurBis, _module);
             ImGui.Spacing();
             ImGui.PopID();
         }
@@ -258,12 +256,12 @@ internal class LootmasterUi : HrtWindow
 
     public override void Draw()
     {
-        if (CurrentGroupIndex > _lootMaster.RaidGroups.Count - 1 || CurrentGroupIndex < 0)
+        if (CurrentGroupIndex > _module.RaidGroups.Count - 1 || CurrentGroupIndex < 0)
             CurrentGroupIndex = 0;
         DrawUiMessages();
         if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "##showConfig",
                                LootmasterLoc.ui_btn_tt_showConfig))
-            Services.ServiceManager.ConfigManager.Show();
+            ServiceManager.ConfigManager.Show();
         ImGui.SameLine();
         DrawLootHandlerButtons();
         DrawRaidGroupSwitchBar();
@@ -277,7 +275,7 @@ internal class LootmasterUi : HrtWindow
             {
                 if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##Solo",
                                        string.Format(GeneralLoc.Ui_btn_tt_add, CurrentGroup[0].DataTypeName)))
-                    AddChild(EditWindowFactory.Create(CurrentGroup[0]));
+                    _module.Services.EditWindows.Create(CurrentGroup[0]);
             }
         }
         else
@@ -315,14 +313,14 @@ internal class LootmasterUi : HrtWindow
     {
         if (!ImGui.BeginTabBar("##RaidGroupSwitchBar"))
             return;
-        for (int tabBarIdx = 0; tabBarIdx < _lootMaster.RaidGroups.Count; tabBarIdx++)
+        for (int tabBarIdx = 0; tabBarIdx < _module.RaidGroups.Count; tabBarIdx++)
         {
             ImGui.PushID(tabBarIdx);
             //0 is reserved for Solo on current Character (only partially editable)
             bool isPredefinedSolo = tabBarIdx == 0;
             bool isActiveGroup = tabBarIdx == CurrentGroupIndex;
 
-            var group = _lootMaster.RaidGroups[tabBarIdx];
+            var group = _module.RaidGroups[tabBarIdx];
             if (isActiveGroup) ImGui.PushStyleColor(ImGuiCol.Tab, Colors.RedWood);
 
             if (ImGui.TabItemButton(group.Name))
@@ -334,7 +332,7 @@ internal class LootmasterUi : HrtWindow
                 if (ImGuiHelper.EditButton(group, "##editGroup"))
                 {
                     group.TypeLocked |= isPredefinedSolo;
-                    AddChild(EditWindowFactory.Create(group));
+                    _module.Services.EditWindows.Create(group);
                     ImGui.CloseCurrentPopup();
                 }
 
@@ -345,7 +343,7 @@ internal class LootmasterUi : HrtWindow
                                                   string.Format(GeneralLoc.General_btn_tt_remove, group.DataTypeName,
                                                                 group.Name)))
                     {
-                        _lootMaster.RaidGroups.Remove(group);
+                        _module.RaidGroups.Remove(group);
                         ImGui.CloseCurrentPopup();
                     }
                 }
@@ -363,13 +361,13 @@ internal class LootmasterUi : HrtWindow
         {
             if (ImGuiHelper.Button(LootmasterLoc.Ui_btn_newGroupAutomatic, null))
             {
-                _lootMaster.AddGroup(new RaidGroup(LootmasterLoc.AutoCreatedGroupName), true);
+                _module.AddGroup(new RaidGroup(LootmasterLoc.AutoCreatedGroupName), true);
                 ImGui.CloseCurrentPopup();
             }
 
             if (ImGuiHelper.Button(LootmasterLoc.Ui_btn_newGroupManual,
                                    string.Format(GeneralLoc.Ui_btn_tt_addEmpty, RaidGroup.DataTypeNameStatic)))
-                AddChild(EditWindowFactory.Create(new RaidGroup(), group => _lootMaster.AddGroup(group, false)));
+                _module.Services.EditWindows.Create(new RaidGroup(), group => _module.AddGroup(group, false));
             ImGui.EndPopup();
         }
 
@@ -404,11 +402,11 @@ internal class LootmasterUi : HrtWindow
                 $"{player.MainChar.MainClass?.Role.FriendlyName() ?? Player.DataTypeNameStatic.CapitalizedSentence()}:   {player.NickName}");
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player, "##editPlayer"))
-                AddChild(EditWindowFactory.Create(player));
+                _module.Services.EditWindows.Create(player);
             ImGui.Text(string.Format($"{{0:{CurConfig.CharacterNameFormat}}}", player.MainChar));
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player.MainChar, "##editCharacter"))
-                AddChild(EditWindowFactory.Create(player.MainChar));
+                _module.Services.EditWindows.Create(player.MainChar);
             var curJob = player.MainChar.MainClass;
             if (player.MainChar.Classes.Any())
             {
@@ -451,32 +449,32 @@ internal class LootmasterUi : HrtWindow
                  * Current Gear
                  */
                 ImGui.SetCursorPosY(dualTopRowY);
-                LmUiHelpers.DrawGearSetCombo("##curGear", gear, curJob.GearSets, s => curJob.CurGear = s, AddChild,
+                LmUiHelpers.DrawGearSetCombo("##curGear", gear, curJob.GearSets, s => curJob.CurGear = s, _module,
                                              curJob.Job,
                                              comboWidth);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualTopRowY);
                 if (ImGuiHelper.EditButton(gear, "##editCurGear", true, ButtonSize))
-                    AddChild(EditWindowFactory.Create(gear, g => curJob.CurGear = g, null,
-                                                      () => curJob.RemoveGearSet(curJob.CurGear), curJob.Job));
+                    _module.Services.EditWindows.Create(gear, g => curJob.CurGear = g, null,
+                                                        () => curJob.RemoveGearSet(curJob.CurGear), curJob.Job);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualTopRowY);
-                ImGuiHelper.GearUpdateButtons(player, _lootMaster, false, ButtonSize);
+                ImGuiHelper.GearUpdateButtons(player, _module, false, ButtonSize);
                 /*
                  * Current BiS
                  */
                 ImGui.SetCursorPosY(dualBottomRowY);
-                LmUiHelpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s, AddChild,
+                LmUiHelpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s, _module,
                                              curJob.Job,
                                              comboWidth);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualBottomRowY);
                 if (ImGuiHelper.EditButton(bis, "##editBiSGear", true, ButtonSize))
-                    AddChild(EditWindowFactory.Create(bis, g => curJob.CurBis = g, null,
-                                                      () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job));
+                    _module.Services.EditWindows.Create(bis, g => curJob.CurBis = g, null,
+                                                        () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualBottomRowY);
-                ImGuiHelper.ExternalGearUpdateButton(bis, _lootMaster, ButtonSize);
+                ImGuiHelper.ExternalGearUpdateButton(bis, _module, ButtonSize);
                 ImGui.PopID();
                 foreach (var (slot, itemTuple) in curJob.ItemTuples)
                 {
@@ -532,30 +530,30 @@ internal class LootmasterUi : HrtWindow
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##addNew",
                                    string.Format(GeneralLoc.Ui_btn_tt_addEmpty, player.DataTypeName),
                                    true, ButtonSize))
-                AddChild(EditWindowFactory.Create(player));
+                _module.Services.EditWindows.Create(player);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addPlayerFromDB",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, group[pos].DataTypeName), true,
                                    ButtonSize))
-                AddChild(Services.ServiceManager.HrtDataManager.PlayerDb.OpenSearchWindow(
+                AddChild(ServiceManager.HrtDataManager.PlayerDb.OpenSearchWindow(
                              selected => group[pos] = selected));
             if (ImGuiHelper.Button(FontAwesomeIcon.LocationCrosshairs, "AddTarget",
                                    string.Format(LootmasterLoc.Ui_btn_addPlayerFromTarget_tt,
-                                                 Services.ServiceManager.TargetManager.Target?.Name
+                                                 ServiceManager.TargetManager.Target?.Name
                                               ?? GeneralLoc.CommonTerms_None),
-                                   Services.ServiceManager.TargetManager.Target is not null, ButtonSize))
+                                   ServiceManager.TargetManager.Target is not null, ButtonSize))
             {
-                _lootMaster.FillPlayerFromTarget(player);
-                if (Services.ServiceManager.TargetManager.Target is IPlayerCharacter target)
+                _module.FillPlayerFromTarget(player);
+                if (ServiceManager.TargetManager.Target is IPlayerCharacter target)
                     CsHelpers.SafeguardedOpenExamine(target);
             }
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addCharFromDB",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting,
                                                  Character.DataTypeNameStatic), true, ButtonSize))
-                AddChild(Services.ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(selected =>
+                AddChild(ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(selected =>
                 {
-                    if (!Services.ServiceManager.HrtDataManager.PlayerDb.TryAdd(player))
+                    if (!ServiceManager.HrtDataManager.PlayerDb.TryAdd(player))
                         return;
                     player.NickName = selected.Name.Split(' ')[0];
                     player.MainChar = selected;

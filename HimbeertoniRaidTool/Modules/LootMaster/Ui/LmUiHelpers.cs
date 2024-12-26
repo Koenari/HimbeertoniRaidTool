@@ -45,7 +45,7 @@ internal static class LmUiHelpers
         };
     internal static void DrawGearSetCombo(string id, GearSet current, IEnumerable<GearSet> list,
                                           Action<GearSet> changeCallback,
-                                          Func<HrtWindow?, bool> addWindow, Job job = Job.ADV,
+                                          IHrtModule module, Job job = Job.ADV,
                                           float width = 85f)
     {
         ImGui.SetNextItemWidth(width);
@@ -61,11 +61,11 @@ internal static class LmUiHelpers
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_Add_new))
             {
-                addWindow(EditWindowFactory.Create(new GearSet(), changeCallback, null, null, job));
+                module.Services.EditWindows.Create(new GearSet(), changeCallback, null, null, job);
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_AddFromDB))
             {
-                addWindow(ServiceManager.HrtDataManager.GearDb.OpenSearchWindow(changeCallback));
+                module.WindowSystem.AddWindow(ServiceManager.HrtDataManager.GearDb.OpenSearchWindow(changeCallback));
             }
             ImGui.EndCombo();
         }
@@ -284,8 +284,6 @@ internal static class LmUiHelpers
             {
                 ImGui.Text(formats[i](rightEvals[i]));
             }
-            return;
-
         }
         Vector4 Color(double diff, bool lowerIsBetter = false)
         {

@@ -12,6 +12,7 @@ public interface IHrtModule
     IHrtConfiguration Configuration { get; }
     IWindowSystem WindowSystem { get; }
     IEnumerable<HrtCommand> Commands { get; }
+    IServiceContainer Services { get; }
     event Action UiReady;
     void HandleMessage(HrtUiMessage message);
     void AfterFullyLoaded();

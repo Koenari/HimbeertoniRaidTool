@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
@@ -25,7 +24,9 @@ internal sealed class LootMasterModule : IHrtModule
         WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
         _ui = new LootmasterUi(this);
         WindowSystem.AddWindow(_ui);
-        ServiceManager.ClientState.Login += OnLogin;
+        Services = ServiceManager.GetServiceContainer(this);
+        Services.ClientState.Login += OnLogin;
+
     }
     //Properties
     internal List<RaidGroup> RaidGroups => ConfigImpl.Data.RaidGroups;
@@ -36,6 +37,7 @@ internal sealed class LootMasterModule : IHrtModule
     public string Description => "";
     public IWindowSystem WindowSystem { get; }
 
+    public IServiceContainer Services { get; }
     public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
     {
@@ -70,10 +72,6 @@ internal sealed class LootMasterModule : IHrtModule
             ServiceManager.TaskManager.RunOnFrameworkThread(OnLogin);
     }
 
-    public void Update()
-    {
-
-    }
     public void OnLanguageChange(string langCode) => LootmasterLoc.Culture = new CultureInfo(langCode);
     public void PrintUsage(string command, string args)
     {
