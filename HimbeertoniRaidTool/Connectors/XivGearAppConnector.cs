@@ -1,14 +1,15 @@
 using System.Net;
 using System.Net.Http;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
-internal class XivGearAppConnector(TaskManager taskManager)
-    : WebConnector(new RateLimit(5, TimeSpan.FromSeconds(10))), IReadOnlyGearConnector
+internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager taskManager, ILogger logger)
+    : WebConnector(logger, new RateLimit(5, TimeSpan.FromSeconds(10))), IReadOnlyGearConnector
 {
     private const string WEB_BASE_URL = "https://xivgear.app/";
     private const string API_BASE_URL = "https://api.xivgear.app/";
@@ -121,7 +122,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
             if (item.id < 0) return;
             set[slot] = new GearItem((uint)item.id)
             {
-                IsHq = ServiceManager.ItemInfo.CanBeCrafted((uint)item.id),
+                IsHq = new Item((uint)item.id).CanBeHq,
             };
             foreach (var materia in item.materia)
             {
@@ -136,7 +137,7 @@ internal class XivGearAppConnector(TaskManager taskManager)
         var oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
-        foreach (var gearSet in ServiceManager.HrtDataManager.GearDb.GetValues()
+        foreach (var gearSet in hrtDataManager.GearDb.GetValues()
                                               .Where(set => set.ManagedBy == GearSetManager.XivGear))
         {
             totalCount++;
@@ -144,9 +145,9 @@ internal class XivGearAppConnector(TaskManager taskManager)
             {
                 var message = UpdateGearSet(gearSet);
                 if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
-                    ServiceManager.Logger.Error(message.Message);
+                    Logger.Error(message.Message);
                 if (message.MessageType is HrtUiMessageType.Warning)
-                    ServiceManager.Logger.Warning(message.Message);
+                    Logger.Warning(message.Message);
                 updateCount++;
             }
         }

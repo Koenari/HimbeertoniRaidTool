@@ -1,13 +1,15 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal static class CsHelpers
 {
     internal static unsafe bool UpdateGearFromInventoryContainer(InventoryType type, PlayableClass targetClass,
-                                                                 int noDowngradeBelow)
+                                                                 int noDowngradeBelow, ILogger logger,
+                                                                 HrtDataManager dataManager)
     {
         if (type is not (InventoryType.Examine or InventoryType.EquippedItems)) return false;
         var container = InventoryManager.Instance()->GetInventoryContainer(type);
@@ -15,7 +17,7 @@ internal static class CsHelpers
         var targetGearSet = targetClass.AutoUpdatedGearSet;
         if (targetGearSet.LocalId.IsEmpty)
         {
-            ServiceManager.HrtDataManager.GearDb.TryAdd(targetGearSet);
+            dataManager.GearDb.TryAdd(targetGearSet);
         }
         for (int i = 0; i < 13; i++)
         {
@@ -31,7 +33,7 @@ internal static class CsHelpers
             };
             if (newItem.ItemLevel < oldItem.ItemLevel && newItem.ItemLevel < noDowngradeBelow)
             {
-                ServiceManager.Logger.Debug($"Ignored {(GearSetSlot)i} due to item level");
+                logger.Debug($"Ignored {(GearSetSlot)i} due to item level");
                 continue;
             }
             targetGearSet[(GearSetSlot)i] = newItem;
@@ -46,7 +48,7 @@ internal static class CsHelpers
         targetGearSet.TimeStamp = DateTime.UtcNow;
         return true;
     }
-    internal static void SafeguardedOpenExamine(IPlayerCharacter? @object)
+    internal static void SafeguardedOpenExamine(IPlayerCharacter? @object, ILogger logger)
     {
         if (@object is null)
             return;
@@ -60,7 +62,7 @@ internal static class CsHelpers
         }
         catch (Exception e)
         {
-            ServiceManager.Logger.Error(e, $"Could not inspect character {@object.Name}");
+            logger.Error(e, $"Could not inspect character {@object.Name}");
         }
     }
 }

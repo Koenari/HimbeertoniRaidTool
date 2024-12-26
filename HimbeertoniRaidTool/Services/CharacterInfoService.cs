@@ -8,7 +8,7 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal unsafe class CharacterInfoService
 {
-    private readonly IObjectTable _gameObjects;
+    private readonly IObjectTable _objectTable;
     private readonly IPartyList _partyList;
     private readonly IClientState _clientState;
     private static InfoProxyPartyMember* PartyInfo => InfoProxyPartyMember.Instance();
@@ -17,9 +17,9 @@ internal unsafe class CharacterInfoService
     private DateTime _lastPrune;
     private static readonly TimeSpan PruneInterval = TimeSpan.FromSeconds(10);
 
-    internal CharacterInfoService(IObjectTable gameObjects, IPartyList partyList, IClientState clientState)
+    internal CharacterInfoService(IObjectTable objectTable, IPartyList partyList, IClientState clientState)
     {
-        _gameObjects = gameObjects;
+        _objectTable = objectTable;
         _partyList = partyList;
         _clientState = clientState;
         _lastPrune = DateTime.Now;
@@ -58,7 +58,7 @@ internal unsafe class CharacterInfoService
         Update();
         if (_cache.TryGetValue(name, out ulong id))
         {
-            result = _gameObjects.SearchById(id) as IPlayerCharacter;
+            result = _objectTable.SearchById(id) as IPlayerCharacter;
             if (result?.Name.TextValue == name
              && (w is null || w.Value.RowId == result.HomeWorld.RowId))
                 return true;
@@ -73,7 +73,7 @@ internal unsafe class CharacterInfoService
         }
 
         //This is really slow (comparatively)
-        result = ServiceManager.ObjectTable.FirstOrDefault(
+        result = _objectTable.FirstOrDefault(
             o =>
             {
                 var p = o as IPlayerCharacter;

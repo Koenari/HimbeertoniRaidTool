@@ -404,7 +404,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dwonlad set and replace current one.
+        ///   Looks up a localized string similar to Download set and replace current one.
         /// </summary>
         internal static string EditGearSetUi_btn_tt_GetExternal {
             get {
@@ -461,7 +461,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Last Change: {0}.
+        ///   Looks up a localized string similar to Last Change.
         /// </summary>
         internal static string EditGearSetUi_txt_LastChange {
             get {
@@ -470,7 +470,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Last update check: {0}.
+        ///   Looks up a localized string similar to Last update check.
         /// </summary>
         internal static string EditGearSetUi_txt_lastUpdate {
             get {
@@ -967,7 +967,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Error updating set {0} from XivGear.app.
         /// </summary>
         internal static string XivGearAppConnector_GetGearSet_Error {
             get {

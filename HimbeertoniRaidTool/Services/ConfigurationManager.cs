@@ -14,13 +14,18 @@ public class ConfigurationManager : IDisposable
 {
     private readonly Dictionary<Type, IHrtConfiguration> _configurations = new();
     private readonly ConfigUi _ui;
-    private readonly WindowSystem _windowSystem;
+    private readonly IWindowSystem _windowSystem;
     private readonly IDalamudPluginInterface _pluginInterface;
+    private readonly ILogger _logger;
+    private readonly IModuleConfigurationManager _moduleConfigurationManager;
 
-    public ConfigurationManager(IDalamudPluginInterface pluginInterface)
+    internal ConfigurationManager(IDalamudPluginInterface pluginInterface, ILogger logger,
+                                  IModuleConfigurationManager moduleConfigurationManager)
     {
         _pluginInterface = pluginInterface;
-        _windowSystem = new WindowSystem("HRTConfig");
+        _logger = logger;
+        _moduleConfigurationManager = moduleConfigurationManager;
+        _windowSystem = new DalamudWindowSystem(new WindowSystem("HRTConfig"));
         _ui = new ConfigUi(this);
         _windowSystem.AddWindow(_ui);
         _pluginInterface.UiBuilder.OpenConfigUi += Show;
@@ -40,16 +45,16 @@ public class ConfigurationManager : IDisposable
         if (_configurations.ContainsKey(config.GetType()))
             return false;
         _configurations.Add(config.GetType(), config);
-        ServiceManager.Logger.Debug($"Registered {config.ParentInternalName} config");
-        return config.Load(ServiceManager.HrtDataManager.ModuleConfigurationManager);
+        _logger.Debug($"Registered {config.ParentInternalName} config");
+        return config.Load(_moduleConfigurationManager);
     }
 
     internal void Save()
     {
-        foreach (IHrtConfiguration config in _configurations.Values)
+        foreach (var config in _configurations.Values)
         {
-            ServiceManager.Logger.Debug($"Saved {config.ParentInternalName} config");
-            config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
+            _logger.Debug($"Saved {config.ParentInternalName} config");
+            config.Save(_moduleConfigurationManager);
         }
     }
 
@@ -70,7 +75,7 @@ public class ConfigurationManager : IDisposable
 
         public override void OnOpen()
         {
-            foreach (IHrtConfiguration config in _configManager._configurations.Values)
+            foreach (var config in _configManager._configurations.Values)
             {
                 config.Ui?.OnShow();
             }
@@ -78,7 +83,7 @@ public class ConfigurationManager : IDisposable
 
         public override void OnClose()
         {
-            foreach (IHrtConfiguration config in _configManager._configurations.Values)
+            foreach (var config in _configManager._configurations.Values)
             {
                 config.Ui?.OnHide();
             }
@@ -92,7 +97,7 @@ public class ConfigurationManager : IDisposable
             if (ImGuiHelper.CancelButton())
                 Cancel();
             ImGui.BeginTabBar("Modules");
-            foreach (IHrtConfiguration c in _configManager._configurations.Values)
+            foreach (var c in _configManager._configurations.Values)
             {
                 if (c.Ui == null)
                     continue;
@@ -108,7 +113,7 @@ public class ConfigurationManager : IDisposable
 
         private void Save()
         {
-            foreach (IHrtConfiguration c in _configManager._configurations.Values)
+            foreach (var c in _configManager._configurations.Values)
             {
                 c.Ui?.Save();
             }
@@ -118,7 +123,7 @@ public class ConfigurationManager : IDisposable
 
         private void Cancel()
         {
-            foreach (IHrtConfiguration c in _configManager._configurations.Values)
+            foreach (var c in _configManager._configurations.Values)
             {
                 c.Ui?.Cancel();
             }
@@ -143,6 +148,7 @@ internal abstract class ModuleConfiguration<T>(IHrtModule module) : IHrtConfigur
     where T : IHrtConfigData, new()
 {
     private T _data = new();
+    protected readonly IHrtModule Module = module;
 
     public T Data
     {
@@ -154,8 +160,8 @@ internal abstract class ModuleConfiguration<T>(IHrtModule module) : IHrtConfigur
         }
     }
 
-    public string ParentInternalName => module.InternalName;
-    public string ParentName => module.Name;
+    public string ParentInternalName => Module.InternalName;
+    public string ParentName => Module.Name;
     public abstract IHrtConfigUi? Ui { get; }
 
     public event Action? OnConfigChange;
@@ -179,6 +185,6 @@ public interface IHrtConfigUi
 
 public interface IHrtConfigData : ICloneable
 {
-    public void AfterLoad();
+    public void AfterLoad(HrtDataManager dataManager);
     public void BeforeSave();
 }

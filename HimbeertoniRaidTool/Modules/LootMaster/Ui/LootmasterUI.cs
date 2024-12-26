@@ -24,7 +24,7 @@ internal class LootmasterUi : HrtWindow
         _buttonSizeVertical = new Vector2(_buttonSize.Y, _buttonSize.X);
         SizeCondition = ImGuiCond.FirstUseEver;
         Title = LootmasterLoc.Ui_Title;
-        ServiceManager.PluginInterface.UiBuilder.OpenMainUi += Show;
+        _module.Services.PluginInterface.UiBuilder.OpenMainUi += Show;
     }
     private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
     internal int CurrentGroupIndex { get; private set; }
@@ -58,7 +58,7 @@ internal class LootmasterUi : HrtWindow
         }
         foreach (var w in toRemove.Where(w => !w.Equals(this)))
         {
-            ServiceManager.Logger.Debug($"Cleaning Up Window: {w.WindowName}");
+            _module.Services.Logger.Debug($"Cleaning Up Window: {w.WindowName}");
             _module.WindowSystem.RemoveWindow(w);
         }
     }
@@ -261,7 +261,7 @@ internal class LootmasterUi : HrtWindow
         DrawUiMessages();
         if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "##showConfig",
                                LootmasterLoc.ui_btn_tt_showConfig))
-            ServiceManager.ConfigManager.Show();
+            _module.Services.ConfigManager.Show();
         ImGui.SameLine();
         DrawLootHandlerButtons();
         DrawRaidGroupSwitchBar();
@@ -502,7 +502,8 @@ internal class LootmasterUi : HrtWindow
                 if (ImGuiHelper.Button(FontAwesomeIcon.Wallet, "##inventory",
                                        LootmasterLoc.Ui_btn_tt_inventory, true,
                                        ButtonSize))
-                    AddChild(new InventoryWindow(player.MainChar));
+                    AddChild(new InventoryWindow(player.MainChar, _module.Services.CharacterInfoService,
+                                                 _module.Services.GameInfo));
                 ImGui.SetCursorPosY(dualBottomRowY);
                 if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, "##details",
                                        $"{LootmasterLoc.Ui_btn_tt_PlayerDetails} {player.NickName}",
@@ -535,25 +536,25 @@ internal class LootmasterUi : HrtWindow
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addPlayerFromDB",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, group[pos].DataTypeName), true,
                                    ButtonSize))
-                AddChild(ServiceManager.HrtDataManager.PlayerDb.OpenSearchWindow(
+                AddChild(_module.Services.HrtDataManager.PlayerDb.OpenSearchWindow(
                              selected => group[pos] = selected));
             if (ImGuiHelper.Button(FontAwesomeIcon.LocationCrosshairs, "AddTarget",
                                    string.Format(LootmasterLoc.Ui_btn_addPlayerFromTarget_tt,
-                                                 ServiceManager.TargetManager.Target?.Name
+                                                 _module.Services.TargetManager.Target?.Name
                                               ?? GeneralLoc.CommonTerms_None),
-                                   ServiceManager.TargetManager.Target is not null, ButtonSize))
+                                   _module.Services.TargetManager.Target is not null, ButtonSize))
             {
                 _module.FillPlayerFromTarget(player);
-                if (ServiceManager.TargetManager.Target is IPlayerCharacter target)
-                    CsHelpers.SafeguardedOpenExamine(target);
+                if (_module.Services.TargetManager.Target is IPlayerCharacter target)
+                    CsHelpers.SafeguardedOpenExamine(target, _module.Services.Logger);
             }
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addCharFromDB",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting,
                                                  Character.DataTypeNameStatic), true, ButtonSize))
-                AddChild(ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(selected =>
+                AddChild(_module.Services.HrtDataManager.CharDb.OpenSearchWindow(selected =>
                 {
-                    if (!ServiceManager.HrtDataManager.PlayerDb.TryAdd(player))
+                    if (!_module.Services.HrtDataManager.PlayerDb.TryAdd(player))
                         return;
                     player.NickName = selected.Name.Split(' ')[0];
                     player.MainChar = selected;
@@ -569,14 +570,14 @@ internal class LootmasterUi : HrtWindow
         ImGui.SetNextItemWidth(ImGui.CalcTextSize(CurConfig.ActiveExpansion.Name).X + 32f * ScaleFactor);
         if (ImGui.BeginCombo("##expansion", CurConfig.ActiveExpansion.Name))
         {
-            var expansions = ServiceManager.GameInfo.Expansions;
+            var expansions = _module.Services.GameInfo.Expansions;
             for (int i = 0; i < expansions.Count; i++)
             {
                 var expansion = expansions[i];
                 if (expansion.SavageRaidTiers.Length == 0) continue;
                 if (ImGui.Selectable(expansion.Name))
                 {
-                    if (expansion == ServiceManager.GameInfo.CurrentExpansion)
+                    if (expansion == _module.Services.GameInfo.CurrentExpansion)
                         CurConfig.ExpansionOverride = null;
                     else
                         CurConfig.ExpansionOverride = i;
@@ -610,8 +611,7 @@ internal class LootmasterUi : HrtWindow
         foreach (var lootSource in CurConfig.SelectedRaidTier.Bosses)
         {
             if (ImGuiHelper.Button(lootSource.Name, null, lootSource.IsAvailable))
-                AddChild(new LootSessionUi(lootSource, CurrentGroup, CurConfig.RaidGroups, CurConfig.LootRuling,
-                                           CurConfig.RolePriority));
+                AddChild(new LootSessionUi(_module, lootSource, CurrentGroup));
             ImGui.SameLine();
         }
 

@@ -65,7 +65,7 @@ internal static class LmUiHelpers
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_AddFromDB))
             {
-                module.WindowSystem.AddWindow(ServiceManager.HrtDataManager.GearDb.OpenSearchWindow(changeCallback));
+                module.WindowSystem.AddWindow(module.Services.HrtDataManager.GearDb.OpenSearchWindow(changeCallback));
             }
             ImGui.EndCombo();
         }
@@ -140,11 +140,14 @@ internal static class LmUiHelpers
             {
                 if (extended || config.ShowIconInGroupOverview)
                 {
-                    Vector2 iconSize = new(ImGui.GetTextLineHeightWithSpacing()
-                                         * (extended ? multiLine ? 2.4f : 1.4f : 1f));
-                    ImGui.Image(ServiceManager.IconCache.LoadIcon(itemToDraw.Icon, itemToDraw.IsHq).ImGuiHandle,
-                                iconSize * HrtWindow.ScaleFactor);
-                    ImGui.SameLine();
+                    var icon = UiSystem.GetIcon(itemToDraw.Icon, itemToDraw.IsHq);
+                    if (icon is not null)
+                    {
+                        Vector2 iconSize = new(ImGui.GetTextLineHeightWithSpacing()
+                                             * (extended ? multiLine ? 2.4f : 1.4f : 1f));
+                        ImGui.Image(icon.ImGuiHandle, iconSize * HrtWindow.ScaleFactor);
+                        ImGui.SameLine();
+                    }
                 }
                 string toDraw = string.Format(config.ItemFormatString,
                                               itemToDraw.ItemLevel,

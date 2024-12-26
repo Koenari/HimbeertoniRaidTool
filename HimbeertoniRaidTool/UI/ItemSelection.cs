@@ -11,7 +11,7 @@ internal abstract class SelectItemWindow<T> : HrtWindow where T : Item
 {
     // ReSharper disable once StaticMemberInGenericType
     protected static readonly ExcelSheet<Lumina.Excel.Sheets.Item> Sheet =
-        ServiceManager.DataManager.GetExcelSheet<Lumina.Excel.Sheets.Item>();
+        UiSystem.GetExcelSheet<Lumina.Excel.Sheets.Item>();
     private readonly Action<T?> _onCancel;
     private readonly Action<T> _onSave;
     protected T? Item;
@@ -147,9 +147,12 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
                 ImGui.PopStyleColor();
             ImGui.SameLine();
             ImGui.BeginGroup();
-            ImGui.Image(ServiceManager.IconCache.LoadIcon(item.Icon, item.CanBeHq).ImGuiHandle,
-                        new Vector2(32f, 32f));
-            ImGui.SameLine();
+            var icon = UiSystem.GetIcon(item.Icon, item.CanBeHq);
+            if (icon is not null)
+            {
+                ImGui.Image(icon.ImGuiHandle, new Vector2(32f, 32f));
+                ImGui.SameLine();
+            }
             ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
             ImGui.EndGroup();
             if (ImGui.IsItemHovered())
@@ -224,18 +227,22 @@ internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
             ImGui.NewLine();
             ImGui.Separator();
         }
+        return;
 
         void DrawButton(MateriaCategory cat, MateriaLevel lvl)
         {
             var mat = AllMateria[lvl][cat];
-            if (ImGui.ImageButton(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new Vector2(32)))
+            var icon = UiSystem.GetIcon(mat.Icon);
+            if (icon is not null && ImGui.ImageButton(icon.ImGuiHandle, new Vector2(32)))
                 Save(mat);
-            if (ImGui.IsItemHovered())
+            else if (ImGuiHelper.Button(mat.Name, null))
             {
-                ImGui.BeginTooltip();
-                mat.Draw();
-                ImGui.EndTooltip();
+                Save(mat);
             }
+            if (!ImGui.IsItemHovered()) return;
+            ImGui.BeginTooltip();
+            mat.Draw();
+            ImGui.EndTooltip();
         }
     }
 

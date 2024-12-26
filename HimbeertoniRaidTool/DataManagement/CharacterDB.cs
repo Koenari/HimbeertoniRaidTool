@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -10,8 +11,12 @@ using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class CharacterDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
-    : DataBaseTable<Character>(idProvider, converters)
+internal class CharacterDb(
+    IIdProvider idProvider,
+    IEnumerable<JsonConverter> converters,
+    ILogger logger,
+    IDataManager dataManager)
+    : DataBaseTable<Character>(idProvider, converters, logger)
 {
     public static Func<Character?, bool> GetStandardPredicate(ulong charId, uint worldId, string name) => character =>
     {
@@ -22,49 +27,52 @@ internal class CharacterDb(IIdProvider idProvider, IEnumerable<JsonConverter> co
     };
     public override HashSet<HrtId> GetReferencedIds()
     {
-        ServiceManager.Logger.Debug("Begin calculation of referenced Ids in character database");
+        Logger.Debug("Begin calculation of referenced Ids in character database");
         HashSet<HrtId> referencedIds = [];
-        foreach (PlayableClass playableClass in Data.Values.SelectMany(character => character))
+        foreach (var playableClass in Data.Values.SelectMany(character => character))
         {
-            foreach (GearSet gearSet in playableClass.GearSets.Where(set => !set.LocalId.IsEmpty))
+            foreach (var gearSet in playableClass.GearSets.Where(set => !set.LocalId.IsEmpty))
             {
                 referencedIds.Add(gearSet.LocalId);
             }
-            foreach (GearSet gearSet in playableClass.BisSets.Where(set => !set.LocalId.IsEmpty))
+            foreach (var gearSet in playableClass.BisSets.Where(set => !set.LocalId.IsEmpty))
             {
                 referencedIds.Add(gearSet.LocalId);
             }
         }
-        ServiceManager.Logger.Debug("Finished calculation of referenced Ids in character database");
+        Logger.Debug("Finished calculation of referenced Ids in character database");
         return referencedIds;
     }
-    public override void FixEntries()
+    public override void FixEntries(HrtDataManager hrtDataManager)
     {
-        foreach (PlayableClass playableClass in Data.Values.SelectMany(character => character.Classes))
+        foreach (var playableClass in Data.Values.SelectMany(character => character.Classes))
         {
             playableClass.RemoveEmptySets();
             if (playableClass.CurGear.LocalId.IsEmpty)
-                ServiceManager.HrtDataManager.GearDb.TryAdd(playableClass.CurGear);
+                hrtDataManager.GearDb.TryAdd(playableClass.CurGear);
             if (playableClass.CurBis.LocalId.IsEmpty)
-                ServiceManager.HrtDataManager.GearDb.TryAdd(playableClass.CurBis);
+                hrtDataManager.GearDb.TryAdd(playableClass.CurBis);
         }
     }
 
     public override HrtWindow OpenSearchWindow(Action<Character> onSelect, Action? onCancel = null) =>
-        new CharacterSearchWindow(this, onSelect, onCancel);
+        new CharacterSearchWindow(this, onSelect, onCancel, dataManager);
 
     private class CharacterSearchWindow : SearchWindow<Character, CharacterDb>
     {
+        private readonly IDataManager _dataManager;
         private uint _selectedWorld = 0;
         private readonly Dictionary<uint, string> _worldCache = [];
 
         private string GetWorldName(uint idx) =>
             _worldCache.TryGetValue(idx, out string? name) ? name : _worldCache[idx] =
-                ServiceManager.DataManager.GetExcelSheet<World>().GetRow(idx).Name.ExtractText();
+                _dataManager.GetExcelSheet<World>().GetRow(idx).Name.ExtractText();
 
-        public CharacterSearchWindow(CharacterDb dataBase, Action<Character> onSelect, Action? onCancel) : base(
+        public CharacterSearchWindow(CharacterDb dataBase, Action<Character> onSelect, Action? onCancel,
+                                     IDataManager dataManager) : base(
             dataBase, onSelect, onCancel)
         {
+            _dataManager = dataManager;
             Title = GeneralLoc.GetCharacterWindow_Title;
             (Size, SizeCondition) = (new Vector2(400, 500), ImGuiCond.Appearing);
             Flags = ImGuiWindowFlags.NoScrollbar;
@@ -91,9 +99,9 @@ internal class CharacterDb(IIdProvider idProvider, IEnumerable<JsonConverter> co
             ImGui.TableSetupColumn(GeneralLoc.EditCharUi_in_HomeWorld, ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableHeadersRow();
-            foreach (Character character in Database.GetValues()
-                                                    .Where(entry => _selectedWorld == 0
-                                                                 || entry.HomeWorldId == _selectedWorld))
+            foreach (var character in Database.GetValues()
+                                              .Where(entry => _selectedWorld == 0
+                                                           || entry.HomeWorldId == _selectedWorld))
             {
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{character.LocalId}",

@@ -1,9 +1,37 @@
 ﻿using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Interface.Textures;
+using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Windowing;
+using Dalamud.Plugin.Services;
 using ImGuiNET;
+using Lumina.Excel;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
+
+public static class UiSystem
+{
+    private static IconCache? _iconCache;
+    private static IDataManager? _dataManager;
+    private static ICondition? _condition;
+    private static UiConfig _uiConfig = UiConfig.Default;
+
+    public static void Initialize(IconCache iconCache, IDataManager dataManager, ICondition condition)
+    {
+        _iconCache = iconCache;
+        _dataManager = dataManager;
+        _condition = condition;
+    }
+
+    public static void SetConfig(UiConfig config) => _uiConfig = config;
+    public static IDalamudTextureWrap? GetIcon(uint id, bool isHq = false) => _iconCache?.LoadIcon(id, isHq);
+    public static ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType> =>
+        _dataManager?.GetExcelSheet<TType>() ?? throw new NullReferenceException("UiSystem was not initialized");
+
+    public static bool DrawConditionsMet() =>
+        !(_uiConfig.HideInCombat && (_condition?[ConditionFlag.InCombat] ?? false))
+     && !(_condition?[ConditionFlag.BetweenAreas] ?? false);
+}
 
 public abstract class HrtWindowWithModalChild : HrtWindow
 {
@@ -55,7 +83,6 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     private Vector2 _newSize;
     private ImGuiCond _savedSizingCond = ImGuiCond.None;
     private bool _shouldResize;
-    private static UiConfig _config = UiConfig.Default;
     protected Vector2 MaxSize = ImGui.GetIO().DisplaySize * 0.9f;
     protected Vector2 MinSize = default;
     protected bool OpenCentered;
@@ -67,7 +94,6 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
         _id = WindowName;
         Title = "";
     }
-    public static void SetConfig(UiConfig config) => _config = config;
     public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
     public bool Equals(HrtWindow? other) => _id.Equals(other?._id);
     public void Show() => IsOpen = true;
@@ -81,10 +107,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
             MaximumSize = MaxSize,
         };
     }
-    public override bool DrawConditions() =>
-        !(_config.HideInCombat && ServiceManager.Condition[ConditionFlag.InCombat])
-     && !ServiceManager.Condition[ConditionFlag.BetweenAreas]
-     && base.DrawConditions();
+    public override bool DrawConditions() => UiSystem.DrawConditionsMet() && base.DrawConditions();
     public override void PreDraw()
     {
         if (OpenCentered)
@@ -106,7 +129,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
             SizeCondition = ImGuiCond.Always;
             _hasResizedLastFrame = true;
             _shouldResize = false;
-            ServiceManager.Logger.Debug($"Tried Resizing to: {Size.Value.X}x{Size.Value.Y}");
+            //ServiceManager.Logger.Debug($"Tried Resizing to: {Size.Value.X}x{Size.Value.Y}");
         }
 
     }

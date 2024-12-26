@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
@@ -19,8 +20,11 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
     public const string BIS_API_BASE_URL = GEARSET_API_BASE_URL + "bis/";
     private readonly Dictionary<Job, Dictionary<string, string>> _bisCache;
     private readonly TaskManager _taskManager;
-    internal EtroConnector(TaskManager tm, ILogger log) : base(new RateLimit(4, new TimeSpan(0, 0, 30)))
+    private readonly HrtDataManager _hrtDataManager;
+    internal EtroConnector(HrtDataManager hrtDataManager, TaskManager tm, ILogger log) : base(
+        log, new RateLimit(4, new TimeSpan(0, 0, 30)))
     {
+        _hrtDataManager = hrtDataManager;
         _taskManager = tm;
         _bisCache = new Dictionary<Job, Dictionary<string, string>>();
         foreach (var job in Enum.GetValues<Job>())
@@ -31,9 +35,9 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
                                                             msg =>
                                                             {
                                                                 if (msg.MessageType == HrtUiMessageType.Failure)
-                                                                    log.Error(msg.Message);
+                                                                    Logger.Error(msg.Message);
                                                                 else
-                                                                    log.Info(msg.Message);
+                                                                    Logger.Info(msg.Message);
                                                             }, "Load BiS list from etro"));
     }
     private static JsonSerializerSettings JsonSettings => new()
@@ -143,7 +147,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
                     FillRelicItem(relic, GearSetSlot.MainHand);
                     break;
                 default:
-                    ServiceManager.Logger.Error(string.Format(GeneralLoc.EtroConnector_GetGearSet_RelicError, slot));
+                    Logger.Error(string.Format(GeneralLoc.EtroConnector_GetGearSet_RelicError, slot));
                     break;
             }
         }
@@ -162,7 +166,7 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
         {
             set[slot] = new GearItem(id)
             {
-                IsHq = ServiceManager.ItemInfo.CanBeCrafted(id),
+                IsHq = new Item(id).CanBeHq,
             };
             string idString = id + slot switch
             {
@@ -182,17 +186,17 @@ internal class EtroConnector : WebConnector, IReadOnlyGearConnector
         var oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
-        foreach (var gearSet in ServiceManager.HrtDataManager.GearDb.GetValues()
-                                              .Where(set => set.ManagedBy == GearSetManager.Etro))
+        foreach (var gearSet in _hrtDataManager.GearDb.GetValues()
+                                               .Where(set => set.ManagedBy == GearSetManager.Etro))
         {
             totalCount++;
             if (gearSet.IsEmpty || gearSet.LastExternalFetchDate < oldestValid && updateAll)
             {
                 var message = UpdateGearSet(gearSet);
                 if (message.MessageType is HrtUiMessageType.Error or HrtUiMessageType.Failure)
-                    ServiceManager.Logger.Error(message.Message);
+                    Logger.Error(message.Message);
                 if (message.MessageType is HrtUiMessageType.Warning)
-                    ServiceManager.Logger.Warning(message.Message);
+                    Logger.Warning(message.Message);
                 updateCount++;
             }
         }

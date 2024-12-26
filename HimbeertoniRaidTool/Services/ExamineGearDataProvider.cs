@@ -5,18 +5,30 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class ExamineGearDataProvider : IGearDataProvider
 {
+    private readonly ILogger _logger;
+    private readonly IObjectTable _objectTable;
+    private readonly HrtDataManager _hrtDataManager;
+    private readonly CharacterInfoService _characterInfoService;
+    private readonly ConnectorPool _connectorPool;
     private readonly Hook<AddonCharacterInspect.Delegates.OnRefresh>? _hook;
-
     private GearDataProviderConfiguration _configuration;
 
-    internal ExamineGearDataProvider(IGameInteropProvider iopProvider)
+    internal ExamineGearDataProvider(IGameInteropProvider iopProvider, ILogger logger, IObjectTable objectTable,
+                                     HrtDataManager hrtDataManager, CharacterInfoService characterInfoService,
+                                     ConnectorPool connectorPool)
     {
+        _logger = logger;
+        _objectTable = objectTable;
+        _hrtDataManager = hrtDataManager;
+        _characterInfoService = characterInfoService;
+        _connectorPool = connectorPool;
         try
         {
             unsafe
@@ -29,7 +41,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
         catch (Exception e)
         {
             _hook = null;
-            ServiceManager.Logger.Error(e, "Unable to load examine hook");
+            _logger.Error(e, "Unable to load examine hook");
         }
 
     }
@@ -70,66 +82,64 @@ internal class ExamineGearDataProvider : IGearDataProvider
             entityId = AgentInspect.Instance()->CurrentEntityId;
         }
 
-        if (ServiceManager.ObjectTable.SearchByEntityId(entityId) is not IPlayerCharacter
+        if (_objectTable.SearchByEntityId(entityId) is not IPlayerCharacter
             sourceChar)
         {
-            ServiceManager.Logger.Error(
-                $"Examined character not found in world (eid:{entityId:x8})");
+            _logger.Error($"Examined character not found in world (eid:{entityId:x8})");
             return;
         }
-        ServiceManager.Logger.Debug($"Examine character found: {sourceChar.Name}");
-        if (!ServiceManager.HrtDataManager.Ready)
+        _logger.Debug($"Examine character found: {sourceChar.Name}");
+        if (!_hrtDataManager.Ready)
         {
-            ServiceManager.Logger.Error(
+            _logger.Error(
                 $"Database is busy. Did not update gear for:{sourceChar.Name}@{sourceChar.HomeWorld.Value.Name}");
             return;
         }
 
         //Do not execute on characters not already known
-        if (!ServiceManager.HrtDataManager.CharDb.Search(
+        if (!_hrtDataManager.CharDb.Search(
                 CharacterDb.GetStandardPredicate(0, sourceChar.HomeWorld.RowId, sourceChar.Name.TextValue),
-                out Character? targetChar))
+                out var targetChar))
         {
-            ServiceManager.Logger.Debug(
-                $"Did not find character in db:{sourceChar.Name}@{sourceChar.HomeWorld.Value.Name}");
+            _logger.Debug($"Did not find character in db:{sourceChar.Name}@{sourceChar.HomeWorld.Value.Name}");
             return;
         }
 
         //Save characters ContentID if not already known
         if (targetChar.CharId == 0)
             targetChar.CharId =
-                Character.CalcCharId(ServiceManager.CharacterInfoService.GetContentId(sourceChar));
+                Character.CalcCharId(_characterInfoService.GetContentId(sourceChar));
 
 
-        Job targetJob = sourceChar.GetJob();
+        var targetJob = sourceChar.GetJob();
         if (targetJob.IsCombatJob() && !_configuration.CombatJobsEnabled
          || targetJob.IsDoH() && !_configuration.DoHEnabled
          || targetJob.IsDoL() && !_configuration.DoLEnabled)
             return;
-        PlayableClass? targetClass = targetChar[targetJob];
+        var targetClass = targetChar[targetJob];
         if (targetClass == null)
         {
-            if (!ServiceManager.HrtDataManager.Ready)
+            if (!_hrtDataManager.Ready)
             {
-                ServiceManager.Logger.Error(
+                _logger.Error(
                     $"Database is busy. Did not update gear for:{targetChar.Name}@{targetChar.HomeWorld?.Name}");
                 return;
             }
 
             targetClass = targetChar.AddClass(targetJob);
-            string bisEtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(targetJob);
-            if (ServiceManager.HrtDataManager.GearDb.Search(entry => entry?.ExternalId == bisEtroId,
-                                                            out GearSet? existingBis))
+            string bisEtroId = _connectorPool.EtroConnector.GetDefaultBiS(targetJob);
+            if (_hrtDataManager.GearDb.Search(entry => entry?.ExternalId == bisEtroId,
+                                              out var existingBis))
                 targetClass.CurBis = existingBis;
             else
             {
                 targetClass.CurBis.ExternalId = bisEtroId;
-                if (ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.CurBis))
-                    ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(targetClass.CurBis);
+                if (_hrtDataManager.GearDb.TryAdd(targetClass.CurBis))
+                    _connectorPool.EtroConnector.RequestGearSetUpdate(targetClass.CurBis);
             }
-            if (!ServiceManager.HrtDataManager.GearDb.TryAdd(targetClass.CurGear))
+            if (!_hrtDataManager.GearDb.TryAdd(targetClass.CurGear))
             {
-                ServiceManager.Logger.Error(
+                _logger.Error(
                     $"Could not create gearset for new job {targetJob} for {targetChar.Name}@{targetChar.HomeWorld?.Name}");
                 return;
             }
@@ -141,21 +151,20 @@ internal class ExamineGearDataProvider : IGearDataProvider
         try
         {
             if (CsHelpers.UpdateGearFromInventoryContainer(InventoryType.Examine, targetClass,
-                                                           _configuration.MinILvlDowngrade))
+                                                           _configuration.MinILvlDowngrade, _logger, _hrtDataManager))
             {
-                ServiceManager.Logger.Information(
-                    $"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
+                _logger.Information($"Updated Gear for: {targetChar.Name} @ {targetChar.HomeWorld?.Name}");
             }
             else
             {
-                ServiceManager.Logger.Error(
+                _logger.Error(
                     $"Something went wrong while updating gear for:{targetChar.Name} @ {targetChar.HomeWorld?.Name}");
             }
         }
         catch (Exception e)
         {
-            ServiceManager.Logger.Error(e,
-                                        $"Something went wrong while updating gear for:{targetChar.Name} @ {targetChar.HomeWorld?.Name}");
+            _logger.Error(e,
+                          $"Something went wrong while updating gear for:{targetChar.Name} @ {targetChar.HomeWorld?.Name}");
         }
     }
 }

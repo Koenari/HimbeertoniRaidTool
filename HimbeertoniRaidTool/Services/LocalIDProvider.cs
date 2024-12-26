@@ -82,7 +82,7 @@ internal class LocalIdProvider : IIdProvider
         [JsonProperty] public ulong Counter = 1;
         [JsonProperty] public byte[] Key = new byte[KEY_SIZE_BYTES];
 
-        public void AfterLoad() { }
+        public void AfterLoad(HrtDataManager dataManager) { }
 
         public void BeforeSave() { }
     }

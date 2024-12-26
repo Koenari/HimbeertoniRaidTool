@@ -12,7 +12,7 @@ public class IconCache(ITextureProvider textureProvider)
 
     public IDalamudTextureWrap LoadIcon(uint id, bool hq = false)
     {
-        if (_icons.TryGetValue(id, out ISharedImmediateTexture? icon))
+        if (_icons.TryGetValue(id, out var icon))
             return icon.GetWrapOrEmpty();
         _icons[id] = icon = textureProvider.GetFromGameIcon(new GameIconLookup(id, hq));
         return icon.GetWrapOrEmpty();

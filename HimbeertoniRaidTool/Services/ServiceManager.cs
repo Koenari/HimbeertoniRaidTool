@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.IoC;
 using Dalamud.Plugin;
@@ -12,7 +13,12 @@ using HimbeertoniRaidTool.Plugin.UI;
 #pragma warning disable CS8618
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-public interface IServiceContainer
+public interface IModuleServiceContainer : IGlobalServiceContainer
+{
+    internal EditWindowFactory EditWindows { get; }
+}
+
+public interface IGlobalServiceContainer : IDisposable
 {
     public IChatProvider Chat { get; }
     public IDataManager DataManager { get; }
@@ -34,11 +40,11 @@ public interface IServiceContainer
     internal OwnCharacterDataProvider OwnCharacterDataProvider { get; }
     internal GameInfo GameInfo { get; }
     internal INotificationManager NotificationManager { get; }
-    internal EditWindowFactory EditWindows { get; }
+
 }
 
-internal sealed class ModuleScopedServiceContainer(IHrtModule module, GlobalServiceContainer globalServices)
-    : IServiceContainer
+internal sealed class ModuleScopedServiceContainer(IHrtModule module, IGlobalServiceContainer globalServices)
+    : IModuleServiceContainer
 {
 
     public IChatProvider Chat => globalServices.Chat;
@@ -62,117 +68,103 @@ internal sealed class ModuleScopedServiceContainer(IHrtModule module, GlobalServ
     public GameInfo GameInfo => globalServices.GameInfo;
     public INotificationManager NotificationManager => globalServices.NotificationManager;
 
-    public EditWindowFactory EditWindows { get; } = new(module.WindowSystem);
+    public EditWindowFactory EditWindows { get; } = new(module);
+
+    public void Dispose() { }
 }
 
 internal static class ServiceManager
 {
-    private static bool _initialized;
-    public static IChatProvider Chat => ServiceContainer.Chat;
-    public static IDataManager DataManager => ServiceContainer.DataManager;
-    public static ITargetManager TargetManager => ServiceContainer.TargetManager;
-    public static IDalamudPluginInterface PluginInterface => ServiceContainer.PluginInterface;
-    public static IClientState ClientState => ServiceContainer.ClientState;
-    public static IObjectTable ObjectTable => ServiceContainer.ObjectTable;
-    public static IPartyList PartyList => ServiceContainer.PartyList;
-    public static ICondition Condition => ServiceContainer.Condition;
-    public static ILogger Logger => ServiceContainer.Logger;
-    public static IconCache IconCache => ServiceContainer.IconCache;
-    public static HrtDataManager HrtDataManager => ServiceContainer.HrtDataManager;
-    internal static TaskManager TaskManager => ServiceContainer.TaskManager;
-    internal static ConnectorPool ConnectorPool => ServiceContainer.ConnectorPool;
-    internal static ConfigurationManager ConfigManager => ServiceContainer.ConfigManager;
-    internal static CharacterInfoService CharacterInfoService => ServiceContainer.CharacterInfoService;
-    internal static ItemInfo ItemInfo => ServiceContainer.ItemInfo;
-    internal static ExamineGearDataProvider ExamineGearDataProvider => ServiceContainer.ExamineGearDataProvider;
-    internal static OwnCharacterDataProvider OwnCharacterDataProvider => ServiceContainer.OwnCharacterDataProvider;
-    internal static GameInfo GameInfo => Common.Services.ServiceManager.GameInfo;
-    internal static INotificationManager NotificationManager => ServiceContainer.NotificationManager;
+    private static volatile bool _initialized;
     private static GlobalServiceContainer ServiceContainer { get; set; }
 
-    internal static bool Init(IDalamudPluginInterface pluginInterface)
+    internal static IGlobalServiceContainer Init(IDalamudPluginInterface pluginInterface)
     {
-        if (_initialized) return false;
+        if (_initialized) return ServiceContainer;
         _initialized = true;
-        ServiceContainer = new GlobalServiceContainer(pluginInterface);
-        return HrtDataManager.Initialized;
+        return ServiceContainer = new GlobalServiceContainer(pluginInterface);
     }
 
-    internal static IServiceContainer GetServiceContainer(IHrtModule module)
+    internal static IModuleServiceContainer GetServiceContainer(IHrtModule module)
         => new ModuleScopedServiceContainer(module, ServiceContainer);
 
-    internal static void Dispose()
+
+    private class GlobalServiceContainer : IGlobalServiceContainer
     {
-        ConnectorPool.Dispose();
-        ConfigManager.Dispose();
-        ExamineGearDataProvider.Dispose();
-        OwnCharacterDataProvider.Dispose();
-        TaskManager.Dispose();
-    }
+        internal GlobalServiceContainer(IDalamudPluginInterface pluginInterface)
+        {
+            DalamudServices = pluginInterface.Create<DalamudServiceWrapper>()
+                           ?? throw new FailedToLoadException("Could not initialize dalamud services");
+            Logger = new LoggingProxy(DalamudServices.PluginLog);
+            Chat = new DalamudChatProxy(DalamudServices.ChatGui);
+            Common.Services.ServiceManager.Init(DataManager.Excel, pluginInterface.UiLanguage);
+            IconCache = new IconCache(DalamudServices.TextureProvider);
+            HrtDataManager = new HrtDataManager(PluginInterface, Logger, DataManager);
+            if (!HrtDataManager.Initialized)
+                throw new FailedToLoadException("Could not initialize data manager");
+            TaskManager = new TaskManager(DalamudServices.Framework, Logger);
+            ConnectorPool = new ConnectorPool(HrtDataManager, TaskManager, DataManager, Logger);
+            CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList, ClientState);
+            ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider, Logger,
+                                                                  ObjectTable, HrtDataManager, CharacterInfoService,
+                                                                  ConnectorPool);
+            OwnCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.ClientState,
+                                                                    DalamudServices.Framework, Logger, HrtDataManager);
+            ConfigManager =
+                new ConfigurationManager(pluginInterface, Logger, HrtDataManager.ModuleConfigurationManager);
+            UiSystem.Initialize(IconCache, DataManager, Condition);
+        }
 
+        public void Dispose()
+        {
+            ConnectorPool.Dispose();
+            ConfigManager.Dispose();
+            ExamineGearDataProvider.Dispose();
+            OwnCharacterDataProvider.Dispose();
+            TaskManager.Dispose();
+        }
 
-}
+        public IChatProvider Chat { get; }
+        public IDataManager DataManager => DalamudServices.DataManager;
+        public ITargetManager TargetManager => DalamudServices.TargetManager;
+        public IDalamudPluginInterface PluginInterface => DalamudServices.PluginInterface;
+        public IClientState ClientState => DalamudServices.ClientState;
+        public IObjectTable ObjectTable => DalamudServices.ObjectTable;
+        public IPartyList PartyList => DalamudServices.PartyList;
+        public ICondition Condition => DalamudServices.Condition;
+        public ILogger Logger { get; }
+        public IconCache IconCache { get; }
+        public HrtDataManager HrtDataManager { get; }
+        public TaskManager TaskManager { get; }
+        public ConnectorPool ConnectorPool { get; }
+        public ConfigurationManager ConfigManager { get; }
+        public CharacterInfoService CharacterInfoService { get; }
+        public ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
+        public ExamineGearDataProvider ExamineGearDataProvider { get; }
+        public OwnCharacterDataProvider OwnCharacterDataProvider { get; }
+        public GameInfo GameInfo => Common.Services.ServiceManager.GameInfo;
+        public INotificationManager NotificationManager => DalamudServices.NotificationManager;
+        private DalamudServiceWrapper DalamudServices { get; }
 
-internal class GlobalServiceContainer
-{
-    internal GlobalServiceContainer(IDalamudPluginInterface pluginInterface)
-    {
-        DalamudServices = pluginInterface.Create<DalamudServiceWrapper>()
-                       ?? throw new FailedToLoadException("Could not initialize Service Manager");
-        Logger = new LoggingProxy(DalamudServices.PluginLog);
-        Chat = new DalamudChatProxy(DalamudServices.ChatGui);
-        Common.Services.ServiceManager.Init(DataManager.Excel, pluginInterface.UiLanguage);
-        IconCache = new IconCache(DalamudServices.TextureProvider);
-        HrtDataManager = new HrtDataManager(PluginInterface);
-        TaskManager = new TaskManager(DalamudServices.Framework);
-        ConnectorPool = new ConnectorPool(TaskManager, Logger);
-        CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList, ClientState);
-        ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider);
-        OwnCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.ClientState,
-                                                                DalamudServices.Framework);
-        ConfigManager = new ConfigurationManager(pluginInterface);
-    }
-
-    internal IChatProvider Chat { get; }
-    internal IDataManager DataManager => DalamudServices.DataManager;
-    internal ITargetManager TargetManager => DalamudServices.TargetManager;
-    internal IDalamudPluginInterface PluginInterface => DalamudServices.PluginInterface;
-    internal IClientState ClientState => DalamudServices.ClientState;
-    internal IObjectTable ObjectTable => DalamudServices.ObjectTable;
-    internal IPartyList PartyList => DalamudServices.PartyList;
-    internal ICondition Condition => DalamudServices.Condition;
-    internal ILogger Logger { get; }
-    internal IconCache IconCache { get; }
-    internal HrtDataManager HrtDataManager { get; }
-    internal TaskManager TaskManager { get; }
-    internal ConnectorPool ConnectorPool { get; }
-    internal ConfigurationManager ConfigManager { get; }
-    internal CharacterInfoService CharacterInfoService { get; }
-    internal ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
-    internal ExamineGearDataProvider ExamineGearDataProvider { get; }
-    internal OwnCharacterDataProvider OwnCharacterDataProvider { get; }
-    internal GameInfo GameInfo => Common.Services.ServiceManager.GameInfo;
-    internal INotificationManager NotificationManager => DalamudServices.NotificationManager;
-    private DalamudServiceWrapper DalamudServices { get; }
-
-    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-    [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
-    private class DalamudServiceWrapper
-    {
-        [PluginService] public IChatGui ChatGui { get; set; }
-        [PluginService] public IDataManager DataManager { get; set; }
-        [PluginService] public ITargetManager TargetManager { get; set; }
-        [PluginService] public IDalamudPluginInterface PluginInterface { get; set; }
-        [PluginService] public IClientState ClientState { get; set; }
-        [PluginService] public IObjectTable ObjectTable { get; set; }
-        [PluginService] public IPartyList PartyList { get; set; }
-        [PluginService] public ICondition Condition { get; set; }
-        [PluginService] public IPluginLog PluginLog { get; set; }
-        [PluginService] public IGameInteropProvider GameInteropProvider { get; set; }
-        [PluginService] public ITextureProvider TextureProvider { get; set; }
-        [PluginService] public IFramework Framework { get; set; }
-        [PluginService] public INotificationManager NotificationManager { get; set; }
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+        [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
+        private class DalamudServiceWrapper
+        {
+            [PluginService] public IChatGui ChatGui { get; set; }
+            [PluginService] public IDataManager DataManager { get; set; }
+            [PluginService] public ITargetManager TargetManager { get; set; }
+            [PluginService] public IDalamudPluginInterface PluginInterface { get; set; }
+            [PluginService] public IClientState ClientState { get; set; }
+            [PluginService] public IObjectTable ObjectTable { get; set; }
+            [PluginService] public IPartyList PartyList { get; set; }
+            [PluginService] public ICondition Condition { get; set; }
+            [PluginService] public IPluginLog PluginLog { get; set; }
+            [PluginService] public IGameInteropProvider GameInteropProvider { get; set; }
+            [PluginService] public ITextureProvider TextureProvider { get; set; }
+            [PluginService] public IFramework Framework { get; set; }
+            [PluginService] public INotificationManager NotificationManager { get; set; }
+        }
     }
 }
 

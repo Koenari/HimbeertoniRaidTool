@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
@@ -28,8 +29,8 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         {
             const string msg = "Tried loading a configuration from a newer version of the plugin." +
                                "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
-            Services.ServiceManager.Logger.Fatal(msg);
-            Services.ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            Module.Services.Logger.Fatal(msg);
+            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
         }
         Upgrade();
@@ -45,8 +46,8 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             if (Data.Version > oldVersion)
                 continue;
             string msg = $"Error upgrading Lootmaster configuration from version {oldVersion}";
-            Services.ServiceManager.Logger.Fatal(msg);
-            Services.ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            Module.Services.Logger.Fatal(msg);
+            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new InvalidOperationException(msg);
 
 
@@ -178,16 +179,16 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         {
             _config.Data.BeforeSave();
             _dataCopy = _config.Data.Clone();
-            _dataCopy.AfterLoad();
+            _dataCopy.AfterLoad(_config.Module.Services.HrtDataManager);
             _lootList = new UiSortableList<LootRule>(LootRuling.PossibleRules, _dataCopy.LootRuling.RuleSet);
         }
 
         public void Save()
         {
-            _dataCopy.LootRuling.RuleSet = new List<LootRule>(_lootList.List);
+            _dataCopy.LootRuling.RuleSet = [.._lootList.List];
             _dataCopy.BeforeSave();
             _config.Data = _dataCopy;
-            _config.Data.AfterLoad();
+            _config.Data.AfterLoad(_config.Module.Services.HrtDataManager);
         }
     }
 
@@ -282,12 +283,12 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         [JsonIgnore]
         public GameExpansion ActiveExpansion => ExpansionOverride.HasValue
             ? ServiceManager.GameInfo.Expansions[ExpansionOverride.Value] : ServiceManager.GameInfo.CurrentExpansion;
-        public void AfterLoad()
+        public void AfterLoad(HrtDataManager dataManager)
         {
             RaidGroups.Clear();
-            foreach (HrtId id in _raidGroupIds)
+            foreach (var id in _raidGroupIds)
             {
-                if (Services.ServiceManager.HrtDataManager.RaidGroupDb.TryGet(id, out RaidGroup? group))
+                if (dataManager.RaidGroupDb.TryGet(id, out var group))
                     RaidGroups.Add(group);
             }
         }

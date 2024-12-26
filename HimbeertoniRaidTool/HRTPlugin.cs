@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using Dalamud.Game.Command;
-using Dalamud.Interface.ImGuiNotification;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -12,34 +11,19 @@ namespace HimbeertoniRaidTool.Plugin;
 // ReSharper disable once UnusedMember.Global
 public sealed class HrtPlugin : IDalamudPlugin
 {
-    private const string NAME = "Himbeertoni Raid Tool";
     private readonly ICommandManager _commandManager;
 
     private readonly List<string> _dalamudRegisteredCommands = [];
-    private readonly bool _loadedSuccessfully;
     private readonly Dictionary<Type, IHrtModule> _registeredModules = new();
+    private readonly IGlobalServiceContainer _services;
 
     public HrtPlugin(IDalamudPluginInterface pluginInterface, ICommandManager commandManager)
     {
         _commandManager = commandManager;
         GeneralLoc.Culture = new CultureInfo(pluginInterface.UiLanguage);
         //Init all services
-        _loadedSuccessfully = ServiceManager.Init(pluginInterface);
-        if (_loadedSuccessfully)
-        {
-            LoadAllModules();
-        }
-        else
-        {
-            ServiceManager.NotificationManager.AddNotification(new Notification
-            {
-                Content = NAME + " did not load correctly. Please disable/enable to try again",
-                Title = "Error in HRT",
-                InitialDuration = TimeSpan.FromSeconds(10),
-                Type = NotificationType.Error,
-            });
-            ServiceManager.Chat.PrintError(NAME + " did not load correctly. Please disable/enable to try again");
-        }
+        _services = ServiceManager.Init(pluginInterface);
+        LoadAllModules();
         //Init Localization
         pluginInterface.LanguageChanged += OnLanguageChange;
         OnLanguageChange(pluginInterface.UiLanguage);
@@ -51,26 +35,23 @@ public sealed class HrtPlugin : IDalamudPlugin
         {
             _commandManager.RemoveHandler(command);
         }
-        if (_loadedSuccessfully)
-        {
-            ServiceManager.ConfigManager.Save();
-            ServiceManager.HrtDataManager.Save();
-        }
+        _services.ConfigManager.Save();
+        _services.HrtDataManager.Save();
 
         foreach (var (type, module) in _registeredModules)
         {
             try
             {
-                ServiceManager.PluginInterface.UiBuilder.Draw -= module.WindowSystem.Draw;
+                _services.PluginInterface.UiBuilder.Draw -= module.WindowSystem.Draw;
                 module.WindowSystem.RemoveAllWindows();
                 module.Dispose();
             }
             catch (Exception e)
             {
-                ServiceManager.Logger.Fatal($"Unable to Dispose module \"{type}\"\n{e}");
+                _services.Logger.Fatal($"Unable to Dispose module \"{type}\"\n{e}");
             }
         }
-        ServiceManager.Dispose();
+        _services.Dispose();
     }
 
     private void LoadAllModules()
@@ -87,14 +68,14 @@ public sealed class HrtPlugin : IDalamudPlugin
             if (moduleType == typeof(CoreModule)) continue;
             try
             {
-                ServiceManager.Logger.Debug($"Creating instance of: {moduleType.Name}");
+                _services.Logger.Debug($"Creating instance of: {moduleType.Name}");
                 if (Activator.CreateInstance(moduleType) is not IHrtModule module)
                     throw new FailedToLoadException($"Failed to load module: {moduleType.Name}");
                 RegisterModule(module, coreModule.AddCommand);
             }
             catch (Exception e)
             {
-                ServiceManager.Logger.Error(e, $"Failed to load module: {moduleType.Name}");
+                _services.Logger.Error(e, $"Failed to load module: {moduleType.Name}");
             }
         }
     }
@@ -103,31 +84,31 @@ public sealed class HrtPlugin : IDalamudPlugin
     {
         if (_registeredModules.ContainsKey(module.GetType()))
         {
-            ServiceManager.Logger.Error($"Tried to register module \"{module.Name}\" twice");
+            _services.Logger.Error($"Tried to register module \"{module.Name}\" twice");
             return;
         }
 
         try
         {
-            ServiceManager.Logger.Debug($"Registering module \"{module.Name}\"");
+            _services.Logger.Debug($"Registering module \"{module.Name}\"");
             _registeredModules.Add(module.GetType(), module);
             foreach (var command in module.Commands)
             {
                 AddCommand(command, registerCommand);
             }
-            if (ServiceManager.ConfigManager.RegisterConfig(module.Configuration))
+            if (_services.ConfigManager.RegisterConfig(module.Configuration))
                 module.Configuration.AfterLoad();
             else
-                ServiceManager.Logger.Error($"Configuration load error:{module.Name}");
-            ServiceManager.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
-            ServiceManager.Logger.Debug($"Calling {module.InternalName}.AfterFullyLoaded()");
+                _services.Logger.Error($"Configuration load error:{module.Name}");
+            _services.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
+            _services.Logger.Debug($"Calling {module.InternalName}.AfterFullyLoaded()");
             module.AfterFullyLoaded();
-            ServiceManager.Logger.Information($"Successfully loaded module: {module.Name}");
+            _services.Logger.Information($"Successfully loaded module: {module.Name}");
         }
         catch (Exception e)
         {
             _registeredModules.Remove(module.GetType());
-            ServiceManager.Logger.Error(e, $"Error loading module: {module.GetType()}");
+            _services.Logger.Error(e, $"Error loading module: {module.GetType()}");
         }
     }
 
@@ -161,7 +142,7 @@ public sealed class HrtPlugin : IDalamudPlugin
 
     private void OnLanguageChange(string languageCode)
     {
-        ServiceManager.Logger.Information($"Loading Localization for {languageCode}");
+        _services.Logger.Information($"Loading Localization for {languageCode}");
         Common.Services.ServiceManager.SetLanguage(languageCode);
         try
         {
@@ -174,7 +155,7 @@ public sealed class HrtPlugin : IDalamudPlugin
         }
         catch (Exception ex)
         {
-            ServiceManager.Logger.Error(ex, "Unable to Load Localization");
+            _services.Logger.Error(ex, "Unable to Load Localization");
         }
     }
 }

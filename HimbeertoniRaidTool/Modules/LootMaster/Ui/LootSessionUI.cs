@@ -10,16 +10,16 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 internal class LootSessionUi : HrtWindow
 {
     private const string RULES_POPUP_ID = "RulesButtonPopup";
-    private readonly IEnumerable<RaidGroup> _possibleGroups;
     private readonly UiSortableList<LootRule> _ruleListUi;
     private readonly LootSession _session;
+    private readonly LootMasterModule _module;
+    private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
 
-    internal LootSessionUi(InstanceWithLoot lootSource, RaidGroup group, IEnumerable<RaidGroup> possibleGroups,
-                           LootRuling lootRuling,
-                           RolePriority defaultRolePriority)
+    internal LootSessionUi(LootMasterModule module, InstanceWithLoot lootSource, RaidGroup group)
     {
-        _session = new LootSession(group, lootRuling, defaultRolePriority, lootSource);
-        _ruleListUi = new UiSortableList<LootRule>(LootRuling.PossibleRules, lootRuling.RuleSet);
+        _module = module;
+        _session = new LootSession(module, lootSource, group);
+        _ruleListUi = new UiSortableList<LootRule>(LootRuling.PossibleRules, CurConfig.LootRuling.RuleSet);
 
         MinSize = new Vector2(600, 300);
         //Size = new Vector2(1100, 600);
@@ -27,7 +27,6 @@ internal class LootSessionUi : HrtWindow
         Title = string.Format(LootmasterLoc.LootSessionUi_Title, lootSource.Name);
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         OpenCentered = true;
-        _possibleGroups = possibleGroups;
     }
 
     public override void Draw()
@@ -56,7 +55,7 @@ internal class LootSessionUi : HrtWindow
         if (ImGui.BeginCombo("##RaidGroup", _session.Group.Name))
         {
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (var group in _possibleGroups)
+            foreach (var group in _module.ConfigImpl.Data.RaidGroups)
             {
                 if (ImGui.Selectable(group.Name) && group != _session.Group)
                     _session.Group = group;
@@ -100,7 +99,7 @@ internal class LootSessionUi : HrtWindow
                     var item = _session.Loot[row * itemsPerRow + col].item;
                     ImGui.TableNextColumn();
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
-                    ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle,
+                    ImGui.Image(_module.Services.IconCache[item.Icon].ImGuiHandle,
                                 Vector2.One * ScaleFactor * (itemSize - 30f));
                     if (ImGui.IsItemHovered())
                     {
@@ -171,7 +170,7 @@ internal class LootSessionUi : HrtWindow
         foreach ((var item, bool awarded) in _session.GuaranteedLoot)
         {
             ImGui.BeginGroup();
-            ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle,
+            ImGui.Image(_module.Services.IconCache[item.Icon].ImGuiHandle,
                         Vector2.One * ImGui.GetTextLineHeightWithSpacing());
             ImGui.SameLine();
             ImGui.Text(item.Name);

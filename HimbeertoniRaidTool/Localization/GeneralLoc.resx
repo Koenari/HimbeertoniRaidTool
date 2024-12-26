@@ -340,7 +340,7 @@
         <value>Replace</value>
     </data>
     <data name="EditGearSetUi_btn_tt_GetExternal" xml:space="preserve">
-        <value>Dwonlad set and replace current one</value>
+        <value>Download set and replace current one</value>
     </data>
     <data name="EditGearSetUi_btn_tt_cutsomEtro" xml:space="preserve">
         <value>Get</value>
@@ -393,7 +393,7 @@ You need to update to use this plugin!</value>
         <value>Open set on etro.gg</value>
     </data>
     <data name="EditGearSetUi_txt_lastUpdate" xml:space="preserve">
-        <value>Last update check: {0}</value>
+        <value>Last update check</value>
     </data>
     <data name="Gearset_Warning_SysManaged" xml:space="preserve">
         <value>This set is manged by the plugin and will be automatically overwritten with characters current gear!</value>
@@ -402,7 +402,7 @@ You need to update to use this plugin!</value>
         <value>Source</value>
     </data>
     <data name="EditGearSetUi_txt_LastChange" xml:space="preserve">
-        <value>Last Change: {0}</value>
+        <value>Last Change</value>
     </data>
     <data name="EditCharUi_cb_hideJob" xml:space="preserve">
         <value>Do not show this job</value>
@@ -437,7 +437,8 @@ You need to update to use this plugin!</value>
         <value>All</value>
     </data>
     <data name="XivGearAppConnector_GetGearSet_Error" xml:space="preserve">
-        <value/>
+        <value>Error updating set {0} from XivGear.app</value>
+        <comment>{0} name</comment>
     </data>
     <data name="CommonTerms_Difference" xml:space="preserve">
         <value>Difference</value>
@@ -458,5 +459,6 @@ You need to update to use this plugin!</value>
     </data>
     <data name="XivGearAppConnector_GetGearSet_Success" xml:space="preserve">
         <value>Update from XivGear.app for {0} succeeded</value>
+        <comment>{0} name</comment>
     </data>
 </root>

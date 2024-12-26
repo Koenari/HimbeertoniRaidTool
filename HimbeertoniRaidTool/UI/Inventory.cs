@@ -1,8 +1,11 @@
 using System.Numerics;
 using Dalamud.Interface;
+using HimbeertoniRaidTool.Common.GameData;
 using HimbeertoniRaidTool.Common.Localization;
+using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
+using ServiceManager = HimbeertoniRaidTool.Plugin.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -17,22 +20,25 @@ internal class InventoryWindow : HrtWindowWithModalChild
         Currency.SerpentSeal,
         Currency.AlliedSeal,
     ];
-
+    private readonly CharacterInfoService _characterInfoService;
+    private readonly GameInfo _gameInfo;
     private readonly Character _character;
     private Inventory Inventory => _character.MainInventory;
     private Wallet Wallet => _character.Wallet;
 
     private static readonly Vector2 IconSize = new(ImGui.GetTextLineHeightWithSpacing());
-    internal InventoryWindow(Character c)
+    internal InventoryWindow(Character c, CharacterInfoService characterInfoService, GameInfo gameInfo)
     {
+        _characterInfoService = characterInfoService;
+        _gameInfo = gameInfo;
         Size = new Vector2(400f, 550f);
         SizeCondition = ImGuiCond.Appearing;
         Title = string.Format(LootmasterLoc.InventoryUi_Title, c.Name);
         _character = c;
-        if (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage is null)
+        if (_gameInfo.CurrentExpansion.CurrentSavage is null)
             return;
-        foreach (var item in from boss in ServiceManager.GameInfo.CurrentExpansion.CurrentSavage
-                                                        .Bosses
+        foreach (var item in from boss in _gameInfo.CurrentExpansion.CurrentSavage
+                                                   .Bosses
                              from item in boss.GuaranteedItems
                              where !_character.MainInventory.Contains(item.Id)
                              select item)
@@ -48,7 +54,7 @@ internal class InventoryWindow : HrtWindowWithModalChild
         foreach (var (cur, _) in Wallet.Where(c => !_hiddenCurrencies.Contains(c.Key)))
         {
             int value = Wallet[cur];
-            if (ServiceManager.CharacterInfoService.IsSelf(_character))
+            if (_characterInfoService.IsSelf(_character))
             {
                 ImGui.Text($"{value:N0} {cur}");
             }
@@ -65,11 +71,13 @@ internal class InventoryWindow : HrtWindowWithModalChild
         ImGui.Separator();
         ImGui.Text(GeneralLoc.InventoryWindow_Hdg_Current_Savage_Books);
         ImGui.NewLine();
-        if (ServiceManager.GameInfo.CurrentExpansion.CurrentSavage is not null)
-            foreach (var item in ServiceManager.GameInfo.CurrentExpansion.CurrentSavage
-                                               .Bosses.SelectMany(boss => boss.GuaranteedItems))
+        if (_gameInfo.CurrentExpansion.CurrentSavage is not null)
+            foreach (var item in _gameInfo.CurrentExpansion.CurrentSavage
+                                          .Bosses.SelectMany(boss => boss.GuaranteedItems))
             {
-                ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle, IconSize);
+                var icon = UiSystem.GetIcon(item.Icon);
+                if (icon is not null)
+                    ImGui.Image(icon.ImGuiHandle, IconSize);
                 ImGui.SameLine();
                 ImGui.Text(item.Name);
                 ImGui.SameLine();
@@ -87,13 +95,16 @@ internal class InventoryWindow : HrtWindowWithModalChild
             ImGui.PushID(idx);
             if (entry.Item is not GearItem item)
                 continue;
-            var icon = ServiceManager.IconCache[item.Icon];
+            var icon = UiSystem.GetIcon(item.Icon);
             if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "##delete", null, true, IconSize * ScaleFactor))
                 Inventory.Remove(idx);
             ImGui.SameLine();
             ImGui.BeginGroup();
-            ImGui.Image(icon.ImGuiHandle, IconSize * ScaleFactor);
-            ImGui.SameLine();
+            if (icon is not null)
+            {
+                ImGui.Image(icon.ImGuiHandle, IconSize * ScaleFactor);
+                ImGui.SameLine();
+            }
             ImGui.Text(item.Name);
             ImGui.EndGroup();
             if (ImGui.IsItemHovered())
@@ -111,7 +122,7 @@ internal class InventoryWindow : HrtWindowWithModalChild
             ModalChild = new SelectGearItemWindow(item => Inventory.ReserveSlot(item, 1),
                                                   _ => { },
                                                   null, null, null,
-                                                  ServiceManager.GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel
+                                                  _gameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel
                                                ?? 0);
         ImGui.EndDisabled();
     }

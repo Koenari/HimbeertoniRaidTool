@@ -15,8 +15,8 @@ internal class GearDb : DataBaseTable<GearSet>
 {
     private readonly Dictionary<string, HrtId> _etroLookup = new();
 
-    internal GearDb(IIdProvider idProvider) : base(
-        idProvider, Array.Empty<JsonConverter>())
+    internal GearDb(IIdProvider idProvider, ILogger logger) : base(
+        idProvider, Array.Empty<JsonConverter>(), logger)
     {
     }
     public new bool Load(JsonSerializerSettings settings, string serializedData)
@@ -45,7 +45,7 @@ internal class GearDb : DataBaseTable<GearSet>
         set = null;
         return false;
     }
-    public override void FixEntries()
+    public override void FixEntries(HrtDataManager _)
     {
         foreach (var dataValue in Data.Values.Where(dataValue =>
                                                         dataValue is

@@ -23,14 +23,19 @@ internal static class UiHelpers
                                     GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {
         //LuminaItem Icon with Info
-        ImGui.Image(ServiceManager.IconCache[item.Icon].ImGuiHandle, new Vector2(24, 24));
-        if (ImGui.IsItemHovered())
+        var icon = UiSystem.GetIcon(item.Icon);
+        if (icon is not null)
         {
-            ImGui.BeginTooltip();
-            item.Draw();
-            ImGui.EndTooltip();
+            ImGui.Image(icon.ImGuiHandle, new Vector2(24, 24));
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                item.Draw();
+                ImGui.EndTooltip();
+            }
+            ImGui.SameLine();
+
         }
-        ImGui.SameLine();
         //Quick select
         string itemName = item.Name;
         if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out LuminaItem outItem, _ => itemName,
@@ -96,14 +101,19 @@ internal static class UiHelpers
                                                            - ImGui.GetTextLineHeight()) * 2);
 
             var mat = item.Materia.Skip(i).First();
-            ImGui.Image(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new Vector2(24, 24));
-            if (ImGui.IsItemHovered())
+            var matIcon = UiSystem.GetIcon(mat.Icon);
+            if (matIcon is not null)
             {
-                ImGui.BeginTooltip();
-                mat.Draw();
-                ImGui.EndTooltip();
+                ImGui.Image(matIcon.ImGuiHandle, new Vector2(24, 24));
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    mat.Draw();
+                    ImGui.EndTooltip();
+                }
+                ImGui.SameLine();
+
             }
-            ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
             if (ImGuiHelper.SearchableCombo(
                     $"##mat{slot}{i}",

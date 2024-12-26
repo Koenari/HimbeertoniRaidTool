@@ -22,9 +22,11 @@ internal abstract class WebConnector
     private readonly TimeSpan _cacheTime;
     private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
     private readonly RateLimit _rateLimit;
+    protected readonly ILogger Logger;
 
-    internal WebConnector(RateLimit rateLimit = default, TimeSpan? cacheTime = null)
+    internal WebConnector(ILogger logger, RateLimit rateLimit = default, TimeSpan? cacheTime = null)
     {
+        Logger = logger;
         _rateLimit = rateLimit;
         _cachedRequests = new ConcurrentDictionary<string, (DateTime time, HttpResponseMessage response)>();
         _currentRequests = new ConcurrentDictionary<string, DateTime>();
@@ -50,7 +52,7 @@ internal abstract class WebConnector
     protected HttpResponseMessage? MakeWebRequest(string url)
     {
         UpdateCache();
-        if (_cachedRequests.TryGetValue(url, out (DateTime time, HttpResponseMessage response) result))
+        if (_cachedRequests.TryGetValue(url, out var result))
             return result.response;
         var requestTask = MakeAsyncWebRequest(url);
         requestTask.Wait();
@@ -63,19 +65,19 @@ internal abstract class WebConnector
         {
             Thread.Sleep(1000);
         }
-        if (_cachedRequests.TryGetValue(url, out (DateTime time, HttpResponseMessage response) cached))
+        if (_cachedRequests.TryGetValue(url, out var cached))
             return cached.response;
         _currentRequests.TryAdd(url, DateTime.Now);
         try
         {
             HttpClient client = new();
-            HttpResponseMessage response = await client.GetAsync(url);
+            var response = await client.GetAsync(url);
             _cachedRequests.TryAdd(url, (DateTime.Now, response));
             return response;
         }
         catch (Exception e) when (e is HttpRequestException or UriFormatException or TaskCanceledException)
         {
-            ServiceManager.Logger.Error(e.Message);
+            Logger.Error(e.Message);
             return null;
         }
         finally

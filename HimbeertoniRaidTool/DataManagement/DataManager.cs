@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Security;
 using Newtonsoft.Json;
@@ -12,6 +13,7 @@ public class HrtDataManager
 {
     public readonly bool Initialized;
     private volatile bool _saving = false;
+    private readonly ILogger _logger;
     //Data
     private readonly DataBaseWrapper<GearSet> _gearDb;
     private readonly DataBaseWrapper<Character> _characterDb;
@@ -36,8 +38,9 @@ public class HrtDataManager
         NullValueHandling = NullValueHandling.Ignore,
         ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
     };
-    public HrtDataManager(IDalamudPluginInterface pluginInterface)
+    public HrtDataManager(IDalamudPluginInterface pluginInterface, ILogger logger, IDataManager dataManager)
     {
+        _logger = logger;
         bool loadedSuccessful = true;
         //Set up files &folders
         try
@@ -47,19 +50,22 @@ public class HrtDataManager
         }
         catch (IOException ioe)
         {
-            ServiceManager.Logger.Error(ioe, "Could not create data directory");
+            _logger.Error(ioe, "Could not create data directory");
             throw new FailedToLoadException("Could not create data directory");
         }
         _saveDir = pluginInterface.ConfigDirectory.FullName;
-        ModuleConfigurationManager = new ModuleConfigurationManager(pluginInterface);
+        ModuleConfigurationManager = new ModuleConfigurationManager(this, _saveDir);
         IIdProvider idProvider = new LocalIdProvider(this);
-        _gearDb = new DataBaseWrapper<GearSet>(this, new GearDb(idProvider), "GearDB.json");
+        _gearDb = new DataBaseWrapper<GearSet>(this, new GearDb(idProvider, logger), "GearDB.json");
         _characterDb =
-            new DataBaseWrapper<Character>(this, new CharacterDb(idProvider, _idRefConverters), "CharacterDB.json");
+            new DataBaseWrapper<Character>(this, new CharacterDb(idProvider, _idRefConverters, logger, dataManager),
+                                           "CharacterDB.json");
 
-        _playerDb = new DataBaseWrapper<Player>(this, new PlayerDb(idProvider, _idRefConverters), "PlayerDB.json");
+        _playerDb = new DataBaseWrapper<Player>(this, new PlayerDb(idProvider, _idRefConverters, logger),
+                                                "PlayerDB.json");
         _raidGroupDb =
-            new DataBaseWrapper<RaidGroup>(this, new RaidGroupDb(idProvider, _idRefConverters), "RaidGroupDB.json");
+            new DataBaseWrapper<RaidGroup>(this, new RaidGroupDb(idProvider, _idRefConverters, logger),
+                                           "RaidGroupDB.json");
 
         loadedSuccessful &= _gearDb.Load();
         loadedSuccessful &= _characterDb.Load();
@@ -79,34 +85,48 @@ public class HrtDataManager
          * CharDb.RemoveUnused(PlayerDb.GetReferencedIds());
          */
         GearDb.RemoveUnused(CharDb.GetReferencedIds());
-        RaidGroupDb.FixEntries();
-        PlayerDb.FixEntries();
-        CharDb.FixEntries();
-        GearDb.FixEntries();
+        RaidGroupDb.FixEntries(this);
+        PlayerDb.FixEntries(this);
+        CharDb.FixEntries(this);
+        GearDb.FixEntries(this);
     }
 
-    internal static bool TryRead(FileInfo file, out string data)
+    internal bool TryRead(FileInfo file, out string data)
     {
         data = "";
         try
         {
-            using StreamReader reader = file.OpenText();
+            using var reader = file.OpenText();
             data = reader.ReadToEnd();
             return true;
         }
         catch (Exception e)
         {
-            ServiceManager.Logger.Error(e, "Could not load data file");
+            _logger.Error(e, "Could not load data file");
             return false;
         }
     }
+    internal bool TryWrite(FileInfo file, string data)
+    {
+        try
+        {
+            Util.WriteAllTextSafe(file.FullName, data);
+            return true;
+        }
+        catch (Win32Exception e)
+        {
+            _logger.Error(e, $"Could not write data file: {file.FullName}");
+            return false;
+        }
+    }
+
     public bool Save()
     {
         if (!Initialized || _saving)
             return false;
         //Saving all data (functions are locked while this happens)
         _saving = true;
-        DateTime time1 = DateTime.Now;
+        var time1 = DateTime.Now;
         bool savedSuccessful = _gearDb.Save();
         if (savedSuccessful)
             savedSuccessful &= _characterDb.Save();
@@ -115,8 +135,8 @@ public class HrtDataManager
         if (savedSuccessful)
             savedSuccessful &= _raidGroupDb.Save();
         _saving = false;
-        DateTime time2 = DateTime.Now;
-        ServiceManager.Logger.Debug($"Database saving time: {time2 - time1}");
+        var time2 = DateTime.Now;
+        _logger.Debug($"Database saving time: {time2 - time1}");
         return savedSuccessful;
     }
 
@@ -148,7 +168,7 @@ public class HrtDataManager
         {
             if (!_file.Exists)
                 return LoadEmpty();
-            if (!TryRead(_file, out string jsonData))
+            if (!_parent.TryRead(_file, out string jsonData))
             {
                 LoadEmpty();
                 return false;
@@ -164,19 +184,7 @@ public class HrtDataManager
             }
         }
         private bool LoadEmpty() => _database.Load(_jsonSettings, "[]");
-        internal bool Save()
-        {
-            string data = _database.Serialize(_jsonSettings);
-            try
-            {
-                Util.WriteAllTextSafe(_file.FullName, data);
-                return true;
-            }
-            catch (Win32Exception e)
-            {
-                ServiceManager.Logger.Error(e, "Could not write data file");
-                return false;
-            }
-        }
+        internal bool Save() => _parent.TryWrite(_file, _database.Serialize(_jsonSettings));
     }
+
 }

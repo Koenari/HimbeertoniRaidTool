@@ -1,4 +1,5 @@
 ﻿using Dalamud.Plugin.Services;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
@@ -8,11 +9,11 @@ internal class ConnectorPool : IDisposable
     internal readonly LodestoneConnector LodestoneConnector;
     internal readonly XivGearAppConnector XivGearAppConnector;
 
-    internal ConnectorPool(TaskManager tm, ILogger log)
+    internal ConnectorPool(HrtDataManager hrtDataManager, TaskManager tm, IDataManager dataManager, ILogger log)
     {
-        EtroConnector = new EtroConnector(tm, log);
-        LodestoneConnector = new LodestoneConnector();
-        XivGearAppConnector = new XivGearAppConnector(tm);
+        EtroConnector = new EtroConnector(hrtDataManager, tm, log);
+        LodestoneConnector = new LodestoneConnector(hrtDataManager, dataManager, log);
+        XivGearAppConnector = new XivGearAppConnector(hrtDataManager, tm, log);
     }
 
     public IReadOnlyGearConnector GetConnector(GearSetManager type) => type switch

@@ -1,4 +1,5 @@
-﻿using HimbeertoniRaidTool.Plugin.Localization;
+﻿using HimbeertoniRaidTool.Plugin.DataManagement;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
@@ -26,15 +27,15 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
         if (Data.Version > TARGET_VERSION)
         {
             string msg = GeneralLoc.Config_Error_Downgrade;
-            ServiceManager.Logger.Fatal(msg);
-            ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            Module.Services.Logger.Fatal(msg);
+            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
         }
         Upgrade();
         _saveTask.Repeat = TimeSpan.FromMinutes(Data.SaveIntervalMinutes);
         _saveTask.ShouldRun = Data.SavePeriodically;
         _saveTask.LastRun = DateTime.Now;
-        ServiceManager.TaskManager.RegisterTask(_saveTask);
+        Module.Services.TaskManager.RegisterTask(_saveTask);
     }
 
     private void Upgrade()
@@ -46,8 +47,8 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
             if (Data.Version > oldVersion)
                 continue;
             string msg = string.Format(CoreLoc.Chat_configUpgradeError, oldVersion);
-            ServiceManager.Logger.Fatal(msg);
-            ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            Module.Services.Logger.Fatal(msg);
+            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new InvalidOperationException(msg);
 
 
@@ -56,9 +57,9 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
 
     private void DoUpgradeStep() { }
 
-    private static HrtUiMessage PeriodicSave()
+    private HrtUiMessage PeriodicSave()
     {
-        if (ServiceManager.HrtDataManager.Save())
+        if (Module.Services.HrtDataManager.Save())
             return new HrtUiMessage(CoreLoc.UiMessage_PeriodicSaveSuccessful,
                                     HrtUiMessageType.Success);
         return new HrtUiMessage(CoreLoc.UiMessage_PeriodicSaveFailed,
@@ -79,7 +80,7 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
 
         #endregion
 
-        public void AfterLoad() { }
+        public void AfterLoad(HrtDataManager dataManager) { }
 
         public void BeforeSave() { }
 
@@ -211,7 +212,7 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
                                      CoreLoc.ConfigUi_cb_tt_ignorePrevTierGear);
                 ImGui.SameLine();
                 ImGui.Text(
-                    $"({GeneralLoc.CommonTerms_itemLvl_abbrev} < {(ServiceManager.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? 0) + 10})");
+                    $"({GeneralLoc.CommonTerms_itemLvl_abbrev} < {(parent.Module.Services.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? 0) + 10})");
                 ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignoreCustomILvlGear,
                                      ref _dataCopy.GearUpdateRestrictToCustomILvL,
                                      CoreLoc.ConfigUi_cb_tt_ignoreCustomILvlGear);

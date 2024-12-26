@@ -94,8 +94,8 @@ public static class ImGuiHelper
         bool result = false;
         string inspectTooltip = GeneralLoc.Ui_btn_Inspect_tt;
         bool canInspect = true;
-        if (!ServiceManager.CharacterInfoService.TryGetChar(out var playerChar, p.MainChar.Name,
-                                                            p.MainChar.HomeWorld))
+        if (!module.Services.CharacterInfoService.TryGetChar(out var playerChar, p.MainChar.Name,
+                                                             p.MainChar.HomeWorld))
         {
             canInspect = false;
             inspectTooltip = GeneralLoc.Ui_btn_tt_CharacterNotInReach;
@@ -128,7 +128,7 @@ public static class ImGuiHelper
                        $"{inspectTooltip}{(!showMultiple && !insideContextMenu ? $" ({GeneralLoc.Ui_rightClickHint})" : "")}",
                        canInspect, size))
             {
-                CsHelpers.SafeguardedOpenExamine(playerChar);
+                CsHelpers.SafeguardedOpenExamine(playerChar, module.Services.Logger);
                 return true;
             }
             return false;
@@ -138,12 +138,12 @@ public static class ImGuiHelper
             string tooltip = GeneralLoc.Ui_btn_tt_Lodestone;
             if (Button(FontAwesomeIcon.CloudDownloadAlt, "lodestone",
                        $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({GeneralLoc.Ui_rightClickHint})" : "")}",
-                       ServiceManager.ConnectorPool.LodestoneConnector.CanBeUsed, size))
+                       module.Services.ConnectorPool.LodestoneConnector.CanBeUsed, size))
             {
                 module.HandleMessage(
                     new HrtUiMessage($"{GeneralLoc.LodestonConnetor_msg_UpdateStarted} {p.MainChar.Name}"));
-                ServiceManager.TaskManager.RegisterTask(
-                    new HrtTask<HrtUiMessage>(() => ServiceManager.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
+                module.Services.TaskManager.RegisterTask(
+                    new HrtTask<HrtUiMessage>(() => module.Services.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
                                               module.HandleMessage, $"Update {p.MainChar.Name} from Lodestone"));
                 return true;
             }
@@ -162,7 +162,7 @@ public static class ImGuiHelper
                                 string.Format(GeneralLoc.Ui_btn_tt_etroUpdate, set.Name, set.ExternalId),
                                 set is { ManagedBy: GearSetManager.Etro, ExternalId.Length: > 0 }, size);
                 if (result)
-                    ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(
+                    module.Services.ConnectorPool.EtroConnector.RequestGearSetUpdate(
                         set, module.HandleMessage,
                         string.Format(GeneralLoc.Ui_btn_tt_etroUpdate, set.Name, set.ExternalId));
                 break;
@@ -171,7 +171,7 @@ public static class ImGuiHelper
                                 string.Format(GeneralLoc.Ui_btn_tt_XivGearUpdate, set.Name, set.ExternalId),
                                 set is { ManagedBy: GearSetManager.XivGear, ExternalId.Length: > 0 }, size);
                 if (result)
-                    ServiceManager.ConnectorPool.XivGearAppConnector.RequestGearSetUpdate(
+                    module.Services.ConnectorPool.XivGearAppConnector.RequestGearSetUpdate(
                         set, module.HandleMessage,
                         string.Format(GeneralLoc.Ui_btn_tt_XivGearUpdate, set.Name, set.ExternalId));
                 break;
@@ -267,7 +267,7 @@ public static class ImGuiHelper
                                           Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
         where T : struct, IExcelRow<T>
     {
-        var sheet = ServiceManager.DataManager.GetExcelSheet<T>();
+        var sheet = UiSystem.GetExcelSheet<T>();
 
         return SearchableCombo(id, out selected, getPreview(sheet), sheet, toName, searchPredicate, preFilter, flags);
     }

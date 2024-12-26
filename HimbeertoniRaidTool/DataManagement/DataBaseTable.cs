@@ -20,11 +20,11 @@ public interface IDataBaseTable<T> where T : IHasHrtId, new()
     internal ulong GetNextSequence();
     internal bool Contains(HrtId hrtId);
     public void RemoveUnused(HashSet<HrtId> referencedIds);
-    public void FixEntries();
+    public void FixEntries(HrtDataManager hrtDataManager);
     internal string Serialize(JsonSerializerSettings settings);
 }
 
-public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
+public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonConverter> converters, ILogger logger)
     : IDataBaseTable<T>
     where T : class, IHasHrtId, new()
 {
@@ -34,11 +34,12 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     private ulong _nextSequence = 0;
     protected bool LoadError = false;
     protected bool IsLoaded = false;
+    protected readonly ILogger Logger = logger;
 
     public virtual bool Load(JsonSerializerSettings settings, string serializedData)
     {
         List<JsonConverter> savedConverters = [..settings.Converters];
-        foreach (JsonConverter jsonConverter in _refConverters)
+        foreach (var jsonConverter in _refConverters)
         {
             settings.Converters.Add(jsonConverter);
         }
@@ -46,15 +47,15 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
         settings.Converters = savedConverters;
         if (data is null)
         {
-            ServiceManager.Logger.Error($"Could not load {typeof(T)} database");
+            Logger.Error($"Could not load {typeof(T)} database");
             LoadError = true;
             return IsLoaded;
         }
-        foreach (T value in data)
+        foreach (var value in data)
         {
             if (value.LocalId.IsEmpty)
             {
-                ServiceManager.Logger.Error(
+                Logger.Error(
                     $"{typeof(T).Name} {value} was missing an ID and was removed from the database");
                 continue;
             }
@@ -62,7 +63,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
                 _nextSequence = Math.Max(_nextSequence, value.LocalId.Sequence);
         }
         _nextSequence++;
-        ServiceManager.Logger.Information($"Database contains {Data.Count} entries of type {typeof(T).Name}");
+        Logger.Information($"Database contains {Data.Count} entries of type {typeof(T).Name}");
         IsLoaded = true;
         return IsLoaded;
     }
@@ -80,14 +81,14 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     }
     public void RemoveUnused(HashSet<HrtId> referencedIds)
     {
-        ServiceManager.Logger.Debug($"Begin pruning of {typeof(T).Name} database.");
+        Logger.Debug($"Begin pruning of {typeof(T).Name} database.");
         IEnumerable<HrtId> keyList = new List<HrtId>(Data.Keys);
-        foreach (HrtId id in keyList.Where(id => !referencedIds.Contains(id)))
+        foreach (var id in keyList.Where(id => !referencedIds.Contains(id)))
         {
             Data.Remove(id);
-            ServiceManager.Logger.Information($"Removed {id} from {typeof(T).Name} database");
+            Logger.Information($"Removed {id} from {typeof(T).Name} database");
         }
-        ServiceManager.Logger.Debug($"Finished pruning of {typeof(T).Name} database.");
+        Logger.Debug($"Finished pruning of {typeof(T).Name} database.");
     }
     public bool Contains(HrtId hrtId) => Data.ContainsKey(hrtId);
     public IEnumerable<T> GetValues() => Data.Values;
@@ -96,7 +97,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     public string Serialize(JsonSerializerSettings settings)
     {
         List<JsonConverter> savedConverters = [..settings.Converters];
-        foreach (JsonConverter jsonConverter in _refConverters)
+        foreach (var jsonConverter in _refConverters)
         {
             settings.Converters.Add(jsonConverter);
         }
@@ -108,7 +109,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
 
     public HrtIdReferenceConverter<T> GetRefConverter() => new(this);
 
-    public virtual void FixEntries() { }
+    public virtual void FixEntries(HrtDataManager hrtDataManager) { }
 
     internal abstract class SearchWindow<TData, TDataBaseTable>(
         TDataBaseTable dataBase,

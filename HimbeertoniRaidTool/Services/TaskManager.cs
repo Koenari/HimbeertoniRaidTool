@@ -9,6 +9,7 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 internal class TaskManager : IDisposable
 {
     private readonly IFramework _framework;
+    private readonly ILogger _logger;
 
     private interface ITaskWrapper
     {
@@ -43,8 +44,9 @@ internal class TaskManager : IDisposable
     private readonly ConcurrentBag<PeriodicTask> _tasksOnMinute = new();
     private bool _disposedValue;
 
-    internal TaskManager(IFramework framework)
+    internal TaskManager(IFramework framework, ILogger logger)
     {
+        _logger = logger;
         _framework = framework;
         _secondTimer = new Timer(OnSecondTimer, null, 1000, 1000);
         _taskTimer = new Timer(OnTaskTimer, null, 1000, 1000);
@@ -59,14 +61,12 @@ internal class TaskManager : IDisposable
             if (_tasksOnce.TryDequeue(out var completedTask))
             {
                 if (completedTask.SystemTask.IsFaulted)
-                    ServiceManager.Logger.Error(completedTask.SystemTask.Exception,
-                                                $"Task \"{completedTask.Name}\" finished with an error");
+                    _logger.Error(completedTask.SystemTask.Exception,
+                                  $"Task \"{completedTask.Name}\" finished with an error");
                 else if (completedTask.HasError)
-                    ServiceManager.Logger.Error(
-                        $"Task \"{completedTask.Name}\" finished with an error: {completedTask.ErrorMsg}");
+                    _logger.Error($"Task \"{completedTask.Name}\" finished with an error: {completedTask.ErrorMsg}");
                 else
-                    ServiceManager.Logger.Info(
-                        $"Task \"{completedTask.Name}\" finished successful");
+                    _logger.Info($"Task \"{completedTask.Name}\" finished successful");
             }
         }
     }
@@ -79,7 +79,7 @@ internal class TaskManager : IDisposable
         {
             if (task.ShouldRun && task.LastRun + task.Repeat < executionTime)
             {
-                ServiceManager.Logger.Info($"Starting task: {task.Name}");
+                _logger.Info($"Starting task: {task.Name}");
                 task.CallBack(task.Action());
                 task.LastRun = executionTime;
             }
@@ -94,7 +94,7 @@ internal class TaskManager : IDisposable
         {
             if (task.ShouldRun && task.LastRun + task.Repeat < executionTime)
             {
-                ServiceManager.Logger.Info($"Starting task: {task.Name}");
+                _logger.Info($"Starting task: {task.Name}");
                 task.CallBack(task.Action());
                 task.LastRun = executionTime;
             }
@@ -114,7 +114,7 @@ internal class TaskManager : IDisposable
         }
         else
         {
-            ServiceManager.Logger.Info($"Starting task: {task.Name}");
+            _logger.Info($"Starting task: {task.Name}");
             _tasksOnce.Enqueue(new TaskWrapper<TData>(task));
         }
     }

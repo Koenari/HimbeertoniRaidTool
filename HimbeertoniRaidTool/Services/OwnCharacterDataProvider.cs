@@ -10,6 +10,8 @@ internal class OwnCharacterDataProvider : IGearDataProvider
 {
     private readonly IClientState _clientState;
     private readonly IFramework _framework;
+    private readonly ILogger _logger;
+    private readonly HrtDataManager _hrtDataManager;
     private readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
     private readonly TimeSpan _timeBetweenWalletUpdates = new(30 * TimeSpan.TicksPerSecond);
 
@@ -22,10 +24,13 @@ internal class OwnCharacterDataProvider : IGearDataProvider
 
     private TimeSpan _timeSinceLastGearUpdate;
     private TimeSpan _timeSinceLastWalletUpdate;
-    public OwnCharacterDataProvider(IClientState clientState, IFramework framework)
+    public OwnCharacterDataProvider(IClientState clientState, IFramework framework, ILogger logger,
+                                    HrtDataManager hrtDataManager)
     {
         _clientState = clientState;
         _framework = framework;
+        _logger = logger;
+        _hrtDataManager = hrtDataManager;
         _timeSinceLastGearUpdate = _timeBetweenGearUpdates;
         _timeSinceLastWalletUpdate = _timeBetweenWalletUpdates;
         _clientState.Login += OnLogin;
@@ -67,16 +72,16 @@ internal class OwnCharacterDataProvider : IGearDataProvider
             UpdateGear();
         _lastSeenJob = _self?.ClassJob.RowId ?? 0;
     }
-    private static void GetChar([NotNullWhen(true)] out Character? target,
-                                [NotNullWhen(true)] out IPlayerCharacter? source)
+    private void GetChar([NotNullWhen(true)] out Character? target,
+                         [NotNullWhen(true)] out IPlayerCharacter? source)
     {
         target = null;
-        source = ServiceManager.ClientState.LocalPlayer;
+        source = _clientState.LocalPlayer;
         if (source == null) return;
 
-        ulong charId = Character.CalcCharId(ServiceManager.ClientState.LocalContentId);
+        ulong charId = Character.CalcCharId(_clientState.LocalContentId);
 
-        if (!ServiceManager.HrtDataManager.CharDb.Search(
+        if (!_hrtDataManager.CharDb.Search(
                 CharacterDb.GetStandardPredicate(charId, source.HomeWorld.RowId, source.Name.TextValue),
                 out target)) return;
         if (target.CharId == 0)
@@ -85,7 +90,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
 
     private unsafe void UpdateWallet()
     {
-        ServiceManager.Logger.Debug("UpdateWallet");
+        _logger.Debug("UpdateWallet");
         if (_curChar == null) return;
         var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Currency);
         for (int i = 0; i < container->Size; i++)
@@ -105,7 +110,8 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         if (job.IsDoL() && !_config.DoLEnabled) return;
         var targetClass = _curChar[job] ?? _curChar.AddClass(job);
         if (targetClass.Level < _self.Level) targetClass.Level = _self.Level;
-        CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass, _config.MinILvlDowngrade);
+        CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass, _config.MinILvlDowngrade,
+                                                   _logger, _hrtDataManager);
         _timeSinceLastGearUpdate = TimeSpan.Zero;
     }
 }

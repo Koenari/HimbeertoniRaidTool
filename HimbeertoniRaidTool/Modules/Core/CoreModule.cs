@@ -18,13 +18,15 @@ internal class CoreModule : IHrtModule
 
     public CoreModule()
     {
-        CoreLoc.Culture = new CultureInfo(ServiceManager.PluginInterface.UiLanguage);
+
         WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
+        Services = ServiceManager.GetServiceContainer(this);
+        CoreLoc.Culture = new CultureInfo(Services.PluginInterface.UiLanguage);
         _wcw = new WelcomeWindow(this);
         WindowSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
         _changelog = new ChangeLog(this, new ChangelogOptionsWrapper(_config));
-        Services = ServiceManager.GetServiceContainer(this);
+
         foreach (var command in InternalCommands)
         {
             AddCommand(command);
@@ -34,7 +36,7 @@ internal class CoreModule : IHrtModule
 
     private IEnumerable<HrtCommand> InternalCommands => new List<HrtCommand>
     {
-        new("/options", ServiceManager.ConfigManager.Show)
+        new("/options", Services.ConfigManager.Show)
         {
             AltCommands = new List<string>
             {
@@ -64,7 +66,7 @@ internal class CoreModule : IHrtModule
     public string Name => CoreLoc.Module_Name;
     public string Description => CoreLoc.Module_Description;
 
-    public IServiceContainer Services { get; }
+    public IModuleServiceContainer Services { get; }
     public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
     {
@@ -89,10 +91,10 @@ internal class CoreModule : IHrtModule
             case HrtUiMessageType.Discard:
                 return;
             case HrtUiMessageType.Failure or HrtUiMessageType.Error:
-                ServiceManager.Logger.Warning(message.Message);
+                Services.Logger.Warning(message.Message);
                 break;
             default:
-                ServiceManager.Logger.Information(message.Message);
+                Services.Logger.Information(message.Message);
                 break;
         }
     }
@@ -123,28 +125,28 @@ internal class CoreModule : IHrtModule
                 .Add(new NewLinePayload());
         }
 
-        ServiceManager.Chat.Print(stringBuilder.BuiltString);
+        Services.Chat.Print(stringBuilder.BuiltString);
     }
 
     public void AfterFullyLoaded()
     {
         OnConfigChange();
-        ServiceManager.TaskManager.RegisterTask(
+        Services.TaskManager.RegisterTask(
             new HrtTask<HrtUiMessage>(() =>
             {
-                ServiceManager.HrtDataManager.CleanupDatabase();
+                Services.HrtDataManager.CleanupDatabase();
                 return HrtUiMessage.Empty;
             }, HandleMessage, "Cleanup database")
         );
-        ServiceManager.TaskManager.RegisterTask(
+        Services.TaskManager.RegisterTask(
             new HrtTask<HrtUiMessage>(
-                () => ServiceManager.ConnectorPool.EtroConnector.UpdateAllSets(_config.Data.UpdateEtroBisOnStartup,
-                                                                               _config.Data.EtroUpdateIntervalDays),
+                () => Services.ConnectorPool.EtroConnector.UpdateAllSets(_config.Data.UpdateEtroBisOnStartup,
+                                                                         _config.Data.EtroUpdateIntervalDays),
                 HandleMessage, "Update etro sets")
         );
-        ServiceManager.TaskManager.RegisterTask(
+        Services.TaskManager.RegisterTask(
             new HrtTask<HrtUiMessage>(
-                () => ServiceManager.ConnectorPool.XivGearAppConnector.UpdateAllSets(
+                () => Services.ConnectorPool.XivGearAppConnector.UpdateAllSets(
                     _config.Data.UpdateEtroBisOnStartup,
                     _config.Data.EtroUpdateIntervalDays),
                 HandleMessage, "Update XivGear sets")
@@ -153,10 +155,10 @@ internal class CoreModule : IHrtModule
         {
             _config.Data.ShowWelcomeWindow = false;
             _config.Data.LastSeenChangelog = ChangeLog.CurrentVersion;
-            _config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
+            _config.Save(Services.HrtDataManager.ModuleConfigurationManager);
             _wcw.Show();
         }
-        if (ServiceManager.ClientState.IsLoggedIn)
+        if (Services.ClientState.IsLoggedIn)
             UiReady?.Invoke();
     }
     public void Update() { }
@@ -177,13 +179,13 @@ internal class CoreModule : IHrtModule
         if (_registeredCommands.Any(x => x.HandlesCommand(subCommand)))
             _registeredCommands.First(x => x.HandlesCommand(subCommand)).OnCommand(subCommand, newArgs);
         else
-            ServiceManager.Logger.Error($"Argument {args} for command \"/hrt\" not recognized");
+            Services.Logger.Error($"Argument {args} for command \"/hrt\" not recognized");
     }
 
     private void OnConfigChange()
     {
-        HrtWindow.SetConfig(new UiConfig(_config.Data.HideInCombat));
-        ServiceManager.TaskManager.RunOnFrameworkThread(UpdateGearDataProviderConfig);
+        UiSystem.SetConfig(new UiConfig(_config.Data.HideInCombat));
+        Services.TaskManager.RunOnFrameworkThread(UpdateGearDataProviderConfig);
     }
     private void UpdateGearDataProviderConfig()
     {
@@ -191,9 +193,9 @@ internal class CoreModule : IHrtModule
                 RestrictToCustomILvL: _config.Data.GearUpdateRestrictToCustomILvL) switch
             {
                 (true, true) => Math.Min(
-                    (ServiceManager.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
+                    (Services.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
                     _config.Data.GearUpdateCustomILvlCutoff),
-                (true, false) => (ServiceManager.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
+                (true, false) => (Services.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
                 (false, true) => _config.Data.GearUpdateCustomILvlCutoff,
                 _             => 0,
             };
@@ -205,8 +207,8 @@ internal class CoreModule : IHrtModule
                                                                  _config.Data.UpdateCombatJobs,
                                                                  _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs,
                                                                  minILvl);
-        ServiceManager.OwnCharacterDataProvider.Enable(newOwnConfig);
-        ServiceManager.ExamineGearDataProvider.Enable(newExamineConfig);
+        Services.OwnCharacterDataProvider.Enable(newOwnConfig);
+        Services.ExamineGearDataProvider.Enable(newExamineConfig);
     }
 
     private class ChangelogOptionsWrapper(CoreConfig coreConfig) : ChangeLog.IConfigOptions

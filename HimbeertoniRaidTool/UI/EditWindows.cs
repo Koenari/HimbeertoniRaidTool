@@ -12,9 +12,10 @@ using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-public class EditWindowFactory(IWindowSystem windowSystem)
+public class EditWindowFactory(IHrtModule module)
 {
-    private static HrtDataManager DataManager => ServiceManager.HrtDataManager;
+    private IHrtModule Module => module;
+    private HrtDataManager DataManager => Module.Services.HrtDataManager;
     public void Create<TData>(HrtId id, Action<TData>? onSave = null,
                               Action? onCancel = null, Action? onDelete = null,
                               object? param = null)
@@ -65,8 +66,10 @@ public class EditWindowFactory(IWindowSystem windowSystem)
             HrtId.IdType.None => null,
             _                 => null,
         };
-        if (window != null)
-            windowSystem.AddWindow(window);
+        if (window == null) return;
+        module.WindowSystem.AddWindow(window);
+        window.Show();
+
     }
 
     private abstract class EditWindow<TData> : HrtWindowWithModalChild where TData : IHrtDataTypeWithId
@@ -93,7 +96,6 @@ public class EditWindowFactory(IWindowSystem windowSystem)
         }
         public override sealed void Draw()
         {
-            ImGui.Text($"{GeneralLoc.EditUi_Txt_LocalId}: {(_original.LocalId.IsEmpty ? "-" : _original.LocalId)}");
             //Buttons
             if (ImGuiHelper.SaveButton())
             {
@@ -118,6 +120,10 @@ public class EditWindowFactory(IWindowSystem windowSystem)
                     Hide();
                 }
             }
+            ImGui.SameLine();
+            ImGui.Text($"{GeneralLoc.EditUi_Txt_LocalId}: {(_original.LocalId.IsEmpty ? "-" : _original.LocalId)}");
+            ImGui.Separator();
+            ImGui.NewLine();
             DrawContent();
         }
         protected abstract void DrawContent();
@@ -147,8 +153,8 @@ public class EditWindowFactory(IWindowSystem windowSystem)
             destination.Name = DataCopy.Name;
             destination.Type = DataCopy.Type;
             destination.RolePriority = DataCopy.RolePriority;
-            if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.RaidGroupDb.TryAdd(destination);
-            ServiceManager.HrtDataManager.Save();
+            if (destination.LocalId.IsEmpty) Factory.DataManager.RaidGroupDb.TryAdd(destination);
+            Factory.DataManager.Save();
         }
         protected override void Cancel() { }
 
@@ -212,7 +218,7 @@ public class EditWindowFactory(IWindowSystem windowSystem)
                     DataCopy.RemoveCharacter(character);
                 ImGui.SameLine();
                 if (ImGuiHelper.EditButton(character, "##edit"))
-                    AddChild(Create<Character>(character.LocalId));
+                    Factory.Create(character);
 
                 ImGui.SameLine();
                 bool isMain = mainChar.Equals(character);
@@ -231,7 +237,7 @@ public class EditWindowFactory(IWindowSystem windowSystem)
             {
                 Factory.Create(new Character(), c =>
                 {
-                    if (ServiceManager.HrtDataManager.CharDb.TryAdd(c))
+                    if (Factory.DataManager.CharDb.TryAdd(c))
                         DataCopy.AddCharacter(c);
                 });
             }
@@ -239,7 +245,7 @@ public class EditWindowFactory(IWindowSystem windowSystem)
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "addFromDb",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeNameStatic)))
             {
-                AddChild(ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(c => DataCopy.AddCharacter(c)));
+                AddChild(Factory.DataManager.CharDb.OpenSearchWindow(c => DataCopy.AddCharacter(c)));
             }
         }
 
@@ -247,7 +253,7 @@ public class EditWindowFactory(IWindowSystem windowSystem)
         {
             if (destination.LocalId.IsEmpty)
             {
-                ServiceManager.HrtDataManager.PlayerDb.TryAdd(destination);
+                Factory.DataManager.PlayerDb.TryAdd(destination);
             }
             //Player Data
             destination.NickName = DataCopy.NickName;
@@ -261,12 +267,12 @@ public class EditWindowFactory(IWindowSystem windowSystem)
             foreach (var c in toAdd)
             {
                 if (c.LocalId.IsEmpty)
-                    if (!ServiceManager.HrtDataManager.CharDb.TryAdd(c))
+                    if (!Factory.DataManager.CharDb.TryAdd(c))
                         continue;
                 destination.AddCharacter(c);
             }
             destination.MainChar = DataCopy.MainChar;
-            if (destination.MainChar.LocalId.IsEmpty) ServiceManager.HrtDataManager.CharDb.TryAdd(destination.MainChar);
+            if (destination.MainChar.LocalId.IsEmpty) Factory.DataManager.CharDb.TryAdd(destination.MainChar);
         }
     }
 
@@ -290,7 +296,7 @@ public class EditWindowFactory(IWindowSystem windowSystem)
                                - ImGui.CalcTextSize(GeneralLoc.EditPlayerUi_hdg_characterData).X) / 2f);
             ImGui.Text(GeneralLoc.EditPlayerUi_hdg_characterData);
             if (ImGui.InputText(GeneralLoc.CommonTerms_Name, ref DataCopy.Name, 50)
-             && ServiceManager.CharacterInfoService.TryGetChar(out var pc, DataCopy.Name))
+             && Factory.Module.Services.CharacterInfoService.TryGetChar(out var pc, DataCopy.Name))
                 DataCopy.HomeWorld ??= pc.HomeWorld.Value;
             if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.EditCharUi_in_HomeWorld + "##" + Title, out World w,
                                             _ => DataCopy.HomeWorld?.Name.ExtractText() ?? "",
@@ -358,12 +364,12 @@ public class EditWindowFactory(IWindowSystem windowSystem)
                 if (newClass == null)
                 {
                     newClass = DataCopy.AddClass(_newJob);
-                    ServiceManager.HrtDataManager.GearDb.TryAdd(newClass.CurGear);
-                    ServiceManager.HrtDataManager.GearDb.TryAdd(newClass.CurBis);
+                    Factory.DataManager.GearDb.TryAdd(newClass.CurGear);
+                    Factory.DataManager.GearDb.TryAdd(newClass.CurBis);
                 }
 
                 newClass.CurBis.ManagedBy = GearSetManager.Etro;
-                newClass.CurBis.ExternalId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(_newJob);
+                newClass.CurBis.ExternalId = Factory.Module.Services.ConnectorPool.EtroConnector.GetDefaultBiS(_newJob);
             }
             return;
 
@@ -399,7 +405,7 @@ public class EditWindowFactory(IWindowSystem windowSystem)
             foreach (var c in DataCopy.Classes)
             {
                 var target = destination[c.Job];
-                var gearSetDb = ServiceManager.HrtDataManager.GearDb;
+                var gearSetDb = Factory.DataManager.GearDb;
 
                 if (target == null)
                 {
@@ -411,8 +417,8 @@ public class EditWindowFactory(IWindowSystem windowSystem)
                 target.Level = c.Level;
                 target.HideInUi = c.HideInUi;
             }
-            if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.CharDb.TryAdd(destination);
-            ServiceManager.HrtDataManager.Save();
+            if (destination.LocalId.IsEmpty) Factory.DataManager.CharDb.TryAdd(destination);
+            Factory.DataManager.Save();
         }
     }
 
@@ -434,15 +440,150 @@ public class EditWindowFactory(IWindowSystem windowSystem)
             _providedJob = job;
             _job = job ?? original[GearSetSlot.MainHand].Jobs.FirstOrDefault(Job.ADV);
             _curSetManager = original.ManagedBy;
-            MinSize = new Vector2(550, 300);
+            MinSize = new Vector2(700, 570);
+            Size = new Vector2(1100, 570);
+            SizeCondition = ImGuiCond.Appearing;
         }
 
         protected override void Cancel() { }
 
         protected override void DrawContent()
         {
+            ImGui.Columns(2, "##Naming", false);
+
+            if (ImGui.BeginTable("##NameTable", 2))
+            {
+                ImGui.TableSetupColumn("##Label", ImGuiTableColumnFlags.WidthStretch, 1);
+                ImGui.TableSetupColumn("##Input", ImGuiTableColumnFlags.WidthStretch, 5);
+                ImGui.TableNextColumn();
+                ImGui.BeginDisabled(DataCopy.IsManagedExternally);
+                ImGui.Text(GeneralLoc.CommonTerms_Name);
+                ImGui.TableNextColumn();
+                ImGui.InputText("##name", ref DataCopy.Name, 100);
+                ImGui.EndDisabled();
+                ImGui.TableNextColumn();
+                ImGui.Text("Local alias");
+                ImGui.TableNextColumn();
+                string alias = DataCopy.Alias ?? "";
+                if (ImGui.InputText("##alias", ref alias, 100))
+                    DataCopy.Alias = alias.IsNullOrWhitespace() ? null : alias;
+
+                ImGui.TableNextColumn();
+                ImGui.Text(GeneralLoc.EditGearSetUi_txt_LastChange);
+                ImGui.TableNextColumn();
+                ImGui.Text($"{DataCopy.TimeStamp}");
+                ImGui.EndTable();
+            }
+            if (DataCopy is { IsSystemManaged: true, IsManagedExternally: false })
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, Colors.TextRed);
+                ImGui.TextWrapped(GeneralLoc.Gearset_Warning_SysManaged);
+                ImGui.PopStyleColor();
+            }
+
+
+            if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_MakeLocal,
+                                   GeneralLoc.EditGearSetUi_btn_tt_MakeLocal))
+            {
+                var newSet = DataCopy.Clone();
+                newSet.LocalId = HrtId.Empty;
+                newSet.RemoteIDs = [];
+                newSet.ManagedBy = GearSetManager.Hrt;
+                newSet.ExternalId = string.Empty;
+                Factory.DataManager.GearDb.TryAdd(newSet);
+                ReplaceOriginal(newSet);
+            }
+            ImGui.SameLine();
+            if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_openEtro, null))
+                Util.OpenLink(EtroConnector.GEARSET_WEB_BASE_URL + DataCopy.ExternalId);
+            if (ImGui.BeginTable("##sourceTable", 2))
+            {
+                ImGui.TableSetupColumn("##Name", ImGuiTableColumnFlags.WidthStretch, 2);
+                ImGui.TableSetupColumn("##Name2", ImGuiTableColumnFlags.WidthStretch, 4);
+
+                ImGui.TableNextColumn();
+                ImGui.Text(GeneralLoc.EditGearSetUi_txt_LastChange);
+                ImGui.TableNextColumn();
+                ImGui.Text($"{DataCopy.TimeStamp}");
+                //Source information
+                ImGui.TableNextColumn();
+                ImGui.Text(GeneralLoc.EditGearSetUi_txt_Source);
+                ImGui.TableNextColumn();
+                ImGui.Text(DataCopy.ManagedBy.FriendlyName());
+                if (DataCopy.IsManagedExternally)
+                {
+
+                    ImGui.TableNextColumn();
+                    ImGui.Text(GeneralLoc.CommonTerms_ExternalID);
+                    ImGui.TableNextColumn();
+                    ImGui.TextWrapped(DataCopy.ExternalId);
+                    ImGui.TableNextColumn();
+                    ImGui.Text(GeneralLoc.EditGearSetUi_txt_lastUpdate);
+                    ImGui.TableNextColumn();
+                    ImGui.Text($"{DataCopy.LastExternalFetchDate}");
+                }
+                ImGui.TableNextColumn();
+                ImGui.TextWrapped(GeneralLoc.EditGearSetUi_txt_job);
+                ImGuiHelper.AddTooltip("Restricts the item to select");
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(60 * ScaleFactor);
+                ImGui.BeginDisabled(_providedJob is not null);
+                ImGuiHelper.Combo("##JobSelection", ref _job);
+                ImGui.EndDisabled();
+                ImGui.TableNextColumn();
+                ImGui.EndTable();
+            }
+            //
+
+
+            DrawExternalSection();
+            ImGui.NextColumn();
+            ImGui.BeginDisabled(DataCopy.IsManagedExternally);
+            //Gear slots
+            if (ImGui.BeginTable("##GearEditTable", 2, ImGuiTableFlags.Borders))
+            {
+                ImGui.TableSetupColumn("##GearL");
+                ImGui.TableSetupColumn("##GearR");
+                DrawSlot(GearSetSlot.MainHand);
+                if (_job.CanHaveShield())
+                    DrawSlot(GearSetSlot.OffHand);
+                else
+                    ImGui.TableNextColumn();
+                DrawSlot(GearSetSlot.Head);
+                DrawSlot(GearSetSlot.Ear);
+                DrawSlot(GearSetSlot.Body);
+                DrawSlot(GearSetSlot.Neck);
+                DrawSlot(GearSetSlot.Hands);
+                DrawSlot(GearSetSlot.Wrist);
+                DrawSlot(GearSetSlot.Legs);
+                DrawSlot(GearSetSlot.Ring1);
+                DrawSlot(GearSetSlot.Feet);
+                DrawSlot(GearSetSlot.Ring2);
+                ImGui.EndTable();
+            }
+            ImGui.EndDisabled();
+            ImGui.Columns();
+            return;
+            void DrawSlot(GearSetSlot slot)
+            {
+                ImGui.BeginDisabled(ChildIsOpen);
+                ImGui.TableNextColumn();
+                UiHelpers.DrawGearEdit(this, slot, DataCopy[slot], i =>
+                {
+                    foreach (var mat in DataCopy[slot].Materia)
+                    {
+                        i.AddMateria(mat);
+                    }
+                    DataCopy[slot] = i;
+                }, _job);
+                ImGui.EndDisabled();
+            }
+        }
+
+        public void DrawExternalSection()
+        {
             //Etro curated BiS
-            var etroBisSets = ServiceManager.ConnectorPool.EtroConnector.GetBiS(_job);
+            var etroBisSets = Factory.Module.Services.ConnectorPool.EtroConnector.GetBiS(_job);
             if (etroBisSets.Any())
             {
                 ImGui.Text(GeneralLoc.EditGearSetUi_text_getEtroBis);
@@ -451,8 +592,8 @@ public class EditWindowFactory(IWindowSystem windowSystem)
                     ImGui.SameLine();
                     if (ImGuiHelper.Button($"{name}##BIS#{etroId}", $"{etroId}"))
                     {
-                        if (ServiceManager.HrtDataManager.GearDb.Search(gearSet => gearSet?.ExternalId == etroId,
-                                                                        out var newSet))
+                        if (Factory.DataManager.GearDb.Search(gearSet => gearSet?.ExternalId == etroId,
+                                                              out var newSet))
                         {
                             ReplaceOriginal(newSet);
                             return;
@@ -461,12 +602,11 @@ public class EditWindowFactory(IWindowSystem windowSystem)
                         {
                             ExternalId = etroId,
                         });
-                        ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(DataCopy);
+                        Factory.Module.Services.ConnectorPool.EtroConnector.RequestGearSetUpdate(DataCopy);
                         return;
                     }
                 }
             }
-            //External set section
             ImGui.Text("Replace with: ");
             ImGui.SameLine();
             ImGui.SetNextItemWidth(100 * ScaleFactor);
@@ -478,12 +618,13 @@ public class EditWindowFactory(IWindowSystem windowSystem)
                 if (_externalIdInput.StartsWith(EtroConnector.GEARSET_WEB_BASE_URL))
                 {
                     _curSetManager = GearSetManager.Etro;
-                    _externalIdInput = ServiceManager.ConnectorPool.EtroConnector.GetId(_externalIdInput);
+                    _externalIdInput = Factory.Module.Services.ConnectorPool.EtroConnector.GetId(_externalIdInput);
                 }
-                if (ServiceManager.ConnectorPool.XivGearAppConnector.BelongsToThisService(_externalIdInput))
+                if (Factory.Module.Services.ConnectorPool.XivGearAppConnector.BelongsToThisService(_externalIdInput))
                 {
                     _curSetManager = GearSetManager.XivGear;
-                    _externalIdInput = ServiceManager.ConnectorPool.XivGearAppConnector.GetId(_externalIdInput);
+                    _externalIdInput =
+                        Factory.Module.Services.ConnectorPool.XivGearAppConnector.GetId(_externalIdInput);
                 }
             }
             if (!_backgroundTaskBusy && _externalIdInput != _loadedExternalId)
@@ -495,32 +636,32 @@ public class EditWindowFactory(IWindowSystem windowSystem)
                         _xivGearSetList = [];
                         DataCopy.ExternalIdx = 0;
                         _loadedExternalId = _externalIdInput;
-                        ServiceManager.TaskManager.RegisterTask(new HrtTask<List<string>>(
-                                                                    () => ServiceManager.ConnectorPool
-                                                                        .XivGearAppConnector
-                                                                        .GetSetNames(_externalIdInput),
-                                                                    list =>
-                                                                    {
-                                                                        _xivGearSetList = list;
-                                                                        _backgroundTaskBusy = false;
-                                                                    }, "GetSetNames"
-                                                                ));
+                        Factory.Module.Services.TaskManager.RegisterTask(new HrtTask<List<string>>(
+                                                                             () => Factory.Module.Services.ConnectorPool
+                                                                                 .XivGearAppConnector
+                                                                                 .GetSetNames(_externalIdInput),
+                                                                             list =>
+                                                                             {
+                                                                                 _xivGearSetList = list;
+                                                                                 _backgroundTaskBusy = false;
+                                                                             }, "GetSetNames"
+                                                                         ));
                         break;
                     case GearSetManager.Etro:
                         _backgroundTaskBusy = true;
                         DataCopy.ExternalIdx = 0;
                         _etroName = string.Empty;
                         _loadedExternalId = _externalIdInput;
-                        ServiceManager.TaskManager.RegisterTask(new HrtTask<string>(
-                                                                    () => ServiceManager.ConnectorPool
-                                                                        .EtroConnector
-                                                                        .GetName(_externalIdInput),
-                                                                    name =>
-                                                                    {
-                                                                        _etroName = name;
-                                                                        _backgroundTaskBusy = false;
-                                                                    }, "GetSetName"
-                                                                ));
+                        Factory.Module.Services.TaskManager.RegisterTask(new HrtTask<string>(
+                                                                             () => Factory.Module.Services.ConnectorPool
+                                                                                 .EtroConnector
+                                                                                 .GetName(_externalIdInput),
+                                                                             name =>
+                                                                             {
+                                                                                 _etroName = name;
+                                                                                 _backgroundTaskBusy = false;
+                                                                             }, "GetSetName"
+                                                                         ));
                         break;
                     case GearSetManager.Hrt:
                     default:
@@ -566,7 +707,7 @@ public class EditWindowFactory(IWindowSystem windowSystem)
             if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_GetExternal,
                                    GeneralLoc.EditGearSetUi_btn_tt_GetExternal, !_backgroundTaskBusy))
             {
-                if (ServiceManager.HrtDataManager.GearDb.Search(
+                if (Factory.DataManager.GearDb.Search(
                         gearSet => gearSet?.ManagedBy == _curSetManager && gearSet.ExternalId == _externalIdInput,
                         out var newSet))
                 {
@@ -580,112 +721,21 @@ public class EditWindowFactory(IWindowSystem windowSystem)
                 });
                 if (DataCopy.ManagedBy == GearSetManager.Etro)
                 {
-                    ServiceManager.ConnectorPool.EtroConnector.RequestGearSetUpdate(DataCopy);
+                    Factory.Module.Services.ConnectorPool.EtroConnector.RequestGearSetUpdate(DataCopy);
                 }
                 else if (DataCopy.ManagedBy == GearSetManager.XivGear)
                 {
-                    ServiceManager.ConnectorPool.XivGearAppConnector.RequestGearSetUpdate(DataCopy);
+                    Factory.Module.Services.ConnectorPool.XivGearAppConnector.RequestGearSetUpdate(DataCopy);
                 }
-            }
-            ImGui.Separator();
-            //Source information
-            if (DataCopy.IsManagedExternally)
-            {
-                ImGui.Text($"{GeneralLoc.EditGearSetUi_Source}: {DataCopy.ManagedBy.FriendlyName()}");
-                ImGui.SameLine();
-                if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_MakeLocal,
-                                       GeneralLoc.EditGearSetUi_btn_tt_MakeLocal))
-                {
-                    var newSet = DataCopy.Clone();
-                    newSet.LocalId = HrtId.Empty;
-                    newSet.RemoteIDs = new List<HrtId>();
-                    newSet.ManagedBy = GearSetManager.Hrt;
-                    newSet.ExternalId = string.Empty;
-                    ServiceManager.HrtDataManager.GearDb.TryAdd(newSet);
-                    ReplaceOriginal(newSet);
-                }
-
-                ImGui.Text($"{GeneralLoc.CommonTerms_ExternalID}: {DataCopy.ExternalId}");
-                ImGui.SameLine();
-                if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_openEtro, null))
-                    Util.OpenLink(EtroConnector.GEARSET_WEB_BASE_URL + DataCopy.ExternalId);
-
-                ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_txt_lastUpdate, DataCopy.LastExternalFetchDate));
-            }
-            else
-            {
-                ImGui.Text($"{GeneralLoc.EditGearSetUi_txt_Source}: {GearSetManager.Hrt.FriendlyName()}");
-                if (DataCopy.IsSystemManaged)
-                    ImGui.TextColored(Colors.TextRed, GeneralLoc.Gearset_Warning_SysManaged);
-            }
-            //
-            ImGui.Text(GeneralLoc.EditGearSetUi_txt_job);
-            ImGui.SameLine();
-            ImGui.SetNextItemWidth(60 * ScaleFactor);
-            ImGui.BeginDisabled(_providedJob is not null);
-            ImGuiHelper.Combo("##JobSelection", ref _job);
-            ImGui.EndDisabled();
-            ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_txt_LastChange, DataCopy.TimeStamp));
-            ImGui.Separator();
-            ImGui.BeginDisabled(DataCopy.IsManagedExternally);
-            ImGui.Text($"{GeneralLoc.CommonTerms_Name}: ");
-            ImGui.SameLine();
-            ImGui.InputText("##name", ref DataCopy.Name, 100);
-            ImGui.EndDisabled();
-            ImGui.Text("Local alias: ");
-            ImGui.SameLine();
-            string alias = DataCopy.Alias ?? "";
-            if (ImGui.InputText("##alias", ref alias, 100))
-                DataCopy.Alias = alias.IsNullOrWhitespace() ? null : alias;
-            ImGui.BeginDisabled(DataCopy.IsManagedExternally);
-            ImGui.NewLine();
-            //Gear slots
-            if (ImGui.BeginTable("##GearEditTable", 2, ImGuiTableFlags.Borders))
-            {
-                ImGui.TableSetupColumn("##GearL");
-                ImGui.TableSetupColumn("##GearR");
-                DrawSlot(GearSetSlot.MainHand);
-                if (_job.CanHaveShield())
-                    DrawSlot(GearSetSlot.OffHand);
-                else
-                    ImGui.TableNextColumn();
-                DrawSlot(GearSetSlot.Head);
-                DrawSlot(GearSetSlot.Ear);
-                DrawSlot(GearSetSlot.Body);
-                DrawSlot(GearSetSlot.Neck);
-                DrawSlot(GearSetSlot.Hands);
-                DrawSlot(GearSetSlot.Wrist);
-                DrawSlot(GearSetSlot.Legs);
-                DrawSlot(GearSetSlot.Ring1);
-                DrawSlot(GearSetSlot.Feet);
-                DrawSlot(GearSetSlot.Ring2);
-                ImGui.EndTable();
-            }
-
-            ImGui.EndDisabled();
-            return;
-            void DrawSlot(GearSetSlot slot)
-            {
-                ImGui.BeginDisabled(ChildIsOpen);
-                ImGui.TableNextColumn();
-                UiHelpers.DrawGearEdit(this, slot, DataCopy[slot], i =>
-                {
-                    foreach (var mat in DataCopy[slot].Materia)
-                    {
-                        i.AddMateria(mat);
-                    }
-                    DataCopy[slot] = i;
-                }, _job);
-                ImGui.EndDisabled();
             }
         }
 
         protected override void Save(GearSet destination)
         {
-            if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.GearDb.TryAdd(destination);
+            if (destination.LocalId.IsEmpty) Factory.DataManager.GearDb.TryAdd(destination);
             DataCopy.TimeStamp = DateTime.Now;
             destination.CopyFrom(DataCopy);
-            ServiceManager.HrtDataManager.Save();
+            Factory.DataManager.Save();
         }
     }
 }
