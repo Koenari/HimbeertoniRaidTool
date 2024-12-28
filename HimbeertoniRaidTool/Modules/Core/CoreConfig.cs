@@ -1,4 +1,5 @@
-﻿using HimbeertoniRaidTool.Plugin.DataManagement;
+﻿using Dalamud.Interface.Utility.Raii;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -125,6 +126,7 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
 
     internal class ConfigUi(CoreConfig parent) : IHrtConfigUi
     {
+        private const int INDENTATION = 15;
         private ConfigData _dataCopy = parent.Data.Clone();
 
         public void Cancel()
@@ -139,14 +141,14 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
             {
                 //Ui
                 ImGui.Text(CoreLoc.ConfigUi_hdg_ui);
-                ImGui.Indent(10);
+                ImGui.Indent(INDENTATION);
                 ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_hideInCombat, ref _dataCopy.HideInCombat,
                                      CoreLoc.ConfigUi_cb_tt_hideInCombat);
-                ImGui.Indent(-10);
+                ImGui.Indent(-INDENTATION);
                 ImGui.Separator();
                 //AutoSave
                 ImGui.Text(CoreLoc.ConfigUi_hdg_AutoSave);
-                ImGui.Indent(10);
+                ImGui.Indent(INDENTATION);
                 ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_periodicSave, ref _dataCopy.SavePeriodically,
                                      CoreLoc.ConfigUi_cb_tt_periodicSave);
                 ImGui.BeginDisabled(!_dataCopy.SavePeriodically);
@@ -156,57 +158,38 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
                     if (_dataCopy.SaveIntervalMinutes < 1)
                         _dataCopy.SaveIntervalMinutes = 1;
                 ImGui.EndDisabled();
-                ImGui.Indent(-10);
+                ImGui.Indent(-INDENTATION);
                 ImGui.Separator();
                 //Changelog
                 ImGui.Text(CoreLoc.ConfigUi_hdg_changelog);
-                ImGui.Indent(10);
+                ImGui.Indent(INDENTATION);
                 ImGuiHelper.Combo("##showChangelog", ref _dataCopy.ChangelogNotificationOptions,
                                   t => t.LocalizedDescription());
-                ImGui.Indent(-10);
+                ImGui.Indent(-INDENTATION);
                 ImGui.Separator();
-                //Etro.gg
-                ImGui.Text(string.Format(CoreLoc.ConfigUi_hdg_externalUpdates, "etro.gg"));
-                ImGui.Indent(10);
-                ImGui.Checkbox(string.Format(CoreLoc.ConfigUi_cb_extAutoUpdate, "etro.gg"),
-                               ref _dataCopy.UpdateEtroBisOnStartup);
-                ImGui.BeginDisabled(!_dataCopy.UpdateEtroBisOnStartup);
-                ImGui.SetNextItemWidth(150f * HrtWindow.ScaleFactor);
-                if (ImGui.InputInt(CoreLoc.ConfigUi_in_externalUpdateInterval, ref _dataCopy.EtroUpdateIntervalDays))
-                    if (_dataCopy.EtroUpdateIntervalDays < 1)
-                        _dataCopy.EtroUpdateIntervalDays = 1;
-                ImGui.EndDisabled();
-                ImGui.Indent(-10);
-                ImGui.Separator();
-                //XIvGear.app
-                ImGui.Text(string.Format(CoreLoc.ConfigUi_hdg_externalUpdates, "XivGear"));
-                ImGui.Indent(10);
-                ImGui.Checkbox(string.Format(CoreLoc.ConfigUi_cb_extAutoUpdate, "XivGear"),
-                               ref _dataCopy.UpdateXivGearBisOnStartup);
-                ImGui.BeginDisabled(!_dataCopy.UpdateEtroBisOnStartup);
-                ImGui.SetNextItemWidth(150f * HrtWindow.ScaleFactor);
-                if (ImGui.InputInt(CoreLoc.ConfigUi_in_externalUpdateInterval, ref _dataCopy.XivGearUpdateIntervalDays))
-                    if (_dataCopy.XivGearUpdateIntervalDays < 1)
-                        _dataCopy.XivGearUpdateIntervalDays = 1;
-                ImGui.EndDisabled();
-                ImGui.Indent(-10);
+
+
+                DrawConectorSection(GearSetManager.Etro, ref _dataCopy.UpdateEtroBisOnStartup,
+                                    ref _dataCopy.EtroUpdateIntervalDays);
+                DrawConectorSection(GearSetManager.XivGear, ref _dataCopy.UpdateXivGearBisOnStartup,
+                                    ref _dataCopy.XivGearUpdateIntervalDays);
                 ImGui.EndTabItem();
             }
             if (ImGui.BeginTabItem(CoreLoc.ConfigUi_tab_GearUpdates))
             {
                 //Automatic gear
                 ImGui.Text(CoreLoc.ConfigUi_hdg_dataUpdate);
-                ImGui.Indent(10);
+                ImGui.Indent(INDENTATION);
                 ImGui.Checkbox(CoreLoc.ConfigUi_cb_ownData, ref _dataCopy.UpdateOwnData);
                 ImGuiHelper.AddTooltip(CoreLoc.ConfigUi_cb_tt_ownData);
                 ImGui.Checkbox(CoreLoc.ConfigUi_cb_examine, ref _dataCopy.UpdateGearOnExamine);
                 ImGui.BeginDisabled(_dataCopy is { UpdateOwnData: false, UpdateGearOnExamine: false });
                 ImGui.Text(CoreLoc.ConfigUi_text_dataUpdateJobs);
-                ImGui.Indent(25);
+                ImGui.Indent(INDENTATION);
                 ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateCombatJobs, ref _dataCopy.UpdateCombatJobs);
                 ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDohJobs, ref _dataCopy.UpdateDoHJobs);
                 ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDolJobs, ref _dataCopy.UpdateDoLJobs);
-                ImGui.Indent(-25);
+                ImGui.Indent(-INDENTATION);
                 ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignorePrevTierGear,
                                      ref _dataCopy.GearUpdateRestrictToCurrentTier,
                                      CoreLoc.ConfigUi_cb_tt_ignorePrevTierGear);
@@ -217,17 +200,61 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
                                      ref _dataCopy.GearUpdateRestrictToCustomILvL,
                                      CoreLoc.ConfigUi_cb_tt_ignoreCustomILvlGear);
                 ImGui.BeginDisabled(!_dataCopy.GearUpdateRestrictToCustomILvL);
-                ImGui.Indent(25);
+                ImGui.Indent(INDENTATION);
                 ImGui.InputInt(GeneralLoc.CommonTerms_itemLevel, ref _dataCopy.GearUpdateCustomILvlCutoff);
-                ImGui.Indent(-25);
+                ImGui.Indent(-INDENTATION);
                 ImGui.EndDisabled();
                 ImGui.EndDisabled();
-                ImGui.Indent(-10);
+                ImGui.Indent(-INDENTATION);
                 ImGui.EndTabItem();
             }
 
             ImGui.EndTabBar();
+            return;
+            void DrawConectorSection(GearSetManager type, ref bool doUpdates, ref int maxAgeInDays)
+            {
+                string serviceName = type.FriendlyName();
+                using (ImRaii.PushId(serviceName))
+                {
 
+                    ImGui.Text(string.Format(CoreLoc.ConfigUi_hdg_externalUpdates, serviceName));
+                    if (parent.Module.Services.ConnectorPool.TryGetConnector(
+                            type, out var connector))
+                    {
+                        ImGui.SameLine();
+                        if (ImGuiHelper.Button("Update now",
+                                               $"Triggers auto updates for {serviceName} according to below rules now"))
+                        {
+                            int maxAge = maxAgeInDays;
+                            parent.Module.Services.TaskManager.RegisterTask(
+                                new HrtTask<HrtUiMessage>(
+                                    () => connector.UpdateAllSets(true, maxAge),
+                                    parent.Module.HandleMessage, serviceName));
+                        }
+                        ImGui.SameLine();
+                        if (ImGuiHelper.GuardedButton("Force-update",
+                                                      $"Triggers auto updates for EVERY set from {serviceName}. This might take a while"))
+                        {
+                            parent.Module.Services.TaskManager.RegisterTask(
+                                new HrtTask<HrtUiMessage>(
+                                    () => connector.UpdateAllSets(true, 0),
+                                    parent.Module.HandleMessage,
+                                    serviceName));
+                        }
+                    }
+                    ImGui.Indent(INDENTATION);
+                    ImGui.Checkbox(string.Format(CoreLoc.ConfigUi_cb_extAutoUpdate, serviceName), ref doUpdates);
+                    ImGui.BeginDisabled(!doUpdates);
+                    ImGui.SetNextItemWidth(150f * HrtWindow.ScaleFactor);
+                    if (ImGui.InputInt(CoreLoc.ConfigUi_in_externalUpdateInterval,
+                                       ref maxAgeInDays))
+                        if (maxAgeInDays < 1)
+                            maxAgeInDays = 1;
+                    ImGui.EndDisabled();
+                    ImGui.Indent(-INDENTATION);
+                }
+                ImGui.Separator();
+            }
 
         }
 
