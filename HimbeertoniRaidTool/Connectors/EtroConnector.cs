@@ -24,7 +24,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
     private readonly TaskManager _taskManager;
     private readonly HrtDataManager _hrtDataManager;
     internal EtroConnector(HrtDataManager hrtDataManager, TaskManager tm, ILogger log, IDataManager dataManager) : base(
-        log, new RateLimit(4, new TimeSpan(0, 0, 30)))
+        log, new RateLimit(10, new TimeSpan(0, 0, 30)))
     {
         _hrtDataManager = hrtDataManager;
         _taskManager = tm;
@@ -129,7 +129,9 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
         set.Name = etroSet.name ?? "";
         set.TimeStamp = etroSet.lastUpdate;
         set.LastExternalFetchDate = DateTime.UtcNow;
-        set.Food = _foodLookup[etroSet.food];
+        if (!_foodLookup.TryGetValue(etroSet.food, out var newFood))
+            Logger.Warning($"Did not find food {etroSet.food} for set {set.Name} ({set.ExternalId})");
+        set.Food = newFood;
         HrtUiMessage successMessage = new(string.Format(GeneralLoc.EtroConnector_GetGearSet_Success, set.Name),
                                           HrtUiMessageType.Success);
         FillItem(etroSet.weapon, GearSetSlot.MainHand);

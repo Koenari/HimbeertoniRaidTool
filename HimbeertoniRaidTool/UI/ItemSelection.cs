@@ -85,7 +85,7 @@ internal class SelectFoodItemWindow : SelectItemWindow<FoodItem>
         }
         foreach (var item in Sheet.Where(item => (_minILvl == 0 || item.LevelItem.RowId >= _minILvl)
                                               && (_maxILvl == 0 || item.LevelItem.RowId <= _maxILvl)
-                                              && item.ItemAction.Value.Type == 845))
+                                              && item.IsFood()))
         {
             bool isCurrentItem = item.RowId == Item?.Id;
             if (isCurrentItem)
