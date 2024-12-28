@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 using Dalamud.Interface;
-using HimbeertoniRaidTool.Common;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
 using LuminaItem = Lumina.Excel.Sheets.Item;

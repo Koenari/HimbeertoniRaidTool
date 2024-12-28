@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Globalization;
 using System.Numerics;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
@@ -151,7 +152,7 @@ internal static class LmUiHelpers
                 }
                 string toDraw = string.Format(config.ItemFormatString,
                                               itemToDraw.ItemLevel,
-                                              itemToDraw.Source.FriendlyName(),
+                                              itemToDraw.Source().FriendlyName(),
                                               itemToDraw.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
                 if (extended) ImGui.SetCursorPosY(ImGui.GetCursorPosY() + fullLineHeight * (multiLine ? 0.7f : 0.2f));
                 Action<string> drawText = config.ColoredItemNames

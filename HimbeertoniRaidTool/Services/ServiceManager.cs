@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
@@ -91,7 +92,7 @@ internal static class ServiceManager
                            ?? throw new FailedToLoadException("Could not initialize dalamud services");
             Logger = new LoggingProxy(DalamudServices.PluginLog);
             Chat = new DalamudChatProxy(DalamudServices.ChatGui);
-            Common.Services.ServiceManager.Init(DataManager.Excel, pluginInterface.UiLanguage);
+            CommonLibrary.Init(DataManager.Excel, pluginInterface.UiLanguage);
             IconCache = new IconCache(DalamudServices.TextureProvider);
             HrtDataManager = new HrtDataManager(PluginInterface, Logger, DataManager);
             if (!HrtDataManager.Initialized)

@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using HimbeertoniRaidTool.Common.Services;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using Item = HimbeertoniRaidTool.Common.Data.Item;
 
@@ -87,8 +87,8 @@ public class LootSession
         List<GearItem> possibleItems;
         if (droppedItem.IsGear)
             possibleItems = [new GearItem(droppedItem.Id)];
-        else if (droppedItem.IsContainerItem || droppedItem.IsExchangableItem)
-            possibleItems = droppedItem.PossiblePurchases.ToList();
+        else if (droppedItem.IsContainerItem() || droppedItem.IsExchangableItem())
+            possibleItems = droppedItem.PossiblePurchases().ToList();
         else
             return results;
         if (_group.Type == GroupType.Solo)
@@ -315,7 +315,7 @@ public class LootResult
     public bool CanUse() =>
         //Direct gear or coffer drops are always usable
         ApplicableJob is not null && (
-            !_droppedItem.IsExchangableItem
+            !_droppedItem.IsExchangableItem()
          || NeededItems.Any(
                 item => item.PurchasedFrom().Any(shopEntry =>
                 {

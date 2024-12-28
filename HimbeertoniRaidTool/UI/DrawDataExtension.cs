@@ -1,4 +1,4 @@
-﻿using HimbeertoniRaidTool.Common.Services;
+﻿using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
 using Item = Lumina.Excel.Sheets.Item;

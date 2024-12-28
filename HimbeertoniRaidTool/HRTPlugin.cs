@@ -2,6 +2,7 @@
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
@@ -143,7 +144,7 @@ public sealed class HrtPlugin : IDalamudPlugin
     private void OnLanguageChange(string languageCode)
     {
         _services.Logger.Information($"Loading Localization for {languageCode}");
-        Common.Services.ServiceManager.SetLanguage(languageCode);
+        CommonLibrary.SetLanguage(languageCode);
         try
         {
             var newLanguage = new CultureInfo(languageCode);
