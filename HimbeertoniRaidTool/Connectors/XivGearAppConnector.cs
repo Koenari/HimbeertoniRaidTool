@@ -41,11 +41,8 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
         readTask.Wait();
         return IsSheetInternal(readTask.Result);
     }
-    private static bool IsSheetInternal(string content)
-    {
-        var sheet = JsonConvert.DeserializeObject<XivGearSheet>(content);
-        return sheet?.sets?.Count > 0;
-    }
+    private static bool IsSheetInternal(string content) =>
+        JsonConvert.DeserializeObject<XivGearSheet>(content)?.sets?.Count > 0;
 
     public IList<string> GetNames(string id)
     {
@@ -91,6 +88,10 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
         {
             var xivGearSheet = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result, JsonSettings);
             xivSet = xivGearSheet?.sets?[set.ExternalIdx];
+            if (xivSet != null && xivGearSheet != null)
+            {
+                xivSet.timestamp = xivGearSheet.timestamp;
+            }
         }
         else
         {
@@ -99,8 +100,9 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
         if (xivSet == null)
             return errorMessage;
         set.Name = xivSet.name ?? "";
-        set.TimeStamp = DateTime.UtcNow;
+        set.TimeStamp = DateTime.UnixEpoch.AddMilliseconds(xivSet.timestamp);
         set.LastExternalFetchDate = DateTime.UtcNow;
+        set.Food = new FoodItem(xivSet.food);
         HrtUiMessage successMessage = new(string.Format(GeneralLoc.XivGearAppConnector_GetGearSet_Success, set.Name),
                                           HrtUiMessageType.Success);
         FillItem(xivSet.items["Weapon"], GearSetSlot.MainHand);
@@ -168,6 +170,7 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
         public List<XivGearSet>? sets;
         public string job;
         public string description;
+        public ulong timestamp;
     }
 
     private class XivGearSet
@@ -176,6 +179,7 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
         public string job;
         public Dictionary<string, XivItem> items;
         public uint food;
+        public ulong timestamp;
     }
 
     private class XivItem
