@@ -21,7 +21,7 @@ public static class DrawDataExtension
                 $"{item.Name} {(item is GearItem { IsHq: true } ? "(HQ)" : "")}");
         if (item.ItemLevel > 1)
             DrawRow(GeneralLoc.CommonTerms_itemLevel, item.ItemLevel);
-        DrawRow(GeneralLoc.ItemTable_heading_source, item.Source);
+        DrawRow(GeneralLoc.ItemTable_heading_source, item.Source());
         //Materia Stats
         if (item is MateriaItem matItem)
         {
@@ -104,7 +104,7 @@ public static class DrawDataExtension
                 $"{right.Name} {(right is GearItem { IsHq: true } ? "(HQ)" : "")}");
         if (left.ItemLevel > 1 && right.ItemLevel > 1)
             DrawRow(GeneralLoc.CommonTerms_itemLevel, left.ItemLevel, right.ItemLevel);
-        DrawRow(GeneralLoc.ItemTable_heading_source, left.Source, right.Source);
+        DrawRow(GeneralLoc.ItemTable_heading_source, left.Source(), right.Source());
         //Materia Stats
         if (left is MateriaItem leftMat && right is MateriaItem rightMat)
         {

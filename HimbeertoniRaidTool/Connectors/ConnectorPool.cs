@@ -12,7 +12,7 @@ internal class ConnectorPool : IDisposable
 
     internal ConnectorPool(HrtDataManager hrtDataManager, TaskManager tm, IDataManager dataManager, ILogger log)
     {
-        _etroConnector = new EtroConnector(hrtDataManager, tm, log);
+        _etroConnector = new EtroConnector(hrtDataManager, tm, log, dataManager);
         LodestoneConnector = new LodestoneConnector(hrtDataManager, dataManager, log);
         _xivGearAppConnector = new XivGearAppConnector(hrtDataManager, tm, log);
     }

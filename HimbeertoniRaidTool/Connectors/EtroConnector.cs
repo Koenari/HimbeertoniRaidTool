@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using Dalamud.Plugin.Services;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -9,7 +11,7 @@ using Newtonsoft.Json;
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-internal partial class EtroConnector : WebConnector, IReadOnlyGearConnector
+internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
 {
     private const string WEB_BASE_URL = "https://etro.gg/";
     private const string API_BASE_URL = WEB_BASE_URL + "api/";
@@ -17,15 +19,15 @@ internal partial class EtroConnector : WebConnector, IReadOnlyGearConnector
     private const string GEARSET_WEB_BASE_URL = WEB_BASE_URL + "gearset/";
     private const string RELIC_API_BASE_URL = API_BASE_URL + "relic/";
     private const string BIS_API_BASE_URL = GEARSET_API_BASE_URL + "bis/";
-    private readonly Dictionary<Job, Dictionary<string, string>> _bisCache;
+    private readonly Dictionary<Job, Dictionary<string, string>> _bisCache = [];
+    private readonly Dictionary<uint, FoodItem> _foodLookup = [];
     private readonly TaskManager _taskManager;
     private readonly HrtDataManager _hrtDataManager;
-    internal EtroConnector(HrtDataManager hrtDataManager, TaskManager tm, ILogger log) : base(
+    internal EtroConnector(HrtDataManager hrtDataManager, TaskManager tm, ILogger log, IDataManager dataManager) : base(
         log, new RateLimit(4, new TimeSpan(0, 0, 30)))
     {
         _hrtDataManager = hrtDataManager;
         _taskManager = tm;
-        _bisCache = new Dictionary<Job, Dictionary<string, string>>();
         foreach (var job in Enum.GetValues<Job>())
         {
             _bisCache.Add(job, new Dictionary<string, string>());
@@ -38,6 +40,12 @@ internal partial class EtroConnector : WebConnector, IReadOnlyGearConnector
                                                                 else
                                                                     Logger.Info(msg.Message);
                                                             }, "Load BiS list from etro"));
+        foreach (var food in dataManager.Excel.GetSheet<Lumina.Excel.Sheets.Item>()
+                                        .Where(ItemExtensions.IsFood))
+        {
+            _foodLookup[food.ItemAction.Value.Data[1]] = new FoodItem(food.RowId);
+
+        }
     }
     private static JsonSerializerSettings JsonSettings => new()
     {
@@ -121,6 +129,7 @@ internal partial class EtroConnector : WebConnector, IReadOnlyGearConnector
         set.Name = etroSet.name ?? "";
         set.TimeStamp = etroSet.lastUpdate;
         set.LastExternalFetchDate = DateTime.UtcNow;
+        set.Food = _foodLookup[etroSet.food];
         HrtUiMessage successMessage = new(string.Format(GeneralLoc.EtroConnector_GetGearSet_Success, set.Name),
                                           HrtUiMessageType.Success);
         FillItem(etroSet.weapon, GearSetSlot.MainHand);
@@ -294,6 +303,7 @@ internal partial class EtroConnector : WebConnector, IReadOnlyGearConnector
         public uint wrists { get; set; }
         public uint fingerL { get; set; }
         public uint fingerR { get; set; }
+        public uint food { get; set; }
         public Dictionary<string, string>? relics { get; set; }
     }
 }

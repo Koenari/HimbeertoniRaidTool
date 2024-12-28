@@ -38,7 +38,7 @@ internal static class UiHelpers
         //Quick select
         string itemName = item?.Name ?? string.Empty;
         if (ImGuiHelper.ExcelSheetCombo($"##Food", out LuminaItem outItem, _ => itemName,
-                                        i => i.Name.ExtractText(), i => i.ItemAction.Value.Type == 845,
+                                        i => i.Name.ExtractText(), ItemExtensions.IsFood,
                                         ImGuiComboFlags.NoArrowButton))
         {
             onItemChange(new FoodItem(outItem.RowId));
