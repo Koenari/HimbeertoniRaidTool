@@ -477,4 +477,7 @@ You need to update to use this plugin!</value>
     <data name="EditGearSetUi_text_getCuratedBis" xml:space="preserve">
         <value>Replace with BiS from {0}</value>
     </data>
+    <data name="CommonTerms_Food" xml:space="preserve">
+        <value>Food</value>
+    </data>
 </root>

@@ -65,7 +65,7 @@ public class EditWindowFactory(IHrtModule module)
                                                                                gs, onSave as Action<GearSet>, onCancel,
                                                                                onDelete, param as Job?),
             HrtId.IdType.Group when data is RaidGroup rg => new EditGroupWindow(this,
-                                                                          rg, onSave as Action<RaidGroup>, onCancel, onDelete),
+                rg, onSave as Action<RaidGroup>, onCancel, onDelete),
             HrtId.IdType.None => null,
             _                 => null,
         };
@@ -562,7 +562,7 @@ public class EditWindowFactory(IHrtModule module)
         private void DrawGearEditSection()
         {
             //Food
-            ImGui.Text("Food");
+            ImGui.Text(GeneralLoc.CommonTerms_Food);
             ImGui.SameLine();
             UiHelpers.DrawFoodEdit(this, DataCopy.Food, i => DataCopy.Food = i);
             //Gear table

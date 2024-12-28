@@ -84,7 +84,11 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
             ImGui.TableSetupColumn(LootmasterLoc.QuickCompareUi_hdg_NewGear);
             ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
-
+            ImGui.TableNextColumn();
+            ImGui.Text(GeneralLoc.CommonTerms_Food);
+            ImGui.SameLine();
+            UiHelpers.DrawFoodEdit(this, _newGear.Food, f => _newGear.Food = f);
+            ImGui.TableNextColumn();
             DrawEditSlot(GearSetSlot.MainHand);
             if (_curClass.Job.CanHaveShield())
                 DrawEditSlot(GearSetSlot.OffHand);

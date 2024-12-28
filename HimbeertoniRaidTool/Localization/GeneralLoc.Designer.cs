@@ -114,6 +114,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Food.
+        /// </summary>
+        internal static string CommonTerms_Food {
+            get {
+                return ResourceManager.GetString("CommonTerms_Food", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to gear.
         /// </summary>
         internal static string CommonTerms_Gear {
