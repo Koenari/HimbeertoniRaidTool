@@ -11,6 +11,10 @@ public interface IReadOnlyGearConnector
 {
     public bool BelongsToThisService(string url);
     public string GetId(string url);
+    public string GetWebUrl(string id);
+    public IList<string> GetNames(string id);
+    public IReadOnlyDictionary<string, string> GetBiSList(Job job);
+    internal HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays);
     public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
                                      string taskName = "Gearset Update");
     public HrtUiMessage UpdateGearSet(GearSet set);

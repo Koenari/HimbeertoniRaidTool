@@ -190,15 +190,17 @@ internal sealed class LootMasterModule : IHrtModule
             var gearDb = Services.HrtDataManager.GearDb;
             if (!gearDb.Search(
                     entry => entry?.ExternalId
-                          == Services.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
+                          == Services.ConnectorPool.GetDefaultBiS(curClass.Job).Id,
                     out var etroSet))
             {
-                etroSet = new GearSet(GearSetManager.Etro)
+                var defaultBis = Services.ConnectorPool.GetDefaultBiS(curClass.Job);
+                etroSet = new GearSet(defaultBis.Service)
                 {
-                    ExternalId = Services.ConnectorPool.EtroConnector.GetDefaultBiS(curClass.Job),
+                    ExternalId = defaultBis.Id,
                 };
                 gearDb.TryAdd(etroSet);
-                Services.ConnectorPool.EtroConnector.RequestGearSetUpdate(etroSet, HandleMessage);
+                if (Services.ConnectorPool.TryGetConnector(defaultBis.Service, out var connector))
+                    connector.RequestGearSetUpdate(etroSet, HandleMessage);
             }
             curClass.CurBis = etroSet;
             gearDb.TryAdd(curClass.CurGear);
@@ -315,9 +317,10 @@ internal sealed class LootMasterModule : IHrtModule
                 {
                     p.MainChar.MainJob = c;
                     p.MainChar.MainClass!.Level = pc.Level;
-                    GearSet bis = new(GearSetManager.Etro)
+                    var defaultBis = Services.ConnectorPool.GetDefaultBiS(c);
+                    GearSet bis = new(defaultBis.Service)
                     {
-                        ExternalId = Services.ConnectorPool.EtroConnector.GetDefaultBiS(c),
+                        ExternalId = defaultBis.Id,
                     };
                     Services.HrtDataManager.GearDb.TryAdd(bis);
                     p.MainChar.MainClass.CurBis = bis;

@@ -127,15 +127,17 @@ internal class ExamineGearDataProvider : IGearDataProvider
             }
 
             targetClass = targetChar.AddClass(targetJob);
-            string bisEtroId = _connectorPool.EtroConnector.GetDefaultBiS(targetJob);
-            if (_hrtDataManager.GearDb.Search(entry => entry?.ExternalId == bisEtroId,
-                                              out var existingBis))
+            var defaultBiS = _connectorPool.GetDefaultBiS(targetJob);
+            if (_hrtDataManager.GearDb.Search(
+                    entry => entry?.ManagedBy == defaultBiS.Service && entry.ExternalId == defaultBiS.Id,
+                    out var existingBis))
                 targetClass.CurBis = existingBis;
             else
             {
-                targetClass.CurBis.ExternalId = bisEtroId;
-                if (_hrtDataManager.GearDb.TryAdd(targetClass.CurBis))
-                    _connectorPool.EtroConnector.RequestGearSetUpdate(targetClass.CurBis);
+                (targetClass.CurBis.ManagedBy, targetClass.CurBis.ExternalId) = defaultBiS;
+                if (_hrtDataManager.GearDb.TryAdd(targetClass.CurBis)
+                 && _connectorPool.TryGetConnector(defaultBiS.Service, out var connector))
+                    connector.RequestGearSetUpdate(targetClass.CurBis);
             }
             if (!_hrtDataManager.GearDb.TryAdd(targetClass.CurGear))
             {

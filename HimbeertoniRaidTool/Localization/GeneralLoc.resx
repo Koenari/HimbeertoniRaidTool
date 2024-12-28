@@ -461,4 +461,20 @@ You need to update to use this plugin!</value>
         <value>Update from XivGear.app for {0} succeeded</value>
         <comment>{0} name</comment>
     </data>
+    <data name="Gearset_Warning_ExternalManaged" xml:space="preserve">
+        <value>This set originated from an external service and will be automatically updated from there. IF you want to make edits you need to make a local copy.</value>
+    </data>
+    <data name="EditGearSetUi_btn_OpenWeb" xml:space="preserve">
+        <value>Open on {0}</value>
+    </data>
+    <data name="EditGearSetUi_btn_tt_OpenWeb" xml:space="preserve">
+        <value>Opens the set on the website of the external service in your default browser</value>
+    </data>
+    <data name="Ui_btn_tt_GearSetUpdate" xml:space="preserve">
+        <value>Update {0} ({1}) from {2}</value>
+        <comment>{0} is name {1} is id {2} is service</comment>
+    </data>
+    <data name="EditGearSetUi_text_getCuratedBis" xml:space="preserve">
+        <value>Replace with BiS from {0}</value>
+    </data>
 </root>

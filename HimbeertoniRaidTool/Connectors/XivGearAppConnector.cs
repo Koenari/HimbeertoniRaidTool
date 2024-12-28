@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -11,7 +10,8 @@ namespace HimbeertoniRaidTool.Plugin.Connectors;
 internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager taskManager, ILogger logger)
     : WebConnector(logger, new RateLimit(5, TimeSpan.FromSeconds(10))), IReadOnlyGearConnector
 {
-    private const string WEB_BASE_URL = "https://xivgear.app/";
+    private const string WEB_BASE_URL = "https://xivgear.app/?page=sl|";
+    private const string GEAR_WEB_BASE_URL = WEB_BASE_URL + "?page=sl|";
     private const string API_BASE_URL = "https://api.xivgear.app/";
     private const string GEAR_API_BASE_URL = API_BASE_URL + "shortlink/";
 
@@ -30,9 +30,9 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
 
 
     public bool BelongsToThisService(string url) => url.StartsWith(WEB_BASE_URL) || url.StartsWith(API_BASE_URL);
-    public string GetId(string url) => url.Split("%7C")[^1];
-
-
+    public string GetId(string url) => url.Split('|')[^1];
+    public string GetWebUrl(string id) => $"{GEAR_WEB_BASE_URL}{id}";
+    public IReadOnlyDictionary<string, string> GetBiSList(Job job) => new Dictionary<string, string>();
     public bool IsSheet(string id)
     {
         var httpResponse = MakeWebRequest(GEAR_API_BASE_URL + id);
@@ -47,7 +47,7 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
         return sheet?.sets?.Count > 0;
     }
 
-    public List<string> GetSetNames(string id)
+    public IList<string> GetNames(string id)
     {
         var httpResponse = MakeWebRequest(GEAR_API_BASE_URL + id);
         if (httpResponse is null || !httpResponse.IsSuccessStatusCode) return [];
@@ -132,7 +132,7 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
         }
     }
 
-    internal HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays)
+    public HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays)
     {
         var oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;

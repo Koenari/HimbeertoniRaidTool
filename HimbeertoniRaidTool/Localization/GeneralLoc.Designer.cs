@@ -386,6 +386,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open on {0}.
+        /// </summary>
+        internal static string EditGearSetUi_btn_OpenWeb {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_OpenWeb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Get.
         /// </summary>
         internal static string EditGearSetUi_btn_tt_cutsomEtro {
@@ -425,6 +434,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Opens the set on the website of the external service in your default browser.
+        /// </summary>
+        internal static string EditGearSetUi_btn_tt_OpenWeb {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_tt_OpenWeb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select item.
         /// </summary>
         internal static string EditGearSetUi_btn_tt_selectItem {
@@ -439,6 +457,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string EditGearSetUi_Source {
             get {
                 return ResourceManager.GetString("EditGearSetUi_Source", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with BiS from {0}.
+        /// </summary>
+        internal static string EditGearSetUi_text_getCuratedBis {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_text_getCuratedBis", resourceCulture);
             }
         }
         
@@ -619,6 +646,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string EtroConnector_GetGearSet_Success {
             get {
                 return ResourceManager.GetString("EtroConnector_GetGearSet_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This set originated from an external service and will be automatically updated from there. IF you want to make edits you need to make a local copy..
+        /// </summary>
+        internal static string Gearset_Warning_ExternalManaged {
+            get {
+                return ResourceManager.GetString("Gearset_Warning_ExternalManaged", resourceCulture);
             }
         }
         
@@ -900,6 +936,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string Ui_btn_tt_etroUpdate {
             get {
                 return ResourceManager.GetString("Ui_btn_tt_etroUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update {0} ({1}) from {2}.
+        /// </summary>
+        internal static string Ui_btn_tt_GearSetUpdate {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_GearSetUpdate", resourceCulture);
             }
         }
         

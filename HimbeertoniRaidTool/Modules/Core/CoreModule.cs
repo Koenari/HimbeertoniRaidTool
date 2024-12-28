@@ -138,19 +138,17 @@ internal class CoreModule : IHrtModule
                 return HrtUiMessage.Empty;
             }, HandleMessage, "Cleanup database")
         );
-        Services.TaskManager.RegisterTask(
-            new HrtTask<HrtUiMessage>(
-                () => Services.ConnectorPool.EtroConnector.UpdateAllSets(_config.Data.UpdateEtroBisOnStartup,
-                                                                         _config.Data.EtroUpdateIntervalDays),
-                HandleMessage, "Update etro sets")
-        );
-        Services.TaskManager.RegisterTask(
-            new HrtTask<HrtUiMessage>(
-                () => Services.ConnectorPool.XivGearAppConnector.UpdateAllSets(
-                    _config.Data.UpdateEtroBisOnStartup,
-                    _config.Data.EtroUpdateIntervalDays),
-                HandleMessage, "Update XivGear sets")
-        );
+
+        foreach (var serviceType in Enum.GetValues<GearSetManager>())
+        {
+            if (!Services.ConnectorPool.TryGetConnector(serviceType, out var connector)) continue;
+            Services.TaskManager.RegisterTask(
+                new HrtTask<HrtUiMessage>(
+                    () => connector.UpdateAllSets(_config.Data.UpdateEtroBisOnStartup,
+                                                  _config.Data.EtroUpdateIntervalDays),
+                    HandleMessage, $"Update {serviceType.FriendlyName()} sets")
+            );
+        }
         if (_config.Data.ShowWelcomeWindow)
         {
             _config.Data.ShowWelcomeWindow = false;

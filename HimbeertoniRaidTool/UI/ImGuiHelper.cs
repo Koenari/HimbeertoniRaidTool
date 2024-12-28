@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 using ImGuiNET;
@@ -11,6 +12,7 @@ using Lumina.Excel;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class ImGuiHelper
 {
 
@@ -18,7 +20,7 @@ public static class ImGuiHelper
     private static HashSet<object>? _filtered;
     private static int _hoveredItem;
     //This is a small hack since to my knowledge there is no way to close and existing combo when not clicking
-    private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> _comboDic = new();
+    private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> ComboDic = new();
     public static bool SaveButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
         => Button(FontAwesomeIcon.Save, "##save", tooltip ?? GeneralLoc.General_btn_tt_save, enabled,
                   size ?? new Vector2(50f, 25f));
@@ -153,39 +155,24 @@ public static class ImGuiHelper
 
     public static bool ExternalGearUpdateButton(GearSet set, IHrtModule module, Vector2 size = default)
     {
-        bool result;
-        ImGui.PushID(set.LocalId.ToString());
-        switch (set.ManagedBy)
+        ImRaii.PushId(set.LocalId.ToString());
+        if (module.Services.ConnectorPool.TryGetConnector(set.ManagedBy, out var connector))
         {
-            case GearSetManager.Etro:
-                result = Button(FontAwesomeIcon.Download, set.ExternalId,
-                                string.Format(GeneralLoc.Ui_btn_tt_etroUpdate, set.Name, set.ExternalId),
-                                set is { ManagedBy: GearSetManager.Etro, ExternalId.Length: > 0 }, size);
-                if (result)
-                    module.Services.ConnectorPool.EtroConnector.RequestGearSetUpdate(
-                        set, module.HandleMessage,
-                        string.Format(GeneralLoc.Ui_btn_tt_etroUpdate, set.Name, set.ExternalId));
-                break;
-            case GearSetManager.XivGear:
-                result = Button(FontAwesomeIcon.Download, set.ExternalId,
-                                string.Format(GeneralLoc.Ui_btn_tt_XivGearUpdate, set.Name, set.ExternalId),
-                                set is { ManagedBy: GearSetManager.XivGear, ExternalId.Length: > 0 }, size);
-                if (result)
-                    module.Services.ConnectorPool.XivGearAppConnector.RequestGearSetUpdate(
-                        set, module.HandleMessage,
-                        string.Format(GeneralLoc.Ui_btn_tt_XivGearUpdate, set.Name, set.ExternalId));
-                break;
-            case GearSetManager.Hrt:
-            default:
-                result = Button(FontAwesomeIcon.Download, set.ExternalId,
-                                "This set is not managed by an external service",
-                                false, size);
-                result = false;
-                break;
+            bool result = Button(FontAwesomeIcon.Download, set.ExternalId,
+                                 string.Format(GeneralLoc.Ui_btn_tt_GearSetUpdate, set.Name, set.ExternalId,
+                                               set.ManagedBy.FriendlyName()),
+                                 set.ExternalId.Length > 0, size);
+            if (result)
+                connector.RequestGearSetUpdate(set, module.HandleMessage, string.Format(
+                                                   GeneralLoc.Ui_btn_tt_GearSetUpdate, set.Name,
+                                                   set.ExternalId,
+                                                   set.ManagedBy.FriendlyName()));
+            return result;
         }
-        ;
-        ImGui.PopID();
-        return result;
+        Button(FontAwesomeIcon.Download, set.ExternalId,
+               "This set is not managed by an external service",
+               false, size);
+        return false;
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void AddTooltip(string tooltip)
@@ -289,8 +276,8 @@ public static class ImGuiHelper
         where T : notnull
     {
 
-        _comboDic.TryAdd(id, (false, false));
-        (bool toggle, bool wasEnterClickedLastTime) = _comboDic[id];
+        ComboDic.TryAdd(id, (false, false));
+        (bool toggle, bool wasEnterClickedLastTime) = ComboDic[id];
         selected = default;
         if (!ImGui.BeginCombo(id + (toggle ? "##x" : ""), preview, flags)) return false;
         if (wasEnterClickedLastTime || ImGui.IsKeyPressed(ImGuiKey.Escape))
@@ -301,7 +288,7 @@ public static class ImGuiHelper
         }
         bool enterClicked = ImGui.IsKeyPressed(ImGuiKey.Enter) || ImGui.IsKeyPressed(ImGuiKey.KeypadEnter);
         wasEnterClickedLastTime = enterClicked;
-        _comboDic[id] = (toggle, wasEnterClickedLastTime);
+        ComboDic[id] = (toggle, wasEnterClickedLastTime);
         if (ImGui.IsKeyPressed(ImGuiKey.UpArrow))
             _hoveredItem--;
         if (ImGui.IsKeyPressed(ImGuiKey.DownArrow))
