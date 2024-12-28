@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
@@ -35,10 +33,8 @@ public interface IGlobalServiceContainer : IDisposable
     internal ConnectorPool ConnectorPool { get; }
     internal ConfigurationManager ConfigManager { get; }
     internal CharacterInfoService CharacterInfoService { get; }
-    internal ItemInfo ItemInfo { get; }
     internal ExamineGearDataProvider ExamineGearDataProvider { get; }
     internal OwnCharacterDataProvider OwnCharacterDataProvider { get; }
-    internal GameInfo GameInfo { get; }
     internal INotificationManager NotificationManager { get; }
 
 }
@@ -62,10 +58,8 @@ internal sealed class ModuleScopedServiceContainer(IHrtModule module, IGlobalSer
     public ConnectorPool ConnectorPool => globalServices.ConnectorPool;
     public ConfigurationManager ConfigManager => globalServices.ConfigManager;
     public CharacterInfoService CharacterInfoService => globalServices.CharacterInfoService;
-    public ItemInfo ItemInfo => globalServices.ItemInfo;
     public ExamineGearDataProvider ExamineGearDataProvider => globalServices.ExamineGearDataProvider;
     public OwnCharacterDataProvider OwnCharacterDataProvider => globalServices.OwnCharacterDataProvider;
-    public GameInfo GameInfo => globalServices.GameInfo;
     public INotificationManager NotificationManager => globalServices.NotificationManager;
 
     public EditWindowFactory EditWindows { get; } = new(module);
@@ -139,10 +133,8 @@ internal static class ServiceManager
         public ConnectorPool ConnectorPool { get; }
         public ConfigurationManager ConfigManager { get; }
         public CharacterInfoService CharacterInfoService { get; }
-        public ItemInfo ItemInfo => Common.Services.ServiceManager.ItemInfo;
         public ExamineGearDataProvider ExamineGearDataProvider { get; }
         public OwnCharacterDataProvider OwnCharacterDataProvider { get; }
-        public GameInfo GameInfo => Common.Services.ServiceManager.GameInfo;
         public INotificationManager NotificationManager => DalamudServices.NotificationManager;
         private DalamudServiceWrapper DalamudServices { get; }
 

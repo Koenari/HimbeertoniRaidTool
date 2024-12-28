@@ -1,11 +1,8 @@
 using System.Numerics;
 using Dalamud.Interface;
-using HimbeertoniRaidTool.Common.GameData;
 using HimbeertoniRaidTool.Common.Localization;
-using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using ServiceManager = HimbeertoniRaidTool.Plugin.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -21,24 +18,22 @@ internal class InventoryWindow : HrtWindowWithModalChild
         Currency.AlliedSeal,
     ];
     private readonly CharacterInfoService _characterInfoService;
-    private readonly GameInfo _gameInfo;
     private readonly Character _character;
     private Inventory Inventory => _character.MainInventory;
     private Wallet Wallet => _character.Wallet;
 
     private static readonly Vector2 IconSize = new(ImGui.GetTextLineHeightWithSpacing());
-    internal InventoryWindow(Character c, CharacterInfoService characterInfoService, GameInfo gameInfo)
+    internal InventoryWindow(Character c, CharacterInfoService characterInfoService)
     {
         _characterInfoService = characterInfoService;
-        _gameInfo = gameInfo;
         Size = new Vector2(400f, 550f);
         SizeCondition = ImGuiCond.Appearing;
         Title = string.Format(LootmasterLoc.InventoryUi_Title, c.Name);
         _character = c;
-        if (_gameInfo.CurrentExpansion.CurrentSavage is null)
+        if (GameInfo.CurrentExpansion.CurrentSavage is null)
             return;
-        foreach (var item in from boss in _gameInfo.CurrentExpansion.CurrentSavage
-                                                   .Bosses
+        foreach (var item in from boss in GameInfo.CurrentExpansion.CurrentSavage
+                                                  .Bosses
                              from item in boss.GuaranteedItems
                              where !_character.MainInventory.Contains(item.Id)
                              select item)
@@ -71,9 +66,9 @@ internal class InventoryWindow : HrtWindowWithModalChild
         ImGui.Separator();
         ImGui.Text(GeneralLoc.InventoryWindow_Hdg_Current_Savage_Books);
         ImGui.NewLine();
-        if (_gameInfo.CurrentExpansion.CurrentSavage is not null)
-            foreach (var item in _gameInfo.CurrentExpansion.CurrentSavage
-                                          .Bosses.SelectMany(boss => boss.GuaranteedItems))
+        if (GameInfo.CurrentExpansion.CurrentSavage is not null)
+            foreach (var item in GameInfo.CurrentExpansion.CurrentSavage
+                                         .Bosses.SelectMany(boss => boss.GuaranteedItems))
             {
                 var icon = UiSystem.GetIcon(item.Icon);
                 if (icon is not null)
@@ -122,7 +117,7 @@ internal class InventoryWindow : HrtWindowWithModalChild
             ModalChild = new SelectGearItemWindow(item => Inventory.ReserveSlot(item, 1),
                                                   _ => { },
                                                   null, null, null,
-                                                  _gameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel
+                                                  GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel
                                                ?? 0);
         ImGui.EndDisabled();
     }

@@ -1,13 +1,14 @@
-﻿using HimbeertoniRaidTool.Plugin.Localization;
+﻿using HimbeertoniRaidTool.Common.Services;
+using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;
+using Item = Lumina.Excel.Sheets.Item;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
 public static class DrawDataExtension
 {
-    public static void Draw(this Lumina.Excel.Sheets.Item item) => new GearItem(item.RowId).Draw();
-    public static void Draw(this Item item)
+    public static void Draw(this Item item) => new GearItem(item.RowId).Draw();
+    public static void Draw(this Common.Data.Item item)
     {
         if (!item.Filled)
             return;
@@ -62,11 +63,10 @@ public static class DrawDataExtension
             }
         }
         //Shop Data
-        if (ServiceManager.ItemInfo.CanBePurchased(item.Id))
+        if (item.CanBePurchased())
         {
             DrawRow(GeneralLoc.DrawItem_hdg_ShopCosts, string.Empty);
-            foreach ((string? shopName, var shopEntry) in ServiceManager.ItemInfo
-                                                                        .GetShopEntriesForItem(item.Id))
+            foreach ((string? shopName, var shopEntry) in item.PurchasedFrom())
             {
                 ImGui.TableNextColumn();
                 ImGui.Text($"    {shopName}");
@@ -74,21 +74,21 @@ public static class DrawDataExtension
                 foreach (var cost in shopEntry.ItemCosts.Where(cost => cost.ItemCost.RowId != 0))
                 {
                     ImGui.Text(
-                        $"{cost.CurrencyCost} {ServiceManager.ItemInfo.AdjustItemCost(cost.ItemCost, shopEntry.PatchNumber).Name}");
+                        $"{cost.CurrencyCost} {cost.ItemCost.AdjustItemCost(shopEntry.PatchNumber).Name}");
                 }
             }
         }
         //Loot Data
-        if (ServiceManager.ItemInfo.CanBeLooted(item.Id))
+        if (item.CanBeLooted())
         {
-            string content = ServiceManager.ItemInfo.GetLootSources(item.Id)
-                                           .Aggregate("", (current, instance) => current + $"{instance.Name}\n");
+            string content = item.LootSources().Aggregate("", (current, instance) => current + $"{instance.Name}\n");
             DrawRow(GeneralLoc.ItemTable_heading_LootedIn, content);
         }
         ImGui.EndTable();
     }
-    public static void Draw(this (Item cur, Item bis) itemTuple) => Draw(itemTuple.cur, itemTuple.bis);
-    private static void Draw(Item left, Item right)
+    public static void Draw(this (Common.Data.Item cur, Common.Data.Item bis) itemTuple) =>
+        Draw(itemTuple.cur, itemTuple.bis);
+    private static void Draw(Common.Data.Item left, Common.Data.Item right)
     {
         if (!left.Filled || !right.Filled)
             return;
@@ -163,13 +163,10 @@ public static class DrawDataExtension
         }
         var shopsDone = new HashSet<string>();
         //Shop Data
-        if (ServiceManager.ItemInfo.CanBePurchased(left.Id) || ServiceManager.ItemInfo.CanBePurchased(right.Id))
+        if (left.CanBePurchased() || right.CanBePurchased())
         {
             DrawRow(GeneralLoc.DrawItem_hdg_ShopCosts, string.Empty, string.Empty);
-            foreach ((string? shopName, var shopEntry) in ServiceManager.ItemInfo
-                                                                        .GetShopEntriesForItem(left.Id)
-                                                                        .Concat(ServiceManager.ItemInfo
-                                                                                .GetShopEntriesForItem(right.Id)))
+            foreach ((string? shopName, var shopEntry) in left.PurchasedFrom().Concat(right.PurchasedFrom()))
             {
                 if (!shopsDone.Add(shopName)) continue;
                 ImGui.TableNextColumn();
@@ -180,7 +177,7 @@ public static class DrawDataExtension
                     foreach (var cost in shopEntry.ItemCosts.Where(cost => cost.ItemCost.RowId != 0))
                     {
                         ImGui.Text(
-                            $"{cost.CurrencyCost} {ServiceManager.ItemInfo.AdjustItemCost(cost.ItemCost, shopEntry.PatchNumber).Name}");
+                            $"{cost.CurrencyCost} {cost.ItemCost.AdjustItemCost(shopEntry.PatchNumber).Name}");
                     }
                 }
                 else
@@ -193,7 +190,7 @@ public static class DrawDataExtension
                     foreach (var cost in shopEntry.ItemCosts.Where(cost => cost.ItemCost.RowId != 0))
                     {
                         ImGui.Text(
-                            $"{cost.CurrencyCost} {ServiceManager.ItemInfo.AdjustItemCost(cost.ItemCost, shopEntry.PatchNumber).Name}");
+                            $"{cost.CurrencyCost} {cost.ItemCost.AdjustItemCost(shopEntry.PatchNumber).Name}");
                     }
                 }
                 else
@@ -203,12 +200,12 @@ public static class DrawDataExtension
             }
         }
         //Loot Data
-        if (ServiceManager.ItemInfo.CanBeLooted(left.Id) || ServiceManager.ItemInfo.CanBeLooted(right.Id))
+        if (left.CanBeLooted() || right.CanBeLooted())
         {
-            string leftSources = ServiceManager.ItemInfo.GetLootSources(left.Id)
-                                               .Aggregate("", (current, instance) => current + $"{instance.Name}\n");
-            string rightSources = ServiceManager.ItemInfo.GetLootSources(right.Id)
-                                                .Aggregate("", (current, instance) => current + $"{instance.Name}\n");
+            string leftSources =
+                left.LootSources().Aggregate("", (current, instance) => current + $"{instance.Name}\n");
+            string rightSources =
+                right.LootSources().Aggregate("", (current, instance) => current + $"{instance.Name}\n");
 
             DrawRow(GeneralLoc.ItemTable_heading_LootedIn, leftSources, rightSources);
         }

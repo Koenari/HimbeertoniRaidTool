@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.IO;
-using Dalamud.Plugin;
 using Dalamud.Utility;
 using Newtonsoft.Json;
 

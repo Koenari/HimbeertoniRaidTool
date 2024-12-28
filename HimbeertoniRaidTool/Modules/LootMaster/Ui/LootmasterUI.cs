@@ -502,8 +502,7 @@ internal class LootmasterUi : HrtWindow
                 if (ImGuiHelper.Button(FontAwesomeIcon.Wallet, "##inventory",
                                        LootmasterLoc.Ui_btn_tt_inventory, true,
                                        ButtonSize))
-                    AddChild(new InventoryWindow(player.MainChar, _module.Services.CharacterInfoService,
-                                                 _module.Services.GameInfo));
+                    AddChild(new InventoryWindow(player.MainChar, _module.Services.CharacterInfoService));
                 ImGui.SetCursorPosY(dualBottomRowY);
                 if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, "##details",
                                        $"{LootmasterLoc.Ui_btn_tt_PlayerDetails} {player.NickName}",
@@ -570,14 +569,14 @@ internal class LootmasterUi : HrtWindow
         ImGui.SetNextItemWidth(ImGui.CalcTextSize(CurConfig.ActiveExpansion.Name).X + 32f * ScaleFactor);
         if (ImGui.BeginCombo("##expansion", CurConfig.ActiveExpansion.Name))
         {
-            var expansions = _module.Services.GameInfo.Expansions;
+            var expansions = GameInfo.Expansions;
             for (int i = 0; i < expansions.Count; i++)
             {
                 var expansion = expansions[i];
                 if (expansion.SavageRaidTiers.Length == 0) continue;
                 if (ImGui.Selectable(expansion.Name))
                 {
-                    if (expansion == _module.Services.GameInfo.CurrentExpansion)
+                    if (expansion == GameInfo.CurrentExpansion)
                         CurConfig.ExpansionOverride = null;
                     else
                         CurConfig.ExpansionOverride = i;

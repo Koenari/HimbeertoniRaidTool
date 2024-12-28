@@ -19,6 +19,49 @@ internal static class UiHelpers
         MaxMateriaLevelSize =
             ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
     }
+    public static void DrawFoodEdit(HrtWindowWithModalChild parent, FoodItem? item, Action<FoodItem?> onItemChange)
+    {
+        //LuminaItem Icon with Info
+        var icon = item is null ? null : UiSystem.GetIcon(item.Icon);
+        if (icon is not null)
+        {
+            ImGui.Image(icon.ImGuiHandle, new Vector2(24, 24));
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                item?.Draw();
+                ImGui.EndTooltip();
+            }
+            ImGui.SameLine();
+
+        }
+        //Quick select
+        string itemName = item?.Name ?? string.Empty;
+        if (ImGuiHelper.ExcelSheetCombo($"##Food", out LuminaItem outItem, _ => itemName,
+                                        i => i.Name.ExtractText(), i => i.ItemAction.Value.Type == 845,
+                                        ImGuiComboFlags.NoArrowButton))
+        {
+            onItemChange(new FoodItem(outItem.RowId));
+        }
+        //Select Window
+        ImGui.SameLine();
+        ImGui.BeginDisabled(parent.ChildIsOpen);
+        {
+            if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"FoodChangeItem",
+                                   GeneralLoc.EditGearSetUi_btn_tt_selectItem))
+                parent.AddChild(new SelectFoodItemWindow(onItemChange, _ => { }, item,
+                                                         GameInfo.PreviousSavageTier
+                                                                 ?.ItemLevel(GearSetSlot.Body) + 10 ?? 0));
+            ImGui.EndDisabled();
+        }
+        ImGui.SameLine();
+        if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"DeleteFood", GeneralLoc.General_btn_tt_remove))
+        {
+            item = null;
+            onItemChange(item);
+        }
+    }
+
     public static void DrawGearEdit(HrtWindowWithModalChild parent, GearSetSlot slot,
                                     GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {
@@ -50,8 +93,8 @@ internal static class UiHelpers
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}changeItem",
                                    GeneralLoc.EditGearSetUi_btn_tt_selectItem))
                 parent.AddChild(new SelectGearItemWindow(onItemChange, _ => { }, item, slot, curJob,
-                                                         Common.Services.ServiceManager.GameInfo.CurrentExpansion
-                                                               .CurrentSavage?.ItemLevel(slot) ?? 0));
+                                                         GameInfo.CurrentExpansion.CurrentSavage?.ItemLevel(slot)
+                                                      ?? 0));
             ImGui.EndDisabled();
         }
         ImGui.SameLine();

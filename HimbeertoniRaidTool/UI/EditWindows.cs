@@ -347,7 +347,7 @@ public class EditWindowFactory(IHrtModule module)
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(150f * ScaleFactor);
                 if (ImGui.InputInt(GeneralLoc.CommonTerms_Level, ref c.Level))
-                    c.Level = Math.Clamp(c.Level, 1, Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxLevel);
+                    c.Level = Math.Clamp(c.Level, 1, GameInfo.CurrentExpansion.MaxLevel);
                 ImGui.SameLine();
                 ImGui.Checkbox(GeneralLoc.EditCharUi_cb_hideJob, ref c.HideInUi);
                 ImGui.Separator();
@@ -561,6 +561,11 @@ public class EditWindowFactory(IHrtModule module)
 
         private void DrawGearEditSection()
         {
+            //Food
+            ImGui.Text("Food");
+            ImGui.SameLine();
+            UiHelpers.DrawFoodEdit(this, DataCopy.Food, i => DataCopy.Food = i);
+            //Gear table
             using var table = ImRaii.Table("##GearEditTable", 2, ImGuiTableFlags.Borders);
             if (!table) return;
             ImGui.TableSetupColumn("##GearL");

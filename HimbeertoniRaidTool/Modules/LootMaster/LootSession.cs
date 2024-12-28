@@ -22,7 +22,6 @@ public class LootSession
     private RaidGroup _group;
     private readonly LootMasterModule _module;
     private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
-    internal ItemInfo ItemInfo => _module.Services.ItemInfo;
     internal LootSession(LootMasterModule module, InstanceWithLoot instance, RaidGroup group)
     {
         _module = module;
@@ -318,15 +317,15 @@ public class LootResult
         ApplicableJob is not null && (
             !_droppedItem.IsExchangableItem
          || NeededItems.Any(
-                item => _session.ItemInfo.GetShopEntriesForItem(item.Id).Any(shopEntry =>
+                item => item.PurchasedFrom().Any(shopEntry =>
                 {
                     foreach (var cost in shopEntry.entry.ItemCosts)
                     {
                         if (cost.CurrencyCost == 0) continue;
                         if (cost.ItemCost.RowId == _droppedItem.Id) continue;
-                        var costItem = _session.ItemInfo.AdjustItemCost(cost.ItemCost, shopEntry.entry.PatchNumber);
-                        if (ItemInfo.IsCurrency(costItem.RowId)) continue;
-                        if (ItemInfo.IsTomeStone(costItem.RowId)) continue;
+                        var costItem = cost.ItemCost.AdjustItemCost(shopEntry.entry.PatchNumber);
+                        if (costItem.IsCurrency()) continue;
+                        if (costItem.IsTomeStone()) continue;
                         if (ApplicableJob.CurGear.Contains(new Item(costItem.RowId))) continue;
                         if (Player.MainChar.MainInventory.ItemCount(costItem.RowId)
                          >= cost.CurrencyCost) continue;
@@ -338,16 +337,16 @@ public class LootResult
     public bool CanBuy()
     {
         if (ApplicableJob is null) return false;
-        var shops = _session.ItemInfo.GetShopEntriesForItem(_droppedItem.Id);
+        var shops = _droppedItem.PurchasedFrom();
         return shops.Any(
             shopEntry =>
             {
                 foreach (var cost in shopEntry.entry.ItemCosts)
                 {
                     if (cost.CurrencyCost == 0) continue;
-                    var costItem = _session.ItemInfo.AdjustItemCost(cost.ItemCost, shopEntry.entry.PatchNumber);
-                    if (ItemInfo.IsCurrency(costItem.RowId)) continue;
-                    if (ItemInfo.IsTomeStone(costItem.RowId)) continue;
+                    var costItem = cost.ItemCost.AdjustItemCost(shopEntry.entry.PatchNumber);
+                    if (costItem.IsCurrency()) continue;
+                    if (costItem.IsTomeStone()) continue;
                     if (ApplicableJob.CurGear.Contains(new Item(costItem.RowId))) continue;
                     if (Player.MainChar.MainInventory.ItemCount(costItem.RowId)
                       + (GuaranteedLoot.Any(loot => loot.Id == costItem.RowId) ? 1 : 0)

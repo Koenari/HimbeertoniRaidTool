@@ -190,10 +190,9 @@ internal class CoreModule : IHrtModule
         int minILvl = (RestrictToCurrentTier: _config.Data.GearUpdateRestrictToCurrentTier,
                 RestrictToCustomILvL: _config.Data.GearUpdateRestrictToCustomILvL) switch
             {
-                (true, true) => Math.Min(
-                    (Services.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
-                    _config.Data.GearUpdateCustomILvlCutoff),
-                (true, false) => (Services.GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
+                (true, true) => Math.Min((GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
+                                         _config.Data.GearUpdateCustomILvlCutoff),
+                (true, false) => (GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
                 (false, true) => _config.Data.GearUpdateCustomILvlCutoff,
                 _             => 0,
             };

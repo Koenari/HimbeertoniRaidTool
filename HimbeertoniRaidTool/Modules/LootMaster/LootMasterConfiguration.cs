@@ -6,7 +6,6 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
@@ -64,6 +63,8 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
                 break;
         }
     }
+
+
 
     internal sealed class ConfigUi : IHrtConfigUi
     {
@@ -261,6 +262,14 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         public bool ShowIconInGroupOverview;
         [JsonProperty]
         public int Version { get; set; } = 1;
+
+
+        [JsonIgnore]
+        public RaidTier SelectedRaidTier => ActiveExpansion.SavageRaidTiers.Length > 0
+            ? ActiveExpansion.SavageRaidTiers[RaidTierOverride ?? ^1] : RaidTier.Empty;
+        [JsonIgnore]
+        public GameExpansion ActiveExpansion => ExpansionOverride.HasValue
+            ? GameInfo.Expansions[ExpansionOverride.Value] : GameInfo.CurrentExpansion;
         /*
          * Internal
          */
@@ -276,13 +285,6 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         }
         [JsonIgnore]
         public string ItemFormatString => _itemFormatStringCache ??= ParseItemFormatString(UserItemFormat);
-        [JsonIgnore]
-        public RaidTier SelectedRaidTier =>
-            ActiveExpansion.SavageRaidTiers.Length > 0 ? ActiveExpansion.SavageRaidTiers[RaidTierOverride ?? ^1]
-                : RaidTier.Empty;
-        [JsonIgnore]
-        public GameExpansion ActiveExpansion => ExpansionOverride.HasValue
-            ? ServiceManager.GameInfo.Expansions[ExpansionOverride.Value] : ServiceManager.GameInfo.CurrentExpansion;
         public void AfterLoad(HrtDataManager dataManager)
         {
             RaidGroups.Clear();

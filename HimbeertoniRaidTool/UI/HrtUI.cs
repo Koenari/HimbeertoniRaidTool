@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
@@ -22,7 +21,6 @@ public static class UiSystem
         _dataManager = dataManager;
         _condition = condition;
     }
-
     public static void SetConfig(UiConfig config) => _uiConfig = config;
     public static IDalamudTextureWrap? GetIcon(uint id, bool isHq = false) => _iconCache?.LoadIcon(id, isHq);
     public static ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType> =>

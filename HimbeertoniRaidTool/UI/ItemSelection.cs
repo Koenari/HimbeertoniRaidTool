@@ -55,6 +55,76 @@ internal abstract class SelectItemWindow<T> : HrtWindow where T : Item
     protected abstract void DrawItemSelection();
 }
 
+internal class SelectFoodItemWindow : SelectItemWindow<FoodItem>
+{
+    private int _maxILvl;
+    private int _minILvl;
+    public SelectFoodItemWindow(Action<FoodItem> onSave, Action<FoodItem?> onCancel, FoodItem? currentItem = null,
+                                int minItemLevel = 0) :
+        base(onSave, onCancel)
+    {
+        Item = currentItem;
+        _maxILvl = 0;
+        _minILvl = minItemLevel;
+    }
+    protected override void DrawItemSelection()
+    {
+        ImGui.SetNextItemWidth(100f * ScaleFactor);
+        int min = _minILvl;
+        if (ImGui.InputInt("-##min", ref min, 5))
+        {
+            _minILvl = min;
+        }
+
+        ImGui.SameLine();
+        int max = _maxILvl;
+        ImGui.SetNextItemWidth(100f * ScaleFactor);
+        if (ImGui.InputInt("iLvL##Max", ref max, 5))
+        {
+            _maxILvl = max;
+        }
+        foreach (var item in Sheet.Where(item => (_minILvl == 0 || item.LevelItem.RowId >= _minILvl)
+                                              && (_maxILvl == 0 || item.LevelItem.RowId <= _maxILvl)
+                                              && item.ItemAction.Value.Type == 845))
+        {
+            bool isCurrentItem = item.RowId == Item?.Id;
+            if (isCurrentItem)
+                ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
+            if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", GeneralLoc.SelectItemUi_btn_tt_useThis,
+                                   true,
+                                   new Vector2(32f, 32f)))
+            {
+                if (isCurrentItem)
+                    Cancel();
+                else
+                    Save(new FoodItem(item.RowId)
+                    {
+                        IsHq = item.CanBeHq,
+                    });
+            }
+
+            if (isCurrentItem)
+                ImGui.PopStyleColor();
+            ImGui.SameLine();
+            ImGui.BeginGroup();
+            var icon = UiSystem.GetIcon(item.Icon, item.CanBeHq);
+            if (icon is not null)
+            {
+                ImGui.Image(icon.ImGuiHandle, new Vector2(32f, 32f));
+                ImGui.SameLine();
+            }
+            ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
+            ImGui.EndGroup();
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                item.Draw();
+                ImGui.EndTooltip();
+            }
+        }
+    }
+}
+
 internal class SelectGearItemWindow : SelectItemWindow<GearItem>
 {
     private readonly bool _lockJob;
