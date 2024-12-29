@@ -6,10 +6,10 @@ using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
-using HimbeertoniRaidTool.Plugin.Modules;
 using ImGuiNET;
 using Lumina.Excel.Sheets;
 using Action = System.Action;
+using EnumExtensions = HimbeertoniRaidTool.Common.Data.EnumExtensions;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -505,7 +505,9 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.TableNextColumn();
             ImGui.Text($"{DataCopy.TimeStamp}");
             ImGui.TableNextColumn();
-            ImGui.SetNextItemWidth(60 * ScaleFactor);
+            ImGui.Text(GeneralLoc.EditGearSetUi_txt_job);
+            ImGui.TableNextColumn();
+            ImGui.SetNextItemWidth(70 * ScaleFactor);
             ImGui.BeginDisabled(_providedJob is not null);
             ImGuiHelper.Combo("##JobSelection", ref _job);
             ImGui.EndDisabled();
@@ -612,23 +614,24 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 var bisSets = connector.GetBiSList(_job);
                 if (!bisSets.Any()) continue;
                 ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_text_getCuratedBis, service.FriendlyName()));
-                foreach ((string etroId, string name) in bisSets)
+                foreach ((string externalId, string name) in bisSets)
                 {
                     ImGui.SameLine();
-                    if (ImGuiHelper.Button($"{name}##BIS#{etroId}", $"{etroId}"))
+                    if (ImGuiHelper.Button($"{name}##BIS#{externalId}", $"{externalId}"))
                     {
-                        if (Factory.DataManager.GearDb.Search(gearSet => gearSet?.ExternalId == etroId,
-                                                              out var newSet))
+                        if (Factory.DataManager.GearDb.Search(
+                                gearSet => gearSet?.ExternalId == externalId && gearSet.ManagedBy == service,
+                                out var newSet))
                         {
                             ReplaceOriginal(newSet);
-                            return;
+                            continue;
                         }
-                        ReplaceOriginal(new GearSet(GearSetManager.Etro, name)
+                        ReplaceOriginal(new GearSet(service, name)
                         {
-                            ExternalId = etroId,
+                            ExternalId = externalId,
                         });
                         connector.RequestGearSetUpdate(DataCopy);
-                        return;
+                        continue;
                     }
                 }
             }
@@ -636,7 +639,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.Text("Replace with: ");
             ImGui.SameLine();
             ImGui.SetNextItemWidth(100 * ScaleFactor);
-            ImGuiHelper.Combo("##manager", ref _curSetManager, null, val => val != GearSetManager.Hrt);
+            ImGuiHelper.Combo("##manager", ref _curSetManager, EnumExtensions.FriendlyName,
+                              val => val != GearSetManager.Hrt);
             ImGui.SetNextItemWidth(200 * ScaleFactor);
             ImGui.SameLine();
             if (ImGui.InputText("ID/Url", ref _externalIdInput, 255))
