@@ -1,4 +1,5 @@
 using System.Net;
+using System.Web;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -30,7 +31,7 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
 
 
     public bool BelongsToThisService(string url) => url.StartsWith(WEB_BASE_URL) || url.StartsWith(API_BASE_URL);
-    public string GetId(string url) => url.Split('|')[^1];
+    public string GetId(string url) => HttpUtility.UrlDecode(url).Split('|')[^1];
     public string GetWebUrl(string id) => $"{GEAR_WEB_BASE_URL}{id}";
     public IReadOnlyDictionary<string, string> GetBiSList(Job job) => new Dictionary<string, string>();
     public bool IsSheet(string id)
