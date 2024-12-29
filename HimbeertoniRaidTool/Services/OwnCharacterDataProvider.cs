@@ -90,8 +90,8 @@ internal class OwnCharacterDataProvider : IGearDataProvider
 
     private unsafe void UpdateWallet()
     {
-        _logger.Debug("UpdateWallet");
         if (_curChar == null) return;
+        _logger.Debug("UpdateWallet");
         var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Currency);
         for (int i = 0; i < container->Size; i++)
         {

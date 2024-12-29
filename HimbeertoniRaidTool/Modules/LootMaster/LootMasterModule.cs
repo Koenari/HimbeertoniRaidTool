@@ -24,7 +24,6 @@ internal sealed class LootMasterModule : IHrtModule
         LootmasterLoc.Culture = new CultureInfo(Services.PluginInterface.UiLanguage);
         ConfigImpl = new LootMasterConfiguration(this);
         _ui = new LootmasterUi(this);
-        Services.UiSystem.AddWindow(_ui);
         Services.ClientState.Login += OnLogin;
 
     }

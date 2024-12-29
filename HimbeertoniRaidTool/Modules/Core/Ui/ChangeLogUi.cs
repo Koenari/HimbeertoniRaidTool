@@ -16,6 +16,7 @@ internal class ChangeLogUi : HrtWindow
                                                                | ImGuiWindowFlags.AlwaysAutoResize)
     {
         Persistent = true;
+        IsOpen = false;
         _log = log;
         OpenCentered = true;
         Size = _size;
