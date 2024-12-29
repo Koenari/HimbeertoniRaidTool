@@ -333,6 +333,9 @@
   <data name="EditGearSetUi_btn_GetExternal" xml:space="preserve">
         <value>Ersetzen</value>
     </data>
+  <data name="EditGearSetUi_btn_tt_GetExternal" xml:space="preserve">
+        <value>Herunterladen und aktuelles Set ersetzen</value>
+    </data>
   <data name="EditGearSetUi_btn_tt_cutsomEtro" xml:space="preserve">
         <value>Herunterladen</value>
     </data>
@@ -383,11 +386,17 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
   <data name="EditGearSetUi_btn_openEtro" xml:space="preserve">
         <value>Set auf etro.gg öffnen</value>
     </data>
+  <data name="EditGearSetUi_txt_lastUpdate" xml:space="preserve">
+        <value>Letzte Update-Prüfung</value>
+    </data>
   <data name="Gearset_Warning_SysManaged" xml:space="preserve">
         <value>Dieses Set wird durch das Plugin verwaltet und wird automatisch auf den aktuellen Stand des entsprechenden Charakters gebracht!</value>
     </data>
   <data name="EditGearSetUi_txt_Source" xml:space="preserve">
         <value>Ursprung</value>
+    </data>
+  <data name="EditGearSetUi_txt_LastChange" xml:space="preserve">
+        <value>Letzte Änderung</value>
     </data>
   <data name="EditCharUi_cb_hideJob" xml:space="preserve">
         <value>Diesen Job nicht anzeigen</value>
@@ -421,6 +430,10 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
   <data name="CommonTerms_All" xml:space="preserve">
         <value>Alle</value>
     </data>
+  <data name="XivGearAppConnector_GetGearSet_Error" xml:space="preserve">
+        <value>Fehler beim Aktualisieren von {0} von XivGear.app</value>
+        <comment>{0} name</comment>
+    </data>
   <data name="CommonTerms_Difference" xml:space="preserve">
         <value>Unterschied</value>
     </data>
@@ -441,5 +454,24 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
   <data name="XivGearAppConnector_GetGearSet_Success" xml:space="preserve">
         <value>Update von XivGear.app für {0} erfolgreich</value>
         <comment>{0} name</comment>
+    </data>
+  <data name="Gearset_Warning_ExternalManaged" xml:space="preserve">
+        <value>Dieses Set stammt von einem externen Dienst und wird von dort automatisch aktualisiert. Wenn Sie Änderungen vornehmen wollen, müssen Sie eine lokale Kopie erstellen.</value>
+    </data>
+  <data name="EditGearSetUi_btn_OpenWeb" xml:space="preserve">
+        <value>In {0} öffnen</value>
+    </data>
+  <data name="EditGearSetUi_btn_tt_OpenWeb" xml:space="preserve">
+        <value>Öffnet das Set auf der Website des externen Dienstes in Ihrem Standardbrowser</value>
+    </data>
+  <data name="Ui_btn_tt_GearSetUpdate" xml:space="preserve">
+        <value>Aktualisiere {0} ({1}) von {2}</value>
+        <comment>{0} is name {1} is id {2} is service</comment>
+    </data>
+  <data name="EditGearSetUi_text_getCuratedBis" xml:space="preserve">
+        <value>Ersetzen durch BiS-Set von {0}</value>
+    </data>
+  <data name="CommonTerms_Food" xml:space="preserve">
+        <value>Essen</value>
     </data>
 </root>
