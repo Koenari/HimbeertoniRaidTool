@@ -122,6 +122,12 @@
   <data name="WelcomeUi_Title">
     <value>Bienvenida a Himbeertoni Raid Tool</value>
   </data>
+  <data name="ConfigUi_cb_extAutoUpdate">
+    <value>Actualizar los sets periódicamente desde {0}</value>
+  </data>
+  <data name="ConfigUi_in_externalUpdateInterval">
+    <value>Intervalo de actualización (días)</value>
+  </data>
   <data name="ConfigUi_hdg_ui">
     <value>Interfaz de usuario</value>
   </data>

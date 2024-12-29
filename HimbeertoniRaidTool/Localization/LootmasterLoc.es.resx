@@ -161,6 +161,9 @@
   <data name="ConfigUi_tab_Appearance" xml:space="preserve">
     <value>Apariencia</value>
   </data>
+  <data name="LootSessionUi_resultTable_Col_Pos">
+    <value>Draw</value>
+  </data>
   <data name="LootUI_Results_Rule">
     <value>Regla</value>
   </data>
