@@ -20,7 +20,6 @@ internal class LootmasterUi : HrtWindow
     {
         Persistent = true;
         _module = lootMaster;
-        CurrentGroupIndex = 0;
         Size = new Vector2(1720, 750);
         _buttonSize = new Vector2(30f, 25f);
         _buttonSizeVertical = new Vector2(_buttonSize.Y, _buttonSize.X);
@@ -30,13 +29,11 @@ internal class LootmasterUi : HrtWindow
         UiSystem.AddWindow(this);
     }
     private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
-    internal int CurrentGroupIndex { get; private set; }
-    private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurrentGroupIndex];
+
+    private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurConfig.ActiveGroupIndex];
     //private GameExpansion ActiveExpansion => CurConfig.ActiveExpansion;
     private Vector2 ButtonSize => _buttonSize * ScaleFactor;
     private Vector2 ButtonSizeVertical => _buttonSizeVertical * ScaleFactor;
-
-    public override void OnOpen() => CurrentGroupIndex = CurConfig.LastGroupIndex;
 
     private static TimeSpan MessageTimeByMessageType(HrtUiMessageType type) => type switch
     {
@@ -231,8 +228,8 @@ internal class LootmasterUi : HrtWindow
 
     public override void Draw()
     {
-        if (CurrentGroupIndex > _module.RaidGroups.Count - 1 || CurrentGroupIndex < 0)
-            CurrentGroupIndex = 0;
+        if (CurConfig.ActiveGroupIndex > _module.RaidGroups.Count - 1 || CurConfig.ActiveGroupIndex < 0)
+            CurConfig.ActiveGroupIndex = 0;
         DrawUiMessages();
         if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "##showConfig",
                                LootmasterLoc.ui_btn_tt_showConfig))
@@ -293,13 +290,13 @@ internal class LootmasterUi : HrtWindow
             ImGui.PushID(tabBarIdx);
             //0 is reserved for Solo on current Character (only partially editable)
             bool isPredefinedSolo = tabBarIdx == 0;
-            bool isActiveGroup = tabBarIdx == CurrentGroupIndex;
+            bool isActiveGroup = tabBarIdx == CurConfig.ActiveGroupIndex;
 
             var group = _module.RaidGroups[tabBarIdx];
             if (isActiveGroup) ImGui.PushStyleColor(ImGuiCol.Tab, Colors.RedWood);
 
             if (ImGui.TabItemButton(group.Name))
-                CurrentGroupIndex = tabBarIdx;
+                CurConfig.ActiveGroupIndex = tabBarIdx;
             ImGuiHelper.AddTooltip(GeneralLoc.Ui_rightClickHint);
 
             if (ImGui.BeginPopupContextItem(group.Name))

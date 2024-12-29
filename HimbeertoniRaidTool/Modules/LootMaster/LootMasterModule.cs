@@ -91,11 +91,7 @@ internal sealed class LootMasterModule : IHrtModule
     }
 
 
-    public void Dispose()
-    {
-        ConfigImpl.Data.LastGroupIndex = _ui.CurrentGroupIndex;
-        ConfigImpl.Save(Services.HrtDataManager.ModuleConfigurationManager);
-    }
+    public void Dispose() => ConfigImpl.Save(Services.HrtDataManager.ModuleConfigurationManager);
 
     public void HandleMessage(HrtUiMessage message)
     {

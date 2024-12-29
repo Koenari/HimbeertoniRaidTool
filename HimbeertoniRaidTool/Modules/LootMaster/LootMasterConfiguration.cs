@@ -218,8 +218,11 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             //30 or more below
             new(0.85f, 0.17f, 0.17f, 1f),
         };
-        [JsonProperty]
-        public int LastGroupIndex;
+        //retired on 2024-12-29
+        [JsonProperty("LastGroupIndex")] private int LastGroupIndex { set => ActiveGroupIndex = value; }
+
+        [JsonProperty("ActiveGroupIndex")]
+        public int ActiveGroupIndex;
         /*
          * Loot
          */
