@@ -11,14 +11,18 @@ internal class ChangeLogUi : HrtWindow
     private readonly ChangeLog _log;
     private ChangelogShowOptions _options;
     private readonly Vector2 _size = new(700, 500);
-    public ChangeLogUi(ChangeLog log) : base(null, ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize)
+    public ChangeLogUi(IUiSystem uiSystem, ChangeLog log) : base(uiSystem, null,
+                                                                 ImGuiWindowFlags.NoCollapse
+                                                               | ImGuiWindowFlags.AlwaysAutoResize)
     {
+        Persistent = true;
         _log = log;
         OpenCentered = true;
         Size = _size;
         SizeCondition = ImGuiCond.Appearing;
         Title = CoreLoc.ChangeLogUi_Title;
         _options = _log.Config.ChangelogNotificationOptions;
+        UiSystem.AddWindow(this);
     }
     public override void Draw()
     {

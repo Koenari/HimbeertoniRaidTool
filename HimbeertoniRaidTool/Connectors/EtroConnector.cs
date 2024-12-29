@@ -40,7 +40,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
                                                                 else
                                                                     Logger.Info(msg.Message);
                                                             }, "Load BiS list from etro"));
-        foreach (var food in dataManager.Excel.GetSheet<Lumina.Excel.Sheets.Item>()
+        foreach (var food in dataManager.Excel.GetSheet<LuminaItem>()
                                         .Where(ItemExtensions.IsFood))
         {
             _foodLookup[food.ItemAction.Value.Data[1]] = new FoodItem(food.RowId);
@@ -105,15 +105,15 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
 
     public HrtUiMessage UpdateGearSet(GearSet set)
     {
-        HrtUiMessage errorMessage = new(string.Format(GeneralLoc.EtroConnector_GetGearSet_Error, set.Name),
-                                        HrtUiMessageType.Failure);
+        HrtUiMessage failureMessage = new(string.Format(GeneralLoc.EtroConnector_GetGearSet_Error, set.Name),
+                                          HrtUiMessageType.Failure);
         if (set.ExternalId.Equals(""))
-            return errorMessage;
-        errorMessage.Message = $"{errorMessage.Message} ({set.ExternalId})";
+            return failureMessage;
+        failureMessage = new HrtUiMessage($"{failureMessage.Message} ({set.ExternalId})", HrtUiMessageType.Failure);
 
         var httpResponse = MakeWebRequest(GEARSET_API_BASE_URL + set.ExternalId);
         if (httpResponse == null)
-            return errorMessage;
+            return failureMessage;
         if (httpResponse.StatusCode == HttpStatusCode.NotFound)
         {
             set.ManagedBy = GearSetManager.Hrt;
@@ -125,7 +125,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
         readTask.Wait();
         var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(readTask.Result, JsonSettings);
         if (etroSet == null)
-            return errorMessage;
+            return failureMessage;
         set.Name = etroSet.name ?? "";
         set.TimeStamp = etroSet.lastUpdate;
         set.LastExternalFetchDate = DateTime.UtcNow;

@@ -92,6 +92,7 @@
         <Using Include="System.Collections.Generic"/>
         <Using Include="System.Linq"/>
         <Using Include="XIVCalc"/>
+        <Using Alias="LuminaItem" Include="Lumina.Excel.Sheets.Item"/>
     </ItemGroup>
     <ItemGroup>
         <Compile Update="Localization\CoreLoc.Designer.cs">

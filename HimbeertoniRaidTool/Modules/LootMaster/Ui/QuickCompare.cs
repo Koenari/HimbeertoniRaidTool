@@ -9,13 +9,16 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 internal class QuickCompareWindow : HrtWindowWithModalChild
 {
     private readonly PlayableClass _curClass;
+    private readonly LootMasterModule _lootMaster;
     private readonly LootMasterConfiguration.ConfigData _currentConfig;
     private readonly Tribe? _curTribe;
 
     private readonly GearSet _newGear;
-    internal QuickCompareWindow(LootMasterConfiguration.ConfigData lmConfig, PlayableClass job, Tribe? tribe)
+    internal QuickCompareWindow(LootMasterModule lootMaster, PlayableClass job, Tribe? tribe) : base(
+        lootMaster.Services.UiSystem)
     {
-        _currentConfig = lmConfig;
+        _lootMaster = lootMaster;
+        _currentConfig = lootMaster.ConfigImpl.Data;
         _curClass = job;
         _curTribe = tribe;
         _newGear = new GearSet(_curClass.CurGear);
@@ -35,7 +38,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
         {
             void DrawSlot(GearItem i)
             {
-                LmUiHelpers.DrawSlot(_currentConfig, i, SlotDrawFlags.DetailedSingle);
+                LmUiHelpers.DrawSlot(_lootMaster, i, SlotDrawFlags.DetailedSingle);
             }
             ImGui.BeginTable("##GearCompareCurrent", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders);
             ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear);
@@ -87,7 +90,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
             ImGui.TableNextColumn();
             ImGui.Text(GeneralLoc.CommonTerms_Food);
             ImGui.SameLine();
-            UiHelpers.DrawFoodEdit(this, _newGear.Food, f => _newGear.Food = f);
+            UiSystem.Helpers.DrawFoodEdit(this, _newGear.Food, f => _newGear.Food = f);
             ImGui.TableNextColumn();
             DrawEditSlot(GearSetSlot.MainHand);
             if (_curClass.Job.CanHaveShield())
@@ -111,7 +114,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
         void DrawEditSlot(GearSetSlot slot)
         {
             ImGui.TableNextColumn();
-            UiHelpers.DrawGearEdit(this, slot, _newGear[slot], ItemChangeCallback(slot), _curClass.Job);
+            UiSystem.Helpers.DrawGearEdit(this, slot, _newGear[slot], ItemChangeCallback(slot), _curClass.Job);
         }
     }
     private Action<GearItem> ItemChangeCallback(GearSetSlot slot)

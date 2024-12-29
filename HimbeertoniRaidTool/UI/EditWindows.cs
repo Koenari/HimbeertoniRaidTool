@@ -13,12 +13,13 @@ using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-public class EditWindowFactory(IHrtModule module)
+public class EditWindowFactory(IGlobalServiceContainer services)
 {
-    private HrtDataManager DataManager => module.Services.HrtDataManager;
-    private ConnectorPool ConnectorPool => module.Services.ConnectorPool;
-    private CharacterInfoService CharacterInfoService => module.Services.CharacterInfoService;
-    private TaskManager TaskManager => module.Services.TaskManager;
+    private HrtDataManager DataManager => services.HrtDataManager;
+    private ConnectorPool ConnectorPool => services.ConnectorPool;
+    private CharacterInfoService CharacterInfoService => services.CharacterInfoService;
+    private TaskManager TaskManager => services.TaskManager;
+    private IUiSystem UiSystem => services.UiSystem;
     public void Create<TData>(HrtId id, Action<TData>? onSave = null,
                               Action? onCancel = null, Action? onDelete = null,
                               object? param = null)
@@ -70,7 +71,7 @@ public class EditWindowFactory(IHrtModule module)
             _                 => null,
         };
         if (window == null) return;
-        module.WindowSystem.AddWindow(window);
+        services.UiSystem.AddWindow(window);
         window.Show();
 
     }
@@ -86,7 +87,7 @@ public class EditWindowFactory(IHrtModule module)
         protected TData DataCopy;
 
         protected EditWindow(EditWindowFactory factory, TData original, Action<TData>? onSave, Action? onCancel,
-                             Action? onDelete)
+                             Action? onDelete) : base(factory.UiSystem)
         {
             Factory = factory;
             _original = original;
@@ -248,7 +249,7 @@ public class EditWindowFactory(IHrtModule module)
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "addFromDb",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeNameStatic)))
             {
-                AddChild(Factory.DataManager.CharDb.OpenSearchWindow(c => DataCopy.AddCharacter(c)));
+                AddChild(Factory.DataManager.CharDb.OpenSearchWindow(UiSystem, c => DataCopy.AddCharacter(c)));
             }
         }
 
@@ -301,13 +302,13 @@ public class EditWindowFactory(IHrtModule module)
             if (ImGui.InputText(GeneralLoc.CommonTerms_Name, ref DataCopy.Name, 50)
              && Factory.CharacterInfoService.TryGetChar(out var pc, DataCopy.Name))
                 DataCopy.HomeWorld ??= pc.HomeWorld.Value;
-            if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.EditCharUi_in_HomeWorld + "##" + Title, out World w,
-                                            _ => DataCopy.HomeWorld?.Name.ExtractText() ?? "",
-                                            x => x.Name.ExtractText(), x => x.IsPublic))
+            if (UiSystem.Helpers.ExcelSheetCombo(GeneralLoc.EditCharUi_in_HomeWorld + "##" + Title, out World w,
+                                                 _ => DataCopy.HomeWorld?.Name.ExtractText() ?? "",
+                                                 x => x.Name.ExtractText(), x => x.IsPublic))
                 DataCopy.HomeWorld = w;
 
-            if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.CommonTerms_Tribe + "##" + Title, out Tribe t,
-                                            _ => GetGenderedTribeName(DataCopy.Tribe), GetGenderedTribeName))
+            if (UiSystem.Helpers.ExcelSheetCombo(GeneralLoc.CommonTerms_Tribe + "##" + Title, out Tribe t,
+                                                 _ => GetGenderedTribeName(DataCopy.Tribe), GetGenderedTribeName))
                 DataCopy.TribeId = t.RowId;
             //Class Data
             ImGui.SetCursorPosX((ImGui.GetWindowWidth()
@@ -564,7 +565,7 @@ public class EditWindowFactory(IHrtModule module)
             //Food
             ImGui.Text(GeneralLoc.CommonTerms_Food);
             ImGui.SameLine();
-            UiHelpers.DrawFoodEdit(this, DataCopy.Food, i => DataCopy.Food = i);
+            UiSystem.Helpers.DrawFoodEdit(this, DataCopy.Food, i => DataCopy.Food = i);
             //Gear table
             using var table = ImRaii.Table("##GearEditTable", 2, ImGuiTableFlags.Borders);
             if (!table) return;
@@ -590,7 +591,7 @@ public class EditWindowFactory(IHrtModule module)
             {
                 ImGui.BeginDisabled(ChildIsOpen);
                 ImGui.TableNextColumn();
-                UiHelpers.DrawGearEdit(this, slot, DataCopy[slot], i =>
+                UiSystem.Helpers.DrawGearEdit(this, slot, DataCopy[slot], i =>
                 {
                     foreach (var mat in DataCopy[slot].Materia)
                     {

@@ -20,13 +20,13 @@ internal class PlayerDb(IIdProvider idProvider, IEnumerable<JsonConverter> conve
         }
         return referencedIds;
     }
-    public override HrtWindow OpenSearchWindow(Action<Player> onSelect, Action? onCancel = null) =>
-        new PlayerSearchWindow(this, onSelect, onCancel);
+    public override HrtWindow OpenSearchWindow(IUiSystem uiSystem, Action<Player> onSelect, Action? onCancel = null) =>
+        new PlayerSearchWindow(uiSystem, this, onSelect, onCancel);
 
     private class PlayerSearchWindow : SearchWindow<Player, PlayerDb>
     {
-        public PlayerSearchWindow(PlayerDb dataBase, Action<Player> onSelect, Action? onCancel) : base(dataBase,
-            onSelect, onCancel)
+        public PlayerSearchWindow(IUiSystem uiSystem, PlayerDb dataBase, Action<Player> onSelect, Action? onCancel) :
+            base(uiSystem, dataBase, onSelect, onCancel)
         {
             Size = new Vector2(300, 150);
             SizeCondition = ImGuiCond.Appearing;

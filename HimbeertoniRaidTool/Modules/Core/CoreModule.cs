@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
-using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
@@ -11,6 +10,13 @@ namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
 internal class CoreModule : IHrtModule
 {
+    private static readonly UiConfig FalseConfig = new(false);
+    private static readonly UiConfig TrueConfig = new(true);
+    private static CoreModule? _instance;
+
+    public static UiConfig UiConfig =>
+        _instance?._config.Data.HideInCombat ?? false ? TrueConfig : FalseConfig;
+
     private readonly ChangeLog _changelog;
     private readonly CoreConfig _config;
     private readonly List<HrtCommand> _registeredCommands = new();
@@ -18,12 +24,10 @@ internal class CoreModule : IHrtModule
 
     public CoreModule()
     {
-
-        WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
         Services = ServiceManager.GetServiceContainer(this);
         CoreLoc.Culture = new CultureInfo(Services.PluginInterface.UiLanguage);
         _wcw = new WelcomeWindow(this);
-        WindowSystem.AddWindow(_wcw);
+        Services.UiSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
         _changelog = new ChangeLog(this, new ChangelogOptionsWrapper(_config));
 
@@ -32,6 +36,7 @@ internal class CoreModule : IHrtModule
             AddCommand(command);
         }
         _config.OnConfigChange += OnConfigChange;
+        _instance = this;
     }
 
     private IEnumerable<HrtCommand> InternalCommands => new List<HrtCommand>
@@ -82,7 +87,6 @@ internal class CoreModule : IHrtModule
 
     public string InternalName => "Core";
     public IHrtConfiguration Configuration => _config;
-    public IWindowSystem WindowSystem { get; }
 
     public void HandleMessage(HrtUiMessage message)
     {
@@ -180,11 +184,7 @@ internal class CoreModule : IHrtModule
             Services.Logger.Error($"Argument {args} for command \"/hrt\" not recognized");
     }
 
-    private void OnConfigChange()
-    {
-        UiSystem.SetConfig(new UiConfig(_config.Data.HideInCombat));
-        Services.TaskManager.RunOnFrameworkThread(UpdateGearDataProviderConfig);
-    }
+    private void OnConfigChange() => Services.TaskManager.RunOnFrameworkThread(UpdateGearDataProviderConfig);
     private void UpdateGearDataProviderConfig()
     {
         int minILvl = (RestrictToCurrentTier: _config.Data.GearUpdateRestrictToCurrentTier,

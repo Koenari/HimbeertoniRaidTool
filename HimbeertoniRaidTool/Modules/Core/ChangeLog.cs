@@ -455,8 +455,7 @@ public class ChangeLog
     public ChangeLog(IHrtModule module, IConfigOptions config)
     {
         Config = config;
-        _ui = new ChangeLogUi(this);
-        module.WindowSystem.AddWindow(_ui);
+        _ui = new ChangeLogUi(module.Services.UiSystem, this);
         module.UiReady += OnStartup;
     }
     public static Version CurrentVersion => Entries[0].Version;

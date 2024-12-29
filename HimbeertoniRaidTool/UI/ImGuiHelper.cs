@@ -211,53 +211,6 @@ public static class ImGuiHelper
         ImGui.EndCombo();
         return result;
     }
-    //Credit to UnknownX
-    //Modified to have filtering of Excel sheet and be usable by keyboard only
-    public static bool ExcelSheetCombo<T>(string id, out T selected,
-                                          Func<ExcelSheet<T>, string> getPreview,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, flags);
-    public static bool ExcelSheetCombo<T>(string id, out T selected,
-                                          Func<ExcelSheet<T>, string> getPreview, Func<T, string, bool> searchPredicate,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, searchPredicate, flags);
-    public static bool ExcelSheetCombo<T>(string id, out T selected,
-                                          Func<ExcelSheet<T>, string> getPreview, Func<T, bool> preFilter,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, preFilter, flags);
-    public static bool ExcelSheetCombo<T>(string id, out T selected,
-                                          Func<ExcelSheet<T>, string> getPreview, Func<T, string, bool> searchPredicate,
-                                          Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
-        where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, searchPredicate, preFilter,
-                           flags);
-    public static bool ExcelSheetCombo<T>(string id, out T selected,
-                                          Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, toName,
-                           (t, s) => toName(t).Contains(s, StringComparison.CurrentCultureIgnoreCase), flags);
-    public static bool ExcelSheetCombo<T>(string id, out T selected,
-                                          Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
-                                          Func<T, string, bool> searchPredicate,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, toName, searchPredicate, _ => true, flags);
-    public static bool ExcelSheetCombo<T>(string id, out T selected,
-                                          Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
-                                          Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
-        where T : struct, IExcelRow<T>
-        => ExcelSheetCombo(id, out selected, getPreview, toName,
-                           (t, s) => toName(t).Contains(s, StringComparison.CurrentCultureIgnoreCase), preFilter,
-                           flags);
-    public static bool ExcelSheetCombo<T>(string id, out T selected,
-                                          Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
-                                          Func<T, string, bool> searchPredicate,
-                                          Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
-        where T : struct, IExcelRow<T>
-    {
-        var sheet = UiSystem.GetExcelSheet<T>();
-
-        return SearchableCombo(id, out selected, getPreview(sheet), sheet, toName, searchPredicate, preFilter, flags);
-    }
 
     public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
                                           IEnumerable<T> possibilities, Func<T, string> toName,

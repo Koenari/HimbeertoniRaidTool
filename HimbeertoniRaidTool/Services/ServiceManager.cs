@@ -7,14 +7,13 @@ using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
-using HimbeertoniRaidTool.Plugin.UI;
 
 #pragma warning disable CS8618
 namespace HimbeertoniRaidTool.Plugin.Services;
 
 public interface IModuleServiceContainer : IGlobalServiceContainer
 {
-    internal EditWindowFactory EditWindows { get; }
+
 }
 
 public interface IGlobalServiceContainer : IDisposable
@@ -37,35 +36,45 @@ public interface IGlobalServiceContainer : IDisposable
     internal ExamineGearDataProvider ExamineGearDataProvider { get; }
     internal OwnCharacterDataProvider OwnCharacterDataProvider { get; }
     internal INotificationManager NotificationManager { get; }
+    internal IUiSystem UiSystem { get; }
 
 }
 
-internal sealed class ModuleScopedServiceContainer(IHrtModule module, IGlobalServiceContainer globalServices)
-    : IModuleServiceContainer
+internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
 {
+    private readonly IGlobalServiceContainer _globalServices;
+    public ModuleScopedServiceContainer(IHrtModule module, IGlobalServiceContainer globalServices)
+    {
+        _globalServices = globalServices;
+        UiSystem = new ModuleScopedUiSystem(module, this);
+        PluginInterface.UiBuilder.Draw += UiSystem.Draw;
+    }
 
-    public IChatProvider Chat => globalServices.Chat;
-    public IDataManager DataManager => globalServices.DataManager;
-    public ITargetManager TargetManager => globalServices.TargetManager;
-    public IDalamudPluginInterface PluginInterface => globalServices.PluginInterface;
-    public IClientState ClientState => globalServices.ClientState;
-    public IObjectTable ObjectTable => globalServices.ObjectTable;
-    public IPartyList PartyList => globalServices.PartyList;
-    public ICondition Condition => globalServices.Condition;
-    public ILogger Logger => globalServices.Logger;
-    public IconCache IconCache => globalServices.IconCache;
-    public HrtDataManager HrtDataManager => globalServices.HrtDataManager;
-    public TaskManager TaskManager => globalServices.TaskManager;
-    public ConnectorPool ConnectorPool => globalServices.ConnectorPool;
-    public ConfigurationManager ConfigManager => globalServices.ConfigManager;
-    public CharacterInfoService CharacterInfoService => globalServices.CharacterInfoService;
-    public ExamineGearDataProvider ExamineGearDataProvider => globalServices.ExamineGearDataProvider;
-    public OwnCharacterDataProvider OwnCharacterDataProvider => globalServices.OwnCharacterDataProvider;
-    public INotificationManager NotificationManager => globalServices.NotificationManager;
+    public IChatProvider Chat => _globalServices.Chat;
+    public IDataManager DataManager => _globalServices.DataManager;
+    public ITargetManager TargetManager => _globalServices.TargetManager;
+    public IDalamudPluginInterface PluginInterface => _globalServices.PluginInterface;
+    public IClientState ClientState => _globalServices.ClientState;
+    public IObjectTable ObjectTable => _globalServices.ObjectTable;
+    public IPartyList PartyList => _globalServices.PartyList;
+    public ICondition Condition => _globalServices.Condition;
+    public ILogger Logger => _globalServices.Logger;
+    public IconCache IconCache => _globalServices.IconCache;
+    public HrtDataManager HrtDataManager => _globalServices.HrtDataManager;
+    public TaskManager TaskManager => _globalServices.TaskManager;
+    public ConnectorPool ConnectorPool => _globalServices.ConnectorPool;
+    public ConfigurationManager ConfigManager => _globalServices.ConfigManager;
+    public CharacterInfoService CharacterInfoService => _globalServices.CharacterInfoService;
+    public ExamineGearDataProvider ExamineGearDataProvider => _globalServices.ExamineGearDataProvider;
+    public OwnCharacterDataProvider OwnCharacterDataProvider => _globalServices.OwnCharacterDataProvider;
+    public INotificationManager NotificationManager => _globalServices.NotificationManager;
+    public IUiSystem UiSystem { get; }
 
-    public EditWindowFactory EditWindows { get; } = new(module);
-
-    public void Dispose() { }
+    public void Dispose()
+    {
+        PluginInterface.UiBuilder.Draw -= UiSystem.Draw;
+        UiSystem.RemoveAllWindows();
+    }
 }
 
 internal static class ServiceManager
@@ -105,20 +114,23 @@ internal static class ServiceManager
                                                                   ConnectorPool);
             OwnCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.ClientState,
                                                                     DalamudServices.Framework, Logger, HrtDataManager);
+            UiSystem = new GlobalUiSystem(this);
+            PluginInterface.UiBuilder.Draw += UiSystem.Draw;
             ConfigManager =
-                new ConfigurationManager(pluginInterface, Logger, HrtDataManager.ModuleConfigurationManager);
-            UiSystem.Initialize(IconCache, DataManager, Condition);
+                new ConfigurationManager(pluginInterface, this);
         }
 
         public void Dispose()
         {
+            PluginInterface.UiBuilder.Draw -= UiSystem.Draw;
+            UiSystem.RemoveAllWindows();
             ConnectorPool.Dispose();
             ConfigManager.Dispose();
             ExamineGearDataProvider.Dispose();
             OwnCharacterDataProvider.Dispose();
             TaskManager.Dispose();
         }
-
+        public IUiSystem UiSystem { get; }
         public IChatProvider Chat { get; }
         public IDataManager DataManager => DalamudServices.DataManager;
         public ITargetManager TargetManager => DalamudServices.TargetManager;

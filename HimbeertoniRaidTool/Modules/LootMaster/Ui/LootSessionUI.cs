@@ -15,7 +15,8 @@ internal class LootSessionUi : HrtWindow
     private readonly LootMasterModule _module;
     private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
 
-    internal LootSessionUi(LootMasterModule module, InstanceWithLoot lootSource, RaidGroup group)
+    internal LootSessionUi(LootMasterModule module, InstanceWithLoot lootSource, RaidGroup group) : base(
+        module.Services.UiSystem)
     {
         _module = module;
         _session = new LootSession(module, lootSource, group);

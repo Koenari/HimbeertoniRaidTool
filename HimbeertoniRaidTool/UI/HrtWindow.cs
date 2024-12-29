@@ -1,37 +1,14 @@
 ﻿using System.Numerics;
-using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Windowing;
-using Dalamud.Plugin.Services;
 using ImGuiNET;
-using Lumina.Excel;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-public static class UiSystem
-{
-    private static IconCache? _iconCache;
-    private static IDataManager? _dataManager;
-    private static ICondition? _condition;
-    private static UiConfig _uiConfig = UiConfig.Default;
-
-    public static void Initialize(IconCache iconCache, IDataManager dataManager, ICondition condition)
-    {
-        _iconCache = iconCache;
-        _dataManager = dataManager;
-        _condition = condition;
-    }
-    public static void SetConfig(UiConfig config) => _uiConfig = config;
-    public static IDalamudTextureWrap? GetIcon(uint id, bool isHq = false) => _iconCache?.LoadIcon(id, isHq);
-    public static ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType> =>
-        _dataManager?.GetExcelSheet<TType>() ?? throw new NullReferenceException("UiSystem was not initialized");
-
-    public static bool DrawConditionsMet() =>
-        !(_uiConfig.HideInCombat && (_condition?[ConditionFlag.InCombat] ?? false))
-     && !(_condition?[ConditionFlag.BetweenAreas] ?? false);
-}
-
-public abstract class HrtWindowWithModalChild : HrtWindow
+public abstract class HrtWindowWithModalChild(
+    IUiSystem uiSystem,
+    string? id = null,
+    ImGuiWindowFlags flags = ImGuiWindowFlags.None)
+    : HrtWindow(uiSystem, id, flags)
 {
     private HrtWindow? _modalChild;
     protected HrtWindow? ModalChild
@@ -84,13 +61,16 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     protected Vector2 MaxSize = ImGui.GetIO().DisplaySize * 0.9f;
     protected Vector2 MinSize = default;
     protected bool OpenCentered;
-    protected string Title;
+    protected string Title = "";
+    public bool Persistent { get; protected set; } = false;
+    protected IUiSystem UiSystem { get; }
 
-    protected HrtWindow(string? id = null, ImGuiWindowFlags flags = ImGuiWindowFlags.None) : base(
+    protected HrtWindow(IUiSystem uiSystem, string? id = null, ImGuiWindowFlags flags = ImGuiWindowFlags.None) : base(
         id ?? $"##{Guid.NewGuid()}", flags)
     {
+        UiSystem = uiSystem;
         _id = WindowName;
-        Title = "";
+        IsOpen = true;
     }
     public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
     public bool Equals(HrtWindow? other) => _id.Equals(other?._id);
@@ -148,10 +128,10 @@ public readonly struct UiConfig(bool hideInCombat)
 
 }
 
-public class HrtUiMessage(string msg, HrtUiMessageType msgType = HrtUiMessageType.Info)
+public readonly struct HrtUiMessage(string msg, HrtUiMessageType msgType = HrtUiMessageType.Info)
 {
-    public string Message = msg;
-    public HrtUiMessageType MessageType = msgType;
+    public readonly string Message = msg;
+    public readonly HrtUiMessageType MessageType = msgType;
     public static HrtUiMessage Empty => new("", HrtUiMessageType.Discard);
 }
 

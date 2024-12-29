@@ -20,12 +20,11 @@ internal sealed class LootMasterModule : IHrtModule
     internal readonly LootMasterConfiguration ConfigImpl;
     public LootMasterModule()
     {
-        WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
         Services = ServiceManager.GetServiceContainer(this);
         LootmasterLoc.Culture = new CultureInfo(Services.PluginInterface.UiLanguage);
         ConfigImpl = new LootMasterConfiguration(this);
         _ui = new LootmasterUi(this);
-        WindowSystem.AddWindow(_ui);
+        Services.UiSystem.AddWindow(_ui);
         Services.ClientState.Login += OnLogin;
 
     }
@@ -36,8 +35,6 @@ internal sealed class LootMasterModule : IHrtModule
     public string InternalName => "LootMaster";
     public IHrtConfiguration Configuration => ConfigImpl;
     public string Description => "";
-    public IWindowSystem WindowSystem { get; }
-
     public IModuleServiceContainer Services { get; }
     public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>

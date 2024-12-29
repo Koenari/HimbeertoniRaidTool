@@ -14,29 +14,19 @@ public class ConfigurationManager : IDisposable
 {
     private readonly Dictionary<Type, IHrtConfiguration> _configurations = new();
     private readonly ConfigUi _ui;
-    private readonly IWindowSystem _windowSystem;
     private readonly IDalamudPluginInterface _pluginInterface;
-    private readonly ILogger _logger;
-    private readonly IModuleConfigurationManager _moduleConfigurationManager;
+    private readonly IGlobalServiceContainer _services;
 
-    internal ConfigurationManager(IDalamudPluginInterface pluginInterface, ILogger logger,
-                                  IModuleConfigurationManager moduleConfigurationManager)
+    internal ConfigurationManager(IDalamudPluginInterface pluginInterface, IGlobalServiceContainer services)
     {
         _pluginInterface = pluginInterface;
-        _logger = logger;
-        _moduleConfigurationManager = moduleConfigurationManager;
-        _windowSystem = new DalamudWindowSystem(new WindowSystem("HRTConfig"));
+        _services = services;
         _ui = new ConfigUi(this);
-        _windowSystem.AddWindow(_ui);
+        _services.UiSystem.AddWindow(_ui);
         _pluginInterface.UiBuilder.OpenConfigUi += Show;
-        _pluginInterface.UiBuilder.Draw += _windowSystem.Draw;
     }
 
-    public void Dispose()
-    {
-        _pluginInterface.UiBuilder.OpenConfigUi -= Show;
-        _pluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
-    }
+    public void Dispose() => _pluginInterface.UiBuilder.OpenConfigUi -= Show;
 
     internal void Show() => _ui.Show();
 
@@ -45,16 +35,16 @@ public class ConfigurationManager : IDisposable
         if (_configurations.ContainsKey(config.GetType()))
             return false;
         _configurations.Add(config.GetType(), config);
-        _logger.Debug($"Registered {config.ParentInternalName} config");
-        return config.Load(_moduleConfigurationManager);
+        _services.Logger.Debug($"Registered {config.ParentInternalName} config");
+        return config.Load(_services.HrtDataManager.ModuleConfigurationManager);
     }
 
     internal void Save()
     {
         foreach (var config in _configurations.Values)
         {
-            _logger.Debug($"Saved {config.ParentInternalName} config");
-            config.Save(_moduleConfigurationManager);
+            _services.Logger.Debug($"Saved {config.ParentInternalName} config");
+            config.Save(_services.HrtDataManager.ModuleConfigurationManager);
         }
     }
 
@@ -62,15 +52,15 @@ public class ConfigurationManager : IDisposable
     {
         private readonly ConfigurationManager _configManager;
 
-        public ConfigUi(ConfigurationManager configManager) : base("HimbeerToniRaidToolConfiguration")
+        public ConfigUi(ConfigurationManager configManager) : base(configManager._services.UiSystem,
+                                                                   "HimbeerToniRaidToolConfiguration")
         {
-
             _configManager = configManager;
-
             (Size, SizeCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);
             Flags = ImGuiWindowFlags.NoCollapse;
             Title = GeneralLoc.ConfigUi_Title;
             IsOpen = false;
+            Persistent = true;
         }
 
         public override void OnOpen()

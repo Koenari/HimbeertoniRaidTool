@@ -43,9 +43,8 @@ public sealed class HrtPlugin : IDalamudPlugin
         {
             try
             {
-                _services.PluginInterface.UiBuilder.Draw -= module.WindowSystem.Draw;
-                module.WindowSystem.RemoveAllWindows();
                 module.Dispose();
+                module.Services.Dispose();
             }
             catch (Exception e)
             {
@@ -101,7 +100,7 @@ public sealed class HrtPlugin : IDalamudPlugin
                 module.Configuration.AfterLoad();
             else
                 _services.Logger.Error($"Configuration load error:{module.Name}");
-            _services.PluginInterface.UiBuilder.Draw += module.WindowSystem.Draw;
+            _services.PluginInterface.UiBuilder.Draw += module.Services.UiSystem.Draw;
             _services.Logger.Debug($"Calling {module.InternalName}.AfterFullyLoaded()");
             module.AfterFullyLoaded();
             _services.Logger.Information($"Successfully loaded module: {module.Name}");

@@ -17,11 +17,16 @@ internal class RaidGroupDb(IIdProvider idProvider, IEnumerable<JsonConverter> co
         }
         return referencedIds;
     }
-    public override HrtWindow OpenSearchWindow(Action<RaidGroup> onSelect, Action? onCancel = null) =>
-        new GroupSearchWindow(this, onSelect, onCancel);
+    public override HrtWindow
+        OpenSearchWindow(IUiSystem uiSystem, Action<RaidGroup> onSelect, Action? onCancel = null) =>
+        new GroupSearchWindow(uiSystem, this, onSelect, onCancel);
 
-    internal class GroupSearchWindow(RaidGroupDb dataBase, Action<RaidGroup> onSelect, Action? onCancel)
-        : SearchWindow<RaidGroup, RaidGroupDb>(dataBase,
+    internal class GroupSearchWindow(
+        IUiSystem uiSystem,
+        RaidGroupDb dataBase,
+        Action<RaidGroup> onSelect,
+        Action? onCancel)
+        : SearchWindow<RaidGroup, RaidGroupDb>(uiSystem, dataBase,
                                                onSelect, onCancel)
     {
 

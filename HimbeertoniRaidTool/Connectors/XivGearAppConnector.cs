@@ -65,14 +65,14 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
     }
     public HrtUiMessage UpdateGearSet(GearSet set)
     {
-        HrtUiMessage errorMessage = new(string.Format(GeneralLoc.XivGearAppConnector_GetGearSet_Error, set.Name),
-                                        HrtUiMessageType.Failure);
+        HrtUiMessage failureMessage = new(string.Format(GeneralLoc.XivGearAppConnector_GetGearSet_Error, set.Name),
+                                          HrtUiMessageType.Failure);
         if (set.ExternalId.Equals(""))
-            return errorMessage;
-        errorMessage.Message = $"{errorMessage.Message} ({set.ExternalId})";
+            return failureMessage;
+        failureMessage = new HrtUiMessage($"{failureMessage.Message} ({set.ExternalId})", HrtUiMessageType.Failure);
         var httpResponse = MakeWebRequest(GEAR_API_BASE_URL + set.ExternalId);
         if (httpResponse == null)
-            return errorMessage;
+            return failureMessage;
         if (httpResponse.StatusCode == HttpStatusCode.NotFound)
         {
             set.ManagedBy = GearSetManager.Hrt;
@@ -98,7 +98,7 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
             xivSet = JsonConvert.DeserializeObject<XivGearSet>(readTask.Result, JsonSettings);
         }
         if (xivSet == null)
-            return errorMessage;
+            return failureMessage;
         set.Name = xivSet.name ?? "";
         set.TimeStamp = DateTime.UnixEpoch.AddMilliseconds(xivSet.timestamp);
         set.LastExternalFetchDate = DateTime.UtcNow;

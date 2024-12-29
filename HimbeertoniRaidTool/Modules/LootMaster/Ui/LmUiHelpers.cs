@@ -62,21 +62,22 @@ internal static class LmUiHelpers
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_Add_new))
             {
-                module.Services.EditWindows.Create(new GearSet(), changeCallback, null, null, job);
+                module.Services.UiSystem.EditWindows.Create(new GearSet(), changeCallback, null, null, job);
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_AddFromDB))
             {
-                module.WindowSystem.AddWindow(module.Services.HrtDataManager.GearDb.OpenSearchWindow(changeCallback));
+                module.Services.UiSystem.AddWindow(
+                    module.Services.HrtDataManager.GearDb.OpenSearchWindow(module.Services.UiSystem, changeCallback));
             }
             ImGui.EndCombo();
         }
         if (ImGui.CalcTextSize(current.Name).X > width)
             ImGuiHelper.AddTooltip(current.Name);
     }
-    internal static void DrawSlot(LootMasterConfiguration.ConfigData config, GearItem item,
+    internal static void DrawSlot(LootMasterModule module, GearItem item,
                                   SlotDrawFlags style = SlotDrawFlags.SingleItem | SlotDrawFlags.SimpleView)
-        => DrawSlot(config, (item, GearItem.Empty), style);
-    internal static void DrawSlot(LootMasterConfiguration.ConfigData config, (GearItem, GearItem) itemTuple,
+        => DrawSlot(module, (item, GearItem.Empty), style);
+    internal static void DrawSlot(LootMasterModule module, (GearItem, GearItem) itemTuple,
                                   SlotDrawFlags style = SlotDrawFlags.Default)
     {
         float originalY = ImGui.GetCursorPosY();
@@ -88,7 +89,7 @@ internal static class LmUiHelpers
         float cursorSingleLarge = originalY + fullLineHeight * 0.7f + lineSpacing;
         bool extended = style.HasFlag(SlotDrawFlags.ExtendedView);
         bool singleItem = style.HasFlag(SlotDrawFlags.SingleItem);
-        var comparisonMode = config.IgnoreMateriaForBiS
+        var comparisonMode = module.ConfigImpl.Data.IgnoreMateriaForBiS
             ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full;
         var (item, bis) = itemTuple;
         if (!item.Filled && !bis.Filled)
@@ -139,9 +140,9 @@ internal static class LmUiHelpers
         {
             if (itemToDraw.Filled)
             {
-                if (extended || config.ShowIconInGroupOverview)
+                if (extended || module.ConfigImpl.Data.ShowIconInGroupOverview)
                 {
-                    var icon = UiSystem.GetIcon(itemToDraw.Icon, itemToDraw.IsHq);
+                    var icon = module.Services.UiSystem.GetIcon(itemToDraw.Icon, itemToDraw.IsHq);
                     if (icon is not null)
                     {
                         Vector2 iconSize = new(ImGui.GetTextLineHeightWithSpacing()
@@ -150,13 +151,13 @@ internal static class LmUiHelpers
                         ImGui.SameLine();
                     }
                 }
-                string toDraw = string.Format(config.ItemFormatString,
+                string toDraw = string.Format(module.ConfigImpl.Data.ItemFormatString,
                                               itemToDraw.ItemLevel,
                                               itemToDraw.Source().FriendlyName(),
                                               itemToDraw.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
                 if (extended) ImGui.SetCursorPosY(ImGui.GetCursorPosY() + fullLineHeight * (multiLine ? 0.7f : 0.2f));
-                Action<string> drawText = config.ColoredItemNames
-                    ? t => ImGui.TextColored(LevelColor(config, itemToDraw), t)
+                Action<string> drawText = module.ConfigImpl.Data.ColoredItemNames
+                    ? t => ImGui.TextColored(LevelColor(module.ConfigImpl.Data, itemToDraw), t)
                     : ImGui.Text;
                 drawText(toDraw);
                 if (!extended || !itemToDraw.Materia.Any())

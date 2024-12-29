@@ -13,7 +13,6 @@ using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Model.Parseables.Character.Gear;
 using NetStone.Search.Character;
-using LuminaItem = Lumina.Excel.Sheets.Item;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 

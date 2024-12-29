@@ -56,8 +56,8 @@ internal class GearDb : DataBaseTable<GearSet>
     }
 
     public override HashSet<HrtId> GetReferencedIds() => new(Data.Keys);
-    public override HrtWindow OpenSearchWindow(Action<GearSet> onSelect, Action? onCancel = null) =>
-        new GearSearchWindow(this, onSelect, onCancel);
+    public override HrtWindow OpenSearchWindow(IUiSystem uiSystem, Action<GearSet> onSelect, Action? onCancel = null) =>
+        new GearSearchWindow(uiSystem, this, onSelect, onCancel);
 
     private class GearSearchWindow : SearchWindow<GearSet, GearDb>
     {
@@ -67,8 +67,8 @@ internal class GearDb : DataBaseTable<GearSet>
         private GearSetManager _manager = GearSetManager.Unknown;
         private string _searchTerm = string.Empty;
 
-        public GearSearchWindow(GearDb dataBase, Action<GearSet> onSelect, Action? onCancel) : base(
-            dataBase, onSelect, onCancel)
+        public GearSearchWindow(IUiSystem uiSystem, GearDb dataBase, Action<GearSet> onSelect, Action? onCancel) : base(
+            uiSystem, dataBase, onSelect, onCancel)
         {
             Size = new Vector2(800, 400);
             SizeCondition = ImGuiCond.Appearing;

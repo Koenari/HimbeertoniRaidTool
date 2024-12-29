@@ -7,20 +7,15 @@ using Lumina.Excel;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-internal abstract class SelectItemWindow<T> : HrtWindow where T : Item
+internal abstract class SelectItemWindow<T>(IUiSystem uiSystem, Action<T> onSave, Action<T?> onCancel) : HrtWindow(
+    uiSystem,
+    null, ImGuiWindowFlags.NoCollapse)
+    where T : Item
 {
     // ReSharper disable once StaticMemberInGenericType
-    protected static readonly ExcelSheet<Lumina.Excel.Sheets.Item> Sheet =
-        UiSystem.GetExcelSheet<Lumina.Excel.Sheets.Item>();
-    private readonly Action<T?> _onCancel;
-    private readonly Action<T> _onSave;
+    protected ExcelSheet<LuminaItem> Sheet =>
+        UiSystem.GetExcelSheet<LuminaItem>();
     protected T? Item;
-
-    internal SelectItemWindow(Action<T> onSave, Action<T?> onCancel)
-    {
-        (_onSave, _onCancel) = (onSave, onCancel);
-        Flags = ImGuiWindowFlags.NoCollapse;
-    }
     protected virtual bool CanSave { get; set; } = true;
 
 
@@ -40,15 +35,15 @@ internal abstract class SelectItemWindow<T> : HrtWindow where T : Item
         if (item != null)
             Item = item;
         if (Item != null)
-            _onSave(Item);
+            onSave(Item);
         else
-            _onCancel(Item);
+            onCancel(Item);
         Hide();
     }
 
     protected void Cancel()
     {
-        _onCancel(Item);
+        onCancel(Item);
         Hide();
     }
 
@@ -59,9 +54,9 @@ internal class SelectFoodItemWindow : SelectItemWindow<FoodItem>
 {
     private int _maxILvl;
     private int _minILvl;
-    public SelectFoodItemWindow(Action<FoodItem> onSave, Action<FoodItem?> onCancel, FoodItem? currentItem = null,
-                                int minItemLevel = 0) :
-        base(onSave, onCancel)
+    public SelectFoodItemWindow(IUiSystem uiSystem, Action<FoodItem> onSave, Action<FoodItem?> onCancel,
+                                FoodItem? currentItem = null,
+                                int minItemLevel = 0) : base(uiSystem, onSave, onCancel)
     {
         Item = currentItem;
         _maxILvl = 0;
@@ -129,14 +124,15 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
 {
     private readonly bool _lockJob;
     private readonly bool _lockSlot;
-    private List<Lumina.Excel.Sheets.Item> _items;
+    private List<LuminaItem> _items;
     private Job? _job;
     private int _maxILvl;
     private int _minILvl;
     private IEnumerable<GearSetSlot> _slots;
 
-    public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? currentItem = null,
-                                GearSetSlot? slot = null, Job? job = null, int maxItemLevel = 0) : base(
+    public SelectGearItemWindow(IUiSystem uiSystem, Action<GearItem> onSave, Action<GearItem?> onCancel,
+                                GearItem? currentItem = null,
+                                GearSetSlot? slot = null, Job? job = null, int maxItemLevel = 0) : base(uiSystem,
         onSave, onCancel)
     {
         Item = currentItem;
@@ -234,7 +230,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         }
     }
 
-    private List<Lumina.Excel.Sheets.Item> ReevaluateItems()
+    private List<LuminaItem> ReevaluateItems()
     {
         _items = Sheet.Where(x =>
                                  x.ClassJobCategory.RowId != 0
@@ -271,8 +267,9 @@ internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
         }
     }
 
-    public SelectMateriaWindow(Action<MateriaItem> onSave, Action<MateriaItem?> onCancel, MateriaLevel maxMatLvl,
-                               MateriaLevel? matLevel = null) : base(onSave, onCancel)
+    public SelectMateriaWindow(IUiSystem uiSystem, Action<MateriaItem> onSave, Action<MateriaItem?> onCancel,
+                               MateriaLevel maxMatLvl,
+                               MateriaLevel? matLevel = null) : base(uiSystem, onSave, onCancel)
     {
         _maxLvl = matLevel ?? maxMatLvl;
         Title = GeneralLoc.SelectMateriaUi_Title;

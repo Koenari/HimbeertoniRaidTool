@@ -23,7 +23,8 @@ internal class InventoryWindow : HrtWindowWithModalChild
     private Wallet Wallet => _character.Wallet;
 
     private static readonly Vector2 IconSize = new(ImGui.GetTextLineHeightWithSpacing());
-    internal InventoryWindow(Character c, CharacterInfoService characterInfoService)
+    internal InventoryWindow(IUiSystem uiSystem, Character c, CharacterInfoService characterInfoService) :
+        base(uiSystem)
     {
         _characterInfoService = characterInfoService;
         Size = new Vector2(400f, 550f);
@@ -114,7 +115,7 @@ internal class InventoryWindow : HrtWindowWithModalChild
 
         ImGui.BeginDisabled(ChildIsOpen);
         if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##add", null, true, IconSize * ScaleFactor))
-            ModalChild = new SelectGearItemWindow(item => Inventory.ReserveSlot(item, 1),
+            ModalChild = new SelectGearItemWindow(UiSystem, item => Inventory.ReserveSlot(item, 1),
                                                   _ => { },
                                                   null, null, null,
                                                   GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel

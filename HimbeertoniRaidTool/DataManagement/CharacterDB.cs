@@ -55,8 +55,9 @@ internal class CharacterDb(
         }
     }
 
-    public override HrtWindow OpenSearchWindow(Action<Character> onSelect, Action? onCancel = null) =>
-        new CharacterSearchWindow(this, onSelect, onCancel, dataManager);
+    public override HrtWindow
+        OpenSearchWindow(IUiSystem uiSystem, Action<Character> onSelect, Action? onCancel = null) =>
+        new CharacterSearchWindow(uiSystem, this, onSelect, onCancel, dataManager);
 
     private class CharacterSearchWindow : SearchWindow<Character, CharacterDb>
     {
@@ -68,9 +69,10 @@ internal class CharacterDb(
             _worldCache.TryGetValue(idx, out string? name) ? name : _worldCache[idx] =
                 _dataManager.GetExcelSheet<World>().GetRow(idx).Name.ExtractText();
 
-        public CharacterSearchWindow(CharacterDb dataBase, Action<Character> onSelect, Action? onCancel,
-                                     IDataManager dataManager) : base(
-            dataBase, onSelect, onCancel)
+        public CharacterSearchWindow(IUiSystem uiSystem, CharacterDb dataBase, Action<Character> onSelect,
+                                     Action? onCancel,
+                                     IDataManager dataManager) : base(uiSystem,
+                                                                      dataBase, onSelect, onCancel)
         {
             _dataManager = dataManager;
             Title = GeneralLoc.GetCharacterWindow_Title;

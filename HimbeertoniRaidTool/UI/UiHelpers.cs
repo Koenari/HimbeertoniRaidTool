@@ -3,11 +3,11 @@ using Dalamud.Interface;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using LuminaItem = Lumina.Excel.Sheets.Item;
+using Lumina.Excel;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-internal static class UiHelpers
+public class UiHelpers(IUiSystem uiSystem)
 {
     private static readonly Vector2 MaxMateriaCatSize;
     private static readonly Vector2 MaxMateriaLevelSize;
@@ -19,10 +19,10 @@ internal static class UiHelpers
         MaxMateriaLevelSize =
             ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
     }
-    public static void DrawFoodEdit(HrtWindowWithModalChild parent, FoodItem? item, Action<FoodItem?> onItemChange)
+    public void DrawFoodEdit(HrtWindowWithModalChild parent, FoodItem? item, Action<FoodItem?> onItemChange)
     {
         //LuminaItem Icon with Info
-        var icon = item is null ? null : UiSystem.GetIcon(item.Icon);
+        var icon = item is null ? null : uiSystem.GetIcon(item.Icon);
         if (icon is not null)
         {
             ImGui.Image(icon.ImGuiHandle, new Vector2(24, 24));
@@ -37,9 +37,9 @@ internal static class UiHelpers
         }
         //Quick select
         string itemName = item?.Name ?? string.Empty;
-        if (ImGuiHelper.ExcelSheetCombo($"##Food", out LuminaItem outItem, _ => itemName,
-                                        i => i.Name.ExtractText(), ItemExtensions.IsFood,
-                                        ImGuiComboFlags.NoArrowButton))
+        if (ExcelSheetCombo($"##Food", out LuminaItem outItem, _ => itemName,
+                            i => i.Name.ExtractText(), ItemExtensions.IsFood,
+                            ImGuiComboFlags.NoArrowButton))
         {
             onItemChange(new FoodItem(outItem.RowId));
         }
@@ -49,7 +49,8 @@ internal static class UiHelpers
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"FoodChangeItem",
                                    GeneralLoc.EditGearSetUi_btn_tt_selectItem))
-                parent.AddChild(new SelectFoodItemWindow(onItemChange, _ => { }, item,
+                parent.AddChild(new SelectFoodItemWindow(uiSystem, onItemChange, _ => { },
+                                                         item,
                                                          GameInfo.PreviousSavageTier
                                                                  ?.ItemLevel(GearSetSlot.Body) + 10 ?? 0));
             ImGui.EndDisabled();
@@ -62,11 +63,11 @@ internal static class UiHelpers
         }
     }
 
-    public static void DrawGearEdit(HrtWindowWithModalChild parent, GearSetSlot slot,
-                                    GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
+    public void DrawGearEdit(HrtWindowWithModalChild parent, GearSetSlot slot,
+                             GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {
         //LuminaItem Icon with Info
-        var icon = UiSystem.GetIcon(item.Icon);
+        var icon = uiSystem.GetIcon(item.Icon);
         if (icon is not null)
         {
             ImGui.Image(icon.ImGuiHandle, new Vector2(24, 24));
@@ -81,8 +82,8 @@ internal static class UiHelpers
         }
         //Quick select
         string itemName = item.Name;
-        if (ImGuiHelper.ExcelSheetCombo($"##NewGear{slot}", out LuminaItem outItem, _ => itemName,
-                                        i => i.Name.ExtractText(), IsApplicable, ImGuiComboFlags.NoArrowButton))
+        if (ExcelSheetCombo($"##NewGear{slot}", out LuminaItem outItem, _ => itemName,
+                            i => i.Name.ExtractText(), IsApplicable, ImGuiComboFlags.NoArrowButton))
         {
             onItemChange(new GearItem(outItem.RowId));
         }
@@ -92,7 +93,7 @@ internal static class UiHelpers
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}changeItem",
                                    GeneralLoc.EditGearSetUi_btn_tt_selectItem))
-                parent.AddChild(new SelectGearItemWindow(onItemChange, _ => { }, item, slot, curJob,
+                parent.AddChild(new SelectGearItemWindow(uiSystem, onItemChange, _ => { }, item, slot, curJob,
                                                          GameInfo.CurrentExpansion.CurrentSavage?.ItemLevel(slot)
                                                       ?? 0));
             ImGui.EndDisabled();
@@ -144,7 +145,7 @@ internal static class UiHelpers
                                                            - ImGui.GetTextLineHeight()) * 2);
 
             var mat = item.Materia.Skip(i).First();
-            var matIcon = UiSystem.GetIcon(mat.Icon);
+            var matIcon = uiSystem.GetIcon(mat.Icon);
             if (matIcon is not null)
             {
                 ImGui.Image(matIcon.ImGuiHandle, new Vector2(24, 24));
@@ -197,7 +198,7 @@ internal static class UiHelpers
             var levelToAdd = item.MaxAffixableMateriaLevel();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}addMat", GeneralLoc.Ui_GearEdit_btn_tt_selectMat))
             {
-                parent.AddChild(new SelectMateriaWindow(item.AddMateria, _ => { }, levelToAdd));
+                parent.AddChild(new SelectMateriaWindow(uiSystem, item.AddMateria, _ => { }, levelToAdd));
             }
             ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
@@ -226,5 +227,53 @@ internal static class UiHelpers
             return itemToCheck.ClassJobCategory.Value.Contains(curJob)
                 && itemToCheck.EquipSlotCategory.Value.Contains(slot);
         }
+    }
+    //Credit to UnknownX
+    //Modified to have filtering of Excel sheet and be usable by keyboard only
+    public bool ExcelSheetCombo<T>(string id, out T selected,
+                                   Func<ExcelSheet<T>, string> getPreview,
+                                   ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, flags);
+    public bool ExcelSheetCombo<T>(string id, out T selected,
+                                   Func<ExcelSheet<T>, string> getPreview, Func<T, string, bool> searchPredicate,
+                                   ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, searchPredicate, flags);
+    public bool ExcelSheetCombo<T>(string id, out T selected,
+                                   Func<ExcelSheet<T>, string> getPreview, Func<T, bool> preFilter,
+                                   ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, preFilter, flags);
+    public bool ExcelSheetCombo<T>(string id, out T selected,
+                                   Func<ExcelSheet<T>, string> getPreview, Func<T, string, bool> searchPredicate,
+                                   Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
+        where T : struct, IExcelRow<T>
+        => ExcelSheetCombo(id, out selected, getPreview, t => t.ToString() ?? string.Empty, searchPredicate, preFilter,
+                           flags);
+    public bool ExcelSheetCombo<T>(string id, out T selected,
+                                   Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
+                                   ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
+        => ExcelSheetCombo(id, out selected, getPreview, toName,
+                           (t, s) => toName(t).Contains(s, StringComparison.CurrentCultureIgnoreCase), flags);
+    public bool ExcelSheetCombo<T>(string id, out T selected,
+                                   Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
+                                   Func<T, string, bool> searchPredicate,
+                                   ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
+        => ExcelSheetCombo(id, out selected, getPreview, toName, searchPredicate, _ => true, flags);
+    public bool ExcelSheetCombo<T>(string id, out T selected,
+                                   Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
+                                   Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
+        where T : struct, IExcelRow<T>
+        => ExcelSheetCombo(id, out selected, getPreview, toName,
+                           (t, s) => toName(t).Contains(s, StringComparison.CurrentCultureIgnoreCase), preFilter,
+                           flags);
+    public bool ExcelSheetCombo<T>(string id, out T selected,
+                                   Func<ExcelSheet<T>, string> getPreview, Func<T, string> toName,
+                                   Func<T, string, bool> searchPredicate,
+                                   Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
+        where T : struct, IExcelRow<T>
+    {
+        var sheet = uiSystem.GetExcelSheet<T>();
+
+        return ImGuiHelper.SearchableCombo(id, out selected, getPreview(sheet), sheet, toName, searchPredicate,
+                                           preFilter, flags);
     }
 }
