@@ -223,7 +223,13 @@
   <data name="ItemTable_heading_Header" xml:space="preserve">
         <value>ヘッダ</value>
     </data>
+  <data name="CommonTerms_itemLevel" xml:space="preserve">
+        <value>アイテムレベル</value>
+    </data>
   <data name="ItemTable_heading_LootedIn" xml:space="preserve">
         <value>獲得された</value>
+    </data>
+  <data name="Ui_btn_tt_addEmpty" xml:space="preserve">
+        <value>空の{0}を追加</value>
     </data>
 </root>
