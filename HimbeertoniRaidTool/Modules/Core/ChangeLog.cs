@@ -8,6 +8,22 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 8, 0, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(
+                    Gear,
+                    "GearSets now support selection of food. You need to update all set from etro.gg and XivGear.app to get the food"),
+                new ChangeLogEntry(Options, "You can trigger updates for all gear sets from the options"),
+                new ChangeLogEntry(Bugfix, "XivGear.app sets now behave as expected (on update and edit)"),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.System,
+                                   "A lot of changes on underlying systems. If you notice anything behaving strangely let me know via the official discord"),
+            },
+        },
         new(new Version(1, 7, 0, 0))
         {
             NotableFeatures =
