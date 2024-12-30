@@ -8,6 +8,10 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 8, 0, 1))
+        {
+            MinorFeatures = { new ChangeLogEntry(Bugfix, "Fix Gear/BiS equality with materia enabled") },
+        },
         new(new Version(1, 8, 0, 0))
         {
             NotableFeatures =
