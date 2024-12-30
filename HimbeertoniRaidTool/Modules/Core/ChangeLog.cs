@@ -10,7 +10,13 @@ public class ChangeLog
     {
         new(new Version(1, 8, 0, 1))
         {
-            MinorFeatures = { new ChangeLogEntry(Bugfix, "Fix Gear/BiS equality with materia enabled") },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "Added food information wherever relevant"),
+                new ChangeLogEntry(UserInterface, "Tooltips for food now contain the food's effects"),
+                new ChangeLogEntry(Bugfix, "Fix Gear/BiS equality with materia enabled"),
+                new ChangeLogEntry(Bugfix, "Fixed crash on startup in certain cases"),
+            },
         },
         new(new Version(1, 8, 0, 0))
         {
