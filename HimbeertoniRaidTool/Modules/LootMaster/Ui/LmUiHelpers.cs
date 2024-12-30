@@ -311,4 +311,26 @@ internal static class LmUiHelpers
             ImGui.TableHeadersRow();
         }
     }
+    public static void DrawFood(IUiSystem uiSystem, FoodItem? food)
+    {
+        if (food is not null)
+        {
+            ImGui.BeginGroup();
+            ImGui.Image(uiSystem.GetIcon(food).ImGuiHandle,
+                        new Vector2(ImGui.GetTextLineHeightWithSpacing() * 1.4f));
+            ImGui.SameLine();
+            ImGui.Text(food.ToString());
+            ImGui.EndGroup();
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                food.Draw();
+                ImGui.EndTooltip();
+            }
+        }
+        else
+        {
+            ImGui.Text("No Food");
+        }
+    }
 }

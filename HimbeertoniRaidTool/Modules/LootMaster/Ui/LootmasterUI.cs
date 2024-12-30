@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
@@ -67,7 +68,7 @@ internal class LootmasterUi : HrtWindow
     private void DrawDetailedPlayer(Player p)
     {
         var curClass = p.MainChar.MainClass;
-        ImGui.BeginChild("##SoloView");
+        using var outerChild = ImRaii.Child("##SoloView");
         ImGui.Columns(3);
         /*
          * Job Selection
@@ -175,55 +176,71 @@ internal class LootmasterUi : HrtWindow
          */
         ImGui.NextColumn();
         ImGui.Spacing();
-        if (ImGui.BeginChild("##soloGearChild"))
+        // ReSharper disable once ConvertToUsingDeclaration
+        using (var gearChild = ImRaii.Child("##soloGearChild"))
         {
-            if (ImGui.BeginTable("##soloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders))
+            if (!gearChild) return;
+            using (var table =
+                   ImRaii.Table("##soloGear", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders))
             {
-                ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.CapitalizedSentence());
-                ImGui.TableSetupColumn("");
-                ImGui.TableHeadersRow();
-                if (curClass is not null)
+                if (table)
                 {
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.MainHand], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.OffHand], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.Head], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.Ear], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.Body], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.Neck], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.Hands], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.Wrist], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.Legs], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.Ring1], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.Feet], SlotDrawFlags.ExtendedView);
-                    ImGui.TableNextColumn();
-                    DrawSlot(curClass[GearSetSlot.Ring2], SlotDrawFlags.ExtendedView);
-                }
-                else
-                {
-                    for (int i = 0; i < GearSet.NUM_SLOTS; i++)
+                    ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.CapitalizedSentence());
+                    ImGui.TableSetupColumn("");
+                    ImGui.TableHeadersRow();
+                    if (curClass is not null)
                     {
                         ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.MainHand], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.OffHand], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.Head], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.Ear], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.Body], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.Neck], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.Hands], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.Wrist], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.Legs], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.Ring1], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.Feet], SlotDrawFlags.ExtendedView);
+                        ImGui.TableNextColumn();
+                        DrawSlot(curClass[GearSetSlot.Ring2], SlotDrawFlags.ExtendedView);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < GearSet.NUM_SLOTS; i++)
+                        {
+                            ImGui.TableNextColumn();
+                        }
                     }
                 }
-
-                ImGui.EndTable();
             }
-            ImGui.EndChild();
+            using (var table =
+                   ImRaii.Table("##soloFood", 2, ImGuiTableFlags.Borders))
+            {
+                if (table)
+                {
+                    ImGui.TableSetupColumn(
+                        $"{GeneralLoc.CommonTerms_Food} ({GeneralLoc.CommonTerms_Gear.CapitalizedSentence()})");
+                    ImGui.TableSetupColumn(
+                        $"{GeneralLoc.CommonTerms_Food} ({GeneralLoc.CommonTerms_BiS.CapitalizedSentence()})");
+                    ImGui.TableHeadersRow();
+                    ImGui.TableNextColumn();
+                    LmUiHelpers.DrawFood(UiSystem, curClass?.CurGear.Food);
+                    ImGui.TableNextColumn();
+                    LmUiHelpers.DrawFood(UiSystem, curClass?.CurBis.Food);
+                }
+            }
         }
-
-
-        ImGui.EndChild();
     }
 
     public override void Draw()
