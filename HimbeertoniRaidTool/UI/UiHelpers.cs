@@ -9,16 +9,13 @@ namespace HimbeertoniRaidTool.Plugin.UI;
 
 public class UiHelpers(IUiSystem uiSystem)
 {
-    private static readonly Vector2 MaxMateriaCatSize;
-    private static readonly Vector2 MaxMateriaLevelSize;
+    private static readonly Lazy<Vector2> MaxMateriaCatSizeImpl =
+        new(() => ImGui.CalcTextSize(Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? ""));
+    private static Vector2 MaxMateriaCatSize => MaxMateriaCatSizeImpl.Value;
+    private static readonly Lazy<Vector2> MaxMateriaLevelSizeImpl =
+        new(() => ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? ""));
+    private static Vector2 MaxMateriaLevelSize => MaxMateriaLevelSizeImpl.Value;
 
-    static UiHelpers()
-    {
-        MaxMateriaCatSize =
-            ImGui.CalcTextSize(Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
-        MaxMateriaLevelSize =
-            ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? "");
-    }
     public void DrawFoodEdit(HrtWindowWithModalChild parent, FoodItem? item, Action<FoodItem?> onItemChange)
     {
         //LuminaItem Icon with Info
