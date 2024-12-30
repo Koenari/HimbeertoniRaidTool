@@ -20,6 +20,7 @@ internal class LootmasterUi : HrtWindow
                                                               ImGuiWindowFlags.HorizontalScrollbar)
     {
         Persistent = true;
+        IsOpen = false;
         _module = lootMaster;
         Size = new Vector2(1720, 750);
         _buttonSize = new Vector2(30f, 25f);
