@@ -1,14 +1,25 @@
 ﻿using HimbeertoniRaidTool.Common.Extensions;
+using HimbeertoniRaidTool.Common.GameData;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using Item = Lumina.Excel.Sheets.Item;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
 public static class DrawDataExtension
 {
-    public static void Draw(this Item item) => new GearItem(item.RowId).Draw();
-    public static void Draw(this Common.Data.Item item)
+    public static void Draw(this LuminaItem item)
+    {
+        var gameItem = new GameItem(item);
+        if (gameItem.IsFood)
+            Draw(new FoodItem(item.RowId));
+        else if (gameItem.IsGear)
+            Draw(new GearItem(item.RowId));
+        else if (gameItem.IsMateria)
+            Draw(new MateriaItem(item.RowId));
+        else
+            Draw(new Item(item.RowId));
+    }
+    public static void Draw(this Item item)
     {
         if (!item.Filled)
             return;
@@ -17,8 +28,7 @@ public static class DrawDataExtension
         ImGui.TableSetupColumn(GeneralLoc.ItemTable_heading_Header);
         ImGui.TableSetupColumn("");
         //General Data
-        DrawRow(GeneralLoc.ItemTable_heading_name,
-                $"{item.Name} {(item is HqItem { IsHq: true } ? "(HQ)" : "")}");
+        DrawRow(GeneralLoc.ItemTable_heading_name, item.ToString());
         if (item.ItemLevel > 1)
             DrawRow(GeneralLoc.CommonTerms_itemLevel, item.ItemLevel);
         DrawRow(GeneralLoc.ItemTable_heading_source, item.Source());
@@ -62,6 +72,18 @@ public static class DrawDataExtension
                 }
             }
         }
+        if (item is FoodItem foodItem)
+        {
+            foreach (var statType in foodItem.StatTypesEffected)
+            {
+                ImGui.TableNextColumn();
+                ImGui.Text(statType.FriendlyName());
+                ImGui.TableNextColumn();
+                var effect = foodItem.GetEffect(statType);
+                ImGui.Text(effect.IsRelative ? $"+{effect.Value}%% (Max {effect.MaxValue})" : $"+{effect.Value}");
+
+            }
+        }
         //Shop Data
         if (item.CanBePurchased())
         {
@@ -86,9 +108,9 @@ public static class DrawDataExtension
         }
         ImGui.EndTable();
     }
-    public static void Draw(this (Common.Data.Item cur, Common.Data.Item bis) itemTuple) =>
+    public static void Draw(this (Item cur, Item bis) itemTuple) =>
         Draw(itemTuple.cur, itemTuple.bis);
-    private static void Draw(Common.Data.Item left, Common.Data.Item right)
+    private static void Draw(Item left, Item right)
     {
         if (!left.Filled || !right.Filled)
             return;
