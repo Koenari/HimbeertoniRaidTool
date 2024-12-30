@@ -99,9 +99,9 @@ internal static class ServiceManager
         {
             DalamudServices = pluginInterface.Create<DalamudServiceWrapper>()
                            ?? throw new FailedToLoadException("Could not initialize dalamud services");
+            CommonLibrary.Init(DataManager.Excel, pluginInterface.UiLanguage);
             Logger = new LoggingProxy(DalamudServices.PluginLog);
             Chat = new DalamudChatProxy(DalamudServices.ChatGui);
-            CommonLibrary.Init(DataManager.Excel, pluginInterface.UiLanguage);
             IconCache = new IconCache(DalamudServices.TextureProvider);
             HrtDataManager = new HrtDataManager(PluginInterface, Logger, DataManager);
             if (!HrtDataManager.Initialized)
