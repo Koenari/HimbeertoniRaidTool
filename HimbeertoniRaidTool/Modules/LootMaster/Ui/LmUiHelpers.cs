@@ -142,8 +142,7 @@ internal static class LmUiHelpers
             {
                 if (extended || module.ConfigImpl.Data.ShowIconInGroupOverview)
                 {
-                    var icon = module.Services.UiSystem.GetIcon(itemToDraw.Icon, itemToDraw.IsHq);
-                    if (icon is not null)
+                    var icon = module.Services.UiSystem.GetIcon(itemToDraw);
                     {
                         Vector2 iconSize = new(ImGui.GetTextLineHeightWithSpacing()
                                              * (extended ? multiLine ? 2.4f : 1.4f : 1f));

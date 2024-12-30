@@ -22,7 +22,7 @@ public class UiHelpers(IUiSystem uiSystem)
     public void DrawFoodEdit(HrtWindowWithModalChild parent, FoodItem? item, Action<FoodItem?> onItemChange)
     {
         //LuminaItem Icon with Info
-        var icon = item is null ? null : uiSystem.GetIcon(item.Icon);
+        var icon = item is null ? null : uiSystem.GetIcon(item);
         if (icon is not null)
         {
             ImGui.Image(icon.ImGuiHandle, new Vector2(24, 24));
@@ -36,7 +36,7 @@ public class UiHelpers(IUiSystem uiSystem)
 
         }
         //Quick select
-        string itemName = item?.Name ?? string.Empty;
+        string itemName = item?.ToString() ?? string.Empty;
         if (ExcelSheetCombo($"##Food", out LuminaItem outItem, _ => itemName,
                             i => i.Name.ExtractText(), ItemExtensions.IsFood,
                             ImGuiComboFlags.NoArrowButton))
@@ -67,19 +67,14 @@ public class UiHelpers(IUiSystem uiSystem)
                              GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {
         //LuminaItem Icon with Info
-        var icon = uiSystem.GetIcon(item.Icon);
-        if (icon is not null)
+        ImGui.Image(uiSystem.GetIcon(item).ImGuiHandle, new Vector2(24, 24));
+        if (ImGui.IsItemHovered())
         {
-            ImGui.Image(icon.ImGuiHandle, new Vector2(24, 24));
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                item.Draw();
-                ImGui.EndTooltip();
-            }
-            ImGui.SameLine();
-
+            ImGui.BeginTooltip();
+            item.Draw();
+            ImGui.EndTooltip();
         }
+        ImGui.SameLine();
         //Quick select
         string itemName = item.Name;
         if (ExcelSheetCombo($"##NewGear{slot}", out LuminaItem outItem, _ => itemName,
@@ -145,19 +140,14 @@ public class UiHelpers(IUiSystem uiSystem)
                                                            - ImGui.GetTextLineHeight()) * 2);
 
             var mat = item.Materia.Skip(i).First();
-            var matIcon = uiSystem.GetIcon(mat.Icon);
-            if (matIcon is not null)
+            ImGui.Image(uiSystem.GetIcon(mat).ImGuiHandle, new Vector2(24, 24));
+            if (ImGui.IsItemHovered())
             {
-                ImGui.Image(matIcon.ImGuiHandle, new Vector2(24, 24));
-                if (ImGui.IsItemHovered())
-                {
-                    ImGui.BeginTooltip();
-                    mat.Draw();
-                    ImGui.EndTooltip();
-                }
-                ImGui.SameLine();
-
+                ImGui.BeginTooltip();
+                mat.Draw();
+                ImGui.EndTooltip();
             }
+            ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
             if (ImGuiHelper.SearchableCombo(
                     $"##mat{slot}{i}",

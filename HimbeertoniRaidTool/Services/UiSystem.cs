@@ -21,68 +21,77 @@ public interface IUiSystem : IWindowSystem
 {
     public EditWindowFactory EditWindows { get; }
     public UiHelpers Helpers { get; }
-    public IDalamudTextureWrap? GetIcon(uint id, bool isHq = false);
+    public IDalamudTextureWrap GetIcon(Item item);
+    public IDalamudTextureWrap GetIcon(uint iconId, bool hq);
     public bool DrawConditionsMet();
     public ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType>;
 }
 
-internal abstract class UiSystem : IUiSystem
+internal static class UiSystemFactory
 {
-    private readonly DalamudWindowSystem _windowSystem;
-    public EditWindowFactory EditWindows { get; }
-    public UiHelpers Helpers { get; }
-    private IGlobalServiceContainer Services { get; }
+    public static IUiSystem CreateUiSystem(IHrtModule module, IModuleServiceContainer services) =>
+        new ModuleScopedUiSystem(module, services);
+    public static IUiSystem CreateUiSystem(IGlobalServiceContainer services) => new GlobalUiSystem(services);
 
-    protected UiSystem(DalamudWindowSystem windowSystem, IGlobalServiceContainer services)
+    private abstract class UiSystem : IUiSystem
     {
-        _windowSystem = windowSystem;
-        Services = services;
-        EditWindows = new EditWindowFactory(Services);
-        Helpers = new UiHelpers(this);
+        private readonly DalamudWindowSystem _windowSystem;
+        public EditWindowFactory EditWindows { get; }
+        public UiHelpers Helpers { get; }
+        private IGlobalServiceContainer Services { get; }
 
-    }
-
-    public IDalamudTextureWrap GetIcon(uint id, bool isHq = false) => Services.IconCache.LoadIcon(id, isHq);
-    public ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType> =>
-        Services.DataManager.GetExcelSheet<TType>()
-     ?? throw new NullReferenceException("UiSystem was not initialized");
-
-    public bool DrawConditionsMet() =>
-        !(CoreModule.UiConfig.HideInCombat && Services.Condition[ConditionFlag.InCombat])
-     && !Services.Condition[ConditionFlag.BetweenAreas];
-    public IEnumerable<HrtWindow> Windows => _windowSystem.Windows;
-    public void Draw()
-    {
-        var toRemove = Windows.Where(window => window is { IsOpen: false, Persistent: false }).ToList();
-        foreach (var window in toRemove)
+        protected UiSystem(DalamudWindowSystem windowSystem, IGlobalServiceContainer services)
         {
-            Services.Logger.Debug($"Cleaning Up Window: {window.WindowName}");
-            _windowSystem.RemoveWindow(window);
+            _windowSystem = windowSystem;
+            Services = services;
+            EditWindows = new EditWindowFactory(Services);
+            Helpers = new UiHelpers(this);
+
         }
 
-        _windowSystem.Draw();
+        public IDalamudTextureWrap GetIcon(Item item) => GetIcon(item.Icon, item is HqItem { IsHq: true });
+        public IDalamudTextureWrap GetIcon(uint iconId, bool hq) => Services.IconCache.LoadIcon(iconId, hq);
+        public ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType> =>
+            Services.DataManager.GetExcelSheet<TType>()
+         ?? throw new NullReferenceException("UiSystem was not initialized");
+
+        public bool DrawConditionsMet() =>
+            !(CoreModule.UiConfig.HideInCombat && Services.Condition[ConditionFlag.InCombat])
+         && !Services.Condition[ConditionFlag.BetweenAreas];
+        public IEnumerable<HrtWindow> Windows => _windowSystem.Windows;
+        public void Draw()
+        {
+            var toRemove = Windows.Where(window => window is { IsOpen: false, Persistent: false }).ToList();
+            foreach (var window in toRemove)
+            {
+                Services.Logger.Debug($"Cleaning Up Window: {window.WindowName}");
+                _windowSystem.RemoveWindow(window);
+            }
+
+            _windowSystem.Draw();
+        }
+        public void AddWindow(HrtWindow ui)
+        {
+            if (!_windowSystem.Windows.Any(ui.Equals))
+                _windowSystem.AddWindow(ui);
+        }
+
+        public void RemoveAllWindows() => _windowSystem.RemoveAllWindows();
+        public void RemoveWindow(HrtWindow hrtWindow) => _windowSystem.RemoveWindow(hrtWindow);
     }
-    public void AddWindow(HrtWindow ui)
+
+    private class ModuleScopedUiSystem(IHrtModule module, IModuleServiceContainer services)
+        : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT::{module.InternalName}")), services);
+
+    private class GlobalUiSystem(IGlobalServiceContainer services)
+        : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT")), services);
+
+    private class DalamudWindowSystem(WindowSystem implementation) : IWindowSystem
     {
-        if (!_windowSystem.Windows.Any(ui.Equals))
-            _windowSystem.AddWindow(ui);
+        public void Draw() => implementation.Draw();
+        public void AddWindow(HrtWindow window) => implementation.AddWindow(window);
+        public void RemoveAllWindows() => implementation.RemoveAllWindows();
+        public void RemoveWindow(HrtWindow hrtWindow) => implementation.RemoveWindow(hrtWindow);
+        public IEnumerable<HrtWindow> Windows => implementation.Windows.Cast<HrtWindow>();
     }
-
-    public void RemoveAllWindows() => _windowSystem.RemoveAllWindows();
-    public void RemoveWindow(HrtWindow hrtWindow) => _windowSystem.RemoveWindow(hrtWindow);
-}
-
-internal class ModuleScopedUiSystem(IHrtModule module, IModuleServiceContainer services)
-    : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT::{module.InternalName}")), services);
-
-internal class GlobalUiSystem(IGlobalServiceContainer services)
-    : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT")), services);
-
-internal class DalamudWindowSystem(WindowSystem implementation) : IWindowSystem
-{
-    public void Draw() => implementation.Draw();
-    public void AddWindow(HrtWindow window) => implementation.AddWindow(window);
-    public void RemoveAllWindows() => implementation.RemoveAllWindows();
-    public void RemoveWindow(HrtWindow hrtWindow) => implementation.RemoveWindow(hrtWindow);
-    public IEnumerable<HrtWindow> Windows => implementation.Windows.Cast<HrtWindow>();
 }

@@ -102,12 +102,8 @@ internal class SelectFoodItemWindow : SelectItemWindow<FoodItem>
                 ImGui.PopStyleColor();
             ImGui.SameLine();
             ImGui.BeginGroup();
-            var icon = UiSystem.GetIcon(item.Icon, item.CanBeHq);
-            if (icon is not null)
-            {
-                ImGui.Image(icon.ImGuiHandle, new Vector2(32f, 32f));
-                ImGui.SameLine();
-            }
+            ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).ImGuiHandle, new Vector2(32f, 32f));
+            ImGui.SameLine();
             ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
             ImGui.EndGroup();
             if (ImGui.IsItemHovered())
@@ -214,11 +210,8 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             ImGui.SameLine();
             ImGui.BeginGroup();
             var icon = UiSystem.GetIcon(item.Icon, item.CanBeHq);
-            if (icon is not null)
-            {
-                ImGui.Image(icon.ImGuiHandle, new Vector2(32f, 32f));
-                ImGui.SameLine();
-            }
+            ImGui.Image(icon.ImGuiHandle, new Vector2(32f, 32f));
+            ImGui.SameLine();
             ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
             ImGui.EndGroup();
             if (ImGui.IsItemHovered())
@@ -299,8 +292,7 @@ internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
         void DrawButton(MateriaCategory cat, MateriaLevel lvl)
         {
             var mat = AllMateria[lvl][cat];
-            var icon = UiSystem.GetIcon(mat.Icon);
-            if (icon is not null && ImGui.ImageButton(icon.ImGuiHandle, new Vector2(32)))
+            if (ImGui.ImageButton(UiSystem.GetIcon(mat).ImGuiHandle, new Vector2(32)))
                 Save(mat);
             else if (ImGuiHelper.Button(mat.Name, null))
             {

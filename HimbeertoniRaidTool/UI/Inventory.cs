@@ -71,9 +71,7 @@ internal class InventoryWindow : HrtWindowWithModalChild
             foreach (var item in GameInfo.CurrentExpansion.CurrentSavage
                                          .Bosses.SelectMany(boss => boss.GuaranteedItems))
             {
-                var icon = UiSystem.GetIcon(item.Icon);
-                if (icon is not null)
-                    ImGui.Image(icon.ImGuiHandle, IconSize);
+                ImGui.Image(UiSystem.GetIcon(item).ImGuiHandle, IconSize);
                 ImGui.SameLine();
                 ImGui.Text(item.Name);
                 ImGui.SameLine();
@@ -91,7 +89,7 @@ internal class InventoryWindow : HrtWindowWithModalChild
             ImGui.PushID(idx);
             if (entry.Item is not GearItem item)
                 continue;
-            var icon = UiSystem.GetIcon(item.Icon);
+            var icon = UiSystem.GetIcon(item);
             if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "##delete", null, true, IconSize * ScaleFactor))
                 Inventory.Remove(idx);
             ImGui.SameLine();

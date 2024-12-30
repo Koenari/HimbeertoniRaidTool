@@ -46,7 +46,7 @@ internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
     public ModuleScopedServiceContainer(IHrtModule module, IGlobalServiceContainer globalServices)
     {
         _globalServices = globalServices;
-        UiSystem = new ModuleScopedUiSystem(module, this);
+        UiSystem = UiSystemFactory.CreateUiSystem(module, this);
         PluginInterface.UiBuilder.Draw += UiSystem.Draw;
     }
 
@@ -114,7 +114,7 @@ internal static class ServiceManager
                                                                   ConnectorPool);
             OwnCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.ClientState,
                                                                     DalamudServices.Framework, Logger, HrtDataManager);
-            UiSystem = new GlobalUiSystem(this);
+            UiSystem = UiSystemFactory.CreateUiSystem(this);
             PluginInterface.UiBuilder.Draw += UiSystem.Draw;
             ConfigManager =
                 new ConfigurationManager(pluginInterface, this);

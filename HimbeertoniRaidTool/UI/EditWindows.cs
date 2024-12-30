@@ -631,7 +631,6 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                             ExternalId = externalId,
                         });
                         connector.RequestGearSetUpdate(DataCopy);
-                        continue;
                     }
                 }
             }

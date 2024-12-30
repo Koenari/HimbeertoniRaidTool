@@ -18,7 +18,7 @@ public static class DrawDataExtension
         ImGui.TableSetupColumn("");
         //General Data
         DrawRow(GeneralLoc.ItemTable_heading_name,
-                $"{item.Name} {(item is GearItem { IsHq: true } ? "(HQ)" : "")}");
+                $"{item.Name} {(item is HqItem { IsHq: true } ? "(HQ)" : "")}");
         if (item.ItemLevel > 1)
             DrawRow(GeneralLoc.CommonTerms_itemLevel, item.ItemLevel);
         DrawRow(GeneralLoc.ItemTable_heading_source, item.Source());
