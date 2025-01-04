@@ -20,7 +20,7 @@ internal class PlayerDb(IIdProvider idProvider, IEnumerable<JsonConverter> conve
         }
         return referencedIds;
     }
-    public override HrtWindow OpenSearchWindow(IUiSystem uiSystem, Action<Player> onSelect, Action? onCancel = null) =>
+    public override HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<Player> onSelect, Action? onCancel = null) =>
         new PlayerSearchWindow(uiSystem, this, onSelect, onCancel);
 
     private class PlayerSearchWindow : SearchWindow<Player, PlayerDb>

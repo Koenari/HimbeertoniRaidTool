@@ -249,7 +249,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "addFromDb",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeNameStatic)))
             {
-                AddChild(Factory.DataManager.CharDb.OpenSearchWindow(UiSystem, c => DataCopy.AddCharacter(c)));
+                AddChild(Factory.DataManager.CharDb.GetSearchWindow(UiSystem, c => DataCopy.AddCharacter(c)));
             }
         }
 

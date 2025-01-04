@@ -14,7 +14,8 @@ public interface IDataBaseTable<T> where T : IHasHrtId, new()
     internal bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value);
     internal bool TryAdd(in T value);
     internal IEnumerable<T> GetValues();
-    internal HrtWindow OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
+    internal void OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
+    internal HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
     internal HrtIdReferenceConverter<T> GetRefConverter();
     public HashSet<HrtId> GetReferencedIds();
     internal ulong GetNextSequence();
@@ -93,7 +94,10 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     public bool Contains(HrtId hrtId) => Data.ContainsKey(hrtId);
     public IEnumerable<T> GetValues() => Data.Values;
     public ulong GetNextSequence() => _nextSequence++;
-    public abstract HrtWindow OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
+    public void OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null) =>
+        uiSystem.AddWindow(GetSearchWindow(uiSystem, onSelect, onCancel));
+
+    public abstract HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
     public string Serialize(JsonSerializerSettings settings)
     {
         List<JsonConverter> savedConverters = [..settings.Converters];

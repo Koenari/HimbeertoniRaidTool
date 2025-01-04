@@ -18,7 +18,7 @@ internal class RaidGroupDb(IIdProvider idProvider, IEnumerable<JsonConverter> co
         return referencedIds;
     }
     public override HrtWindow
-        OpenSearchWindow(IUiSystem uiSystem, Action<RaidGroup> onSelect, Action? onCancel = null) =>
+        GetSearchWindow(IUiSystem uiSystem, Action<RaidGroup> onSelect, Action? onCancel = null) =>
         new GroupSearchWindow(uiSystem, this, onSelect, onCancel);
 
     internal class GroupSearchWindow(

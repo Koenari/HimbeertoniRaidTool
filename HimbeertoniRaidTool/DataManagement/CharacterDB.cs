@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
 using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -56,7 +57,7 @@ internal class CharacterDb(
     }
 
     public override HrtWindow
-        OpenSearchWindow(IUiSystem uiSystem, Action<Character> onSelect, Action? onCancel = null) =>
+        GetSearchWindow(IUiSystem uiSystem, Action<Character> onSelect, Action? onCancel = null) =>
         new CharacterSearchWindow(uiSystem, this, onSelect, onCancel, dataManager);
 
     private class CharacterSearchWindow : SearchWindow<Character, CharacterDb>
@@ -64,8 +65,10 @@ internal class CharacterDb(
         private readonly IDataManager _dataManager;
         private uint _selectedWorld = 0;
         private readonly Dictionary<uint, string> _worldCache = [];
+        private string _searchText = string.Empty;
 
         private string GetWorldName(uint idx) =>
+            idx == 0 ? GeneralLoc.CommonTerms_All :
             _worldCache.TryGetValue(idx, out string? name) ? name : _worldCache[idx] =
                 _dataManager.GetExcelSheet<World>().GetRow(idx).Name.ExtractText();
 
@@ -82,17 +85,28 @@ internal class CharacterDb(
 
         protected override void DrawContent()
         {
-            if (ImGui.BeginCombo(GeneralLoc.EditCharUi_in_HomeWorld, GeneralLoc.CommonTerms_All))
+            using (var table = ImRaii.Table("searchTable", 2))
             {
-                if (ImGui.Selectable(GeneralLoc.CommonTerms_All)) _selectedWorld = 0;
-                foreach (uint world in Database.Data.Values.Select(entry => entry.HomeWorldId).Distinct()
-                                               .Where(entry => entry != 0))
+                if (table)
                 {
-                    if (ImGui.Selectable(GetWorldName(world)))
-                        _selectedWorld = world;
+                    ImGui.TableSetupColumn("1", ImGuiTableColumnFlags.WidthStretch, 1);
+                    ImGui.TableSetupColumn("2", ImGuiTableColumnFlags.WidthStretch, 3);
+                    ImGui.TableNextColumn();
+                    ImGui.Text(GeneralLoc.CommonTerms_Name);
+                    ImGui.TableNextColumn();
+                    ImGui.InputText("##searchTerm", ref _searchText, 128);
+                    ImGui.TableNextColumn();
+                    ImGui.Text(GeneralLoc.EditCharUi_in_HomeWorld);
+                    ImGui.TableNextColumn();
+                    if (ImGuiHelper.SearchableCombo("##homeWorld", out uint worldOut,
+                                                    GetWorldName(_selectedWorld), Database.Data.Values
+                                                        .Select(entry => entry.HomeWorldId).Distinct()
+                                                        .Where(entry => entry != 0).Prepend<uint>(0), GetWorldName))
+                        _selectedWorld = worldOut;
                 }
-                ImGui.EndCombo();
+
             }
+
             if (!ImGui.BeginTable(
                     "Chars", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
                 return;
@@ -102,8 +116,11 @@ internal class CharacterDb(
             ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableHeadersRow();
             foreach (var character in Database.GetValues()
-                                              .Where(entry => _selectedWorld == 0
-                                                           || entry.HomeWorldId == _selectedWorld))
+                                              .Where(entry => (_selectedWorld == 0
+                                                            || entry.HomeWorldId == _selectedWorld)
+                                                           && entry.Name.Contains(
+                                                                  _searchText,
+                                                                  StringComparison.InvariantCultureIgnoreCase)))
             {
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{character.LocalId}",

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Globalization;
 using System.Numerics;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -44,6 +45,57 @@ internal static class LmUiHelpers
             <= 20 => config.ItemLevelColors[2],
             _     => config.ItemLevelColors[3],
         };
+    internal static void DrawCharacterCombo(LootMasterModule module, string id, Player player, float width = 110)
+    {
+        ImGui.SetNextItemWidth(width);
+        using var combo =
+            ImRaii.Combo(id, ToName(player.MainChar), ImGuiComboFlags.NoArrowButton);
+        if (!combo) return;
+        foreach (var character in player.Characters)
+        {
+            if (ImGui.Selectable(ToName(character)))
+                player.MainChar = character;
+        }
+        if (ImGui.Selectable("+ Add new"))
+        {
+            module.Services.UiSystem.EditWindows.Create(new Character(), player.AddCharacter);
+        }
+        if (ImGui.Selectable("+ Search known characters"))
+        {
+            module.Services.HrtDataManager.CharDb.OpenSearchWindow(module.Services.UiSystem, player.AddCharacter);
+        }
+        return;
+        string ToName(Character character)
+        {
+            return character.ToString(module.ConfigImpl.Data.CharacterNameFormat, null);
+        }
+    }
+    internal static void DrawClassCombo(IHrtModule module, string id, Character character, float width = 110)
+    {
+        if (character.Classes.Any())
+        {
+            ImGui.SetNextItemWidth(width);
+            using var combo = ImRaii.Combo(id, character.MainClass?.ToString() ?? string.Empty);
+            if (!combo) return;
+            var classes = character.Classes.Where(c => !c.HideInUi).ToList();
+            /*classes.Sort((a, b) =>
+            {
+                int levelDiff = b.Level - a.Level;
+                if (levelDiff != 0) return levelDiff;
+                return string.Compare(a.Name, b.Name, StringComparison.InvariantCulture);
+            });*/
+            foreach (var job in classes)
+            {
+                if (ImGui.Selectable(job.ToString()))
+                    character.MainJob = job.Job;
+            }
+        }
+        else
+        {
+            ImGui.Text(LootmasterLoc.Ui_txt_noJobs);
+        }
+    }
+
     internal static void DrawGearSetCombo(string id, GearSet current, IEnumerable<GearSet> list,
                                           Action<GearSet> changeCallback,
                                           IHrtModule module, Job job = Job.ADV,
@@ -66,8 +118,7 @@ internal static class LmUiHelpers
             }
             if (ImGui.Selectable(LootmasterLoc.GearSetSelect_AddFromDB))
             {
-                module.Services.UiSystem.AddWindow(
-                    module.Services.HrtDataManager.GearDb.OpenSearchWindow(module.Services.UiSystem, changeCallback));
+                module.Services.HrtDataManager.GearDb.OpenSearchWindow(module.Services.UiSystem, changeCallback);
             }
             ImGui.EndCombo();
         }
@@ -75,8 +126,8 @@ internal static class LmUiHelpers
             ImGuiHelper.AddTooltip(current.Name);
     }
     internal static void DrawSlot(LootMasterModule module, GearItem item,
-                                  SlotDrawFlags style = SlotDrawFlags.SingleItem | SlotDrawFlags.SimpleView)
-        => DrawSlot(module, (item, GearItem.Empty), style);
+                                  SlotDrawFlags style = SlotDrawFlags.SingleItem | SlotDrawFlags.SimpleView) =>
+        DrawSlot(module, (item, GearItem.Empty), style);
     internal static void DrawSlot(LootMasterModule module, (GearItem, GearItem) itemTuple,
                                   SlotDrawFlags style = SlotDrawFlags.Default)
     {
@@ -333,4 +384,5 @@ internal static class LmUiHelpers
             ImGui.Text("No Food");
         }
     }
+
 }

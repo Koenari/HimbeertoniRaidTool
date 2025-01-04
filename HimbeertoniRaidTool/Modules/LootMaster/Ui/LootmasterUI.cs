@@ -393,28 +393,12 @@ internal class LootmasterUi : HrtWindow
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player, "##editPlayer"))
                 UiSystem.EditWindows.Create(player);
-            ImGui.Text(string.Format($"{{0:{CurConfig.CharacterNameFormat}}}", player.MainChar));
+            LmUiHelpers.DrawCharacterCombo(_module, "##CharCombo", player, 110 * ScaleFactor);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player.MainChar, "##editCharacter"))
                 UiSystem.EditWindows.Create(player.MainChar);
             var curJob = player.MainChar.MainClass;
-            if (player.MainChar.Classes.Any())
-            {
-                ImGui.SetNextItemWidth(110 * ScaleFactor);
-                if (ImGui.BeginCombo("##Class", curJob?.ToString()))
-                {
-                    foreach (var job in player.MainChar.Where(c => !c.HideInUi))
-                    {
-                        if (ImGui.Selectable(job.ToString()))
-                            player.MainChar.MainJob = job.Job;
-                    }
-                    ImGui.EndCombo();
-                }
-            }
-            else
-            {
-                ImGui.Text(LootmasterLoc.Ui_txt_noJobs);
-            }
+            LmUiHelpers.DrawClassCombo(_module, "##Class", player.MainChar, 110 * ScaleFactor);
             if (curJob is null)
             {
                 for (int i = 0; i < GearSet.NUM_SLOTS; i++)
@@ -526,8 +510,8 @@ internal class LootmasterUi : HrtWindow
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addPlayerFromDB",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, group[pos].DataTypeName), true,
                                    ButtonSize))
-                UiSystem.AddWindow(_module.Services.HrtDataManager.PlayerDb.OpenSearchWindow(UiSystem,
-                                       selected => group[pos] = selected));
+                _module.Services.HrtDataManager.PlayerDb.OpenSearchWindow(UiSystem,
+                                                                          selected => group[pos] = selected);
             if (ImGuiHelper.Button(FontAwesomeIcon.LocationCrosshairs, "AddTarget",
                                    string.Format(LootmasterLoc.Ui_btn_addPlayerFromTarget_tt,
                                                  _module.Services.TargetManager.Target?.Name
@@ -542,13 +526,13 @@ internal class LootmasterUi : HrtWindow
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addCharFromDB",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting,
                                                  Character.DataTypeNameStatic), true, ButtonSize))
-                UiSystem.AddWindow(_module.Services.HrtDataManager.CharDb.OpenSearchWindow(UiSystem, selected =>
+                _module.Services.HrtDataManager.CharDb.OpenSearchWindow(UiSystem, selected =>
                 {
                     if (!_module.Services.HrtDataManager.PlayerDb.TryAdd(player))
                         return;
                     player.NickName = selected.Name.Split(' ')[0];
                     player.MainChar = selected;
-                }));
+                });
         }
     }
 
