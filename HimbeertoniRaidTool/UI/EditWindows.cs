@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Concurrent;
+using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
@@ -9,7 +10,6 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
 using Lumina.Excel.Sheets;
 using Action = System.Action;
-using EnumExtensions = HimbeertoniRaidTool.Common.Data.EnumExtensions;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -371,7 +371,11 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                     Factory.DataManager.GearDb.TryAdd(newClass.CurGear);
                     Factory.DataManager.GearDb.TryAdd(newClass.CurBis);
                 }
-                (newClass.CurBis.ManagedBy, newClass.CurBis.ExternalId) = Factory.ConnectorPool.GetDefaultBiS(_newJob);
+                var newBis = Factory.ConnectorPool.GetDefaultBiS(_newJob);
+                newClass.CurBis.ManagedBy = newBis.Service;
+                newClass.CurBis.ExternalId = newBis.Id;
+                newClass.CurBis.ExternalIdx = newBis.Idx;
+                newClass.CurBis.Name = newBis.Name;
             }
             return;
 
@@ -428,11 +432,13 @@ public class EditWindowFactory(IGlobalServiceContainer services)
     {
         private readonly Job? _providedJob;
         private Job _job;
-        private string _externalIdInput = "";
-        private GearSetManager _curSetManager;
-        private IList<string> _externalGearSetList = [];
-        private string _loadedExternalId = "";
-        private bool _backgroundTaskBusy = false;
+        private string _curSetId = "";
+        private GearSetManager? _selectedService;
+        private GearSetManager? _detectedService;
+        private GearSetManager? CurService => _selectedService ?? _detectedService;
+        private readonly ConcurrentDictionary<(GearSetManager? service, string id), IList<ExternalBiSDefinition>>
+            _externalGearSetCache = [];
+        private readonly ConcurrentDictionary<(GearSetManager? service, string id), bool> _currentlyLoading = [];
         internal EditGearSetWindow(EditWindowFactory factory, GearSet original, Action<GearSet>? onSave = null,
                                    Action? onCancel = null, Action? onDelete = null, Job? job = null) :
             base(factory, original, onSave, onCancel, onDelete)
@@ -440,13 +446,42 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             CanDelete = true;
             _providedJob = job;
             _job = job ?? original[GearSetSlot.MainHand].Jobs.FirstOrDefault(Job.ADV);
-            _curSetManager = original.ManagedBy;
             MinSize = new Vector2(700, 600);
             Size = new Vector2(1100, 600);
             SizeCondition = ImGuiCond.Appearing;
         }
 
         protected override void Cancel() { }
+
+        private void LoadSet()
+        {
+            if (_curSetId.Length == 0) return;
+            if (_externalGearSetCache.ContainsKey((CurService, _curSetId))) return;
+            if (_currentlyLoading.ContainsKey((CurService, _curSetId))) return;
+            foreach (var serviceType in Enum.GetValues<GearSetManager>())
+            {
+                if (!Factory.ConnectorPool.TryGetConnector(serviceType, out var connector)) continue;
+                if (!connector.BelongsToThisService(_curSetId) && CurService == null) continue;
+                if (CurService.HasValue && CurService.Value != serviceType) continue;
+                _detectedService = serviceType;
+                _selectedService = null;
+                _curSetId = connector.GetId(_curSetId);
+                if (_externalGearSetCache.ContainsKey((CurService, _curSetId))) return;
+                if (_currentlyLoading.ContainsKey((CurService, _curSetId))) return;
+                if (_currentlyLoading.TryAdd((CurService, _curSetId), true))
+                    Factory.TaskManager.RegisterTask(new HrtTask<IList<ExternalBiSDefinition>>(
+                                                         () => connector.GetPossibilities(_curSetId),
+                                                         list =>
+                                                         {
+                                                             _externalGearSetCache.TryAdd(
+                                                                 (CurService, _curSetId), list);
+                                                             _currentlyLoading.Remove(
+                                                                 (CurService, _curSetId), out _);
+                                                         }, "GetSetNames"
+                                                     ));
+                return;
+            }
+        }
 
         protected override void DrawContent()
         {
@@ -485,8 +520,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         {
             using var table = ImRaii.Table("##GeneralTable", 2);
             if (!table) return;
-            ImGui.TableSetupColumn("##Label", ImGuiTableColumnFlags.WidthStretch, 1);
-            ImGui.TableSetupColumn("##Input", ImGuiTableColumnFlags.WidthStretch, 5);
+            ImGui.TableSetupColumn("##Label", ImGuiTableColumnFlags.WidthStretch, 2);
+            ImGui.TableSetupColumn("##Input", ImGuiTableColumnFlags.WidthStretch, 6);
             ImGui.TableNextColumn();
             ImGui.BeginDisabled(DataCopy.IsManagedExternally);
             ImGui.Text(GeneralLoc.CommonTerms_Name);
@@ -591,6 +626,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             return;
             void DrawSlot(GearSetSlot slot)
             {
+
                 ImGui.BeginDisabled(ChildIsOpen);
                 ImGui.TableNextColumn();
                 UiSystem.Helpers.DrawGearEdit(this, slot, DataCopy[slot], i =>
@@ -610,116 +646,65 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             foreach (var service in Enum.GetValues<GearSetManager>())
             {
                 if (!Factory.ConnectorPool.TryGetConnector(service, out var connector)) continue;
-                //Etro curated BiS
+                //curated BiS
                 var bisSets = connector.GetBiSList(_job);
                 if (!bisSets.Any()) continue;
                 ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_text_getCuratedBis, service.FriendlyName()));
-                foreach ((string externalId, string name) in bisSets)
+
+                foreach (var biSDefinition in bisSets)
                 {
                     ImGui.SameLine();
-                    if (ImGuiHelper.Button($"{name}##BIS#{externalId}", $"{externalId}"))
-                    {
-                        if (Factory.DataManager.GearDb.Search(
-                                gearSet => gearSet?.ExternalId == externalId && gearSet.ManagedBy == service,
-                                out var newSet))
-                        {
-                            ReplaceOriginal(newSet);
-                            continue;
-                        }
-                        ReplaceOriginal(new GearSet(service, name)
-                        {
-                            ExternalId = externalId,
-                        });
-                        connector.RequestGearSetUpdate(DataCopy);
-                    }
+                    DrawReplaceButton(biSDefinition);
                 }
             }
 
-            ImGui.Text("Replace with: ");
-            ImGui.SameLine();
+            ImGui.Text(GeneralLoc.EditGearSetUi_hdg_ExtCustom);
             ImGui.SetNextItemWidth(100 * ScaleFactor);
-            ImGuiHelper.Combo("##manager", ref _curSetManager, EnumExtensions.FriendlyName,
-                              val => val != GearSetManager.Hrt);
+            ImGuiHelper.Combo("##manager", ref _selectedService,
+                              val => val.HasValue ? val.Value.FriendlyName() : GeneralLoc.EditGearSetUi_txt_AutoDetect,
+                              val => Factory.ConnectorPool.HasConnector(val));
             ImGui.SetNextItemWidth(200 * ScaleFactor);
             ImGui.SameLine();
-            if (ImGui.InputText("ID/Url", ref _externalIdInput, 255))
+            ImGui.InputText(GeneralLoc.EditGearSetUi_input_ExtId, ref _curSetId, 255);
+            LoadSet();
+            if (_currentlyLoading.ContainsKey((CurService, _curSetId)))
             {
-                foreach (var serviceType in Enum.GetValues<GearSetManager>())
-                {
-                    if (!Factory.ConnectorPool.TryGetConnector(serviceType, out var connector)) continue;
-                    if (!connector.BelongsToThisService(_externalIdInput)) continue;
-                    _curSetManager = serviceType;
-                    _externalIdInput = connector.GetId(_externalIdInput);
-                }
+                ImGui.Text(GeneralLoc.EditGearSetUi_txt_Loading);
             }
-            if (_backgroundTaskBusy)
+            else
             {
-                ImGui.Text("Loading... ");
-                ImGui.SameLine();
-            }
-            else if (_externalIdInput != _loadedExternalId)
-            {
-                if (Factory.ConnectorPool.TryGetConnector(_curSetManager, out var connector))
+                if (_externalGearSetCache.TryGetValue((CurService, _curSetId), out var bisList) && bisList.Any())
                 {
-                    _backgroundTaskBusy = true;
-                    _externalGearSetList = [];
-                    DataCopy.ExternalIdx = 0;
-                    _loadedExternalId = _externalIdInput;
-                    Factory.TaskManager.RegisterTask(new HrtTask<IList<string>>(
-                                                         () => connector.GetNames(_externalIdInput),
-                                                         list =>
-                                                         {
-                                                             _externalGearSetList = list;
-                                                             _backgroundTaskBusy = false;
-                                                         }, "GetSetNames"
-                                                     ));
-                }
-            }
-            else if (_externalGearSetList.Count > 0 && Factory.ConnectorPool.HasConnector(_curSetManager))
-            {
-                if (_externalGearSetList.Count > 1)
-                {
-                    ImGui.SetNextItemWidth(200 * ScaleFactor);
-                    int idx = 0;
-                    if (ImGui.BeginCombo("##idx", _externalGearSetList[DataCopy.ExternalIdx]))
+                    ImGui.Text(GeneralLoc.EditGearSetUi_text_Replace);
+                    foreach (var biSDefinition in bisList)
                     {
-                        foreach (string name in _externalGearSetList)
-                        {
-                            if (ImGui.Selectable(name))
-                                DataCopy.ExternalIdx = idx;
-                            idx++;
-                        }
-
-                        ImGui.EndCombo();
+                        ImGui.SameLine();
+                        DrawReplaceButton(biSDefinition);
                     }
                 }
                 else
                 {
-                    ImGui.Text(_externalGearSetList[0]);
+                    ImGui.Text(GeneralLoc.EditGearSetUi_text_InvalidId);
                 }
-                ImGui.SameLine();
+
             }
-            else
+            return;
+            void DrawReplaceButton(ExternalBiSDefinition biSDefinition)
             {
-                ImGui.Text("No set");
-                ImGui.SameLine();
-            }
-            if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_GetExternal,
-                                   GeneralLoc.EditGearSetUi_btn_tt_GetExternal, !_backgroundTaskBusy))
-            {
-                if (Factory.DataManager.GearDb.Search(
-                        gearSet => gearSet?.ManagedBy == _curSetManager && gearSet.ExternalId == _externalIdInput,
-                        out var newSet))
+                if (!ImGuiHelper.Button($"{biSDefinition.Name}##BIS#{biSDefinition.Id}#{biSDefinition.Idx}",
+                                        $"{biSDefinition.Id} ({biSDefinition.Idx}) <{biSDefinition.Service.FriendlyName()}>"))
+                    return;
+                if (Factory.DataManager.GearDb.Search(biSDefinition.Equals, out var newSet))
                 {
                     ReplaceOriginal(newSet);
                     return;
                 }
-                ReplaceOriginal(new GearSet(_curSetManager)
+                ReplaceOriginal(new GearSet(biSDefinition.Service)
                 {
-                    ExternalId = _externalIdInput,
-                    ExternalIdx = DataCopy.ExternalIdx,
+                    ExternalId = biSDefinition.Id,
+                    ExternalIdx = biSDefinition.Idx,
                 });
-                if (Factory.ConnectorPool.TryGetConnector(_curSetManager, out var connector))
+                if (Factory.ConnectorPool.TryGetConnector(biSDefinition.Service, out var connector))
                     connector.RequestGearSetUpdate(DataCopy);
             }
         }

@@ -30,32 +30,33 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
     };
 
 
-    public bool BelongsToThisService(string url) => url.StartsWith(WEB_BASE_URL) || url.StartsWith(API_BASE_URL);
+    public bool BelongsToThisService(string url)
+    {
+        url = HttpUtility.UrlDecode(url);
+        return url.StartsWith(WEB_BASE_URL) || url.StartsWith(API_BASE_URL);
+    }
     public string GetId(string url) => HttpUtility.UrlDecode(url).Split('|')[^1];
     public string GetWebUrl(string id) => $"{GEAR_WEB_BASE_URL}{id}";
-    public IReadOnlyDictionary<string, string> GetBiSList(Job job) => new Dictionary<string, string>();
-    public bool IsSheet(string id)
-    {
-        var httpResponse = MakeWebRequest(GEAR_API_BASE_URL + id);
-        if (httpResponse is null || !httpResponse.IsSuccessStatusCode) return false;
-        var readTask = httpResponse.Content.ReadAsStringAsync();
-        readTask.Wait();
-        return IsSheetInternal(readTask.Result);
-    }
+    public IList<ExternalBiSDefinition> GetBiSList(Job job) => [];
     private static bool IsSheetInternal(string content) =>
         JsonConvert.DeserializeObject<XivGearSheet>(content)?.sets?.Count > 0;
 
-    public IList<string> GetNames(string id)
+    public IList<ExternalBiSDefinition> GetPossibilities(string id)
     {
+        Logger.Debug($"Getting possibilities for {id}");
         var httpResponse = MakeWebRequest(GEAR_API_BASE_URL + id);
         if (httpResponse is null || !httpResponse.IsSuccessStatusCode) return [];
         var readTask = httpResponse.Content.ReadAsStringAsync();
         readTask.Wait();
         var sheet = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result);
-        if (sheet?.sets != null)
-            return sheet.sets?.ConvertAll(set => set.name ?? "") ?? [];
-        var set = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result);
-        return set is null ? [] : [set.name ?? ""];
+        if (sheet?.sets == null)
+        {
+            var set = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result);
+            return set is null ? [] : [new ExternalBiSDefinition(GearSetManager.XivGear, id, 0, set.name ?? "")];
+        }
+        int idx = 0;
+        return sheet.sets.Select(set => new ExternalBiSDefinition(GearSetManager.XivGear, id, idx++, set.name ?? ""))
+                    .ToList();
     }
 
     public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,

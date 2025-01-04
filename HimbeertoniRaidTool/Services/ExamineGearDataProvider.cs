@@ -128,13 +128,11 @@ internal class ExamineGearDataProvider : IGearDataProvider
 
             targetClass = targetChar.AddClass(targetJob);
             var defaultBiS = _connectorPool.GetDefaultBiS(targetJob);
-            if (_hrtDataManager.GearDb.Search(
-                    entry => entry?.ManagedBy == defaultBiS.Service && entry.ExternalId == defaultBiS.Id,
-                    out var existingBis))
+            if (_hrtDataManager.GearDb.Search(defaultBiS.Equals, out var existingBis))
                 targetClass.CurBis = existingBis;
             else
             {
-                (targetClass.CurBis.ManagedBy, targetClass.CurBis.ExternalId) = defaultBiS;
+                targetClass.CurBis = defaultBiS.ToGearSet();
                 if (_hrtDataManager.GearDb.TryAdd(targetClass.CurBis)
                  && _connectorPool.TryGetConnector(defaultBiS.Service, out var connector))
                     connector.RequestGearSetUpdate(targetClass.CurBis);

@@ -180,21 +180,16 @@ internal sealed class LootMasterModule : IHrtModule
         {
             curClass.Level = source.Level;
             var gearDb = Services.HrtDataManager.GearDb;
-            if (!gearDb.Search(
-                    entry => entry?.ExternalId
-                          == Services.ConnectorPool.GetDefaultBiS(curClass.Job).Id,
-                    out var etroSet))
+            var defaultBis = Services.ConnectorPool.GetDefaultBiS(curClass.Job);
+            if (!gearDb.Search(defaultBis.Equals, out var bisSet))
             {
-                var defaultBis = Services.ConnectorPool.GetDefaultBiS(curClass.Job);
-                etroSet = new GearSet(defaultBis.Service)
-                {
-                    ExternalId = defaultBis.Id,
-                };
-                gearDb.TryAdd(etroSet);
+
+                bisSet = defaultBis.ToGearSet();
+                gearDb.TryAdd(bisSet);
                 if (Services.ConnectorPool.TryGetConnector(defaultBis.Service, out var connector))
-                    connector.RequestGearSetUpdate(etroSet, HandleMessage);
+                    connector.RequestGearSetUpdate(bisSet, HandleMessage);
             }
-            curClass.CurBis = etroSet;
+            curClass.CurBis = bisSet;
             gearDb.TryAdd(curClass.CurGear);
         }
         Services.HrtDataManager.Save();

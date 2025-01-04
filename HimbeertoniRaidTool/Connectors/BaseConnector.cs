@@ -12,12 +12,36 @@ public interface IReadOnlyGearConnector
     public bool BelongsToThisService(string url);
     public string GetId(string url);
     public string GetWebUrl(string id);
-    public IList<string> GetNames(string id);
-    public IReadOnlyDictionary<string, string> GetBiSList(Job job);
+    public IList<ExternalBiSDefinition> GetPossibilities(string id);
+    public IList<ExternalBiSDefinition> GetBiSList(Job job);
     internal HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays);
     public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
                                      string taskName = "Gearset Update");
     public HrtUiMessage UpdateGearSet(GearSet set);
+}
+
+public readonly struct ExternalBiSDefinition
+{
+    public readonly GearSetManager Service = GearSetManager.Unknown;
+    public readonly string Id = string.Empty;
+    public readonly int Idx = 0;
+    public readonly string Name = string.Empty;
+
+    public ExternalBiSDefinition(GearSetManager service, string id, int idx, string name)
+    {
+        Service = service;
+        Id = id;
+        Idx = idx;
+        Name = name;
+    }
+
+    public GearSet ToGearSet() => new(Service, Name)
+    {
+        ExternalId = Id,
+        ExternalIdx = Idx,
+    };
+
+    public bool Equals(GearSet? set) => Service == set?.ManagedBy && Id == set.ExternalId && set.ExternalIdx == Idx;
 }
 
 internal abstract class WebConnector

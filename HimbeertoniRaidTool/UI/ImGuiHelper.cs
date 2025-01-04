@@ -187,7 +187,7 @@ public static class ImGuiHelper
     {
         T? value2 = value;
         Func<T?, string>? toNameInternal = toName is null ? null : t => t.HasValue ? toName(t.Value) : "";
-        bool result = Combo(label, ref value2, toNameInternal, select);
+        bool result = Combo(label, ref value2, toNameInternal, select, false);
         if (result && value2.HasValue)
             value = value2.Value;
         return result;
@@ -195,13 +195,18 @@ public static class ImGuiHelper
 
 
     public static bool Combo<T>(string label, ref T? value, Func<T?, string>? toName = null,
-                                Func<T, bool>? select = null) where T : struct, Enum
+                                Func<T, bool>? select = null, bool allowNull = true) where T : struct, Enum
     {
         string[] names = Enum.GetNames(typeof(T));
         toName ??= t => names[t.HasValue ? Array.IndexOf(Enum.GetValues(typeof(T)), t) : 0];
         select ??= _ => true;
         bool result = false;
         if (!ImGui.BeginCombo(label, toName(value))) return result;
+        if (allowNull && ImGui.Selectable(toName(null)))
+        {
+            value = null;
+            result = true;
+        }
         foreach (var choice in Enum.GetValues<T>())
         {
             if (!select(choice) || !ImGui.Selectable(toName(choice))) continue;

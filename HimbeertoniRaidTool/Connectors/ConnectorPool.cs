@@ -33,8 +33,7 @@ internal class ConnectorPool : IDisposable
         _                      => null,
     };
 
-    public (GearSetManager Service, string Id) GetDefaultBiS(Job job) =>
-        (GearSetManager.Etro, _etroConnector.GetDefaultBiS(job));
+    public ExternalBiSDefinition GetDefaultBiS(Job job) => _etroConnector.GetDefaultBiS(job);
 
     public void Dispose() => LodestoneConnector.Dispose();
 }

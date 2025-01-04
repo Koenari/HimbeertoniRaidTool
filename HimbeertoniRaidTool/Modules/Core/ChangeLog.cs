@@ -8,6 +8,15 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 8, 0, 2))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "Improved usability of BiS section in gear edit"),
+                new ChangeLogEntry(
+                    Bugfix, "2nd,3rd,... set from XivGear.app sheets are now fetched correctly, not always the 1st"),
+            },
+        },
         new(new Version(1, 8, 0, 1))
         {
             MinorFeatures =

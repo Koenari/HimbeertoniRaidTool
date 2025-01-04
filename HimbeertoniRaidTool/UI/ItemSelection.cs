@@ -157,7 +157,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         //Draw selection bar
         ImGui.SetNextItemWidth(65f * ScaleFactor);
         ImGui.BeginDisabled(_lockJob);
-        if (ImGuiHelper.Combo("##job", ref _job))
+        if (ImGuiHelper.Combo("##job", ref _job, job => job.HasValue ? job.Value.ToString() : "-"))
             ReevaluateItems();
         ImGui.EndDisabled();
         ImGui.SameLine();

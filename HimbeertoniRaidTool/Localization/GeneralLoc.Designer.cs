@@ -461,6 +461,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Supply own set.
+        /// </summary>
+        internal static string EditGearSetUi_hdg_ExtCustom {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_hdg_ExtCustom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ID/Url.
+        /// </summary>
+        internal static string EditGearSetUi_input_ExtId {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_input_ExtId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Source.
         /// </summary>
         internal static string EditGearSetUi_Source {
@@ -488,6 +506,33 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid Id / Url.
+        /// </summary>
+        internal static string EditGearSetUi_text_InvalidId {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_text_InvalidId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with:.
+        /// </summary>
+        internal static string EditGearSetUi_text_Replace {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_text_Replace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto Detect.
+        /// </summary>
+        internal static string EditGearSetUi_txt_AutoDetect {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_txt_AutoDetect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Gear set is meant for Job:.
         /// </summary>
         internal static string EditGearSetUi_txt_job {
@@ -511,6 +556,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string EditGearSetUi_txt_lastUpdate {
             get {
                 return ResourceManager.GetString("EditGearSetUi_txt_lastUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loading....
+        /// </summary>
+        internal static string EditGearSetUi_txt_Loading {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_txt_Loading", resourceCulture);
             }
         }
         

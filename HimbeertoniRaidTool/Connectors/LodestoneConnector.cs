@@ -95,6 +95,10 @@ internal class LodestoneConnector : NetStoneBase
             FillItem(newGearset.Ring1, GearSetSlot.Ring1);
             FillItem(newGearset.Ring2, GearSetSlot.Ring2);
 
+            return new HrtUiMessage(
+                string.Format(GeneralLoc.LodestoneConnector_msg_Success, p.MainChar.Name, classToChange.Job),
+                HrtUiMessageType.Success);
+
             void FillItem(GearEntry? gearPiece, GearSetSlot slot)
             {
                 if (gearPiece == null)
@@ -136,10 +140,6 @@ internal class LodestoneConnector : NetStoneBase
                     classToChange.CurGear[slot].AddMateria(new MateriaItem(materiaCategory, materiaLevel));
                 }
             }
-
-            return new HrtUiMessage(
-                string.Format(GeneralLoc.LodestoneConnector_msg_Success, p.MainChar.Name, classToChange.Job),
-                HrtUiMessageType.Success);
         }
         catch (Exception e)
         {

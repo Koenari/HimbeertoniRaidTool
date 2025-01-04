@@ -480,4 +480,22 @@ You need to update to use this plugin!</value>
     <data name="CommonTerms_Food" xml:space="preserve">
         <value>Food</value>
     </data>
+    <data name="EditGearSetUi_txt_Loading" xml:space="preserve">
+        <value>Loading...</value>
+    </data>
+    <data name="EditGearSetUi_text_InvalidId" xml:space="preserve">
+        <value>Invalid Id / Url</value>
+    </data>
+    <data name="EditGearSetUi_input_ExtId" xml:space="preserve">
+        <value>ID/Url</value>
+    </data>
+    <data name="EditGearSetUi_hdg_ExtCustom" xml:space="preserve">
+        <value>Supply own set</value>
+    </data>
+    <data name="EditGearSetUi_txt_AutoDetect" xml:space="preserve">
+        <value>Auto Detect</value>
+    </data>
+    <data name="EditGearSetUi_text_Replace" xml:space="preserve">
+        <value>Replace with:</value>
+    </data>
 </root>
