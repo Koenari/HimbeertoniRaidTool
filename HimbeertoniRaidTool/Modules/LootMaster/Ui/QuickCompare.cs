@@ -10,16 +10,15 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 internal class QuickCompareWindow : HrtWindowWithModalChild
 {
     private readonly PlayableClass _curClass;
-    private readonly LootMasterModule _lootMaster;
     private readonly Tribe? _curTribe;
-
     private readonly GearSet _newGear;
-    internal QuickCompareWindow(LootMasterModule lootMaster, PlayableClass job, Tribe? tribe) : base(
-        lootMaster.Services.UiSystem)
+    private readonly Action<GearItem, SlotDrawFlags> _drawFunction;
+    internal QuickCompareWindow(IUiSystem uiSystem, Action<GearItem, SlotDrawFlags> itemDraw, PlayableClass job,
+                                Tribe? tribe) : base(uiSystem)
     {
-        _lootMaster = lootMaster;
         _curClass = job;
         _curTribe = tribe;
+        _drawFunction = itemDraw;
         _newGear = new GearSet(_curClass.CurGear);
         Title = LootmasterLoc.QuickCompareUi_Title;
         OpenCentered = true;
@@ -41,29 +40,29 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
             ImGui.TableHeadersRow();
             ImGui.TableNextColumn();
             const SlotDrawFlags slotDrawFlags = SlotDrawFlags.DetailedSingle;
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.MainHand], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.MainHand], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.OffHand], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.OffHand], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.Head], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.Head], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.Ear], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.Ear], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.Body], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.Body], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.Neck], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.Neck], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.Hands], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.Hands], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.Wrist], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.Wrist], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.Legs], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.Legs], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.Ring1], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.Ring1], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.Feet], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.Feet], slotDrawFlags);
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawSlot(_lootMaster, CurGear[GearSetSlot.Ring2], slotDrawFlags);
+            _drawFunction(CurGear[GearSetSlot.Ring2], slotDrawFlags);
         }
         using (ImRaii.Table("##GearCompareFoodCurrent", 1, ImGuiTableFlags.Borders))
         {
