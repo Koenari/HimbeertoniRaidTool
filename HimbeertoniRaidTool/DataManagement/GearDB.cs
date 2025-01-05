@@ -55,7 +55,7 @@ internal class GearDb : DataBaseTable<GearSet>
         }
     }
 
-    public override HashSet<HrtId> GetReferencedIds() => new(Data.Keys);
+    public override HashSet<HrtId> GetReferencedIds() => [..Data.Keys];
     public override HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<GearSet> onSelect, Action? onCancel = null) =>
         new GearSearchWindow(uiSystem, this, onSelect, onCancel);
 
