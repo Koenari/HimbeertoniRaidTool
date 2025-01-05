@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;

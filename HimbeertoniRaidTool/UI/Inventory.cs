@@ -94,11 +94,8 @@ internal class InventoryWindow : HrtWindowWithModalChild
                 Inventory.Remove(idx);
             ImGui.SameLine();
             ImGui.BeginGroup();
-            if (icon is not null)
-            {
-                ImGui.Image(icon.ImGuiHandle, IconSize * ScaleFactor);
-                ImGui.SameLine();
-            }
+            ImGui.Image(icon.ImGuiHandle, IconSize * ScaleFactor);
+            ImGui.SameLine();
             ImGui.Text(item.Name);
             ImGui.EndGroup();
             if (ImGui.IsItemHovered())

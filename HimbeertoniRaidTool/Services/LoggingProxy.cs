@@ -13,26 +13,12 @@ internal class LoggingProxy : ILogger
 
     public LogEventLevel MinimumLogLevel { get => _impl.MinimumLogLevel; set => _impl.MinimumLogLevel = value; }
 
-    public void Fatal(string messageTemplate, params object[] values)
-    {
-        PrintToChat(LogEventLevel.Fatal, messageTemplate, values);
-        _impl.Fatal(messageTemplate, values);
-    }
-    public void Fatal(Exception? exception, string messageTemplate, params object[] values)
-    {
-        PrintToChat(LogEventLevel.Fatal, messageTemplate, values);
+    public void Fatal(string messageTemplate, params object[] values) => _impl.Fatal(messageTemplate, values);
+    public void Fatal(Exception? exception, string messageTemplate, params object[] values) =>
         _impl.Fatal(exception, messageTemplate, values);
-    }
-    public void Error(string messageTemplate, params object[] values)
-    {
-        PrintToChat(LogEventLevel.Error, messageTemplate, values);
-        _impl.Error(messageTemplate, values);
-    }
-    public void Error(Exception? exception, string messageTemplate, params object[] values)
-    {
-        PrintToChat(LogEventLevel.Error, messageTemplate, values);
+    public void Error(string messageTemplate, params object[] values) => _impl.Error(messageTemplate, values);
+    public void Error(Exception? exception, string messageTemplate, params object[] values) =>
         _impl.Error(exception, messageTemplate, values);
-    }
 
     public void Warning(string messageTemplate, params object[] values) => _impl.Warning(messageTemplate, values);
     public void Warning(Exception? exception, string messageTemplate, params object[] values) =>
@@ -52,11 +38,6 @@ internal class LoggingProxy : ILogger
         _impl.Verbose(exception, messageTemplate, values);
     public void Write(LogEventLevel level, Exception? exception, string messageTemplate, params object[] values) =>
         _impl.Write(level, exception, messageTemplate, values);
-
-    private void PrintToChat(LogEventLevel level, string messageTemplate, params object[] values)
-    {
-
-    }
 }
 
 public interface ILogger

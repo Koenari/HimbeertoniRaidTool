@@ -3,7 +3,6 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
-using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -129,10 +128,11 @@ internal sealed class LootMasterModule : IHrtModule
         var target = Services.TargetManager.Target;
         return target is IPlayerCharacter character && FillPlayer(player, character);
     }
-    private bool FillPlayerFromSelf(Player player)
+    private void FillPlayerFromSelf(Player player)
     {
         var character = Services.ClientState.LocalPlayer;
-        return character != null && FillPlayer(player, character);
+        if (character != null)
+            FillPlayer(player, character);
     }
     private bool FillPlayer(Player player, IPlayerCharacter source)
     {
@@ -145,14 +145,13 @@ internal sealed class LootMasterModule : IHrtModule
         return result;
     }
 
-    private bool AddCurrentCharacter(Player player)
+    private void AddCurrentCharacter(Player player)
     {
         var sourceCharacter = Services.ClientState.LocalPlayer;
         var character = new Character();
-        if (sourceCharacter == null) return false;
-        bool result = FillCharacter(ref character, sourceCharacter);
+        if (sourceCharacter == null) return;
+        FillCharacter(ref character, sourceCharacter);
         player.MainChar = character;
-        return result;
     }
     private bool FillCharacter(ref Character destination, IPlayerCharacter source)
     {

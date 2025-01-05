@@ -6,7 +6,6 @@ using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 using ImGuiNET;
-using Lumina.Excel;
 
 // ReSharper disable UnusedMember.Global
 
