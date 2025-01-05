@@ -1075,6 +1075,42 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to + Add known {0}.
+        /// </summary>
+        internal static string UiHelpers_txt_AddKnown {
+            get {
+                return ResourceManager.GetString("UiHelpers_txt_AddKnown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to + Add new {0}.
+        /// </summary>
+        internal static string UiHelpers_txt_AddNew {
+            get {
+                return ResourceManager.GetString("UiHelpers_txt_AddNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with known {0}.
+        /// </summary>
+        internal static string UiHelpers_txt_ReplaceKnown {
+            get {
+                return ResourceManager.GetString("UiHelpers_txt_ReplaceKnown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with new {0}.
+        /// </summary>
+        internal static string UiHelpers_txt_ReplaceNew {
+            get {
+                return ResourceManager.GetString("UiHelpers_txt_ReplaceNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error updating set {0} from XivGear.app.
         /// </summary>
         internal static string XivGearAppConnector_GetGearSet_Error {

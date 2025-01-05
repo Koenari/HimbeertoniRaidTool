@@ -204,7 +204,7 @@ internal class LootSessionUi : HrtWindow
                                      ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg))
                 {
                     ImGui.TableSetupColumn(LootmasterLoc.LootSessionUi_resultTable_Col_Pos);
-                    ImGui.TableSetupColumn(Player.DataTypeNameStatic.CapitalizedSentence());
+                    ImGui.TableSetupColumn(Player.DataTypeNameStatic.Capitalized());
                     ImGui.TableSetupColumn(LootmasterLoc.LootUi_Results_hdg_NeededItems);
                     ImGui.TableSetupColumn(LootmasterLoc.LootUI_Results_Rule);
                     foreach (var rule in _session.RulingOptions.ActiveRules)

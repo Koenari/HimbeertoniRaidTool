@@ -45,6 +45,19 @@ internal static class LmUiHelpers
             <= 20 => config.ItemLevelColors[2],
             _     => config.ItemLevelColors[3],
         };
+    internal static void DrawPlayerCombo(IHrtModule module, string id, Player player,
+                                         Action<Player> replaceCallback, float width = 80)
+    {
+        ImGui.SetNextItemWidth(width);
+        using var combo = ImRaii.Combo(id, player.NickName, ImGuiComboFlags.NoArrowButton);
+        if (!combo) return;
+        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_ReplaceNew, player.DataTypeName)))
+            module.Services.UiSystem.EditWindows.Create(new Player(), replaceCallback);
+        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_ReplaceKnown, player.DataTypeName)))
+            module.Services.HrtDataManager.PlayerDb.OpenSearchWindow(module.Services.UiSystem, replaceCallback);
+
+    }
+
     internal static void DrawCharacterCombo(LootMasterModule module, string id, Player player, float width = 110)
     {
         ImGui.SetNextItemWidth(width);
@@ -56,11 +69,11 @@ internal static class LmUiHelpers
             if (ImGui.Selectable(ToName(character)))
                 player.MainChar = character;
         }
-        if (ImGui.Selectable("+ Add new"))
+        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddNew, Character.DataTypeNameStatic)))
         {
             module.Services.UiSystem.EditWindows.Create(new Character(), player.AddCharacter);
         }
-        if (ImGui.Selectable("+ Search known characters"))
+        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, Character.DataTypeNameStatic)))
         {
             module.Services.HrtDataManager.CharDb.OpenSearchWindow(module.Services.UiSystem, player.AddCharacter);
         }
@@ -75,7 +88,7 @@ internal static class LmUiHelpers
         if (character.Classes.Any())
         {
             ImGui.SetNextItemWidth(width);
-            using var combo = ImRaii.Combo(id, character.MainClass?.ToString() ?? string.Empty);
+            using var combo = ImRaii.Combo(id, character.MainClass!.ToString(), ImGuiComboFlags.NoArrowButton);
             if (!combo) return;
             var classes = character.Classes.Where(c => !c.HideInUi).ToList();
             /*classes.Sort((a, b) =>
@@ -88,6 +101,18 @@ internal static class LmUiHelpers
             {
                 if (ImGui.Selectable(job.ToString()))
                     character.MainJob = job.Job;
+            }
+            ImGui.Separator();
+            var newJobs = Enum.GetValues<Job>()
+                              .Where(j => j.IsCombatJob())
+                              .Where(j => character.Classes.All(c => c.Job != j)).ToList();
+            newJobs.Sort(
+                (a, b) => string.Compare(a.ToString(), b.ToString(), StringComparison.InvariantCulture));
+            foreach (var newClass in newJobs)
+            {
+                if (!ImGui.Selectable(string.Format(GeneralLoc.Ui_btn_tt_add, newClass.ToString()))) continue;
+                character.AddClass(newClass);
+                character.MainJob = newClass;
             }
         }
         else
@@ -112,11 +137,11 @@ internal static class LmUiHelpers
                     changeCallback(curJobGearSet);
                 ImGui.PopStyleColor();
             }
-            if (ImGui.Selectable(LootmasterLoc.GearSetSelect_Add_new))
+            if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddNew, current.DataTypeName)))
             {
                 module.Services.UiSystem.EditWindows.Create(new GearSet(), changeCallback, null, null, job);
             }
-            if (ImGui.Selectable(LootmasterLoc.GearSetSelect_AddFromDB))
+            if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, current.DataTypeName)))
             {
                 module.Services.HrtDataManager.GearDb.OpenSearchWindow(module.Services.UiSystem, changeCallback);
             }

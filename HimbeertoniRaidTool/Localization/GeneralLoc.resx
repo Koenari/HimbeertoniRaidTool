@@ -498,4 +498,20 @@ You need to update to use this plugin!</value>
     <data name="EditGearSetUi_text_Replace" xml:space="preserve">
         <value>Replace with:</value>
     </data>
+    <data name="UiHelpers_txt_AddNew" xml:space="preserve">
+        <value>+ Add new {0}</value>
+        <comment>{0} type of data</comment>
+    </data>
+    <data name="UiHelpers_txt_AddKnown" xml:space="preserve">
+        <value>+ Add known {0}</value>
+        <comment>{0} type of data</comment>
+    </data>
+    <data name="UiHelpers_txt_ReplaceNew" xml:space="preserve">
+        <value>Replace with new {0}</value>
+        <comment>{0} type of data</comment>
+    </data>
+    <data name="UiHelpers_txt_ReplaceKnown" xml:space="preserve">
+        <value>Replace with known {0}</value>
+        <comment>{0} type of data</comment>
+    </data>
 </root>

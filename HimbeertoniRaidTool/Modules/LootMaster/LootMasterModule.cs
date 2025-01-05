@@ -195,6 +195,8 @@ internal sealed class LootMasterModule : IHrtModule
         Services.HrtDataManager.Save();
         return true;
     }
+    internal void AddGroup(RaidGroup group) => AddGroup(group, false);
+
     internal void AddGroup(RaidGroup group, bool getGroupInfos)
     {
         if (group.LocalId.IsEmpty)

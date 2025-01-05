@@ -75,7 +75,9 @@ internal class LootmasterUi : HrtWindow
          * Job Selection
          */
         ImGui.Spacing();
-        ImGui.Text($"{p.NickName} : {string.Format($"{{0:{CurConfig.CharacterNameFormat}}}", p.MainChar)}");
+        ImGui.Text($"{p.NickName} :");
+        ImGui.SameLine();
+        LmUiHelpers.DrawCharacterCombo(_module, "##charSelect", p);
         ImGui.SameLine();
         ImGuiHelper.GearUpdateButtons(p, _module, true);
         ImGui.SameLine();
@@ -84,93 +86,95 @@ internal class LootmasterUi : HrtWindow
         ImGui.SameLine();
         if (ImGuiHelper.EditButton(p.MainChar, $"##EditCharacter{p.NickName}"))
             UiSystem.EditWindows.Create(p.MainChar);
-        ImGui.BeginChild("JobList");
-        Action? deferredAction = null;
-        foreach (var playableClass in p.MainChar.Classes.Where(c => !c.HideInUi))
+        using (var jobList = ImRaii.Child("##JobList"))
         {
-            ImGui.PushID($"{playableClass.Job}");
-            ImGui.Separator();
-            ImGui.Spacing();
-            if (ImGuiHelper.DeleteButton(playableClass, "##delete"))
-                deferredAction = () => p.MainChar.RemoveClass(playableClass.Job);
-            ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##jobUp",
-                                   string.Format(GeneralLoc.SortableList_btn_tt_moveUp, playableClass.DataTypeName),
-                                   p.MainChar.CanMoveUp(playableClass)))
-                deferredAction = () => p.MainChar.MoveClassUp(playableClass);
-            ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "##jobDown",
-                                   string.Format(GeneralLoc.SortableList_btn_tt_moveDown, playableClass.DataTypeName),
-                                   p.MainChar.CanMoveDown(playableClass)))
-                deferredAction = () => p.MainChar.MoveClassDown(playableClass);
-            bool isMainJob = p.MainChar.MainJob == playableClass.Job;
+            Action? deferredAction = null;
+            if (jobList)
+                foreach (var playableClass in p.MainChar.Classes.Where(c => !c.HideInUi))
+                {
+                    ImGui.PushID($"{playableClass.Job}");
+                    ImGui.Separator();
+                    ImGui.Spacing();
+                    if (ImGuiHelper.DeleteButton(playableClass, "##delete"))
+                        deferredAction = () => p.MainChar.RemoveClass(playableClass.Job);
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##jobUp",
+                                           string.Format(GeneralLoc.SortableList_btn_tt_moveUp,
+                                                         playableClass.DataTypeName),
+                                           p.MainChar.CanMoveUp(playableClass)))
+                        deferredAction = () => p.MainChar.MoveClassUp(playableClass);
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "##jobDown",
+                                           string.Format(GeneralLoc.SortableList_btn_tt_moveDown,
+                                                         playableClass.DataTypeName),
+                                           p.MainChar.CanMoveDown(playableClass)))
+                        deferredAction = () => p.MainChar.MoveClassDown(playableClass);
+                    bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
-            if (isMainJob)
-                ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
-            ImGui.SameLine();
-            if (ImGuiHelper.Button($"{playableClass.Job} ({playableClass.Level:D2})", null, true,
-                                   new Vector2(67f * ScaleFactor, 0f)))
-                p.MainChar.MainJob = playableClass.Job;
-            if (isMainJob)
-                ImGui.PopStyleColor();
-            ImGui.SameLine();
-            float comboWidth = 85 * ScaleFactor;
-            /*
-             * Current Gear
-             */
-            ImGui.Text(GeneralLoc.CommonTerms_Gear.CapitalizedSentence());
-            ImGui.SameLine();
-            LmUiHelpers.DrawGearSetCombo("##curGear", playableClass.CurGear, playableClass.GearSets,
-                                         s => playableClass.CurGear = s,
-                                         _module, playableClass.Job, comboWidth);
-            ImGui.SameLine();
-            if (ImGuiHelper.EditButton(playableClass.CurGear, "##editGear"))
-                UiSystem.EditWindows.Create(playableClass.CurGear, g => playableClass.CurGear = g, () => { },
-                                            () => playableClass.RemoveGearSet(playableClass.CurGear),
-                                            playableClass.Job);
-            ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, "##quickCompare",
-                                   LootmasterLoc.PlayerDetail_button_quickCompare))
-                UiSystem.AddWindow(new QuickCompareWindow(_module, playableClass, p.MainChar.Tribe));
-            /*
-             * BiS
-             */
-            ImGui.SameLine();
-            ImGui.Text(GeneralLoc.CommonTerms_BiS);
-            ImGui.SameLine();
-            LmUiHelpers.DrawGearSetCombo("##curBis", playableClass.CurBis, playableClass.BisSets,
-                                         s => playableClass.CurBis = s,
-                                         _module, playableClass.Job, comboWidth);
-            ImGui.SameLine();
-            if (ImGuiHelper.EditButton(playableClass.CurBis, "##editBIS"))
-                UiSystem.EditWindows.Create(playableClass.CurBis, g => playableClass.CurBis = g, () => { },
-                                            () => playableClass.RemoveBisSet(playableClass.CurBis),
-                                            playableClass.Job);
-            ImGui.SameLine();
-            ImGuiHelper.ExternalGearUpdateButton(playableClass.CurBis, _module);
-            ImGui.Spacing();
-            ImGui.PopID();
+                    if (isMainJob)
+                        ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button($"{playableClass.Job} ({playableClass.Level:D2})", null, true,
+                                           new Vector2(67f * ScaleFactor, 0f)))
+                        p.MainChar.MainJob = playableClass.Job;
+                    if (isMainJob)
+                        ImGui.PopStyleColor();
+                    ImGui.SameLine();
+                    float comboWidth = 85 * ScaleFactor;
+                    /*
+                     * Current Gear
+                     */
+                    ImGui.Text(GeneralLoc.CommonTerms_Gear.Capitalized());
+                    ImGui.SameLine();
+                    LmUiHelpers.DrawGearSetCombo("##curGear", playableClass.CurGear, playableClass.GearSets,
+                                                 s => playableClass.CurGear = s,
+                                                 _module, playableClass.Job, comboWidth);
+                    ImGui.SameLine();
+                    if (ImGuiHelper.EditButton(playableClass.CurGear, "##editGear"))
+                        UiSystem.EditWindows.Create(playableClass.CurGear, g => playableClass.CurGear = g, () => { },
+                                                    () => playableClass.RemoveGearSet(playableClass.CurGear),
+                                                    playableClass.Job);
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, "##quickCompare",
+                                           LootmasterLoc.PlayerDetail_button_quickCompare))
+                        UiSystem.AddWindow(new QuickCompareWindow(_module, playableClass, p.MainChar.Tribe));
+                    /*
+                     * BiS
+                     */
+                    ImGui.SameLine();
+                    ImGui.Text(GeneralLoc.CommonTerms_BiS);
+                    ImGui.SameLine();
+                    LmUiHelpers.DrawGearSetCombo("##curBis", playableClass.CurBis, playableClass.BisSets,
+                                                 s => playableClass.CurBis = s,
+                                                 _module, playableClass.Job, comboWidth);
+                    ImGui.SameLine();
+                    if (ImGuiHelper.EditButton(playableClass.CurBis, "##editBIS"))
+                        UiSystem.EditWindows.Create(playableClass.CurBis, g => playableClass.CurBis = g, () => { },
+                                                    () => playableClass.RemoveBisSet(playableClass.CurBis),
+                                                    playableClass.Job);
+                    ImGui.SameLine();
+                    ImGuiHelper.ExternalGearUpdateButton(playableClass.CurBis, _module);
+                    ImGui.Spacing();
+                    ImGui.PopID();
+                }
+            deferredAction?.Invoke();
         }
-
-        ImGui.EndChild();
-        deferredAction?.Invoke();
         /*
          * Stat Table
          */
         ImGui.NextColumn();
         ImGui.Spacing();
-        if (ImGui.BeginChild("##statsChild"))
+        using (var statsChild = ImRaii.Child("##statsChild"))
         {
-
-            if (curClass is not null)
+            if (statsChild.Success && curClass is not null)
+            {
                 LmUiHelpers.DrawStatTable(curClass, p.MainChar.Tribe, curClass.CurGear, curClass.CurBis,
                                           LootmasterLoc.CurrentGear, GeneralLoc.CommonTerms_Difference,
                                           GeneralLoc.CommonTerms_BiS,
                                           LmUiHelpers.StatTableCompareMode.DoCompare
                                         | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
-            ImGui.EndChild();
+            }
         }
-
 
         /*
          * Show Gear
@@ -186,7 +190,7 @@ internal class LootmasterUi : HrtWindow
             {
                 if (table)
                 {
-                    ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.CapitalizedSentence());
+                    ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.Capitalized());
                     ImGui.TableSetupColumn("");
                     ImGui.TableHeadersRow();
                     if (curClass is not null)
@@ -231,9 +235,9 @@ internal class LootmasterUi : HrtWindow
                 if (table)
                 {
                     ImGui.TableSetupColumn(
-                        $"{GeneralLoc.CommonTerms_Food} ({GeneralLoc.CommonTerms_Gear.CapitalizedSentence()})");
+                        $"{GeneralLoc.CommonTerms_Food} ({GeneralLoc.CommonTerms_Gear.Capitalized()})");
                     ImGui.TableSetupColumn(
-                        $"{GeneralLoc.CommonTerms_Food} ({GeneralLoc.CommonTerms_BiS.CapitalizedSentence()})");
+                        $"{GeneralLoc.CommonTerms_Food} ({GeneralLoc.CommonTerms_BiS.Capitalized()})");
                     ImGui.TableHeadersRow();
                     ImGui.TableNextColumn();
                     LmUiHelpers.DrawFood(UiSystem, curClass?.CurGear.Food);
@@ -271,38 +275,38 @@ internal class LootmasterUi : HrtWindow
         else
         {
             ImGui.SetNextItemWidth(800 * ScaleFactor);
-            if (ImGui.BeginTable("##RaidGroup", 15,
-                                 ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
+            // ReSharper disable once ConvertToUsingDeclaration
+            using (var groupTable = ImRaii.Table("##RaidGroup", 15,
+                                                 ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg
+                                                                         | ImGuiTableFlags.SizingStretchProp))
             {
-                ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Sort, ImGuiTableColumnFlags.WidthFixed);
-                ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Player, ImGuiTableColumnFlags.WidthFixed);
-                ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.CapitalizedSentence(),
-                                       ImGuiTableColumnFlags.WidthFixed);
-                foreach (var slot in GearSet.Slots)
+                if (groupTable)
                 {
-                    if (slot == GearSetSlot.OffHand)
-                        continue;
-                    ImGui.TableSetupColumn(slot.FriendlyName(true));
+                    ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Sort, ImGuiTableColumnFlags.WidthFixed);
+                    ImGui.TableSetupColumn(LootmasterLoc.Ui_MainTable_Col_Player, ImGuiTableColumnFlags.WidthFixed);
+                    ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Gear.Capitalized(),
+                                           ImGuiTableColumnFlags.WidthFixed);
+                    foreach (var slot in GearSet.Slots)
+                    {
+                        if (slot == GearSetSlot.OffHand)
+                            continue;
+                        ImGui.TableSetupColumn(slot.FriendlyName(true));
+                    }
+                    ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthFixed);
+                    ImGui.TableHeadersRow();
+                    for (int position = 0; position < CurrentGroup.Count; position++)
+                    {
+                        DrawPlayerRow(CurrentGroup, position);
+                    }
                 }
-
-                ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthFixed);
-                ImGui.TableHeadersRow();
-                for (int position = 0; position < CurrentGroup.Count; position++)
-                {
-                    ImGui.PushID(position);
-                    DrawPlayerRow(CurrentGroup, position);
-                    ImGui.PopID();
-                }
-
-                ImGui.EndTable();
             }
         }
     }
 
     private void DrawRaidGroupSwitchBar()
     {
-        if (!ImGui.BeginTabBar("##RaidGroupSwitchBar"))
-            return;
+        using var tabBar = ImRaii.TabBar("##RaidGroupSwitchBar");
+        if (!tabBar) return;
         for (int tabBarIdx = 0; tabBarIdx < _module.RaidGroups.Count; tabBarIdx++)
         {
             ImGui.PushID(tabBarIdx);
@@ -346,8 +350,9 @@ internal class LootmasterUi : HrtWindow
         }
 
         const string newGroupContextMenuId = "##NewGroupContextMenu";
-        if (ImGui.TabItemButton("+")) ImGui.OpenPopup(newGroupContextMenuId);
-        if (ImGui.BeginPopupContextItem(newGroupContextMenuId))
+        if (ImGui.TabItemButton(" + ")) ImGui.OpenPopup(newGroupContextMenuId);
+        using var newPopup = ImRaii.ContextPopupItem(newGroupContextMenuId);
+        if (newPopup)
         {
             if (ImGuiHelper.Button(LootmasterLoc.Ui_btn_newGroupAutomatic, null))
             {
@@ -357,15 +362,22 @@ internal class LootmasterUi : HrtWindow
 
             if (ImGuiHelper.Button(LootmasterLoc.Ui_btn_newGroupManual,
                                    string.Format(GeneralLoc.Ui_btn_tt_addEmpty, RaidGroup.DataTypeNameStatic)))
-                UiSystem.EditWindows.Create(new RaidGroup(), group => _module.AddGroup(group, false));
-            ImGui.EndPopup();
+            {
+                UiSystem.EditWindows.Create(new RaidGroup(), _module.AddGroup);
+                ImGui.CloseCurrentPopup();
+            }
+            if (ImGuiHelper.Button(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, RaidGroup.DataTypeNameStatic),
+                                   null))
+            {
+                _module.Services.HrtDataManager.RaidGroupDb.OpenSearchWindow(UiSystem, _module.AddGroup);
+                ImGui.CloseCurrentPopup();
+            }
         }
-
-        ImGui.EndTabBar();
     }
 
     private void DrawPlayerRow(RaidGroup group, int pos)
     {
+        using var id = ImRaii.PushId(pos);
         var player = group[pos];
         //Sort Row
         ImGui.TableNextColumn();
@@ -388,8 +400,10 @@ internal class LootmasterUi : HrtWindow
         {
             //Player Column
             ImGui.TableNextColumn();
-            ImGui.Text(
-                $"{player.MainChar.MainClass?.Role.FriendlyName() ?? Player.DataTypeNameStatic.CapitalizedSentence()}:   {player.NickName}");
+            ImGui.SetNextItemWidth(30);
+            ImGui.Text($"{player.MainChar.MainClass?.Role.FriendlyName() ?? player.DataTypeName.Capitalized()}");
+            ImGui.SameLine();
+            LmUiHelpers.DrawPlayerCombo(_module, "##playerCombo", player, p => group[pos] = p, 80 * ScaleFactor);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player, "##editPlayer"))
                 UiSystem.EditWindows.Create(player);
@@ -399,6 +413,12 @@ internal class LootmasterUi : HrtWindow
                 UiSystem.EditWindows.Create(player.MainChar);
             var curJob = player.MainChar.MainClass;
             LmUiHelpers.DrawClassCombo(_module, "##Class", player.MainChar, 110 * ScaleFactor);
+            if (curJob is not null)
+            {
+                ImGui.SameLine();
+                if (ImGuiHelper.DeleteButton(curJob, true, new Vector2(25f)))
+                    player.MainChar.RemoveClass(curJob.Job);
+            }
             if (curJob is null)
             {
                 for (int i = 0; i < GearSet.NUM_SLOTS; i++)

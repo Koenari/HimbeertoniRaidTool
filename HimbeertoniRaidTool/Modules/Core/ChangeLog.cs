@@ -10,9 +10,12 @@ public class ChangeLog
     {
         new(new Version(1, 8, 0, 2))
         {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "Add quick select for job/character/player (similar to gear sets)"),
+            },
             MinorFeatures =
             {
-                new ChangeLogEntry(UserInterface, "Add quick character selection (similar to gear sets)"),
                 new ChangeLogEntry(UserInterface, "Improved usability of BiS section in gear edit"),
                 new ChangeLogEntry(
                     Bugfix, "2nd,3rd,... set from XivGear.app sheets are now fetched correctly, not always the 1st"),

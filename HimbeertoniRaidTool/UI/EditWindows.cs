@@ -96,7 +96,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             _onSave = onSave;
             _onDelete = onDelete;
             Title = string.Format(GeneralLoc.EditUi_Title, _original.DataTypeName, _original.Name)
-                          .CapitalizedSentence();
+                          .Capitalized();
         }
         public override sealed void Draw()
         {

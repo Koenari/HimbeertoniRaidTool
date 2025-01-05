@@ -67,7 +67,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
         }
         using (ImRaii.Table("##GearCompareFoodCurrent", 1, ImGuiTableFlags.Borders))
         {
-            ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Food.CapitalizedSentence());
+            ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Food.Capitalized());
             ImGui.TableHeadersRow();
             ImGui.TableNextColumn();
             LmUiHelpers.DrawFood(UiSystem, CurGear.Food);

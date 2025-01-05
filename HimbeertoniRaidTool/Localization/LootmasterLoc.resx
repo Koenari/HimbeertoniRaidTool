@@ -285,12 +285,6 @@
         <value>Results for {0} ({1})</value>
         <comment>{0} fight {1} group</comment>
     </data>
-    <data name="GearSetSelect_Add_new" xml:space="preserve">
-        <value>+ Add new</value>
-    </data>
-    <data name="GearSetSelect_AddFromDB" xml:space="preserve">
-        <value>+ Search known sets</value>
-    </data>
     <data name="StatTable_MainStats_Title">
         <value>Main Stats</value>
     </data>

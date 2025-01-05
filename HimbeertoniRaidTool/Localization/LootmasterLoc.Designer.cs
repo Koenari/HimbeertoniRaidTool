@@ -312,24 +312,6 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to + Add new.
-        /// </summary>
-        internal static string GearSetSelect_Add_new {
-            get {
-                return ResourceManager.GetString("GearSetSelect_Add_new", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to + Search known sets.
-        /// </summary>
-        internal static string GearSetSelect_AddFromDB {
-            get {
-                return ResourceManager.GetString("GearSetSelect_AddFromDB", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Relevant gear (not equipped).
         /// </summary>
         internal static string InventoryUi_hdg_additionalGear {
