@@ -45,7 +45,7 @@ internal static class UiSystemFactory
             _windowSystem = windowSystem;
             Services = services;
             EditWindows = new EditWindowFactory(Services);
-            Helpers = new UiHelpers(this);
+            Helpers = new UiHelpers(this, Services);
 
         }
 

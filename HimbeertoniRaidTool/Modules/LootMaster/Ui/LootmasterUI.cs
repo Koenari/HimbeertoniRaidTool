@@ -77,7 +77,7 @@ internal class LootmasterUi : HrtWindow
         ImGui.Spacing();
         ImGui.Text($"{p.NickName} :");
         ImGui.SameLine();
-        LmUiHelpers.DrawCharacterCombo(_module, "##charSelect", p);
+        UiSystem.Helpers.DrawCharacterCombo("##charSelect", p, CurConfig.CharacterNameFormat);
         ImGui.SameLine();
         ImGuiHelper.GearUpdateButtons(p, _module, true);
         ImGui.SameLine();
@@ -126,9 +126,8 @@ internal class LootmasterUi : HrtWindow
                      */
                     ImGui.Text(GeneralLoc.CommonTerms_Gear.Capitalized());
                     ImGui.SameLine();
-                    LmUiHelpers.DrawGearSetCombo("##curGear", playableClass.CurGear, playableClass.GearSets,
-                                                 s => playableClass.CurGear = s,
-                                                 _module, playableClass.Job, comboWidth);
+                    UiSystem.Helpers.DrawGearSetCombo("##curGear", playableClass.CurGear, playableClass.GearSets,
+                                                      s => playableClass.CurGear = s, playableClass.Job, comboWidth);
                     ImGui.SameLine();
                     if (ImGuiHelper.EditButton(playableClass.CurGear, "##editGear"))
                         UiSystem.EditWindows.Create(playableClass.CurGear, g => playableClass.CurGear = g, () => { },
@@ -144,9 +143,8 @@ internal class LootmasterUi : HrtWindow
                     ImGui.SameLine();
                     ImGui.Text(GeneralLoc.CommonTerms_BiS);
                     ImGui.SameLine();
-                    LmUiHelpers.DrawGearSetCombo("##curBis", playableClass.CurBis, playableClass.BisSets,
-                                                 s => playableClass.CurBis = s,
-                                                 _module, playableClass.Job, comboWidth);
+                    UiSystem.Helpers.DrawGearSetCombo("##curBis", playableClass.CurBis, playableClass.BisSets,
+                                                      s => playableClass.CurBis = s, playableClass.Job, comboWidth);
                     ImGui.SameLine();
                     if (ImGuiHelper.EditButton(playableClass.CurBis, "##editBIS"))
                         UiSystem.EditWindows.Create(playableClass.CurBis, g => playableClass.CurBis = g, () => { },
@@ -168,11 +166,11 @@ internal class LootmasterUi : HrtWindow
         {
             if (statsChild.Success && curClass is not null)
             {
-                LmUiHelpers.DrawStatTable(curClass, p.MainChar.Tribe, curClass.CurGear, curClass.CurBis,
-                                          LootmasterLoc.CurrentGear, GeneralLoc.CommonTerms_Difference,
-                                          GeneralLoc.CommonTerms_BiS,
-                                          LmUiHelpers.StatTableCompareMode.DoCompare
-                                        | LmUiHelpers.StatTableCompareMode.DiffRightToLeft);
+                UiHelpers.DrawStatTable(curClass, p.MainChar.Tribe, curClass.CurGear, curClass.CurBis,
+                                        LootmasterLoc.CurrentGear, GeneralLoc.CommonTerms_Difference,
+                                        GeneralLoc.CommonTerms_BiS,
+                                        UiHelpers.StatTableCompareMode.DoCompare
+                                      | UiHelpers.StatTableCompareMode.DiffRightToLeft);
             }
         }
 
@@ -240,9 +238,9 @@ internal class LootmasterUi : HrtWindow
                         $"{GeneralLoc.CommonTerms_Food} ({GeneralLoc.CommonTerms_BiS.Capitalized()})");
                     ImGui.TableHeadersRow();
                     ImGui.TableNextColumn();
-                    LmUiHelpers.DrawFood(UiSystem, curClass?.CurGear.Food);
+                    UiSystem.Helpers.DrawFood(curClass?.CurGear.Food);
                     ImGui.TableNextColumn();
-                    LmUiHelpers.DrawFood(UiSystem, curClass?.CurBis.Food);
+                    UiSystem.Helpers.DrawFood(curClass?.CurBis.Food);
                 }
             }
         }
@@ -403,16 +401,17 @@ internal class LootmasterUi : HrtWindow
             ImGui.SetNextItemWidth(30);
             ImGui.Text($"{player.MainChar.MainClass?.Role.FriendlyName() ?? player.DataTypeName.Capitalized()}");
             ImGui.SameLine();
-            LmUiHelpers.DrawPlayerCombo(_module, "##playerCombo", player, p => group[pos] = p, 80 * ScaleFactor);
+            UiSystem.Helpers.DrawPlayerCombo("##playerCombo", player, p => group[pos] = p, 80 * ScaleFactor);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player, "##editPlayer"))
                 UiSystem.EditWindows.Create(player);
-            LmUiHelpers.DrawCharacterCombo(_module, "##CharCombo", player, 110 * ScaleFactor);
+            UiSystem.Helpers.DrawCharacterCombo("##CharCombo", player, CurConfig.CharacterNameFormat,
+                                                110 * ScaleFactor);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player.MainChar, "##editCharacter"))
                 UiSystem.EditWindows.Create(player.MainChar);
             var curJob = player.MainChar.MainClass;
-            LmUiHelpers.DrawClassCombo(_module, "##Class", player.MainChar, 110 * ScaleFactor);
+            UiSystem.Helpers.DrawClassCombo("##Class", player.MainChar, 110 * ScaleFactor);
             if (curJob is not null)
             {
                 ImGui.SameLine();
@@ -443,9 +442,8 @@ internal class LootmasterUi : HrtWindow
                  * Current Gear
                  */
                 ImGui.SetCursorPosY(dualTopRowY);
-                LmUiHelpers.DrawGearSetCombo("##curGear", gear, curJob.GearSets, s => curJob.CurGear = s, _module,
-                                             curJob.Job,
-                                             comboWidth);
+                UiSystem.Helpers.DrawGearSetCombo("##curGear", gear, curJob.GearSets, s => curJob.CurGear = s,
+                                                  curJob.Job, comboWidth);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualTopRowY);
                 if (ImGuiHelper.EditButton(gear, "##editCurGear", true, ButtonSize))
@@ -458,9 +456,8 @@ internal class LootmasterUi : HrtWindow
                  * Current BiS
                  */
                 ImGui.SetCursorPosY(dualBottomRowY);
-                LmUiHelpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s, _module,
-                                             curJob.Job,
-                                             comboWidth);
+                UiSystem.Helpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s, curJob.Job,
+                                                  comboWidth);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(dualBottomRowY);
                 if (ImGuiHelper.EditButton(bis, "##editBiSGear", true, ButtonSize))

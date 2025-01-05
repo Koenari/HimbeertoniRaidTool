@@ -70,16 +70,16 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
             ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Food.Capitalized());
             ImGui.TableHeadersRow();
             ImGui.TableNextColumn();
-            LmUiHelpers.DrawFood(UiSystem, CurGear.Food);
+            UiSystem.Helpers.DrawFood(CurGear.Food);
         }
         /*
          * Stat Table
          */
         ImGui.NextColumn();
-        LmUiHelpers.DrawStatTable(_curClass, _curTribe, CurGear, _newGear,
-                                  LootmasterLoc.CurrentGear,
-                                  LootmasterLoc.QuickCompare_StatGain,
-                                  LootmasterLoc.QuickCompareUi_hdg_NewGear);
+        UiHelpers.DrawStatTable(_curClass, _curTribe, CurGear, _newGear,
+                                LootmasterLoc.CurrentGear,
+                                LootmasterLoc.QuickCompare_StatGain,
+                                LootmasterLoc.QuickCompareUi_hdg_NewGear);
         /*
          * New Gear
          */
