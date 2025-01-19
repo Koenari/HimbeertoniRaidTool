@@ -25,6 +25,8 @@ public interface IUiSystem : IWindowSystem
     public IDalamudTextureWrap GetIcon(uint iconId, bool hq);
     public bool DrawConditionsMet();
     public ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType>;
+
+    public void OpenSettingsWindow();
 }
 
 internal static class UiSystemFactory
@@ -58,6 +60,9 @@ internal static class UiSystemFactory
         public bool DrawConditionsMet() =>
             !(CoreModule.UiConfig.HideInCombat && Services.Condition[ConditionFlag.InCombat])
          && !Services.Condition[ConditionFlag.BetweenAreas];
+
+        public void OpenSettingsWindow() => Services.ConfigManager.Show();
+
         public IEnumerable<HrtWindow> Windows => _windowSystem.Windows;
         public void Draw()
         {

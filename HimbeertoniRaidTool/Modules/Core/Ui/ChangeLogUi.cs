@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -57,7 +58,7 @@ internal class ChangeLogUi : HrtWindow
             Hide();
         }
     }
-    private static void DrawVersionEntry(SingleVersionChangelog versionEntry, bool defaultOpen = false)
+    private void DrawVersionEntry(SingleVersionChangelog versionEntry, bool defaultOpen = false)
     {
         ImGui.PushID(versionEntry.Version.ToString());
         if (versionEntry.HasNotableFeatures)
@@ -91,12 +92,12 @@ internal class ChangeLogUi : HrtWindow
             ImGui.PopStyleColor();
         ImGui.PopID();
     }
-    private static void DrawLogEntry(ChangeLogEntry entry, bool important = false)
+    private void DrawLogEntry(ChangeLogEntry entry, bool important = false)
     {
-        Action<string> drawText = important ? s => ImGui.TextColored(Colors.TextPetrol, s) : ImGui.TextWrapped;
+        using var color = ImRaii.PushColor(ImGuiCol.Text, Colors.TextPetrol, important);
         ImGui.Bullet();
         ImGui.SameLine();
-        drawText($"{entry.Category.Localized()}: {entry.Description}");
+        ImGui.TextWrapped($"{entry.Category.Localized()}: {entry.Description}");
         if (entry.HasGitHubIssue)
         {
             ImGui.SameLine();
@@ -106,12 +107,21 @@ internal class ChangeLogUi : HrtWindow
                 Util.OpenLink($"https://github.com/Koenari/HimbeertoniRaidTool/issues/{entry.GitHubIssueNumber}");
             ImGuiHelper.AddTooltip(CoreLoc.ChangeLogUi_text_issueLink_tooltip);
         }
+        if (entry.NewSetting)
+        {
+            ImGui.SameLine();
+            ImGui.TextColored(Colors.TextLink, CoreLoc.ChangeLogUi_text_openSettings);
+            if (ImGui.IsItemClicked())
+            {
+                UiSystem.OpenSettingsWindow();
+            }
+        }
         foreach (string entryBulletPoint in entry.BulletPoints)
         {
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 15);
             ImGui.Bullet();
             ImGui.SameLine();
-            drawText(entryBulletPoint);
+            ImGui.TextWrapped(entryBulletPoint);
         }
     }
 }

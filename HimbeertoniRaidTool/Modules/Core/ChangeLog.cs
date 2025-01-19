@@ -8,6 +8,18 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 8, 0, 3))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(
+                    NewFeature,
+                    "Stats can now take a party bonus into account (adjust the default in settings)")
+                {
+                    NewSetting = true,
+                },
+            },
+        },
         new(new Version(1, 8, 0, 2))
         {
             NotableFeatures =
@@ -38,7 +50,10 @@ public class ChangeLog
                 new ChangeLogEntry(
                     Gear,
                     "GearSets now support selection of food. You need to update all set from etro.gg and XivGear.app to get the food"),
-                new ChangeLogEntry(Options, "You can trigger updates for all gear sets from the options"),
+                new ChangeLogEntry(Options, "You can trigger updates for all gear sets from the options")
+                {
+                    NewSetting = true,
+                },
                 new ChangeLogEntry(Bugfix, "XivGear.app sets now behave as expected (on update and edit)"),
             },
             MinorFeatures =
@@ -60,7 +75,7 @@ public class ChangeLog
                 new ChangeLogEntry(UserInterface, "New layout for the stats"),
                 new ChangeLogEntry(UserInterface, "Overhauled item tooltips"),
                 new ChangeLogEntry(Bugfix, "Deleted sets get correctly removed from the gear/bis list"),
-                new ChangeLogEntry(Bis, "Update gear set buttons now work for XivGearApp (like they did for etro)"),
+                new ChangeLogEntry(Bis, "Update gear set buttons now works for XivGearApp (like they did for etro)"),
                 new ChangeLogEntry(UserInterface, "Searching gear from database now actually shows useful information"),
             },
             MinorFeatures =
@@ -549,6 +564,8 @@ public readonly struct ChangeLogEntry(ChangeLogEntryCategory category, string de
     public IList<string> BulletPoints { get; } = new List<string>();
     public int GitHubIssueNumber { get; } = issueNr;
     public bool HasGitHubIssue => GitHubIssueNumber > 0;
+
+    public bool NewSetting { get; init; } = false;
 }
 
 public enum ChangeLogEntryCategory

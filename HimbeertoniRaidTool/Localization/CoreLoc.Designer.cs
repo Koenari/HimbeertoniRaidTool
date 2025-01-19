@@ -267,6 +267,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open Settings.
+        /// </summary>
+        internal static string ChangeLogUi_text_openSettings {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_text_openSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Himbeertoni Raid Tool Changelog.
         /// </summary>
         internal static string ChangeLogUi_Title {
