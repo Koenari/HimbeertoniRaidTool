@@ -10,6 +10,4 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      User Interface: Add quick select for job/character/player (similar to gear sets)
-      User Interface: Improved usability of BiS section in gear edit
-      Bugfix: 2nd,3rd,... set from XivGear.app sheets are now fetched correctly, not always the 1st
+      New Feature: Stats can now take a party bonus into account (adjust the default in settings)
