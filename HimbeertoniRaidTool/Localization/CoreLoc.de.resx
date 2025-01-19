@@ -328,4 +328,7 @@
   <data name="ChangelogCategory_Lodestone" xml:space="preserve">
         <value>Lodestone Verbindung</value>
     </data>
+  <data name="ChangeLogUi_text_openSettings" xml:space="preserve">
+        <value>Zu den Einstellungen</value>
+    </data>
 </root>
