@@ -474,4 +474,38 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
   <data name="CommonTerms_Food" xml:space="preserve">
         <value>Essen</value>
     </data>
+  <data name="EditGearSetUi_txt_Loading" xml:space="preserve">
+        <value>Laden...</value>
+    </data>
+  <data name="EditGearSetUi_text_InvalidId" xml:space="preserve">
+        <value>Ungültige Id / Url</value>
+    </data>
+  <data name="EditGearSetUi_input_ExtId" xml:space="preserve">
+        <value>ID/Url</value>
+    </data>
+  <data name="EditGearSetUi_hdg_ExtCustom" xml:space="preserve">
+        <value>Eigenes Set nutzen</value>
+    </data>
+  <data name="EditGearSetUi_txt_AutoDetect" xml:space="preserve">
+        <value>Automatisch erkennen</value>
+    </data>
+  <data name="EditGearSetUi_text_Replace" xml:space="preserve">
+        <value>Ersetzen mit:</value>
+    </data>
+  <data name="UiHelpers_txt_AddNew" xml:space="preserve">
+        <value>+ Neues {0} hinzufügen</value>
+        <comment>{0} type of data</comment>
+    </data>
+  <data name="UiHelpers_txt_AddKnown" xml:space="preserve">
+        <value>+ Bekanntes {0} hinzufügen</value>
+        <comment>{0} type of data</comment>
+    </data>
+  <data name="UiHelpers_txt_ReplaceNew" xml:space="preserve">
+        <value>Ersetzen durch neues {0}</value>
+        <comment>{0} type of data</comment>
+    </data>
+  <data name="UiHelpers_txt_ReplaceKnown" xml:space="preserve">
+        <value>Ersetzen durch bekanntes {0}</value>
+        <comment>{0} type of data</comment>
+    </data>
 </root>
