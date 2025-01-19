@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -36,6 +37,14 @@ public class ConfigurationManager : IDisposable
         _configurations.Add(config.GetType(), config);
         _services.Logger.Debug($"Registered {config.ParentInternalName} config");
         return config.Load(_services.HrtDataManager.ModuleConfigurationManager);
+    }
+
+    internal bool TryGetConfig<T>(Type type, [NotNullWhen(true)] out T? config) where T : class, IHrtConfiguration
+    {
+        config = null;
+        if (_configurations.TryGetValue(type, out var configInner))
+            config = configInner as T;
+        return config != null;
     }
 
     internal void Save()
@@ -142,7 +151,7 @@ internal abstract class ModuleConfiguration<T>(IHrtModule module) : IHrtConfigur
     public T Data
     {
         get => _data;
-        set
+        protected set
         {
             _data = value;
             OnConfigChange?.Invoke();

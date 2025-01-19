@@ -10,19 +10,22 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 internal class QuickCompareWindow : HrtWindowWithModalChild
 {
     private readonly PlayableClass _curClass;
-    private readonly Tribe? _curTribe;
     private readonly GearSet _newGear;
     private readonly Action<GearItem, SlotDrawFlags> _drawFunction;
+    private readonly IStatTable _statTable;
     internal QuickCompareWindow(IUiSystem uiSystem, Action<GearItem, SlotDrawFlags> itemDraw, PlayableClass job,
                                 Tribe? tribe) : base(uiSystem)
     {
         _curClass = job;
-        _curTribe = tribe;
         _drawFunction = itemDraw;
         _newGear = new GearSet(_curClass.CurGear);
         Title = LootmasterLoc.QuickCompareUi_Title;
         OpenCentered = true;
         (Size, SizeCondition) = (new Vector2(1600, 650), ImGuiCond.Appearing);
+        _statTable = uiSystem.Helpers.CreateStatTable(_curClass, tribe, _curClass.CurGear, _newGear,
+                                                      LootmasterLoc.CurrentGear,
+                                                      LootmasterLoc.QuickCompare_StatGain,
+                                                      LootmasterLoc.QuickCompareUi_hdg_NewGear);
 
     }
     private GearSet CurGear => _curClass.CurGear;
@@ -75,10 +78,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
          * Stat Table
          */
         ImGui.NextColumn();
-        UiHelpers.DrawStatTable(_curClass, _curTribe, CurGear, _newGear,
-                                LootmasterLoc.CurrentGear,
-                                LootmasterLoc.QuickCompare_StatGain,
-                                LootmasterLoc.QuickCompareUi_hdg_NewGear);
+        _statTable.Draw();
         /*
          * New Gear
          */

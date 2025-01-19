@@ -40,18 +40,18 @@
       },
       "Lumina": {
         "type": "Transitive",
-        "resolved": "5.2.1",
-        "contentHash": "WQld2p7eWfcItfxjFwvySpiuUCT+fmJWh9GdCHgKS7vOjYGhPH6SWq6gh0ie+vHp0eaSIB2Tigv6i4qKT+HRSA==",
+        "resolved": "5.6.0",
+        "contentHash": "Ugq7eY0ZrUxtqqfg9m4S+3fF5agU6pB+EIHqEMSGO5MH1b+xKCL/5hHWY+bEB6aRnDlEAmSGhx703z5bMOCqZg==",
         "dependencies": {
           "Microsoft.Extensions.ObjectPool": "8.0.7"
         }
       },
       "Lumina.Excel": {
         "type": "Transitive",
-        "resolved": "7.1.0",
-        "contentHash": "rDlA336de7au4VKiEv8XhnmWSLqpJLrcRE9rGeJATj27lljm9aPkERPavifu0bWyrIy0GGhpan2w1dMJw8I25A==",
+        "resolved": "7.1.3",
+        "contentHash": "fEYaSEbRPknwpSyB4cSqXMUr9oRD7citBhOY3Ib5tZlKILvKPoCCNvorcn7CzaFvg5p7cQf/6+ec1DQPj0niFw==",
         "dependencies": {
-          "Lumina": "5.2.1"
+          "Lumina": "0.0.0-preview.0"
         }
       },
       "Microsoft.Extensions.ObjectPool": {
@@ -66,23 +66,24 @@
       },
       "XIVCalc": {
         "type": "Transitive",
-        "resolved": "0.3.0",
-        "contentHash": "fzA198DWZyEJF04qfIxmtQWLD6E/YiTHFmi84nVmtaclFnn52eeQ0h13yoM8uWmaScX0Ypc9jTw0+KD96jgshw=="
+        "resolved": "0.3.1",
+        "contentHash": "RqVwlVRK1dihoU7cadMidzKBdq89zFgbYhTbs9E1nfp1k3SiOKEWzZhXqkNbp6SpvXPmTrHzxzgz8l+wLApdtw=="
       },
       "XIVCalc.Lumina": {
         "type": "Transitive",
-        "resolved": "7.1.0",
-        "contentHash": "1BSOkEJHfJyTGMVSwNll/G3jrAKXomPOUgqOlDP8q24CRmjiL/Whj7i/EdrjUmWSytIl4NkAjGKqMi+qK0NHnQ==",
+        "resolved": "7.1.3",
+        "contentHash": "Vh3UM6RB3FkbE5EUF5HsfhfKe1SicXOy67Xw3b+MqO3MK7oAG7Owi4zFukkZotwsf1N5Vp9bT3o/u5Vkk6dqRg==",
         "dependencies": {
-          "Lumina.Excel": "7.1.0",
-          "XIVCalc": "0.3.0"
+          "Lumina.Excel": "7.1.3",
+          "XIVCalc": "0.3.1"
         }
       },
       "himbeertoniraidtool.common": {
         "type": "Project",
         "dependencies": {
+          "Lumina": "[5.6.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
-          "XIVCalc.Lumina": "[7.1.0, )"
+          "XIVCalc.Lumina": "[7.1.3, )"
         }
       }
     }

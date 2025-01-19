@@ -28,6 +28,7 @@ internal class LootmasterUi : HrtWindow
     private readonly LootMasterModule _module;
     private readonly Queue<HrtUiMessage> _messageQueue = new();
     private (HrtUiMessage message, DateTime time)? _currentMessage;
+    private readonly Dictionary<PlayableClass, IStatTable> _statTables = new();
 
     internal LootmasterUi(LootMasterModule lootMaster) : base(lootMaster.Services.UiSystem, "LootMaster",
                                                               ImGuiWindowFlags.HorizontalScrollbar)
@@ -181,11 +182,17 @@ internal class LootmasterUi : HrtWindow
         {
             if (statsChild.Success && curClass is not null)
             {
-                UiHelpers.DrawStatTable(curClass, p.MainChar.Tribe, curClass.CurGear, curClass.CurBis,
-                                        LootmasterLoc.CurrentGear, GeneralLoc.CommonTerms_Difference,
-                                        GeneralLoc.CommonTerms_BiS,
-                                        UiHelpers.StatTableCompareMode.DoCompare
-                                      | UiHelpers.StatTableCompareMode.DiffRightToLeft);
+                if (!_statTables.TryGetValue(curClass, out var statTable))
+                {
+                    statTable = UiSystem.Helpers.CreateStatTable(curClass, p.MainChar.Tribe, curClass.CurGear,
+                                                                 curClass.CurBis, LootmasterLoc.CurrentGear,
+                                                                 GeneralLoc.CommonTerms_Difference,
+                                                                 GeneralLoc.CommonTerms_BiS,
+                                                                 UiHelpers.StatTableCompareMode.DoCompare
+                                                               | UiHelpers.StatTableCompareMode.DiffRightToLeft);
+                    _statTables.Add(curClass, statTable);
+                }
+                statTable.Draw();
             }
         }
 

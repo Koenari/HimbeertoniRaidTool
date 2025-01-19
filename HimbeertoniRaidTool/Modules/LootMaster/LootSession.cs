@@ -281,7 +281,7 @@ public class LootResult
     public float DpsGain()
     {
         if (ApplicableJob is null) return 0;
-        var stats = ApplicableJob.CurGear.GetStatEquations(ApplicableJob, Player.MainChar.Tribe);
+        var stats = ApplicableJob.CurGear.GetStatBlock(ApplicableJob, Player.MainChar.Tribe).StatEquations;
         double baseDps = stats.AverageSkillDamage(100) / stats.Gcd();
         double newDps = double.NegativeInfinity;
         foreach (var i in _applicableItems)
@@ -301,7 +301,7 @@ public class LootResult
                 }
             }
             var curStats =
-                ApplicableJob.CurGear.With(item).GetStatEquations(ApplicableJob, Player.MainChar.Tribe);
+                ApplicableJob.CurGear.With(item).GetStatBlock(ApplicableJob, Player.MainChar.Tribe).StatEquations;
             double cur = curStats.AverageSkillDamage(100) / curStats.Gcd();
             if (cur > newDps)
                 newDps = cur;
