@@ -10,4 +10,4 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      User Interface: New interface for searching characters from database
+      New Feature: Stats can now take a party bonus into account (adjust the default in settings)

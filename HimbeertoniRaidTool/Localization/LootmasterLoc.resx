@@ -156,7 +156,7 @@
         <value>Current priority</value>
     </data>
     <data name="Ui_btn_tt_inventory">
-        <value>Open inventory window</value>
+        <value>Show Inventory/Wallet</value>
     </data>
     <data name="Ui_btn_tt_quickCompare">
         <value>Quickly compare gear</value>
@@ -285,12 +285,6 @@
         <value>Results for {0} ({1})</value>
         <comment>{0} fight {1} group</comment>
     </data>
-    <data name="GearSetSelect_Add_new" xml:space="preserve">
-        <value>+ Add new</value>
-    </data>
-    <data name="GearSetSelect_AddFromDB" xml:space="preserve">
-        <value>+ Search known sets</value>
-    </data>
     <data name="StatTable_MainStats_Title">
         <value>Main Stats</value>
     </data>
@@ -339,10 +333,6 @@
     <data name="Ui_txt_noJobs" xml:space="preserve">
         <value>No jobs created</value>
     </data>
-    <data name="Ui_btn_tt_etroUpdate" xml:space="preserve">
-        <value>Update {0} ({1}) from etro</value>
-        <comment>{0} name {1} etroId</comment>
-    </data>
     <data name="InventoryUi_Title" xml:space="preserve">
         <value>{0}'s inventory</value>
     </data>
@@ -350,7 +340,7 @@
         <value>No Player</value>
     </data>
     <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
-        <value>Additional Gear</value>
+        <value>Relevant gear (not equipped)</value>
     </data>
     <data name="Ui_btn_addPlayerFromTarget_tt" xml:space="preserve">
         <value>Fill with target ({0}) data</value>
@@ -402,5 +392,26 @@
     </data>
     <data name="command_toggle_helpText" xml:space="preserve">
         <value>Toggles Lootmaster window</value>
+    </data>
+    <data name="ItemTooltip_hdg_Equipped" xml:space="preserve">
+        <value>Equipped</value>
+    </data>
+    <data name="ItemTooltip_hdg_bis" xml:space="preserve">
+        <value>Best in Slot</value>
+    </data>
+    <data name="ConfigUi_CharNameFormat_ns" xml:space="preserve">
+        <value>Name + Server</value>
+    </data>
+    <data name="ConfigUi_CharNameFormat_n" xml:space="preserve">
+        <value>Name only</value>
+    </data>
+    <data name="ConfigUi_CharNameFormat_is" xml:space="preserve">
+        <value>Initials + Server</value>
+    </data>
+    <data name="ConfigUi_CharNameFormat_i" xml:space="preserve">
+        <value>Initials only</value>
+    </data>
+    <data name="ConfigUi_CharNameFormat_a" xml:space="preserve">
+        <value>Censored</value>
     </data>
 </root>

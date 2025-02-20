@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.IO;
-using Dalamud.Plugin;
 using Dalamud.Utility;
 using Newtonsoft.Json;
 
@@ -15,6 +14,7 @@ internal interface IModuleConfigurationManager
 internal class ModuleConfigurationManager : IModuleConfigurationManager
 {
     private readonly DirectoryInfo _moduleConfigDir;
+    private readonly HrtDataManager _parent;
     private static readonly JsonSerializerSettings _jsonSerializerSettings = new()
     {
         Formatting = Formatting.Indented,
@@ -23,9 +23,10 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
         NullValueHandling = NullValueHandling.Ignore,
 
     };
-    internal ModuleConfigurationManager(DalamudPluginInterface pluginInterface)
+    internal ModuleConfigurationManager(HrtDataManager parent, string configDir)
     {
-        _moduleConfigDir = new DirectoryInfo(pluginInterface.ConfigDirectory.FullName + "\\moduleConfigs\\");
+        _parent = parent;
+        _moduleConfigDir = new DirectoryInfo(configDir + "\\moduleConfigs\\");
         try
         {
             if (!_moduleConfigDir.Exists)
@@ -56,20 +57,17 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
     public bool LoadConfiguration<T>(string internalName, ref T configData) where T : IHrtConfigData, new()
     {
         FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
-        if (file.Exists)
+        if (!file.Exists) return true;
+        if (!_parent.TryRead(file, out string json))
+            return false;
+        var fromJson = JsonConvert.DeserializeObject<T>(json, _jsonSerializerSettings);
+        if (fromJson != null)
         {
-            if (!HrtDataManager.TryRead(file, out string json))
-                return false;
-            var fromJson = JsonConvert.DeserializeObject<T>(json, _jsonSerializerSettings);
-            if (fromJson != null)
-            {
-                configData = fromJson;
-                configData.AfterLoad();
-                return true;
-            }
-            else
-                return false;
+            configData = fromJson;
+            configData.AfterLoad(_parent);
+            return true;
         }
-        return true;
+        else
+            return false;
     }
 }

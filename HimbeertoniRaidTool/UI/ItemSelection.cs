@@ -1,26 +1,21 @@
 using System.Numerics;
 using Dalamud.Interface;
-using HimbeertoniRaidTool.Common;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
 using Lumina.Excel;
-using Lumina.Excel.GeneratedSheets;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
+internal abstract class SelectItemWindow<T>(IUiSystem uiSystem, Action<T> onSave, Action<T?> onCancel) : HrtWindow(
+    uiSystem,
+    null, ImGuiWindowFlags.NoCollapse)
+    where T : Item
 {
     // ReSharper disable once StaticMemberInGenericType
-    protected static readonly ExcelSheet<Item> Sheet = ServiceManager.DataManager.GetExcelSheet<Item>()!;
-    private readonly Action<T?> _onCancel;
-    private readonly Action<T> _onSave;
+    protected ExcelSheet<LuminaItem> Sheet =>
+        UiSystem.GetExcelSheet<LuminaItem>();
     protected T? Item;
-
-    internal SelectItemWindow(Action<T> onSave, Action<T?> onCancel)
-    {
-        (_onSave, _onCancel) = (onSave, onCancel);
-        Flags = ImGuiWindowFlags.NoCollapse;
-    }
     protected virtual bool CanSave { get; set; } = true;
 
 
@@ -40,40 +35,107 @@ internal abstract class SelectItemWindow<T> : HrtWindow where T : HrtItem
         if (item != null)
             Item = item;
         if (Item != null)
-            _onSave(Item);
+            onSave(Item);
         else
-            _onCancel(Item);
+            onCancel(Item);
         Hide();
     }
 
     protected void Cancel()
     {
-        _onCancel(Item);
+        onCancel(Item);
         Hide();
     }
 
     protected abstract void DrawItemSelection();
 }
 
+internal class SelectFoodItemWindow : SelectItemWindow<FoodItem>
+{
+    private int _maxILvl;
+    private int _minILvl;
+    public SelectFoodItemWindow(IUiSystem uiSystem, Action<FoodItem> onSave, Action<FoodItem?> onCancel,
+                                FoodItem? currentItem = null,
+                                int minItemLevel = 0) : base(uiSystem, onSave, onCancel)
+    {
+        Item = currentItem;
+        _maxILvl = 0;
+        _minILvl = minItemLevel;
+    }
+    protected override void DrawItemSelection()
+    {
+        ImGui.SetNextItemWidth(100f * ScaleFactor);
+        int min = _minILvl;
+        if (ImGui.InputInt("-##min", ref min, 5))
+        {
+            _minILvl = min;
+        }
+
+        ImGui.SameLine();
+        int max = _maxILvl;
+        ImGui.SetNextItemWidth(100f * ScaleFactor);
+        if (ImGui.InputInt("iLvL##Max", ref max, 5))
+        {
+            _maxILvl = max;
+        }
+        foreach (var item in Sheet.Where(item => (_minILvl == 0 || item.LevelItem.RowId >= _minILvl)
+                                              && (_maxILvl == 0 || item.LevelItem.RowId <= _maxILvl)
+                                              && item.IsFood()))
+        {
+            bool isCurrentItem = item.RowId == Item?.Id;
+            if (isCurrentItem)
+                ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
+            if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", GeneralLoc.SelectItemUi_btn_tt_useThis,
+                                   true,
+                                   new Vector2(32f, 32f)))
+            {
+                if (isCurrentItem)
+                    Cancel();
+                else
+                    Save(new FoodItem(item.RowId)
+                    {
+                        IsHq = item.CanBeHq,
+                    });
+            }
+
+            if (isCurrentItem)
+                ImGui.PopStyleColor();
+            ImGui.SameLine();
+            ImGui.BeginGroup();
+            ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).ImGuiHandle, new Vector2(32f, 32f));
+            ImGui.SameLine();
+            ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
+            ImGui.EndGroup();
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                item.Draw();
+                ImGui.EndTooltip();
+            }
+        }
+    }
+}
+
 internal class SelectGearItemWindow : SelectItemWindow<GearItem>
 {
     private readonly bool _lockJob;
     private readonly bool _lockSlot;
-    private List<Item> _items;
+    private List<LuminaItem> _items;
     private Job? _job;
     private int _maxILvl;
     private int _minILvl;
     private IEnumerable<GearSetSlot> _slots;
 
-    public SelectGearItemWindow(Action<GearItem> onSave, Action<GearItem?> onCancel, GearItem? currentItem = null,
-                                GearSetSlot? slot = null, Job? job = null, int maxItemLevel = 0) : base(
+    public SelectGearItemWindow(IUiSystem uiSystem, Action<GearItem> onSave, Action<GearItem?> onCancel,
+                                GearItem? currentItem = null,
+                                GearSetSlot? slot = null, Job? job = null, int maxItemLevel = 0) : base(uiSystem,
         onSave, onCancel)
     {
         Item = currentItem;
         if (slot.HasValue)
         {
             _lockSlot = true;
-            _slots = new[] { slot.Value };
+            _slots = [slot.Value];
         }
         else
         {
@@ -95,16 +157,16 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         //Draw selection bar
         ImGui.SetNextItemWidth(65f * ScaleFactor);
         ImGui.BeginDisabled(_lockJob);
-        if (ImGuiHelper.Combo("##job", ref _job))
+        if (ImGuiHelper.Combo("##job", ref _job, job => job.HasValue ? job.Value.ToString() : "-"))
             ReevaluateItems();
         ImGui.EndDisabled();
         ImGui.SameLine();
         ImGui.SetNextItemWidth(125f * ScaleFactor);
         ImGui.BeginDisabled(_lockSlot);
-        GearSetSlot slot = _slots.FirstOrDefault(GearSetSlot.None);
+        var slot = _slots.FirstOrDefault(GearSetSlot.None);
         if (ImGuiHelper.Combo("##slot", ref slot, t => t.FriendlyName()))
         {
-            _slots = new[] { slot };
+            _slots = [slot];
             ReevaluateItems();
         }
 
@@ -128,7 +190,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         }
 
         //Draw item list
-        foreach (Item item in _items)
+        foreach (var item in _items)
         {
             bool isCurrentItem = item.RowId == Item?.Id;
             if (isCurrentItem)
@@ -147,10 +209,10 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
                 ImGui.PopStyleColor();
             ImGui.SameLine();
             ImGui.BeginGroup();
-            ImGui.Image(ServiceManager.IconCache.LoadIcon(item.Icon, item.CanBeHq).ImGuiHandle,
-                        new Vector2(32f, 32f));
+            var icon = UiSystem.GetIcon(item.Icon, item.CanBeHq);
+            ImGui.Image(icon.ImGuiHandle, new Vector2(32f, 32f));
             ImGui.SameLine();
-            ImGui.Text($"{item.Name.RawString} (IL {item.LevelItem.Row})");
+            ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
             ImGui.EndGroup();
             if (ImGui.IsItemHovered())
             {
@@ -161,45 +223,46 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         }
     }
 
-    private List<Item> ReevaluateItems()
+    private List<LuminaItem> ReevaluateItems()
     {
         _items = Sheet.Where(x =>
-                                 x.ClassJobCategory.Row != 0
+                                 x.ClassJobCategory.RowId != 0
                               && (!_slots.Any() ||
                                   _slots.Any(slot => slot == GearSetSlot.None
                                                   || x.EquipSlotCategory.Value.Contains(slot)))
-                              && (_maxILvl == 0 || x.LevelItem.Row <= _maxILvl)
-                              && x.LevelItem.Row >= _minILvl
+                              && (_maxILvl == 0 || x.LevelItem.RowId <= _maxILvl)
+                              && x.LevelItem.RowId >= _minILvl
                               && (_job.GetValueOrDefault(0) == 0
                                || x.ClassJobCategory.Value.Contains(_job.GetValueOrDefault()))
         ).Take(50).ToList();
-        _items.Sort((x, y) => (int)y.LevelItem.Row - (int)x.LevelItem.Row);
+        _items.Sort((x, y) => (int)y.LevelItem.RowId - (int)x.LevelItem.RowId);
         return _items;
     }
 }
 
-internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
+internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
 {
-    private static readonly Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>> _allMateria;
+    private static readonly Dictionary<MateriaLevel, Dictionary<MateriaCategory, MateriaItem>> AllMateria;
 
     private readonly MateriaLevel _maxLvl;
 
     static SelectMateriaWindow()
     {
-        _allMateria = new Dictionary<MateriaLevel, Dictionary<MateriaCategory, HrtMateria>>();
-        foreach (MateriaLevel lvl in Enum.GetValues<MateriaLevel>())
+        AllMateria = new Dictionary<MateriaLevel, Dictionary<MateriaCategory, MateriaItem>>();
+        foreach (var lvl in Enum.GetValues<MateriaLevel>())
         {
-            Dictionary<MateriaCategory, HrtMateria> mats = new();
-            foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>())
+            Dictionary<MateriaCategory, MateriaItem> mats = new();
+            foreach (var cat in Enum.GetValues<MateriaCategory>())
             {
-                mats[cat] = new HrtMateria(cat, lvl);
+                mats[cat] = new MateriaItem(cat, lvl);
             }
-            _allMateria[lvl] = mats;
+            AllMateria[lvl] = mats;
         }
     }
 
-    public SelectMateriaWindow(Action<HrtMateria> onSave, Action<HrtMateria?> onCancel, MateriaLevel maxMatLvl,
-                               MateriaLevel? matLevel = null) : base(onSave, onCancel)
+    public SelectMateriaWindow(IUiSystem uiSystem, Action<MateriaItem> onSave, Action<MateriaItem?> onCancel,
+                               MateriaLevel maxMatLvl,
+                               MateriaLevel? matLevel = null) : base(uiSystem, onSave, onCancel)
     {
         _maxLvl = matLevel ?? maxMatLvl;
         Title = GeneralLoc.SelectMateriaUi_Title;
@@ -211,10 +274,10 @@ internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
     protected override void DrawItemSelection()
     {
         //1 Row per Level
-        for (MateriaLevel lvl = _maxLvl; lvl != MateriaLevel.None; --lvl)
+        for (var lvl = _maxLvl; lvl != MateriaLevel.None; --lvl)
         {
             ImGui.Text($"{lvl}");
-            foreach (MateriaCategory cat in Enum.GetValues<MateriaCategory>())
+            foreach (var cat in Enum.GetValues<MateriaCategory>())
             {
                 if (cat == MateriaCategory.None) continue;
                 DrawButton(cat, lvl);
@@ -224,18 +287,21 @@ internal class SelectMateriaWindow : SelectItemWindow<HrtMateria>
             ImGui.NewLine();
             ImGui.Separator();
         }
+        return;
 
         void DrawButton(MateriaCategory cat, MateriaLevel lvl)
         {
-            HrtMateria mat = _allMateria[lvl][cat];
-            if (ImGui.ImageButton(ServiceManager.IconCache[mat.Icon].ImGuiHandle, new Vector2(32)))
+            var mat = AllMateria[lvl][cat];
+            if (ImGui.ImageButton(UiSystem.GetIcon(mat).ImGuiHandle, new Vector2(32)))
                 Save(mat);
-            if (ImGui.IsItemHovered())
+            else if (ImGuiHelper.Button(mat.Name, null))
             {
-                ImGui.BeginTooltip();
-                mat.Draw();
-                ImGui.EndTooltip();
+                Save(mat);
             }
+            if (!ImGui.IsItemHovered()) return;
+            ImGui.BeginTooltip();
+            mat.Draw();
+            ImGui.EndTooltip();
         }
     }
 

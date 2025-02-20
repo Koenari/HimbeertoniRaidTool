@@ -229,9 +229,6 @@
   <data name="ItemTable_heading_LootedIn" xml:space="preserve">
         <value>Looté dans</value>
     </data>
-  <data name="EditGearSetUi_txt_lastUpdate" xml:space="preserve">
-        <value>Dernière vérification de mise à jour: {0}</value>
-    </data>
   <data name="Ui_btn_tt_addEmpty" xml:space="preserve">
         <value>Ajoute un(e) {0} vide</value>
     </data>

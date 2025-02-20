@@ -7,24 +7,27 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-public interface IDataBaseTable<T> where T : IHasHrtId
+public interface IDataBaseTable<T> where T : IHasHrtId, new()
 {
     internal bool Load(JsonSerializerSettings jsonSettings, string data);
     internal bool TryGet(HrtId id, [NotNullWhen(true)] out T? value);
+    internal bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value);
     internal bool TryAdd(in T value);
     internal IEnumerable<T> GetValues();
-    internal HrtWindow OpenSearchWindow(Action<T> onSelect, Action? onCancel = null);
+    internal void OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
+    internal HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
+    internal HrtIdReferenceConverter<T> GetRefConverter();
     public HashSet<HrtId> GetReferencedIds();
     internal ulong GetNextSequence();
     internal bool Contains(HrtId hrtId);
     public void RemoveUnused(HashSet<HrtId> referencedIds);
-    public void FixEntries();
+    public void FixEntries(HrtDataManager hrtDataManager);
     internal string Serialize(JsonSerializerSettings settings);
 }
 
-public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
+public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonConverter> converters, ILogger logger)
     : IDataBaseTable<T>
-    where T : class, IHasHrtId
+    where T : class, IHasHrtId, new()
 {
 
     protected readonly Dictionary<HrtId, T> Data = new();
@@ -32,10 +35,12 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     private ulong _nextSequence = 0;
     protected bool LoadError = false;
     protected bool IsLoaded = false;
+    protected readonly ILogger Logger = logger;
+
     public virtual bool Load(JsonSerializerSettings settings, string serializedData)
     {
         List<JsonConverter> savedConverters = [..settings.Converters];
-        foreach (JsonConverter jsonConverter in _refConverters)
+        foreach (var jsonConverter in _refConverters)
         {
             settings.Converters.Add(jsonConverter);
         }
@@ -43,15 +48,15 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
         settings.Converters = savedConverters;
         if (data is null)
         {
-            ServiceManager.Logger.Error($"Could not load {typeof(T)} database");
+            Logger.Error($"Could not load {typeof(T)} database");
             LoadError = true;
             return IsLoaded;
         }
-        foreach (T value in data)
+        foreach (var value in data)
         {
             if (value.LocalId.IsEmpty)
             {
-                ServiceManager.Logger.Error(
+                Logger.Error(
                     $"{typeof(T).Name} {value} was missing an ID and was removed from the database");
                 continue;
             }
@@ -59,7 +64,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
                 _nextSequence = Math.Max(_nextSequence, value.LocalId.Sequence);
         }
         _nextSequence++;
-        ServiceManager.Logger.Information($"Database contains {Data.Count} entries of type {typeof(T).Name}");
+        Logger.Information($"Database contains {Data.Count} entries of type {typeof(T).Name}");
         IsLoaded = true;
         return IsLoaded;
     }
@@ -70,25 +75,33 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
             c.LocalId = idProvider.CreateId(c.IdType);
         return Data.TryAdd(c.LocalId, c);
     }
+    public virtual bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value)
+    {
+        value = Data.Values.FirstOrDefault(predicate, null);
+        return value is not null;
+    }
     public void RemoveUnused(HashSet<HrtId> referencedIds)
     {
-        ServiceManager.Logger.Debug($"Begin pruning of {typeof(T).Name} database.");
+        Logger.Debug($"Begin pruning of {typeof(T).Name} database.");
         IEnumerable<HrtId> keyList = new List<HrtId>(Data.Keys);
-        foreach (HrtId id in keyList.Where(id => !referencedIds.Contains(id)))
+        foreach (var id in keyList.Where(id => !referencedIds.Contains(id)))
         {
             Data.Remove(id);
-            ServiceManager.Logger.Information($"Removed {id} from {typeof(T).Name} database");
+            Logger.Information($"Removed {id} from {typeof(T).Name} database");
         }
-        ServiceManager.Logger.Debug($"Finished pruning of {typeof(T).Name} database.");
+        Logger.Debug($"Finished pruning of {typeof(T).Name} database.");
     }
     public bool Contains(HrtId hrtId) => Data.ContainsKey(hrtId);
     public IEnumerable<T> GetValues() => Data.Values;
     public ulong GetNextSequence() => _nextSequence++;
-    public abstract HrtWindow OpenSearchWindow(Action<T> onSelect, Action? onCancel = null);
+    public void OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null) =>
+        uiSystem.AddWindow(GetSearchWindow(uiSystem, onSelect, onCancel));
+
+    public abstract HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
     public string Serialize(JsonSerializerSettings settings)
     {
         List<JsonConverter> savedConverters = [..settings.Converters];
-        foreach (JsonConverter jsonConverter in _refConverters)
+        foreach (var jsonConverter in _refConverters)
         {
             settings.Converters.Add(jsonConverter);
         }
@@ -97,14 +110,18 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
         return result;
     }
     public abstract HashSet<HrtId> GetReferencedIds();
-    public virtual void FixEntries() { }
+
+    public HrtIdReferenceConverter<T> GetRefConverter() => new(this);
+
+    public virtual void FixEntries(HrtDataManager hrtDataManager) { }
 
     internal abstract class SearchWindow<TData, TDataBaseTable>(
+        IUiSystem uiSystem,
         TDataBaseTable dataBase,
         Action<TData> onSelect,
-        Action? onCancel) : HrtWindow
+        Action? onCancel) : HrtWindow(uiSystem)
         where TDataBaseTable : IDataBaseTable<TData>
-        where TData : IHasHrtId
+        where TData : IHasHrtId, new()
     {
         protected readonly TDataBaseTable Database = dataBase;
 

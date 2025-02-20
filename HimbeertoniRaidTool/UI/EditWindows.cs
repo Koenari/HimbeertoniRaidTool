@@ -1,44 +1,49 @@
-﻿using System.Numerics;
-using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using System.Collections.Concurrent;
+using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-public static class EditWindowFactory
+public class EditWindowFactory(IGlobalServiceContainer services)
 {
-    private static HrtDataManager DataManager => ServiceManager.HrtDataManager;
-    public static HrtWindowWithModalChild? Create<TData>(HrtId id, Action<TData>? onSave = null,
-                                                         Action? onCancel = null,
-                                                         object? param = null)
+    private HrtDataManager DataManager => services.HrtDataManager;
+    private ConnectorPool ConnectorPool => services.ConnectorPool;
+    private CharacterInfoService CharacterInfoService => services.CharacterInfoService;
+    private TaskManager TaskManager => services.TaskManager;
+    private IUiSystem UiSystem => services.UiSystem;
+    public void Create<TData>(HrtId id, Action<TData>? onSave = null,
+                              Action? onCancel = null, Action? onDelete = null,
+                              object? param = null)
         where TData : IHasHrtId, new()
     {
-        HrtId.IdType type = new TData().IdType;
-        if (id.Type != type) return null;
+        var type = new TData().IdType;
+        if (id.Type != type) return;
         switch (type)
         {
             case HrtId.IdType.Group:
-                if (DataManager.RaidGroupDb.TryGet(id, out RaidGroup? group))
-                    return Create(group, onSave as Action<RaidGroup>, onCancel, param);
+                if (DataManager.RaidGroupDb.TryGet(id, out var group))
+                    Create(group, onSave as Action<RaidGroup>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.Player:
-                if (DataManager.PlayerDb.TryGet(id, out Player? player))
-                    return Create(player, onSave as Action<Player>, onCancel, param);
+                if (DataManager.PlayerDb.TryGet(id, out var player))
+                    Create(player, onSave as Action<Player>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.Character:
-                if (DataManager.CharDb.TryGet(id, out Character? character))
-                    return Create(character, onSave as Action<Character>, onCancel, param);
+                if (DataManager.CharDb.TryGet(id, out var character))
+                    Create(character, onSave as Action<Character>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.Gear:
-                if (DataManager.GearDb.TryGet(id, out GearSet? gearSet))
-                    return Create(gearSet, onSave as Action<GearSet>, onCancel, param);
+                if (DataManager.GearDb.TryGet(id, out var gearSet))
+                    Create(gearSet, onSave as Action<GearSet>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.RaidSession:
                 if (DataManager.RaidSessionDb.TryGet(id, out RaidSession? raidSession))
@@ -46,48 +51,61 @@ public static class EditWindowFactory
                 break;
             case HrtId.IdType.None:
             default:
-                return null;
+                return;
         }
-        return null;
     }
-    public static HrtWindowWithModalChild? Create<TData>(TData data, Action<TData>? onSave = null,
-                                                         Action? onCancel = null,
-                                                         object? param = null)
-        where TData : IHasHrtId => data.IdType switch
+    public void Create<TData>(TData data, Action<TData>? onSave = null,
+                              Action? onCancel = null, Action? onDelete = null,
+                              object? param = null)
+        where TData : IHasHrtId
     {
-        HrtId.IdType.Player when data is Player p => new EditPlayerWindow(p, onSave as Action<Player>, onCancel),
-        HrtId.IdType.Character when data is Character c => new EditCharacterWindow(
-            c, onSave as Action<Character>, onCancel),
-        HrtId.IdType.Gear when data is GearSet gs => new EditGearSetWindow(
-            gs, onSave as Action<GearSet>, onCancel, param as Job?),
-        HrtId.IdType.Group when data is RaidGroup rg => new EditGroupWindow(rg, onSave as Action<RaidGroup>, onCancel),
-        HrtId.IdType.RaidSession when data is RaidSession rs => new EditRaidSessionWindow(
-            rs, onSave as Action<RaidSession>, onCancel),
-        HrtId.IdType.None => null,
-        _                 => null,
-    };
+        HrtWindow? window = data.IdType switch
+        {
+            HrtId.IdType.Player when data is Player p => new EditPlayerWindow(this,
+                                                                              p, onSave as Action<Player>, onCancel,
+                                                                              onDelete),
+            HrtId.IdType.Character when data is Character c => new EditCharacterWindow(this,
+                c, onSave as Action<Character>, onCancel, onDelete),
+            HrtId.IdType.Gear when data is GearSet gs => new EditGearSetWindow(this,
+                                                                               gs, onSave as Action<GearSet>, onCancel,
+                                                                               onDelete, param as Job?),
+            HrtId.IdType.Group when data is RaidGroup rg => new EditGroupWindow(this,
+                rg, onSave as Action<RaidGroup>, onCancel, onDelete),
+            HrtId.IdType.RaidSession when data is RaidSession rs => new EditRaidSessionWindow(
+                rs, onSave as Action<RaidSession>, onCancel),
+            HrtId.IdType.None => null,
+            _                 => null,
+        };
+        if (window == null) return;
+        services.UiSystem.AddWindow(window);
+        window.Show();
+
+    }
 
     private abstract class EditWindow<TData> : HrtWindowWithModalChild where TData : IHrtDataTypeWithId
     {
         private readonly Action? _onCancel;
-
         private readonly Action<TData>? _onSave;
-
+        private readonly Action? _onDelete;
+        protected bool CanDelete = false;
+        protected readonly EditWindowFactory Factory;
         private TData _original;
         protected TData DataCopy;
 
-        protected EditWindow(TData original, Action<TData>? onSave, Action? onCancel)
+        protected EditWindow(EditWindowFactory factory, TData original, Action<TData>? onSave, Action? onCancel,
+                             Action? onDelete) : base(factory.UiSystem)
         {
+            Factory = factory;
             _original = original;
             DataCopy = _original.Clone();
             _onCancel = onCancel;
             _onSave = onSave;
-            Title = string.Format(GeneralLoc.EditUi_Title, _original.DataTypeName, _original.Name).CapitaliezSentence();
-            Show();
+            _onDelete = onDelete;
+            Title = string.Format(GeneralLoc.EditUi_Title, _original.DataTypeName, _original.Name)
+                          .Capitalized();
         }
         public override sealed void Draw()
         {
-            ImGui.Text($"{GeneralLoc.EditUi_Txt_LocalId}: {(_original.LocalId.IsEmpty ? "-" : _original.LocalId)}");
             //Buttons
             if (ImGuiHelper.SaveButton())
             {
@@ -103,11 +121,22 @@ public static class EditWindowFactory
                 _onCancel?.Invoke();
                 Hide();
             }
+            if (CanDelete)
+            {
+                ImGui.SameLine();
+                if (ImGuiHelper.DeleteButton(_original))
+                {
+                    _onDelete?.Invoke();
+                    Hide();
+                }
+            }
+            ImGui.SameLine();
+            ImGui.Text($"{GeneralLoc.EditUi_Txt_LocalId}: {(_original.LocalId.IsEmpty ? "-" : _original.LocalId)}");
+            ImGui.Separator();
+            ImGui.NewLine();
             DrawContent();
         }
         protected abstract void DrawContent();
-        protected void Save() => Save(_original);
-
         protected void ReplaceOriginal(TData newOrg)
         {
             _original = newOrg;
@@ -121,9 +150,9 @@ public static class EditWindowFactory
     private class EditGroupWindow : EditWindow<RaidGroup>
     {
 
-        internal EditGroupWindow(RaidGroup group, Action<RaidGroup>? onSave = null,
-                                 Action? onCancel = null) :
-            base(group, onSave, onCancel)
+        internal EditGroupWindow(EditWindowFactory factory, RaidGroup group, Action<RaidGroup>? onSave = null,
+                                 Action? onCancel = null, Action? onDelete = null) :
+            base(factory, group, onSave, onCancel, onDelete)
         {
             Size = new Vector2(500, 170 + (group.RolePriority != null ? 180 : 0));
             SizeCondition = ImGuiCond.Appearing;
@@ -134,8 +163,8 @@ public static class EditWindowFactory
             destination.Name = DataCopy.Name;
             destination.Type = DataCopy.Type;
             destination.RolePriority = DataCopy.RolePriority;
-            if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.RaidGroupDb.TryAdd(destination);
-            ServiceManager.HrtDataManager.Save();
+            if (destination.LocalId.IsEmpty) Factory.DataManager.RaidGroupDb.TryAdd(destination);
+            Factory.DataManager.Save();
         }
         protected override void Cancel() { }
 
@@ -151,7 +180,7 @@ public static class EditWindowFactory
             if (ImGui.Checkbox(GeneralLoc.EditGroupUi_cb_OverrideRolePriority, ref overrideRolePriority))
             {
                 DataCopy.RolePriority = overrideRolePriority ? new RolePriority() : null;
-                Vector2 curSize = ImGui.GetWindowSize();
+                var curSize = Size!.Value;
                 Resize(curSize with
                 {
                     Y = curSize.Y + (overrideRolePriority ? 1 : -1) * 180f * ScaleFactor,
@@ -169,8 +198,10 @@ public static class EditWindowFactory
 
     private class EditPlayerWindow : EditWindow<Player>
     {
-        internal EditPlayerWindow(Player p, Action<Player>? onSave = null, Action? onCancel = null)
-            : base(p, onSave, onCancel)
+        internal EditPlayerWindow(EditWindowFactory factory, Player p, Action<Player>? onSave = null,
+                                  Action? onCancel = null,
+                                  Action? onDelete = null)
+            : base(factory, p, onSave, onCancel, onDelete)
         {
             Size = new Vector2(450, 250);
             SizeCondition = ImGuiCond.Appearing;
@@ -189,15 +220,15 @@ public static class EditWindowFactory
             ImGui.SetCursorPosX(
                 (ImGui.GetWindowWidth() - ImGui.CalcTextSize(GeneralLoc.EditPlayerUi_hdg_characterData).X) / 2f);
             ImGui.Text(GeneralLoc.EditPlayerUi_hdg_characterData);
-            Character mainChar = DataCopy.MainChar;
-            foreach (Character character in DataCopy.Characters)
+            var mainChar = DataCopy.MainChar;
+            foreach (var character in DataCopy.Characters)
             {
                 ImGui.PushID(character.LocalId.ToString());
                 if (ImGuiHelper.DeleteButton(character, "##delete"))
                     DataCopy.RemoveCharacter(character);
                 ImGui.SameLine();
                 if (ImGuiHelper.EditButton(character, "##edit"))
-                    AddChild(Create<Character>(character.LocalId));
+                    Factory.Create(character);
 
                 ImGui.SameLine();
                 bool isMain = mainChar.Equals(character);
@@ -214,17 +245,17 @@ public static class EditWindowFactory
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "addEmpty",
                                    string.Format(GeneralLoc.Ui_btn_tt_addEmpty, Character.DataTypeNameStatic)))
             {
-                AddChild(Create(new Character(), c =>
+                Factory.Create(new Character(), c =>
                 {
-                    if (ServiceManager.HrtDataManager.CharDb.TryAdd(c))
+                    if (Factory.DataManager.CharDb.TryAdd(c))
                         DataCopy.AddCharacter(c);
-                }));
+                });
             }
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "addFromDb",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeNameStatic)))
             {
-                AddChild(ServiceManager.HrtDataManager.CharDb.OpenSearchWindow(c => DataCopy.AddCharacter(c)));
+                AddChild(Factory.DataManager.CharDb.GetSearchWindow(UiSystem, c => DataCopy.AddCharacter(c)));
             }
         }
 
@@ -232,26 +263,26 @@ public static class EditWindowFactory
         {
             if (destination.LocalId.IsEmpty)
             {
-                ServiceManager.HrtDataManager.PlayerDb.TryAdd(destination);
+                Factory.DataManager.PlayerDb.TryAdd(destination);
             }
             //Player Data
             destination.NickName = DataCopy.NickName;
             //Characters
             var toRemove = destination.Characters.Where(c => !DataCopy.Characters.Contains(c));
-            foreach (Character c in toRemove)
+            foreach (var c in toRemove)
             {
                 destination.RemoveCharacter(c);
             }
             var toAdd = DataCopy.Characters.Where(c => !destination.Characters.Contains(c));
-            foreach (Character c in toAdd)
+            foreach (var c in toAdd)
             {
                 if (c.LocalId.IsEmpty)
-                    if (!ServiceManager.HrtDataManager.CharDb.TryAdd(c))
+                    if (!Factory.DataManager.CharDb.TryAdd(c))
                         continue;
                 destination.AddCharacter(c);
             }
             destination.MainChar = DataCopy.MainChar;
-            if (destination.MainChar.LocalId.IsEmpty) ServiceManager.HrtDataManager.CharDb.TryAdd(destination.MainChar);
+            if (destination.MainChar.LocalId.IsEmpty) Factory.DataManager.CharDb.TryAdd(destination.MainChar);
         }
     }
 
@@ -259,8 +290,9 @@ public static class EditWindowFactory
     {
         private const int CLASS_HEIGHT = 27 + 4;
         private Job _newJob = Job.ADV;
-        internal EditCharacterWindow(Character character, Action<Character>? onSave = null,
-                                     Action? onCancel = null) : base(character, onSave, onCancel)
+        internal EditCharacterWindow(EditWindowFactory factory, Character character, Action<Character>? onSave = null,
+                                     Action? onCancel = null, Action? onDelete = null) : base(factory,
+            character, onSave, onCancel, onDelete)
         {
             Size = new Vector2(500, 295 + CLASS_HEIGHT * DataCopy.Classes.Count());
             SizeCondition = ImGuiCond.Appearing;
@@ -274,22 +306,15 @@ public static class EditWindowFactory
                                - ImGui.CalcTextSize(GeneralLoc.EditPlayerUi_hdg_characterData).X) / 2f);
             ImGui.Text(GeneralLoc.EditPlayerUi_hdg_characterData);
             if (ImGui.InputText(GeneralLoc.CommonTerms_Name, ref DataCopy.Name, 50)
-             && ServiceManager.CharacterInfoService.TryGetChar(out PlayerCharacter? pc, DataCopy.Name))
-                DataCopy.HomeWorld ??= pc.HomeWorld.GameData;
-            if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.EditCharUi_in_HomeWorld + "##" + Title, out World? w,
-                                            _ => DataCopy.HomeWorld?.Name.RawString ?? "",
-                                            x => x.Name.RawString, x => x.IsPublic))
+             && Factory.CharacterInfoService.TryGetChar(out var pc, DataCopy.Name))
+                DataCopy.HomeWorld ??= pc.HomeWorld.Value;
+            if (UiSystem.Helpers.ExcelSheetCombo(GeneralLoc.EditCharUi_in_HomeWorld + "##" + Title, out World w,
+                                                 _ => DataCopy.HomeWorld?.Name.ExtractText() ?? "",
+                                                 x => x.Name.ExtractText(), x => x.IsPublic))
                 DataCopy.HomeWorld = w;
 
-            //ImGuiHelper.Combo(Localize("Gender", "Gender"), ref PlayerCopy.MainChar.Gender);
-            string GetGenderedTribeName(Tribe? tribe)
-            {
-                return (DataCopy.Gender == Gender.Male ? tribe?.Masculine.RawString : tribe?.Feminine.RawString) ??
-                       string.Empty;
-            }
-
-            if (ImGuiHelper.ExcelSheetCombo(GeneralLoc.CommonTerms_Tribe + "##" + Title, out Tribe? t,
-                                            _ => GetGenderedTribeName(DataCopy.Tribe), GetGenderedTribeName))
+            if (UiSystem.Helpers.ExcelSheetCombo(GeneralLoc.CommonTerms_Tribe + "##" + Title, out Tribe t,
+                                                 _ => GetGenderedTribeName(DataCopy.Tribe), GetGenderedTribeName))
                 DataCopy.TribeId = t.RowId;
             //Class Data
             ImGui.SetCursorPosX((ImGui.GetWindowWidth()
@@ -301,7 +326,7 @@ public static class EditWindowFactory
                 if (DataCopy.Classes.All(x => x.Job != DataCopy.MainJob))
                     DataCopy.MainJob = DataCopy.Classes.First().Job;
                 if (ImGui.BeginCombo(GeneralLoc.EditCharUi_in_mainJob, DataCopy.MainJob.ToString()))
-                    foreach (PlayableClass curJob in DataCopy)
+                    foreach (var curJob in DataCopy)
                     {
                         if (ImGui.Selectable(curJob.Job.ToString()))
                             DataCopy.MainJob = curJob.Job;
@@ -318,7 +343,7 @@ public static class EditWindowFactory
 
             ImGui.Separator();
             Job? toDelete = null;
-            foreach (PlayableClass c in DataCopy.Classes)
+            foreach (var c in DataCopy.Classes)
             {
                 ImGui.PushID(c.Job.ToString());
 
@@ -329,14 +354,14 @@ public static class EditWindowFactory
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(150f * ScaleFactor);
                 if (ImGui.InputInt(GeneralLoc.CommonTerms_Level, ref c.Level))
-                    c.Level = Math.Clamp(c.Level, 1, Common.Services.ServiceManager.GameInfo.CurrentExpansion.MaxLevel);
+                    c.Level = Math.Clamp(c.Level, 1, GameInfo.CurrentExpansion.MaxLevel);
                 ImGui.SameLine();
                 ImGui.Checkbox(GeneralLoc.EditCharUi_cb_hideJob, ref c.HideInUi);
                 ImGui.Separator();
                 ImGui.PopID();
             }
             if (toDelete is not null) DataCopy.RemoveClass(toDelete.Value);
-            if (ImGuiHelper.SearchableCombo("##addJobCombo", out Job job, _newJob.ToString(),
+            if (ImGuiHelper.SearchableCombo("##addJobCombo", out var job, _newJob.ToString(),
                                             Enum.GetValues<Job>(), j => j.ToString(),
                                             (j, s) => j.ToString()
                                                        .Contains(s, StringComparison.CurrentCultureIgnoreCase),
@@ -345,16 +370,25 @@ public static class EditWindowFactory
             ImGui.SameLine();
             if (ImGuiHelper.AddButton(PlayableClass.DataTypeNameStatic, "##addJobBtn"))
             {
-                PlayableClass? newClass = DataCopy[_newJob];
+                var newClass = DataCopy[_newJob];
                 if (newClass == null)
                 {
                     newClass = DataCopy.AddClass(_newJob);
-                    ServiceManager.HrtDataManager.GearDb.TryAdd(newClass.CurGear);
-                    ServiceManager.HrtDataManager.GearDb.TryAdd(newClass.CurBis);
+                    Factory.DataManager.GearDb.TryAdd(newClass.CurGear);
+                    Factory.DataManager.GearDb.TryAdd(newClass.CurBis);
                 }
+                var newBis = Factory.ConnectorPool.GetDefaultBiS(_newJob);
+                newClass.CurBis.ManagedBy = newBis.Service;
+                newClass.CurBis.ExternalId = newBis.Id;
+                newClass.CurBis.ExternalIdx = newBis.Idx;
+                newClass.CurBis.Name = newBis.Name;
+            }
+            return;
 
-                newClass.CurBis.ManagedBy = GearSetManager.Etro;
-                newClass.CurBis.EtroId = ServiceManager.ConnectorPool.EtroConnector.GetDefaultBiS(_newJob);
+            //ImGuiHelper.Combo(Localize("Gender", "Gender"), ref PlayerCopy.MainChar.Gender);
+            string GetGenderedTribeName(Tribe tribe)
+            {
+                return DataCopy.Gender == Gender.Male ? tribe.Masculine.ExtractText() : tribe.Feminine.ExtractText();
             }
         }
 
@@ -366,7 +400,6 @@ public static class EditWindowFactory
             {
                 destination.Name = DataCopy.Name;
                 destination.HomeWorldId = DataCopy.HomeWorldId;
-                ServiceManager.HrtDataManager.CharDb.ReindexCharacter(destination.LocalId);
             }
 
             destination.TribeId = DataCopy.TribeId;
@@ -374,17 +407,17 @@ public static class EditWindowFactory
             //Remove classes that were removed in Ui
             for (int i = 0; i < destination.Classes.Count(); i++)
             {
-                PlayableClass c = destination.Classes.ElementAt(i);
+                var c = destination.Classes.ElementAt(i);
                 if (DataCopy.Classes.Any(x => x.Job == c.Job)) continue;
                 destination.RemoveClass(c.Job);
                 i--;
             }
 
             //Add missing classes and update Bis/Level for existing ones
-            foreach (PlayableClass c in DataCopy.Classes)
+            foreach (var c in DataCopy.Classes)
             {
-                PlayableClass? target = destination[c.Job];
-                GearDb gearSetDb = ServiceManager.HrtDataManager.GearDb;
+                var target = destination[c.Job];
+                var gearSetDb = Factory.DataManager.GearDb;
 
                 if (target == null)
                 {
@@ -396,164 +429,215 @@ public static class EditWindowFactory
                 target.Level = c.Level;
                 target.HideInUi = c.HideInUi;
             }
-            if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.CharDb.TryAdd(destination);
-            ServiceManager.HrtDataManager.Save();
+            if (destination.LocalId.IsEmpty) Factory.DataManager.CharDb.TryAdd(destination);
+            Factory.DataManager.Save();
         }
     }
 
     private class EditGearSetWindow : EditWindow<GearSet>
     {
+        private readonly Job? _providedJob;
         private Job _job;
-        private string _etroIdInput = "";
-        internal EditGearSetWindow(GearSet original, Action<GearSet>? onSave = null,
-                                   Action? onCancel = null, Job? job = null) :
-            base(original, onSave, onCancel)
+        private string _curSetId = "";
+        private GearSetManager? _selectedService;
+        private GearSetManager? _detectedService;
+        private GearSetManager? CurService => _selectedService ?? _detectedService;
+        private readonly ConcurrentDictionary<(GearSetManager? service, string id), IList<ExternalBiSDefinition>>
+            _externalGearSetCache = [];
+        private readonly ConcurrentDictionary<(GearSetManager? service, string id), bool> _currentlyLoading = [];
+        internal EditGearSetWindow(EditWindowFactory factory, GearSet original, Action<GearSet>? onSave = null,
+                                   Action? onCancel = null, Action? onDelete = null, Job? job = null) :
+            base(factory, original, onSave, onCancel, onDelete)
         {
+            CanDelete = true;
+            _providedJob = job;
             _job = job ?? original[GearSetSlot.MainHand].Jobs.FirstOrDefault(Job.ADV);
-            MinSize = new Vector2(550, 300);
+            MinSize = new Vector2(700, 600);
+            Size = new Vector2(1100, 600);
+            SizeCondition = ImGuiCond.Appearing;
         }
 
         protected override void Cancel() { }
 
+        private void LoadSet()
+        {
+            if (_curSetId.Length == 0) return;
+            if (_externalGearSetCache.ContainsKey((CurService, _curSetId))) return;
+            if (_currentlyLoading.ContainsKey((CurService, _curSetId))) return;
+            foreach (var serviceType in Enum.GetValues<GearSetManager>())
+            {
+                if (!Factory.ConnectorPool.TryGetConnector(serviceType, out var connector)) continue;
+                if (!connector.BelongsToThisService(_curSetId) && CurService == null) continue;
+                if (CurService.HasValue && CurService.Value != serviceType) continue;
+                _detectedService = serviceType;
+                _selectedService = null;
+                _curSetId = connector.GetId(_curSetId);
+                if (_externalGearSetCache.ContainsKey((CurService, _curSetId))) return;
+                if (_currentlyLoading.ContainsKey((CurService, _curSetId))) return;
+                if (_currentlyLoading.TryAdd((CurService, _curSetId), true))
+                    Factory.TaskManager.RegisterTask(new HrtTask<IList<ExternalBiSDefinition>>(
+                                                         () => connector.GetPossibilities(_curSetId),
+                                                         list =>
+                                                         {
+                                                             _externalGearSetCache.TryAdd(
+                                                                 (CurService, _curSetId), list);
+                                                             _currentlyLoading.Remove(
+                                                                 (CurService, _curSetId), out _);
+                                                         }, "GetSetNames"
+                                                     ));
+                return;
+            }
+        }
+
         protected override void DrawContent()
         {
-            bool isFromEtro = DataCopy.ManagedBy == GearSetManager.Etro;
-            ImGui.SameLine();
-            if (ImGuiHelper.DeleteButton(DataCopy, "##delete", true, new Vector2(50, 25)))
+            ImGui.Columns(2, "##Naming", false);
+            var leftTable = ImRaii.Table("##leftTable", 1, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg);
+            if (leftTable)
             {
-                GearSet newSet = new();
-                if (ServiceManager.HrtDataManager.GearDb.TryAdd(newSet))
+                ImGui.TableNextColumn();
+                DrawGeneralSection();
+                if (DataCopy.IsManagedExternally)
                 {
-                    DataCopy = newSet;
-                    Save();
-                    Hide();
-                }
-            }
-            //Replace with etro section
-            ImGui.Text(GeneralLoc.EditGearSetUi_text_getEtro);
-            foreach ((string etroId, string name) in ServiceManager.ConnectorPool.EtroConnector.GetBiS(_job))
-            {
-                ImGui.SameLine();
-                if (ImGuiHelper.Button($"{name}##BIS#{etroId}", $"{etroId}"))
-                {
-                    if (ServiceManager.HrtDataManager.GearDb.TryGetSetByEtroId(etroId, out GearSet? newSet))
-                    {
-                        ReplaceOriginal(newSet);
-                        return;
-                    }
-                    ReplaceOriginal(new GearSet(GearSetManager.Etro, name)
-                    {
-                        EtroId = etroId,
-                    });
-                    ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(DataCopy);
-                    return;
-                }
-            }
-            const string customEtroPopupId = "customEtroPopupID";
-            ImGui.SameLine();
-            if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_CustomEtro,
-                                   GeneralLoc.EditGearSetUi_btn_tt_CustomEtro))
-            {
-                _etroIdInput = "";
-                ImGui.OpenPopup(customEtroPopupId);
-            }
-
-            if (ImGui.BeginPopupContextItem(customEtroPopupId))
-            {
-                ImGui.InputText("CustomEtroID", ref _etroIdInput, 200);
-                if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_tt_cutsomEtro,
-                                       GeneralLoc.EditGearSetUi_btn_tt_cutsomEtro_Get))
-                {
-                    if (_etroIdInput.StartsWith(EtroConnector.GEARSET_WEB_BASE_URL))
-                        _etroIdInput = _etroIdInput[EtroConnector.GEARSET_WEB_BASE_URL.Length..];
-                    if (ServiceManager.HrtDataManager.GearDb.TryGetSetByEtroId(_etroIdInput, out GearSet? newSet))
-                    {
-                        ReplaceOriginal(newSet);
-                        return;
-                    }
-                    ReplaceOriginal(new GearSet(GearSetManager.Etro)
-                    {
-                        EtroId = _etroIdInput,
-                    });
-                    ServiceManager.ConnectorPool.EtroConnector.GetGearSetAsync(DataCopy);
-                    ImGui.CloseCurrentPopup();
-                    return;
-                }
-                ImGui.EndPopup();
-            }
-            //Source information
-            if (isFromEtro)
-            {
-                ImGui.Text($"{GeneralLoc.EditGearSetUi_Source}: {GearSetManager.Etro.FriendlyName()}");
-                ImGui.SameLine();
-                if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_MakeLocal,
-                                       GeneralLoc.EditGearSetUi_btn_tt_MakeLocal))
-                {
-                    GearSet newSet = DataCopy.Clone();
-                    newSet.LocalId = HrtId.Empty;
-                    newSet.RemoteIDs = new List<HrtId>();
-                    newSet.ManagedBy = GearSetManager.Hrt;
-                    newSet.EtroId = string.Empty;
-                    ServiceManager.HrtDataManager.GearDb.TryAdd(newSet);
-                    ReplaceOriginal(newSet);
-                }
-
-                ImGui.Text($"{GeneralLoc.CommonTerms_EtroID}: {DataCopy.EtroId}");
-                ImGui.SameLine();
-                if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_openEtro, null))
-                    Util.OpenLink(EtroConnector.GEARSET_WEB_BASE_URL + DataCopy.EtroId);
-
-                ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_txt_lastUpdate, DataCopy.EtroFetchDate));
-            }
-            else
-            {
-                ImGui.Text($"{GeneralLoc.EditGearSetUi_txt_Source}: {GearSetManager.Hrt.FriendlyName()}");
-                if (DataCopy.IsSystemManaged)
-                    ImGui.TextColored(Colors.TextRed, GeneralLoc.Gearset_Warning_SysManaged);
-            }
-            //
-            ImGui.Text(GeneralLoc.EditGearSetUi_txt_job);
-            ImGui.SameLine();
-            ImGui.SetNextItemWidth(60 * ScaleFactor);
-            ImGuiHelper.Combo("##JobSelection", ref _job);
-            ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_txt_LastChange, DataCopy.TimeStamp));
-            ImGui.BeginDisabled(isFromEtro);
-            ImGui.Text($"{GeneralLoc.CommonTerms_Name}: ");
-            ImGui.SameLine();
-            ImGui.InputText("", ref DataCopy.Name, 100);
-            ImGui.NewLine();
-            //Gear slots
-            if (ImGui.BeginTable("##GearEditTable", 2, ImGuiTableFlags.Borders))
-            {
-                ImGui.TableSetupColumn("##GearL");
-                ImGui.TableSetupColumn("##GearR");
-                DrawSlot(GearSetSlot.MainHand);
-                if (_job.CanHaveShield())
-                    DrawSlot(GearSetSlot.OffHand);
-                else
                     ImGui.TableNextColumn();
-                DrawSlot(GearSetSlot.Head);
-                DrawSlot(GearSetSlot.Ear);
-                DrawSlot(GearSetSlot.Body);
-                DrawSlot(GearSetSlot.Neck);
-                DrawSlot(GearSetSlot.Hands);
-                DrawSlot(GearSetSlot.Wrist);
-                DrawSlot(GearSetSlot.Legs);
-                DrawSlot(GearSetSlot.Ring1);
-                DrawSlot(GearSetSlot.Feet);
-                DrawSlot(GearSetSlot.Ring2);
-                ImGui.EndTable();
+                    DrawExternalSection();
+                }
+                ImGui.TableNextColumn();
+                DrawReplaceSection();
             }
-
+            leftTable.Dispose();
+            ImGui.NextColumn();
+            if (DataCopy.IsManagedExternally || DataCopy.IsSystemManaged)
+            {
+                string text = DataCopy.IsManagedExternally ? GeneralLoc.Gearset_Warning_ExternalManaged
+                    : GeneralLoc.Gearset_Warning_SysManaged;
+                using (ImRaii.PushColor(ImGuiCol.Text, Colors.TextRed))
+                {
+                    ImGui.TextWrapped(text);
+                }
+            }
+            ImGui.BeginDisabled(DataCopy.IsManagedExternally);
+            DrawGearEditSection();
             ImGui.EndDisabled();
+            ImGui.Columns();
+        }
+
+        private void DrawGeneralSection()
+        {
+            using var table = ImRaii.Table("##GeneralTable", 2);
+            if (!table) return;
+            ImGui.TableSetupColumn("##Label", ImGuiTableColumnFlags.WidthStretch, 2);
+            ImGui.TableSetupColumn("##Input", ImGuiTableColumnFlags.WidthStretch, 6);
+            ImGui.TableNextColumn();
+            ImGui.BeginDisabled(DataCopy.IsManagedExternally);
+            ImGui.Text(GeneralLoc.CommonTerms_Name);
+            ImGui.TableNextColumn();
+            ImGui.InputText("##name", ref DataCopy.Name, 100);
+            ImGui.EndDisabled();
+            ImGui.TableNextColumn();
+            ImGui.Text("Local alias");
+            ImGui.TableNextColumn();
+            string alias = DataCopy.Alias ?? "";
+            if (ImGui.InputText("##alias", ref alias, 100))
+                DataCopy.Alias = alias.IsNullOrWhitespace() ? null : alias;
+
+            ImGui.TableNextColumn();
+            ImGui.Text(GeneralLoc.EditGearSetUi_txt_LastChange);
+            ImGui.TableNextColumn();
+            ImGui.Text($"{DataCopy.TimeStamp}");
+            ImGui.TableNextColumn();
+            ImGui.Text(GeneralLoc.EditGearSetUi_txt_job);
+            ImGui.TableNextColumn();
+            ImGui.SetNextItemWidth(70 * ScaleFactor);
+            ImGui.BeginDisabled(_providedJob is not null);
+            ImGuiHelper.Combo("##JobSelection", ref _job);
+            ImGui.EndDisabled();
+            ImGui.TableNextColumn();
+            ImGui.Text(GeneralLoc.EditGearSetUi_txt_Source);
+            ImGui.TableNextColumn();
+            ImGui.Text(DataCopy.ManagedBy.FriendlyName());
+        }
+
+        private void DrawExternalSection()
+        {
+            if (!DataCopy.IsManagedExternally) return;
+            ImGui.Text($"{DataCopy.ManagedBy.FriendlyName()} Section");
+            using (var table = ImRaii.Table("##NameTable", 2))
+            {
+                if (table)
+                {
+                    ImGui.TableSetupColumn("##Name", ImGuiTableColumnFlags.WidthStretch, 2);
+                    ImGui.TableSetupColumn("##Name2", ImGuiTableColumnFlags.WidthStretch, 4);
+                    ImGui.TableNextColumn();
+                    ImGui.Text("Service");
+                    ImGui.TableNextColumn();
+                    ImGui.Text(DataCopy.ManagedBy.FriendlyName());
+                    ImGui.TableNextColumn();
+                    ImGui.Text(GeneralLoc.CommonTerms_ExternalID);
+                    ImGui.TableNextColumn();
+                    ImGui.TextWrapped(DataCopy.ExternalId);
+                    ImGui.TableNextColumn();
+                    ImGui.Text(GeneralLoc.EditGearSetUi_txt_lastUpdate);
+                    ImGui.TableNextColumn();
+                    ImGui.Text($"{DataCopy.LastExternalFetchDate}");
+                }
+            }
+            if (ImGuiHelper.Button(GeneralLoc.EditGearSetUi_btn_MakeLocal,
+                                   GeneralLoc.EditGearSetUi_btn_tt_MakeLocal))
+            {
+                var newSet = DataCopy.Clone();
+                newSet.LocalId = HrtId.Empty;
+                newSet.RemoteIDs = [];
+                newSet.ManagedBy = GearSetManager.Hrt;
+                newSet.ExternalId = string.Empty;
+                Factory.DataManager.GearDb.TryAdd(newSet);
+                ReplaceOriginal(newSet);
+            }
+            if (Factory.ConnectorPool.TryGetConnector(DataCopy.ManagedBy, out var connector))
+            {
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(
+                        string.Format(GeneralLoc.EditGearSetUi_btn_OpenWeb, DataCopy.ManagedBy.FriendlyName()),
+                        GeneralLoc.EditGearSetUi_btn_tt_OpenWeb))
+                    Util.OpenLink(connector.GetWebUrl(DataCopy.ExternalId));
+            }
+        }
+
+        private void DrawGearEditSection()
+        {
+            //Food
+            ImGui.Text(GeneralLoc.CommonTerms_Food);
+            ImGui.SameLine();
+            UiSystem.Helpers.DrawFoodEdit(this, DataCopy.Food, i => DataCopy.Food = i);
+            //Gear table
+            using var table = ImRaii.Table("##GearEditTable", 2, ImGuiTableFlags.Borders);
+            if (!table) return;
+            ImGui.TableSetupColumn("##GearL");
+            ImGui.TableSetupColumn("##GearR");
+            DrawSlot(GearSetSlot.MainHand);
+            if (_job.CanHaveShield())
+                DrawSlot(GearSetSlot.OffHand);
+            else
+                ImGui.TableNextColumn();
+            DrawSlot(GearSetSlot.Head);
+            DrawSlot(GearSetSlot.Ear);
+            DrawSlot(GearSetSlot.Body);
+            DrawSlot(GearSetSlot.Neck);
+            DrawSlot(GearSetSlot.Hands);
+            DrawSlot(GearSetSlot.Wrist);
+            DrawSlot(GearSetSlot.Legs);
+            DrawSlot(GearSetSlot.Ring1);
+            DrawSlot(GearSetSlot.Feet);
+            DrawSlot(GearSetSlot.Ring2);
             return;
             void DrawSlot(GearSetSlot slot)
             {
+
                 ImGui.BeginDisabled(ChildIsOpen);
                 ImGui.TableNextColumn();
-                UiHelpers.DrawGearEdit(this, slot, DataCopy[slot], i =>
+                UiSystem.Helpers.DrawGearEdit(this, slot, DataCopy[slot], i =>
                 {
-                    foreach (HrtMateria mat in DataCopy[slot].Materia)
+                    foreach (var mat in DataCopy[slot].Materia)
                     {
                         i.AddMateria(mat);
                     }
@@ -563,12 +647,80 @@ public static class EditWindowFactory
             }
         }
 
+        private void DrawReplaceSection()
+        {
+            foreach (var service in Enum.GetValues<GearSetManager>())
+            {
+                if (!Factory.ConnectorPool.TryGetConnector(service, out var connector)) continue;
+                //curated BiS
+                var bisSets = connector.GetBiSList(_job);
+                if (!bisSets.Any()) continue;
+                ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_text_getCuratedBis, service.FriendlyName()));
+
+                foreach (var biSDefinition in bisSets)
+                {
+                    ImGui.SameLine();
+                    DrawReplaceButton(biSDefinition);
+                }
+            }
+
+            ImGui.Text(GeneralLoc.EditGearSetUi_hdg_ExtCustom);
+            ImGui.SetNextItemWidth(100 * ScaleFactor);
+            ImGuiHelper.Combo("##manager", ref _selectedService,
+                              val => val.HasValue ? val.Value.FriendlyName() : GeneralLoc.EditGearSetUi_txt_AutoDetect,
+                              val => Factory.ConnectorPool.HasConnector(val));
+            ImGui.SetNextItemWidth(200 * ScaleFactor);
+            ImGui.SameLine();
+            ImGui.InputText(GeneralLoc.EditGearSetUi_input_ExtId, ref _curSetId, 255);
+            LoadSet();
+            if (_currentlyLoading.ContainsKey((CurService, _curSetId)))
+            {
+                ImGui.Text(GeneralLoc.EditGearSetUi_txt_Loading);
+            }
+            else
+            {
+                if (_externalGearSetCache.TryGetValue((CurService, _curSetId), out var bisList) && bisList.Any())
+                {
+                    ImGui.Text(GeneralLoc.EditGearSetUi_text_Replace);
+                    foreach (var biSDefinition in bisList)
+                    {
+                        ImGui.SameLine();
+                        DrawReplaceButton(biSDefinition);
+                    }
+                }
+                else
+                {
+                    ImGui.Text(GeneralLoc.EditGearSetUi_text_InvalidId);
+                }
+
+            }
+            return;
+            void DrawReplaceButton(ExternalBiSDefinition biSDefinition)
+            {
+                if (!ImGuiHelper.Button($"{biSDefinition.Name}##BIS#{biSDefinition.Id}#{biSDefinition.Idx}",
+                                        $"{biSDefinition.Id} ({biSDefinition.Idx}) <{biSDefinition.Service.FriendlyName()}>"))
+                    return;
+                if (Factory.DataManager.GearDb.Search(biSDefinition.Equals, out var newSet))
+                {
+                    ReplaceOriginal(newSet);
+                    return;
+                }
+                ReplaceOriginal(new GearSet(biSDefinition.Service)
+                {
+                    ExternalId = biSDefinition.Id,
+                    ExternalIdx = biSDefinition.Idx,
+                });
+                if (Factory.ConnectorPool.TryGetConnector(biSDefinition.Service, out var connector))
+                    connector.RequestGearSetUpdate(DataCopy);
+            }
+        }
+
         protected override void Save(GearSet destination)
         {
-            if (destination.LocalId.IsEmpty) ServiceManager.HrtDataManager.GearDb.TryAdd(destination);
+            if (destination.LocalId.IsEmpty) Factory.DataManager.GearDb.TryAdd(destination);
             DataCopy.TimeStamp = DateTime.Now;
             destination.CopyFrom(DataCopy);
-            ServiceManager.HrtDataManager.Save();
+            Factory.DataManager.Save();
         }
     }
     private class EditRaidSessionWindow(RaidSession original, Action<RaidSession>? onSave, Action? onCancel)

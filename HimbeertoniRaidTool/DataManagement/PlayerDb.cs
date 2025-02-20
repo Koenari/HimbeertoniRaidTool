@@ -7,26 +7,26 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class PlayerDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters)
-    : DataBaseTable<Player>(idProvider, converters)
+internal class PlayerDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters, ILogger logger)
+    : DataBaseTable<Player>(idProvider, converters, logger)
 {
 
     public override HashSet<HrtId> GetReferencedIds()
     {
         HashSet<HrtId> referencedIds = new();
-        foreach (Character character in from player in Data.Values from character in player.Characters select character)
+        foreach (var character in from player in Data.Values from character in player.Characters select character)
         {
             referencedIds.Add(character.LocalId);
         }
         return referencedIds;
     }
-    public override HrtWindow OpenSearchWindow(Action<Player> onSelect, Action? onCancel = null) =>
-        new PlayerSearchWindow(this, onSelect, onCancel);
+    public override HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<Player> onSelect, Action? onCancel = null) =>
+        new PlayerSearchWindow(uiSystem, this, onSelect, onCancel);
 
     private class PlayerSearchWindow : SearchWindow<Player, PlayerDb>
     {
-        public PlayerSearchWindow(PlayerDb dataBase, Action<Player> onSelect, Action? onCancel) : base(dataBase,
-            onSelect, onCancel)
+        public PlayerSearchWindow(IUiSystem uiSystem, PlayerDb dataBase, Action<Player> onSelect, Action? onCancel) :
+            base(uiSystem, dataBase, onSelect, onCancel)
         {
             Size = new Vector2(300, 150);
             SizeCondition = ImGuiCond.Appearing;
@@ -38,7 +38,7 @@ internal class PlayerDb(IIdProvider idProvider, IEnumerable<JsonConverter> conve
                 $"{GeneralLoc.DBSearchPlayerUi_txt_selected}: {(Selected is null ? $"{GeneralLoc.CommonTerms_None}" : $"{Selected.NickName} ({Selected.MainChar.Name})")}");
             ImGui.Separator();
             ImGui.Text($"{GeneralLoc.DBSearchPlayerUi_hdg_selectPlayer}:");
-            if (ImGuiHelper.SearchableCombo("##search", out Player?
+            if (ImGuiHelper.SearchableCombo("##search", out var
                                                 newSelected, string.Empty, Database.GetValues(),
                                             p => $"{p.NickName} ({p.MainChar.Name})"))
             {

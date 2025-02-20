@@ -1,156 +1,83 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
+﻿using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
+using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-internal class CharacterDb : DataBaseTable<Character>
+internal class CharacterDb(
+    IIdProvider idProvider,
+    IEnumerable<JsonConverter> converters,
+    ILogger logger,
+    IDataManager dataManager)
+    : DataBaseTable<Character>(idProvider, converters, logger)
 {
-    private readonly Dictionary<ulong, HrtId> _charIdLookup = new();
-    private readonly Dictionary<HrtId, HrtId> _idReplacement = new();
-    private readonly Dictionary<(uint, string), HrtId> _nameLookup = new();
-
-    internal CharacterDb(IIdProvider idProvider, IEnumerable<JsonConverter> converters) : base(idProvider, converters)
+    public static Func<Character?, bool> GetStandardPredicate(ulong charId, uint worldId, string name) => character =>
     {
-    }
-    public new bool Load(JsonSerializerSettings settings, string data)
-    {
-        base.Load(settings, data);
-        if (LoadError) return false;
-        foreach (Character c in Data.Values)
-        {
-            /*
-             * Fill up indices
-             */
-            if (!_nameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId))
-            {
-                ServiceManager.Logger.Warning(
-                    $"Database contained {c.Name} @ {c.HomeWorld?.Name} twice. Characters were merged");
-                if (Data.TryGetValue(_nameLookup[(c.HomeWorldId, c.Name)], out Character? other))
-                {
-                    _idReplacement.Add(c.LocalId, other.LocalId);
-                    other.MergeInfos(c);
-                    Data.Remove(c.LocalId);
-                }
-                continue;
-            }
-            if (c.CharId > 0)
-                _charIdLookup.TryAdd(c.CharId, c.LocalId);
-        }
-        return IsLoaded;
-    }
-    public override bool TryAdd(in Character c)
-    {
-        if (!base.TryAdd(c))
-            return false;
-        //Add to indices
-        _nameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId);
-        if (c.CharId > 0)
-            _charIdLookup.TryAdd(c.CharId, c.LocalId);
-        return true;
-    }
-
-    internal bool TryGetCharacterByCharId(ulong charId, [NotNullWhen(true)] out Character? c)
-    {
-        c = null;
-        if (_charIdLookup.TryGetValue(charId, out HrtId? id))
-            return TryGet(id, out c);
-        id = Data.FirstOrDefault(x => x.Value.CharId == charId).Key;
-        if (id is not null)
-        {
-            _charIdLookup.Add(charId, id);
-            c = Data[id];
-            return true;
-        }
-
-        ServiceManager.Logger.Debug($"Did not find character with ID: {charId} in database");
-        return false;
-    }
-
-    internal bool SearchCharacter(uint worldId, string name, [NotNullWhen(true)] out Character? c)
-    {
-        c = null;
-        if (_nameLookup.TryGetValue((worldId, name), out HrtId? id))
-            return TryGet(id, out c);
-        id = Data.FirstOrDefault(x => x.Value.HomeWorldId == worldId && x.Value.Name.Equals(name)).Key;
-        if (id is not null)
-        {
-            _nameLookup.Add((worldId, name), id);
-            c = Data[id];
-            return true;
-        }
-
-        ServiceManager.Logger.Debug($"Did not find character {name}@{worldId} in database");
-        return false;
-    }
-
-    public override bool TryGet(HrtId id, [NotNullWhen(true)] out Character? c)
-    {
-        if (_idReplacement.TryGetValue(id, out HrtId? value))
-            id = value;
-        return Data.TryGetValue(id, out c);
-    }
-
-    internal void ReindexCharacter(HrtId localId)
-    {
-        if (!TryGet(localId, out Character? c))
-            return;
-        _nameLookup.TryAdd((c.HomeWorldId, c.Name), c.LocalId);
-        if (c.CharId > 0)
-            _charIdLookup.TryAdd(c.CharId, c.LocalId);
-    }
+        if (character is null) return false;
+        if (charId > 0 && character.CharId == charId) return true;
+        return worldId > 0 && name.Length > 0 && character.HomeWorldId == worldId
+            && character.Name.Equals(name);
+    };
     public override HashSet<HrtId> GetReferencedIds()
     {
-        ServiceManager.Logger.Debug("Begin calculation of referenced Ids in character database");
+        Logger.Debug("Begin calculation of referenced Ids in character database");
         HashSet<HrtId> referencedIds = [];
-        foreach (PlayableClass playableClass in Data.Values.SelectMany(character => character))
+        foreach (var playableClass in Data.Values.SelectMany(character => character))
         {
-            foreach (GearSet gearSet in playableClass.GearSets.Where(set => !set.LocalId.IsEmpty))
+            foreach (var gearSet in playableClass.GearSets.Where(set => !set.LocalId.IsEmpty))
             {
                 referencedIds.Add(gearSet.LocalId);
             }
-            foreach (GearSet gearSet in playableClass.BisSets.Where(set => !set.LocalId.IsEmpty))
+            foreach (var gearSet in playableClass.BisSets.Where(set => !set.LocalId.IsEmpty))
             {
                 referencedIds.Add(gearSet.LocalId);
             }
         }
-        ServiceManager.Logger.Debug("Finished calculation of referenced Ids in character database");
+        Logger.Debug("Finished calculation of referenced Ids in character database");
         return referencedIds;
     }
-    public override void FixEntries()
+    public override void FixEntries(HrtDataManager hrtDataManager)
     {
-        foreach (PlayableClass playableClass in Data.Values.SelectMany(character => character.Classes))
+        foreach (var playableClass in Data.Values.SelectMany(character => character.Classes))
         {
             playableClass.RemoveEmptySets();
             if (playableClass.CurGear.LocalId.IsEmpty)
-                ServiceManager.HrtDataManager.GearDb.TryAdd(playableClass.CurGear);
+                hrtDataManager.GearDb.TryAdd(playableClass.CurGear);
             if (playableClass.CurBis.LocalId.IsEmpty)
-                ServiceManager.HrtDataManager.GearDb.TryAdd(playableClass.CurBis);
+                hrtDataManager.GearDb.TryAdd(playableClass.CurBis);
         }
     }
 
-    public override HrtWindow OpenSearchWindow(Action<Character> onSelect, Action? onCancel = null) =>
-        new CharacterSearchWindow(this, onSelect, onCancel);
+    public override HrtWindow
+        GetSearchWindow(IUiSystem uiSystem, Action<Character> onSelect, Action? onCancel = null) =>
+        new CharacterSearchWindow(uiSystem, this, onSelect, onCancel, dataManager);
 
     private class CharacterSearchWindow : SearchWindow<Character, CharacterDb>
     {
+        private readonly IDataManager _dataManager;
         private uint _selectedWorld = 0;
         private readonly Dictionary<uint, string> _worldCache = [];
+        private string _searchText = string.Empty;
 
         private string GetWorldName(uint idx) =>
+            idx == 0 ? GeneralLoc.CommonTerms_All :
             _worldCache.TryGetValue(idx, out string? name) ? name : _worldCache[idx] =
-                ServiceManager.DataManager.GetExcelSheet<World>()?.GetRow(idx)?.Name?.RawString ?? "";
+                _dataManager.GetExcelSheet<World>().GetRow(idx).Name.ExtractText();
 
-        public CharacterSearchWindow(CharacterDb dataBase, Action<Character> onSelect, Action? onCancel) : base(
-            dataBase, onSelect, onCancel)
+        public CharacterSearchWindow(IUiSystem uiSystem, CharacterDb dataBase, Action<Character> onSelect,
+                                     Action? onCancel,
+                                     IDataManager dataManager) : base(uiSystem,
+                                                                      dataBase, onSelect, onCancel)
         {
+            _dataManager = dataManager;
             Title = GeneralLoc.GetCharacterWindow_Title;
             (Size, SizeCondition) = (new Vector2(400, 500), ImGuiCond.Appearing);
             Flags = ImGuiWindowFlags.NoScrollbar;
@@ -158,17 +85,28 @@ internal class CharacterDb : DataBaseTable<Character>
 
         protected override void DrawContent()
         {
-            if (ImGui.BeginCombo(GeneralLoc.EditCharUi_in_HomeWorld, GeneralLoc.CommonTerms_All))
+            using (var table = ImRaii.Table("searchTable", 2))
             {
-                if (ImGui.Selectable(GeneralLoc.CommonTerms_All)) _selectedWorld = 0;
-                foreach (uint world in Database.Data.Values.Select(entry => entry.HomeWorldId).Distinct()
-                                               .Where(entry => entry != 0))
+                if (table)
                 {
-                    if (ImGui.Selectable(GetWorldName(world)))
-                        _selectedWorld = world;
+                    ImGui.TableSetupColumn("1", ImGuiTableColumnFlags.WidthStretch, 1);
+                    ImGui.TableSetupColumn("2", ImGuiTableColumnFlags.WidthStretch, 3);
+                    ImGui.TableNextColumn();
+                    ImGui.Text(GeneralLoc.CommonTerms_Name);
+                    ImGui.TableNextColumn();
+                    ImGui.InputText("##searchTerm", ref _searchText, 128);
+                    ImGui.TableNextColumn();
+                    ImGui.Text(GeneralLoc.EditCharUi_in_HomeWorld);
+                    ImGui.TableNextColumn();
+                    if (ImGuiHelper.SearchableCombo("##homeWorld", out uint worldOut,
+                                                    GetWorldName(_selectedWorld), Database.Data.Values
+                                                        .Select(entry => entry.HomeWorldId).Distinct()
+                                                        .Where(entry => entry != 0).Prepend<uint>(0), GetWorldName))
+                        _selectedWorld = worldOut;
                 }
-                ImGui.EndCombo();
+
             }
+
             if (!ImGui.BeginTable(
                     "Chars", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
                 return;
@@ -177,9 +115,12 @@ internal class CharacterDb : DataBaseTable<Character>
             ImGui.TableSetupColumn(GeneralLoc.EditCharUi_in_HomeWorld, ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableHeadersRow();
-            foreach (Character character in Database.GetValues()
-                                                    .Where(entry => _selectedWorld == 0
-                                                                 || entry.HomeWorldId == _selectedWorld))
+            foreach (var character in Database.GetValues()
+                                              .Where(entry => (_selectedWorld == 0
+                                                            || entry.HomeWorldId == _selectedWorld)
+                                                           && entry.Name.Contains(
+                                                                  _searchText,
+                                                                  StringComparison.InvariantCultureIgnoreCase)))
             {
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{character.LocalId}",
@@ -192,7 +133,7 @@ internal class CharacterDb : DataBaseTable<Character>
                 ImGui.TableNextColumn();
                 ImGui.Text(character.Name);
                 ImGui.TableNextColumn();
-                ImGui.Text(character.HomeWorld?.Name ?? "");
+                ImGui.Text(character.HomeWorld.HasValue ? character.HomeWorld.Value.Name.ExtractText() : string.Empty);
                 ImGui.TableNextColumn();
                 ImGui.Text(string.Format(GeneralLoc.CharacterSearchUi_txt_classCount, character.Classes.Count()));
             }

@@ -4,15 +4,21 @@
     "net8.0-windows7.0": {
       "DalamudPackager": {
         "type": "Direct",
-        "requested": "[2.1.12, )",
-        "resolved": "2.1.12",
-        "contentHash": "Sc0PVxvgg4NQjcI8n10/VfUQBAS4O+Fw2pZrAqBdRMbthYGeogzu5+xmIGCGmsEZ/ukMOBuAqiNiB5qA3MRalg=="
+        "requested": "[11.0.0, )",
+        "resolved": "11.0.0",
+        "contentHash": "bjT7XUlhIJSmsE/O76b7weUX+evvGQctbQB8aKXt94o+oPWxHpCepxAGMs7Thow3AzCyqWs7cOpp9/2wcgRRQA=="
+      },
+      "DotNet.ReproducibleBuilds": {
+        "type": "Direct",
+        "requested": "[1.2.25, )",
+        "resolved": "1.2.25",
+        "contentHash": "xCXiw7BCxHJ8pF6wPepRUddlh2dlQlbr81gXA72hdk4FLHkKXas7EH/n+fk5UCA/YfMqG1Z6XaPiUjDbUNBUzg=="
       },
       "NetStone": {
         "type": "Direct",
-        "requested": "[1.1.1, )",
-        "resolved": "1.1.1",
-        "contentHash": "7AWc3j6082Ut3xTbJTWBhsZC2Zd7hYVprQiNiei+FGxSSvGacv+xQMBpBIfAnQnnmsKnEQ47NExNgZpt6UcI4A==",
+        "requested": "[1.3.1, )",
+        "resolved": "1.3.1",
+        "contentHash": "iDfmwtpAe2iz5cuOPAj+gzEEA4RkCkOzqTgYFbpBysWYOqvJhIDd3BqeMQMiWl6RuppfcQpIjrpfsUgX+VZV2A==",
         "dependencies": {
           "HtmlAgilityPack": "1.11.46",
           "Karashiiro.HtmlAgilityPack.CssSelectors.NetCoreFork": "0.0.2",
@@ -34,16 +40,24 @@
       },
       "Lumina": {
         "type": "Transitive",
-        "resolved": "3.15.2",
-        "contentHash": "EnoxYEYMepcvAoXdZhaFJiv2aiDBIPjgkgzxR/+ArOxlrALzCgheTsb5yD39a9sxNIi2tNECT93ulZvYjx8fZg=="
+        "resolved": "5.6.0",
+        "contentHash": "Ugq7eY0ZrUxtqqfg9m4S+3fF5agU6pB+EIHqEMSGO5MH1b+xKCL/5hHWY+bEB6aRnDlEAmSGhx703z5bMOCqZg==",
+        "dependencies": {
+          "Microsoft.Extensions.ObjectPool": "8.0.7"
+        }
       },
       "Lumina.Excel": {
         "type": "Transitive",
-        "resolved": "6.5.2",
-        "contentHash": "4bKX6ImW885rrgrasNve774FT3f0rjpsuoPltr0V0mxD3Ss5bFGwPQBvzgaio8sJyRNpFa25tMcwXTTKRNe+5g==",
+        "resolved": "7.1.3",
+        "contentHash": "fEYaSEbRPknwpSyB4cSqXMUr9oRD7citBhOY3Ib5tZlKILvKPoCCNvorcn7CzaFvg5p7cQf/6+ec1DQPj0niFw==",
         "dependencies": {
-          "Lumina": "3.15.2"
+          "Lumina": "0.0.0-preview.0"
         }
+      },
+      "Microsoft.Extensions.ObjectPool": {
+        "type": "Transitive",
+        "resolved": "8.0.7",
+        "contentHash": "2yLweyqmpuuFSRo+I3sLHMxmnAgNcI537kBJiyv49U2ZEqo00jZcG8lrnD8uCiOJp9IklYyTZULtbsXoFVzsjQ=="
       },
       "Newtonsoft.Json": {
         "type": "Transitive",
@@ -52,18 +66,24 @@
       },
       "XIVCalc": {
         "type": "Transitive",
-        "resolved": "0.1.3",
-        "contentHash": "MQ0Wdv1kpgzIsZrG9aF2VaMBXPvGVY566elDKb7WkRnGU6y65exZtCUmZuX9ZjRsu49n48u/4krbIcmqbs1vrQ==",
+        "resolved": "0.3.1",
+        "contentHash": "RqVwlVRK1dihoU7cadMidzKBdq89zFgbYhTbs9E1nfp1k3SiOKEWzZhXqkNbp6SpvXPmTrHzxzgz8l+wLApdtw=="
+      },
+      "XIVCalc.Lumina": {
+        "type": "Transitive",
+        "resolved": "7.1.3",
+        "contentHash": "Vh3UM6RB3FkbE5EUF5HsfhfKe1SicXOy67Xw3b+MqO3MK7oAG7Owi4zFukkZotwsf1N5Vp9bT3o/u5Vkk6dqRg==",
         "dependencies": {
-          "Lumina.Excel": "6.5.0"
+          "Lumina.Excel": "7.1.3",
+          "XIVCalc": "0.3.1"
         }
       },
       "himbeertoniraidtool.common": {
         "type": "Project",
         "dependencies": {
-          "Lumina.Excel": "[6.5.2, )",
+          "Lumina": "[5.6.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
-          "XIVCalc": "[0.1.3, )"
+          "XIVCalc.Lumina": "[7.1.3, )"
         }
       }
     }

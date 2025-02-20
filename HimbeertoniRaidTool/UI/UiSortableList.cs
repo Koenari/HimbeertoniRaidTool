@@ -21,7 +21,6 @@ public class UiSortableList<T> where T : IDrawable, IHrtDataType
         _currentList = inList;
         ConsolidateList();
     }
-    private int Length => _currentList.Count;
 
     /// <summary>
     ///     Get a copy of the current state of the list.
@@ -37,7 +36,7 @@ public class UiSortableList<T> where T : IDrawable, IHrtDataType
         int id = 0;
         for (int i = 0; i < _currentList.Count; i++)
         {
-            T currentItem = _currentList[i];
+            var currentItem = _currentList[i];
             ImGui.PushID(id);
             if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##up",
                                    string.Format(GeneralLoc.SortableList_btn_tt_moveUp, currentItem.DataTypeName),
@@ -78,7 +77,7 @@ public class UiSortableList<T> where T : IDrawable, IHrtDataType
                     $"{string.Format(GeneralLoc.Ui_btn_tt_add, _possibilities.First().DataTypeName)}#add",
                     string.Format(GeneralLoc.Ui_btn_tt_add, _possibilities.First().DataTypeName)))
             {
-                foreach (T unused in _possibilities.Where(item => !_currentList.Contains(item)))
+                foreach (var unused in _possibilities.Where(item => !_currentList.Contains(item)))
                 {
                     if (ImGui.Selectable(unused.ToString()))
                         _currentList.Add(unused);

@@ -1,13 +1,9 @@
 ﻿using System.Globalization;
-using HimbeertoniRaidTool.Common;
-using HimbeertoniRaidTool.Common.Calculations;
-using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
 using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
-using ServiceManager = HimbeertoniRaidTool.Plugin.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
@@ -17,7 +13,7 @@ public class LootRuling : ICloneable
     public static readonly LootRule Default = new(LootRuleEnum.None);
     public static readonly LootRule NeedOverGreed = new(LootRuleEnum.NeedGreed);
     [JsonProperty("RuleSet")]
-    public List<LootRule> RuleSet = new();
+    public List<LootRule> RuleSet = [];
     public static IEnumerable<LootRule> PossibleRules
     {
         get
@@ -117,12 +113,12 @@ public class LootRule(LootRuleEnum rule) : IEquatable<LootRule>, IDrawable, IHrt
 
     private (float, string?) InternalEval(LootResult x) => Rule switch
     {
-        LootRuleEnum.Random               => (x.Roll(), null),
-        LootRuleEnum.LowestItemLevel      => (-x.ItemLevel(), x.ItemLevel().ToString()),
+        LootRuleEnum.Random               => (x.Roll, null),
+        LootRuleEnum.LowestItemLevel      => (-x.ItemLevel, x.ItemLevel.ToString()),
         LootRuleEnum.HighestItemLevelGain => (x.ItemLevelGain(), null),
         LootRuleEnum.BisOverUpgrade => x.IsBiS() ? (1, GeneralLoc.CommonTerms_Yes_Abbrev)
             : (-1, GeneralLoc.CommonTerms_No_Abbrev),
-        LootRuleEnum.RolePrio => (x.RolePriority(), x.ApplicableJob.Role.ToString()),
+        LootRuleEnum.RolePrio => (-x.RolePriority, $"{x.ApplicableJob?.Role}"),
         LootRuleEnum.DpsGain  => (x.DpsGain(), $"{x.DpsGain() * 100:f1} %%"),
         LootRuleEnum.CanUse => x.CanUse() ? (1, GeneralLoc.CommonTerms_Yes_Abbrev)
             : (-1, GeneralLoc.CommonTerms_No_Abbrev),
@@ -149,104 +145,12 @@ public class LootRule(LootRuleEnum rule) : IEquatable<LootRule>, IDrawable, IHrt
 
     public override int GetHashCode() => Rule.GetHashCode();
     public override bool Equals(object? obj) => Equals(obj as LootRule);
-    public static bool operator ==(LootRule l, LootRule r) => l.Equals(r);
-    public static bool operator !=(LootRule l, LootRule r) => !l.Equals(r);
-}
-
-public static class LootRulesExtension
-{
-    public static int RolePriority(this LootResult result) => -result.RolePriority;
-    public static int Roll(this LootResult result) => result.Roll;
-    public static int ItemLevel(this LootResult result) => result.ApplicableJob.CurGear.ItemLevel;
-    public static int ItemLevelGain(this LootResult result) => result.NeededItems.Select(
-        item => (int)item.ItemLevel - result.ApplicableJob.CurGear
-                                            .Where(i => i.Slots.Intersect(item.Slots).Any())
-                                            .Aggregate((int)item.ItemLevel,
-                                                       (min, i) => Math.Min((int)i.ItemLevel, min))).Prepend(0).Max();
-    public static float DpsGain(this LootResult result)
+    public static bool operator ==(LootRule l, LootRule r)
     {
-        PlayableClass curClass = result.ApplicableJob;
-        double baseDps = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.CurGear,
-                                                     result.Player.MainChar.Tribe);
-        double newDps = double.NegativeInfinity;
-        foreach (GearItem? i in result.ApplicableItems)
-        {
-            GearItem? item = null;
-            foreach (GearItem? bisItem in curClass.CurBis)
-            {
-                if (bisItem.Equals(i, ItemComparisonMode.IdOnly))
-                    item = bisItem.Clone();
-            }
-            if (item is null)
-            {
-                item ??= i.Clone();
-                foreach (HrtMateria? mat in curClass.CurGear[i.Slots.FirstOrDefault(GearSetSlot.None)].Materia)
-                {
-                    item.AddMateria(mat);
-                }
-            }
-            double cur = AllaganLibrary.EvaluateStat(StatType.PhysicalDamage, curClass, curClass.CurGear.With(item),
-                                                     result.Player.MainChar.Tribe);
-            if (cur > newDps)
-                newDps = cur;
-        }
-        return (float)((newDps - baseDps) / baseDps);
+        return l.Equals(r);
     }
-    public static bool IsBiS(this LootResult result) =>
-        result.NeededItems.Any(i => result.ApplicableJob.CurBis.Count(x => x.Equals(i, ItemComparisonMode.IdOnly))
-                                 != result.ApplicableJob.CurGear.Count(x => x.Equals(i, ItemComparisonMode.IdOnly)));
-    public static bool CanUse(this LootResult result) =>
-        //Direct gear or coffer drops are always usable
-        !result.DroppedItem.IsExchangableItem
-     || result.NeededItems.Any(
-            item => ServiceManager.ItemInfo.GetShopEntriesForItem(item.Id).Any(shopEntry =>
-            {
-                for (int i = 0; i < SpecialShop.NUM_COST; i++)
-                {
-                    SpecialShop.ItemCostEntry cost = shopEntry.entry.ItemCostEntries[i];
-                    if (cost.Count == 0) continue;
-                    if (cost.Item.Row == result.DroppedItem.Id) continue;
-                    if (ItemInfo.IsCurrency(cost.Item.Row)) continue;
-                    if (ItemInfo.IsTomeStone(cost.Item.Row)) continue;
-                    if (result.ApplicableJob.CurGear.Contains(new HrtItem(cost.Item.Row))) continue;
-                    if (result.Player.MainChar.MainInventory.ItemCount(cost.Item.Row) >= cost.Count) continue;
-                    return false;
-                }
-                return true;
-            })
-        );
-
-    public static bool CanBuy(this LootResult result) => ServiceManager.ItemInfo
-                                                                       .GetShopEntriesForItem(result.DroppedItem.Id)
-                                                                       .Any(
-                                                                           shopEntry =>
-                                                                           {
-                                                                               for (int i = 0;
-                                                                                    i < SpecialShop.NUM_COST;
-                                                                                    i++)
-                                                                               {
-                                                                                   SpecialShop.ItemCostEntry cost =
-                                                                                       shopEntry.entry.ItemCostEntries[
-                                                                                           i];
-                                                                                   if (cost.Count == 0) continue;
-                                                                                   if (ItemInfo.IsCurrency(
-                                                                                            cost.Item.Row)) continue;
-                                                                                   if (ItemInfo.IsTomeStone(
-                                                                                            cost.Item.Row)) continue;
-                                                                                   if (result.ApplicableJob.CurGear
-                                                                                        .Contains(
-                                                                                            new HrtItem(cost.Item.Row)))
-                                                                                       continue;
-                                                                                   if (result.Player.MainChar
-                                                                                            .MainInventory
-                                                                                            .ItemCount(cost.Item.Row)
-                                                                                      + (result.GuaranteedLoot.Any(
-                                                                                            loot => loot.Id
-                                                                                             == cost.Item.Row) ? 1 : 0)
-                                                                                     >= cost.Count) continue;
-                                                                                   return false;
-                                                                               }
-                                                                               return true;
-                                                                           }
-                                                                       );
+    public static bool operator !=(LootRule l, LootRule r)
+    {
+        return !l.Equals(r);
+    }
 }

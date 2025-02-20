@@ -125,9 +125,6 @@
   <data name="ConfigUi_txt_currentPrio">
     <value>現在の優先度</value>
   </data>
-  <data name="Ui_btn_tt_inventory">
-    <value>所持品を開く</value>
-  </data>
   <data name="LootCategory_Need">
     <value>NEED</value>
   </data>
@@ -234,9 +231,6 @@
   <data name="Ui_text_emptyPlayer">
     <value>プレイヤーなし</value>
   </data>
-  <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
-        <value>追加の装備品</value>
-    </data>
   <data name="Ui_text_openLootSessioon" xml:space="preserve">
         <value>戦利品の配布先：</value>
     </data>

@@ -1,4 +1,5 @@
-﻿using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
+﻿using HimbeertoniRaidTool.Plugin.Localization;
+using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 using static HimbeertoniRaidTool.Plugin.Modules.Core.ChangeLogEntryCategory;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
@@ -7,11 +8,213 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
-        new(new Version(1, 5, 2, 7))
+        new(new Version(1, 8, 0, 3))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(
+                    NewFeature,
+                    "Stats can now take a party bonus into account (adjust the default in settings)")
+                {
+                    NewSetting = true,
+                },
+            },
+        },
+        new(new Version(1, 8, 0, 2))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "Add quick select for job/character/player (similar to gear sets)"),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "Improved usability of BiS section in gear edit"),
+                new ChangeLogEntry(
+                    Bugfix, "2nd,3rd,... set from XivGear.app sheets are now fetched correctly, not always the 1st"),
+            },
+        },
+        new(new Version(1, 8, 0, 1))
         {
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "New interface for searching characters from database"),
+                new ChangeLogEntry(UserInterface, "Added food information wherever relevant"),
+                new ChangeLogEntry(UserInterface, "Tooltips for food now contain the food's effects"),
+                new ChangeLogEntry(Bugfix, "Fix Gear/BiS equality with materia enabled"),
+                new ChangeLogEntry(Bugfix, "Fixed crash on startup in certain cases"),
+            },
+        },
+        new(new Version(1, 8, 0, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(
+                    Gear,
+                    "GearSets now support selection of food. You need to update all set from etro.gg and XivGear.app to get the food"),
+                new ChangeLogEntry(Options, "You can trigger updates for all gear sets from the options")
+                {
+                    NewSetting = true,
+                },
+                new ChangeLogEntry(Bugfix, "XivGear.app sets now behave as expected (on update and edit)"),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.System,
+                                   "A lot of changes on underlying systems. If you notice anything behaving strangely let me know via the official discord"),
+            },
+        },
+        new(new Version(1, 7, 0, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(
+                    NewFeature,
+                    "Gearsets can have an alias. If an alias is set it is shown instead of the name in the Ui\n"
+                  + "This is editable even for sets from etro or XivGearApp"),
+                new ChangeLogEntry(UserInterface, "Gearset origin is now shown in selection dropdown"),
+                new ChangeLogEntry(General, "Updated for 7.1"),
+                new ChangeLogEntry(UserInterface, "New layout for the stats"),
+                new ChangeLogEntry(UserInterface, "Overhauled item tooltips"),
+                new ChangeLogEntry(Bugfix, "Deleted sets get correctly removed from the gear/bis list"),
+                new ChangeLogEntry(Bis, "Update gear set buttons now works for XivGearApp (like they did for etro)"),
+                new ChangeLogEntry(UserInterface, "Searching gear from database now actually shows useful information"),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "New layout for inventory/wallet"),
+                new ChangeLogEntry(UserInterface,
+                                   "Job selection buttons are bigger to have enough space for level 100 jobs"),
+            },
+            KnownIssues =
+            {
+                new ChangeLogEntry(KnownIssues, "Previous wallet and inventory data is lost"),
+            },
+        },
+        new(new Version(1, 6, 2, 10))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(NewFeature, "Automatically switch character in solo tab to currently logged in one"),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Ignoring lower ilvl gear works again"),
+            },
+        },
+        new(new Version(1, 6, 2, 9))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(
+                    Bugfix,
+                    $"\"{CoreLoc.ConfigUi_cb_ignorePrevTierGear}\" option now works correctly if last raid tier was in a previous expansion"),
+                new ChangeLogEntry(
+                    Bugfix,
+                    $"Updating gear by examining now works again if \"{CoreLoc.ConfigUi_cb_ownData}\" is disbaled"),
+            },
+        },
+        new(new Version(1, 6, 2, 8))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(UserInterface,
+                                   "You can now adjust the way character names are displayed (see config)"),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "Make all buttons accessible in smaller windows"),
+            },
+        },
+        new(new Version(1, 6, 2, 7))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix update from lodestone", 151),
+            },
+        },
+        new(new Version(1, 6, 2, 6))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix loot being inaccurate"),
+            },
+        },
+        new(new Version(1, 6, 2, 5))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix missing materia in etro sets"),
+            },
+        },
+        new(new Version(1, 6, 2, 4))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix wrongly displayed Tome gear"),
+            },
+        },
+        new(new Version(1, 6, 2, 3))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Lootmaster, "Add savage loot information"),
+            },
+        },
+        new(new Version(1, 6, 2, 2))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix being unable to change tabs in config"),
+            },
+        },
+        new(new Version(1, 6, 2, 1))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(Bis, "Add auto updates for XivGear.app (see config)"),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "Added headlines to multi item tooltips"),
+            },
+        },
+        new(new Version(1, 6, 2, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(General, "Now supports switching back to Endwalker raid tiers"),
+                new ChangeLogEntry(Bis, "Added support for XivGear.app"),
+                new ChangeLogEntry(KnownIssues, "XivGear.app sets are not automatically updated yet"),
+            },
+        },
+        new(new Version(1, 6, 1, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(General, "Added loot information for normal raids and extremes"),
+                new ChangeLogEntry(General, "Corrected HP calculation for levels above 90"),
+                new ChangeLogEntry(Lodestone, "PCT and VIP fixed"),
+            },
+        },
+        new(new Version(1, 6, 0, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(General, "Updated for 7.0"),
+                new ChangeLogEntry(Bis, "Automatically converts non existent etro sets to local sets"),
+                new ChangeLogEntry(
+                    KnownIssues, "Item categorization and raid infos will be amended once available"),
+                new ChangeLogEntry(KnownIssues, "Stat calculations (e.g. HP) are most likely not correct yet"),
+            },
+        },
+        new(new Version(1, 5, 3, 0))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(ChangeLogEntryCategory.System,
+                                   "Changes to data storage (drops support for data from versions < 1.4.0)"),
+                new ChangeLogEntry(UserInterface, "New interface for searching characters from database"),
+                new ChangeLogEntry(General, "Fix \"Dmg\" Calc being slightly off"),
+                new ChangeLogEntry(UserInterface, "Some minor Ui improvements"),
             },
         },
         new(new Version(1, 5, 2, 6))
@@ -19,7 +222,7 @@ public class ChangeLog
             MinorFeatures =
             {
                 new ChangeLogEntry(Bugfix, "Fixes being unable to add new gear sets"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui,
+                new ChangeLogEntry(UserInterface,
                                    "Add job selection (for BiS and item selection) to gear set edit user interface"),
             },
         },
@@ -61,7 +264,7 @@ public class ChangeLog
             NotableFeatures =
             {
                 new ChangeLogEntry(Bis, "Add support for relic weapons in etro.gg sets"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added ability to change relic stats when editing gear"),
+                new ChangeLogEntry(UserInterface, "Added ability to change relic stats when editing gear"),
                 new ChangeLogEntry(General,
                                    "You can now specify which types of jobs get automatically updated/created.\n"
                                  + "If you want single jobs to not show up, you can hide these in character edit"),
@@ -95,9 +298,8 @@ public class ChangeLog
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Made it more pretty"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui,
-                                   "You can now hide jobs (select classes when editing a character)"),
+                new ChangeLogEntry(UserInterface, "Made it more pretty"),
+                new ChangeLogEntry(UserInterface, "You can now hide jobs (select classes when editing a character)"),
                 new ChangeLogEntry(General, "Correctly handle materia for previous expansions"),
             },
         },
@@ -139,7 +341,7 @@ public class ChangeLog
             {
                 new ChangeLogEntry(NewFeature,
                                    "You can now track multiple characters per player"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Reworked group view to improve user experience")
+                new ChangeLogEntry(UserInterface, "Reworked group view to improve user experience")
                 {
                     BulletPoints =
                     {
@@ -151,7 +353,7 @@ public class ChangeLog
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Reworked windows for editing players and characters"),
+                new ChangeLogEntry(UserInterface, "Reworked windows for editing players and characters"),
                 new ChangeLogEntry(Bugfix, "Corrected behaviour when deleting main job"),
             },
         },
@@ -187,14 +389,14 @@ public class ChangeLog
         {
             NotableFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui,
+                new ChangeLogEntry(UserInterface,
                                    "You can now manage jobs directly in solo and detail view"),
                 new ChangeLogEntry(LootSession,
                                    "You can ignore players/jobs based on certain rules"),
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Old Examine button is now Quick Compare"),
+                new ChangeLogEntry(UserInterface, "Old Examine button is now Quick Compare"),
                 new ChangeLogEntry(Bugfix, "Fixed loot rule \"Can Buy\""),
                 new ChangeLogEntry(Options, "Reworked Ui for loot rules"),
                 new ChangeLogEntry(Lootmaster,
@@ -249,7 +451,7 @@ public class ChangeLog
                 new ChangeLogEntry(LootSession, "Removed manually curated DPS for players"),
                 new ChangeLogEntry(ChangeLogEntryCategory.System,
                                    "Properly handle local and etro.gg sets (Etro sets cannot be edited and need to be converted to local to edit)"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Slightly reworked Ui for editing gear"),
+                new ChangeLogEntry(UserInterface, "Slightly reworked Ui for editing gear"),
                 new ChangeLogEntry(General, "You can now edit the names of gear sets"),
             },
         },
@@ -269,7 +471,7 @@ public class ChangeLog
                                    "Multiple characters unintentionally sharing gear sets", 124),
                 new ChangeLogEntry(LootSession,
                                    "Rings can now be assigned to a slot explicitly"),
-                new ChangeLogEntry(ChangeLogEntryCategory.Ui, "Added button to update BiS in group overview"),
+                new ChangeLogEntry(UserInterface, "Added button to update BiS in group overview"),
                 new ChangeLogEntry(Bis, "Always update empty sets (with valid ID) at startup"),
             },
         },
@@ -307,8 +509,7 @@ public class ChangeLog
     public ChangeLog(IHrtModule module, IConfigOptions config)
     {
         Config = config;
-        _ui = new ChangeLogUi(this);
-        module.WindowSystem.AddWindow(_ui);
+        _ui = new ChangeLogUi(module.Services.UiSystem, this);
         module.UiReady += OnStartup;
     }
     public static Version CurrentVersion => Entries[0].Version;
@@ -363,6 +564,8 @@ public readonly struct ChangeLogEntry(ChangeLogEntryCategory category, string de
     public IList<string> BulletPoints { get; } = new List<string>();
     public int GitHubIssueNumber { get; } = issueNr;
     public bool HasGitHubIssue => GitHubIssueNumber > 0;
+
+    public bool NewSetting { get; init; } = false;
 }
 
 public enum ChangeLogEntryCategory
@@ -371,7 +574,7 @@ public enum ChangeLogEntryCategory
     NewFeature,
     Bugfix,
     Options,
-    Ui,
+    UserInterface,
     Lootmaster,
     LootSession,
     Bis,
@@ -379,6 +582,8 @@ public enum ChangeLogEntryCategory
     Translation,
     Performance,
     Gear,
+    KnownIssues,
+    Lodestone,
 }
 
 public enum ChangelogShowOptions

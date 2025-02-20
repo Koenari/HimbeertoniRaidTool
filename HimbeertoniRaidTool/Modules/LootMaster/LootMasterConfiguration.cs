@@ -1,10 +1,11 @@
 ﻿using System.Numerics;
+using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using ServiceManager = HimbeertoniRaidTool.Common.Services.ServiceManager;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
@@ -27,8 +28,8 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         {
             const string msg = "Tried loading a configuration from a newer version of the plugin." +
                                "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
-            Services.ServiceManager.Logger.Fatal(msg);
-            Services.ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            Module.Services.Logger.Fatal(msg);
+            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
         }
         Upgrade();
@@ -44,8 +45,8 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             if (Data.Version > oldVersion)
                 continue;
             string msg = $"Error upgrading Lootmaster configuration from version {oldVersion}";
-            Services.ServiceManager.Logger.Fatal(msg);
-            Services.ServiceManager.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
+            Module.Services.Logger.Fatal(msg);
+            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
             throw new InvalidOperationException(msg);
 
 
@@ -57,14 +58,13 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         switch (Data.Version)
         {
             case 1:
-                Data.RaidGroups.Clear();
-#pragma warning disable CS0612
-                Data.RaidGroups = Services.ServiceManager.HrtDataManager.Groups;
-#pragma warning restore CS0612
+                //Migration period ended
                 Data.Version = 2;
                 break;
         }
     }
+
+
 
     internal sealed class ConfigUi : IHrtConfigUi
     {
@@ -83,7 +83,15 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         {
 
         }
-
+        private static string GetCharacterNameFormatDescription(string format) => format switch
+        {
+            "ns" => LootmasterLoc.ConfigUi_CharNameFormat_ns,
+            "n"  => LootmasterLoc.ConfigUi_CharNameFormat_n,
+            "is" => LootmasterLoc.ConfigUi_CharNameFormat_is,
+            "i"  => LootmasterLoc.ConfigUi_CharNameFormat_i,
+            "a"  => LootmasterLoc.ConfigUi_CharNameFormat_a,
+            _    => CommonLoc.Unknown,
+        };
         public void Draw()
         {
             ImGui.BeginTabBar("##LootMaster");
@@ -96,6 +104,19 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
                                      LootmasterLoc.ConfigUi_cb_tt_IgnoreMateriaForBis);
                 ImGui.Checkbox(LootmasterLoc.ConfigUi_cb_IconInGroupOverview,
                                ref _dataCopy.ShowIconInGroupOverview);
+                ImGui.Text("Character Name Format");
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(200 * HrtWindow.ScaleFactor);
+                if (ImGui.BeginCombo("##CharacterNameFormat",
+                                     GetCharacterNameFormatDescription(_dataCopy.CharacterNameFormat)))
+                {
+                    if (ImGui.Selectable(GetCharacterNameFormatDescription("ns"))) _dataCopy.CharacterNameFormat = "ns";
+                    if (ImGui.Selectable(GetCharacterNameFormatDescription("n"))) _dataCopy.CharacterNameFormat = "n";
+                    if (ImGui.Selectable(GetCharacterNameFormatDescription("is"))) _dataCopy.CharacterNameFormat = "is";
+                    if (ImGui.Selectable(GetCharacterNameFormatDescription("i"))) _dataCopy.CharacterNameFormat = "i";
+                    if (ImGui.Selectable(GetCharacterNameFormatDescription("a"))) _dataCopy.CharacterNameFormat = "a";
+                    ImGui.EndCombo();
+                }
                 ImGuiHelper.Checkbox(LootmasterLoc.ConfigUi_cb_ColoredItemNames, ref _dataCopy.ColoredItemNames,
                                      LootmasterLoc.ConfigUi_cb_tt_ColoredItemNames);
                 ImGui.BeginDisabled(!_dataCopy.ColoredItemNames);
@@ -159,16 +180,16 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         {
             _config.Data.BeforeSave();
             _dataCopy = _config.Data.Clone();
-            _dataCopy.AfterLoad();
+            _dataCopy.AfterLoad(_config.Module.Services.HrtDataManager);
             _lootList = new UiSortableList<LootRule>(LootRuling.PossibleRules, _dataCopy.LootRuling.RuleSet);
         }
 
         public void Save()
         {
-            _dataCopy.LootRuling.RuleSet = new List<LootRule>(_lootList.List);
+            _dataCopy.LootRuling.RuleSet = [.._lootList.List];
             _dataCopy.BeforeSave();
             _config.Data = _dataCopy;
-            _config.Data.AfterLoad();
+            _config.Data.AfterLoad(_config.Module.Services.HrtDataManager);
         }
     }
 
@@ -197,8 +218,11 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             //30 or more below
             new(0.85f, 0.17f, 0.17f, 1f),
         };
-        [JsonProperty]
-        public int LastGroupIndex;
+        //retired on 2024-12-29
+        [JsonProperty("LastGroupIndex")] private int LastGroupIndex { set => ActiveGroupIndex = value; }
+
+        [JsonProperty("ActiveGroupIndex")]
+        public int ActiveGroupIndex;
         /*
          * Loot
          */
@@ -224,6 +248,10 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         public List<RaidGroup> RaidGroups = new();
         [JsonProperty("RaidTierIndex")]
         public int? RaidTierOverride;
+        [JsonProperty("ActiveExpansion")]
+        public int? ExpansionOverride;
+        [JsonProperty("CharacterNameFormat")]
+        public string CharacterNameFormat = "ns";
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public RolePriority RolePriority = new()
         {
@@ -237,6 +265,14 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         public bool ShowIconInGroupOverview;
         [JsonProperty]
         public int Version { get; set; } = 1;
+
+
+        [JsonIgnore]
+        public RaidTier SelectedRaidTier => ActiveExpansion.SavageRaidTiers.Length > 0
+            ? ActiveExpansion.SavageRaidTiers[RaidTierOverride ?? ^1] : RaidTier.Empty;
+        [JsonIgnore]
+        public GameExpansion ActiveExpansion => ExpansionOverride.HasValue
+            ? GameInfo.Expansions[ExpansionOverride.Value] : GameInfo.CurrentExpansion;
         /*
          * Internal
          */
@@ -252,16 +288,12 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         }
         [JsonIgnore]
         public string ItemFormatString => _itemFormatStringCache ??= ParseItemFormatString(UserItemFormat);
-        [JsonIgnore]
-        public RaidTier SelectedRaidTier =>
-            ServiceManager.GameInfo.CurrentExpansion.SavageRaidTiers[RaidTierOverride ?? ^1];
-
-        public void AfterLoad()
+        public void AfterLoad(HrtDataManager dataManager)
         {
             RaidGroups.Clear();
-            foreach (HrtId id in _raidGroupIds)
+            foreach (var id in _raidGroupIds)
             {
-                if (Services.ServiceManager.HrtDataManager.RaidGroupDb.TryGet(id, out RaidGroup? group))
+                if (dataManager.RaidGroupDb.TryGet(id, out var group))
                     RaidGroups.Add(group);
             }
         }

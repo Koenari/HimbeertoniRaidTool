@@ -3,20 +3,60 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
+using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
+public interface IReadOnlyGearConnector
+{
+    public bool BelongsToThisService(string url);
+    public string GetId(string url);
+    public string GetWebUrl(string id);
+    public IList<ExternalBiSDefinition> GetPossibilities(string id);
+    public IList<ExternalBiSDefinition> GetBiSList(Job job);
+    internal HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays);
+    public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
+                                     string taskName = "Gearset Update");
+    public HrtUiMessage UpdateGearSet(GearSet set);
+}
+
+public readonly struct ExternalBiSDefinition
+{
+    public readonly GearSetManager Service = GearSetManager.Unknown;
+    public readonly string Id = string.Empty;
+    public readonly int Idx = 0;
+    public readonly string Name = string.Empty;
+
+    public ExternalBiSDefinition(GearSetManager service, string id, int idx, string name)
+    {
+        Service = service;
+        Id = id;
+        Idx = idx;
+        Name = name;
+    }
+
+    public GearSet ToGearSet() => new(Service, Name)
+    {
+        ExternalId = Id,
+        ExternalIdx = Idx,
+    };
+
+    public bool Equals(GearSet? set) => Service == set?.ManagedBy && Id == set.ExternalId && set.ExternalIdx == Idx;
+}
+
 internal abstract class WebConnector
 {
-    private readonly ConcurrentDictionary<string, (DateTime time, string response)> _cachedRequests;
+    private readonly ConcurrentDictionary<string, (DateTime time, HttpResponseMessage response)> _cachedRequests;
     private readonly TimeSpan _cacheTime;
     private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
     private readonly RateLimit _rateLimit;
+    protected readonly ILogger Logger;
 
-    internal WebConnector(RateLimit rateLimit = default, TimeSpan? cacheTime = null)
+    internal WebConnector(ILogger logger, RateLimit rateLimit = default, TimeSpan? cacheTime = null)
     {
+        Logger = logger;
         _rateLimit = rateLimit;
-        _cachedRequests = new ConcurrentDictionary<string, (DateTime time, string response)>();
+        _cachedRequests = new ConcurrentDictionary<string, (DateTime time, HttpResponseMessage response)>();
         _currentRequests = new ConcurrentDictionary<string, DateTime>();
         _cacheTime = cacheTime ?? new TimeSpan(0, 15, 0);
     }
@@ -29,37 +69,43 @@ internal abstract class WebConnector
         }
     }
 
-    protected string? MakeWebRequest(string url)
+    protected static string? GetContent(HttpResponseMessage? httpResponseMessage)
+    {
+        if (httpResponseMessage is null) return null;
+        var stringTask = httpResponseMessage.Content.ReadAsStringAsync();
+        stringTask.Wait();
+        return stringTask.Result;
+    }
+
+    protected HttpResponseMessage? MakeWebRequest(string url)
     {
         UpdateCache();
-        if (_cachedRequests.TryGetValue(url, out (DateTime time, string response) result))
+        if (_cachedRequests.TryGetValue(url, out var result))
             return result.response;
         var requestTask = MakeAsyncWebRequest(url);
         requestTask.Wait();
         return requestTask.Result;
     }
 
-    private async Task<string?> MakeAsyncWebRequest(string url)
+    private async Task<HttpResponseMessage?> MakeAsyncWebRequest(string url)
     {
         while (RateLimitHit() || _currentRequests.ContainsKey(url))
         {
             Thread.Sleep(1000);
         }
-        if (_cachedRequests.TryGetValue(url, out (DateTime time, string response) cached))
+        if (_cachedRequests.TryGetValue(url, out var cached))
             return cached.response;
         _currentRequests.TryAdd(url, DateTime.Now);
         try
         {
             HttpClient client = new();
-            HttpResponseMessage response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            string result = await response.Content.ReadAsStringAsync();
-            _cachedRequests.TryAdd(url, (DateTime.Now, result));
-            return result;
+            var response = await client.GetAsync(url);
+            _cachedRequests.TryAdd(url, (DateTime.Now, response));
+            return response;
         }
         catch (Exception e) when (e is HttpRequestException or UriFormatException or TaskCanceledException)
         {
-            ServiceManager.Logger.Error(e.Message);
+            Logger.Error(e.Message);
             return null;
         }
         finally

@@ -105,11 +105,29 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Known Issue.
+        /// </summary>
+        internal static string ChangelogCategory_KnownIssues {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_KnownIssues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Localization.
         /// </summary>
         internal static string ChangelogCategory_Localization {
             get {
                 return ResourceManager.GetString("ChangelogCategory_Localization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lodestone Connector.
+        /// </summary>
+        internal static string ChangelogCategory_Lodestone {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_Lodestone", resourceCulture);
             }
         }
         
@@ -249,6 +267,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open Settings.
+        /// </summary>
+        internal static string ChangeLogUi_text_openSettings {
+            get {
+                return ResourceManager.GetString("ChangeLogUi_text_openSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Himbeertoni Raid Tool Changelog.
         /// </summary>
         internal static string ChangeLogUi_Title {
@@ -312,20 +339,20 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update sets from etro.gg periodically.
-        /// </summary>
-        internal static string ConfigUi_cb_autoEtroUpdate {
-            get {
-                return ResourceManager.GetString("ConfigUi_cb_autoEtroUpdate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Update gear when examining.
         /// </summary>
         internal static string ConfigUi_cb_examine {
             get {
                 return ResourceManager.GetString("ConfigUi_cb_examine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update sets from {0} periodically.
+        /// </summary>
+        internal static string ConfigUi_cb_extAutoUpdate {
+            get {
+                return ResourceManager.GetString("ConfigUi_cb_extAutoUpdate", resourceCulture);
             }
         }
         
@@ -476,11 +503,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Etro Gear Updates.
+        ///   Looks up a localized string similar to {0} Updates.
         /// </summary>
-        internal static string ConfigUi_hdg_etroUpdates {
+        internal static string ConfigUi_hdg_externalUpdates {
             get {
-                return ResourceManager.GetString("ConfigUi_hdg_etroUpdates", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_hdg_externalUpdates", resourceCulture);
             }
         }
         
@@ -505,9 +532,9 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Update interval (days).
         /// </summary>
-        internal static string ConfigUi_in_etroUpdateInterval {
+        internal static string ConfigUi_in_externalUpdateInterval {
             get {
-                return ResourceManager.GetString("ConfigUi_in_etroUpdateInterval", resourceCulture);
+                return ResourceManager.GetString("ConfigUi_in_externalUpdateInterval", resourceCulture);
             }
         }
         

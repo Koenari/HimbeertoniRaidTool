@@ -2,6 +2,7 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -9,28 +10,29 @@ internal class OwnCharacterDataProvider : IGearDataProvider
 {
     private readonly IClientState _clientState;
     private readonly IFramework _framework;
+    private readonly ILogger _logger;
+    private readonly HrtDataManager _hrtDataManager;
     private readonly TimeSpan _timeBetweenGearUpdates = new(0, 5, 0);
     private readonly TimeSpan _timeBetweenWalletUpdates = new(30 * TimeSpan.TicksPerSecond);
 
-    private readonly HashSet<Currency> _trackedCurrencies = new()
-    {
-        Currency.Gil,
-        Currency.TomestoneOfCausality,
-        Currency.TomestoneOfComedy,
-    };
     private GearDataProviderConfiguration _config = GearDataProviderConfiguration.Disabled;
     private Character? _curChar;
 
     private bool _disposed;
     private uint _lastSeenJob;
-    private PlayerCharacter? _self;
+    private IPlayerCharacter? _self;
 
     private TimeSpan _timeSinceLastGearUpdate;
     private TimeSpan _timeSinceLastWalletUpdate;
-    public OwnCharacterDataProvider(IClientState clientState, IFramework framework)
+    public OwnCharacterDataProvider(IClientState clientState, IFramework framework, ILogger logger,
+                                    HrtDataManager hrtDataManager)
     {
         _clientState = clientState;
         _framework = framework;
+        _logger = logger;
+        _hrtDataManager = hrtDataManager;
+        _timeSinceLastGearUpdate = _timeBetweenGearUpdates;
+        _timeSinceLastWalletUpdate = _timeBetweenWalletUpdates;
         _clientState.Login += OnLogin;
         _clientState.Logout += OnLogout;
         _framework.Update += OnFrameworkUpdate;
@@ -51,10 +53,10 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         _clientState.Login -= OnLogin;
         _clientState.Logout -= OnLogout;
         _framework.Update -= OnFrameworkUpdate;
-        OnLogout();
+        OnLogout(0, 0);
     }
     private void OnLogin() => GetChar(out _curChar, out _self);
-    private void OnLogout()
+    private void OnLogout(int type, int code)
     {
         _curChar = null;
         _self = null;
@@ -66,55 +68,50 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         _timeSinceLastGearUpdate += framework.UpdateDelta;
         if (_timeSinceLastWalletUpdate > _timeBetweenWalletUpdates)
             UpdateWallet();
-        if (_timeSinceLastGearUpdate > _timeBetweenGearUpdates || _lastSeenJob != (_self?.ClassJob.Id ?? 0))
+        if (_timeSinceLastGearUpdate > _timeBetweenGearUpdates || _lastSeenJob != (_self?.ClassJob.RowId ?? 0))
             UpdateGear();
-        _lastSeenJob = _self?.ClassJob.Id ?? 0;
+        _lastSeenJob = _self?.ClassJob.RowId ?? 0;
     }
-    private static bool GetChar([NotNullWhen(true)] out Character? target,
-                                [NotNullWhen(true)] out PlayerCharacter? source)
+    private void GetChar([NotNullWhen(true)] out Character? target,
+                         [NotNullWhen(true)] out IPlayerCharacter? source)
     {
         target = null;
-        source = ServiceManager.ClientState.LocalPlayer;
-        if (source == null)
-            return false;
+        source = _clientState.LocalPlayer;
+        if (source == null) return;
 
-        ulong charId = Character.CalcCharId(ServiceManager.ClientState.LocalContentId);
-        if (ServiceManager.HrtDataManager.CharDb.TryGetCharacterByCharId(charId, out target))
-            return true;
-        if (ServiceManager.HrtDataManager.CharDb.SearchCharacter(source.HomeWorld.Id, source.Name.TextValue,
-                                                                 out target))
-        {
+        ulong charId = Character.CalcCharId(_clientState.LocalContentId);
+
+        if (!_hrtDataManager.CharDb.Search(
+                CharacterDb.GetStandardPredicate(charId, source.HomeWorld.RowId, source.Name.TextValue),
+                out target)) return;
+        if (target.CharId == 0)
             target.CharId = charId;
-            return true;
-        }
-        return false;
     }
 
     private unsafe void UpdateWallet()
     {
         if (_curChar == null) return;
+        _logger.Debug("UpdateWallet");
         var container = InventoryManager.Instance()->GetInventoryContainer(InventoryType.Currency);
         for (int i = 0; i < container->Size; i++)
         {
-            InventoryItem item = container->Items[i];
-            var type = (Currency)item.ItemID;
-            if (_trackedCurrencies.Contains(type))
-            {
-                _curChar.Wallet[type] = item.Quantity;
-            }
+            var item = container->Items[i];
+            var type = (Currency)item.ItemId;
+            _curChar.Wallet[type] = item.Quantity;
         }
         _timeSinceLastWalletUpdate = TimeSpan.Zero;
     }
     private void UpdateGear()
     {
         if (_curChar == null || _self == null) return;
-        Job job = _self.GetJob();
+        var job = _self.GetJob();
         if (job.IsCombatJob() && !_config.CombatJobsEnabled) return;
         if (job.IsDoH() && !_config.DoHEnabled) return;
         if (job.IsDoL() && !_config.DoLEnabled) return;
-        PlayableClass targetClass = _curChar[job] ?? _curChar.AddClass(job);
+        var targetClass = _curChar[job] ?? _curChar.AddClass(job);
         if (targetClass.Level < _self.Level) targetClass.Level = _self.Level;
-        CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass, _config.MinILvlDowngrade);
+        CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass, _config.MinILvlDowngrade,
+                                                   _logger, _hrtDataManager);
         _timeSinceLastGearUpdate = TimeSpan.Zero;
     }
 }

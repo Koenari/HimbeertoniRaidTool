@@ -172,8 +172,8 @@
             Nur lokale Ausrüstungssets können bearbeitet werden
         </value>
   </data>
-  <data name="CommonTerms_EtroID">
-    <value>Etro ID</value>
+  <data name="CommonTerms_ExternalID">
+    <value>ID</value>
   </data>
   <data name="EditUi_Txt_LocalId">
     <value>Lokale ID</value>
@@ -307,9 +307,9 @@
   <data name="EtroConnector_GetGearSet_RelicError" xml:space="preserve">
         <value>Relikt Ausrüstung für Slot {0} wird nicht unterstützt</value>
     </data>
-  <data name="EtroConnector_UpdateEtroSets_Finished" xml:space="preserve">
-        <value>Periodische etro.gg Updates abgeschlossen. ({0}/{1}) aktualisiert</value>
-        <comment>{0} = number updated {1} = total</comment>
+  <data name="Connector_UpdateAllSets_Finished" xml:space="preserve">
+        <value>Periodische {2} Updates abgeschlossen. ({0}/{1}) aktualisiert</value>
+        <comment>{0} = number updated {1} = total {2} = service</comment>
     </data>
   <data name="GetCharacterWindow_Title" xml:space="preserve">
         <value>Charakter von Datenbank abrufen</value>
@@ -327,14 +327,14 @@
   <data name="EditCharUi_text_BisNotice" xml:space="preserve">
         <value>BiS Sets werden nun durch direkte Bearbeitung der jeweiligen BiS Sets geändert</value>
     </data>
-  <data name="EditGearSetUi_text_getEtro" xml:space="preserve">
-        <value>Ersetzen durch Set von etro.gg</value>
+  <data name="EditGearSetUi_text_getEtroBis" xml:space="preserve">
+        <value>Durch etro.gg Bis Set ersetzen</value>
     </data>
-  <data name="EditGearSetUi_btn_CustomEtro" xml:space="preserve">
-        <value>Benutzerdefiniert</value>
+  <data name="EditGearSetUi_btn_GetExternal" xml:space="preserve">
+        <value>Ersetzen</value>
     </data>
-  <data name="EditGearSetUi_btn_tt_CustomEtro" xml:space="preserve">
-        <value>Benutzerdefinierte ID eintragen</value>
+  <data name="EditGearSetUi_btn_tt_GetExternal" xml:space="preserve">
+        <value>Herunterladen und aktuelles Set ersetzen</value>
     </data>
   <data name="EditGearSetUi_btn_tt_cutsomEtro" xml:space="preserve">
         <value>Herunterladen</value>
@@ -387,7 +387,7 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
         <value>Set auf etro.gg öffnen</value>
     </data>
   <data name="EditGearSetUi_txt_lastUpdate" xml:space="preserve">
-        <value>Letzte Update-Prüfung: {0}</value>
+        <value>Letzte Update-Prüfung</value>
     </data>
   <data name="Gearset_Warning_SysManaged" xml:space="preserve">
         <value>Dieses Set wird durch das Plugin verwaltet und wird automatisch auf den aktuellen Stand des entsprechenden Charakters gebracht!</value>
@@ -396,7 +396,7 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
         <value>Ursprung</value>
     </data>
   <data name="EditGearSetUi_txt_LastChange" xml:space="preserve">
-        <value>Letzte Änderung: {0}</value>
+        <value>Letzte Änderung</value>
     </data>
   <data name="EditCharUi_cb_hideJob" xml:space="preserve">
         <value>Diesen Job nicht anzeigen</value>
@@ -416,5 +416,96 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
   <data name="EditUi_Title" xml:space="preserve">
         <value>{0} {1} bearbeiten</value>
         <comment>{0} type {1} name eg. Edit player Toni</comment>
+    </data>
+  <data name="EditGearSetUi_txt_job" xml:space="preserve">
+        <value>Ausrüstungsset ist für folgenden Job bestimmt:</value>
+    </data>
+  <data name="SearchWindow_btn_tt_SelectEnty" xml:space="preserve">
+        <value>{0} {1} auswählen</value>
+    </data>
+  <data name="CharacterSearchUi_txt_classCount" xml:space="preserve">
+        <value>{0} Klassen</value>
+        <comment>{0} is a number</comment>
+    </data>
+  <data name="CommonTerms_All" xml:space="preserve">
+        <value>Alle</value>
+    </data>
+  <data name="XivGearAppConnector_GetGearSet_Error" xml:space="preserve">
+        <value>Fehler beim Aktualisieren von {0} von XivGear.app</value>
+        <comment>{0} name</comment>
+    </data>
+  <data name="CommonTerms_Difference" xml:space="preserve">
+        <value>Unterschied</value>
+    </data>
+  <data name="InventoryWindow_Hdg_Current_Savage_Books" xml:space="preserve">
+        <value>Aktuelle Savage Bücher</value>
+    </data>
+  <data name="Ui_btn_tt_XivGearUpdate" xml:space="preserve">
+        <value>Aktualisiere {0} ({1}) von XivGear.app</value>
+        <comment>{0} name {1} id</comment>
+    </data>
+  <data name="Ui_btn_tt_UpdateFrmEtro">
+    <value>Aktualisiere "{0}" von etro.gg</value>
+  </data>
+  <data name="Ui_btn_tt_etroUpdate" xml:space="preserve">
+        <value>Aktualisiere {0} ({1}) von etro.gg</value>
+        <comment>{0} name {1} etroId</comment>
+    </data>
+  <data name="XivGearAppConnector_GetGearSet_Success" xml:space="preserve">
+        <value>Update von XivGear.app für {0} erfolgreich</value>
+        <comment>{0} name</comment>
+    </data>
+  <data name="Gearset_Warning_ExternalManaged" xml:space="preserve">
+        <value>Dieses Set stammt von einem externen Dienst und wird von dort automatisch aktualisiert. Wenn Sie Änderungen vornehmen wollen, müssen Sie eine lokale Kopie erstellen.</value>
+    </data>
+  <data name="EditGearSetUi_btn_OpenWeb" xml:space="preserve">
+        <value>In {0} öffnen</value>
+    </data>
+  <data name="EditGearSetUi_btn_tt_OpenWeb" xml:space="preserve">
+        <value>Öffnet das Set auf der Website des externen Dienstes in Ihrem Standardbrowser</value>
+    </data>
+  <data name="Ui_btn_tt_GearSetUpdate" xml:space="preserve">
+        <value>Aktualisiere {0} ({1}) von {2}</value>
+        <comment>{0} is name {1} is id {2} is service</comment>
+    </data>
+  <data name="EditGearSetUi_text_getCuratedBis" xml:space="preserve">
+        <value>Ersetzen durch BiS-Set von {0}</value>
+    </data>
+  <data name="CommonTerms_Food" xml:space="preserve">
+        <value>Essen</value>
+    </data>
+  <data name="EditGearSetUi_txt_Loading" xml:space="preserve">
+        <value>Laden...</value>
+    </data>
+  <data name="EditGearSetUi_text_InvalidId" xml:space="preserve">
+        <value>Ungültige Id / Url</value>
+    </data>
+  <data name="EditGearSetUi_input_ExtId" xml:space="preserve">
+        <value>ID/Url</value>
+    </data>
+  <data name="EditGearSetUi_hdg_ExtCustom" xml:space="preserve">
+        <value>Eigenes Set nutzen</value>
+    </data>
+  <data name="EditGearSetUi_txt_AutoDetect" xml:space="preserve">
+        <value>Automatisch erkennen</value>
+    </data>
+  <data name="EditGearSetUi_text_Replace" xml:space="preserve">
+        <value>Ersetzen mit:</value>
+    </data>
+  <data name="UiHelpers_txt_AddNew" xml:space="preserve">
+        <value>+ Neues {0} hinzufügen</value>
+        <comment>{0} type of data</comment>
+    </data>
+  <data name="UiHelpers_txt_AddKnown" xml:space="preserve">
+        <value>+ Bekanntes {0} hinzufügen</value>
+        <comment>{0} type of data</comment>
+    </data>
+  <data name="UiHelpers_txt_ReplaceNew" xml:space="preserve">
+        <value>Ersetzen durch neues {0}</value>
+        <comment>{0} type of data</comment>
+    </data>
+  <data name="UiHelpers_txt_ReplaceKnown" xml:space="preserve">
+        <value>Ersetzen durch bekanntes {0}</value>
+        <comment>{0} type of data</comment>
     </data>
 </root>

@@ -1,16 +1,37 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class TaskManager : IDisposable
 {
-    private class TaskWrapper(HrtTask task)
+    private readonly IFramework _framework;
+    private readonly ILogger _logger;
+
+    private interface ITaskWrapper
     {
-        public readonly Task SystemTask = Task.Run(() => task.CallBack(task.Action()));
-        public readonly HrtTask InternalTask = task;
+        public Task SystemTask { get; }
+        public string Name { get; }
+        public bool HasError { get; }
+        public string ErrorMsg { get; }
+    }
+
+    private class TaskWrapper<TData>(HrtTask<TData> task) : ITaskWrapper
+    {
+        public Task SystemTask { get; } = Task.Run(() =>
+        {
+            task.Result = task.Action();
+            task.CallBack(task.Result);
+        });
+        public string Name => task.Name;
+        public bool HasError => task.Result is HrtUiMessage
+        {
+            MessageType: HrtUiMessageType.Failure or HrtUiMessageType.Error,
+        };
+        public string ErrorMsg => task.Result is HrtUiMessage msg ? msg.Message : string.Empty;
 
     }
 
@@ -18,13 +39,15 @@ internal class TaskManager : IDisposable
     private readonly Timer _secondTimer;
     private readonly Timer _minuteTimer;
 
-    private readonly ConcurrentQueue<TaskWrapper> _tasksOnce = new();
+    private readonly ConcurrentQueue<ITaskWrapper> _tasksOnce = new();
     private readonly ConcurrentBag<PeriodicTask> _tasksOnSecond = new();
     private readonly ConcurrentBag<PeriodicTask> _tasksOnMinute = new();
     private bool _disposedValue;
 
-    internal TaskManager()
+    internal TaskManager(IFramework framework, ILogger logger)
     {
+        _logger = logger;
+        _framework = framework;
         _secondTimer = new Timer(OnSecondTimer, null, 1000, 1000);
         _taskTimer = new Timer(OnTaskTimer, null, 1000, 1000);
         _minuteTimer = new Timer(OnMinuteTimer, null, 1000, 60 * 1000);
@@ -33,16 +56,17 @@ internal class TaskManager : IDisposable
     private void OnTaskTimer(object? _)
     {
         if (_disposedValue || _tasksOnce.IsEmpty) return;
-        while (_tasksOnce.TryPeek(out TaskWrapper? oldestTask) && oldestTask.SystemTask.IsCompleted)
+        while (_tasksOnce.TryPeek(out var oldestTask) && oldestTask.SystemTask.IsCompleted)
         {
-            if (_tasksOnce.TryDequeue(out TaskWrapper? completedTask))
+            if (_tasksOnce.TryDequeue(out var completedTask))
             {
                 if (completedTask.SystemTask.IsFaulted)
-                    ServiceManager.Logger.Error(
-                        $"Task \"{completedTask.InternalTask.Name}\" finished with an error");
+                    _logger.Error(completedTask.SystemTask.Exception,
+                                  $"Task \"{completedTask.Name}\" finished with an error");
+                else if (completedTask.HasError)
+                    _logger.Error($"Task \"{completedTask.Name}\" finished with an error: {completedTask.ErrorMsg}");
                 else
-                    ServiceManager.Logger.Info(
-                        $"Task \"{completedTask.InternalTask.Name}\" finished successful");
+                    _logger.Info($"Task \"{completedTask.Name}\" finished successful");
             }
         }
     }
@@ -50,11 +74,12 @@ internal class TaskManager : IDisposable
     private void OnSecondTimer(object? _)
     {
         if (_disposedValue || _tasksOnSecond.IsEmpty) return;
-        DateTime executionTime = DateTime.Now;
-        foreach (PeriodicTask task in _tasksOnSecond)
+        var executionTime = DateTime.Now;
+        foreach (var task in _tasksOnSecond)
         {
             if (task.ShouldRun && task.LastRun + task.Repeat < executionTime)
             {
+                _logger.Info($"Starting task: {task.Name}");
                 task.CallBack(task.Action());
                 task.LastRun = executionTime;
             }
@@ -64,18 +89,21 @@ internal class TaskManager : IDisposable
     private void OnMinuteTimer(object? _)
     {
         if (_disposedValue || _tasksOnMinute.IsEmpty) return;
-        DateTime executionTime = DateTime.Now;
-        foreach (PeriodicTask task in _tasksOnMinute)
+        var executionTime = DateTime.Now;
+        foreach (var task in _tasksOnMinute)
         {
             if (task.ShouldRun && task.LastRun + task.Repeat < executionTime)
             {
+                _logger.Info($"Starting task: {task.Name}");
                 task.CallBack(task.Action());
                 task.LastRun = executionTime;
             }
         }
     }
 
-    internal void RegisterTask(HrtTask task)
+    internal void RunOnFrameworkThread(Action action) => _framework.RunOnFrameworkThread(action);
+
+    internal void RegisterTask<TData>(HrtTask<TData> task)
     {
         if (task is PeriodicTask pTask)
         {
@@ -86,11 +114,12 @@ internal class TaskManager : IDisposable
         }
         else
         {
-            _tasksOnce.Enqueue(new TaskWrapper(task));
+            _logger.Info($"Starting task: {task.Name}");
+            _tasksOnce.Enqueue(new TaskWrapper<TData>(task));
         }
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!_disposedValue)
         {
@@ -99,7 +128,7 @@ internal class TaskManager : IDisposable
                 _taskTimer.Dispose();
                 _secondTimer.Dispose();
                 _minuteTimer.Dispose();
-                while (_tasksOnce.TryDequeue(out TaskWrapper? task))
+                while (_tasksOnce.TryDequeue(out var task))
                 {
                     if (task.SystemTask.Status > TaskStatus.Created)
                         task.SystemTask.Wait(1000);
@@ -125,16 +154,17 @@ internal class TaskManager : IDisposable
     }
 }
 
-internal class HrtTask(Func<HrtUiMessage> task, Action<HrtUiMessage> callBack, string name)
+internal class HrtTask<TReturn>(Func<TReturn> task, Action<TReturn> callBack, string name)
 {
-    public readonly Action<HrtUiMessage> CallBack = callBack;
-    public readonly Func<HrtUiMessage> Action = task;
+    public readonly Action<TReturn> CallBack = callBack;
+    public TReturn? Result;
+    public readonly Func<TReturn> Action = task;
     public readonly string Name = name;
 
 }
 
 internal class PeriodicTask(Func<HrtUiMessage> task, Action<HrtUiMessage> callBack, string name, TimeSpan repeat)
-    : HrtTask(task, callBack, name)
+    : HrtTask<HrtUiMessage>(task, callBack, name)
 {
     public DateTime LastRun = DateTime.MinValue;
     public volatile bool ShouldRun = true;

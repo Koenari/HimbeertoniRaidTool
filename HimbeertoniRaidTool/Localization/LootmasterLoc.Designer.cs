@@ -168,6 +168,51 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Censored.
+        /// </summary>
+        internal static string ConfigUi_CharNameFormat_a {
+            get {
+                return ResourceManager.GetString("ConfigUi_CharNameFormat_a", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Initials only.
+        /// </summary>
+        internal static string ConfigUi_CharNameFormat_i {
+            get {
+                return ResourceManager.GetString("ConfigUi_CharNameFormat_i", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Initials + Server.
+        /// </summary>
+        internal static string ConfigUi_CharNameFormat_is {
+            get {
+                return ResourceManager.GetString("ConfigUi_CharNameFormat_is", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name only.
+        /// </summary>
+        internal static string ConfigUi_CharNameFormat_n {
+            get {
+                return ResourceManager.GetString("ConfigUi_CharNameFormat_n", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name + Server.
+        /// </summary>
+        internal static string ConfigUi_CharNameFormat_ns {
+            get {
+                return ResourceManager.GetString("ConfigUi_CharNameFormat_ns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Configured colors.
         /// </summary>
         internal static string Configui_hdg_Colors {
@@ -267,25 +312,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to + Add new.
-        /// </summary>
-        internal static string GearSetSelect_Add_new {
-            get {
-                return ResourceManager.GetString("GearSetSelect_Add_new", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to + Search known sets.
-        /// </summary>
-        internal static string GearSetSelect_AddFromDB {
-            get {
-                return ResourceManager.GetString("GearSetSelect_AddFromDB", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Additional Gear.
+        ///   Looks up a localized string similar to Relevant gear (not equipped).
         /// </summary>
         internal static string InventoryUi_hdg_additionalGear {
             get {
@@ -299,6 +326,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string InventoryUi_Title {
             get {
                 return ResourceManager.GetString("InventoryUi_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Best in Slot.
+        /// </summary>
+        internal static string ItemTooltip_hdg_bis {
+            get {
+                return ResourceManager.GetString("ItemTooltip_hdg_bis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Equipped.
+        /// </summary>
+        internal static string ItemTooltip_hdg_Equipped {
+            get {
+                return ResourceManager.GetString("ItemTooltip_hdg_Equipped", resourceCulture);
             }
         }
         
@@ -819,16 +864,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update {0} ({1}) from etro.
-        /// </summary>
-        internal static string Ui_btn_tt_etroUpdate {
-            get {
-                return ResourceManager.GetString("Ui_btn_tt_etroUpdate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open inventory window.
+        ///   Looks up a localized string similar to Show Inventory/Wallet.
         /// </summary>
         internal static string Ui_btn_tt_inventory {
             get {

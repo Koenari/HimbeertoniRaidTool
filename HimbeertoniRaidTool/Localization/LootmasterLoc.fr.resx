@@ -149,9 +149,6 @@
   <data name="ConfigUi_txt_currentPrio">
     <value>Priorité actuelle</value>
   </data>
-  <data name="Ui_btn_tt_inventory">
-    <value>Ouvrir la fenêtre d'inventaire</value>
-  </data>
   <data name="LootCategory_Need">
     <value>Besoin</value>
   </data>
@@ -291,9 +288,6 @@
   <data name="Ui_text_emptyPlayer">
     <value>Aucun·e joueur·se</value>
   </data>
-  <data name="InventoryUi_hdg_additionalGear" xml:space="preserve">
-        <value>Équipement supplémentaire</value>
-    </data>
   <data name="Ui_text_openLootSessioon" xml:space="preserve">
         <value>Distribuer le butin pour :</value>
     </data>

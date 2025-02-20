@@ -87,6 +87,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Difference.
+        /// </summary>
+        internal static string CommonTerms_Difference {
+            get {
+                return ResourceManager.GetString("CommonTerms_Difference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Empty.
         /// </summary>
         internal static string CommonTerms_Empty {
@@ -96,11 +105,20 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Etro ID.
+        ///   Looks up a localized string similar to ID.
         /// </summary>
-        internal static string CommonTerms_EtroID {
+        internal static string CommonTerms_ExternalID {
             get {
-                return ResourceManager.GetString("CommonTerms_EtroID", resourceCulture);
+                return ResourceManager.GetString("CommonTerms_ExternalID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Food.
+        /// </summary>
+        internal static string CommonTerms_Food {
+            get {
+                return ResourceManager.GetString("CommonTerms_Food", resourceCulture);
             }
         }
         
@@ -251,6 +269,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Finished periodic {2} Updates. ({0}/{1}) updated.
+        /// </summary>
+        internal static string Connector_UpdateAllSets_Finished {
+            get {
+                return ResourceManager.GetString("Connector_UpdateAllSets_Finished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select player.
         /// </summary>
         internal static string DBSearchPlayerUi_hdg_selectPlayer {
@@ -341,11 +368,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Custom.
+        ///   Looks up a localized string similar to Replace.
         /// </summary>
-        internal static string EditGearSetUi_btn_CustomEtro {
+        internal static string EditGearSetUi_btn_GetExternal {
             get {
-                return ResourceManager.GetString("EditGearSetUi_btn_CustomEtro", resourceCulture);
+                return ResourceManager.GetString("EditGearSetUi_btn_GetExternal", resourceCulture);
             }
         }
         
@@ -368,11 +395,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Provide custom id.
+        ///   Looks up a localized string similar to Open on {0}.
         /// </summary>
-        internal static string EditGearSetUi_btn_tt_CustomEtro {
+        internal static string EditGearSetUi_btn_OpenWeb {
             get {
-                return ResourceManager.GetString("EditGearSetUi_btn_tt_CustomEtro", resourceCulture);
+                return ResourceManager.GetString("EditGearSetUi_btn_OpenWeb", resourceCulture);
             }
         }
         
@@ -395,6 +422,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Download set and replace current one.
+        /// </summary>
+        internal static string EditGearSetUi_btn_tt_GetExternal {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_tt_GetExternal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create a copy of this set in the local database. Set will not be updated from etro.gg
         ///            afterwards
         ///            Only local Gear Sets can be edited
@@ -403,6 +439,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string EditGearSetUi_btn_tt_MakeLocal {
             get {
                 return ResourceManager.GetString("EditGearSetUi_btn_tt_MakeLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Opens the set on the website of the external service in your default browser.
+        /// </summary>
+        internal static string EditGearSetUi_btn_tt_OpenWeb {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_btn_tt_OpenWeb", resourceCulture);
             }
         }
         
@@ -416,6 +461,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Supply own set.
+        /// </summary>
+        internal static string EditGearSetUi_hdg_ExtCustom {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_hdg_ExtCustom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ID/Url.
+        /// </summary>
+        internal static string EditGearSetUi_input_ExtId {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_input_ExtId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Source.
         /// </summary>
         internal static string EditGearSetUi_Source {
@@ -425,11 +488,47 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Replace with set from etro.
+        ///   Looks up a localized string similar to Replace with BiS from {0}.
         /// </summary>
-        internal static string EditGearSetUi_text_getEtro {
+        internal static string EditGearSetUi_text_getCuratedBis {
             get {
-                return ResourceManager.GetString("EditGearSetUi_text_getEtro", resourceCulture);
+                return ResourceManager.GetString("EditGearSetUi_text_getCuratedBis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with bis from etro.
+        /// </summary>
+        internal static string EditGearSetUi_text_getEtroBis {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_text_getEtroBis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid Id / Url.
+        /// </summary>
+        internal static string EditGearSetUi_text_InvalidId {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_text_InvalidId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with:.
+        /// </summary>
+        internal static string EditGearSetUi_text_Replace {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_text_Replace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto Detect.
+        /// </summary>
+        internal static string EditGearSetUi_txt_AutoDetect {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_txt_AutoDetect", resourceCulture);
             }
         }
         
@@ -443,7 +542,7 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Last Change: {0}.
+        ///   Looks up a localized string similar to Last Change.
         /// </summary>
         internal static string EditGearSetUi_txt_LastChange {
             get {
@@ -452,11 +551,20 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Last update check: {0}.
+        ///   Looks up a localized string similar to Last update check.
         /// </summary>
         internal static string EditGearSetUi_txt_lastUpdate {
             get {
                 return ResourceManager.GetString("EditGearSetUi_txt_lastUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loading....
+        /// </summary>
+        internal static string EditGearSetUi_txt_Loading {
+            get {
+                return ResourceManager.GetString("EditGearSetUi_txt_Loading", resourceCulture);
             }
         }
         
@@ -605,11 +713,11 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Finished periodic etro Updates. ({0}/{1}) updated.
+        ///   Looks up a localized string similar to This set originated from an external service and will be automatically updated from there. IF you want to make edits you need to make a local copy..
         /// </summary>
-        internal static string EtroConnector_UpdateEtroSets_Finished {
+        internal static string Gearset_Warning_ExternalManaged {
             get {
-                return ResourceManager.GetString("EtroConnector_UpdateEtroSets_Finished", resourceCulture);
+                return ResourceManager.GetString("Gearset_Warning_ExternalManaged", resourceCulture);
             }
         }
         
@@ -673,6 +781,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string GetCharacterWindow_Title {
             get {
                 return ResourceManager.GetString("GetCharacterWindow_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current Savage Books.
+        /// </summary>
+        internal static string InventoryWindow_Hdg_Current_Savage_Books {
+            get {
+                return ResourceManager.GetString("InventoryWindow_Hdg_Current_Savage_Books", resourceCulture);
             }
         }
         
@@ -877,6 +994,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Update {0} ({1}) from etro.
+        /// </summary>
+        internal static string Ui_btn_tt_etroUpdate {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_etroUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update {0} ({1}) from {2}.
+        /// </summary>
+        internal static string Ui_btn_tt_GearSetUpdate {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_GearSetUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Download Gear from Lodestone.
         /// </summary>
         internal static string Ui_btn_tt_Lodestone {
@@ -891,6 +1026,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string Ui_btn_tt_removeFrom {
             get {
                 return ResourceManager.GetString("Ui_btn_tt_removeFrom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update &quot;{0}&quot; from Etro.gg.
+        /// </summary>
+        internal static string Ui_btn_tt_UpdateFrmEtro {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_UpdateFrmEtro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update &quot;{0}&quot; ({1}) from XivGear.app.
+        /// </summary>
+        internal static string Ui_btn_tt_XivGearUpdate {
+            get {
+                return ResourceManager.GetString("Ui_btn_tt_XivGearUpdate", resourceCulture);
             }
         }
         
@@ -918,6 +1071,60 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string Ui_rightClickHint {
             get {
                 return ResourceManager.GetString("Ui_rightClickHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to + Add known {0}.
+        /// </summary>
+        internal static string UiHelpers_txt_AddKnown {
+            get {
+                return ResourceManager.GetString("UiHelpers_txt_AddKnown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to + Add new {0}.
+        /// </summary>
+        internal static string UiHelpers_txt_AddNew {
+            get {
+                return ResourceManager.GetString("UiHelpers_txt_AddNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with known {0}.
+        /// </summary>
+        internal static string UiHelpers_txt_ReplaceKnown {
+            get {
+                return ResourceManager.GetString("UiHelpers_txt_ReplaceKnown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with new {0}.
+        /// </summary>
+        internal static string UiHelpers_txt_ReplaceNew {
+            get {
+                return ResourceManager.GetString("UiHelpers_txt_ReplaceNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error updating set {0} from XivGear.app.
+        /// </summary>
+        internal static string XivGearAppConnector_GetGearSet_Error {
+            get {
+                return ResourceManager.GetString("XivGearAppConnector_GetGearSet_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update from XivGear.app for {0} succeeded.
+        /// </summary>
+        internal static string XivGearAppConnector_GetGearSet_Success {
+            get {
+                return ResourceManager.GetString("XivGearAppConnector_GetGearSet_Success", resourceCulture);
             }
         }
     }

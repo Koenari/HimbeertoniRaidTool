@@ -1,8 +1,11 @@
 name: Distribute Update
 
-on:
+on: 
   push:
-    branches: [ "master" ]
+    branches:
+      - master
+      - 'hotfix/**'
+
 env:
   PLUGIN_NAME: 'Himbeertoni Raid Tool'
   PLUGIN_NAME_INTERNAL: 'HimbeertoniRaidTool'
@@ -23,7 +26,7 @@ jobs:
         fetch-depth: 2
     - name: Get new version
       id: newver
-      uses: mavrosxristoforos/get-xml-info@1.2.1
+      uses: mavrosxristoforos/get-xml-info@2.0
       with:
         xml-file: ${{env.PROJ_FILE}}
         xpath: '/Project/PropertyGroup/Version'
@@ -31,7 +34,7 @@ jobs:
       run: 'git checkout HEAD^'
     - name: Get old version
       id: oldver
-      uses: mavrosxristoforos/get-xml-info@1.2.1
+      uses: mavrosxristoforos/get-xml-info@2.0
       with:
         xml-file: ${{env.PROJ_FILE}}
         xpath: '/Project/PropertyGroup/Version'
@@ -50,7 +53,7 @@ jobs:
         dotnet-version: 8.0.x
     - name: Download Dalamud
       run: |
-        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile latest.zip
+        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/${{vars.DALAMUD_BRANCH}}/latest.zip -OutFile latest.zip
         Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"
     - name: Restore dependencies
       run: dotnet restore
@@ -58,7 +61,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release
     - name: Test
       run: dotnet test --no-build --verbosity normal
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: package
         path: ${{env.PLUGIN_PACKAGE}}
@@ -89,7 +92,7 @@ jobs:
         file: "HimbeertoniRaidTool/manifest.toml"
         key: "plugin.changelog"
         value: "${{ steps.yaml-data.outputs.data }}"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: manifest
         path: HimbeertoniRaidTool/manifest.toml
@@ -113,7 +116,7 @@ jobs:
             sha: context.sha
           })
     - name: 'Download packaged build'
-      uses: actions/download-artifact@v3.0.2
+      uses: actions/download-artifact@v4
       with:
         name: package
         path: artifacts
@@ -123,6 +126,7 @@ jobs:
         body: ${{needs.create_manifest.outputs.changelog}}
         tag_name: ${{needs.version-check.outputs.version}}
         generate_release_notes: true
+        prerelease: ${{github.ref_name}} != master
         files: artifacts/*
   deploy_d17:
     name: Commit to D17 fork
@@ -150,7 +154,7 @@ jobs:
         ref: main
         path: d17repo
     - name: Downlaod Manifest
-      uses: actions/download-artifact@v3.0.2
+      uses: actions/download-artifact@v4
       with:
         name: manifest
         path: artifacts
@@ -172,6 +176,7 @@ jobs:
         directory: d17repo
         branch: testing-${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}  
     - name: Create stable branch
+      if: ${{github.ref_name}} == master
       run: |
         cd d17repo
         git config --local user.email "action@github.com"

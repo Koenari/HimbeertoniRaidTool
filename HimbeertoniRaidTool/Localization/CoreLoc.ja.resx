@@ -116,10 +116,10 @@
   <data name="WelcomeUi_Title">
     <value>Himbeertoni Raid Tool へようこそ</value>
   </data>
-  <data name="ConfigUi_cb_autoEtroUpdate">
-    <value>etro.ggから定期的にセットを更新</value>
+  <data name="ConfigUi_cb_extAutoUpdate">
+    <value>{0}から定期的にセットを更新</value>
   </data>
-  <data name="ConfigUi_in_etroUpdateInterval">
+  <data name="ConfigUi_in_externalUpdateInterval">
     <value>更新間隔 (日)</value>
   </data>
   <data name="ConfigUi_hdg_ui">
@@ -142,6 +142,9 @@
   </data>
   <data name="ConfigUi_cb_tt_periodicSave" xml:space="preserve">
         <value>このプラグインのすべてのデータを定期的に保存します。（ゲームのクラッシュ時、データが失われないようにします）</value>
+    </data>
+  <data name="ConfigUi_tab_general" xml:space="preserve">
+        <value>全般</value>
     </data>
   <data name="WelcomeUi_btn_OpenLootMaster">
     <value>LootMasterを開く</value>

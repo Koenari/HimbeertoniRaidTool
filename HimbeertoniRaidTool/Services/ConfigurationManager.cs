@@ -1,5 +1,5 @@
-﻿using System.Numerics;
-using Dalamud.Interface.Windowing;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -14,24 +14,19 @@ public class ConfigurationManager : IDisposable
 {
     private readonly Dictionary<Type, IHrtConfiguration> _configurations = new();
     private readonly ConfigUi _ui;
-    private readonly WindowSystem _windowSystem;
-    private readonly DalamudPluginInterface _pluginInterface;
+    private readonly IDalamudPluginInterface _pluginInterface;
+    private readonly IGlobalServiceContainer _services;
 
-    public ConfigurationManager(DalamudPluginInterface pluginInterface)
+    internal ConfigurationManager(IDalamudPluginInterface pluginInterface, IGlobalServiceContainer services)
     {
         _pluginInterface = pluginInterface;
-        _windowSystem = new WindowSystem("HRTConfig");
+        _services = services;
         _ui = new ConfigUi(this);
-        _windowSystem.AddWindow(_ui);
+        _services.UiSystem.AddWindow(_ui);
         _pluginInterface.UiBuilder.OpenConfigUi += Show;
-        _pluginInterface.UiBuilder.Draw += _windowSystem.Draw;
     }
 
-    public void Dispose()
-    {
-        _pluginInterface.UiBuilder.OpenConfigUi -= Show;
-        _pluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
-    }
+    public void Dispose() => _pluginInterface.UiBuilder.OpenConfigUi -= Show;
 
     internal void Show() => _ui.Show();
 
@@ -40,16 +35,24 @@ public class ConfigurationManager : IDisposable
         if (_configurations.ContainsKey(config.GetType()))
             return false;
         _configurations.Add(config.GetType(), config);
-        ServiceManager.Logger.Debug($"Registered {config.ParentInternalName} config");
-        return config.Load(ServiceManager.HrtDataManager.ModuleConfigurationManager);
+        _services.Logger.Debug($"Registered {config.ParentInternalName} config");
+        return config.Load(_services.HrtDataManager.ModuleConfigurationManager);
+    }
+
+    internal bool TryGetConfig<T>(Type type, [NotNullWhen(true)] out T? config) where T : class, IHrtConfiguration
+    {
+        config = null;
+        if (_configurations.TryGetValue(type, out var configInner))
+            config = configInner as T;
+        return config != null;
     }
 
     internal void Save()
     {
-        foreach (IHrtConfiguration config in _configurations.Values)
+        foreach (var config in _configurations.Values)
         {
-            ServiceManager.Logger.Debug($"Saved {config.ParentInternalName} config");
-            config.Save(ServiceManager.HrtDataManager.ModuleConfigurationManager);
+            _services.Logger.Debug($"Saved {config.ParentInternalName} config");
+            config.Save(_services.HrtDataManager.ModuleConfigurationManager);
         }
     }
 
@@ -57,20 +60,20 @@ public class ConfigurationManager : IDisposable
     {
         private readonly ConfigurationManager _configManager;
 
-        public ConfigUi(ConfigurationManager configManager) : base("HimbeerToniRaidToolConfiguration")
+        public ConfigUi(ConfigurationManager configManager) : base(configManager._services.UiSystem,
+                                                                   "HimbeerToniRaidToolConfiguration")
         {
-
             _configManager = configManager;
-
             (Size, SizeCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);
             Flags = ImGuiWindowFlags.NoCollapse;
             Title = GeneralLoc.ConfigUi_Title;
             IsOpen = false;
+            Persistent = true;
         }
 
         public override void OnOpen()
         {
-            foreach (IHrtConfiguration config in _configManager._configurations.Values)
+            foreach (var config in _configManager._configurations.Values)
             {
                 config.Ui?.OnShow();
             }
@@ -78,7 +81,7 @@ public class ConfigurationManager : IDisposable
 
         public override void OnClose()
         {
-            foreach (IHrtConfiguration config in _configManager._configurations.Values)
+            foreach (var config in _configManager._configurations.Values)
             {
                 config.Ui?.OnHide();
             }
@@ -92,7 +95,7 @@ public class ConfigurationManager : IDisposable
             if (ImGuiHelper.CancelButton())
                 Cancel();
             ImGui.BeginTabBar("Modules");
-            foreach (IHrtConfiguration c in _configManager._configurations.Values)
+            foreach (var c in _configManager._configurations.Values)
             {
                 if (c.Ui == null)
                     continue;
@@ -108,7 +111,7 @@ public class ConfigurationManager : IDisposable
 
         private void Save()
         {
-            foreach (IHrtConfiguration c in _configManager._configurations.Values)
+            foreach (var c in _configManager._configurations.Values)
             {
                 c.Ui?.Save();
             }
@@ -118,7 +121,7 @@ public class ConfigurationManager : IDisposable
 
         private void Cancel()
         {
-            foreach (IHrtConfiguration c in _configManager._configurations.Values)
+            foreach (var c in _configManager._configurations.Values)
             {
                 c.Ui?.Cancel();
             }
@@ -143,19 +146,20 @@ internal abstract class ModuleConfiguration<T>(IHrtModule module) : IHrtConfigur
     where T : IHrtConfigData, new()
 {
     private T _data = new();
+    protected readonly IHrtModule Module = module;
 
     public T Data
     {
         get => _data;
-        set
+        protected set
         {
             _data = value;
             OnConfigChange?.Invoke();
         }
     }
 
-    public string ParentInternalName => module.InternalName;
-    public string ParentName => module.Name;
+    public string ParentInternalName => Module.InternalName;
+    public string ParentName => Module.Name;
     public abstract IHrtConfigUi? Ui { get; }
 
     public event Action? OnConfigChange;
@@ -179,6 +183,6 @@ public interface IHrtConfigUi
 
 public interface IHrtConfigData : ICloneable
 {
-    public void AfterLoad();
+    public void AfterLoad(HrtDataManager dataManager);
     public void BeforeSave();
 }

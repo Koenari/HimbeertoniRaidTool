@@ -178,8 +178,8 @@
             Only local Gear Sets can be edited
         </value>
     </data>
-    <data name="CommonTerms_EtroID">
-        <value>Etro ID</value>
+    <data name="CommonTerms_ExternalID">
+        <value>ID</value>
     </data>
     <data name="EditUi_Txt_LocalId">
         <value>Local ID</value>
@@ -313,9 +313,9 @@
     <data name="EtroConnector_GetGearSet_RelicError" xml:space="preserve">
         <value>Cannot handle relic item for slot: {0}</value>
     </data>
-    <data name="EtroConnector_UpdateEtroSets_Finished" xml:space="preserve">
-        <value>Finished periodic etro Updates. ({0}/{1}) updated</value>
-        <comment>{0} = number updated {1} = total</comment>
+    <data name="Connector_UpdateAllSets_Finished" xml:space="preserve">
+        <value>Finished periodic {2} Updates. ({0}/{1}) updated</value>
+        <comment>{0} = number updated {1} = total {2} = service</comment>
     </data>
     <data name="GetCharacterWindow_Title" xml:space="preserve">
         <value>Get character from DB</value>
@@ -333,14 +333,14 @@
     <data name="EditCharUi_text_BisNotice" xml:space="preserve">
         <value>BiS sets are now changed by editing the respective BiS set directly</value>
     </data>
-    <data name="EditGearSetUi_text_getEtro" xml:space="preserve">
-        <value>Replace with set from etro</value>
+    <data name="EditGearSetUi_text_getEtroBis" xml:space="preserve">
+        <value>Replace with bis from etro</value>
     </data>
-    <data name="EditGearSetUi_btn_CustomEtro" xml:space="preserve">
-        <value>Custom</value>
+    <data name="EditGearSetUi_btn_GetExternal" xml:space="preserve">
+        <value>Replace</value>
     </data>
-    <data name="EditGearSetUi_btn_tt_CustomEtro" xml:space="preserve">
-        <value>Provide custom id</value>
+    <data name="EditGearSetUi_btn_tt_GetExternal" xml:space="preserve">
+        <value>Download set and replace current one</value>
     </data>
     <data name="EditGearSetUi_btn_tt_cutsomEtro" xml:space="preserve">
         <value>Get</value>
@@ -393,7 +393,7 @@ You need to update to use this plugin!</value>
         <value>Open set on etro.gg</value>
     </data>
     <data name="EditGearSetUi_txt_lastUpdate" xml:space="preserve">
-        <value>Last update check: {0}</value>
+        <value>Last update check</value>
     </data>
     <data name="Gearset_Warning_SysManaged" xml:space="preserve">
         <value>This set is manged by the plugin and will be automatically overwritten with characters current gear!</value>
@@ -402,7 +402,7 @@ You need to update to use this plugin!</value>
         <value>Source</value>
     </data>
     <data name="EditGearSetUi_txt_LastChange" xml:space="preserve">
-        <value>Last Change: {0}</value>
+        <value>Last Change</value>
     </data>
     <data name="EditCharUi_cb_hideJob" xml:space="preserve">
         <value>Do not show this job</value>
@@ -435,5 +435,83 @@ You need to update to use this plugin!</value>
     </data>
     <data name="CommonTerms_All" xml:space="preserve">
         <value>All</value>
+    </data>
+    <data name="XivGearAppConnector_GetGearSet_Error" xml:space="preserve">
+        <value>Error updating set {0} from XivGear.app</value>
+        <comment>{0} name</comment>
+    </data>
+    <data name="CommonTerms_Difference" xml:space="preserve">
+        <value>Difference</value>
+    </data>
+    <data name="InventoryWindow_Hdg_Current_Savage_Books" xml:space="preserve">
+        <value>Current Savage Books</value>
+    </data>
+    <data name="Ui_btn_tt_XivGearUpdate" xml:space="preserve">
+        <value>Update "{0}" ({1}) from XivGear.app</value>
+        <comment>{0} name {1} id</comment>
+    </data>
+    <data name="Ui_btn_tt_UpdateFrmEtro">
+        <value>Update "{0}" from Etro.gg</value>
+    </data>
+    <data name="Ui_btn_tt_etroUpdate" xml:space="preserve">
+        <value>Update {0} ({1}) from etro</value>
+        <comment>{0} name {1} etroId</comment>
+    </data>
+    <data name="XivGearAppConnector_GetGearSet_Success" xml:space="preserve">
+        <value>Update from XivGear.app for {0} succeeded</value>
+        <comment>{0} name</comment>
+    </data>
+    <data name="Gearset_Warning_ExternalManaged" xml:space="preserve">
+        <value>This set originated from an external service and will be automatically updated from there. IF you want to make edits you need to make a local copy.</value>
+    </data>
+    <data name="EditGearSetUi_btn_OpenWeb" xml:space="preserve">
+        <value>Open on {0}</value>
+    </data>
+    <data name="EditGearSetUi_btn_tt_OpenWeb" xml:space="preserve">
+        <value>Opens the set on the website of the external service in your default browser</value>
+    </data>
+    <data name="Ui_btn_tt_GearSetUpdate" xml:space="preserve">
+        <value>Update {0} ({1}) from {2}</value>
+        <comment>{0} is name {1} is id {2} is service</comment>
+    </data>
+    <data name="EditGearSetUi_text_getCuratedBis" xml:space="preserve">
+        <value>Replace with BiS from {0}</value>
+    </data>
+    <data name="CommonTerms_Food" xml:space="preserve">
+        <value>Food</value>
+    </data>
+    <data name="EditGearSetUi_txt_Loading" xml:space="preserve">
+        <value>Loading...</value>
+    </data>
+    <data name="EditGearSetUi_text_InvalidId" xml:space="preserve">
+        <value>Invalid Id / Url</value>
+    </data>
+    <data name="EditGearSetUi_input_ExtId" xml:space="preserve">
+        <value>ID/Url</value>
+    </data>
+    <data name="EditGearSetUi_hdg_ExtCustom" xml:space="preserve">
+        <value>Supply own set</value>
+    </data>
+    <data name="EditGearSetUi_txt_AutoDetect" xml:space="preserve">
+        <value>Auto Detect</value>
+    </data>
+    <data name="EditGearSetUi_text_Replace" xml:space="preserve">
+        <value>Replace with:</value>
+    </data>
+    <data name="UiHelpers_txt_AddNew" xml:space="preserve">
+        <value>+ Add new {0}</value>
+        <comment>{0} type of data</comment>
+    </data>
+    <data name="UiHelpers_txt_AddKnown" xml:space="preserve">
+        <value>+ Add known {0}</value>
+        <comment>{0} type of data</comment>
+    </data>
+    <data name="UiHelpers_txt_ReplaceNew" xml:space="preserve">
+        <value>Replace with new {0}</value>
+        <comment>{0} type of data</comment>
+    </data>
+    <data name="UiHelpers_txt_ReplaceKnown" xml:space="preserve">
+        <value>Replace with known {0}</value>
+        <comment>{0} type of data</comment>
     </data>
 </root>

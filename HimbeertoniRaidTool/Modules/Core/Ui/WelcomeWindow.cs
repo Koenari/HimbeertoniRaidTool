@@ -10,9 +10,11 @@ internal class WelcomeWindow : HrtWindow
 {
     private const string WIKI_URL = "https://github.com/Koenari/HimbeertoniRaidTool/wiki";
     private readonly CoreModule _coreModule;
-    public WelcomeWindow(CoreModule coreModule)
+    public WelcomeWindow(CoreModule coreModule) : base(coreModule.Services.UiSystem)
     {
         _coreModule = coreModule;
+        Persistent = true;
+        IsOpen = false;
         (Size, SizeCondition) = (new Vector2(520, 345), ImGuiCond.Always);
         Title = CoreLoc.WelcomeUi_Title;
         Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize;
