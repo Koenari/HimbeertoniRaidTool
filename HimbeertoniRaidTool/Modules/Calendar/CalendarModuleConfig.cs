@@ -1,3 +1,4 @@
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
@@ -45,8 +46,8 @@ internal class CalendarModuleConfig : ModuleConfiguration<CalendarModuleConfig.C
     internal class ConfigData : IHrtConfigData
     {
         [JsonProperty("BeginOfWeek")] public DayOfWeek FirstDayOfWeek = DayOfWeek.Monday;
-        public void AfterLoad() { }
 
+        public void AfterLoad(HrtDataManager dataManager) { }
         public void BeforeSave() { }
     }
 }

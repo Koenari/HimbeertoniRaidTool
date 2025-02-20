@@ -46,8 +46,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                     Create(gearSet, onSave as Action<GearSet>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.RaidSession:
-                if (DataManager.RaidSessionDb.TryGet(id, out RaidSession? raidSession))
-                    return Create(raidSession, onSave as Action<RaidSession>, onCancel, param);
+                if (DataManager.RaidSessionDb.TryGet(id, out var raidSession))
+                    Create(raidSession, onSave as Action<RaidSession>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.None:
             default:
@@ -72,7 +72,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             HrtId.IdType.Group when data is RaidGroup rg => new EditGroupWindow(this,
                 rg, onSave as Action<RaidGroup>, onCancel, onDelete),
             HrtId.IdType.RaidSession when data is RaidSession rs => new EditRaidSessionWindow(
-                rs, onSave as Action<RaidSession>, onCancel),
+                this, rs, onSave as Action<RaidSession>, onCancel, onDelete),
             HrtId.IdType.None => null,
             _                 => null,
         };
@@ -723,15 +723,21 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             Factory.DataManager.Save();
         }
     }
-    private class EditRaidSessionWindow(RaidSession original, Action<RaidSession>? onSave, Action? onCancel)
-        : EditWindow<RaidSession>(original, onSave, onCancel)
+
+    private class EditRaidSessionWindow(
+        EditWindowFactory factory,
+        RaidSession original,
+        Action<RaidSession>? onSave,
+        Action? onCancel,
+        Action? onDelete)
+        : EditWindow<RaidSession>(factory, original, onSave, onCancel, onDelete)
     {
 
         protected override void DrawContent()
         {
             ImGui.Text($"{DataCopy.Name} @ {DataCopy.StartTime:f}");
             ImGui.Text("Participants");
-            foreach (Participant participant in DataCopy.Participants)
+            foreach (var participant in DataCopy.Participants)
             {
                 ImGui.Text($"{participant.Player.NickName}: {participant.InvitationStatus}");
             }

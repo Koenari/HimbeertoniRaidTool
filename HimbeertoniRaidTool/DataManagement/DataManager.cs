@@ -68,7 +68,7 @@ public class HrtDataManager
         _raidGroupDb =
             new DataBaseWrapper<RaidGroup>(this, new RaidGroupDb(idProvider, _idRefConverters, logger),
                                            "RaidGroupDB.json");
-        _raidSessionDb = new DataBaseWrapper<RaidSession>(this,new RaidSessionDb(idProvider, _idRefConverters), 
+        _raidSessionDb = new DataBaseWrapper<RaidSession>(this, new RaidSessionDb(idProvider, _idRefConverters, logger),
                                                           "RaidSessionDB.json");
 
         loadedSuccessful &= _gearDb.Load();

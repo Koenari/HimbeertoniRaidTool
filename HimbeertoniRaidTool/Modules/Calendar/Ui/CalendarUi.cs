@@ -21,11 +21,11 @@ internal class CalendarUi : HrtWindow
 
     public DayOfWeek FirstDayOfWeek => _module.ModuleConfigImpl.Data.FirstDayOfWeek;
 
-    public CalendarUi(CalendarModule module) : base("##calendarUi")
+    public CalendarUi(CalendarModule module) : base(module.Services.UiSystem, "##calendarUi")
     {
         _module = module;
         Title = CalendarLoc.CalendarUi_Title;
-        DateTime now = DateTime.Now;
+        var now = DateTime.Now;
         _year = now.Year;
         _inputYear = now.Year;
         _month = (Month)now.Month;
@@ -76,7 +76,7 @@ internal class CalendarUi : HrtWindow
         ImGui.SameLine();
         if (ImGuiHelper.Button(CalendarLoc.ui_btn_today, CalendarLoc.ui_btn_tt_today))
         {
-            DateTime now = DateTime.Now;
+            var now = DateTime.Now;
             _year = now.Year;
             _month = (Month)now.Month;
         }
@@ -103,7 +103,7 @@ internal class CalendarUi : HrtWindow
         {
             day = day.AddDays(-1);
         }
-        DateOnly nextMonth = new DateOnly(_year, (int)_month, 1).AddMonths(1
+        var nextMonth = new DateOnly(_year, (int)_month, 1).AddMonths(1
         );
         //draw entries for month and adjacent days
         while (day < nextMonth || day.DayOfWeek != FirstDayOfWeek)
@@ -123,7 +123,7 @@ internal class CalendarUi : HrtWindow
         ImGui.Text($"{date.Day}");
         bool hasDrawn = false;
 
-        foreach (RaidSession calendarEntry in entries)
+        foreach (var calendarEntry in entries)
         {
             hasDrawn = true;
             ImGui.Text(
@@ -140,10 +140,7 @@ internal class CalendarUi : HrtWindow
         {
             if (ImGuiHelper.AddButton(RaidSession.DataTypeNameStatic, "#add"))
             {
-                HrtWindowWithModalChild? window =
-                    EditWindowFactory.Create(new RaidSession(date.ToDateTime(TimeOnly.MinValue)));
-                if (window is not null)
-                    _module.WindowSystem.AddWindow(window);
+                _module.Services.UiSystem.EditWindows.Create(new RaidSession(date.ToDateTime(TimeOnly.MinValue)));
                 ImGui.CloseCurrentPopup();
             }
             ImGui.EndPopup();

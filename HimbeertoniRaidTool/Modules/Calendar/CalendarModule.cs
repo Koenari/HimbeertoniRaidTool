@@ -17,8 +17,6 @@ public class CalendarModule : IHrtModule
 
     public string Description => CalendarLoc.Module_Description;
 
-    public IWindowSystem WindowSystem { get; }
-
     private readonly CalendarUi _calendarUi;
 
     private List<RaidSession> _sessionCache = new();
@@ -37,16 +35,17 @@ public class CalendarModule : IHrtModule
 
         },
     };
+    public IModuleServiceContainer Services { get; }
 
     public event Action? UiReady;
 
     public CalendarModule()
     {
+        Services = ServiceManager.GetServiceContainer(this);
         ModuleConfigImpl = new CalendarModuleConfig(this);
-        WindowSystem = new DalamudWindowSystem(new WindowSystem(InternalName));
         _calendarUi = new CalendarUi(this);
-        WindowSystem.AddWindow(_calendarUi);
-        ServiceManager.ClientState.Login += OnLogin;
+        Services.UiSystem.AddWindow(_calendarUi);
+        Services.ClientState.Login += OnLogin;
     }
     /// <summary>
     /// Gets all raid sessions in the specified time frame
@@ -73,10 +72,10 @@ public class CalendarModule : IHrtModule
         switch (message.MessageType)
         {
             case HrtUiMessageType.Error or HrtUiMessageType.Failure:
-                ServiceManager.Logger.Error(message.Message);
+                Services.Logger.Error(message.Message);
                 break;
             default:
-                ServiceManager.Logger.Information(message.Message);
+                Services.Logger.Information(message.Message);
                 break;
         }
     }
