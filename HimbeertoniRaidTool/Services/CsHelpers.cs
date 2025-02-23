@@ -40,9 +40,7 @@ internal static class CsHelpers
             for (int j = 0; j < 5; j++)
             {
                 if (slot->Materia[j] == 0) break;
-                targetGearSet[(GearSetSlot)i].AddMateria(new MateriaItem(
-                                                             (MateriaCategory)slot->Materia[j],
-                                                             (MateriaLevel)slot->MateriaGrades[j]));
+                targetGearSet[(GearSetSlot)i].AddMateria(new MateriaItem(slot->Materia[j], slot->MateriaGrades[j]));
             }
         }
         targetGearSet.TimeStamp = DateTime.UtcNow;
