@@ -86,6 +86,8 @@ internal class OwnCharacterDataProvider : IGearDataProvider
                 out target)) return;
         if (target.CharId == 0)
             target.CharId = charId;
+        target.HomeWorldId = source.HomeWorld.RowId;
+        target.Name = source.Name.TextValue;
     }
 
     private unsafe void UpdateWallet()
