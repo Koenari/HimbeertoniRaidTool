@@ -8,7 +8,7 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
-        new(new Version(1, 9, 0, 0))
+        new(new Version(1, 9, 0, 1))
         {
             NotableFeatures =
             {
