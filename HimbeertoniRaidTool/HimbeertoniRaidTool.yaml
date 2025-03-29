@@ -10,4 +10,6 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      New Feature: Stats can now take a party bonus into account (adjust the default in settings)
+      General: Updated for 7.2
+      General: Home world transfer /name changes of known characters are now automatically applied with gear updates
+      System: Some changes to item handling which should reduce size of database files
