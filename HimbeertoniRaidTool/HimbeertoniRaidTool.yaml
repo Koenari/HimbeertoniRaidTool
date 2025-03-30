@@ -10,6 +10,5 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      General: Updated for 7.2
-      General: Home world transfer /name changes of known characters are now automatically applied with gear updates
-      System: Some changes to item handling which should reduce size of database files
+      Bugfix: Tomestone gear is now displayed properly
+      Bugfix: item level coloring works correctly (was off by 10)
