@@ -37,6 +37,7 @@ public interface IGlobalServiceContainer : IDisposable
     internal OwnCharacterDataProvider OwnCharacterDataProvider { get; }
     internal INotificationManager NotificationManager { get; }
     internal IUiSystem UiSystem { get; }
+    internal ModuleManager ModuleManager { get; }
 
 }
 
@@ -69,6 +70,8 @@ internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
     public OwnCharacterDataProvider OwnCharacterDataProvider => _globalServices.OwnCharacterDataProvider;
     public INotificationManager NotificationManager => _globalServices.NotificationManager;
     public IUiSystem UiSystem { get; }
+
+    public ModuleManager ModuleManager => _globalServices.ModuleManager;
 
     public void Dispose()
     {
@@ -118,10 +121,14 @@ internal static class ServiceManager
             PluginInterface.UiBuilder.Draw += UiSystem.Draw;
             ConfigManager =
                 new ConfigurationManager(pluginInterface, this);
+            ModuleManager = new ModuleManager(Logger, ConfigManager, DalamudServices.CommandManager);
         }
 
         public void Dispose()
         {
+            ConfigManager.Save();
+            HrtDataManager.Save();
+            ModuleManager.Dispose();
             PluginInterface.UiBuilder.Draw -= UiSystem.Draw;
             UiSystem.RemoveAllWindows();
             ConnectorPool.Dispose();
@@ -150,6 +157,7 @@ internal static class ServiceManager
         public OwnCharacterDataProvider OwnCharacterDataProvider { get; }
         public INotificationManager NotificationManager => DalamudServices.NotificationManager;
         private DalamudServiceWrapper DalamudServices { get; }
+        public ModuleManager ModuleManager { get; }
 
         [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
         [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
@@ -169,6 +177,7 @@ internal static class ServiceManager
             [PluginService] public ITextureProvider TextureProvider { get; set; }
             [PluginService] public IFramework Framework { get; set; }
             [PluginService] public INotificationManager NotificationManager { get; set; }
+            [PluginService] public ICommandManager CommandManager { get; set; }
         }
     }
 }

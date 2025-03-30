@@ -70,6 +70,12 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
     internal sealed class ConfigData : IHrtConfigData
     {
 
+        #region Modules
+
+        [JsonProperty] public Dictionary<string, bool> ModulesEnabled { get; set; } = [];
+
+        #endregion
+
         #region ChangLog
 
         [JsonProperty] public ChangelogShowOptions ChangelogNotificationOptions = ChangelogShowOptions.ShowAll;
