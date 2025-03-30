@@ -8,6 +8,14 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 9, 0, 2))
+        {
+          NotableFeatures  =
+          {
+              new ChangeLogEntry(Bugfix, "Tomestone gear is now displayed properly"),
+              new ChangeLogEntry(Bugfix, "item level coloring works correctly (was off by 10)"),
+          }
+        },
         new(new Version(1, 9, 0, 1))
         {
             NotableFeatures =
