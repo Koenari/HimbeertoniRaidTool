@@ -96,9 +96,11 @@ internal class ExamineGearDataProvider : IGearDataProvider
             return;
         }
 
+        ulong charId = Character.CalcCharId(_characterInfoService.GetContentId(sourceChar));
+
         //Do not execute on characters not already known
         if (!_hrtDataManager.CharDb.Search(
-                CharacterDb.GetStandardPredicate(0, sourceChar.HomeWorld.RowId, sourceChar.Name.TextValue),
+                CharacterDb.GetStandardPredicate(charId, sourceChar.HomeWorld.RowId, sourceChar.Name.TextValue),
                 out var targetChar))
         {
             _logger.Debug($"Did not find character in db:{sourceChar.Name}@{sourceChar.HomeWorld.Value.Name}");
@@ -107,9 +109,11 @@ internal class ExamineGearDataProvider : IGearDataProvider
 
         //Save characters ContentID if not already known
         if (targetChar.CharId == 0)
-            targetChar.CharId =
-                Character.CalcCharId(_characterInfoService.GetContentId(sourceChar));
+            targetChar.CharId = charId;
 
+        //Account for transfer and rename
+        targetChar.HomeWorldId = sourceChar.HomeWorld.RowId;
+        targetChar.Name = sourceChar.Name.TextValue;
 
         var targetJob = sourceChar.GetJob();
         if (targetJob.IsCombatJob() && !_configuration.CombatJobsEnabled

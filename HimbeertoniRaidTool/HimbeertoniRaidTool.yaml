@@ -10,4 +10,5 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      New Feature: Stats can now take a party bonus into account (adjust the default in settings)
+      Bugfix: Tomestone gear is now displayed properly
+      Bugfix: item level coloring works correctly (was off by 10)

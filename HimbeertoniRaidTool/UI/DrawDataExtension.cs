@@ -160,7 +160,7 @@ public static class DrawDataExtension
                 DrawRow(StatType.MagicDefense.FriendlyName(), leftGear.GetStat(StatType.MagicDefense),
                         rightGear.GetStat(StatType.MagicDefense));
             }
-            foreach (var type in leftGear.StatTypesAffected.Concat(rightGear.StatTypesAffected).Distinct())
+            foreach (var type in leftGear.StatTypesAffected.Union(rightGear.StatTypesAffected))
             {
                 if (type != StatType.None)
                     DrawRow(type.FriendlyName(), leftGear.GetStat(type), rightGear.GetStat(type));

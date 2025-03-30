@@ -185,8 +185,9 @@ public class HrtDataManager
             {
                 return _database.Load(_jsonSettings, jsonData);
             }
-            catch (JsonSerializationException)
+            catch (JsonSerializationException e)
             {
+                _parent._logger.Error(e, $"Could not load {typeof(TEntry)} data.");
                 LoadEmpty();
                 return false;
             }

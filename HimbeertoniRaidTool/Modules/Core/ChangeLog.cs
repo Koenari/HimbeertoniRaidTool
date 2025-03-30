@@ -8,6 +8,29 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 9, 0, 2))
+        {
+          NotableFeatures  =
+          {
+              new ChangeLogEntry(Bugfix, "Tomestone gear is now displayed properly"),
+              new ChangeLogEntry(Bugfix, "item level coloring works correctly (was off by 10)"),
+          }
+        },
+        new(new Version(1, 9, 0, 1))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(General, "Updated for 7.2"),
+            },
+            MinorFeatures =
+            {
+                new ChangeLogEntry(
+                    General,
+                    "Home world transfer /name changes of known characters are now automatically applied with gear updates"),
+                new ChangeLogEntry(ChangeLogEntryCategory.System,
+                                   "Some changes to item handling which should reduce size of database files"),
+            },
+        },
         new(new Version(1, 8, 0, 3))
         {
             NotableFeatures =
