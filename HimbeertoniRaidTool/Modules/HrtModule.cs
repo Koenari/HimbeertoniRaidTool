@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.Command;
+﻿using System.Globalization;
+using Dalamud.Game.Command;
 using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules;
@@ -15,27 +16,22 @@ public interface IHrtModule
     void HandleMessage(HrtUiMessage message);
     void AfterFullyLoaded();
     void PrintUsage(string command, string args);
-    void OnLanguageChange(string langCode);
+    void OnLanguageChange(CultureInfo culture);
     void Dispose();
 }
 
-public struct HrtCommand
+public readonly record struct HrtCommand
 {
     /// <summary>
     ///     Command user needs to use in chat. Needs to start with a "/"
     /// </summary>
-    internal string Command = string.Empty;
-
-    internal IEnumerable<string> AltCommands = Array.Empty<string>();
-    internal string Description = string.Empty;
-    internal bool ShowInHelp = true;
-    internal IReadOnlyCommandInfo.HandlerDelegate OnCommand = (_, _) => { };
-    internal bool ShouldExposeToDalamud = false;
-    internal bool ShouldExposeAltsToDalamud = false;
-
-    public HrtCommand()
-    {
-    }
+    internal string Command { get; }
+    internal IEnumerable<string> AltCommands { get; init; } = Array.Empty<string>();
+    internal string Description { get; init; } = string.Empty;
+    internal bool ShowInHelp { get; init; } = true;
+    internal IReadOnlyCommandInfo.HandlerDelegate OnCommand { get; }
+    internal bool ShouldExposeToDalamud { get; init; } = false;
+    internal bool ShouldExposeAltsToDalamud { get; init; } = false;
 
     public HrtCommand(string command, IReadOnlyCommandInfo.HandlerDelegate onCommand)
     {

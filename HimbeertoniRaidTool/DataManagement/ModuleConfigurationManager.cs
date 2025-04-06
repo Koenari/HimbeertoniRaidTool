@@ -45,7 +45,7 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
         bool writeSuccess;
         try
         {
-            Util.WriteAllTextSafe(file.FullName, json);
+            FilesystemUtil.WriteAllTextSafe(file.FullName, json);
             writeSuccess = true;
         }
         catch (Win32Exception)

@@ -20,7 +20,7 @@ internal sealed class LootMasterModule : IHrtModule
     public LootMasterModule()
     {
         Services = ServiceManager.GetServiceContainer(this);
-        LootmasterLoc.Culture = new CultureInfo(Services.PluginInterface.UiLanguage);
+        LootmasterLoc.Culture = Services.LocalizationManager.CurrentLocale;
         ConfigImpl = new LootMasterConfiguration(this);
         _ui = new LootmasterUi(this);
         Services.ClientState.Login += OnLogin;
@@ -30,7 +30,9 @@ internal sealed class LootMasterModule : IHrtModule
     internal List<RaidGroup> RaidGroups => ConfigImpl.Data.RaidGroups;
     //Interface Properties
     public string Name => "Loot Master";
-    public string InternalName => "LootMaster";
+
+    public const string INTERNAL_NAME = "LootMaster";
+    public string InternalName => INTERNAL_NAME;
     public IHrtConfiguration Configuration => ConfigImpl;
     public string Description => "";
     public IModuleServiceContainer Services { get; }
@@ -68,7 +70,7 @@ internal sealed class LootMasterModule : IHrtModule
             Services.TaskManager.RunOnFrameworkThread(OnLogin);
     }
 
-    public void OnLanguageChange(string langCode) => LootmasterLoc.Culture = new CultureInfo(langCode);
+    public void OnLanguageChange(CultureInfo culture) => LootmasterLoc.Culture = culture;
     public void PrintUsage(string command, string args)
     {
         var stringBuilder = new SeStringBuilder()

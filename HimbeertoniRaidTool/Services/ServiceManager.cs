@@ -8,7 +8,6 @@ using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
 
-#pragma warning disable CS8618
 namespace HimbeertoniRaidTool.Plugin.Services;
 
 public interface IModuleServiceContainer : IGlobalServiceContainer
@@ -38,6 +37,7 @@ public interface IGlobalServiceContainer : IDisposable
     internal INotificationManager NotificationManager { get; }
     internal IUiSystem UiSystem { get; }
     internal ModuleManager ModuleManager { get; }
+    internal LocalizationManager LocalizationManager { get; }
 
 }
 
@@ -70,8 +70,8 @@ internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
     public OwnCharacterDataProvider OwnCharacterDataProvider => _globalServices.OwnCharacterDataProvider;
     public INotificationManager NotificationManager => _globalServices.NotificationManager;
     public IUiSystem UiSystem { get; }
-
     public ModuleManager ModuleManager => _globalServices.ModuleManager;
+    public LocalizationManager LocalizationManager => _globalServices.LocalizationManager;
 
     public void Dispose()
     {
@@ -82,18 +82,20 @@ internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
 
 internal static class ServiceManager
 {
-    private static volatile bool _initialized;
-    private static GlobalServiceContainer ServiceContainer { get; set; }
+    private static GlobalServiceContainer? ServiceContainer { get; set; }
 
-    internal static IGlobalServiceContainer Init(IDalamudPluginInterface pluginInterface)
+    internal static IGlobalServiceContainer Get(IDalamudPluginInterface pluginInterface)
     {
-        if (_initialized) return ServiceContainer;
-        _initialized = true;
+        ServiceContainer ??= new GlobalServiceContainer(pluginInterface);
         return ServiceContainer = new GlobalServiceContainer(pluginInterface);
     }
 
     internal static IModuleServiceContainer GetServiceContainer(IHrtModule module)
-        => new ModuleScopedServiceContainer(module, ServiceContainer);
+    {
+        if (ServiceContainer == null) throw new FailedToLoadException("Failed to get service container.");
+        return new ModuleScopedServiceContainer(module, ServiceContainer);
+    }
+
 
 
     private class GlobalServiceContainer : IGlobalServiceContainer
@@ -121,7 +123,10 @@ internal static class ServiceManager
             PluginInterface.UiBuilder.Draw += UiSystem.Draw;
             ConfigManager =
                 new ConfigurationManager(pluginInterface, this);
-            ModuleManager = new ModuleManager(Logger, ConfigManager, DalamudServices.CommandManager);
+            LocalizationManager = new LocalizationManager(PluginInterface, Logger);
+            ModuleManager = new ModuleManager(Logger, ConfigManager, HrtDataManager, DalamudServices.CommandManager,
+                                              LocalizationManager);
+
         }
 
         public void Dispose()
@@ -158,7 +163,9 @@ internal static class ServiceManager
         public INotificationManager NotificationManager => DalamudServices.NotificationManager;
         private DalamudServiceWrapper DalamudServices { get; }
         public ModuleManager ModuleManager { get; }
+        public LocalizationManager LocalizationManager { get; }
 
+#pragma warning disable CS8618
         [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
         [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
@@ -179,8 +186,8 @@ internal static class ServiceManager
             [PluginService] public INotificationManager NotificationManager { get; set; }
             [PluginService] public ICommandManager CommandManager { get; set; }
         }
+#pragma warning restore CS8618
     }
 }
 
 public class FailedToLoadException(string? message) : Exception(message);
-#pragma warning restore CS8618

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using Dalamud.Interface.Utility.Raii;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -59,6 +60,7 @@ public class ConfigurationManager : IDisposable
     private class ConfigUi : HrtWindow
     {
         private readonly ConfigurationManager _configManager;
+        private readonly Dictionary<IModuleManifest, bool> _availableModules = new();
 
         public ConfigUi(ConfigurationManager configManager) : base(configManager._services.UiSystem,
                                                                    "HimbeerToniRaidToolConfiguration")
@@ -73,6 +75,11 @@ public class ConfigurationManager : IDisposable
 
         public override void OnOpen()
         {
+            _availableModules.Clear();
+            foreach (var manifest in _configManager._services.ModuleManager.GetAvailableModules())
+            {
+                _availableModules.Add(manifest, manifest.Enabled);
+            }
             foreach (var config in _configManager._configurations.Values)
             {
                 config.Ui?.OnShow();
@@ -95,17 +102,21 @@ public class ConfigurationManager : IDisposable
             if (ImGuiHelper.CancelButton())
                 Cancel();
             ImGui.BeginTabBar("Modules");
-            foreach (var c in _configManager._configurations.Values)
+            foreach (var moduleManifest in _availableModules.Keys)
             {
-                if (c.Ui == null)
-                    continue;
-                if (ImGui.BeginTabItem(c.ParentName))
+                if (!ImGui.BeginTabItem(moduleManifest.InternalName)) continue;
+                using (ImRaii.Disabled(!moduleManifest.CanBeDisabled))
                 {
-                    c.Ui.Draw();
-                    ImGui.EndTabItem();
+                    bool enabled = _availableModules[moduleManifest];
+                    if (ImGui.Checkbox($"Enabled##{moduleManifest.InternalName}", ref enabled))
+                        _availableModules[moduleManifest] = enabled;
                 }
+                var c = _configManager._configurations.Values.FirstOrDefault(
+                    config => config?.ParentInternalName == moduleManifest.InternalName, null);
+                if (c?.Ui == null) continue;
+                c.Ui.Draw();
+                ImGui.EndTabItem();
             }
-
             ImGui.EndTabBar();
         }
 
@@ -115,6 +126,7 @@ public class ConfigurationManager : IDisposable
             {
                 c.Ui?.Save();
             }
+            _configManager._services.ModuleManager.UpdateConfiguration(_availableModules);
             _configManager.Save();
             Hide();
         }

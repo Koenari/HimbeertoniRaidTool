@@ -1,5 +1,4 @@
 using System.Globalization;
-using Dalamud.Interface.Windowing;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Calendar.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -13,7 +12,9 @@ public class CalendarModule : IHrtModule
     internal readonly CalendarModuleConfig ModuleConfigImpl;
     public string Name => CalendarLoc.Module_Name;
 
-    public string InternalName => "Calendar";
+    public const string INTERNAL_NAME = "Calendar";
+
+    public string InternalName => INTERNAL_NAME;
 
     public string Description => CalendarLoc.Module_Description;
 
@@ -25,11 +26,9 @@ public class CalendarModule : IHrtModule
 
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
     {
-        new()
+        new("/calendar", OnCommand)
         {
-            Command = "/calendar",
             Description = CalendarLoc.Commands_calenadr_helpText,
-            OnCommand = OnCommand,
             ShowInHelp = true,
             ShouldExposeToDalamud = true,
 
@@ -42,6 +41,7 @@ public class CalendarModule : IHrtModule
     public CalendarModule()
     {
         Services = ServiceManager.GetServiceContainer(this);
+        CalendarLoc.Culture = Services.LocalizationManager.CurrentLocale;
         ModuleConfigImpl = new CalendarModuleConfig(this);
         _calendarUi = new CalendarUi(this);
         Services.UiSystem.AddWindow(_calendarUi);
@@ -64,7 +64,7 @@ public class CalendarModule : IHrtModule
     public void OnLogin() => UiReady?.Invoke();
     public void AfterFullyLoaded() => _calendarUi.Show(); //Todo: Remove after testing
 
-    public void OnLanguageChange(string langCode) => CalendarLoc.Culture = new CultureInfo(langCode);
+    public void OnLanguageChange(CultureInfo culture) => CalendarLoc.Culture = culture;
     public void Dispose() { }
 
     public void HandleMessage(HrtUiMessage message)
