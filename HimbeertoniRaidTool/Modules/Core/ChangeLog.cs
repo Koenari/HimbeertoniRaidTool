@@ -8,6 +8,13 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 9, 0, 4))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix crash when editing bis of auto created characters"),
+            },
+        },
         new(new Version(1, 9, 0, 3))
         {
             NotableFeatures =

@@ -60,7 +60,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
     };
     public IList<ExternalBiSDefinition> GetBiSList(Job job) => _bisCache[job];
-    public ExternalBiSDefinition GetDefaultBiS(Job job) => _bisCache[job].FirstOrDefault(new ExternalBiSDefinition());
+    public ExternalBiSDefinition GetDefaultBiS(Job job) => _bisCache[job].FirstOrDefault(ExternalBiSDefinition.Empty);
     public IList<ExternalBiSDefinition> GetPossibilities(string id)
     {
         if (id.Equals("")) return [];

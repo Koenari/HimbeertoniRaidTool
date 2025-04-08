@@ -20,20 +20,13 @@ public interface IReadOnlyGearConnector
     public HrtUiMessage UpdateGearSet(GearSet set);
 }
 
-public readonly struct ExternalBiSDefinition
+public record ExternalBiSDefinition(GearSetManager Service, string Id, int Idx, string Name)
 {
-    public readonly GearSetManager Service = GearSetManager.Unknown;
-    public readonly string Id = string.Empty;
-    public readonly int Idx = 0;
-    public readonly string Name = string.Empty;
-
-    public ExternalBiSDefinition(GearSetManager service, string id, int idx, string name)
-    {
-        Service = service;
-        Id = id;
-        Idx = idx;
-        Name = name;
-    }
+    public static readonly ExternalBiSDefinition Empty = new(GearSetManager.Unknown, string.Empty, 0, string.Empty);
+    public readonly GearSetManager Service = Service;
+    public readonly string Id = Id;
+    public readonly int Idx = Idx;
+    public readonly string Name = Name;
 
     public GearSet ToGearSet() => new(Service, Name)
     {
