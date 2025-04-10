@@ -30,6 +30,7 @@ internal class InventoryWindow : HrtWindowWithModalChild
         Size = new Vector2(400f, 550f);
         SizeCondition = ImGuiCond.Appearing;
         Title = string.Format(LootmasterLoc.InventoryUi_Title, c.Name);
+        OpenCentered = true;
         _character = c;
         if (GameInfo.CurrentExpansion.CurrentSavage is null)
             return;

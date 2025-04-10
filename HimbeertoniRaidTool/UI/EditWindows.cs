@@ -97,6 +97,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             _onDelete = onDelete;
             Title = string.Format(GeneralLoc.EditUi_Title, _original.DataTypeName, _original.Name)
                           .Capitalized();
+            OpenCentered = true;
         }
         public override sealed void Draw()
         {
@@ -651,10 +652,13 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 if (!bisSets.Any()) continue;
                 ImGui.Text(string.Format(GeneralLoc.EditGearSetUi_text_getCuratedBis, service.FriendlyName()));
 
+                int numButton = 1;
                 foreach (var biSDefinition in bisSets)
                 {
-                    ImGui.SameLine();
+                    if (numButton % 3 != 0)
+                        ImGui.SameLine();
                     DrawReplaceButton(biSDefinition);
+                    numButton++;
                 }
             }
 
@@ -676,10 +680,13 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 if (_externalGearSetCache.TryGetValue((CurService, _curSetId), out var bisList) && bisList.Any())
                 {
                     ImGui.Text(GeneralLoc.EditGearSetUi_text_Replace);
+                    int numButton = 0;
                     foreach (var biSDefinition in bisList)
                     {
-                        ImGui.SameLine();
+                        if (numButton % 3 != 0)
+                            ImGui.SameLine();
                         DrawReplaceButton(biSDefinition);
+                        numButton++;
                     }
                 }
                 else
@@ -691,8 +698,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             return;
             void DrawReplaceButton(ExternalBiSDefinition biSDefinition)
             {
+                var size = new Vector2(150, ImGui.GetTextLineHeightWithSpacing());
                 if (!ImGuiHelper.Button($"{biSDefinition.Name}##BIS#{biSDefinition.Id}#{biSDefinition.Idx}",
-                                        $"{biSDefinition.Id} ({biSDefinition.Idx}) <{biSDefinition.Service.FriendlyName()}>"))
+                                        $"{biSDefinition.Name} ({biSDefinition.Id}:{biSDefinition.Idx}) <{biSDefinition.Service.FriendlyName()}>",
+                                        true, size))
                     return;
                 if (Factory.DataManager.GearDb.Search(biSDefinition.Equals, out var newSet))
                 {

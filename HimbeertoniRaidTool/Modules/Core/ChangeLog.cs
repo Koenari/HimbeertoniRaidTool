@@ -8,6 +8,14 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 9, 0, 5))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "Reorganized buttons in gear edit to account for long names"),
+                new ChangeLogEntry(UserInterface, "Edit windows and inventory window open centered now"),
+            },
+        },
         new(new Version(1, 9, 0, 4))
         {
             MinorFeatures =
