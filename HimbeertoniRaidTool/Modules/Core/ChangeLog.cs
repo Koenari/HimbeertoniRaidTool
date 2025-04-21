@@ -8,13 +8,36 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 9, 0, 5))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "Reorganized buttons in gear edit to account for long names"),
+                new ChangeLogEntry(UserInterface, "Edit windows and inventory window open centered now"),
+            },
+        },
+        new(new Version(1, 9, 0, 4))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Fix crash when editing bis of auto created characters"),
+            },
+        },
+        new(new Version(1, 9, 0, 3))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Babyface coffers resolve to the correct items now"),
+
+            },
+        },
         new(new Version(1, 9, 0, 2))
         {
-          NotableFeatures  =
-          {
-              new ChangeLogEntry(Bugfix, "Tomestone gear is now displayed properly"),
-              new ChangeLogEntry(Bugfix, "item level coloring works correctly (was off by 10)"),
-          }
+            NotableFeatures =
+            {
+                new ChangeLogEntry(Bugfix, "Tomestone gear is now displayed properly"),
+                new ChangeLogEntry(Bugfix, "item level coloring works correctly (was off by 10)"),
+            },
         },
         new(new Version(1, 9, 0, 1))
         {
