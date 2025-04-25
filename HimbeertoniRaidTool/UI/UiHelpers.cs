@@ -44,9 +44,8 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
             ImGui.Image(icon.ImGuiHandle, new Vector2(24, 24));
             if (ImGui.IsItemHovered())
             {
-                ImGui.BeginTooltip();
+                using var tooltip = ImRaii.Tooltip();
                 item?.Draw();
-                ImGui.EndTooltip();
             }
             ImGui.SameLine();
 
@@ -61,15 +60,14 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         }
         //Select Window
         ImGui.SameLine();
-        ImGui.BeginDisabled(parent.ChildIsOpen);
+        using (ImRaii.Disabled(parent.ChildIsOpen))
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"FoodChangeItem",
-                                   GeneralLoc.EditGearSetUi_btn_tt_selectItem))
+                    GeneralLoc.EditGearSetUi_btn_tt_selectItem))
                 parent.AddChild(new SelectFoodItemWindow(uiSystem, onItemChange, _ => { },
-                                                         item,
-                                                         GameInfo.PreviousSavageTier
-                                                                 ?.ItemLevel(GearSetSlot.Body) + 10 ?? 0));
-            ImGui.EndDisabled();
+                    item,
+                    GameInfo.PreviousSavageTier
+                        ?.ItemLevel(GearSetSlot.Body) + 10 ?? 0));
         }
         ImGui.SameLine();
         if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"DeleteFood", GeneralLoc.General_btn_tt_remove))
@@ -86,9 +84,8 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         ImGui.Image(uiSystem.GetIcon(item).ImGuiHandle, new Vector2(24, 24));
         if (ImGui.IsItemHovered())
         {
-            ImGui.BeginTooltip();
+            using var tooltip = ImRaii.Tooltip();
             item.Draw();
-            ImGui.EndTooltip();
         }
         ImGui.SameLine();
         //Quick select
@@ -100,14 +97,13 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         }
         //Select Window
         ImGui.SameLine();
-        ImGui.BeginDisabled(parent.ChildIsOpen);
+        using (ImRaii.Disabled(parent.ChildIsOpen))
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}changeItem",
-                                   GeneralLoc.EditGearSetUi_btn_tt_selectItem))
+                    GeneralLoc.EditGearSetUi_btn_tt_selectItem))
                 parent.AddChild(new SelectGearItemWindow(uiSystem, onItemChange, _ => { }, item, slot, curJob,
-                                                         GameInfo.CurrentExpansion.CurrentSavage?.ItemLevel(slot)
-                                                      ?? 0));
-            ImGui.EndDisabled();
+                    GameInfo.CurrentExpansion.CurrentSavage?.ItemLevel(slot)
+                    ?? 0));
         }
         ImGui.SameLine();
         if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{slot}", GeneralLoc.General_btn_tt_remove))
@@ -159,9 +155,8 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
             ImGui.Image(uiSystem.GetIcon(mat).ImGuiHandle, new Vector2(24, 24));
             if (ImGui.IsItemHovered())
             {
-                ImGui.BeginTooltip();
+                using var tooltip = ImRaii.Tooltip();
                 mat.Draw();
-                ImGui.EndTooltip();
             }
             ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
@@ -223,9 +218,10 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
             }
             ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
-            ImGui.BeginDisabled();
-            ImGui.BeginCombo("##Undef", $"{levelToAdd}", ImGuiComboFlags.NoArrowButton);
-            ImGui.EndDisabled();
+            using (ImRaii.Disabled())
+            {
+                using var combo = ImRaii.Combo("##Undef", $"{levelToAdd}", ImGuiComboFlags.NoArrowButton);
+            }
         }
         return;
         bool IsApplicable(LuminaItem itemToCheck)
@@ -361,25 +357,26 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                                    Action<GearSet> changeCallback, Job job = Job.ADV, float width = 85f)
     {
         ImGui.SetNextItemWidth(width);
-        if (ImGui.BeginCombo($"##{id}", $"{current}", ImGuiComboFlags.NoArrowButton))
+        using (var combo = ImRaii.Combo($"##{id}", $"{current}", ImGuiComboFlags.NoArrowButton))
         {
-            foreach (var curJobGearSet in list)
+            if (combo)
             {
-                ImGui.PushStyleColor(ImGuiCol.Text, curJobGearSet.ManagedBy.TextColor());
-                if (ImGui.Selectable(
-                        $"{curJobGearSet} - {curJobGearSet.ManagedBy.FriendlyName()}##{curJobGearSet.LocalId}"))
-                    changeCallback(curJobGearSet);
-                ImGui.PopStyleColor();
+                foreach (var curJobGearSet in list)
+                {
+                    using ImRaii.Color color = ImRaii.PushColor(ImGuiCol.Text, curJobGearSet.ManagedBy.TextColor());
+                    if (ImGui.Selectable(
+                            $"{curJobGearSet} - {curJobGearSet.ManagedBy.FriendlyName()}##{curJobGearSet.LocalId}"))
+                        changeCallback(curJobGearSet);
+                }
+                if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddNew, current.DataTypeName)))
+                {
+                    uiSystem.EditWindows.Create(new GearSet(), changeCallback, null, null, job);
+                }
+                if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, current.DataTypeName)))
+                {
+                    services.HrtDataManager.GearDb.OpenSearchWindow(uiSystem, changeCallback);
+                }
             }
-            if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddNew, current.DataTypeName)))
-            {
-                uiSystem.EditWindows.Create(new GearSet(), changeCallback, null, null, job);
-            }
-            if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, current.DataTypeName)))
-            {
-                services.HrtDataManager.GearDb.OpenSearchWindow(uiSystem, changeCallback);
-            }
-            ImGui.EndCombo();
         }
         if (ImGui.CalcTextSize(current.Name).X > width)
             ImGuiHelper.AddTooltip(current.Name);
@@ -389,17 +386,17 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
     {
         if (food is not null)
         {
-            ImGui.BeginGroup();
-            ImGui.Image(uiSystem.GetIcon(food).ImGuiHandle,
-                        new Vector2(ImGui.GetTextLineHeightWithSpacing() * 1.4f));
-            ImGui.SameLine();
-            ImGui.Text(food.ToString());
-            ImGui.EndGroup();
+            using (ImRaii.Group())
+            {
+                ImGui.Image(uiSystem.GetIcon(food).ImGuiHandle,
+                    new Vector2(ImGui.GetTextLineHeightWithSpacing() * 1.4f));
+                ImGui.SameLine();
+                ImGui.Text(food.ToString());
+            }
             if (ImGui.IsItemHovered())
             {
-                ImGui.BeginTooltip();
+                using var tooltip = ImRaii.Tooltip();
                 food.Draw();
-                ImGui.EndTooltip();
             }
         }
         else

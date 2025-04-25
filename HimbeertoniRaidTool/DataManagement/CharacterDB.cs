@@ -85,47 +85,54 @@ internal class CharacterDb(
 
         protected override void DrawContent()
         {
-            using (var table = ImRaii.Table("searchTable", 2))
-            {
-                if (table)
-                {
-                    ImGui.TableSetupColumn("1", ImGuiTableColumnFlags.WidthStretch, 1);
-                    ImGui.TableSetupColumn("2", ImGuiTableColumnFlags.WidthStretch, 3);
-                    ImGui.TableNextColumn();
-                    ImGui.Text(GeneralLoc.CommonTerms_Name);
-                    ImGui.TableNextColumn();
-                    ImGui.InputText("##searchTerm", ref _searchText, 128);
-                    ImGui.TableNextColumn();
-                    ImGui.Text(GeneralLoc.EditCharUi_in_HomeWorld);
-                    ImGui.TableNextColumn();
-                    if (ImGuiHelper.SearchableCombo("##homeWorld", out uint worldOut,
-                                                    GetWorldName(_selectedWorld), Database.Data.Values
-                                                        .Select(entry => entry.HomeWorldId).Distinct()
-                                                        .Where(entry => entry != 0).Prepend<uint>(0), GetWorldName))
-                        _selectedWorld = worldOut;
-                }
+            DrawSearchTable();
+            DrawCharsTable();
+        }
 
-            }
-
-            if (!ImGui.BeginTable(
-                    "Chars", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
+        private void DrawSearchTable()
+        {
+            using var table = ImRaii.Table("searchTable", 2);
+            if (!table)
                 return;
+
+            ImGui.TableSetupColumn("1", ImGuiTableColumnFlags.WidthStretch, 1);
+            ImGui.TableSetupColumn("2", ImGuiTableColumnFlags.WidthStretch, 3);
+            ImGui.TableNextColumn();
+            ImGui.Text(GeneralLoc.CommonTerms_Name);
+            ImGui.TableNextColumn();
+            ImGui.InputText("##searchTerm", ref _searchText, 128);
+            ImGui.TableNextColumn();
+            ImGui.Text(GeneralLoc.EditCharUi_in_HomeWorld);
+            ImGui.TableNextColumn();
+            if (ImGuiHelper.SearchableCombo("##homeWorld", out uint worldOut,
+                    GetWorldName(_selectedWorld), Database.Data.Values
+                        .Select(entry => entry.HomeWorldId).Distinct()
+                        .Where(entry => entry != 0).Prepend<uint>(0), GetWorldName))
+                _selectedWorld = worldOut;
+        }
+
+        private void DrawCharsTable() {
+            using var table = ImRaii.Table(
+                "Chars", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp);
+            if (!table)
+                return;
+
             ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Name, ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableSetupColumn(GeneralLoc.EditCharUi_in_HomeWorld, ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableHeadersRow();
             foreach (var character in Database.GetValues()
-                                              .Where(entry => (_selectedWorld == 0
-                                                            || entry.HomeWorldId == _selectedWorld)
-                                                           && entry.Name.Contains(
-                                                                  _searchText,
-                                                                  StringComparison.InvariantCultureIgnoreCase)))
+                         .Where(entry => (_selectedWorld == 0
+                                          || entry.HomeWorldId == _selectedWorld)
+                                         && entry.Name.Contains(
+                                             _searchText,
+                                             StringComparison.InvariantCultureIgnoreCase)))
             {
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{character.LocalId}",
-                                       string.Format(GeneralLoc.SearchWindow_btn_tt_SelectEnty, character.DataTypeName,
-                                                     character)))
+                        string.Format(GeneralLoc.SearchWindow_btn_tt_SelectEnty, character.DataTypeName,
+                            character)))
                 {
                     Selected = character;
                     Save();
@@ -137,7 +144,6 @@ internal class CharacterDb(
                 ImGui.TableNextColumn();
                 ImGui.Text(string.Format(GeneralLoc.CharacterSearchUi_txt_classCount, character.Classes.Count()));
             }
-            ImGui.EndTable();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
 
@@ -37,7 +38,7 @@ public class UiSortableList<T> where T : IDrawable, IHrtDataType
         for (int i = 0; i < _currentList.Count; i++)
         {
             var currentItem = _currentList[i];
-            ImGui.PushID(id);
+            using var imguiId = ImRaii.PushId(id);
             if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##up",
                                    string.Format(GeneralLoc.SortableList_btn_tt_moveUp, currentItem.DataTypeName),
                                    i > 0))
@@ -67,15 +68,15 @@ public class UiSortableList<T> where T : IDrawable, IHrtDataType
             ImGui.SameLine();
             _currentList[i].Draw();
 
-
-            ImGui.PopID();
             id++;
         }
 
         if (_currentList.Count < _possibilities.Count)
-            if (ImGui.BeginCombo(
-                    $"{string.Format(GeneralLoc.Ui_btn_tt_add, _possibilities.First().DataTypeName)}#add",
-                    string.Format(GeneralLoc.Ui_btn_tt_add, _possibilities.First().DataTypeName)))
+        {
+            using var combo = ImRaii.Combo(
+                $"{string.Format(GeneralLoc.Ui_btn_tt_add, _possibilities.First().DataTypeName)}#add",
+                string.Format(GeneralLoc.Ui_btn_tt_add, _possibilities.First().DataTypeName));
+            if (combo)
             {
                 foreach (var unused in _possibilities.Where(item => !_currentList.Contains(item)))
                 {
@@ -83,9 +84,8 @@ public class UiSortableList<T> where T : IDrawable, IHrtDataType
                         _currentList.Add(unused);
                     changed = true;
                 }
-
-                ImGui.EndCombo();
             }
+        }
 
         return changed;
     }

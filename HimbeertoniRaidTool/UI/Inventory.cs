@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
@@ -87,35 +88,34 @@ internal class InventoryWindow : HrtWindowWithModalChild
         ImGui.NewLine();
         foreach ((int idx, var entry) in Inventory.Where(e => e.Value.IsGear))
         {
-            ImGui.PushID(idx);
+            using var id = ImRaii.PushId(idx);
             if (entry.Item is not GearItem item)
                 continue;
             var icon = UiSystem.GetIcon(item);
             if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "##delete", null, true, IconSize * ScaleFactor))
                 Inventory.Remove(idx);
             ImGui.SameLine();
-            ImGui.BeginGroup();
-            ImGui.Image(icon.ImGuiHandle, IconSize * ScaleFactor);
-            ImGui.SameLine();
-            ImGui.Text(item.Name);
-            ImGui.EndGroup();
+            using (ImRaii.Group())
+            {
+                ImGui.Image(icon.ImGuiHandle, IconSize * ScaleFactor);
+                ImGui.SameLine();
+                ImGui.Text(item.Name);                
+            }
             if (ImGui.IsItemHovered())
             {
-                ImGui.BeginTooltip();
+                using var tooltip = ImRaii.Tooltip();
                 item.Draw();
-                ImGui.EndTooltip();
             }
-
-            ImGui.PopID();
         }
-
-        ImGui.BeginDisabled(ChildIsOpen);
-        if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##add", null, true, IconSize * ScaleFactor))
-            ModalChild = new SelectGearItemWindow(UiSystem, item => Inventory.ReserveSlot(item, 1),
-                                                  _ => { },
-                                                  null, null, null,
-                                                  GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel
-                                               ?? 0);
-        ImGui.EndDisabled();
+        
+        using (ImRaii.Disabled(ChildIsOpen))
+        {
+            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##add", null, true, IconSize * ScaleFactor))
+                ModalChild = new SelectGearItemWindow(UiSystem, item => Inventory.ReserveSlot(item, 1),
+                    _ => { },
+                    null, null, null,
+                    GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel
+                    ?? 0);
+        }
     }
 }

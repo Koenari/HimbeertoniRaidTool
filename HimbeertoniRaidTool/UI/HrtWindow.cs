@@ -37,8 +37,8 @@ public abstract class HrtWindowWithModalChild(
         if (ImGui.Begin(ModalChild.WindowName, ref open, ModalChild.Flags))
         {
             ModalChild.Draw();
-            ImGui.End();
         }
+        ImGui.End();
         if (!open)
             ModalChild.IsOpen = open;
     }

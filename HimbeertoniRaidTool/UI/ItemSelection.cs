@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
@@ -27,7 +28,6 @@ internal abstract class SelectItemWindow<T>(IUiSystem uiSystem, Action<T> onSave
         if (ImGuiHelper.CancelButton())
             Cancel();
         DrawItemSelection();
-        ImGui.End();
     }
 
     protected void Save(T? item = null)
@@ -101,16 +101,16 @@ internal class SelectFoodItemWindow : SelectItemWindow<FoodItem>
             if (isCurrentItem)
                 ImGui.PopStyleColor();
             ImGui.SameLine();
-            ImGui.BeginGroup();
-            ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).ImGuiHandle, new Vector2(32f, 32f));
-            ImGui.SameLine();
-            ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
-            ImGui.EndGroup();
+            using (ImRaii.Group())
+            {
+                ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).ImGuiHandle, new Vector2(32f, 32f));
+                ImGui.SameLine();
+                ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
+            }
             if (ImGui.IsItemHovered())
             {
-                ImGui.BeginTooltip();
+                using var tooltip = ImRaii.Tooltip();
                 item.Draw();
-                ImGui.EndTooltip();
             }
         }
     }
@@ -156,22 +156,25 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
     {
         //Draw selection bar
         ImGui.SetNextItemWidth(65f * ScaleFactor);
-        ImGui.BeginDisabled(_lockJob);
-        if (ImGuiHelper.Combo("##job", ref _job, job => job.HasValue ? job.Value.ToString() : "-"))
-            ReevaluateItems();
-        ImGui.EndDisabled();
-        ImGui.SameLine();
-        ImGui.SetNextItemWidth(125f * ScaleFactor);
-        ImGui.BeginDisabled(_lockSlot);
-        var slot = _slots.FirstOrDefault(GearSetSlot.None);
-        if (ImGuiHelper.Combo("##slot", ref slot, t => t.FriendlyName()))
+        using (ImRaii.Disabled(_lockJob))
         {
-            _slots = [slot];
-            ReevaluateItems();
+            if (ImGuiHelper.Combo("##job", ref _job, job => job.HasValue ? job.Value.ToString() : "-"))
+                ReevaluateItems();
         }
-
         ImGui.SameLine();
-        ImGui.EndDisabled();
+
+        ImGui.SetNextItemWidth(125f * ScaleFactor);
+        using (ImRaii.Disabled(_lockSlot))
+        {
+            var slot = _slots.FirstOrDefault(GearSetSlot.None);
+            if (ImGuiHelper.Combo("##slot", ref slot, t => t.FriendlyName()))
+            {
+                _slots = [slot];
+                ReevaluateItems();
+            }
+        }
+        ImGui.SameLine();
+
         ImGui.SetNextItemWidth(100f * ScaleFactor);
         int min = _minILvl;
         if (ImGui.InputInt("-##min", ref min, 5))
@@ -179,8 +182,8 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             _minILvl = min;
             ReevaluateItems();
         }
-
         ImGui.SameLine();
+
         int max = _maxILvl;
         ImGui.SetNextItemWidth(100f * ScaleFactor);
         if (ImGui.InputInt("iLvL##Max", ref max, 5))
@@ -193,32 +196,32 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         foreach (var item in _items)
         {
             bool isCurrentItem = item.RowId == Item?.Id;
-            if (isCurrentItem)
-                ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
-            if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", GeneralLoc.SelectItemUi_btn_tt_useThis,
-                                   true,
-                                   new Vector2(32f, 32f)))
+            using (ImRaii.PushColor(ImGuiCol.Button, Colors.RedWood, isCurrentItem))
             {
-                if (isCurrentItem)
-                    Cancel();
-                else
-                    Save(new GearItem(item.RowId) { IsHq = item.CanBeHq });
+                if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", GeneralLoc.SelectItemUi_btn_tt_useThis,
+                        true,
+                        new Vector2(32f, 32f)))
+                {
+                    if (isCurrentItem)
+                        Cancel();
+                    else
+                        Save(new GearItem(item.RowId) { IsHq = item.CanBeHq });
+                }
+            }
+            ImGui.SameLine();
+
+            using (ImRaii.Group())
+            {
+                var icon = UiSystem.GetIcon(item.Icon, item.CanBeHq);
+                ImGui.Image(icon.ImGuiHandle, new Vector2(32f, 32f));
+                ImGui.SameLine();
+                ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
             }
 
-            if (isCurrentItem)
-                ImGui.PopStyleColor();
-            ImGui.SameLine();
-            ImGui.BeginGroup();
-            var icon = UiSystem.GetIcon(item.Icon, item.CanBeHq);
-            ImGui.Image(icon.ImGuiHandle, new Vector2(32f, 32f));
-            ImGui.SameLine();
-            ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
-            ImGui.EndGroup();
             if (ImGui.IsItemHovered())
             {
-                ImGui.BeginTooltip();
+                using var tooltip = ImRaii.Tooltip();
                 item.Draw();
-                ImGui.EndTooltip();
             }
         }
     }
@@ -298,10 +301,11 @@ internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
             {
                 Save(mat);
             }
-            if (!ImGui.IsItemHovered()) return;
-            ImGui.BeginTooltip();
+            if (!ImGui.IsItemHovered())
+                return;
+
+            using var tooltip = ImRaii.Tooltip();
             mat.Draw();
-            ImGui.EndTooltip();
         }
     }
 

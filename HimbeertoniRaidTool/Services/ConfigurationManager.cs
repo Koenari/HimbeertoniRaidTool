@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using Dalamud.Interface.Utility.Raii;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -94,19 +95,16 @@ public class ConfigurationManager : IDisposable
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
                 Cancel();
-            ImGui.BeginTabBar("Modules");
+            using var tabBar = ImRaii.TabBar("Modules");
             foreach (var c in _configManager._configurations.Values)
             {
                 if (c.Ui == null)
                     continue;
-                if (ImGui.BeginTabItem(c.ParentName))
-                {
-                    c.Ui.Draw();
-                    ImGui.EndTabItem();
-                }
+                using var tabItem = ImRaii.TabItem(c.ParentName);
+                if (!tabItem)
+                    continue;
+                c.Ui.Draw();
             }
-
-            ImGui.EndTabBar();
         }
 
         private void Save()
