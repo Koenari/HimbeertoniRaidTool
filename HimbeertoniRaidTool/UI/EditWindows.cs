@@ -167,9 +167,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         {
             //Name + Type
             ImGui.InputText(GeneralLoc.CommonTerms_Name, ref DataCopy.Name, 100);
-            ImGui.BeginDisabled(DataCopy.TypeLocked);
-            ImGuiHelper.Combo(GeneralLoc.EditGroupUi_in_type, ref DataCopy.Type);
-            ImGui.EndDisabled();
+            using (ImRaii.Disabled(DataCopy.TypeLocked))
+            {
+                ImGuiHelper.Combo(GeneralLoc.EditGroupUi_in_type, ref DataCopy.Type);
+            }
             //Role priority
             bool overrideRolePriority = DataCopy.RolePriority != null;
             if (ImGui.Checkbox(GeneralLoc.EditGroupUi_cb_OverrideRolePriority, ref overrideRolePriority))
@@ -218,7 +219,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             var mainChar = DataCopy.MainChar;
             foreach (var character in DataCopy.Characters)
             {
-                ImGui.PushID(character.LocalId.ToString());
+                using var id = ImRaii.PushId(character.LocalId.ToString());
                 if (ImGuiHelper.DeleteButton(character, "##delete"))
                     DataCopy.RemoveCharacter(character);
                 ImGui.SameLine();
@@ -227,15 +228,15 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
                 ImGui.SameLine();
                 bool isMain = mainChar.Equals(character);
-                if (isMain) ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
-                if (ImGuiHelper.Button(
-                        isMain ? GeneralLoc.EditPlayerUi_btn_IsMain : GeneralLoc.EditPlayerUi_btn_MakeMain,
-                        null))
-                    DataCopy.MainChar = character;
-                if (isMain) ImGui.PopStyleColor();
+                using (ImRaii.PushColor(ImGuiCol.Button, Colors.RedWood, isMain))
+                {
+                    if (ImGuiHelper.Button(
+                            isMain ? GeneralLoc.EditPlayerUi_btn_IsMain : GeneralLoc.EditPlayerUi_btn_MakeMain,
+                            null))
+                        DataCopy.MainChar = character;
+                }
                 ImGui.SameLine();
                 ImGui.Text($"{character}");
-                ImGui.PopID();
             }
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "addEmpty",
                                    string.Format(GeneralLoc.Ui_btn_tt_addEmpty, Character.DataTypeNameStatic)))
@@ -320,12 +321,17 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
                 if (DataCopy.Classes.All(x => x.Job != DataCopy.MainJob))
                     DataCopy.MainJob = DataCopy.Classes.First().Job;
-                if (ImGui.BeginCombo(GeneralLoc.EditCharUi_in_mainJob, DataCopy.MainJob.ToString()))
-                    foreach (var curJob in DataCopy)
+                using (var combo = ImRaii.Combo(GeneralLoc.EditCharUi_in_mainJob, DataCopy.MainJob.ToString()))
+                {
+                    if (combo)
                     {
-                        if (ImGui.Selectable(curJob.Job.ToString()))
-                            DataCopy.MainJob = curJob.Job;
+                        foreach (var curJob in DataCopy)
+                        {
+                            if (ImGui.Selectable(curJob.Job.ToString()))
+                                DataCopy.MainJob = curJob.Job;
+                        }                        
                     }
+                }
                 ImGui.Separator();
                 ImGui.TextColored(Colors.TextSoftRed, GeneralLoc.EditCharUi_text_BisNotice);
             }
@@ -340,8 +346,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             Job? toDelete = null;
             foreach (var c in DataCopy.Classes)
             {
-                ImGui.PushID(c.Job.ToString());
-
+                using var id = ImRaii.PushId(c.Job.ToString());
                 if (ImGuiHelper.DeleteButton(c, "##delete"))
                     toDelete = c.Job;
                 ImGui.SameLine();
@@ -353,7 +358,6 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 ImGui.SameLine();
                 ImGui.Checkbox(GeneralLoc.EditCharUi_cb_hideJob, ref c.HideInUi);
                 ImGui.Separator();
-                ImGui.PopID();
             }
             if (toDelete is not null) DataCopy.RemoveClass(toDelete.Value);
             if (ImGuiHelper.SearchableCombo("##addJobCombo", out var job, _newJob.ToString(),
@@ -511,9 +515,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                     ImGui.TextWrapped(text);
                 }
             }
-            ImGui.BeginDisabled(DataCopy.IsManagedExternally);
-            DrawGearEditSection();
-            ImGui.EndDisabled();
+            using (ImRaii.Disabled(DataCopy.IsManagedExternally))
+            {
+                DrawGearEditSection();
+            }
             ImGui.Columns();
         }
 
@@ -524,11 +529,12 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.TableSetupColumn("##Label", ImGuiTableColumnFlags.WidthStretch, 2);
             ImGui.TableSetupColumn("##Input", ImGuiTableColumnFlags.WidthStretch, 6);
             ImGui.TableNextColumn();
-            ImGui.BeginDisabled(DataCopy.IsManagedExternally);
-            ImGui.Text(GeneralLoc.CommonTerms_Name);
-            ImGui.TableNextColumn();
-            ImGui.InputText("##name", ref DataCopy.Name, 100);
-            ImGui.EndDisabled();
+            using (ImRaii.Disabled(DataCopy.IsManagedExternally))
+            {
+                ImGui.Text(GeneralLoc.CommonTerms_Name);
+                ImGui.TableNextColumn();
+                ImGui.InputText("##name", ref DataCopy.Name, 100);    
+            }
             ImGui.TableNextColumn();
             ImGui.Text("Local alias");
             ImGui.TableNextColumn();
@@ -544,9 +550,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.Text(GeneralLoc.EditGearSetUi_txt_job);
             ImGui.TableNextColumn();
             ImGui.SetNextItemWidth(70 * ScaleFactor);
-            ImGui.BeginDisabled(_providedJob is not null);
-            ImGuiHelper.Combo("##JobSelection", ref _job);
-            ImGui.EndDisabled();
+            using (ImRaii.Disabled(_providedJob is not null))
+            {
+                ImGuiHelper.Combo("##JobSelection", ref _job);    
+            }
             ImGui.TableNextColumn();
             ImGui.Text(GeneralLoc.EditGearSetUi_txt_Source);
             ImGui.TableNextColumn();
@@ -627,8 +634,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             return;
             void DrawSlot(GearSetSlot slot)
             {
-
-                ImGui.BeginDisabled(ChildIsOpen);
+                using var disabled = ImRaii.Disabled(ChildIsOpen);
                 ImGui.TableNextColumn();
                 UiSystem.Helpers.DrawGearEdit(this, slot, DataCopy[slot], i =>
                 {
@@ -638,7 +644,6 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                     }
                     DataCopy[slot] = i;
                 }, _job);
-                ImGui.EndDisabled();
             }
         }
 

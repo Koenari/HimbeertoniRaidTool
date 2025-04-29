@@ -133,7 +133,6 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
 
     internal class ConfigUi(CoreConfig parent) : IHrtConfigUi
     {
-        private const int INDENTATION = 15;
         private ConfigData _dataCopy = parent.Data.Clone();
 
         public void Cancel()
@@ -142,140 +141,143 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
 
         public void Draw()
         {
-            if (!ImGui.BeginTabBar("##coreTabs"))
+            using var tabBar = ImRaii.TabBar("##coreTabs");
+            if (!tabBar)
                 return;
-            if (ImGui.BeginTabItem(CoreLoc.ConfigUi_tab_general))
-            {
-                //Ui
-                ImGui.Text(CoreLoc.ConfigUi_hdg_ui);
-                using (ImRaii.PushIndent())
-                {
-                    ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_hideInCombat, ref _dataCopy.HideInCombat,
-                                         CoreLoc.ConfigUi_cb_tt_hideInCombat);
-                }
-                ImGui.Separator();
-                //Calc
-                ImGui.Text("Calculation defaults");
-                using (ImRaii.PushIndent())
-                {
-                    ImGui.Text("Party Bonus");
-                    ImGui.SameLine();
-                    ImGuiHelper.Combo("##PartyBonus", ref _dataCopy.PartyBonus, b => b.FriendlyName());
-                }
-                ImGui.Separator();
-                //AutoSave
-                ImGui.Text(CoreLoc.ConfigUi_hdg_AutoSave);
-                using (ImRaii.PushIndent())
-                {
-                    ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_periodicSave, ref _dataCopy.SavePeriodically,
-                                         CoreLoc.ConfigUi_cb_tt_periodicSave);
-                    ImGui.BeginDisabled(!_dataCopy.SavePeriodically);
-                    ImGui.TextWrapped($"{CoreLoc.ConfigUi_in_autoSaveInterval}:");
-                    ImGui.SetNextItemWidth(150 * HrtWindow.ScaleFactor);
-                    if (ImGui.InputInt("##AutoSave_interval_min", ref _dataCopy.SaveIntervalMinutes))
-                        if (_dataCopy.SaveIntervalMinutes < 1)
-                            _dataCopy.SaveIntervalMinutes = 1;
-                    ImGui.EndDisabled();
-                }
-                ImGui.Separator();
-                //Changelog
-                ImGui.Text(CoreLoc.ConfigUi_hdg_changelog);
-                using (ImRaii.PushIndent())
-                {
-                    ImGuiHelper.Combo("##showChangelog", ref _dataCopy.ChangelogNotificationOptions,
-                                      t => t.LocalizedDescription());
-                }
-                ImGui.Separator();
-                DrawConnectorSection(GearSetManager.Etro, ref _dataCopy.UpdateEtroBisOnStartup,
-                                     ref _dataCopy.EtroUpdateIntervalDays);
-                DrawConnectorSection(GearSetManager.XivGear, ref _dataCopy.UpdateXivGearBisOnStartup,
-                                     ref _dataCopy.XivGearUpdateIntervalDays);
-                ImGui.EndTabItem();
-            }
-            if (ImGui.BeginTabItem(CoreLoc.ConfigUi_tab_GearUpdates))
-            {
-                //Automatic gear
-                ImGui.Text(CoreLoc.ConfigUi_hdg_dataUpdate);
-                using (ImRaii.PushIndent())
-                {
-                    ImGui.Checkbox(CoreLoc.ConfigUi_cb_ownData, ref _dataCopy.UpdateOwnData);
-                    ImGuiHelper.AddTooltip(CoreLoc.ConfigUi_cb_tt_ownData);
-                    ImGui.Checkbox(CoreLoc.ConfigUi_cb_examine, ref _dataCopy.UpdateGearOnExamine);
-                    ImGui.BeginDisabled(_dataCopy is { UpdateOwnData: false, UpdateGearOnExamine: false });
-                    ImGui.Text(CoreLoc.ConfigUi_text_dataUpdateJobs);
-                    using (ImRaii.PushIndent())
-                    {
-                        ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateCombatJobs, ref _dataCopy.UpdateCombatJobs);
-                        ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDohJobs, ref _dataCopy.UpdateDoHJobs);
-                        ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDolJobs, ref _dataCopy.UpdateDoLJobs);
-                    }
-                    ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignorePrevTierGear,
-                                         ref _dataCopy.GearUpdateRestrictToCurrentTier,
-                                         CoreLoc.ConfigUi_cb_tt_ignorePrevTierGear);
-                    ImGui.SameLine();
-                    ImGui.Text(
-                        $"({GeneralLoc.CommonTerms_itemLvl_abbrev} < {(GameInfo.PreviousSavageTier?.ArmorItemLevel ?? 0) + 10})");
-                    ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignoreCustomILvlGear,
-                                         ref _dataCopy.GearUpdateRestrictToCustomILvL,
-                                         CoreLoc.ConfigUi_cb_tt_ignoreCustomILvlGear);
-                    ImGui.BeginDisabled(!_dataCopy.GearUpdateRestrictToCustomILvL);
-                    using (ImRaii.PushIndent())
-                    {
-                        ImGui.InputInt(GeneralLoc.CommonTerms_itemLevel, ref _dataCopy.GearUpdateCustomILvlCutoff);
-                    }
-                    ImGui.EndDisabled();
-                    ImGui.EndDisabled();
-                }
-                ImGui.EndTabItem();
-            }
 
-            ImGui.EndTabBar();
-            return;
-            void DrawConnectorSection(GearSetManager type, ref bool doUpdates, ref int maxAgeInDays)
-            {
-                string serviceName = type.FriendlyName();
-                using (ImRaii.PushId(serviceName))
-                {
+            DrawGeneralTab();
+            DrawGearUpdatesTab();
+        }
 
-                    ImGui.Text(string.Format(CoreLoc.ConfigUi_hdg_externalUpdates, serviceName));
-                    if (parent.Module.Services.ConnectorPool.TryGetConnector(
-                            type, out var connector))
+        private void DrawGeneralTab()
+        {
+            using var tabItem = ImRaii.TabItem(CoreLoc.ConfigUi_tab_general);
+            if (!tabItem)
+                return;
+
+            //Ui
+            ImGui.Text(CoreLoc.ConfigUi_hdg_ui);
+            using (ImRaii.PushIndent())
+            {
+                ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_hideInCombat, ref _dataCopy.HideInCombat,
+                    CoreLoc.ConfigUi_cb_tt_hideInCombat);
+            }
+            ImGui.Separator();
+            //Calc
+            ImGui.Text("Calculation defaults");
+            using (ImRaii.PushIndent())
+            {
+                ImGui.Text("Party Bonus");
+                ImGui.SameLine();
+                ImGuiHelper.Combo("##PartyBonus", ref _dataCopy.PartyBonus, b => b.FriendlyName());
+            }
+            ImGui.Separator();
+            //AutoSave
+            ImGui.Text(CoreLoc.ConfigUi_hdg_AutoSave);
+            using (ImRaii.PushIndent())
+            {
+                ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_periodicSave, ref _dataCopy.SavePeriodically,
+                    CoreLoc.ConfigUi_cb_tt_periodicSave);
+                using var disabled = ImRaii.Disabled(!_dataCopy.SavePeriodically);
+                ImGui.TextWrapped($"{CoreLoc.ConfigUi_in_autoSaveInterval}:");
+                ImGui.SetNextItemWidth(150 * HrtWindow.ScaleFactor);
+                if (ImGui.InputInt("##AutoSave_interval_min", ref _dataCopy.SaveIntervalMinutes))
+                    if (_dataCopy.SaveIntervalMinutes < 1)
+                        _dataCopy.SaveIntervalMinutes = 1;
+            }
+            ImGui.Separator();
+            //Changelog
+            ImGui.Text(CoreLoc.ConfigUi_hdg_changelog);
+            using (ImRaii.PushIndent())
+            {
+                ImGuiHelper.Combo("##showChangelog", ref _dataCopy.ChangelogNotificationOptions,
+                    t => t.LocalizedDescription());
+            }
+            ImGui.Separator();
+            DrawConnectorSection(GearSetManager.Etro, ref _dataCopy.UpdateEtroBisOnStartup,
+                ref _dataCopy.EtroUpdateIntervalDays);
+            DrawConnectorSection(GearSetManager.XivGear, ref _dataCopy.UpdateXivGearBisOnStartup,
+                ref _dataCopy.XivGearUpdateIntervalDays);
+        }
+
+        private void DrawGearUpdatesTab()
+        {
+            using var tabItem = ImRaii.TabItem(CoreLoc.ConfigUi_tab_GearUpdates);
+            if (!tabItem)
+                return;
+
+            //Automatic gear
+            ImGui.Text(CoreLoc.ConfigUi_hdg_dataUpdate);
+            using var indent = ImRaii.PushIndent();
+
+            ImGui.Checkbox(CoreLoc.ConfigUi_cb_ownData, ref _dataCopy.UpdateOwnData);
+            ImGuiHelper.AddTooltip(CoreLoc.ConfigUi_cb_tt_ownData);
+            ImGui.Checkbox(CoreLoc.ConfigUi_cb_examine, ref _dataCopy.UpdateGearOnExamine);
+            using var disabled = ImRaii.Disabled(_dataCopy is {UpdateOwnData: false, UpdateGearOnExamine: false});
+            ImGui.Text(CoreLoc.ConfigUi_text_dataUpdateJobs);
+            using (ImRaii.PushIndent())
+            {
+                ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateCombatJobs, ref _dataCopy.UpdateCombatJobs);
+                ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDohJobs, ref _dataCopy.UpdateDoHJobs);
+                ImGui.Checkbox(CoreLoc.ConfigUi_cb_updateDolJobs, ref _dataCopy.UpdateDoLJobs);
+            }
+            ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignorePrevTierGear,
+                ref _dataCopy.GearUpdateRestrictToCurrentTier,
+                CoreLoc.ConfigUi_cb_tt_ignorePrevTierGear);
+            ImGui.SameLine();
+            ImGui.Text(
+                $"({GeneralLoc.CommonTerms_itemLvl_abbrev} < {(GameInfo.PreviousSavageTier?.ArmorItemLevel ?? 0) + 10})");
+            ImGuiHelper.Checkbox(CoreLoc.ConfigUi_cb_ignoreCustomILvlGear,
+                ref _dataCopy.GearUpdateRestrictToCustomILvL,
+                CoreLoc.ConfigUi_cb_tt_ignoreCustomILvlGear);
+            {
+                using var disabled2 = ImRaii.Disabled(!_dataCopy.GearUpdateRestrictToCustomILvL);
+                using var indent2 = ImRaii.PushIndent();
+                ImGui.InputInt(GeneralLoc.CommonTerms_itemLevel, ref _dataCopy.GearUpdateCustomILvlCutoff);
+            }
+        }
+
+        void DrawConnectorSection(GearSetManager type, ref bool doUpdates, ref int maxAgeInDays)
+        {
+            string serviceName = type.FriendlyName();
+            using (ImRaii.PushId(serviceName))
+            {
+                ImGui.Text(string.Format(CoreLoc.ConfigUi_hdg_externalUpdates, serviceName));
+                if (parent.Module.Services.ConnectorPool.TryGetConnector(
+                        type, out var connector))
+                {
+                    ImGui.SameLine();
+                    if (ImGuiHelper.Button("Update now",
+                                           $"Triggers auto updates for {serviceName} according to below rules now"))
                     {
-                        ImGui.SameLine();
-                        if (ImGuiHelper.Button("Update now",
-                                               $"Triggers auto updates for {serviceName} according to below rules now"))
-                        {
-                            int maxAge = maxAgeInDays;
-                            parent.Module.Services.TaskManager.RegisterTask(
-                                new HrtTask<HrtUiMessage>(
-                                    () => connector.UpdateAllSets(true, maxAge),
-                                    parent.Module.HandleMessage, serviceName));
-                        }
-                        ImGui.SameLine();
-                        if (ImGuiHelper.GuardedButton("Force-update",
-                                                      $"Triggers auto updates for EVERY set from {serviceName}. This might take a while"))
-                        {
-                            parent.Module.Services.TaskManager.RegisterTask(
-                                new HrtTask<HrtUiMessage>(
-                                    () => connector.UpdateAllSets(true, 0),
-                                    parent.Module.HandleMessage,
-                                    serviceName));
-                        }
+                        int maxAge = maxAgeInDays;
+                        parent.Module.Services.TaskManager.RegisterTask(
+                            new HrtTask<HrtUiMessage>(
+                                () => connector.UpdateAllSets(true, maxAge),
+                                parent.Module.HandleMessage, serviceName));
                     }
-                    ImGui.Indent(INDENTATION);
+                    ImGui.SameLine();
+                    if (ImGuiHelper.GuardedButton("Force-update",
+                                                  $"Triggers auto updates for EVERY set from {serviceName}. This might take a while"))
+                    {
+                        parent.Module.Services.TaskManager.RegisterTask(
+                            new HrtTask<HrtUiMessage>(
+                                () => connector.UpdateAllSets(true, 0),
+                                parent.Module.HandleMessage,
+                                serviceName));
+                    }
+                }
+                using (ImRaii.PushIndent()) {
                     ImGui.Checkbox(string.Format(CoreLoc.ConfigUi_cb_extAutoUpdate, serviceName), ref doUpdates);
-                    ImGui.BeginDisabled(!doUpdates);
+                    using var disabled = ImRaii.Disabled(!doUpdates);
                     ImGui.SetNextItemWidth(150f * HrtWindow.ScaleFactor);
                     if (ImGui.InputInt(CoreLoc.ConfigUi_in_externalUpdateInterval,
-                                       ref maxAgeInDays))
+                            ref maxAgeInDays))
                         if (maxAgeInDays < 1)
                             maxAgeInDays = 1;
-                    ImGui.EndDisabled();
-                    ImGui.Indent(-INDENTATION);
                 }
-                ImGui.Separator();
             }
-
+            ImGui.Separator();
         }
 
         public void OnHide()

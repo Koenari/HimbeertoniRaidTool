@@ -106,7 +106,7 @@ internal class LootmasterUi : HrtWindow
             if (jobList)
                 foreach (var playableClass in p.MainChar.Classes.Where(c => !c.HideInUi))
                 {
-                    ImGui.PushID($"{playableClass.Job}");
+                    using var id = ImRaii.PushId($"{playableClass.Job}");
                     ImGui.Separator();
                     ImGui.Spacing();
                     if (ImGuiHelper.DeleteButton(playableClass, "##delete"))
@@ -125,14 +125,13 @@ internal class LootmasterUi : HrtWindow
                         deferredAction = () => p.MainChar.MoveClassDown(playableClass);
                     bool isMainJob = p.MainChar.MainJob == playableClass.Job;
 
-                    if (isMainJob)
-                        ImGui.PushStyleColor(ImGuiCol.Button, Colors.RedWood);
-                    ImGui.SameLine();
-                    if (ImGuiHelper.Button($"{playableClass.Job} ({playableClass.Level:D2})", null, true,
-                                           new Vector2(67f * ScaleFactor, 0f)))
-                        p.MainChar.MainJob = playableClass.Job;
-                    if (isMainJob)
-                        ImGui.PopStyleColor();
+                    using (ImRaii.PushColor(ImGuiCol.Button, Colors.RedWood, isMainJob))
+                    {
+                        ImGui.SameLine();
+                        if (ImGuiHelper.Button($"{playableClass.Job} ({playableClass.Level:D2})", null, true,
+                                new Vector2(67f * ScaleFactor, 0f)))
+                            p.MainChar.MainJob = playableClass.Job;
+                    }
                     ImGui.SameLine();
                     float comboWidth = 85 * ScaleFactor;
                     /*
@@ -169,7 +168,6 @@ internal class LootmasterUi : HrtWindow
                     ImGui.SameLine();
                     ImGuiHelper.ExternalGearUpdateButton(playableClass.CurBis, _module);
                     ImGui.Spacing();
-                    ImGui.PopID();
                 }
             deferredAction?.Invoke();
         }
@@ -329,19 +327,20 @@ internal class LootmasterUi : HrtWindow
         if (!tabBar) return;
         for (int tabBarIdx = 0; tabBarIdx < _module.RaidGroups.Count; tabBarIdx++)
         {
-            ImGui.PushID(tabBarIdx);
+            using var id = ImRaii.PushId(tabBarIdx);
             //0 is reserved for Solo on current Character (only partially editable)
             bool isPredefinedSolo = tabBarIdx == 0;
             bool isActiveGroup = tabBarIdx == CurConfig.ActiveGroupIndex;
 
             var group = _module.RaidGroups[tabBarIdx];
-            if (isActiveGroup) ImGui.PushStyleColor(ImGuiCol.Tab, Colors.RedWood);
+            using var color = ImRaii.PushColor(ImGuiCol.Tab, Colors.RedWood, isActiveGroup);
 
             if (ImGui.TabItemButton(group.Name))
                 CurConfig.ActiveGroupIndex = tabBarIdx;
             ImGuiHelper.AddTooltip(GeneralLoc.Ui_rightClickHint);
 
-            if (ImGui.BeginPopupContextItem(group.Name))
+            using var popup = ImRaii.ContextPopupItem(group.Name);
+            if (popup)
             {
                 if (ImGuiHelper.EditButton(group, "##editGroup"))
                 {
@@ -361,12 +360,7 @@ internal class LootmasterUi : HrtWindow
                         ImGui.CloseCurrentPopup();
                     }
                 }
-
-                ImGui.EndPopup();
             }
-
-            if (isActiveGroup) ImGui.PopStyleColor();
-            ImGui.PopID();
         }
 
         const string newGroupContextMenuId = "##NewGroupContextMenu";
@@ -452,43 +446,44 @@ internal class LootmasterUi : HrtWindow
 
                 GearSet? newGear = null;
                 GearSet? newBis = null;
-                /*
-                 * Gear Sets
-                 */
-                ImGui.PushID("##gearButtons");
-                var gear = curJob.CurGear;
-                var bis = curJob.CurBis;
-                ImGui.TableNextColumn();
-                float comboWidth = 85f * ScaleFactor;
-                /*
-                 * Current Gear
-                 */
-                ImGui.SetCursorPosY(dualTopRowY);
-                UiSystem.Helpers.DrawGearSetCombo("##curGear", gear, curJob.GearSets, s => curJob.CurGear = s,
-                                                  curJob.Job, comboWidth);
-                ImGui.SameLine();
-                ImGui.SetCursorPosY(dualTopRowY);
-                if (ImGuiHelper.EditButton(gear, "##editCurGear", true, ButtonSize))
-                    UiSystem.EditWindows.Create(gear, g => curJob.CurGear = g, null,
-                                                () => curJob.RemoveGearSet(curJob.CurGear), curJob.Job);
-                ImGui.SameLine();
-                ImGui.SetCursorPosY(dualTopRowY);
-                ImGuiHelper.GearUpdateButtons(player, _module, false, ButtonSize);
-                /*
-                 * Current BiS
-                 */
-                ImGui.SetCursorPosY(dualBottomRowY);
-                UiSystem.Helpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s, curJob.Job,
-                                                  comboWidth);
-                ImGui.SameLine();
-                ImGui.SetCursorPosY(dualBottomRowY);
-                if (ImGuiHelper.EditButton(bis, "##editBiSGear", true, ButtonSize))
-                    UiSystem.EditWindows.Create(bis, g => curJob.CurBis = g, null,
-                                                () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job);
-                ImGui.SameLine();
-                ImGui.SetCursorPosY(dualBottomRowY);
-                ImGuiHelper.ExternalGearUpdateButton(bis, _module, ButtonSize);
-                ImGui.PopID();
+                using (ImRaii.PushId("##gearButtons"))
+                {
+                    /*
+                     * Gear Sets
+                     */
+                    var gear = curJob.CurGear;
+                    var bis = curJob.CurBis;
+                    ImGui.TableNextColumn();
+                    float comboWidth = 85f * ScaleFactor;
+                    /*
+                     * Current Gear
+                     */
+                    ImGui.SetCursorPosY(dualTopRowY);
+                    UiSystem.Helpers.DrawGearSetCombo("##curGear", gear, curJob.GearSets, s => curJob.CurGear = s,
+                        curJob.Job, comboWidth);
+                    ImGui.SameLine();
+                    ImGui.SetCursorPosY(dualTopRowY);
+                    if (ImGuiHelper.EditButton(gear, "##editCurGear", true, ButtonSize))
+                        UiSystem.EditWindows.Create(gear, g => curJob.CurGear = g, null,
+                            () => curJob.RemoveGearSet(curJob.CurGear), curJob.Job);
+                    ImGui.SameLine();
+                    ImGui.SetCursorPosY(dualTopRowY);
+                    ImGuiHelper.GearUpdateButtons(player, _module, false, ButtonSize);
+                    /*
+                     * Current BiS
+                     */
+                    ImGui.SetCursorPosY(dualBottomRowY);
+                    UiSystem.Helpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s, curJob.Job,
+                        comboWidth);
+                    ImGui.SameLine();
+                    ImGui.SetCursorPosY(dualBottomRowY);
+                    if (ImGuiHelper.EditButton(bis, "##editBiSGear", true, ButtonSize))
+                        UiSystem.EditWindows.Create(bis, g => curJob.CurBis = g, null,
+                            () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job);
+                    ImGui.SameLine();
+                    ImGui.SetCursorPosY(dualBottomRowY);
+                    ImGuiHelper.ExternalGearUpdateButton(bis, _module, ButtonSize);
+                }
                 foreach (var (slot, itemTuple) in curJob.ItemTuples)
                 {
                     if (slot == GearSetSlot.OffHand)
@@ -579,41 +574,45 @@ internal class LootmasterUi : HrtWindow
     private void DrawLootHandlerButtons()
     {
         ImGui.SetNextItemWidth(ImGui.CalcTextSize(CurConfig.ActiveExpansion.Name).X + 32f * ScaleFactor);
-        if (ImGui.BeginCombo("##expansion", CurConfig.ActiveExpansion.Name))
+        using (var combo = ImRaii.Combo("##expansion", CurConfig.ActiveExpansion.Name))
         {
-            var expansions = GameInfo.Expansions;
-            for (int i = 0; i < expansions.Count; i++)
+            if (combo)
             {
-                var expansion = expansions[i];
-                if (expansion.SavageRaidTiers.Length == 0) continue;
-                if (ImGui.Selectable(expansion.Name))
+                var expansions = GameInfo.Expansions;
+                for (int i = 0; i < expansions.Count; i++)
                 {
-                    if (expansion == GameInfo.CurrentExpansion)
-                        CurConfig.ExpansionOverride = null;
-                    else
-                        CurConfig.ExpansionOverride = i;
+                    var expansion = expansions[i];
+                    if (expansion.SavageRaidTiers.Length == 0) continue;
+                    if (ImGui.Selectable(expansion.Name))
+                    {
+                        if (expansion == GameInfo.CurrentExpansion)
+                            CurConfig.ExpansionOverride = null;
+                        else
+                            CurConfig.ExpansionOverride = i;
+                    }
                 }
             }
-            ImGui.EndCombo();
         }
         ImGui.SameLine();
         ImGui.SetNextItemWidth(ImGui.CalcTextSize(CurConfig.SelectedRaidTier.Name).X + 32f * ScaleFactor);
-        if (ImGui.BeginCombo("##raidTier", CurConfig.SelectedRaidTier.Name))
+        using (var combo = ImRaii.Combo("##raidTier", CurConfig.SelectedRaidTier.Name))
         {
-            for (int i = 0; i < CurConfig.ActiveExpansion.SavageRaidTiers.Length; i++)
+            if (combo)
             {
-                var tier = CurConfig.ActiveExpansion.SavageRaidTiers[i];
-                if (ImGui.Selectable(tier.Name))
+                for (int i = 0; i < CurConfig.ActiveExpansion.SavageRaidTiers.Length; i++)
                 {
-                    if (i == CurConfig.ActiveExpansion.SavageRaidTiers.Length - 1)
-                        CurConfig.RaidTierOverride = null;
-                    else
-                        CurConfig.RaidTierOverride = i;
+                    var tier = CurConfig.ActiveExpansion.SavageRaidTiers[i];
+                    if (ImGui.Selectable(tier.Name))
+                    {
+                        if (i == CurConfig.ActiveExpansion.SavageRaidTiers.Length - 1)
+                            CurConfig.RaidTierOverride = null;
+                        else
+                            CurConfig.RaidTierOverride = i;
+                    }
                 }
             }
-
-            ImGui.EndCombo();
         }
+
 
         ImGui.SameLine();
         ImGui.Text(LootmasterLoc.Ui_text_openLootSessioon + ":");
@@ -647,30 +646,31 @@ internal class LootmasterUi : HrtWindow
         if (singleItem || item.Filled && bis.Filled && item.Equals(bis, comparisonMode))
         {
             ImGui.SetCursorPosY(extended ? cursorSingleLarge : cursorSingleSmall);
-            ImGui.BeginGroup();
-            DrawItem(item, true);
-            ImGui.EndGroup();
+            using (ImRaii.Group())
+            {
+                DrawItem(item, true);
+            }
             if (ImGui.IsItemHovered())
             {
-                ImGui.BeginTooltip();
+                using var tooltip = ImRaii.Tooltip();
                 item.Draw();
-                ImGui.EndTooltip();
             }
             ImGui.NewLine();
         }
         else
         {
-            ImGui.BeginGroup();
-            ImGui.SetCursorPosY(cursorDualTopY);
-            DrawItem(item);
-            if (!extended)
-                ImGui.NewLine();
-            ImGui.SetCursorPosY(cursorDualBottomY);
-            DrawItem(bis);
-            ImGui.EndGroup();
+            using (ImRaii.Group())
+            {
+                ImGui.SetCursorPosY(cursorDualTopY);
+                DrawItem(item);
+                if (!extended)
+                    ImGui.NewLine();
+                ImGui.SetCursorPosY(cursorDualBottomY);
+                DrawItem(bis);
+            }
             if (ImGui.IsItemHovered())
             {
-                ImGui.BeginTooltip();
+                using var tooltip = ImRaii.Tooltip();
                 if (item.Filled && bis.Filled)
                     itemTuple.Draw();
                 else if (item.Filled)
@@ -683,7 +683,6 @@ internal class LootmasterUi : HrtWindow
                     ImGui.TextColored(Colors.TextPetrol, LootmasterLoc.ItemTooltip_hdg_bis);
                     bis.Draw();
                 }
-                ImGui.EndTooltip();
             }
         }
         void DrawItem(GearItem itemToDraw, bool multiLine = false)

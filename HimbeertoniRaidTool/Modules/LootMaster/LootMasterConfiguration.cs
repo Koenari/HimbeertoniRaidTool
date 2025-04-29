@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.DataManagement;
@@ -94,35 +95,50 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         };
         public void Draw()
         {
-            ImGui.BeginTabBar("##LootMaster");
-            if (ImGui.BeginTabItem(LootmasterLoc.ConfigUi_tab_Appearance))
+            using var tabBar = ImRaii.TabBar("##LootMaster");
+            if (!tabBar)
+                return;
+
+            DrawAppearanceTab();
+            DrawLootTab();
+        }
+
+        private void DrawAppearanceTab()
+        {
+            using var tabItem = ImRaii.TabItem(LootmasterLoc.ConfigUi_tab_Appearance);
+            if (!tabItem)
+                return;
+
+            ImGuiHelper.Checkbox(LootmasterLoc.Configui_cb_OpenOnLogin, ref _dataCopy.OpenOnStartup,
+                LootmasterLoc.Configui_in_tt_OpenOnLogin);
+            ImGuiHelper.Checkbox(LootmasterLoc.Config_cb_IgnoreMateriaForBis,
+                ref _dataCopy.IgnoreMateriaForBiS,
+                LootmasterLoc.ConfigUi_cb_tt_IgnoreMateriaForBis);
+            ImGui.Checkbox(LootmasterLoc.ConfigUi_cb_IconInGroupOverview,
+                ref _dataCopy.ShowIconInGroupOverview);
+            ImGui.Text("Character Name Format");
+            ImGui.SameLine();
+
+            ImGui.SetNextItemWidth(200 * HrtWindow.ScaleFactor);
+            using (var combo = ImRaii.Combo("##CharacterNameFormat",
+                       GetCharacterNameFormatDescription(_dataCopy.CharacterNameFormat)))
             {
-                ImGuiHelper.Checkbox(LootmasterLoc.Configui_cb_OpenOnLogin, ref _dataCopy.OpenOnStartup,
-                                     LootmasterLoc.Configui_in_tt_OpenOnLogin);
-                ImGuiHelper.Checkbox(LootmasterLoc.Config_cb_IgnoreMateriaForBis,
-                                     ref _dataCopy.IgnoreMateriaForBiS,
-                                     LootmasterLoc.ConfigUi_cb_tt_IgnoreMateriaForBis);
-                ImGui.Checkbox(LootmasterLoc.ConfigUi_cb_IconInGroupOverview,
-                               ref _dataCopy.ShowIconInGroupOverview);
-                ImGui.Text("Character Name Format");
-                ImGui.SameLine();
-                ImGui.SetNextItemWidth(200 * HrtWindow.ScaleFactor);
-                if (ImGui.BeginCombo("##CharacterNameFormat",
-                                     GetCharacterNameFormatDescription(_dataCopy.CharacterNameFormat)))
+                if (combo)
                 {
                     if (ImGui.Selectable(GetCharacterNameFormatDescription("ns"))) _dataCopy.CharacterNameFormat = "ns";
                     if (ImGui.Selectable(GetCharacterNameFormatDescription("n"))) _dataCopy.CharacterNameFormat = "n";
                     if (ImGui.Selectable(GetCharacterNameFormatDescription("is"))) _dataCopy.CharacterNameFormat = "is";
                     if (ImGui.Selectable(GetCharacterNameFormatDescription("i"))) _dataCopy.CharacterNameFormat = "i";
                     if (ImGui.Selectable(GetCharacterNameFormatDescription("a"))) _dataCopy.CharacterNameFormat = "a";
-                    ImGui.EndCombo();
                 }
-                ImGuiHelper.Checkbox(LootmasterLoc.ConfigUi_cb_ColoredItemNames, ref _dataCopy.ColoredItemNames,
-                                     LootmasterLoc.ConfigUi_cb_tt_ColoredItemNames);
-                ImGui.BeginDisabled(!_dataCopy.ColoredItemNames);
+            }
+            ImGuiHelper.Checkbox(LootmasterLoc.ConfigUi_cb_ColoredItemNames, ref _dataCopy.ColoredItemNames,
+                LootmasterLoc.ConfigUi_cb_tt_ColoredItemNames);
+            int iLvL = _config.Data.SelectedRaidTier.ArmorItemLevel;
+            using (ImRaii.Disabled(!_dataCopy.ColoredItemNames))
+            {
                 ImGui.Text(LootmasterLoc.Configui_hdg_Colors);
                 ImGui.NewLine();
-                int iLvL = _config.Data.SelectedRaidTier.ArmorItemLevel;
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.CalcTextSize($"{iLvL} > ").X);
                 ImGui.Text($"{GeneralLoc.CommonTerms_itemLvl_abbrev} >= {iLvL}");
                 ImGui.SameLine();
@@ -137,41 +153,42 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
                 ImGui.SameLine();
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.CalcTextSize($" >= {iLvL - 20}").X);
                 ImGui.ColorEdit4("##Color3", ref _dataCopy.ItemLevelColors[3]);
-                ImGui.EndDisabled();
-                ImGui.Separator();
-                ImGui.Text(LootmasterLoc.Configui_in_ItemFormat);
-                ImGui.SameLine();
-                string copy = _dataCopy.UserItemFormat;
-                if (ImGui.InputText("##format", ref copy, 50))
-                    _dataCopy.UserItemFormat = copy;
-                ImGui.Text(
-                    $"{LootmasterLoc.ConfigUi_txt_ItemFormatAvailable}: {{ilvl}} {{source}} {{slot}}");
-                ImGui.Separator();
-                ImGui.Text(LootmasterLoc.Config_hdg_Examples);
-                for (int i = 0; i < 4; i++)
-                {
-                    (long curiLvL, string source, string slot) = (iLvL - 10 * i, ((ItemSource)i).FriendlyName(),
-                        ((GearSetSlot)(i * 2)).FriendlyName());
-                    if (_dataCopy.ColoredItemNames)
-                        ImGui.TextColored(_dataCopy.ItemLevelColors[i],
-                                          string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
-                    else
-                        ImGui.Text(string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
-                    ImGui.SameLine();
-                }
-                ImGui.EndTabItem();
             }
-            if (ImGui.BeginTabItem("Loot"))
+            ImGui.Separator();
+            ImGui.Text(LootmasterLoc.Configui_in_ItemFormat);
+            ImGui.SameLine();
+            string copy = _dataCopy.UserItemFormat;
+            if (ImGui.InputText("##format", ref copy, 50))
+                _dataCopy.UserItemFormat = copy;
+            ImGui.Text(
+                $"{LootmasterLoc.ConfigUi_txt_ItemFormatAvailable}: {{ilvl}} {{source}} {{slot}}");
+            ImGui.Separator();
+            ImGui.Text(LootmasterLoc.Config_hdg_Examples);
+            for (int i = 0; i < 4; i++)
             {
-                ImGui.Text(LootmasterLoc.ConfigUi_hdg_LootRuleOrder);
-                _lootList.Draw();
-                ImGui.Separator();
-                ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
-                ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {_dataCopy.RolePriority}");
-                _dataCopy.RolePriority.DrawEdit(ImGui.InputInt);
-                ImGui.EndTabItem();
+                (long curiLvL, string source, string slot) = (iLvL - 10 * i, ((ItemSource)i).FriendlyName(),
+                    ((GearSetSlot)(i * 2)).FriendlyName());
+                if (_dataCopy.ColoredItemNames)
+                    ImGui.TextColored(_dataCopy.ItemLevelColors[i],
+                        string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
+                else
+                    ImGui.Text(string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
+                ImGui.SameLine();
             }
-            ImGui.EndTabBar();
+        }
+
+        private void DrawLootTab()
+        {
+            using var tabItem = ImRaii.TabItem("Loot");
+            if (!tabItem)
+                return;
+
+            ImGui.Text(LootmasterLoc.ConfigUi_hdg_LootRuleOrder);
+            _lootList.Draw();
+            ImGui.Separator();
+            ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
+            ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {_dataCopy.RolePriority}");
+            _dataCopy.RolePriority.DrawEdit(ImGui.InputInt);
         }
 
         public void OnHide() { }

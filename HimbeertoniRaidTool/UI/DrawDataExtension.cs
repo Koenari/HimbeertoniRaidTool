@@ -1,4 +1,5 @@
-﻿using HimbeertoniRaidTool.Common.Extensions;
+﻿using Dalamud.Interface.Utility.Raii;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Common.GameData;
 using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
@@ -23,8 +24,10 @@ public static class DrawDataExtension
     {
         if (!item.Filled)
             return;
-        if (!ImGui.BeginTable("ItemTable", 2,
-                              ImGuiTableFlags.Borders | ImGuiTableFlags.SizingMask | ImGuiTableFlags.RowBg)) return;
+        using var table = ImRaii.Table("ItemTable", 2,
+                                       ImGuiTableFlags.Borders | ImGuiTableFlags.SizingMask | ImGuiTableFlags.RowBg);
+        if (!table)
+            return;
         ImGui.TableSetupColumn(GeneralLoc.ItemTable_heading_Header);
         ImGui.TableSetupColumn("");
         //General Data
@@ -106,7 +109,6 @@ public static class DrawDataExtension
             string content = item.LootSources().Aggregate("", (current, instance) => current + $"{instance.Name}\n");
             DrawRow(GeneralLoc.ItemTable_heading_LootedIn, content);
         }
-        ImGui.EndTable();
     }
     public static void Draw(this (Item cur, Item bis) itemTuple) =>
         Draw(itemTuple.cur, itemTuple.bis);
@@ -114,8 +116,9 @@ public static class DrawDataExtension
     {
         if (!left.Filled || !right.Filled)
             return;
-        if (!ImGui.BeginTable("ItemTable", 3,
-                              ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg))
+        using var table = ImRaii.Table("ItemTable", 3,
+            ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg);
+        if (!table)
             return;
         ImGui.TableSetupColumn("");
         ImGui.TableSetupColumn(LootmasterLoc.ItemTooltip_hdg_Equipped);
@@ -231,7 +234,6 @@ public static class DrawDataExtension
 
             DrawRow(GeneralLoc.ItemTable_heading_LootedIn, leftSources, rightSources);
         }
-        ImGui.EndTable();
 
     }
     private static void DrawRow(string label, object value1)
