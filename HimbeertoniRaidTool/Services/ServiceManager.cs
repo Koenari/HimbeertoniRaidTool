@@ -38,7 +38,7 @@ public interface IGlobalServiceContainer : IDisposable
     internal IUiSystem UiSystem { get; }
     internal ModuleManager ModuleManager { get; }
     internal LocalizationManager LocalizationManager { get; }
-
+    internal IFramework Framework { get; }
 }
 
 internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
@@ -47,6 +47,7 @@ internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
     public ModuleScopedServiceContainer(IHrtModule module, IGlobalServiceContainer globalServices)
     {
         _globalServices = globalServices;
+        Logger = new LoggingProxy(_globalServices.Logger, module.Name);
         UiSystem = UiSystemFactory.CreateUiSystem(module, this);
         PluginInterface.UiBuilder.Draw += UiSystem.Draw;
     }
@@ -59,7 +60,7 @@ internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
     public IObjectTable ObjectTable => _globalServices.ObjectTable;
     public IPartyList PartyList => _globalServices.PartyList;
     public ICondition Condition => _globalServices.Condition;
-    public ILogger Logger => _globalServices.Logger;
+    public ILogger Logger { get; }
     public IconCache IconCache => _globalServices.IconCache;
     public HrtDataManager HrtDataManager => _globalServices.HrtDataManager;
     public TaskManager TaskManager => _globalServices.TaskManager;
@@ -72,6 +73,7 @@ internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
     public IUiSystem UiSystem { get; }
     public ModuleManager ModuleManager => _globalServices.ModuleManager;
     public LocalizationManager LocalizationManager => _globalServices.LocalizationManager;
+    public IFramework Framework => _globalServices.Framework;
 
     public void Dispose()
     {
@@ -84,11 +86,8 @@ internal static class ServiceManager
 {
     private static GlobalServiceContainer? ServiceContainer { get; set; }
 
-    internal static IGlobalServiceContainer Get(IDalamudPluginInterface pluginInterface)
-    {
+    internal static IGlobalServiceContainer Get(IDalamudPluginInterface pluginInterface) =>
         ServiceContainer ??= new GlobalServiceContainer(pluginInterface);
-        return ServiceContainer = new GlobalServiceContainer(pluginInterface);
-    }
 
     internal static IModuleServiceContainer GetServiceContainer(IHrtModule module)
     {
@@ -105,7 +104,7 @@ internal static class ServiceManager
             DalamudServices = pluginInterface.Create<DalamudServiceWrapper>()
                            ?? throw new FailedToLoadException("Could not initialize dalamud services");
             CommonLibrary.Init(DataManager.Excel, pluginInterface.UiLanguage);
-            Logger = new LoggingProxy(DalamudServices.PluginLog);
+            Logger = new LoggingProxy(DalamudServices.PluginLog, "[HRT]");
             Chat = new DalamudChatProxy(DalamudServices.ChatGui);
             IconCache = new IconCache(DalamudServices.TextureProvider);
             HrtDataManager = new HrtDataManager(PluginInterface, Logger, DataManager);
@@ -164,6 +163,7 @@ internal static class ServiceManager
         private DalamudServiceWrapper DalamudServices { get; }
         public ModuleManager ModuleManager { get; }
         public LocalizationManager LocalizationManager { get; }
+        public IFramework Framework => DalamudServices.Framework;
 
 #pragma warning disable CS8618
         [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]

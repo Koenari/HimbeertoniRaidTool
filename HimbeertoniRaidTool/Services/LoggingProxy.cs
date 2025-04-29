@@ -3,59 +3,53 @@ using Serilog.Events;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal class LoggingProxy : ILogger
+internal class LoggingProxy(IPluginLog implementation, string prefix) : ILogger
 {
-    private readonly IPluginLog _impl;
-    internal LoggingProxy(IPluginLog implementation)
+    private string PrefixMessage(string message) => $"{prefix} {message}";
+    public LogEventLevel MinimumLogLevel
     {
-        _impl = implementation;
+        get => implementation.MinimumLogLevel;
+        set => implementation.MinimumLogLevel = value;
     }
 
-    public LogEventLevel MinimumLogLevel { get => _impl.MinimumLogLevel; set => _impl.MinimumLogLevel = value; }
+    public Serilog.ILogger Logger => implementation.Logger;
 
-    public void Fatal(string messageTemplate, params object[] values) => _impl.Fatal(messageTemplate, values);
+    public string Prefix => prefix;
+
+    public void Fatal(string messageTemplate, params object[] values) =>
+        implementation.Fatal(PrefixMessage(messageTemplate), values);
     public void Fatal(Exception? exception, string messageTemplate, params object[] values) =>
-        _impl.Fatal(exception, messageTemplate, values);
-    public void Error(string messageTemplate, params object[] values) => _impl.Error(messageTemplate, values);
+        implementation.Fatal(exception, PrefixMessage(messageTemplate), values);
+    public void Error(string messageTemplate, params object[] values) =>
+        implementation.Error(PrefixMessage(messageTemplate), values);
     public void Error(Exception? exception, string messageTemplate, params object[] values) =>
-        _impl.Error(exception, messageTemplate, values);
+        implementation.Error(exception, PrefixMessage(messageTemplate), values);
 
-    public void Warning(string messageTemplate, params object[] values) => _impl.Warning(messageTemplate, values);
+    public void Warning(string messageTemplate, params object[] values) =>
+        implementation.Warning(PrefixMessage(messageTemplate), values);
     public void Warning(Exception? exception, string messageTemplate, params object[] values) =>
-        _impl.Warning(exception, messageTemplate, values);
+        implementation.Warning(exception, PrefixMessage(messageTemplate), values);
     public void Information(string messageTemplate, params object[] values) =>
-        _impl.Information(messageTemplate, values);
+        implementation.Information(PrefixMessage(messageTemplate), values);
     public void Information(Exception? exception, string messageTemplate, params object[] values) =>
-        _impl.Information(exception, messageTemplate, values);
-    public void Info(string messageTemplate, params object[] values) => _impl.Info(messageTemplate, values);
+        implementation.Information(exception, PrefixMessage(messageTemplate), values);
+    public void Info(string messageTemplate, params object[] values) =>
+        implementation.Info(PrefixMessage(messageTemplate), values);
     public void Info(Exception? exception, string messageTemplate, params object[] values) =>
-        _impl.Info(exception, messageTemplate, values);
-    public void Debug(string messageTemplate, params object[] values) => _impl.Debug(messageTemplate, values);
+        implementation.Info(exception, PrefixMessage(messageTemplate), values);
+    public void Debug(string messageTemplate, params object[] values) =>
+        implementation.Debug(PrefixMessage(messageTemplate), values);
     public void Debug(Exception? exception, string messageTemplate, params object[] values) =>
-        _impl.Debug(exception, messageTemplate, values);
-    public void Verbose(string messageTemplate, params object[] values) => _impl.Verbose(messageTemplate, values);
+        implementation.Debug(exception, PrefixMessage(messageTemplate), values);
+    public void Verbose(string messageTemplate, params object[] values) =>
+        implementation.Verbose(PrefixMessage(messageTemplate), values);
     public void Verbose(Exception? exception, string messageTemplate, params object[] values) =>
-        _impl.Verbose(exception, messageTemplate, values);
+        implementation.Verbose(exception, PrefixMessage(messageTemplate), values);
     public void Write(LogEventLevel level, Exception? exception, string messageTemplate, params object[] values) =>
-        _impl.Write(level, exception, messageTemplate, values);
+        implementation.Write(level, exception, PrefixMessage(messageTemplate), values);
 }
 
-public interface ILogger
+public interface ILogger : IPluginLog
 {
-    public LogEventLevel MinimumLogLevel { get; set; }
-    public void Fatal(string messageTemplate, params object[] values);
-    public void Fatal(Exception? exception, string messageTemplate, params object[] values);
-    public void Error(string messageTemplate, params object[] values);
-    public void Error(Exception? exception, string messageTemplate, params object[] values);
-    public void Warning(string messageTemplate, params object[] values);
-    public void Warning(Exception? exception, string messageTemplate, params object[] values);
-    public void Information(string messageTemplate, params object[] values);
-    public void Information(Exception? exception, string messageTemplate, params object[] values);
-    public void Info(string messageTemplate, params object[] values);
-    public void Info(Exception? exception, string messageTemplate, params object[] values);
-    public void Debug(string messageTemplate, params object[] values);
-    public void Debug(Exception? exception, string messageTemplate, params object[] values);
-    public void Verbose(string messageTemplate, params object[] values);
-    public void Verbose(Exception? exception, string messageTemplate, params object[] values);
-    public void Write(LogEventLevel level, Exception? exception, string messageTemplate, params object[] values);
+    public string Prefix { get; }
 }
