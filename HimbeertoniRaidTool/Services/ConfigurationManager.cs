@@ -101,10 +101,12 @@ public class ConfigurationManager : IDisposable
             ImGui.SameLine();
             if (ImGuiHelper.CancelButton())
                 Cancel();
-            ImGui.BeginTabBar("Modules");
+            using var tabBar = ImRaii.TabBar("Modules");
             foreach (var moduleManifest in _availableModules.Keys)
             {
-                if (!ImGui.BeginTabItem(moduleManifest.InternalName)) continue;
+                using var tabItem = ImRaii.TabItem(moduleManifest.InternalName);
+                if (!tabItem)
+                    continue;
                 using (ImRaii.Disabled(!moduleManifest.CanBeDisabled))
                 {
                     bool enabled = _availableModules[moduleManifest];
@@ -113,11 +115,8 @@ public class ConfigurationManager : IDisposable
                 }
                 var c = _configManager._configurations.Values.FirstOrDefault(
                     config => config?.ParentInternalName == moduleManifest.InternalName, null);
-                if (c?.Ui == null) continue;
-                c.Ui.Draw();
-                ImGui.EndTabItem();
+                c?.Ui?.Draw();
             }
-            ImGui.EndTabBar();
         }
 
         private void Save()

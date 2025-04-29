@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
@@ -73,7 +74,7 @@ public class LootRule(LootRuleEnum rule) : IEquatable<LootRule>, IDrawable, IHrt
         ImGui.Checkbox("##active", ref Active);
         ImGuiHelper.AddTooltip(LootmasterLoc.LootRule_Draw_cb_tt_active);
         ImGui.SameLine();
-        ImGui.BeginDisabled(!Active);
+        using var disabled = ImRaii.Disabled(!Active);
         ImGui.Text(Name);
         if (CanIgnore)
         {
@@ -81,7 +82,6 @@ public class LootRule(LootRuleEnum rule) : IEquatable<LootRule>, IDrawable, IHrt
             ImGui.Checkbox($"{LootmasterLoc.LootRule_draw_cb_ignore}##ignore", ref IgnorePlayers);
             ImGuiHelper.AddTooltip(IgnoreTooltip);
         }
-        ImGui.EndDisabled();
     }
     public bool Equals(LootRule? obj) => obj?.Rule == Rule;
     string IHrtDataType.DataTypeName => DataTypeNameStatic;

@@ -42,8 +42,8 @@ internal class ChangeLogUi : HrtWindow
             {
                 DrawVersionEntry(versionEntry);
             }
-            ImGui.EndChildFrame();
         }
+        ImGui.EndChildFrame();
         const int comboWidth = 200;
         ImGui.SetNextItemWidth(comboWidth * ScaleFactor);
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (_size.X - comboWidth) / 2);
@@ -60,37 +60,32 @@ internal class ChangeLogUi : HrtWindow
     }
     private void DrawVersionEntry(SingleVersionChangelog versionEntry, bool defaultOpen = false)
     {
-        ImGui.PushID(versionEntry.Version.ToString());
-        if (versionEntry.HasNotableFeatures)
-            ImGui.PushStyleColor(ImGuiCol.Header, Colors.PetrolDark);
-        if (ImGui.CollapsingHeader(
+        using var id = ImRaii.PushId(versionEntry.Version.ToString());
+        using var style = ImRaii.PushColor(ImGuiCol.Header, Colors.PetrolDark, versionEntry.HasNotableFeatures);
+        if (!ImGui.CollapsingHeader(
                 string.Format(CoreLoc.ChangeLogUi_hdg_version, versionEntry.Version),
                 defaultOpen ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None))
+            return;
+        
+        foreach (var entry in versionEntry.NotableFeatures)
         {
-            foreach (var entry in versionEntry.NotableFeatures)
-            {
-                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
-                DrawLogEntry(entry, true);
-            }
-            foreach (var entry in versionEntry.MinorFeatures)
-            {
-                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
-                DrawLogEntry(entry);
-            }
-            if (versionEntry.HasKnownIssues)
-            {
-                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 5f * ScaleFactor);
-                ImGui.TextColored(Colors.TextSoftRed, CoreLoc.ChangeLogUi_hdg_KnownIssues);
-                foreach (var entry in versionEntry.KnownIssues)
-                {
-                    ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
-                    DrawLogEntry(entry);
-                }
-            }
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
+            DrawLogEntry(entry, true);
         }
-        if (versionEntry.HasNotableFeatures)
-            ImGui.PopStyleColor();
-        ImGui.PopID();
+        foreach (var entry in versionEntry.MinorFeatures)
+        {
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
+            DrawLogEntry(entry);
+        }
+        if (!versionEntry.HasKnownIssues)
+            return;
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 5f * ScaleFactor);
+        ImGui.TextColored(Colors.TextSoftRed, CoreLoc.ChangeLogUi_hdg_KnownIssues);
+        foreach (var entry in versionEntry.KnownIssues)
+        {
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
+            DrawLogEntry(entry);
+        }
     }
     private void DrawLogEntry(ChangeLogEntry entry, bool important = false)
     {
