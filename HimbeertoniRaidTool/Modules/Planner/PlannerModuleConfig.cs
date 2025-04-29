@@ -3,11 +3,11 @@ using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
 
-namespace HimbeertoniRaidTool.Plugin.Modules.Calendar;
+namespace HimbeertoniRaidTool.Plugin.Modules.Planner;
 
-internal class CalendarModuleConfig : ModuleConfiguration<CalendarModuleConfig.ConfigData>
+internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.ConfigData>
 {
-    public CalendarModuleConfig(IHrtModule module) : base(module)
+    public PlannerModuleConfig(IHrtModule module) : base(module)
     {
         _ui = new ConfigUi(this);
     }
@@ -19,7 +19,7 @@ internal class CalendarModuleConfig : ModuleConfiguration<CalendarModuleConfig.C
     {
     }
 
-    internal class ConfigUi(CalendarModuleConfig parent) : IHrtConfigUi
+    internal class ConfigUi(PlannerModuleConfig parent) : IHrtConfigUi
     {
         private ConfigData _dataCopy = parent.Data.Clone();
 

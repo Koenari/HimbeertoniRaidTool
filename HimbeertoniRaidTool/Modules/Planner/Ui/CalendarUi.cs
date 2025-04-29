@@ -4,11 +4,11 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 
-namespace HimbeertoniRaidTool.Plugin.Modules.Calendar.Ui;
+namespace HimbeertoniRaidTool.Plugin.Modules.Planner.Ui;
 
 internal class CalendarUi : HrtWindow
 {
-    private readonly CalendarModule _module;
+    private readonly PlannerModule _module;
     private int _year;
     private int _inputYear;
     private bool _inputHasChanged = false;
@@ -21,7 +21,7 @@ internal class CalendarUi : HrtWindow
 
     public DayOfWeek FirstDayOfWeek => _module.ModuleConfigImpl.Data.FirstDayOfWeek;
 
-    public CalendarUi(CalendarModule module) : base(module.Services.UiSystem, "##calendarUi")
+    public CalendarUi(PlannerModule module) : base(module.Services.UiSystem, "##calendarUi")
     {
         _module = module;
         Title = CalendarLoc.CalendarUi_Title;

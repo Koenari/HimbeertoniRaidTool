@@ -1,10 +1,9 @@
-
 using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.Command;
 using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
-using HimbeertoniRaidTool.Plugin.Modules.Calendar;
+using HimbeertoniRaidTool.Plugin.Modules.Planner;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
 using HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 using Newtonsoft.Json;
@@ -16,13 +15,14 @@ internal class ModuleManager
     private const string CONFIG_FILE_NAME = "ModuleManager";
     private readonly ConfigData _config = new();
     private readonly ModuleManifest<CoreModule> _coreModule;
-    private readonly List<IInternalModuleManifest> _availableModules;
+    private readonly Dictionary<string, IInternalModuleManifest> _availableModules;
     private readonly List<string> _dalamudRegisteredCommands = [];
     private readonly ILogger _logger;
     private readonly ConfigurationManager _configurationManager;
     private readonly HrtDataManager _dataManager;
     private readonly ICommandManager _commandManager;
     private readonly LocalizationManager _localizationManager;
+    public event Action<IEnumerable<IModuleManifest>>? ModuleStateChanged;
     public ModuleManager(ILogger logger, ConfigurationManager configurationManager, HrtDataManager dataManager,
                          ICommandManager commandManager, LocalizationManager localizationManager)
     {
@@ -33,22 +33,30 @@ internal class ModuleManager
         _localizationManager = localizationManager;
         _dataManager.ModuleConfigurationManager.LoadConfiguration(CONFIG_FILE_NAME, ref _config);
         _coreModule = new ModuleManifest<CoreModule>(this, CoreModule.INTERNAL_NAME);
-        _availableModules =
-        [
-            new ModuleManifest<LootMasterModule>(this, LootMasterModule.INTERNAL_NAME),
-            new ModuleManifest<CalendarModule>(this, CalendarModule.INTERNAL_NAME)
+        _availableModules = new Dictionary<string, IInternalModuleManifest>
+        {
             {
-                CanBeDisabled = true,
+                LootMasterModule.INTERNAL_NAME,
+                new ModuleManifest<LootMasterModule>(this, LootMasterModule.INTERNAL_NAME)
             },
-        ];
+            {
+                PlannerModule.INTERNAL_NAME,
+                new ModuleManifest<PlannerModule>(this, PlannerModule.INTERNAL_NAME)
+                {
+                    CanBeDisabled = true,
+                }
+            },
+        };
     }
 
     internal void UpdateConfiguration(Dictionary<IModuleManifest, bool> moduleConfigurationUpdate)
     {
+        bool changed = false;
         foreach ((var manifest, bool enabledNew) in moduleConfigurationUpdate)
         {
             if (manifest.Enabled == enabledNew) continue;
             if (!TryGetModuleManifestInternal(manifest.InternalName, out var internalManifest)) continue;
+            changed = true;
             _config.ModuleEnabled[internalManifest.InternalName] = enabledNew;
             if (_config.ModuleEnabled[internalManifest.InternalName])
             {
@@ -59,43 +67,43 @@ internal class ModuleManager
                 internalManifest.Disable();
             }
         }
-
+        if (changed) ModuleStateChanged?.Invoke(GetAvailableModules());
     }
 
     public IEnumerable<IModuleManifest> GetAvailableModules()
     {
         yield return _coreModule;
-        foreach (var moduleManifest in _availableModules)
+        foreach (var moduleManifest in _availableModules.Values)
         {
             yield return moduleManifest;
         }
     }
 
-    public bool TryGetModuleManifest(string internalName, [NotNullWhen(true)] out IModuleManifest? module)
+    public bool TryGetModule<TModule>(string internalName, [NotNullWhen(true)] out TModule? module)
+        where TModule : class
     {
         module = null;
-        if (!TryGetModuleManifestInternal(internalName, out var moduleInternal)) return false;
-        module = moduleInternal;
-        return true;
+        if (!TryGetModuleManifestInternal(internalName, out var internalManifest)) return false;
+        if (!internalManifest.Enabled) return false;
+        module = internalManifest.GetModule<TModule>();
+        return module != null;
     }
 
     private bool TryGetModuleManifestInternal(string internalName,
-                                              [NotNullWhen(true)] out IInternalModuleManifest? module)
-    {
-        module = _availableModules.FirstOrDefault(m => m?.InternalName == internalName, null);
-        return module != null;
-    }
+                                              [NotNullWhen(true)] out IInternalModuleManifest? module) =>
+        _availableModules.TryGetValue(internalName, out module);
 
     internal void LoadModules()
     {
         //Ensure core module is loaded first
         _coreModule.Enable();
-        foreach (var moduleManifest in _availableModules)
+        foreach ((string internalName, var moduleManifest) in _availableModules)
         {
-            _config.ModuleEnabled.TryAdd(moduleManifest.InternalName, true);
-            if (_config.ModuleEnabled[moduleManifest.InternalName])
+            _config.ModuleEnabled.TryAdd(internalName, true);
+            if (_config.ModuleEnabled[internalName])
                 moduleManifest.Enable();
         }
+        ModuleStateChanged?.Invoke(GetAvailableModules());
     }
 
     private void RemoveCommand(HrtCommand command)
@@ -144,7 +152,7 @@ internal class ModuleManager
             _commandManager.RemoveHandler(command);
         }
         _dataManager.ModuleConfigurationManager.SaveConfiguration(CONFIG_FILE_NAME, _config);
-        foreach (var module in _availableModules)
+        foreach (var module in _availableModules.Values)
         {
             module.Unload();
         }
@@ -153,6 +161,8 @@ internal class ModuleManager
 
     private interface IInternalModuleManifest : IModuleManifest
     {
+        public TModule? GetModule<TModule>() where TModule : class;
+
         public void Enable();
 
         public void Disable();
@@ -163,7 +173,7 @@ internal class ModuleManager
     }
 
     private class ModuleManifest<TModule>(ModuleManager parent, string internalName)
-        : IInternalModuleManifest where TModule : class, IHrtModule
+        : IInternalModuleManifest where TModule : class, IHrtModule, new()
     {
         public string InternalName => internalName;
         internal TModule? Module { get; private set; } = null;
@@ -175,6 +185,8 @@ internal class ModuleManager
         public bool Enabled { get; private set; } = false;
 
         public bool Loaded => Module != null;
+
+        public T? GetModule<T>() where T : class => Module as T;
 
         public void Enable()
         {
@@ -195,8 +207,7 @@ internal class ModuleManager
             try
             {
                 parent._logger.Debug($"Creating instance of: {moduleType.Name}");
-                if (Activator.CreateInstance(moduleType) is not TModule module)
-                    throw new FailedToLoadException($"Failed to load module: {moduleType.Name}");
+                var module = new TModule();
                 if (parent._configurationManager.RegisterConfig(module.Configuration))
                     module.Configuration.AfterLoad();
                 else
@@ -240,7 +251,6 @@ internal class ModuleManager
             }
         }
     }
-
 
     private class ConfigData : IHrtConfigData
     {

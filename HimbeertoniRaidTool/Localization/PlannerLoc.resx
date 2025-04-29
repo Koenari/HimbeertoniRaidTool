@@ -33,7 +33,7 @@
         <value>Keep track of past and future raids for your groups</value>
     </data>
     <data name="Module_Name" xml:space="preserve">
-        <value>Calendar</value>
+        <value>Planner</value>
     </data>
     <data name="UI_Calendar_Day_Nothing" xml:space="preserve">
         <value>No entries</value>
