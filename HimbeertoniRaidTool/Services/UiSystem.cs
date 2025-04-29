@@ -70,6 +70,7 @@ internal static class UiSystemFactory
             foreach (var window in toRemove)
             {
                 Services.Logger.Debug($"Cleaning Up Window: {window.WindowName}");
+                window.Dispose();
                 _windowSystem.RemoveWindow(window);
             }
 

@@ -116,6 +116,9 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
         _newSize = newSize;
         _shouldResize = true;
     }
+
+    public virtual void Dispose() { }
+
     public override bool Equals(object? obj) => Equals(obj as HrtWindow);
 
     public override int GetHashCode() => _id.GetHashCode();
