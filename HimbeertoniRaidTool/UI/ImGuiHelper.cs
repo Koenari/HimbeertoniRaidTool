@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 using ImGuiNET;
@@ -80,7 +81,7 @@ public static class ImGuiHelper
         {
             using var font = ImRaii.PushFont(UiBuilder.IconFont);
             using var disabled = ImRaii.Disabled(!enabled);
-            result = ImGui.Button($"{icon.ToIconChar()}##{id}", size);    
+            result = ImGui.Button($"{icon.ToIconChar()}##{id}", size);
         }
         if (tooltip is not null) AddTooltip(tooltip);
         return result;

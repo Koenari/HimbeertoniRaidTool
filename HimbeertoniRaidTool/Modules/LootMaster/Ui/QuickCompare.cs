@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Dalamud.Interface.Utility.Raii;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
