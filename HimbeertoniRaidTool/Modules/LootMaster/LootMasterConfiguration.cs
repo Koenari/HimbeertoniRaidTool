@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Dalamud.Interface.Utility.Raii;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.DataManagement;
@@ -110,18 +111,18 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
                 return;
 
             ImGuiHelper.Checkbox(LootmasterLoc.Configui_cb_OpenOnLogin, ref _dataCopy.OpenOnStartup,
-                LootmasterLoc.Configui_in_tt_OpenOnLogin);
+                                 LootmasterLoc.Configui_in_tt_OpenOnLogin);
             ImGuiHelper.Checkbox(LootmasterLoc.Config_cb_IgnoreMateriaForBis,
-                ref _dataCopy.IgnoreMateriaForBiS,
-                LootmasterLoc.ConfigUi_cb_tt_IgnoreMateriaForBis);
+                                 ref _dataCopy.IgnoreMateriaForBiS,
+                                 LootmasterLoc.ConfigUi_cb_tt_IgnoreMateriaForBis);
             ImGui.Checkbox(LootmasterLoc.ConfigUi_cb_IconInGroupOverview,
-                ref _dataCopy.ShowIconInGroupOverview);
+                           ref _dataCopy.ShowIconInGroupOverview);
             ImGui.Text("Character Name Format");
             ImGui.SameLine();
 
             ImGui.SetNextItemWidth(200 * HrtWindow.ScaleFactor);
             using (var combo = ImRaii.Combo("##CharacterNameFormat",
-                       GetCharacterNameFormatDescription(_dataCopy.CharacterNameFormat)))
+                                            GetCharacterNameFormatDescription(_dataCopy.CharacterNameFormat)))
             {
                 if (combo)
                 {
@@ -133,7 +134,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
                 }
             }
             ImGuiHelper.Checkbox(LootmasterLoc.ConfigUi_cb_ColoredItemNames, ref _dataCopy.ColoredItemNames,
-                LootmasterLoc.ConfigUi_cb_tt_ColoredItemNames);
+                                 LootmasterLoc.ConfigUi_cb_tt_ColoredItemNames);
             int iLvL = _config.Data.SelectedRaidTier.ArmorItemLevel;
             using (ImRaii.Disabled(!_dataCopy.ColoredItemNames))
             {
@@ -170,7 +171,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
                     ((GearSetSlot)(i * 2)).FriendlyName());
                 if (_dataCopy.ColoredItemNames)
                     ImGui.TextColored(_dataCopy.ItemLevelColors[i],
-                        string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
+                                      string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
                 else
                     ImGui.Text(string.Format(_dataCopy.ItemFormatString + "  ", curiLvL, source, slot));
                 ImGui.SameLine();

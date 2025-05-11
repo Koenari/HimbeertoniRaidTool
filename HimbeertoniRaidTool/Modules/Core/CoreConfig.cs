@@ -1,4 +1,5 @@
 ﻿using Dalamud.Interface.Utility.Raii;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
