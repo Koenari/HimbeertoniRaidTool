@@ -328,7 +328,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
                 if (DataCopy.Classes.All(x => x.Job != DataCopy.MainJob))
                     DataCopy.MainJob = DataCopy.Classes.First().Job;
-                using (var combo = ImRaii.Combo(GeneralLoc.EditCharUi_in_mainJob, DataCopy.MainJob.ToString()))
+                using (var combo = ImRaii.Combo(GeneralLoc.EditCharUi_in_mainJob, DataCopy.MainJob.ToString()!))
                 {
                     if (combo)
                     {
@@ -336,7 +336,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                         {
                             if (ImGui.Selectable(curJob.Job.ToString()))
                                 DataCopy.MainJob = curJob.Job;
-                        }                        
+                        }
                     }
                 }
                 ImGui.Separator();
@@ -540,7 +540,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             {
                 ImGui.Text(GeneralLoc.CommonTerms_Name);
                 ImGui.TableNextColumn();
-                ImGui.InputText("##name", ref DataCopy.Name, 100);    
+                ImGui.InputText("##name", ref DataCopy.Name, 100);
             }
             ImGui.TableNextColumn();
             ImGui.Text("Local alias");
@@ -559,7 +559,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.SetNextItemWidth(70 * ScaleFactor);
             using (ImRaii.Disabled(_providedJob is not null))
             {
-                ImGuiHelper.Combo("##JobSelection", ref _job);    
+                ImGuiHelper.Combo("##JobSelection", ref _job);
             }
             ImGui.TableNextColumn();
             ImGui.Text(GeneralLoc.EditGearSetUi_txt_Source);
@@ -739,27 +739,170 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         }
     }
 
-    private class EditRaidSessionWindow(
-        EditWindowFactory factory,
-        RaidSession original,
-        Action<RaidSession>? onSave,
-        Action? onCancel,
-        Action? onDelete)
-        : EditWindow<RaidSession>(factory, original, onSave, onCancel, onDelete)
+    private class EditRaidSessionWindow : EditWindow<RaidSession>
     {
+        public EditRaidSessionWindow(EditWindowFactory factory,
+                                     RaidSession original,
+                                     Action<RaidSession>? onSave,
+                                     Action? onCancel,
+                                     Action? onDelete) : base(factory, original, onSave, onCancel, onDelete)
+        {
+            CanDelete = true;
+            MinSize = new Vector2(700, 600);
+            Size = new Vector2(1100, 600);
+            SizeCondition = ImGuiCond.Appearing;
+        }
 
         protected override void DrawContent()
         {
-            ImGui.Text($"{DataCopy.Name} @ {DataCopy.StartTime:f}");
+            DrawGeneralSection();
+            ImGui.NewLine();
+            using var table = ImRaii.Table("##BottomTable", 2);
+            if (!table) return;
+            ImGui.TableNextColumn();
+            DrawParticipantSection();
+            ImGui.TableNextColumn();
+            DrawContentSection();
+
+        }
+
+        private void DrawGeneralSection()
+        {
+            ImGui.Text("Name");
+            ImGui.SameLine();
+            ImGui.InputText("##name", ref DataCopy.Title, 100);
+
+            using (var table = ImRaii.Table("##TimeSection", 3, ImGuiTableFlags.SizingFixedFit))
+            {
+                if (table)
+                {
+                    ImGui.TableNextColumn();
+                    ImGui.Text("Date");
+                    ImGui.TableNextColumn();
+                    ImGui.Text("Time");
+                    ImGui.TableNextColumn();
+                    ImGui.Text("Duration");
+                    ImGui.TableNextColumn();
+                    int day = DataCopy.StartTime.Day;
+                    ImGui.SetNextItemWidth(25 * ScaleFactor);
+                    if (ImGui.InputInt(".##Day", ref day, 0))
+                    {
+                        DataCopy.StartTime = DataCopy.StartTime.AddDays(day - DataCopy.StartTime.Day);
+                    }
+                    ImGui.SameLine();
+                    ImGui.SetNextItemWidth(25 * ScaleFactor);
+                    int month = DataCopy.StartTime.Month;
+                    if (ImGui.InputInt(".##Month", ref month, 0))
+                    {
+                        DataCopy.StartTime = DataCopy.StartTime.AddMonths(month - DataCopy.StartTime.Month);
+                    }
+                    ImGui.SameLine();
+                    ImGui.SetNextItemWidth(50 * ScaleFactor);
+                    int year = DataCopy.StartTime.Year;
+                    if (ImGui.InputInt("##Year", ref year, 0))
+                    {
+                        DataCopy.StartTime = DataCopy.StartTime.AddYears(year - DataCopy.StartTime.Year);
+                    }
+                    ImGui.TableNextColumn();
+                    ImGui.SetNextItemWidth(30 * ScaleFactor);
+                    int hour = DataCopy.StartTime.Hour;
+                    if (ImGui.InputInt(":##Hour", ref hour, 0))
+                    {
+                        DataCopy.StartTime = DataCopy.StartTime.AddHours(hour - DataCopy.StartTime.Hour);
+                    }
+                    ImGui.SameLine();
+                    ImGui.SetNextItemWidth(30 * ScaleFactor);
+                    int minute = DataCopy.StartTime.Minute;
+                    if (ImGui.InputInt("##Minute", ref minute, 0))
+                    {
+                        DataCopy.StartTime += TimeSpan.FromMinutes(minute - DataCopy.StartTime.Minute);
+                    }
+
+                    ImGui.TableNextColumn();
+                    int durHour = DataCopy.Duration.Hours;
+                    ImGui.SetNextItemWidth(30 * ScaleFactor);
+                    if (ImGui.InputInt(":##DurHour", ref durHour, 0))
+                    {
+                        DataCopy.Duration += TimeSpan.FromHours(durHour - DataCopy.Duration.Hours);
+                    }
+                    ImGui.SameLine();
+                    ImGui.SetNextItemWidth(30 * ScaleFactor);
+                    int durMinute = DataCopy.Duration.Minutes;
+                    if (ImGui.InputInt("##DurMinute", ref durMinute, 0))
+                    {
+                        DataCopy.Duration += TimeSpan.FromMinutes(durMinute % 60 - DataCopy.Duration.Minutes);
+                    }
+                }
+            }
+            ImGui.Text($"{DataCopy.StartTime:D} {DataCopy.StartTime:t} - {DataCopy.EndTime:t}");
+        }
+
+        private void DrawParticipantSection()
+        {
             ImGui.Text("Participants");
+            ImGui.Text("Group:");
+            ImGui.SameLine();
+            if (ImGuiHelper.SearchableCombo("##group", out var group, DataCopy.Group?.Name ?? string.Empty,
+                                            Factory.DataManager.RaidGroupDb.GetValues(), raidGroup => raidGroup.Name))
+                DataCopy.Group = group;
+            if (DataCopy.Group is not null)
+            {
+                ImGui.SameLine();
+                if (ImGuiHelper.Button("Add all members", "Add all members of the group to the event"))
+                {
+                    foreach (var player in DataCopy.Group)
+                    {
+                        if (DataCopy.Participants.Any(p => p.Player.LocalId == player.LocalId)) continue;
+                        DataCopy.Invite(player, out _);
+                    }
+                }
+            }
+            if (!DataCopy.Participants.Any()) return;
+            using var table = ImRaii.Table("##ParticipantTable", 3, ImGuiTableFlags.RowBg);
+            if (!table) return;
+            ImGui.TableSetupColumn("Name");
+            ImGui.TableSetupColumn("Invite Status");
+            ImGui.TableSetupColumn("Participation");
+            ImGui.TableHeadersRow();
             foreach (var participant in DataCopy.Participants)
             {
-                ImGui.Text($"{participant.Player.NickName}: {participant.InvitationStatus}");
+                using var id = ImRaii.PushId(participant.Player.LocalId.ToString());
+                ImGui.TableNextColumn();
+                ImGui.Text($"{participant.Player.NickName}");
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(100 * ScaleFactor);
+                ImGuiHelper.Combo("##invite-status", ref participant.InvitationStatus);
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(100 * ScaleFactor);
+                ImGuiHelper.Combo("##part-status", ref participant.ParticipationStatus);
             }
         }
+
+        private void DrawContentSection()
+        {
+            ImGui.Text("Content");
+            ImGuiHelper.SearchableCombo("", out var instance, "Instance",
+                                        GameInfo.CurrentSavageTier!.Bosses, i => i.Name);
+            using var table = ImRaii.Table("##ContentTable", 3);
+            if (!table) return;
+            foreach (var instanceSession in DataCopy.PlannedContent)
+            {
+                using var id = ImRaii.PushId(instanceSession.Instance.Name);
+                ImGui.TableNextColumn();
+                ImGui.Text(instanceSession.Instance.Name);
+                ImGui.TableNextColumn();
+                ImGuiHelper.Combo("##plan", ref instanceSession.Plan);
+                ImGui.TableNextColumn();
+                ImGui.Checkbox("##killed", ref instanceSession.Killed);
+            }
+        }
+
         protected override void Save(RaidSession destination)
         {
-
+            destination.CopyFrom(DataCopy);
+            if (destination.LocalId.IsEmpty)
+                Factory.DataManager.RaidSessionDb.TryAdd(destination);
+            Factory.DataManager.Save();
         }
         protected override void Cancel() { }
     }

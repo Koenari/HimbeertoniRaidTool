@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.Command;
+using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
@@ -15,38 +16,37 @@ internal class ModuleManager
     private const string CONFIG_FILE_NAME = "ModuleManager";
     private readonly ConfigData _config = new();
     private readonly ModuleManifest<CoreModule> _coreModule;
-    private readonly Dictionary<string, IInternalModuleManifest> _availableModules;
-    private readonly List<string> _dalamudRegisteredCommands = [];
+    private readonly Dictionary<string, IInternalModuleManifest> _availableModules = [];
+    private readonly HashSet<string> _dalamudRegisteredCommands = [];
     private readonly ILogger _logger;
     private readonly ConfigurationManager _configurationManager;
     private readonly HrtDataManager _dataManager;
     private readonly ICommandManager _commandManager;
     private readonly LocalizationManager _localizationManager;
+    private readonly IDalamudPluginInterface _pluginInterface;
     public event Action<IEnumerable<IModuleManifest>>? ModuleStateChanged;
     public ModuleManager(ILogger logger, ConfigurationManager configurationManager, HrtDataManager dataManager,
-                         ICommandManager commandManager, LocalizationManager localizationManager)
+                         ICommandManager commandManager, LocalizationManager localizationManager,
+                         IDalamudPluginInterface pluginInterface)
     {
         _configurationManager = configurationManager;
         _dataManager = dataManager;
         _commandManager = commandManager;
         _logger = logger;
         _localizationManager = localizationManager;
+        _pluginInterface = pluginInterface;
         _dataManager.ModuleConfigurationManager.LoadConfiguration(CONFIG_FILE_NAME, ref _config);
         _coreModule = new ModuleManifest<CoreModule>(this, CoreModule.INTERNAL_NAME);
-        _availableModules = new Dictionary<string, IInternalModuleManifest>
-        {
-            {
-                LootMasterModule.INTERNAL_NAME,
-                new ModuleManifest<LootMasterModule>(this, LootMasterModule.INTERNAL_NAME)
-            },
-            {
-                PlannerModule.INTERNAL_NAME,
-                new ModuleManifest<PlannerModule>(this, PlannerModule.INTERNAL_NAME)
-                {
-                    CanBeDisabled = true,
-                }
-            },
-        };
+        AddAvailableModule<LootMasterModule>(LootMasterModule.INTERNAL_NAME, false);
+        AddAvailableModule<PlannerModule>(PlannerModule.INTERNAL_NAME, true);
+    }
+
+    private bool AddAvailableModule<TMod>(string internalName, bool canBeDisabled)
+        where TMod : class, IHrtModule, new()
+    {
+        var manifest =
+            new ModuleManifest<TMod>(this, internalName, _config.IsModuleEnabled(internalName), canBeDisabled);
+        return _availableModules.TryAdd(internalName, manifest);
     }
 
     internal void UpdateConfiguration(Dictionary<IModuleManifest, bool> moduleConfigurationUpdate)
@@ -100,19 +100,22 @@ internal class ModuleManager
         foreach ((string internalName, var moduleManifest) in _availableModules)
         {
             _config.ModuleEnabled.TryAdd(internalName, true);
-            if (_config.ModuleEnabled[internalName])
-                moduleManifest.Enable();
+            if (!_config.ModuleEnabled[internalName])
+                moduleManifest.Disable();
+            moduleManifest.Load();
         }
+        if (TryGetModule(LootMasterModule.INTERNAL_NAME, out LootMasterModule? lootMasterModule))
+            _pluginInterface.UiBuilder.OpenMainUi += lootMasterModule.ShowUi;
         ModuleStateChanged?.Invoke(GetAvailableModules());
     }
 
     private void RemoveCommand(HrtCommand command)
     {
-        if (_dalamudRegisteredCommands.Contains(command.Command))
+        if (_dalamudRegisteredCommands.Remove(command.Command))
             _commandManager.RemoveHandler(command.Command);
         foreach (string altCommand in command.AltCommands)
         {
-            if (_dalamudRegisteredCommands.Contains(altCommand))
+            if (_dalamudRegisteredCommands.Remove(altCommand))
                 _commandManager.RemoveHandler(altCommand);
         }
         _coreModule.Module?.RemoveCommand(command);
@@ -122,41 +125,47 @@ internal class ModuleManager
     {
         if (command.ShouldExposeToDalamud)
         {
-            if (_commandManager.AddHandler(command.Command,
-                                           new CommandInfo(command.OnCommand)
-                                           {
-                                               HelpMessage = command.Description,
-                                               ShowInHelp = command.ShowInHelp,
-                                           }))
+            if (!_dalamudRegisteredCommands.Contains(command.Command) && _commandManager.AddHandler(command.Command,
+                    new CommandInfo(command.OnCommand)
+                    {
+                        HelpMessage = command.Description,
+                        ShowInHelp = command.ShowInHelp,
+                    }))
+            {
                 _dalamudRegisteredCommands.Add(command.Command);
+            }
+
 
             if (command.ShouldExposeAltsToDalamud)
+            {
                 foreach (string alt in command.AltCommands)
                 {
-                    if (_commandManager.AddHandler(alt,
-                                                   new CommandInfo(command.OnCommand)
-                                                   {
-                                                       HelpMessage = command.Description,
-                                                       ShowInHelp = false,
-                                                   }))
+                    if (!_dalamudRegisteredCommands.Contains(alt) && _commandManager.AddHandler(alt,
+                            new CommandInfo(command.OnCommand)
+                            {
+                                HelpMessage = command.Description,
+                                ShowInHelp = false,
+                            }))
                         _dalamudRegisteredCommands.Add(alt);
                 }
+            }
         }
 
         _coreModule.Module?.AddCommand(command);
     }
     public void Dispose()
     {
-        foreach (string command in _dalamudRegisteredCommands)
-        {
-            _commandManager.RemoveHandler(command);
-        }
         _dataManager.ModuleConfigurationManager.SaveConfiguration(CONFIG_FILE_NAME, _config);
         foreach (var module in _availableModules.Values)
         {
             module.Unload();
         }
         _coreModule.Unload();
+        foreach (string command in _dalamudRegisteredCommands)
+        {
+            _logger.Error($"Command \"{command}\" was not removed by module unload");
+            _commandManager.RemoveHandler(command);
+        }
     }
 
     private interface IInternalModuleManifest : IModuleManifest
@@ -172,17 +181,19 @@ internal class ModuleManager
         internal void Unload();
     }
 
-    private class ModuleManifest<TModule>(ModuleManager parent, string internalName)
+    private class ModuleManifest<TModule>(
+        ModuleManager parent,
+        string internalName,
+        bool enabled = true,
+        bool canBeDisabled = false)
         : IInternalModuleManifest where TModule : class, IHrtModule, new()
     {
         public string InternalName => internalName;
-        internal TModule? Module { get; private set; } = null;
+        internal TModule? Module { get; private set; }
 
-        public Type Type => typeof(TModule);
+        public bool CanBeDisabled { get; } = canBeDisabled;
 
-        public bool CanBeDisabled { get; init; } = false;
-
-        public bool Enabled { get; private set; } = false;
+        public bool Enabled { get; private set; } = enabled;
 
         public bool Loaded => Module != null;
 
@@ -256,6 +267,9 @@ internal class ModuleManager
     {
         [JsonProperty] public Dictionary<string, bool> ModuleEnabled { get; set; } = [];
 
+        public bool IsModuleEnabled(string internalName) =>
+            ModuleEnabled.TryAdd(internalName, true) || ModuleEnabled[internalName];
+
         public void AfterLoad(HrtDataManager dataManager) { }
 
         public void BeforeSave() { }
@@ -266,8 +280,6 @@ internal class ModuleManager
 
 public interface IModuleManifest
 {
-    public Type Type { get; }
-
     public string InternalName { get; }
 
     public bool CanBeDisabled { get; }

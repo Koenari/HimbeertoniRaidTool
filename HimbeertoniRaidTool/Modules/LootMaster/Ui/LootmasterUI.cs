@@ -41,7 +41,6 @@ internal class LootmasterUi : HrtWindow
         _buttonSizeVertical = new Vector2(_buttonSize.Y, _buttonSize.X);
         SizeCondition = ImGuiCond.FirstUseEver;
         Title = LootmasterLoc.Ui_Title;
-        _module.Services.PluginInterface.UiBuilder.OpenMainUi += Show;
         UiSystem.AddWindow(this);
     }
     private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
@@ -129,7 +128,7 @@ internal class LootmasterUi : HrtWindow
                     {
                         ImGui.SameLine();
                         if (ImGuiHelper.Button($"{playableClass.Job} ({playableClass.Level:D2})", null, true,
-                                new Vector2(67f * ScaleFactor, 0f)))
+                                               new Vector2(67f * ScaleFactor, 0f)))
                             p.MainChar.MainJob = playableClass.Job;
                     }
                     ImGui.SameLine();
@@ -460,12 +459,12 @@ internal class LootmasterUi : HrtWindow
                      */
                     ImGui.SetCursorPosY(dualTopRowY);
                     UiSystem.Helpers.DrawGearSetCombo("##curGear", gear, curJob.GearSets, s => curJob.CurGear = s,
-                        curJob.Job, comboWidth);
+                                                      curJob.Job, comboWidth);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualTopRowY);
                     if (ImGuiHelper.EditButton(gear, "##editCurGear", true, ButtonSize))
                         UiSystem.EditWindows.Create(gear, g => curJob.CurGear = g, null,
-                            () => curJob.RemoveGearSet(curJob.CurGear), curJob.Job);
+                                                    () => curJob.RemoveGearSet(curJob.CurGear), curJob.Job);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualTopRowY);
                     ImGuiHelper.GearUpdateButtons(player, _module, false, ButtonSize);
@@ -473,13 +472,14 @@ internal class LootmasterUi : HrtWindow
                      * Current BiS
                      */
                     ImGui.SetCursorPosY(dualBottomRowY);
-                    UiSystem.Helpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s, curJob.Job,
-                        comboWidth);
+                    UiSystem.Helpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s,
+                                                      curJob.Job,
+                                                      comboWidth);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualBottomRowY);
                     if (ImGuiHelper.EditButton(bis, "##editBiSGear", true, ButtonSize))
                         UiSystem.EditWindows.Create(bis, g => curJob.CurBis = g, null,
-                            () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job);
+                                                    () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualBottomRowY);
                     ImGuiHelper.ExternalGearUpdateButton(bis, _module, ButtonSize);

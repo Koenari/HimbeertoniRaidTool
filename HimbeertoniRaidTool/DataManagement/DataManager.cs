@@ -119,7 +119,7 @@ public class HrtDataManager
             FilesystemUtil.WriteAllTextSafe(file.FullName, data);
             return true;
         }
-        catch (Win32Exception e)
+        catch (Exception e)
         {
             _logger.Error(e, $"Could not write data file: {file.FullName}");
             return false;

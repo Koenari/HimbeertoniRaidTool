@@ -20,9 +20,7 @@ public interface IGlobalServiceContainer : IDisposable
     public IChatProvider Chat { get; }
     public IDataManager DataManager { get; }
     public ITargetManager TargetManager { get; }
-    public IDalamudPluginInterface PluginInterface { get; }
     public IClientState ClientState { get; }
-    public IObjectTable ObjectTable { get; }
     public IPartyList PartyList { get; }
     public ICondition Condition { get; }
     public ILogger Logger { get; }
@@ -34,52 +32,10 @@ public interface IGlobalServiceContainer : IDisposable
     internal CharacterInfoService CharacterInfoService { get; }
     internal ExamineGearDataProvider ExamineGearDataProvider { get; }
     internal OwnCharacterDataProvider OwnCharacterDataProvider { get; }
-    internal INotificationManager NotificationManager { get; }
     internal IUiSystem UiSystem { get; }
     internal ModuleManager ModuleManager { get; }
     internal LocalizationManager LocalizationManager { get; }
     internal IFramework Framework { get; }
-}
-
-internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
-{
-    private readonly IGlobalServiceContainer _globalServices;
-    public ModuleScopedServiceContainer(IHrtModule module, IGlobalServiceContainer globalServices)
-    {
-        _globalServices = globalServices;
-        Logger = new LoggingProxy(_globalServices.Logger, module.Name);
-        UiSystem = UiSystemFactory.CreateUiSystem(module, this);
-        PluginInterface.UiBuilder.Draw += UiSystem.Draw;
-    }
-
-    public IChatProvider Chat => _globalServices.Chat;
-    public IDataManager DataManager => _globalServices.DataManager;
-    public ITargetManager TargetManager => _globalServices.TargetManager;
-    public IDalamudPluginInterface PluginInterface => _globalServices.PluginInterface;
-    public IClientState ClientState => _globalServices.ClientState;
-    public IObjectTable ObjectTable => _globalServices.ObjectTable;
-    public IPartyList PartyList => _globalServices.PartyList;
-    public ICondition Condition => _globalServices.Condition;
-    public ILogger Logger { get; }
-    public IconCache IconCache => _globalServices.IconCache;
-    public HrtDataManager HrtDataManager => _globalServices.HrtDataManager;
-    public TaskManager TaskManager => _globalServices.TaskManager;
-    public ConnectorPool ConnectorPool => _globalServices.ConnectorPool;
-    public ConfigurationManager ConfigManager => _globalServices.ConfigManager;
-    public CharacterInfoService CharacterInfoService => _globalServices.CharacterInfoService;
-    public ExamineGearDataProvider ExamineGearDataProvider => _globalServices.ExamineGearDataProvider;
-    public OwnCharacterDataProvider OwnCharacterDataProvider => _globalServices.OwnCharacterDataProvider;
-    public INotificationManager NotificationManager => _globalServices.NotificationManager;
-    public IUiSystem UiSystem { get; }
-    public ModuleManager ModuleManager => _globalServices.ModuleManager;
-    public LocalizationManager LocalizationManager => _globalServices.LocalizationManager;
-    public IFramework Framework => _globalServices.Framework;
-
-    public void Dispose()
-    {
-        PluginInterface.UiBuilder.Draw -= UiSystem.Draw;
-        UiSystem.RemoveAllWindows();
-    }
 }
 
 internal static class ServiceManager
@@ -95,9 +51,46 @@ internal static class ServiceManager
         return new ModuleScopedServiceContainer(module, ServiceContainer);
     }
 
+    internal sealed class ModuleScopedServiceContainer : IModuleServiceContainer
+    {
+        private readonly GlobalServiceContainer _globalServices;
+        public ModuleScopedServiceContainer(IHrtModule module, GlobalServiceContainer globalServices)
+        {
+            _globalServices = globalServices;
+            Logger = new LoggingProxy(_globalServices.Logger, $"[{module.Name}]");
+            UiSystem = UiSystemFactory.CreateUiSystem(module, this);
+            _globalServices.DalamudServices.PluginInterface.UiBuilder.Draw += UiSystem.Draw;
+        }
 
+        public IChatProvider Chat => _globalServices.Chat;
+        public IDataManager DataManager => _globalServices.DataManager;
+        public ITargetManager TargetManager => _globalServices.TargetManager;
+        public IClientState ClientState => _globalServices.ClientState;
+        public IObjectTable ObjectTable => _globalServices.DalamudServices.ObjectTable;
+        public IPartyList PartyList => _globalServices.PartyList;
+        public ICondition Condition => _globalServices.Condition;
+        public ILogger Logger { get; }
+        public IconCache IconCache => _globalServices.IconCache;
+        public HrtDataManager HrtDataManager => _globalServices.HrtDataManager;
+        public TaskManager TaskManager => _globalServices.TaskManager;
+        public ConnectorPool ConnectorPool => _globalServices.ConnectorPool;
+        public ConfigurationManager ConfigManager => _globalServices.ConfigManager;
+        public CharacterInfoService CharacterInfoService => _globalServices.CharacterInfoService;
+        public ExamineGearDataProvider ExamineGearDataProvider => _globalServices.ExamineGearDataProvider;
+        public OwnCharacterDataProvider OwnCharacterDataProvider => _globalServices.OwnCharacterDataProvider;
+        public IUiSystem UiSystem { get; }
+        public ModuleManager ModuleManager => _globalServices.ModuleManager;
+        public LocalizationManager LocalizationManager => _globalServices.LocalizationManager;
+        public IFramework Framework => _globalServices.Framework;
 
-    private class GlobalServiceContainer : IGlobalServiceContainer
+        public void Dispose()
+        {
+            _globalServices.DalamudServices.PluginInterface.UiBuilder.Draw -= UiSystem.Draw;
+            UiSystem.RemoveAllWindows();
+        }
+    }
+
+    internal class GlobalServiceContainer : IGlobalServiceContainer
     {
         internal GlobalServiceContainer(IDalamudPluginInterface pluginInterface)
         {
@@ -107,33 +100,33 @@ internal static class ServiceManager
             Logger = new LoggingProxy(DalamudServices.PluginLog, "[HRT]");
             Chat = new DalamudChatProxy(DalamudServices.ChatGui);
             IconCache = new IconCache(DalamudServices.TextureProvider);
-            HrtDataManager = new HrtDataManager(PluginInterface, Logger, DataManager);
+            HrtDataManager = new HrtDataManager(DalamudServices.PluginInterface, Logger, DataManager);
             if (!HrtDataManager.Initialized)
                 throw new FailedToLoadException("Could not initialize data manager");
             TaskManager = new TaskManager(DalamudServices.Framework, Logger);
             ConnectorPool = new ConnectorPool(HrtDataManager, TaskManager, DataManager, Logger);
-            CharacterInfoService = new CharacterInfoService(ObjectTable, PartyList, ClientState);
+            CharacterInfoService = new CharacterInfoService(DalamudServices.ObjectTable, PartyList, ClientState);
             ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider, Logger,
-                                                                  ObjectTable, HrtDataManager, CharacterInfoService,
+                                                                  DalamudServices.ObjectTable, HrtDataManager,
+                                                                  CharacterInfoService,
                                                                   ConnectorPool);
             OwnCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.ClientState,
                                                                     DalamudServices.Framework, Logger, HrtDataManager);
             UiSystem = UiSystemFactory.CreateUiSystem(this);
-            PluginInterface.UiBuilder.Draw += UiSystem.Draw;
             ConfigManager =
                 new ConfigurationManager(pluginInterface, this);
-            LocalizationManager = new LocalizationManager(PluginInterface, Logger);
+            LocalizationManager = new LocalizationManager(DalamudServices.PluginInterface, Logger);
             ModuleManager = new ModuleManager(Logger, ConfigManager, HrtDataManager, DalamudServices.CommandManager,
-                                              LocalizationManager);
-
+                                              LocalizationManager, DalamudServices.PluginInterface);
+            DalamudServices.PluginInterface.UiBuilder.Draw += UiSystem.Draw;
         }
 
         public void Dispose()
         {
+            DalamudServices.PluginInterface.UiBuilder.Draw -= UiSystem.Draw;
             ConfigManager.Save();
             HrtDataManager.Save();
             ModuleManager.Dispose();
-            PluginInterface.UiBuilder.Draw -= UiSystem.Draw;
             UiSystem.RemoveAllWindows();
             ConnectorPool.Dispose();
             ConfigManager.Dispose();
@@ -145,9 +138,7 @@ internal static class ServiceManager
         public IChatProvider Chat { get; }
         public IDataManager DataManager => DalamudServices.DataManager;
         public ITargetManager TargetManager => DalamudServices.TargetManager;
-        public IDalamudPluginInterface PluginInterface => DalamudServices.PluginInterface;
         public IClientState ClientState => DalamudServices.ClientState;
-        public IObjectTable ObjectTable => DalamudServices.ObjectTable;
         public IPartyList PartyList => DalamudServices.PartyList;
         public ICondition Condition => DalamudServices.Condition;
         public ILogger Logger { get; }
@@ -159,31 +150,41 @@ internal static class ServiceManager
         public CharacterInfoService CharacterInfoService { get; }
         public ExamineGearDataProvider ExamineGearDataProvider { get; }
         public OwnCharacterDataProvider OwnCharacterDataProvider { get; }
-        public INotificationManager NotificationManager => DalamudServices.NotificationManager;
-        private DalamudServiceWrapper DalamudServices { get; }
+        internal DalamudServiceWrapper DalamudServices { get; }
         public ModuleManager ModuleManager { get; }
         public LocalizationManager LocalizationManager { get; }
         public IFramework Framework => DalamudServices.Framework;
 
 #pragma warning disable CS8618
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.GLobal")]
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
-        private class DalamudServiceWrapper
+        internal sealed class DalamudServiceWrapper
         {
             [PluginService] public IChatGui ChatGui { get; set; }
+
             [PluginService] public IDataManager DataManager { get; set; }
+
             [PluginService] public ITargetManager TargetManager { get; set; }
+
             [PluginService] public IDalamudPluginInterface PluginInterface { get; set; }
+
             [PluginService] public IClientState ClientState { get; set; }
+
             [PluginService] public IObjectTable ObjectTable { get; set; }
+
             [PluginService] public IPartyList PartyList { get; set; }
+
             [PluginService] public ICondition Condition { get; set; }
+
             [PluginService] public IPluginLog PluginLog { get; set; }
+
             [PluginService] public IGameInteropProvider GameInteropProvider { get; set; }
+
             [PluginService] public ITextureProvider TextureProvider { get; set; }
+
             [PluginService] public IFramework Framework { get; set; }
-            [PluginService] public INotificationManager NotificationManager { get; set; }
+
             [PluginService] public ICommandManager CommandManager { get; set; }
         }
 #pragma warning restore CS8618

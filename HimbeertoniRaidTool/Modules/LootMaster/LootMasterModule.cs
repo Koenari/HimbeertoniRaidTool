@@ -71,6 +71,8 @@ internal sealed class LootMasterModule : IHrtModule
             Services.TaskManager.RunOnFrameworkThread(OnLogin);
     }
 
+    public void ShowUi() => _ui.Show();
+
     public void OnLanguageChange(CultureInfo culture) => LootmasterLoc.Culture = culture;
     public void PrintUsage(string command, string args)
     {

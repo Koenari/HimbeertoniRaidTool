@@ -11,13 +11,13 @@ public class PlannerModule : IHrtModule
     public IHrtConfiguration Configuration => ModuleConfigImpl;
 
     internal readonly PlannerModuleConfig ModuleConfigImpl;
-    public string Name => CalendarLoc.Module_Name;
+    public string Name => PlannerLoc.Module_Name;
 
     public const string INTERNAL_NAME = "Planner";
 
     public string InternalName => INTERNAL_NAME;
 
-    public string Description => CalendarLoc.Module_Description;
+    public string Description => PlannerLoc.Module_Description;
 
     public RaidSession? ActiveSession { get; private set; }
     private RaidSession? _nextSession = null;
@@ -26,13 +26,13 @@ public class PlannerModule : IHrtModule
 
     private List<RaidSession> _sessionCache = new();
 
-    private IEnumerable<RaidSession> _sessions => _sessionCache;
+    private IEnumerable<RaidSession> _sessions => Services.HrtDataManager.RaidSessionDb.GetValues();
 
-    public IEnumerable<HrtCommand> Commands => new List<HrtCommand>()
+    public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
     {
         new("/planner", OnCommand)
         {
-            Description = CalendarLoc.Commands_calenadr_helpText,
+            Description = PlannerLoc.Commands_calenadr_helpText,
             ShowInHelp = true,
             ShouldExposeToDalamud = true,
 
@@ -45,10 +45,13 @@ public class PlannerModule : IHrtModule
     public PlannerModule()
     {
         Services = ServiceManager.GetServiceContainer(this);
-        CalendarLoc.Culture = Services.LocalizationManager.CurrentLocale;
+        PlannerLoc.Culture = Services.LocalizationManager.CurrentLocale;
         ModuleConfigImpl = new PlannerModuleConfig(this);
         _calendarUi = new CalendarUi(this);
         Services.UiSystem.AddWindow(_calendarUi);
+#if DEBUG
+        _calendarUi.Show();
+#endif
         Services.ClientState.Login += OnLogin;
         Services.Framework.Update += Update;
         UpdateNextSession();
@@ -68,7 +71,7 @@ public class PlannerModule : IHrtModule
     /// Gets all raid sessions in the specified time frame
     /// </summary>
     /// <param name="from">If set marks the start of the time frame</param>
-    /// <param name="until">End of time frame. defaults to 24 hours after from</param>
+    /// <param name="until">End of time frame. Defaults to 24 hours after from</param>
     /// <returns>A list of raid sessions sorted by start time</returns>
     public IEnumerable<RaidSession> GetRaidSessions(DateTime? from = null, DateTime? until = null)
     {
@@ -81,7 +84,7 @@ public class PlannerModule : IHrtModule
     public void OnLogin() => UiReady?.Invoke();
     public void AfterFullyLoaded() => _calendarUi.Show(); //Todo: Remove after testing
 
-    public void OnLanguageChange(CultureInfo culture) => CalendarLoc.Culture = culture;
+    public void OnLanguageChange(CultureInfo culture) => PlannerLoc.Culture = culture;
     public void Dispose() { }
 
     public void HandleMessage(HrtUiMessage message)
