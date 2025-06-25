@@ -140,7 +140,7 @@ public class HrtDataManager
         return savedSuccessful;
     }
 
-    private class DataBaseWrapper<TEntry> where TEntry : IHasHrtId, new()
+    private class DataBaseWrapper<TEntry> where TEntry : class, IHasHrtId<TEntry>, new()
     {
         private readonly HrtDataManager _parent;
         private readonly IDataBaseTable<TEntry> _database;
@@ -162,6 +162,7 @@ public class HrtDataManager
             _parent = parent;
             _database = database;
             _file = new FileInfo($"{parent._saveDir}{Path.DirectorySeparatorChar}{fileName}");
+            _parent._idRefConverters.Add(_database.GetOldRefConverter());
             _parent._idRefConverters.Add(_database.GetRefConverter());
         }
         internal bool Load()
