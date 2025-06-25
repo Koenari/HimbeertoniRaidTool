@@ -7,15 +7,18 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-public interface IDataBaseTable<T> where T : IHasHrtId, new()
+public interface IDataBaseTable<T> where T : class, IHasHrtId<T>, new()
 {
     internal bool Load(JsonSerializerSettings jsonSettings, string data);
     internal bool TryGet(HrtId id, [NotNullWhen(true)] out T? value);
+    internal T? GetNullable(HrtId id);
+    internal Reference<T> GetRef(HrtId id);
     internal bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value);
     internal bool TryAdd(in T value);
     internal IEnumerable<T> GetValues();
     internal void OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
     internal HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
+    internal OldHrtIdReferenceConverter<T> GetOldRefConverter();
     internal HrtIdReferenceConverter<T> GetRefConverter();
     public HashSet<HrtId> GetReferencedIds();
     internal ulong GetNextSequence();
@@ -27,7 +30,7 @@ public interface IDataBaseTable<T> where T : IHasHrtId, new()
 
 public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonConverter> converters, ILogger logger)
     : IDataBaseTable<T>
-    where T : class, IHasHrtId, new()
+    where T : class, IHasHrtId<T>, new()
 {
 
     protected readonly Dictionary<HrtId, T> Data = new();
@@ -69,6 +72,12 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
         return IsLoaded;
     }
     public virtual bool TryGet(HrtId id, [NotNullWhen(true)] out T? value) => Data.TryGetValue(id, out value);
+    public virtual T? GetNullable(HrtId id)
+    {
+        TryGet(id, out var value);
+        return value;
+    }
+    public virtual Reference<T> GetRef(HrtId id) => new(id, GetNullable);
     public virtual bool TryAdd(in T c)
     {
         if (c.LocalId.IsEmpty)
@@ -111,6 +120,8 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     }
     public abstract HashSet<HrtId> GetReferencedIds();
 
+    public OldHrtIdReferenceConverter<T> GetOldRefConverter() => new(this);
+
     public HrtIdReferenceConverter<T> GetRefConverter() => new(this);
 
     public virtual void FixEntries(HrtDataManager hrtDataManager) { }
@@ -121,7 +132,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
         Action<TData> onSelect,
         Action? onCancel) : HrtWindow(uiSystem)
         where TDataBaseTable : IDataBaseTable<TData>
-        where TData : IHasHrtId, new()
+        where TData : class, IHasHrtId<TData>, new()
     {
         protected readonly TDataBaseTable Database = dataBase;
 
@@ -129,7 +140,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
 
         protected void Save()
         {
-            if (Selected == null)
+            if (Selected is null)
                 return;
             onSelect.Invoke(Selected!);
             Hide();
