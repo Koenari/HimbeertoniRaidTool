@@ -11,6 +11,7 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
 using Lumina.Excel.Sheets;
 using Action = System.Action;
+using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -92,13 +93,14 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         protected readonly EditWindowFactory Factory;
         private TData _original;
         protected TData DataCopy;
+        protected bool IsCloned => _original is ICloneable;
 
         protected EditWindow(EditWindowFactory factory, TData original, Action<TData>? onSave, Action? onCancel,
                              Action? onDelete) : base(factory.UiSystem)
         {
             Factory = factory;
             _original = original;
-            DataCopy = _original.Clone();
+            DataCopy = GetClonedIfPossible();
             _onCancel = onCancel;
             _onSave = onSave;
             _onDelete = onDelete;
@@ -106,6 +108,13 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                           .Capitalized();
             OpenCentered = true;
         }
+
+        private TData GetClonedIfPossible() => _original switch
+        {
+            _ when _original is ICloneable org => (TData)org.Clone(),
+            _                                  => _original,
+        };
+
         public override sealed void Draw()
         {
             //Buttons
@@ -115,9 +124,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 _onSave?.Invoke(_original);
                 Hide();
             }
-
             ImGui.SameLine();
-            if (ImGuiHelper.CancelButton())
+            if (ImGuiHelper.CancelButton(null, IsCloned))
             {
                 Cancel();
                 _onCancel?.Invoke();
@@ -134,6 +142,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             }
             ImGui.SameLine();
             ImGui.Text($"{GeneralLoc.EditUi_Txt_LocalId}: {(_original.LocalId.IsEmpty ? "-" : _original.LocalId)}");
+            if (!IsCloned)
+            {
+                ImGui.TextColored(Colors.TextRed, "Changes are saved immediately! Cancel ist not available.");
+            }
             ImGui.Separator();
             ImGui.NewLine();
             DrawContent();
@@ -142,7 +154,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         protected void ReplaceOriginal(TData newOrg)
         {
             _original = newOrg;
-            DataCopy = _original.Clone();
+            DataCopy = GetClonedIfPossible();
         }
 
         protected abstract void Save(TData destination);
@@ -852,8 +864,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 {
                     foreach (var player in DataCopy.Group)
                     {
-                        if (DataCopy.Participants.Any(p => p.Player.LocalId == player.LocalId)) continue;
-                        DataCopy.Invite(player, out _);
+                        if (DataCopy.Participants.Any(p => p.Player.Id == player.LocalId)) continue;
+                        DataCopy.Invite(new Reference<Player>(player), out _);
                     }
                 }
             }
@@ -866,9 +878,9 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.TableHeadersRow();
             foreach (var participant in DataCopy.Participants)
             {
-                using var id = ImRaii.PushId(participant.Player.LocalId.ToString());
+                using var id = ImRaii.PushId(participant.Player.Id.ToString());
                 ImGui.TableNextColumn();
-                ImGui.Text($"{participant.Player.NickName}");
+                ImGui.Text($"{participant.Player.Id} ({participant.Player.Data.Name})");
                 ImGui.TableNextColumn();
                 ImGui.SetNextItemWidth(100 * ScaleFactor);
                 ImGuiHelper.Combo("##invite-status", ref participant.InvitationStatus);

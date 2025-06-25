@@ -20,6 +20,7 @@ public class LootSession
     internal readonly List<(Item item, int count)> Loot = new();
     public readonly RolePriority RolePriority;
     private RaidGroup _group;
+    internal RaidSession? RaidSession;
     private readonly LootMasterModule _module;
     private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
     internal LootSession(LootMasterModule module, InstanceWithLoot instance, RaidGroup group)
@@ -37,6 +38,8 @@ public class LootSession
         }
         _group = Group = group;
         RolePriority = group.RolePriority ?? CurConfig.RolePriority;
+        var activeSession = _module.Services.ModuleManager.PlannerModule.Module?.ActiveSession;
+        if (activeSession is not null && activeSession.Group == group) RaidSession = activeSession;
     }
     public LootRuling RulingOptions { get; set; }
     public State CurrentState { get; private set; } = State.Started;
@@ -117,8 +120,7 @@ public class LootSession
     }
     internal bool AwardGuaranteedLoot(Item item)
     {
-        if (CurrentState < State.DistributionStarted)
-            CurrentState = State.DistributionStarted;
+        StartDistribution();
         if (GuaranteedLoot[item] || CurrentState == State.Finished)
             return false;
         GuaranteedLoot[item] = true;
@@ -132,8 +134,7 @@ public class LootSession
     }
     internal bool AwardItem((Item, int) loot, GearItem toAward, int idx, bool altSlot = false)
     {
-        if (CurrentState < State.DistributionStarted)
-            CurrentState = State.DistributionStarted;
+        StartDistribution();
         if (Results[loot].IsAwarded || CurrentState == State.Finished)
             return false;
         Results[loot].Award(idx, toAward);
@@ -151,10 +152,36 @@ public class LootSession
                 c.CurGear[slot].AddMateria(m);
             }
         }
+        var instanceSession =
+            RaidSession?.PlannedContent.FirstOrDefault(session => session?.Instance.InstanceId == Instance.InstanceId,
+                                                       null);
+        if (instanceSession is not null)
+        {
+            var participant =
+                RaidSession?.Participants.FirstOrDefault(p => p?.Player.Data == Results[loot].AwardedTo?.Player, null);
+            if (participant is not null)
+            {
+                instanceSession.Loot.TryAdd(participant, []);
+                instanceSession.Loot[participant].Add(loot.Item1);
+            }
+        }
         EvaluateFinished();
         if (CurrentState != State.Finished)
             Evaluate();
         return true;
+    }
+    private void StartDistribution()
+    {
+        if (CurrentState < State.DistributionStarted)
+            CurrentState = State.DistributionStarted;
+        if (RaidSession?.PlannedContent.Any(c => c.Instance.InstanceId == Instance.InstanceId) ?? false) return;
+        var session = new InstanceSession(Instance)
+        {
+            Tried = true,
+            Killed = true,
+            Plan = InstanceSession.PlannedStatus.NotPlanned,
+        };
+        RaidSession?.PlannedContent.Add(session);
     }
 }
 
@@ -269,13 +296,12 @@ public class LootResult
     public int ItemLevelGain()
     {
         if (ApplicableJob is null) return 0;
-        return NeededItems.Select(
-                              item => (int)item.ItemLevel - ApplicableJob.CurGear
-                                                                         .Where(
-                                                                             i => i.Slots.Intersect(item.Slots).Any())
-                                                                         .Aggregate((int)item.ItemLevel,
-                                                                             (min, i) => Math.Min(
-                                                                                 (int)i.ItemLevel, min))).Prepend(0)
+        return NeededItems.Select(item => (int)item.ItemLevel - ApplicableJob.CurGear
+                                                                             .Where(i => i.Slots.Intersect(item.Slots)
+                                                                                     .Any())
+                                                                             .Aggregate((int)item.ItemLevel,
+                                                                                 (min, i) => Math.Min(
+                                                                                     (int)i.ItemLevel, min))).Prepend(0)
                           .Max();
     }
     public float DpsGain()
@@ -310,14 +336,13 @@ public class LootResult
     }
     public bool IsBiS() => ApplicableJob is not null &&
                            NeededItems.Any(i => ApplicableJob.CurBis.Count(x => x.Equals(i, ItemComparisonMode.IdOnly))
-                                             != ApplicableJob.CurGear.Count(
-                                                    x => x.Equals(i, ItemComparisonMode.IdOnly)));
+                                             != ApplicableJob.CurGear.Count(x => x.Equals(
+                                                                                i, ItemComparisonMode.IdOnly)));
     public bool CanUse() =>
         //Direct gear or coffer drops are always usable
         ApplicableJob is not null && (
             !_droppedItem.IsExchangableItem()
-         || NeededItems.Any(
-                item => item.PurchasedFrom().Any(shopEntry =>
+         || NeededItems.Any(item => item.PurchasedFrom().Any(shopEntry =>
                 {
                     foreach (var cost in shopEntry.entry.ItemCosts)
                     {
@@ -338,8 +363,7 @@ public class LootResult
     {
         if (ApplicableJob is null) return false;
         var shops = _droppedItem.PurchasedFrom();
-        return shops.Any(
-            shopEntry =>
+        return shops.Any(shopEntry =>
             {
                 foreach (var cost in shopEntry.entry.ItemCosts)
                 {

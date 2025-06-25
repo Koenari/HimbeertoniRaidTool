@@ -13,10 +13,26 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal class ModuleManager
 {
+    public IModuleManifest<CoreModule> CoreModule => _coreModule;
+    public IModuleManifest<LootMasterModule> LootMasterModule => _lootMasterModule;
+    public IModuleManifest<PlannerModule> PlannerModule => _plannerModule;
+
     private const string CONFIG_FILE_NAME = "ModuleManager";
     private readonly ConfigData _config = new();
+
     private readonly ModuleManifest<CoreModule> _coreModule;
-    private readonly Dictionary<string, IInternalModuleManifest> _availableModules = [];
+    private readonly ModuleManifest<LootMasterModule> _lootMasterModule;
+    private readonly ModuleManifest<PlannerModule> _plannerModule;
+
+
+    private IEnumerable<IInternalModuleManifest> AvailableModules
+    {
+        get
+        {
+            yield return _lootMasterModule;
+            yield return _plannerModule;
+        }
+    }
     private readonly HashSet<string> _dalamudRegisteredCommands = [];
     private readonly ILogger _logger;
     private readonly ConfigurationManager _configurationManager;
@@ -24,7 +40,7 @@ internal class ModuleManager
     private readonly ICommandManager _commandManager;
     private readonly LocalizationManager _localizationManager;
     private readonly IDalamudPluginInterface _pluginInterface;
-    public event Action<IEnumerable<IModuleManifest>>? ModuleStateChanged;
+
     public ModuleManager(ILogger logger, ConfigurationManager configurationManager, HrtDataManager dataManager,
                          ICommandManager commandManager, LocalizationManager localizationManager,
                          IDalamudPluginInterface pluginInterface)
@@ -36,27 +52,22 @@ internal class ModuleManager
         _localizationManager = localizationManager;
         _pluginInterface = pluginInterface;
         _dataManager.ModuleConfigurationManager.LoadConfiguration(CONFIG_FILE_NAME, ref _config);
-        _coreModule = new ModuleManifest<CoreModule>(this, CoreModule.INTERNAL_NAME);
-        AddAvailableModule<LootMasterModule>(LootMasterModule.INTERNAL_NAME, false);
-        AddAvailableModule<PlannerModule>(PlannerModule.INTERNAL_NAME, true);
+        _coreModule = new ModuleManifest<CoreModule>(this, Modules.Core.CoreModule.INTERNAL_NAME);
+        _lootMasterModule = CreateModule<LootMasterModule>(Modules.LootMaster.LootMasterModule.INTERNAL_NAME, false);
+        _plannerModule = CreateModule<PlannerModule>(Modules.Planner.PlannerModule.INTERNAL_NAME, true);
     }
 
-    private bool AddAvailableModule<TMod>(string internalName, bool canBeDisabled)
-        where TMod : class, IHrtModule, new()
-    {
-        var manifest =
-            new ModuleManifest<TMod>(this, internalName, _config.IsModuleEnabled(internalName), canBeDisabled);
-        return _availableModules.TryAdd(internalName, manifest);
-    }
+    private ModuleManifest<TMod> CreateModule<TMod>(string internalName, bool canBeDisabled)
+        where TMod : class, IHrtModule, new() =>
+        new(this, internalName, _config.IsModuleEnabled(internalName), canBeDisabled);
 
     internal void UpdateConfiguration(Dictionary<IModuleManifest, bool> moduleConfigurationUpdate)
     {
-        bool changed = false;
         foreach ((var manifest, bool enabledNew) in moduleConfigurationUpdate)
         {
             if (manifest.Enabled == enabledNew) continue;
-            if (!TryGetModuleManifestInternal(manifest.InternalName, out var internalManifest)) continue;
-            changed = true;
+            var internalManifest = AvailableModules.FirstOrDefault(m => m?.InternalName == manifest.InternalName, null);
+            if (internalManifest == null) continue;
             _config.ModuleEnabled[internalManifest.InternalName] = enabledNew;
             if (_config.ModuleEnabled[internalManifest.InternalName])
             {
@@ -67,46 +78,30 @@ internal class ModuleManager
                 internalManifest.Disable();
             }
         }
-        if (changed) ModuleStateChanged?.Invoke(GetAvailableModules());
     }
 
     public IEnumerable<IModuleManifest> GetAvailableModules()
     {
         yield return _coreModule;
-        foreach (var moduleManifest in _availableModules.Values)
+        foreach (var moduleManifest in AvailableModules)
         {
             yield return moduleManifest;
         }
     }
 
-    public bool TryGetModule<TModule>(string internalName, [NotNullWhen(true)] out TModule? module)
-        where TModule : class
-    {
-        module = null;
-        if (!TryGetModuleManifestInternal(internalName, out var internalManifest)) return false;
-        if (!internalManifest.Enabled) return false;
-        module = internalManifest.GetModule<TModule>();
-        return module != null;
-    }
-
-    private bool TryGetModuleManifestInternal(string internalName,
-                                              [NotNullWhen(true)] out IInternalModuleManifest? module) =>
-        _availableModules.TryGetValue(internalName, out module);
-
     internal void LoadModules()
     {
         //Ensure core module is loaded first
         _coreModule.Enable();
-        foreach ((string internalName, var moduleManifest) in _availableModules)
+        foreach (var moduleManifest in AvailableModules)
         {
-            _config.ModuleEnabled.TryAdd(internalName, true);
-            if (!_config.ModuleEnabled[internalName])
+            _config.ModuleEnabled.TryAdd(moduleManifest.InternalName, true);
+            if (!_config.ModuleEnabled[moduleManifest.InternalName])
                 moduleManifest.Disable();
             moduleManifest.Load();
         }
-        if (TryGetModule(LootMasterModule.INTERNAL_NAME, out LootMasterModule? lootMasterModule))
-            _pluginInterface.UiBuilder.OpenMainUi += lootMasterModule.ShowUi;
-        ModuleStateChanged?.Invoke(GetAvailableModules());
+        if (_lootMasterModule.Loaded)
+            _pluginInterface.UiBuilder.OpenMainUi += _lootMasterModule.Module.ShowUi;
     }
 
     private void RemoveCommand(HrtCommand command)
@@ -156,7 +151,7 @@ internal class ModuleManager
     public void Dispose()
     {
         _dataManager.ModuleConfigurationManager.SaveConfiguration(CONFIG_FILE_NAME, _config);
-        foreach (var module in _availableModules.Values)
+        foreach (var module in AvailableModules)
         {
             module.Unload();
         }
@@ -170,8 +165,6 @@ internal class ModuleManager
 
     private interface IInternalModuleManifest : IModuleManifest
     {
-        public TModule? GetModule<TModule>() where TModule : class;
-
         public void Enable();
 
         public void Disable();
@@ -186,18 +179,18 @@ internal class ModuleManager
         string internalName,
         bool enabled = true,
         bool canBeDisabled = false)
-        : IInternalModuleManifest where TModule : class, IHrtModule, new()
+        : IInternalModuleManifest, IModuleManifest<TModule> where TModule : class, IHrtModule, new()
     {
         public string InternalName => internalName;
-        internal TModule? Module { get; private set; }
+        public TModule? Module { get; private set; }
 
         public bool CanBeDisabled { get; } = canBeDisabled;
 
         public bool Enabled { get; private set; } = enabled;
+        public event Action<IModuleManifest<TModule>>? StateChanged;
 
+        [MemberNotNullWhen(true, nameof(Module))]
         public bool Loaded => Module != null;
-
-        public T? GetModule<T>() where T : class => Module as T;
 
         public void Enable()
         {
@@ -232,6 +225,7 @@ internal class ModuleManager
                 }
                 parent._logger.Information($"Successfully loaded module: {module.Name}");
                 Module = module;
+                StateChanged?.Invoke(this);
             }
             catch (Exception e)
             {
@@ -259,6 +253,7 @@ internal class ModuleManager
             finally
             {
                 Module = null;
+                StateChanged?.Invoke(this);
             }
         }
     }
@@ -276,6 +271,13 @@ internal class ModuleManager
     }
 
 
+}
+
+public interface IModuleManifest<out TModule> : IModuleManifest where TModule : class, IHrtModule
+{
+    public TModule? Module { get; }
+
+    public event Action<IModuleManifest<TModule>>? StateChanged;
 }
 
 public interface IModuleManifest
