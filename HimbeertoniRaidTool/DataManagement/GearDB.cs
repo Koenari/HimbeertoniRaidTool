@@ -147,7 +147,7 @@ internal class GearDb : DataBaseTable<GearSet>
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{gearSet.LocalId}",
                                        string.Format(GeneralLoc.SearchWindow_btn_tt_SelectEnty,
-                                                     GearSet.DataTypeNameStatic, gearSet)))
+                                                     GearSet.DataTypeName, gearSet)))
                 {
                     Selected = gearSet;
                     Save();

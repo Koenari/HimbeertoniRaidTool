@@ -40,7 +40,7 @@ public class UiSortableList<T> where T : IDrawable, IHrtDataType
             var currentItem = _currentList[i];
             using var imguiId = ImRaii.PushId(id);
             if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##up",
-                                   string.Format(GeneralLoc.SortableList_btn_tt_moveUp, currentItem.DataTypeName),
+                                   string.Format(GeneralLoc.SortableList_btn_tt_moveUp, T.DataTypeName),
                                    i > 0))
             {
                 (_currentList[i - 1], _currentList[i]) = (_currentList[i], _currentList[i - 1]);
@@ -49,7 +49,7 @@ public class UiSortableList<T> where T : IDrawable, IHrtDataType
 
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "##down",
-                                   string.Format(GeneralLoc.SortableList_btn_tt_moveDown, currentItem.DataTypeName),
+                                   string.Format(GeneralLoc.SortableList_btn_tt_moveDown, T.DataTypeName),
                                    i < _currentList.Count - 1))
             {
                 (_currentList[i], _currentList[i + 1]) = (_currentList[i + 1], _currentList[i]);
@@ -58,7 +58,7 @@ public class UiSortableList<T> where T : IDrawable, IHrtDataType
 
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "##delete",
-                                   string.Format(GeneralLoc.General_btn_tt_delete, currentItem.DataTypeName,
+                                   string.Format(GeneralLoc.General_btn_tt_delete, T.DataTypeName,
                                                  currentItem.Name)))
             {
                 _currentList.RemoveAt(i);
@@ -74,8 +74,8 @@ public class UiSortableList<T> where T : IDrawable, IHrtDataType
         if (_currentList.Count < _possibilities.Count)
         {
             using var combo = ImRaii.Combo(
-                $"{string.Format(GeneralLoc.Ui_btn_tt_add, _possibilities.First().DataTypeName)}#add",
-                string.Format(GeneralLoc.Ui_btn_tt_add, _possibilities.First().DataTypeName));
+                $"{string.Format(GeneralLoc.Ui_btn_tt_add, T.DataTypeName)}#add",
+                string.Format(GeneralLoc.Ui_btn_tt_add, T.DataTypeName));
             if (combo)
             {
                 foreach (var unused in _possibilities.Where(item => !_currentList.Contains(item)))

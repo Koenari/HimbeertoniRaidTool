@@ -81,7 +81,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     public virtual bool TryAdd(in T c)
     {
         if (c.LocalId.IsEmpty)
-            c.LocalId = idProvider.CreateId(c.IdType);
+            c.LocalId = idProvider.CreateId(T.IdType);
         return Data.TryAdd(c.LocalId, c);
     }
     public virtual bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value)

@@ -164,7 +164,7 @@ internal class CalendarUi : HrtWindow
                     _module.Services.UiSystem.EditWindows.Create(calendarEntry);
             }
             if (!hasDrawn) ImGui.Text(PlannerLoc.UI_Calendar_Day_Nothing);
-            if (ImGuiHelper.AddButton(RaidSession.DataTypeNameStatic, $"#add{date.DayOfYear}"))
+            if (ImGuiHelper.AddButton(RaidSession.DataTypeName, $"#add{date.DayOfYear}"))
             {
                 _module.Services.UiSystem.EditWindows.Create(new RaidSession(date.ToDateTime(TimeOnly.MinValue)));
             }

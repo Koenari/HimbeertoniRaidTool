@@ -113,13 +113,13 @@ internal class LootmasterUi : HrtWindow
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##jobUp",
                                            string.Format(GeneralLoc.SortableList_btn_tt_moveUp,
-                                                         playableClass.DataTypeName),
+                                                         PlayableClass.DataTypeName),
                                            p.MainChar.CanMoveUp(playableClass)))
                         deferredAction = () => p.MainChar.MoveClassUp(playableClass);
                     ImGui.SameLine();
                     if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "##jobDown",
                                            string.Format(GeneralLoc.SortableList_btn_tt_moveDown,
-                                                         playableClass.DataTypeName),
+                                                         PlayableClass.DataTypeName),
                                            p.MainChar.CanMoveDown(playableClass)))
                         deferredAction = () => p.MainChar.MoveClassDown(playableClass);
                     bool isMainJob = p.MainChar.MainJob == playableClass.Job;
@@ -284,8 +284,7 @@ internal class LootmasterUi : HrtWindow
             }
             else
             {
-                if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##Solo",
-                                       string.Format(GeneralLoc.Ui_btn_tt_add, CurrentGroup[0].DataTypeName)))
+                if (ImGuiHelper.AddButton(RaidGroup.DataTypeName, "##solo"))
                     UiSystem.EditWindows.Create(CurrentGroup[0]);
             }
         }
@@ -351,9 +350,7 @@ internal class LootmasterUi : HrtWindow
                 if (!isPredefinedSolo)
                 {
                     ImGui.SameLine();
-                    if (ImGuiHelper.GuardedButton(FontAwesomeIcon.TrashAlt, "##deleteGroup",
-                                                  string.Format(GeneralLoc.General_btn_tt_remove, group.DataTypeName,
-                                                                group.Name)))
+                    if (ImGuiHelper.DeleteButton(group))
                     {
                         _module.RaidGroups.Remove(group);
                         ImGui.CloseCurrentPopup();
@@ -374,12 +371,12 @@ internal class LootmasterUi : HrtWindow
             }
 
             if (ImGuiHelper.Button(LootmasterLoc.Ui_btn_newGroupManual,
-                                   string.Format(GeneralLoc.Ui_btn_tt_addEmpty, RaidGroup.DataTypeNameStatic)))
+                                   string.Format(GeneralLoc.Ui_btn_tt_addEmpty, RaidGroup.DataTypeName)))
             {
                 UiSystem.EditWindows.Create(new RaidGroup(), _module.AddGroup);
                 ImGui.CloseCurrentPopup();
             }
-            if (ImGuiHelper.Button(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, RaidGroup.DataTypeNameStatic),
+            if (ImGuiHelper.Button(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, RaidGroup.DataTypeName),
                                    null))
             {
                 _module.Services.HrtDataManager.RaidGroupDb.OpenSearchWindow(UiSystem, _module.AddGroup);
@@ -400,12 +397,12 @@ internal class LootmasterUi : HrtWindow
         float dualBottomRowY = ImGui.GetCursorPosY() + fullLineHeight * 2.1f;
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + lineSpacing * 1.5f);
         if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##sortUp",
-                               string.Format(GeneralLoc.SortableList_btn_tt_moveUp, Player.DataTypeNameStatic), pos > 0,
+                               string.Format(GeneralLoc.SortableList_btn_tt_moveUp, Player.DataTypeName), pos > 0,
                                ButtonSizeVertical))
             CurrentGroup.SwapPlayers(pos - 1, pos);
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + lineSpacing * 0.5f);
         if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "##sortDown",
-                               string.Format(GeneralLoc.SortableList_btn_tt_moveDown, Player.DataTypeNameStatic),
+                               string.Format(GeneralLoc.SortableList_btn_tt_moveDown, Player.DataTypeName),
                                pos < CurrentGroup.Count - 1,
                                ButtonSizeVertical))
             CurrentGroup.SwapPlayers(pos, pos + 1);
@@ -414,7 +411,7 @@ internal class LootmasterUi : HrtWindow
             //Player Column
             ImGui.TableNextColumn();
             ImGui.SetNextItemWidth(30);
-            ImGui.Text($"{player.MainChar.MainClass?.Role.FriendlyName() ?? player.DataTypeName.Capitalized()}");
+            ImGui.Text($"{player.MainChar.MainClass?.Role.FriendlyName() ?? Player.DataTypeName.Capitalized()}");
             ImGui.SameLine();
             UiSystem.Helpers.DrawPlayerCombo("##playerCombo", player, p => group[pos] = p, 80 * ScaleFactor);
             ImGui.SameLine();
@@ -539,12 +536,12 @@ internal class LootmasterUi : HrtWindow
             }
             ImGui.TableNextColumn();
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##addNew",
-                                   string.Format(GeneralLoc.Ui_btn_tt_addEmpty, player.DataTypeName),
+                                   string.Format(GeneralLoc.Ui_btn_tt_addEmpty, Player.DataTypeName),
                                    true, ButtonSize))
                 UiSystem.EditWindows.Create(player);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addPlayerFromDB",
-                                   string.Format(GeneralLoc.Ui_btn_tt_addExisting, group[pos].DataTypeName), true,
+                                   string.Format(GeneralLoc.Ui_btn_tt_addExisting, RaidGroup.DataTypeName), true,
                                    ButtonSize))
                 _module.Services.HrtDataManager.PlayerDb.OpenSearchWindow(UiSystem,
                                                                           selected => group[pos] = selected);
@@ -560,8 +557,8 @@ internal class LootmasterUi : HrtWindow
             }
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addCharFromDB",
-                                   string.Format(GeneralLoc.Ui_btn_tt_addExisting,
-                                                 Character.DataTypeNameStatic), true, ButtonSize))
+                                   string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeName), true,
+                                   ButtonSize))
                 _module.Services.HrtDataManager.CharDb.OpenSearchWindow(UiSystem, selected =>
                 {
                     if (!_module.Services.HrtDataManager.PlayerDb.TryAdd(player))

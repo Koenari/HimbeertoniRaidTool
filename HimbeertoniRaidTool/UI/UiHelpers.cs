@@ -63,11 +63,11 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         using (ImRaii.Disabled(parent.ChildIsOpen))
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"FoodChangeItem",
-                    GeneralLoc.EditGearSetUi_btn_tt_selectItem))
+                                   GeneralLoc.EditGearSetUi_btn_tt_selectItem))
                 parent.AddChild(new SelectFoodItemWindow(uiSystem, onItemChange, _ => { },
-                    item,
-                    GameInfo.PreviousSavageTier
-                        ?.ItemLevel(GearSetSlot.Body) + 10 ?? 0));
+                                                         item,
+                                                         GameInfo.PreviousSavageTier
+                                                                 ?.ItemLevel(GearSetSlot.Body) + 10 ?? 0));
         }
         ImGui.SameLine();
         if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"DeleteFood", GeneralLoc.General_btn_tt_remove))
@@ -100,10 +100,10 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         using (ImRaii.Disabled(parent.ChildIsOpen))
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"{slot}changeItem",
-                    GeneralLoc.EditGearSetUi_btn_tt_selectItem))
+                                   GeneralLoc.EditGearSetUi_btn_tt_selectItem))
                 parent.AddChild(new SelectGearItemWindow(uiSystem, onItemChange, _ => { }, item, slot, curJob,
-                    GameInfo.CurrentExpansion.CurrentSavage?.ItemLevel(slot)
-                    ?? 0));
+                                                         GameInfo.CurrentExpansion.CurrentSavage?.ItemLevel(slot)
+                                                      ?? 0));
         }
         ImGui.SameLine();
         if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"Delete{slot}", GeneralLoc.General_btn_tt_remove))
@@ -284,9 +284,9 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         ImGui.SetNextItemWidth(width);
         using var combo = ImRaii.Combo(id, player.NickName, ImGuiComboFlags.NoArrowButton);
         if (!combo) return;
-        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_ReplaceNew, player.DataTypeName)))
+        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_ReplaceNew, Player.DataTypeName)))
             uiSystem.EditWindows.Create(new Player(), replaceCallback);
-        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_ReplaceKnown, player.DataTypeName)))
+        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_ReplaceKnown, Player.DataTypeName)))
             services.HrtDataManager.PlayerDb.OpenSearchWindow(uiSystem, replaceCallback);
 
     }
@@ -302,11 +302,11 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
             if (ImGui.Selectable(ToName(character)))
                 player.MainChar = character;
         }
-        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddNew, Character.DataTypeNameStatic)))
+        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddNew, Character.DataTypeName)))
         {
             uiSystem.EditWindows.Create(new Character(), player.AddCharacter);
         }
-        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, Character.DataTypeNameStatic)))
+        if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, Character.DataTypeName)))
         {
             services.HrtDataManager.CharDb.OpenSearchWindow(uiSystem, player.AddCharacter);
         }
@@ -339,8 +339,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
             var newJobs = Enum.GetValues<Job>()
                               .Where(j => j.IsCombatJob())
                               .Where(j => character.Classes.All(c => c.Job != j)).ToList();
-            newJobs.Sort(
-                (a, b) => string.Compare(a.ToString(), b.ToString(), StringComparison.InvariantCulture));
+            newJobs.Sort((a, b) => string.Compare(a.ToString(), b.ToString(), StringComparison.InvariantCulture));
             foreach (var newClass in newJobs)
             {
                 if (!ImGui.Selectable(string.Format(GeneralLoc.Ui_btn_tt_add, newClass.ToString()))) continue;
@@ -363,16 +362,16 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
             {
                 foreach (var curJobGearSet in list)
                 {
-                    using ImRaii.Color color = ImRaii.PushColor(ImGuiCol.Text, curJobGearSet.ManagedBy.TextColor());
+                    using var color = ImRaii.PushColor(ImGuiCol.Text, curJobGearSet.ManagedBy.TextColor());
                     if (ImGui.Selectable(
                             $"{curJobGearSet} - {curJobGearSet.ManagedBy.FriendlyName()}##{curJobGearSet.LocalId}"))
                         changeCallback(curJobGearSet);
                 }
-                if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddNew, current.DataTypeName)))
+                if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddNew, GearSet.DataTypeName)))
                 {
                     uiSystem.EditWindows.Create(new GearSet(), changeCallback, null, null, job);
                 }
-                if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, current.DataTypeName)))
+                if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, GearSet.DataTypeName)))
                 {
                     services.HrtDataManager.GearDb.OpenSearchWindow(uiSystem, changeCallback);
                 }
@@ -389,7 +388,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
             using (ImRaii.Group())
             {
                 ImGui.Image(uiSystem.GetIcon(food).ImGuiHandle,
-                    new Vector2(ImGui.GetTextLineHeightWithSpacing() * 1.4f));
+                            new Vector2(ImGui.GetTextLineHeightWithSpacing() * 1.4f));
                 ImGui.SameLine();
                 ImGui.Text(food.ToString());
             }

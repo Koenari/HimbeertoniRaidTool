@@ -47,7 +47,7 @@ public class LootRule(LootRuleEnum rule) : IEquatable<LootRule>, IDrawable, IHrt
     [JsonProperty("Active")] public bool Active = true;
 
     [JsonProperty("IgnoreActive")] public bool IgnorePlayers;
-    public static string DataTypeNameStatic => LootmasterLoc.LootRule_DataTypeName;
+    public static string DataTypeName => LootmasterLoc.LootRule_DataTypeName;
 
     public bool CanIgnore =>
         Rule switch
@@ -84,7 +84,6 @@ public class LootRule(LootRuleEnum rule) : IEquatable<LootRule>, IDrawable, IHrt
         }
     }
     public bool Equals(LootRule? obj) => obj?.Rule == Rule;
-    string IHrtDataType.DataTypeName => DataTypeNameStatic;
 
     public string Name => GetName();
 
