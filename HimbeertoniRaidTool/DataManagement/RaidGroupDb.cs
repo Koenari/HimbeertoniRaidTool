@@ -59,7 +59,7 @@ internal class RaidGroupDb(IIdProvider idProvider, IEnumerable<JsonConverter> co
             {
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{group.LocalId}",
-                                       string.Format(GeneralLoc.SearchWindow_btn_tt_SelectEnty, group.DataTypeName,
+                                       string.Format(GeneralLoc.SearchWindow_btn_tt_SelectEnty, RaidGroup.DataTypeName,
                                                      group)))
                 {
                     Selected = group;

@@ -33,20 +33,20 @@ public static class ImGuiHelper
     public static bool DeleteButton<T>(T data, bool enabled = true, Vector2? size = null)
         where T : IHrtDataType =>
         GuardedButton(FontAwesomeIcon.Eraser, "##delete",
-                      string.Format(GeneralLoc.General_btn_tt_delete, data.DataTypeName, data.Name), enabled,
+                      string.Format(GeneralLoc.General_btn_tt_delete, T.DataTypeName, data.Name), enabled,
                       size ?? new Vector2(50f, 25f));
     public static bool EditButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
         where T : IHrtDataType
-        => Button(FontAwesomeIcon.Edit, id, string.Format(GeneralLoc.General_btn_tt_edit, data.DataTypeName, ""),
+        => Button(FontAwesomeIcon.Edit, id, string.Format(GeneralLoc.General_btn_tt_edit, T.DataTypeName, ""),
                   enabled, size);
     public static bool DeleteButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
         where T : IHrtDataType =>
         GuardedButton(FontAwesomeIcon.Eraser, id,
-                      string.Format(GeneralLoc.General_btn_tt_delete, data.DataTypeName, data.Name), enabled, size);
+                      string.Format(GeneralLoc.General_btn_tt_delete, T.DataTypeName, data.Name), enabled, size);
     public static bool RemoveButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
         where T : IHrtDataType =>
         GuardedButton(FontAwesomeIcon.Eraser, id,
-                      string.Format(GeneralLoc.General_btn_tt_remove, data.DataTypeName, data.Name), enabled, size);
+                      string.Format(GeneralLoc.General_btn_tt_remove, T.DataTypeName, data.Name), enabled, size);
     public static bool AddButton(string dataType, string id, bool enabled = true, Vector2 size = default)
         => Button(FontAwesomeIcon.Plus, id, string.Format(GeneralLoc.Ui_btn_tt_add, dataType), enabled, size);
     public static bool GuardedButton(string label, string? tooltip, Vector2 size) =>
