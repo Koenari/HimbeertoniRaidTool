@@ -1,5 +1,6 @@
 ﻿using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
+using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
@@ -68,7 +69,7 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
                                 HrtUiMessageType.Failure);
     }
 
-    internal sealed class ConfigData : IHrtConfigData
+    internal sealed class ConfigData : IHrtConfigData<ConfigData>
     {
 
         #region ChangLog
@@ -130,6 +131,8 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData>
         [JsonProperty] public int GearUpdateCustomILvlCutoff;
 
         #endregion
+
+        public ConfigData Clone() => CloneService.Clone(this);
     }
 
     internal class ConfigUi(CoreConfig parent) : IHrtConfigUi

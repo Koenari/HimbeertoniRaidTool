@@ -1,15 +1,15 @@
 ﻿using System.Globalization;
 using Dalamud.Interface.Utility.Raii;
+using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using ImGuiNET;
 using Newtonsoft.Json;
-using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
 [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-public class LootRuling : ICloneable
+public class LootRuling : ICloneable<LootRuling>
 {
     public static readonly LootRule Default = new(LootRuleEnum.None);
     public static readonly LootRule NeedOverGreed = new(LootRuleEnum.NeedGreed);
@@ -33,6 +33,7 @@ public class LootRuling : ICloneable
             }
         }
     }
+    public LootRuling Clone() => CloneService.Clone(this);
 
     [JsonIgnore]
     public IEnumerable<LootRule> ActiveRules => RuleSet.Where(r => r.Active);

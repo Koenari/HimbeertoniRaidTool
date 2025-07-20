@@ -26,7 +26,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                               object? param = null)
         where TData : IHasHrtId, new()
     {
-        var type = new TData().IdType;
+        var type = TData.IdType;
         if (id.Type != type) return;
         switch (type)
         {
@@ -56,7 +56,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                               object? param = null)
         where TData : IHasHrtId
     {
-        HrtWindow? window = data.IdType switch
+        HrtWindow? window = TData.IdType switch
         {
             HrtId.IdType.Player when data is Player p => new EditPlayerWindow(this,
                                                                               p, onSave as Action<Player>, onCancel,
@@ -77,7 +77,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
     }
 
-    private abstract class EditWindow<TData> : HrtWindowWithModalChild where TData : IHrtDataTypeWithId
+    private abstract class EditWindow<TData> : HrtWindowWithModalChild
+        where TData : IHrtDataTypeWithId, ICloneable<TData>
     {
         private readonly Action? _onCancel;
         private readonly Action<TData>? _onSave;
@@ -92,14 +93,15 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         {
             Factory = factory;
             _original = original;
-            DataCopy = _original.Clone();
+            DataCopy = original.Clone();
             _onCancel = onCancel;
             _onSave = onSave;
             _onDelete = onDelete;
-            Title = string.Format(GeneralLoc.EditUi_Title, _original.DataTypeName, _original.Name)
+            Title = string.Format(GeneralLoc.EditUi_Title, TData.DataTypeName, _original.Name)
                           .Capitalized();
             OpenCentered = true;
         }
+
         public override sealed void Draw()
         {
             //Buttons
@@ -240,7 +242,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 ImGui.Text($"{character}");
             }
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "addEmpty",
-                                   string.Format(GeneralLoc.Ui_btn_tt_addEmpty, Character.DataTypeNameStatic)))
+                                   string.Format(GeneralLoc.Ui_btn_tt_addEmpty, Character.DataTypeName)))
             {
                 Factory.Create(new Character(), c =>
                 {
@@ -250,7 +252,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             }
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "addFromDb",
-                                   string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeNameStatic)))
+                                   string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeName)))
             {
                 AddChild(Factory.DataManager.CharDb.GetSearchWindow(UiSystem, c => DataCopy.AddCharacter(c)));
             }
@@ -322,7 +324,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
                 if (DataCopy.Classes.All(x => x.Job != DataCopy.MainJob))
                     DataCopy.MainJob = DataCopy.Classes.First().Job;
-                using (var combo = ImRaii.Combo(GeneralLoc.EditCharUi_in_mainJob, DataCopy.MainJob.ToString()))
+                using (var combo = ImRaii.Combo(GeneralLoc.EditCharUi_in_mainJob, DataCopy.MainJob.ToString()!))
                 {
                     if (combo)
                     {
@@ -330,7 +332,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                         {
                             if (ImGui.Selectable(curJob.Job.ToString()))
                                 DataCopy.MainJob = curJob.Job;
-                        }                        
+                        }
                     }
                 }
                 ImGui.Separator();
@@ -368,7 +370,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                                             j => DataCopy.Classes.All(y => y.Job != j)))
                 _newJob = job;
             ImGui.SameLine();
-            if (ImGuiHelper.AddButton(PlayableClass.DataTypeNameStatic, "##addJobBtn"))
+            if (ImGuiHelper.AddButton(PlayableClass.DataTypeName, "##addJobBtn"))
             {
                 var newClass = DataCopy[_newJob];
                 if (newClass == null)
@@ -534,7 +536,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             {
                 ImGui.Text(GeneralLoc.CommonTerms_Name);
                 ImGui.TableNextColumn();
-                ImGui.InputText("##name", ref DataCopy.Name, 100);    
+                ImGui.InputText("##name", ref DataCopy.Name, 100);
             }
             ImGui.TableNextColumn();
             ImGui.Text("Local alias");
@@ -553,7 +555,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.SetNextItemWidth(70 * ScaleFactor);
             using (ImRaii.Disabled(_providedJob is not null))
             {
-                ImGuiHelper.Combo("##JobSelection", ref _job);    
+                ImGuiHelper.Combo("##JobSelection", ref _job);
             }
             ImGui.TableNextColumn();
             ImGui.Text(GeneralLoc.EditGearSetUi_txt_Source);
