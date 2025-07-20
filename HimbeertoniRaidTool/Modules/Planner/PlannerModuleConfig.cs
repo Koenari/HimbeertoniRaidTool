@@ -44,11 +44,13 @@ internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.Con
         public void Save() => parent.Data = _dataCopy;
     }
 
-    internal class ConfigData : IHrtConfigData
+    internal class ConfigData : IHrtConfigData<ConfigData>
     {
         [JsonProperty("BeginOfWeek")] public DayOfWeek FirstDayOfWeek = DayOfWeek.Monday;
 
         public void AfterLoad(HrtDataManager dataManager) { }
         public void BeforeSave() { }
+
+        public ConfigData Clone() => (ConfigData)MemberwiseClone();
     }
 }

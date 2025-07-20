@@ -11,7 +11,6 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using ImGuiNET;
 using Lumina.Excel.Sheets;
 using Action = System.Action;
-using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -84,7 +83,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
     }
 
-    private abstract class EditWindow<TData> : HrtWindowWithModalChild where TData : IHrtDataTypeWithId
+    private abstract class EditWindow<TData> : HrtWindowWithModalChild
+        where TData : IHrtDataTypeWithId, ICloneable<TData>
     {
         private readonly Action? _onCancel;
         private readonly Action<TData>? _onSave;
@@ -93,14 +93,13 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         protected readonly EditWindowFactory Factory;
         private TData _original;
         protected TData DataCopy;
-        protected bool IsCloned => _original is ICloneable;
 
         protected EditWindow(EditWindowFactory factory, TData original, Action<TData>? onSave, Action? onCancel,
                              Action? onDelete) : base(factory.UiSystem)
         {
             Factory = factory;
             _original = original;
-            DataCopy = GetClonedIfPossible();
+            DataCopy = original.Clone();
             _onCancel = onCancel;
             _onSave = onSave;
             _onDelete = onDelete;
@@ -108,12 +107,6 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                           .Capitalized();
             OpenCentered = true;
         }
-
-        private TData GetClonedIfPossible() => _original switch
-        {
-            _ when _original is ICloneable org => (TData)org.Clone(),
-            _                                  => _original,
-        };
 
         public override sealed void Draw()
         {
@@ -125,7 +118,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 Hide();
             }
             ImGui.SameLine();
-            if (ImGuiHelper.CancelButton(null, IsCloned))
+            if (ImGuiHelper.CancelButton())
             {
                 Cancel();
                 _onCancel?.Invoke();
@@ -142,10 +135,6 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             }
             ImGui.SameLine();
             ImGui.Text($"{GeneralLoc.EditUi_Txt_LocalId}: {(_original.LocalId.IsEmpty ? "-" : _original.LocalId)}");
-            if (!IsCloned)
-            {
-                ImGui.TextColored(Colors.TextRed, "Changes are saved immediately! Cancel ist not available.");
-            }
             ImGui.Separator();
             ImGui.NewLine();
             DrawContent();
@@ -154,7 +143,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         protected void ReplaceOriginal(TData newOrg)
         {
             _original = newOrg;
-            DataCopy = GetClonedIfPossible();
+            DataCopy = _original.Clone();
         }
 
         protected abstract void Save(TData destination);

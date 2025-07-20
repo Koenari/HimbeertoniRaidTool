@@ -3,6 +3,7 @@ using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -212,7 +213,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
     }
 
     [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
-    internal sealed class ConfigData : IHrtConfigData
+    internal sealed class ConfigData : IHrtConfigData<ConfigData>
     {
         [JsonIgnore]
         private string? _itemFormatStringCache;
@@ -338,5 +339,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             }
             return string.Join(' ', result);
         }
+
+        public ConfigData Clone() => CloneService.Clone(this);
     }
 }

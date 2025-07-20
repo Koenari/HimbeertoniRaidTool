@@ -15,7 +15,7 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
 {
     private readonly DirectoryInfo _moduleConfigDir;
     private readonly HrtDataManager _parent;
-    private static readonly JsonSerializerSettings _jsonSerializerSettings = new()
+    private static readonly JsonSerializerSettings JsonSerializerSettings = new()
     {
         Formatting = Formatting.Indented,
         TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
@@ -41,7 +41,7 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
     {
         configData.BeforeSave();
         FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
-        string json = JsonConvert.SerializeObject(configData, _jsonSerializerSettings);
+        string json = JsonConvert.SerializeObject(configData, JsonSerializerSettings);
         bool writeSuccess;
         try
         {
@@ -60,7 +60,7 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
         if (!file.Exists) return true;
         if (!_parent.TryRead(file, out string json))
             return false;
-        var fromJson = JsonConvert.DeserializeObject<T>(json, _jsonSerializerSettings);
+        var fromJson = JsonConvert.DeserializeObject<T>(json, JsonSerializerSettings);
         if (fromJson != null)
         {
             configData = fromJson;

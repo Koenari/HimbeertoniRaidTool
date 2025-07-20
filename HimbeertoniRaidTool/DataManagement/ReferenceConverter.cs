@@ -66,7 +66,6 @@ public class OldHrtIdReferenceConverter<T> : JsonConverter<T> where T : class, I
         if (id is null)
             return new T();
         _db.TryGet(id, out var result);
-        result ??= new T();
-        return result;
+        return result ?? new T();
     }
 }
