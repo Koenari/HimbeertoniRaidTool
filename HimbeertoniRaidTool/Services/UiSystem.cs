@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Windowing;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -10,11 +11,9 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 
 public interface IWindowSystem
 {
-    public IEnumerable<HrtWindow> Windows { get; }
     void Draw();
     void AddWindow(HrtWindow ui);
     void RemoveAllWindows();
-    void RemoveWindow(HrtWindow hrtWindow);
 }
 
 public interface IUiSystem : IWindowSystem
@@ -25,6 +24,8 @@ public interface IUiSystem : IWindowSystem
     public IDalamudTextureWrap GetIcon(uint iconId, bool hq);
     public bool DrawConditionsMet();
     public ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType>;
+
+    public HrtDataManager GetHrtDataManager();
 
     public void OpenSettingsWindow();
 }
@@ -57,16 +58,18 @@ internal static class UiSystemFactory
             Services.DataManager.GetExcelSheet<TType>()
          ?? throw new NullReferenceException("UiSystem was not initialized");
 
+        public HrtDataManager GetHrtDataManager() => Services.HrtDataManager;
+
         public bool DrawConditionsMet() =>
             !(CoreModule.UiConfig.HideInCombat && Services.Condition[ConditionFlag.InCombat])
          && !Services.Condition[ConditionFlag.BetweenAreas];
 
         public void OpenSettingsWindow() => Services.ConfigManager.Show();
 
-        public IEnumerable<HrtWindow> Windows => _windowSystem.Windows;
         public void Draw()
         {
-            var toRemove = Windows.Where(window => window is { IsOpen: false, Persistent: false }).ToList();
+            var toRemove = _windowSystem.Windows.Where(window => window is { IsOpen: false, Persistent: false })
+                                        .ToList();
             foreach (var window in toRemove)
             {
                 Services.Logger.Debug($"Cleaning Up Window: {window.WindowName}");
@@ -83,7 +86,6 @@ internal static class UiSystemFactory
         }
 
         public void RemoveAllWindows() => _windowSystem.RemoveAllWindows();
-        public void RemoveWindow(HrtWindow hrtWindow) => _windowSystem.RemoveWindow(hrtWindow);
     }
 
     private class ModuleScopedUiSystem(IHrtModule module, IModuleServiceContainer services)

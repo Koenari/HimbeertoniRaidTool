@@ -514,4 +514,7 @@ You need to update to use this plugin!</value>
         <value>Replace with known {0}</value>
         <comment>{0} type of data</comment>
     </data>
+    <data name="GeneralTerm_Show_all" xml:space="preserve">
+        <value>Show all</value>
+    </data>
 </root>
