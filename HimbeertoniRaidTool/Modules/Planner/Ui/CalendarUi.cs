@@ -37,7 +37,7 @@ internal class CalendarUi : HrtWindow
 
     public override void Draw()
     {
-        _daySize.X = ImGui.GetWindowSize().X / 8f;
+        _daySize.X = (ImGui.GetWindowSize().X - 70 * ScaleFactor) / 7f;
         DrawHeader();
         ProcessInput();
         ImGui.NewLine();
@@ -66,7 +66,7 @@ internal class CalendarUi : HrtWindow
 
     private void DrawHeader()
     {
-        if (ImGuiHelper.Button(FontAwesomeIcon.AngleLeft, "prevMonth", null))
+        if (ImGuiHelper.Button(FontAwesomeIcon.AngleLeft, "prevMonth", "Show last month"))
         {
             if (_month == Month.January)
             {
@@ -80,7 +80,7 @@ internal class CalendarUi : HrtWindow
             }
         }
         ImGui.SameLine();
-        if (ImGuiHelper.Button(FontAwesomeIcon.AngleRight, "nextMonth", null))
+        if (ImGuiHelper.Button(FontAwesomeIcon.AngleRight, "nextMonth", "Show next month"))
         {
             if (_month == Month.December)
             {
@@ -116,16 +116,23 @@ internal class CalendarUi : HrtWindow
 
     private void DrawCalendar()
     {
-        using var table = ImRaii.Table("##calendar", 7, ImGuiTableFlags.Borders);
+        using var table = ImRaii.Table("##calendar", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp);
         if (!table) return;
 
-        ImGui.TableSetupColumn(Weekday.Monday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
-        ImGui.TableSetupColumn(Weekday.Tuesday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
-        ImGui.TableSetupColumn(Weekday.Wednesday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
-        ImGui.TableSetupColumn(Weekday.Thursday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
-        ImGui.TableSetupColumn(Weekday.Friday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
-        ImGui.TableSetupColumn(Weekday.Saturday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
-        ImGui.TableSetupColumn(Weekday.Sunday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
+        // ImGui.TableSetupColumn(Weekday.Monday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
+        // ImGui.TableSetupColumn(Weekday.Tuesday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
+        // ImGui.TableSetupColumn(Weekday.Wednesday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
+        // ImGui.TableSetupColumn(Weekday.Thursday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
+        // ImGui.TableSetupColumn(Weekday.Friday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
+        // ImGui.TableSetupColumn(Weekday.Saturday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
+        // ImGui.TableSetupColumn(Weekday.Sunday.Name(), ImGuiTableColumnFlags.WidthFixed, DaySize.X);
+        ImGui.TableSetupColumn(Weekday.Monday.Name());
+        ImGui.TableSetupColumn(Weekday.Tuesday.Name());
+        ImGui.TableSetupColumn(Weekday.Wednesday.Name());
+        ImGui.TableSetupColumn(Weekday.Thursday.Name());
+        ImGui.TableSetupColumn(Weekday.Friday.Name());
+        ImGui.TableSetupColumn(Weekday.Saturday.Name());
+        ImGui.TableSetupColumn(Weekday.Sunday.Name());
         ImGui.TableHeadersRow();
         DateOnly day = new(_year, (int)_month, 1);
         var nextMonth = day.AddMonths(1);
@@ -145,29 +152,34 @@ internal class CalendarUi : HrtWindow
 
     private void DrawDay(DateOnly date, IEnumerable<RaidSession> entries)
     {
-        bool isToday = date.Year == DateTime.Today.Year && date.DayOfYear == DateTime.Today.DayOfYear;
-        //using var group = ImRaii.Group();
         using var disabled = ImRaii.Disabled(date.Month != (int)_month);
-        using (ImRaii.PushColor(ImGuiCol.Text, Colors.TextPetrol, isToday))
+        using (ImRaii.PushColor(ImGuiCol.Text, Colors.TextPetrol, date == DateOnly.FromDateTime(DateTime.Today)))
         {
+            ImGui.Spacing();
             ImGui.Text($"{date.Day}");
-
+            ImGui.SameLine();
+            if (ImGuiHelper.AddButton(RaidSession.DataTypeName, $"#add{date.DayOfYear}"))
+            {
+                _module.Services.UiSystem.EditWindows.Create(new RaidSession(date.ToDateTime(TimeOnly.MinValue)));
+            }
             bool hasDrawn = false;
 
             foreach (var calendarEntry in entries)
             {
                 hasDrawn = true;
+                int maxInstances = GameInfo.CurrentSavageTier?.Bosses.Count ?? 0;
+                //Potentially read from entry
                 ImGui.Text(
-                    $"{calendarEntry.Name} ({calendarEntry.Participants.Count(e => e.InvitationStatus == InviteStatus.Accepted)}/{calendarEntry.Participants.Count()})");
+                    $"{calendarEntry.StartTime:t} - {calendarEntry.Name}\n"
+                  + $"{calendarEntry.Participants.Count(e => e.InvitationStatus.WillBePresent())}/{calendarEntry.Participants.Count()} Players\n"
+                  + $"{calendarEntry.PlannedContent.Count}/{maxInstances} Instances");
                 ImGui.SameLine();
                 if (ImGuiHelper.EditButton(calendarEntry, calendarEntry.LocalId.ToString()))
                     _module.Services.UiSystem.EditWindows.Create(calendarEntry);
             }
             if (!hasDrawn) ImGui.Text(PlannerLoc.UI_Calendar_Day_Nothing);
-            if (ImGuiHelper.AddButton(RaidSession.DataTypeName, $"#add{date.DayOfYear}"))
-            {
-                _module.Services.UiSystem.EditWindows.Create(new RaidSession(date.ToDateTime(TimeOnly.MinValue)));
-            }
+            ImGui.Spacing();
+            ImGui.Spacing();
         }
     }
 }
