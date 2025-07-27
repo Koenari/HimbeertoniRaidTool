@@ -15,6 +15,7 @@ public interface IDataBaseTable<T> where T : class, IHasHrtId<T>, new()
     internal Reference<T> GetRef(HrtId id);
     internal bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value);
     internal bool TryAdd(in T value);
+    internal bool TryRemove(T data);
     internal IEnumerable<T> GetValues();
     internal void OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
     internal HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
@@ -84,6 +85,9 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
             c.LocalId = idProvider.CreateId(T.IdType);
         return Data.TryAdd(c.LocalId, c);
     }
+
+    public virtual bool TryRemove(T data) => Data.Remove(data.LocalId);
+
     public virtual bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value)
     {
         value = Data.Values.FirstOrDefault(predicate, null);

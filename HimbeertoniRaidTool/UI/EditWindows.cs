@@ -772,70 +772,38 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.Text("Name");
             ImGui.SameLine();
             ImGui.InputText("##name", ref DataCopy.Title, 100);
-
-            using (var table = ImRaii.Table("##TimeSection", 3, ImGuiTableFlags.SizingFixedFit))
-            {
-                if (table)
-                {
-                    ImGui.TableNextColumn();
-                    ImGui.Text("Date");
-                    ImGui.TableNextColumn();
-                    ImGui.Text("Time");
-                    ImGui.TableNextColumn();
-                    ImGui.Text("Duration");
-                    ImGui.TableNextColumn();
-                    int day = DataCopy.StartTime.Day;
-                    ImGui.SetNextItemWidth(25 * ScaleFactor);
-                    if (ImGui.InputInt(".##Day", ref day, 0))
-                    {
-                        DataCopy.StartTime = DataCopy.StartTime.AddDays(day - DataCopy.StartTime.Day);
-                    }
-                    ImGui.SameLine();
-                    ImGui.SetNextItemWidth(25 * ScaleFactor);
-                    int month = DataCopy.StartTime.Month;
-                    if (ImGui.InputInt(".##Month", ref month, 0))
-                    {
-                        DataCopy.StartTime = DataCopy.StartTime.AddMonths(month - DataCopy.StartTime.Month);
-                    }
-                    ImGui.SameLine();
-                    ImGui.SetNextItemWidth(50 * ScaleFactor);
-                    int year = DataCopy.StartTime.Year;
-                    if (ImGui.InputInt("##Year", ref year, 0))
-                    {
-                        DataCopy.StartTime = DataCopy.StartTime.AddYears(year - DataCopy.StartTime.Year);
-                    }
-                    ImGui.TableNextColumn();
-                    ImGui.SetNextItemWidth(30 * ScaleFactor);
-                    int hour = DataCopy.StartTime.Hour;
-                    if (ImGui.InputInt(":##Hour", ref hour, 0))
-                    {
-                        DataCopy.StartTime = DataCopy.StartTime.AddHours(hour - DataCopy.StartTime.Hour);
-                    }
-                    ImGui.SameLine();
-                    ImGui.SetNextItemWidth(30 * ScaleFactor);
-                    int minute = DataCopy.StartTime.Minute;
-                    if (ImGui.InputInt("##Minute", ref minute, 0))
-                    {
-                        DataCopy.StartTime += TimeSpan.FromMinutes(minute - DataCopy.StartTime.Minute);
-                    }
-
-                    ImGui.TableNextColumn();
-                    int durHour = DataCopy.Duration.Hours;
-                    ImGui.SetNextItemWidth(30 * ScaleFactor);
-                    if (ImGui.InputInt(":##DurHour", ref durHour, 0))
-                    {
-                        DataCopy.Duration += TimeSpan.FromHours(durHour - DataCopy.Duration.Hours);
-                    }
-                    ImGui.SameLine();
-                    ImGui.SetNextItemWidth(30 * ScaleFactor);
-                    int durMinute = DataCopy.Duration.Minutes;
-                    if (ImGui.InputInt("##DurMinute", ref durMinute, 0))
-                    {
-                        DataCopy.Duration += TimeSpan.FromMinutes(durMinute % 60 - DataCopy.Duration.Minutes);
-                    }
-                }
-            }
+            ImGui.NewLine();
             ImGui.Text($"{DataCopy.StartTime:D} {DataCopy.StartTime:t} - {DataCopy.EndTime:t}");
+            using var table = ImRaii.Table("##TimeSection", 3, ImGuiTableFlags.SizingFixedFit);
+            if (!table) return;
+            bool changed = false;
+            ImGui.TableNextColumn();
+            ImGui.Text("Date");
+
+            ImGui.TableNextColumn();
+            ImGui.Text("Time");
+
+            ImGui.TableNextColumn();
+            ImGui.Text("Duration");
+
+            ImGui.TableNextColumn();
+            var date = DateOnly.FromDateTime(DataCopy.StartTime);
+            changed |= ImGuiHelper.DateInput("date", ref date);
+            ImGui.SameLine();
+            ImGui.Text("  ");
+            ImGui.Spacing();
+            ImGui.TableNextColumn();
+            var time = TimeOnly.FromDateTime(DataCopy.StartTime);
+            changed |= ImGuiHelper.TimeInput("time", ref time);
+            if (changed)
+                DataCopy.StartTime = new DateTime(date, time);
+            ImGui.SameLine();
+            ImGui.Text("  ");
+            ImGui.TableNextColumn();
+            var duration = DataCopy.Duration;
+            if (ImGuiHelper.DurationInput("duration", ref duration))
+                DataCopy.Duration = duration;
+
         }
 
         private void DrawParticipantSection()

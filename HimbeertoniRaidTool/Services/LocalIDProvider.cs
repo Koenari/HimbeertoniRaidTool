@@ -33,6 +33,7 @@ internal class LocalIdProvider : IIdProvider
     }
     //Public Functions
     public uint GetAuthorityIdentifier() => _data.Authority;
+    
     public bool SignId(HrtId id)
     {
         if (!IsInMyAuthority(id))
@@ -40,8 +41,10 @@ internal class LocalIdProvider : IIdProvider
         id.Signature = CalcSignature(id);
         return true;
     }
+    
     public HrtId CreateId(HrtId.IdType type) =>
         new(_data.Authority, type, CreateUniqueSequence(type));
+    
     public bool VerifySignature(HrtId id)
     {
         if (!IsInMyAuthority(id))
@@ -52,22 +55,25 @@ internal class LocalIdProvider : IIdProvider
         return correctSig.SequenceEqual(id.Signature);
 
     }
-    public HrtId CreateGearId(ulong seq) => new(_data.Authority, HrtId.IdType.Gear, seq);
-    internal HrtId CreateCharId(ulong seq) => new(_data.Authority, HrtId.IdType.Character, seq);
+    
     private bool IsInMyAuthority(HrtId id) => id.Authority == _data.Authority;
+    
     private ulong CreateUniqueSequence(HrtId.IdType type) => type switch
     {
-        HrtId.IdType.Gear      => _dataManager.GearDb.GetNextSequence(),
-        HrtId.IdType.Character => _dataManager.CharDb.GetNextSequence(),
-        HrtId.IdType.Player    => _dataManager.PlayerDb.GetNextSequence(),
-        HrtId.IdType.Group     => _dataManager.RaidGroupDb.GetNextSequence(),
-        _                      => _data.Counter++,
+        HrtId.IdType.Gear        => _dataManager.GearDb.GetNextSequence(),
+        HrtId.IdType.Character   => _dataManager.CharDb.GetNextSequence(),
+        HrtId.IdType.Player      => _dataManager.PlayerDb.GetNextSequence(),
+        HrtId.IdType.Group       => _dataManager.RaidGroupDb.GetNextSequence(),
+        HrtId.IdType.RaidSession => _dataManager.RaidSessionDb.GetNextSequence(),
+        _                        => _data.Counter++,
     };
+    
     private byte[] CalcSignature(HrtId id)
     {
         byte[] input = Encoding.UTF8.GetBytes(id.ToString());
         return _signingProvider.ComputeHash(input);
     }
+    
     private static void SecureRandom<T>(ref T num) where T : IBinaryInteger<T>
     {
         int byteCount = num.GetByteCount();

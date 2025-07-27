@@ -288,6 +288,98 @@ public static class ImGuiHelper
 
         return false;
     }
+
+    public static bool DateInput(string id, ref DateOnly date)
+    {
+        bool changed = false;
+        int day = date.Day;
+        ImGui.SetNextItemWidth(25 * HrtWindow.ScaleFactor);
+        if (ImGui.InputInt($".##{id}##Day", ref day, 0))
+        {
+            changed = true;
+            date = date.AddDays(day - date.Day);
+        }
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(25 * HrtWindow.ScaleFactor);
+        int month = date.Month;
+        if (ImGui.InputInt($".##{id}##Month", ref month, 0))
+        {
+            changed = true;
+            date = date.AddMonths(month - date.Month);
+        }
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(50 * HrtWindow.ScaleFactor);
+        int year = date.Year;
+        if (ImGui.InputInt($"##{id}##Year", ref year, 0))
+        {
+            changed = true;
+            date = date.AddYears(year - date.Year);
+        }
+        return changed;
+    }
+
+    public static bool TimeInput(string id, ref TimeOnly time)
+    {
+        bool changed = false;
+        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
+        int hour = time.Hour;
+        if (ImGui.InputInt($":##{id}##Hour", ref hour, 0))
+        {
+            changed = true;
+            time = time.AddHours(hour - time.Hour);
+        }
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
+        int minute = time.Minute;
+        if (ImGui.InputInt($"##{id}##Minute", ref minute, 0))
+        {
+            changed = true;
+            time = time.AddMinutes(minute - time.Minute);
+        }
+        return changed;
+    }
+
+    public static bool DateTimeInput(string id, ref DateTime dateTime)
+    {
+        bool changed = false;
+        using var table = ImRaii.Table("##TimeSection", 2, ImGuiTableFlags.SizingFixedFit);
+        if (!table) return changed;
+        ImGui.TableNextColumn();
+        ImGui.Text("Date");
+        ImGui.TableNextColumn();
+        ImGui.Text("Time");
+        ImGui.TableNextColumn();
+        var date = DateOnly.FromDateTime(dateTime);
+        changed |= DateInput(id, ref date);
+        ImGui.TableNextColumn();
+        var time = TimeOnly.FromDateTime(dateTime);
+        changed |= TimeInput(id, ref time);
+        if (changed)
+            dateTime = new DateTime(date, time);
+        return changed;
+    }
+
+    public static bool DurationInput(string id, ref TimeSpan duration)
+    {
+
+        bool changed = false;
+        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
+        int hour = duration.Hours;
+        if (ImGui.InputInt($":##{id}##DurHour", ref hour, 0))
+        {
+            changed = true;
+            duration += TimeSpan.FromHours(hour - duration.Hours);
+        }
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
+        int minute = duration.Minutes;
+        if (ImGui.InputInt($"##{id}##Minute", ref minute, 0))
+        {
+            changed = true;
+            duration += TimeSpan.FromMinutes(minute - duration.Minutes);
+        }
+        return changed;
+    }
 }
 
 public static class StringExtensions

@@ -174,8 +174,17 @@ internal class CalendarUi : HrtWindow
                   + $"{calendarEntry.Participants.Count(e => e.InvitationStatus.WillBePresent())}/{calendarEntry.Participants.Count()} Players\n"
                   + $"{calendarEntry.PlannedContent.Count}/{maxInstances} Instances");
                 ImGui.SameLine();
-                if (ImGuiHelper.EditButton(calendarEntry, calendarEntry.LocalId.ToString()))
-                    _module.Services.UiSystem.EditWindows.Create(calendarEntry);
+                using (ImRaii.Group())
+                {
+                    if (ImGuiHelper.EditButton(calendarEntry, calendarEntry.LocalId.ToString()))
+                        _module.Services.UiSystem.EditWindows.Create(calendarEntry, null, null,
+                                                                     () => _module.Services.HrtDataManager.RaidSessionDb
+                                                                         .TryRemove(calendarEntry));
+                    if (ImGuiHelper.Button(FontAwesomeIcon.Copy, "Copy", "Copy session"))
+                        UiSystem.AddWindow(new CopySessionWindow(UiSystem, calendarEntry));
+
+                }
+
             }
             if (!hasDrawn) ImGui.Text(PlannerLoc.UI_Calendar_Day_Nothing);
             ImGui.Spacing();
