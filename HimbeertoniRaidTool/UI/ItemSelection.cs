@@ -8,7 +8,7 @@ using Lumina.Excel;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-internal abstract class SelectItemWindow<T>(IUiSystem uiSystem, Action<T> onSave, Action<T?> onCancel) : HrtWindow(
+internal abstract class SelectItemWindow<T>(IUiSystem uiSystem, Action<T> onSave, Action<T?>? onCancel) : HrtWindow(
     uiSystem,
     null, ImGuiWindowFlags.NoCollapse)
     where T : Item
@@ -37,13 +37,13 @@ internal abstract class SelectItemWindow<T>(IUiSystem uiSystem, Action<T> onSave
         if (Item != null)
             onSave(Item);
         else
-            onCancel(Item);
+            onCancel?.Invoke(Item);
         Hide();
     }
 
     protected void Cancel()
     {
-        onCancel(Item);
+        onCancel?.Invoke(Item);
         Hide();
     }
 
@@ -199,8 +199,8 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             using (ImRaii.PushColor(ImGuiCol.Button, Colors.RedWood, isCurrentItem))
             {
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", GeneralLoc.SelectItemUi_btn_tt_useThis,
-                        true,
-                        new Vector2(32f, 32f)))
+                                       true,
+                                       new Vector2(32f, 32f)))
                 {
                     if (isCurrentItem)
                         Cancel();
@@ -308,6 +308,26 @@ internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
             mat.Draw();
         }
     }
+}
 
+internal class SelectLootItemWindow : SelectItemWindow<Item>
+{
+    private readonly InstanceWithLoot _instance;
+    public SelectLootItemWindow(IUiSystem uiSystem,
+                                InstanceWithLoot instance,
+                                Action<Item> onSave,
+                                Action<Item?>? onCancel = null) : base(uiSystem, onSave, onCancel)
+    {
+        _instance = instance;
+        Title = instance.Name;
+    }
 
+    protected override void DrawItemSelection()
+    {
+        foreach (var loot in _instance.PossibleItems)
+        {
+            if (ImGuiHelper.Button(loot.Name, GeneralLoc.SelectItemUi_btn_tt_useThis))
+                Save(loot);
+        }
+    }
 }

@@ -852,7 +852,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 ImGuiHelper.Combo("##part-status", ref participant.ParticipationStatus);
             }
             if (toDelete is not null)
-                DataCopy.Remove(toDelete);
+                DataCopy.Uninvite(toDelete);
             ImGui.TableNextColumn();
             ImGui.TableNextColumn();
             ImGui.Text("Set All");
@@ -885,15 +885,15 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                                             GameInfo.CurrentSavageTier!.Bosses, i => i.Name,
                                             (inst, sP) => inst.Name.Contains(sP),
                                             inst => DataCopy.PlannedContent.All(c => c.Instance != inst)))
-                DataCopy.PlannedContent.Add(new InstanceSession(instance));
-            using var table = ImRaii.Table("##ContentTable", 4, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
-            ;
-            ;
+                DataCopy.AddInstance(new InstanceSession(instance));
+            using var table =
+                ImRaii.Table("##ContentTable", 5, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp);
             if (!table) return;
             ImGui.TableSetupColumn("");
             ImGui.TableSetupColumn("Name");
             ImGui.TableSetupColumn("Plan");
             ImGui.TableSetupColumn("Killed?");
+            ImGui.TableSetupColumn("Loot");
             ImGui.TableHeadersRow();
             InstanceSession? toDelete = null;
             foreach (var instanceSession in DataCopy.PlannedContent)
@@ -911,9 +911,33 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 ImGuiHelper.Combo("##plan", ref instanceSession.Plan);
                 ImGui.TableNextColumn();
                 ImGui.Checkbox("##killed", ref instanceSession.Killed);
+                ImGui.TableNextColumn();
+                if (instanceSession.Loot.Count <= 0) continue;
+                using var table2 = ImRaii.Table("Loot", 2, ImGuiTableFlags.SizingFixedFit);
+                if (!table2) continue;
+                foreach (var playerLoot in instanceSession.Loot)
+                {
+                    using var id2 = ImRaii.PushId(playerLoot.Key.Player.Id.ToString());
+                    ImGui.TableNextColumn();
+                    ImGui.Text(playerLoot.Key.Player.Data.Name);
+                    ImGui.TableNextColumn();
+                    foreach (var item in playerLoot.Value)
+                    {
+                        ImGuiHelper.DeleteButton(item);
+                        ImGui.SameLine();
+                        ImGui.Text(item.Name);
+
+                    }
+                    if (ImGuiHelper.AddButton("loot", "Add loot"))
+                        UiSystem.AddWindow(
+                            new SelectLootItemWindow(UiSystem, instanceSession.Instance,
+                                                     item => playerLoot.Value.Add(item)));
+                    ;
+                }
+
             }
             if (toDelete is not null)
-                DataCopy.PlannedContent.Remove(toDelete);
+                DataCopy.RemoveInstance(toDelete);
         }
 
         protected override void Save(RaidSession destination)

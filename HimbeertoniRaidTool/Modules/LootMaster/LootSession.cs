@@ -181,7 +181,7 @@ public class LootSession
             Killed = true,
             Plan = InstanceSession.PlannedStatus.NotPlanned,
         };
-        RaidSession?.PlannedContent.Add(session);
+        RaidSession?.AddInstance(session);
     }
 }
 
