@@ -1,9 +1,11 @@
 name: Distribute Update
 
-on: 
+on:
   push:
     branches:
       - master
+      - main
+      - testing
       - 'hotfix/**'
 
 env:
@@ -18,116 +20,116 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{steps.newver.outputs.info}}
-      oldversion: ${{steps.oldver.outputs.info}}
+      old-version: ${{steps.oldver.outputs.info}}
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: 'true'
-        fetch-depth: 2
-    - name: Get new version
-      id: newver
-      uses: mavrosxristoforos/get-xml-info@2.0
-      with:
-        xml-file: ${{env.PROJ_FILE}}
-        xpath: '/Project/PropertyGroup/Version'
-    - name: Checkout previos commit
-      run: 'git checkout HEAD^'
-    - name: Get old version
-      id: oldver
-      uses: mavrosxristoforos/get-xml-info@2.0
-      with:
-        xml-file: ${{env.PROJ_FILE}}
-        xpath: '/Project/PropertyGroup/Version'
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+          fetch-depth: 2
+      - name: Get new version
+        id: newver
+        uses: mavrosxristoforos/get-xml-info@2.0
+        with:
+          xml-file: ${{env.PROJ_FILE}}
+          xpath: '/Project/PropertyGroup/Version'
+      - name: Checkout previous commit
+        run: 'git checkout HEAD^'
+      - name: Get old version
+        id: oldver
+        uses: mavrosxristoforos/get-xml-info@2.0
+        with:
+          xml-file: ${{env.PROJ_FILE}}
+          xpath: '/Project/PropertyGroup/Version'
   build:
     name: 'Build and test plugin'
     runs-on: windows-latest
     needs: version-check
-    if: ${{needs.version-check.outputs.version != needs.version-check.outputs.oldversion}}
+    if: ${{needs.version-check.outputs.version != needs.version-check.outputs.old-version}}
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: 'true'
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
-    - name: Download Dalamud
-      run: |
-        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/${{vars.DALAMUD_BRANCH}}/latest.zip -OutFile latest.zip
-        Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - uses: actions/upload-artifact@v4
-      with:
-        name: package
-        path: ${{env.PLUGIN_PACKAGE}}
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+          cache: true
+      - name: Download Dalamud
+        run: |
+          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/${{vars.DALAMUD_BRANCH}}/latest.zip -OutFile latest.zip
+          Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: ${{env.PLUGIN_PACKAGE}}
   create_manifest:
     name: "Create manifest.toml"
     runs-on: ubuntu-latest
     needs: version-check
-    if: ${{needs.version-check.outputs.version != needs.version-check.outputs.oldversion}}
+    if: ${{needs.version-check.outputs.version != needs.version-check.outputs.old-version}}
     outputs:
-      changelog: ${{ steps.yaml-data.outputs.data}}
+      changelog: ${{ steps.yaml-data.outputs.result}}
     steps:
-    - uses: actions/checkout@v3
-    - name: Read changelog
-      id: yaml-data
-      uses: jbutcher5/read-yaml@main
-      with:
-        file: "./HimbeertoniRaidTool/HimbeertoniRaidTool.yaml"
-        key-path: '["changelog"]'
-    - name: Write commit
-      uses: sandstromviktor/toml-editor@2.0.0
-      with:
-        file: "HimbeertoniRaidTool/manifest.toml"
-        key: "plugin.commit"
-        value: "${{ github.sha }}"
-    - name: Write changelog
-      uses: sandstromviktor/toml-editor@2.0.0
-      with:
-        file: "HimbeertoniRaidTool/manifest.toml"
-        key: "plugin.changelog"
-        value: "${{ steps.yaml-data.outputs.data }}"
-    - uses: actions/upload-artifact@v4
-      with:
-        name: manifest
-        path: HimbeertoniRaidTool/manifest.toml
+      - uses: actions/checkout@v4
+      - name: Read changelog
+        id: yaml-data
+        uses: mikefarah/yq@v4
+        with:
+          cmd: 'yq .changelog ./HimbeertoniRaidTool/HimbeertoniRaidTool.yaml'
+      - name: Write commit
+        uses: sandstromviktor/toml-editor@2.0.0
+        with:
+          file: "HimbeertoniRaidTool/manifest.toml"
+          key: "plugin.commit"
+          value: "${{ github.sha }}"
+      - name: Write changelog
+        uses: sandstromviktor/toml-editor@2.0.0
+        with:
+          file: "HimbeertoniRaidTool/manifest.toml"
+          key: "plugin.changelog"
+          value: "${{ steps.yaml-data.outputs.result }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: manifest
+          path: HimbeertoniRaidTool/manifest.toml
   create_release:
     name: 'Create Tag and Release'
     runs-on: ubuntu-latest
     if: ${{vars.CREATE_RELEASE}}
-    needs: [create_manifest, build, version-check]
+    needs: [ create_manifest, build, version-check ]
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Create Tag
-      uses: actions/github-script@v3
-      with:
-        github-token: ${{ github.token }}
-        script: |
-          github.git.createRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: "refs/tags/${{needs.version-check.outputs.version}}",
-            sha: context.sha
-          })
-    - name: 'Download packaged build'
-      uses: actions/download-artifact@v4
-      with:
-        name: package
-        path: artifacts
-    - name: 'Create Release'
-      uses: softprops/action-gh-release@v1
-      with:
-        body: ${{needs.create_manifest.outputs.changelog}}
-        tag_name: ${{needs.version-check.outputs.version}}
-        generate_release_notes: true
-        prerelease: ${{github.ref_name}} != master
-        files: artifacts/*
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Create Tag
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{needs.version-check.outputs.version}}",
+              sha: context.sha
+            })
+      - name: 'Download packaged build'
+        uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: artifacts
+      - name: 'Create Release'
+        uses: softprops/action-gh-release@v1
+        with:
+          body: ${{needs.create_manifest.outputs.changelog}}
+          tag_name: ${{needs.version-check.outputs.version}}
+          generate_release_notes: true
+          prerelease: ${{github.ref_name}} == testing
+          files: artifacts/*
   deploy_d17:
     name: Commit to D17 fork
     runs-on: ubuntu-latest
@@ -135,62 +137,62 @@ jobs:
     env:
       version: ${{needs.version-check.outputs.version}}
       changelog: ${{needs.create_manifest.outputs.changelog}}
-    needs: [create_manifest, build, version-check]
+    needs: [ create_manifest, build, version-check ]
     steps:
-    - name: Sync D17 fork
-      uses: AbdulmelikKalkan/sync-fork-upstream@v1.3
-      env:
-        ACCESS_TOKEN: ${{secrets.DEPLOY_PAT}}
-      with:
-        owner: ${{github.repository_owner}}
-        repo: DalamudPluginsD17
-        branch: main
-    - name: Checkout D17 Fork
-      uses: actions/checkout@v4
-      with:
-        repository: ${{github.repository_owner}}/DalamudPluginsD17
-        token: ${{secrets.DEPLOY_PAT}}
-        fetch-depth: 0
-        ref: main
-        path: d17repo
-    - name: Downlaod Manifest
-      uses: actions/download-artifact@v4
-      with:
-        name: manifest
-        path: artifacts
-    - name: Create testing branch
-      run: |
-        cd d17repo
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git branch --track testing-${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}} main
-        git checkout testing-${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}
-        cp ../artifacts/manifest.toml testing/live/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
-        git add testing/live/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
-        git commit -m "[Testing] ${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
-    - name: Push testing
-      uses: ad-m/github-push-action@master
-      with:
-        repository: ${{github.repository_owner}}/DalamudPluginsD17
-        github_token: ${{ secrets.DEPLOY_PAT }}
-        directory: d17repo
-        branch: testing-${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}  
-    - name: Create stable branch
-      if: ${{github.ref_name}} == master
-      run: |
-        cd d17repo
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git branch --track ${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}} main
-        git checkout ${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}
-        cp ../artifacts/manifest.toml stable/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
-        git add stable/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
-        git commit -m "${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
-    - name: Push stable
-      uses: ad-m/github-push-action@master
-      with:
-        repository: ${{github.repository_owner}}/DalamudPluginsD17
-        github_token: ${{ secrets.DEPLOY_PAT }}
-        directory: d17repo
-        branch: ${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}
+      - name: Sync D17 fork
+        uses: AbdulmelikKalkan/sync-fork-upstream@v1.3
+        env:
+          ACCESS_TOKEN: ${{secrets.DEPLOY_PAT}}
+        with:
+          owner: ${{github.repository_owner}}
+          repo: DalamudPluginsD17
+          branch: main
+      - name: Checkout D17 Fork
+        uses: actions/checkout@v4
+        with:
+          repository: ${{github.repository_owner}}/DalamudPluginsD17
+          token: ${{secrets.DEPLOY_PAT}}
+          fetch-depth: 0
+          ref: main
+          path: d17repo
+      - name: Downlaod Manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: manifest
+          path: artifacts
+      - name: Create testing branch
+        run: |
+          cd d17repo
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git branch --track testing-${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}} main
+          git checkout testing-${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}
+          cp ../artifacts/manifest.toml testing/live/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
+          git add testing/live/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
+          git commit -m "[Testing] ${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
+      - name: Push testing
+        uses: ad-m/github-push-action@master
+        with:
+          repository: ${{github.repository_owner}}/DalamudPluginsD17
+          github_token: ${{ secrets.DEPLOY_PAT }}
+          directory: d17repo
+          branch: testing-${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}
+      - name: Create stable branch
+        if: '${{ github.ref_name != ''testing''}}'
+        run: |
+          cd d17repo
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git branch --track ${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}} main
+          git checkout ${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}
+          cp ../artifacts/manifest.toml stable/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
+          git add stable/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
+          git commit -m "${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
+      - name: Push stable
+        uses: ad-m/github-push-action@master
+        with:
+          repository: ${{github.repository_owner}}/DalamudPluginsD17
+          github_token: ${{ secrets.DEPLOY_PAT }}
+          directory: d17repo
+          branch: ${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}
         
