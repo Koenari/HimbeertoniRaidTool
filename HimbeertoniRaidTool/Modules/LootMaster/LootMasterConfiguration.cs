@@ -12,12 +12,13 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
-internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfiguration.ConfigData>, IHrtConfiguration
+internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfiguration.ConfigData, LootMasterModule>,
+                                         IHrtConfiguration
 {
     private const int TARGET_VERSION = 2;
 
     private bool _fullyLoaded;
-    public LootMasterConfiguration(IHrtModule hrtModule) : base(hrtModule)
+    public LootMasterConfiguration(LootMasterModule hrtModule) : base(hrtModule)
     {
         Ui = new ConfigUi(this);
 

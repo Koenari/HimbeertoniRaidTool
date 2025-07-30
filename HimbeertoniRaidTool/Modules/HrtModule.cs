@@ -6,9 +6,10 @@ namespace HimbeertoniRaidTool.Plugin.Modules;
 
 public interface IHrtModule
 {
-    string Name { get; }
-    string InternalName { get; }
-    string Description { get; }
+    static abstract string Name { get; }
+    static abstract string InternalName { get; }
+    static abstract string Description { get; }
+    static abstract bool CanBeDisabled { get; }
     IHrtConfiguration Configuration { get; }
     IEnumerable<HrtCommand> Commands { get; }
     IModuleServiceContainer Services { get; }
@@ -18,6 +19,11 @@ public interface IHrtModule
     void PrintUsage(string command, string args);
     void OnLanguageChange(CultureInfo culture);
     void Dispose();
+}
+
+internal interface IHrtModule<TModule> : IHrtModule where TModule : IHrtModule
+{
+    public static abstract TModule Create(IModuleServiceContainer services);
 }
 
 public readonly record struct HrtCommand

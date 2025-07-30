@@ -32,9 +32,10 @@ public interface IUiSystem : IWindowSystem
 
 internal static class UiSystemFactory
 {
-    public static IUiSystem CreateUiSystem(IHrtModule module, IModuleServiceContainer services) =>
-        new ModuleScopedUiSystem(module, services);
-    public static IUiSystem CreateUiSystem(IGlobalServiceContainer services) => new GlobalUiSystem(services);
+    public static IUiSystem CreateUiSystem<TModule>(IModuleServiceContainer services)
+        where TModule : IHrtModule =>
+        new ModuleScopedUiSystem<TModule>(services);
+    public static IUiSystem CreateGlobalUiSystem(IGlobalServiceContainer services) => new GlobalUiSystem(services);
 
     private abstract class UiSystem : IUiSystem
     {
@@ -88,8 +89,9 @@ internal static class UiSystemFactory
         public void RemoveAllWindows() => _windowSystem.RemoveAllWindows();
     }
 
-    private class ModuleScopedUiSystem(IHrtModule module, IModuleServiceContainer services)
-        : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT::{module.InternalName}")), services);
+    private class ModuleScopedUiSystem<TModule>(IModuleServiceContainer services)
+        : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT::{TModule.InternalName}")), services)
+        where TModule : IHrtModule;
 
     private class GlobalUiSystem(IGlobalServiceContainer services)
         : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT")), services);

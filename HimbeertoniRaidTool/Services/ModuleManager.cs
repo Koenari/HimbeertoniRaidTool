@@ -40,10 +40,11 @@ internal class ModuleManager
     private readonly ICommandManager _commandManager;
     private readonly LocalizationManager _localizationManager;
     private readonly IDalamudPluginInterface _pluginInterface;
+    private readonly ServiceContainerFactory _serviceContainerFactory;
 
     public ModuleManager(ILogger logger, ConfigurationManager configurationManager, HrtDataManager dataManager,
                          ICommandManager commandManager, LocalizationManager localizationManager,
-                         IDalamudPluginInterface pluginInterface)
+                         IDalamudPluginInterface pluginInterface, ServiceContainerFactory serviceContainerFactory)
     {
         _configurationManager = configurationManager;
         _dataManager = dataManager;
@@ -51,15 +52,12 @@ internal class ModuleManager
         _logger = logger;
         _localizationManager = localizationManager;
         _pluginInterface = pluginInterface;
+        _serviceContainerFactory = serviceContainerFactory;
         _dataManager.ModuleConfigurationManager.LoadConfiguration(CONFIG_FILE_NAME, ref _config);
-        _coreModule = new ModuleManifest<CoreModule>(this, Modules.Core.CoreModule.INTERNAL_NAME);
-        _lootMasterModule = CreateModule<LootMasterModule>(Modules.LootMaster.LootMasterModule.INTERNAL_NAME, false);
-        _plannerModule = CreateModule<PlannerModule>(Modules.Planner.PlannerModule.INTERNAL_NAME, true);
+        _coreModule = new ModuleManifest<CoreModule>(this);
+        _lootMasterModule = new ModuleManifest<LootMasterModule>(this, _config.IsModuleEnabled<LootMasterModule>());
+        _plannerModule = new ModuleManifest<PlannerModule>(this, _config.IsModuleEnabled<PlannerModule>());
     }
-
-    private ModuleManifest<TMod> CreateModule<TMod>(string internalName, bool canBeDisabled)
-        where TMod : class, IHrtModule, new() =>
-        new(this, internalName, _config.IsModuleEnabled(internalName), canBeDisabled);
 
     internal void UpdateConfiguration(Dictionary<IModuleManifest, bool> moduleConfigurationUpdate)
     {
@@ -95,14 +93,16 @@ internal class ModuleManager
         _coreModule.Enable();
         foreach (var moduleManifest in AvailableModules)
         {
-            _config.ModuleEnabled.TryAdd(moduleManifest.InternalName, true);
-            if (!_config.ModuleEnabled[moduleManifest.InternalName])
+            if (!_config.IsModuleEnabled(moduleManifest.InternalName))
                 moduleManifest.Disable();
             moduleManifest.Load();
         }
         if (_lootMasterModule.Loaded)
             _pluginInterface.UiBuilder.OpenMainUi += _lootMasterModule.Module.ShowUi;
     }
+
+    private IModuleServiceContainer CreateModuleServiceContainer<TModule>() where TModule : IHrtModule =>
+        _serviceContainerFactory.CreateModuleServiceContainer<TModule>();
 
     private void RemoveCommand(HrtCommand command)
     {
@@ -176,17 +176,15 @@ internal class ModuleManager
 
     private class ModuleManifest<TModule>(
         ModuleManager parent,
-        string internalName,
-        bool enabled = true,
-        bool canBeDisabled = false)
-        : IInternalModuleManifest, IModuleManifest<TModule> where TModule : class, IHrtModule, new()
+        bool enabled = true)
+        : IInternalModuleManifest, IModuleManifest<TModule> where TModule : class, IHrtModule<TModule>
     {
-        public string InternalName => internalName;
+        public string InternalName => TModule.InternalName;
         public TModule? Module { get; private set; }
 
-        public bool CanBeDisabled { get; } = canBeDisabled;
+        public bool CanBeDisabled => TModule.CanBeDisabled;
 
-        public bool Enabled { get; private set; } = enabled;
+        public bool Enabled { get; private set; } = enabled | !TModule.CanBeDisabled;
         public event Action<IModuleManifest<TModule>>? StateChanged;
 
         [MemberNotNullWhen(true, nameof(Module))]
@@ -211,19 +209,19 @@ internal class ModuleManager
             try
             {
                 parent._logger.Debug($"Creating instance of: {moduleType.Name}");
-                var module = new TModule();
+                var module = TModule.Create(parent.CreateModuleServiceContainer<TModule>());
                 if (parent._configurationManager.RegisterConfig(module.Configuration))
                     module.Configuration.AfterLoad();
                 else
-                    parent._logger.Error($"Configuration load error:{module.Name}");
-                parent._logger.Debug($"Calling {module.InternalName}.AfterFullyLoaded()");
+                    parent._logger.Error($"Configuration load error:{TModule.Name}");
+                parent._logger.Debug($"Calling {TModule.InternalName}.AfterFullyLoaded()");
                 module.AfterFullyLoaded();
                 parent._localizationManager.OnLanguageChanged += module.OnLanguageChange;
                 foreach (var command in module.Commands)
                 {
                     parent.AddCommand(command);
                 }
-                parent._logger.Information($"Successfully loaded module: {module.Name}");
+                parent._logger.Information($"Successfully loaded module: {TModule.Name}");
                 Module = module;
                 StateChanged?.Invoke(this);
             }
@@ -261,6 +259,8 @@ internal class ModuleManager
     private class ConfigData : IHrtConfigData
     {
         [JsonProperty] public Dictionary<string, bool> ModuleEnabled { get; set; } = [];
+
+        public bool IsModuleEnabled<TModule>() where TModule : IHrtModule => IsModuleEnabled(TModule.InternalName);
 
         public bool IsModuleEnabled(string internalName) =>
             ModuleEnabled.TryAdd(internalName, true) || ModuleEnabled[internalName];

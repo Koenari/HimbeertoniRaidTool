@@ -6,18 +6,23 @@ using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Planner;
 
-public class PlannerModule : IHrtModule
+public class PlannerModule : IHrtModule<PlannerModule>
 {
+    #region Static
+
+    public static string Name => PlannerLoc.Module_Name;
+
+    public static string InternalName => "Planner";
+
+    public static string Description => PlannerLoc.Module_Description;
+
+    public static bool CanBeDisabled => true;
+
+    #endregion
     public IHrtConfiguration Configuration => ModuleConfigImpl;
 
     internal readonly PlannerModuleConfig ModuleConfigImpl;
-    public string Name => PlannerLoc.Module_Name;
 
-    public const string INTERNAL_NAME = "Planner";
-
-    public string InternalName => INTERNAL_NAME;
-
-    public string Description => PlannerLoc.Module_Description;
 
     public RaidSession? ActiveSession { get; private set; }
     private RaidSession? _nextSession = null;
@@ -42,9 +47,9 @@ public class PlannerModule : IHrtModule
 
     public event Action? UiReady;
 
-    public PlannerModule()
+    private PlannerModule(IModuleServiceContainer services)
     {
-        Services = ServiceManager.GetServiceContainer(this);
+        Services = services;
         PlannerLoc.Culture = Services.LocalizationManager.CurrentLocale;
         ModuleConfigImpl = new PlannerModuleConfig(this);
         _calendarUi = new CalendarUi(this);
@@ -57,6 +62,7 @@ public class PlannerModule : IHrtModule
         UpdateNextSession();
     }
 
+    public static PlannerModule Create(IModuleServiceContainer services) => new(services);
     private void UpdateNextSession()
     {
         foreach (var session in Services.HrtDataManager.RaidSessionDb.GetValues())

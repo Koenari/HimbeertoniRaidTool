@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Planner;
 
-internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.ConfigData>
+internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.ConfigData, PlannerModule>
 {
-    public PlannerModuleConfig(IHrtModule module) : base(module)
+    public PlannerModuleConfig(PlannerModule module) : base(module)
     {
         _ui = new ConfigUi(this);
     }

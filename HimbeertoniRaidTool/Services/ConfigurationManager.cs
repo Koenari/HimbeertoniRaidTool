@@ -152,13 +152,13 @@ public interface IHrtConfiguration
     public void AfterLoad();
 }
 
-internal abstract class ModuleConfiguration<T>(IHrtModule module) : IHrtConfiguration
-    where T : IHrtConfigData, new()
+internal abstract class ModuleConfiguration<TData, TModule>(TModule module) : IHrtConfiguration
+    where TData : IHrtConfigData, new() where TModule : IHrtModule
 {
-    private T _data = new();
-    protected readonly IHrtModule Module = module;
+    private TData _data = new();
+    protected readonly TModule Module = module;
 
-    public T Data
+    public TData Data
     {
         get => _data;
         protected set
@@ -168,8 +168,8 @@ internal abstract class ModuleConfiguration<T>(IHrtModule module) : IHrtConfigur
         }
     }
 
-    public string ParentInternalName => Module.InternalName;
-    public string ParentName => Module.Name;
+    public string ParentInternalName => TModule.InternalName;
+    public string ParentName => TModule.Name;
     public abstract IHrtConfigUi? Ui { get; }
 
     public event Action? OnConfigChange;

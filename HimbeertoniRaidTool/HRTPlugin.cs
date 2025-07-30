@@ -6,14 +6,14 @@ namespace HimbeertoniRaidTool.Plugin;
 public sealed class HrtPlugin : IDalamudPlugin
 {
 
-    private readonly IGlobalServiceContainer _services;
+    private readonly GlobalServiceContainer _serviceContainer;
 
     public HrtPlugin(IDalamudPluginInterface pluginInterface)
     {
         //Init all services
-        _services = ServiceManager.Get(pluginInterface);
-        _services.ModuleManager.LoadModules();
+        _serviceContainer = new GlobalServiceContainer(pluginInterface);
+        _serviceContainer.ModuleManager.LoadModules();
     }
 
-    public void Dispose() => _services.Dispose();
+    public void Dispose() => _serviceContainer.Dispose();
 }
