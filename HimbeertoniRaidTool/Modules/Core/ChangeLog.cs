@@ -8,6 +8,10 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 9, 1, 0))
+        {
+            NotableFeatures = { new ChangeLogEntry(General, "Updated for 7.3") },
+        },
         new(new Version(1, 9, 0, 5))
         {
             MinorFeatures =
