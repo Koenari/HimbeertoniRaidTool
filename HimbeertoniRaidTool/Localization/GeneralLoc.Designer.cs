@@ -776,6 +776,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Show all.
+        /// </summary>
+        internal static string GeneralTerm_Show_all {
+            get {
+                return ResourceManager.GetString("GeneralTerm_Show_all", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Get character from DB.
         /// </summary>
         internal static string GetCharacterWindow_Title {

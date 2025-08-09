@@ -1,13 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
-using ICloneable = HimbeertoniRaidTool.Common.Data.ICloneable;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -60,6 +59,7 @@ public class ConfigurationManager : IDisposable
     private class ConfigUi : HrtWindow
     {
         private readonly ConfigurationManager _configManager;
+        private readonly Dictionary<IModuleManifest, bool> _availableModules = new();
 
         public ConfigUi(ConfigurationManager configManager) : base(configManager._services.UiSystem,
                                                                    "HimbeerToniRaidToolConfiguration")
@@ -74,6 +74,11 @@ public class ConfigurationManager : IDisposable
 
         public override void OnOpen()
         {
+            _availableModules.Clear();
+            foreach (var manifest in _configManager._services.ModuleManager.GetAvailableModules())
+            {
+                _availableModules.Add(manifest, manifest.Enabled);
+            }
             foreach (var config in _configManager._configurations.Values)
             {
                 config.Ui?.OnShow();
@@ -96,14 +101,20 @@ public class ConfigurationManager : IDisposable
             if (ImGuiHelper.CancelButton())
                 Cancel();
             using var tabBar = ImRaii.TabBar("Modules");
-            foreach (var c in _configManager._configurations.Values)
+            foreach (var moduleManifest in _availableModules.Keys)
             {
-                if (c.Ui == null)
-                    continue;
-                using var tabItem = ImRaii.TabItem(c.ParentName);
+                using var tabItem = ImRaii.TabItem(moduleManifest.InternalName);
                 if (!tabItem)
                     continue;
-                c.Ui.Draw();
+                using (ImRaii.Disabled(!moduleManifest.CanBeDisabled))
+                {
+                    bool enabled = _availableModules[moduleManifest];
+                    if (ImGui.Checkbox($"Enabled##{moduleManifest.InternalName}", ref enabled))
+                        _availableModules[moduleManifest] = enabled;
+                }
+                var c = _configManager._configurations.Values.FirstOrDefault(
+                    config => config?.ParentInternalName == moduleManifest.InternalName, null);
+                c?.Ui?.Draw();
             }
         }
 
@@ -113,6 +124,7 @@ public class ConfigurationManager : IDisposable
             {
                 c.Ui?.Save();
             }
+            _configManager._services.ModuleManager.UpdateConfiguration(_availableModules);
             _configManager.Save();
             Hide();
         }
@@ -140,13 +152,13 @@ public interface IHrtConfiguration
     public void AfterLoad();
 }
 
-internal abstract class ModuleConfiguration<T>(IHrtModule module) : IHrtConfiguration
-    where T : IHrtConfigData, new()
+internal abstract class ModuleConfiguration<TData, TModule>(TModule module) : IHrtConfiguration
+    where TData : IHrtConfigData, new() where TModule : IHrtModule
 {
-    private T _data = new();
-    protected readonly IHrtModule Module = module;
+    private TData _data = new();
+    protected readonly TModule Module = module;
 
-    public T Data
+    public TData Data
     {
         get => _data;
         protected set
@@ -156,8 +168,8 @@ internal abstract class ModuleConfiguration<T>(IHrtModule module) : IHrtConfigur
         }
     }
 
-    public string ParentInternalName => Module.InternalName;
-    public string ParentName => Module.Name;
+    public string ParentInternalName => TModule.InternalName;
+    public string ParentName => TModule.Name;
     public abstract IHrtConfigUi? Ui { get; }
 
     public event Action? OnConfigChange;
@@ -179,7 +191,9 @@ public interface IHrtConfigUi
     public void Cancel();
 }
 
-public interface IHrtConfigData : ICloneable
+public interface IHrtConfigData<out T> : IHrtConfigData, ICloneable<T>;
+
+public interface IHrtConfigData
 {
     public void AfterLoad(HrtDataManager dataManager);
     public void BeforeSave();

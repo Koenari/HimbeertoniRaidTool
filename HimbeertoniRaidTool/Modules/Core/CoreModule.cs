@@ -9,8 +9,20 @@ using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
-internal class CoreModule : IHrtModule
+internal class CoreModule : IHrtModule<CoreModule>
 {
+    #region Static
+
+    public static string Name => CoreLoc.Module_Name;
+
+    public static string Description => CoreLoc.Module_Description;
+
+    public static string InternalName => "Core";
+
+    public static bool CanBeDisabled => false;
+
+    #endregion
+
     private static readonly UiConfig FalseConfig = new(false);
     private static readonly UiConfig TrueConfig = new(true);
     private static CoreModule? _instance;
@@ -23,10 +35,10 @@ internal class CoreModule : IHrtModule
     private readonly List<HrtCommand> _registeredCommands = new();
     private readonly WelcomeWindow _wcw;
 
-    public CoreModule()
+    private CoreModule(IModuleServiceContainer services)
     {
-        Services = ServiceManager.GetServiceContainer(this);
-        CoreLoc.Culture = new CultureInfo(Services.PluginInterface.UiLanguage);
+        Services = services;
+        CoreLoc.Culture = Services.LocalizationManager.CurrentLocale;
         _wcw = new WelcomeWindow(this);
         Services.UiSystem.AddWindow(_wcw);
         _config = new CoreConfig(this);
@@ -39,6 +51,8 @@ internal class CoreModule : IHrtModule
         _config.OnConfigChange += OnConfigChange;
         _instance = this;
     }
+
+    public static CoreModule Create(IModuleServiceContainer services) => new(services);
 
     private IEnumerable<HrtCommand> InternalCommands => new List<HrtCommand>
     {
@@ -69,24 +83,19 @@ internal class CoreModule : IHrtModule
         },
     };
     public bool HideInCombat => _config.Data.HideInCombat;
-    public string Name => CoreLoc.Module_Name;
-    public string Description => CoreLoc.Module_Description;
+
 
     public IModuleServiceContainer Services { get; }
     public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
     {
-        new()
+        new("/hrt", OnCommand)
         {
-            Command = "/hrt",
             Description = CoreLoc.Command_hrt_help,
             ShowInHelp = true,
-            OnCommand = OnCommand,
             ShouldExposeToDalamud = true,
         },
     };
-
-    public string InternalName => "Core";
     public IHrtConfiguration Configuration => _config;
 
     public void HandleMessage(HrtUiMessage message)
@@ -164,8 +173,7 @@ internal class CoreModule : IHrtModule
         if (Services.ClientState.IsLoggedIn)
             UiReady?.Invoke();
     }
-    public void Update() { }
-    public void OnLanguageChange(string langCode) => CoreLoc.Culture = new CultureInfo(langCode);
+    public void OnLanguageChange(CultureInfo culture) => CoreLoc.Culture = culture;
     public void Dispose()
     {
         _config.OnConfigChange -= OnConfigChange;
@@ -173,6 +181,8 @@ internal class CoreModule : IHrtModule
     }
 
     internal void AddCommand(HrtCommand command) => _registeredCommands.Add(command);
+
+    internal void RemoveCommand(HrtCommand command) => _registeredCommands.Remove(command);
 
     internal void OnCommand(string command, string args)
     {

@@ -10,5 +10,4 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      User Interface: Reorganized buttons in gear edit to account for long names
-      User Interface: Edit windows and inventory window open centered now
+      General: Updated for 7.3

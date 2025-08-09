@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 using Newtonsoft.Json;
 using Action = System.Action;
 
@@ -147,7 +147,7 @@ internal class GearDb : DataBaseTable<GearSet>
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{gearSet.LocalId}",
                                        string.Format(GeneralLoc.SearchWindow_btn_tt_SelectEnty,
-                                                     GearSet.DataTypeNameStatic, gearSet)))
+                                                     GearSet.DataTypeName, gearSet)))
                 {
                     Selected = gearSet;
                     Save();

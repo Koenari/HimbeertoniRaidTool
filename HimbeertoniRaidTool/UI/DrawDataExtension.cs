@@ -1,8 +1,8 @@
-﻿using Dalamud.Interface.Utility.Raii;
+﻿using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Common.GameData;
 using HimbeertoniRaidTool.Plugin.Localization;
-using ImGuiNET;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -117,7 +117,8 @@ public static class DrawDataExtension
         if (!left.Filled || !right.Filled)
             return;
         using var table = ImRaii.Table("ItemTable", 3,
-            ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.RowBg);
+                                       ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp
+                                                               | ImGuiTableFlags.RowBg);
         if (!table)
             return;
         ImGui.TableSetupColumn("");

@@ -14,26 +14,37 @@ using Character = HimbeertoniRaidTool.Common.Data.Character;
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-internal sealed class LootMasterModule : IHrtModule
+internal sealed class LootMasterModule : IHrtModule<LootMasterModule>
 {
+    #region Static
+
+    public static string Name => "Loot Master";
+    public static string InternalName => "LootMaster";
+
+    public static string Description => "";
+
+    public static bool CanBeDisabled => false;
+
+    #endregion
+
     private readonly LootmasterUi _ui;
     internal readonly LootMasterConfiguration ConfigImpl;
-    public LootMasterModule()
+    private LootMasterModule(IModuleServiceContainer services)
     {
-        Services = ServiceManager.GetServiceContainer(this);
-        LootmasterLoc.Culture = new CultureInfo(Services.PluginInterface.UiLanguage);
+        Services = services;
+        LootmasterLoc.Culture = Services.LocalizationManager.CurrentLocale;
         ConfigImpl = new LootMasterConfiguration(this);
         _ui = new LootmasterUi(this);
         Services.ClientState.Login += OnLogin;
 
     }
+    public static LootMasterModule Create(IModuleServiceContainer services) => new(services);
+
     //Properties
     internal List<RaidGroup> RaidGroups => ConfigImpl.Data.RaidGroups;
     //Interface Properties
-    public string Name => "Loot Master";
-    public string InternalName => "LootMaster";
     public IHrtConfiguration Configuration => ConfigImpl;
-    public string Description => "";
+
     public IModuleServiceContainer Services { get; }
     public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
@@ -69,7 +80,9 @@ internal sealed class LootMasterModule : IHrtModule
             Services.TaskManager.RunOnFrameworkThread(OnLogin);
     }
 
-    public void OnLanguageChange(string langCode) => LootmasterLoc.Culture = new CultureInfo(langCode);
+    public void ShowUi() => _ui.Show();
+
+    public void OnLanguageChange(CultureInfo culture) => LootmasterLoc.Culture = culture;
     public void PrintUsage(string command, string args)
     {
         var stringBuilder = new SeStringBuilder()

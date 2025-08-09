@@ -19,18 +19,20 @@ public class HrtDataManager
     private readonly DataBaseWrapper<Character> _characterDb;
     private readonly DataBaseWrapper<Player> _playerDb;
     private readonly DataBaseWrapper<RaidGroup> _raidGroupDb;
+    private readonly DataBaseWrapper<RaidSession> _raidSessionDb;
 
     //Directly Accessed Members
     public bool Ready => Initialized && !_saving;
     private readonly string _saveDir;
 
+    internal IDataBaseTable<RaidSession> RaidSessionDb => _raidSessionDb.Database;
     internal IDataBaseTable<RaidGroup> RaidGroupDb => _raidGroupDb.Database;
     internal IDataBaseTable<Player> PlayerDb => _playerDb.Database;
     internal IDataBaseTable<Character> CharDb => _characterDb.Database;
     internal IDataBaseTable<GearSet> GearDb => _gearDb.Database;
     internal readonly IModuleConfigurationManager ModuleConfigurationManager;
     private readonly List<JsonConverter> _idRefConverters = [];
-    private static readonly JsonSerializerSettings _jsonSettings = new()
+    private static readonly JsonSerializerSettings JsonSettings = new()
     {
         Formatting = Formatting.Indented,
         TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
@@ -66,11 +68,14 @@ public class HrtDataManager
         _raidGroupDb =
             new DataBaseWrapper<RaidGroup>(this, new RaidGroupDb(idProvider, _idRefConverters, logger),
                                            "RaidGroupDB.json");
+        _raidSessionDb = new DataBaseWrapper<RaidSession>(this, new RaidSessionDb(idProvider, _idRefConverters, logger),
+                                                          "RaidSessionDB.json");
 
         loadedSuccessful &= _gearDb.Load();
         loadedSuccessful &= _characterDb.Load();
         loadedSuccessful &= _playerDb.Load();
         loadedSuccessful &= _raidGroupDb.Load();
+        loadedSuccessful &= _raidSessionDb.Load();
 
         Initialized = loadedSuccessful;
     }
@@ -85,6 +90,7 @@ public class HrtDataManager
          * CharDb.RemoveUnused(PlayerDb.GetReferencedIds());
          */
         GearDb.RemoveUnused(CharDb.GetReferencedIds());
+        RaidSessionDb.FixEntries(this);
         RaidGroupDb.FixEntries(this);
         PlayerDb.FixEntries(this);
         CharDb.FixEntries(this);
@@ -110,10 +116,10 @@ public class HrtDataManager
     {
         try
         {
-            Util.WriteAllTextSafe(file.FullName, data);
+            FilesystemUtil.WriteAllTextSafe(file.FullName, data);
             return true;
         }
-        catch (Win32Exception e)
+        catch (Exception e)
         {
             _logger.Error(e, $"Could not write data file: {file.FullName}");
             return false;
@@ -134,13 +140,15 @@ public class HrtDataManager
             savedSuccessful &= _playerDb.Save();
         if (savedSuccessful)
             savedSuccessful &= _raidGroupDb.Save();
+        if (savedSuccessful)
+            savedSuccessful &= _raidSessionDb.Save();
         _saving = false;
         var time2 = DateTime.Now;
         _logger.Debug($"Database saving time: {time2 - time1}");
         return savedSuccessful;
     }
 
-    private class DataBaseWrapper<TEntry> where TEntry : IHasHrtId, new()
+    private class DataBaseWrapper<TEntry> where TEntry : class, IHasHrtId<TEntry>, new()
     {
         private readonly HrtDataManager _parent;
         private readonly IDataBaseTable<TEntry> _database;
@@ -162,6 +170,7 @@ public class HrtDataManager
             _parent = parent;
             _database = database;
             _file = new FileInfo($"{parent._saveDir}{Path.DirectorySeparatorChar}{fileName}");
+            _parent._idRefConverters.Add(_database.GetOldRefConverter());
             _parent._idRefConverters.Add(_database.GetRefConverter());
         }
         internal bool Load()
@@ -175,7 +184,7 @@ public class HrtDataManager
             }
             try
             {
-                return _database.Load(_jsonSettings, jsonData);
+                return _database.Load(JsonSettings, jsonData);
             }
             catch (JsonSerializationException e)
             {
@@ -184,8 +193,8 @@ public class HrtDataManager
                 return false;
             }
         }
-        private bool LoadEmpty() => _database.Load(_jsonSettings, "[]");
-        internal bool Save() => _parent.TryWrite(_file, _database.Serialize(_jsonSettings));
+        private bool LoadEmpty() => _database.Load(JsonSettings, "[]");
+        internal bool Save() => _parent.TryWrite(_file, _database.Serialize(JsonSettings));
     }
 
 }
