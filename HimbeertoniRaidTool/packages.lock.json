@@ -4,9 +4,9 @@
     "net9.0-windows7.0": {
       "DalamudPackager": {
         "type": "Direct",
-        "requested": "[12.0.0, )",
-        "resolved": "12.0.0",
-        "contentHash": "J5TJLV3f16T/E2H2P17ClWjtfEBPpq3yxvqW46eN36JCm6wR+EaoaYkqG9Rm5sHqs3/nK/vKjWWyvEs/jhKoXw=="
+        "requested": "[13.0.0, )",
+        "resolved": "13.0.0",
+        "contentHash": "Mb3cUDSK/vDPQ8gQIeuCw03EMYrej1B4J44a1AvIJ9C759p9XeqdU9Hg4WgOmlnlPe0G7ILTD32PKSUpkQNa8w=="
       },
       "DotNet.ReproducibleBuilds": {
         "type": "Direct",
@@ -40,18 +40,18 @@
       },
       "Lumina": {
         "type": "Transitive",
-        "resolved": "5.6.1",
-        "contentHash": "r9b/xqmQFO1Gaf6pmiArCyotF2OA1RAS/EdSXwdo+gE61PKNU+I36EkkAiQwo8HAoDaxc6hcFhvBWIAYvJ9NBg==",
+        "resolved": "5.7.0",
+        "contentHash": "PX4C0jP7cZPclbIxbLOj5LfH6JdjFbe+84QYe/9cUcConWO3IJh/ZUiJVNnROVGvaz8zFjtws1Zp9DcKaquZ8g==",
         "dependencies": {
           "Microsoft.Extensions.ObjectPool": "8.0.7"
         }
       },
       "Lumina.Excel": {
         "type": "Transitive",
-        "resolved": "7.2.1",
-        "contentHash": "ZLl/DeSeTeb16A35Ay1oBk+OsRF6vUE0LbWurpwKrC5r5l3t+XNOkNsoo4MWYNCen/USdECaD0jquggMC9x5jw==",
+        "resolved": "7.2.2",
+        "contentHash": "bAqerWbo5x6iZ0j+ztYDA/4gD/VtxkccL0kgLx13Dm3CSf0PGf4vBgiLuzxv+AOal7iUfmJ+0WPGuiQhNbZ+9w==",
         "dependencies": {
-          "Lumina": "5.6.1"
+          "Lumina": "5.7.0"
         }
       },
       "Microsoft.Extensions.ObjectPool": {
@@ -71,10 +71,10 @@
       },
       "XIVCalc.Lumina": {
         "type": "Transitive",
-        "resolved": "7.2.1",
-        "contentHash": "XXI4WZEN8OcG5HOGsZJuGxlmCUaVIB09ORoV6IP6g/4gl2hsqH5xE22P2kAJW1aQbGiJ0SQ4HDE9GAq3A8zV+Q==",
+        "resolved": "7.2.2",
+        "contentHash": "2eUDugOejrMYBZY4Mo7wWYUbdCtQLcINF9YDvJyHhkMehYOuUIP18WTICRRwEUwqeLyz9l1TOleBjFHUADdYfA==",
         "dependencies": {
-          "Lumina.Excel": "7.2.1",
+          "Lumina.Excel": "7.2.2",
           "XIVCalc": "0.3.1"
         }
       },
@@ -82,7 +82,7 @@
         "type": "Project",
         "dependencies": {
           "Newtonsoft.Json": "[13.0.3, )",
-          "XIVCalc.Lumina": "[7.2.1, )"
+          "XIVCalc.Lumina": "[7.2.2, )"
         }
       }
     }

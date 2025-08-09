@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
@@ -93,7 +93,7 @@ internal class LootSessionUi : HrtWindow
             using var id = ImRaii.PushId(row);
 
             using var table = ImRaii.Table("##LootSelection", itemsPerRow,
-                ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.SizingFixedFit);
+                                           ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.SizingFixedFit);
             if (!table)
                 continue;
 
@@ -108,9 +108,10 @@ internal class LootSessionUi : HrtWindow
                 var item = _session.Loot[row * itemsPerRow + col].item;
                 ImGui.TableNextColumn();
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
-                ImGui.Image(_module.Services.IconCache[item.Icon].ImGuiHandle,
+                ImGui.Image(_module.Services.IconCache[item.Icon].Handle,
                             Vector2.One * ScaleFactor * (itemSize - 30f));
-                if (ImGui.IsItemHovered()) {
+                if (ImGui.IsItemHovered())
+                {
                     using var tooltip = ImRaii.Tooltip();
                     item.Draw();
                 }
@@ -171,8 +172,8 @@ internal class LootSessionUi : HrtWindow
         {
             using (ImRaii.Group())
             {
-                ImGui.Image(_module.Services.IconCache[item.Icon].ImGuiHandle,
-                    Vector2.One * ImGui.GetTextLineHeightWithSpacing());
+                ImGui.Image(_module.Services.IconCache[item.Icon].Handle,
+                            Vector2.One * ImGui.GetTextLineHeightWithSpacing());
                 ImGui.SameLine();
                 ImGui.Text(item.Name);
             }
@@ -198,11 +199,12 @@ internal class LootSessionUi : HrtWindow
         {
             using var id = ImRaii.PushId($"{item.Id}##{nr}");
             if (!ImGui.CollapsingHeader($"{item.Name} # {nr + 1}  \n {results.ShortResult}",
-                    ImGuiTreeNodeFlags.DefaultOpen))
+                                        ImGuiTreeNodeFlags.DefaultOpen))
                 continue;
 
-            using var table = ImRaii.Table("LootTable", 4 + this._session.RulingOptions.ActiveRules.Count(),
-                ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg);
+            using var table = ImRaii.Table("LootTable", 4 + _session.RulingOptions.ActiveRules.Count(),
+                                           ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit
+                                                                   | ImGuiTableFlags.RowBg);
             if (!table)
                 continue;
 
@@ -210,7 +212,7 @@ internal class LootSessionUi : HrtWindow
             ImGui.TableSetupColumn(Player.DataTypeName.Capitalized());
             ImGui.TableSetupColumn(LootmasterLoc.LootUi_Results_hdg_NeededItems);
             ImGui.TableSetupColumn(LootmasterLoc.LootUI_Results_Rule);
-            foreach (var rule in this._session.RulingOptions.ActiveRules)
+            foreach (var rule in _session.RulingOptions.ActiveRules)
             {
                 ImGui.TableSetupColumn(rule.Name);
             }
@@ -238,35 +240,37 @@ internal class LootSessionUi : HrtWindow
                     }
 
                     if (!results.IsAwarded
-                        || results.AwardedIdx == i && neededItem.Equals(results[i].AwardedItem)) {
+                     || results.AwardedIdx == i && neededItem.Equals(results[i].AwardedItem))
+                    {
                         ImGui.SameLine();
                         if (neededItem.Slots.Count() > 1)
                         {
                             if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"##Award##{i}##{neededItem.Id}",
-                                    $"{LootmasterLoc.LootUi_results_btn_tt_Award} ({GeneralLoc.CommonTerms_Right_Abbrev})",
-                                    !results.IsAwarded))
-                                this._session.AwardItem((item, nr), neededItem, i);
+                                                   $"{LootmasterLoc.LootUi_results_btn_tt_Award} ({GeneralLoc.CommonTerms_Right_Abbrev})",
+                                                   !results.IsAwarded))
+                                _session.AwardItem((item, nr), neededItem, i);
                             ImGui.SameLine();
                             if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"##Award##{i}##{neededItem.Id}",
-                                    $"{LootmasterLoc.LootUi_results_btn_tt_Award} ({GeneralLoc.CommonTerms_Left_Abbrev}",
-                                    !results.IsAwarded))
-                                this._session.AwardItem((item, nr), neededItem, i, true);
+                                                   $"{LootmasterLoc.LootUi_results_btn_tt_Award} ({GeneralLoc.CommonTerms_Left_Abbrev}",
+                                                   !results.IsAwarded))
+                                _session.AwardItem((item, nr), neededItem, i, true);
                         }
                         else
                         {
                             if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"##Award##{i}##{neededItem.Id}",
-                                    $"{LootmasterLoc.LootUi_results_btn_tt_Award}",
-                                    !results.IsAwarded))
-                                this._session.AwardItem((item, nr), neededItem, i);
+                                                   $"{LootmasterLoc.LootUi_results_btn_tt_Award}",
+                                                   !results.IsAwarded))
+                                _session.AwardItem((item, nr), neededItem, i);
                         }
                     }
                 }
 
                 ImGui.TableNextColumn();
-                if (singleResult.Category == LootCategory.Need) {
+                if (singleResult.Category == LootCategory.Need)
+                {
                     var decidingFactor = singleResult.DecidingFactor(nextResult);
                     ImGui.Text(decidingFactor.Name);
-                    foreach (var rule in this._session.RulingOptions.ActiveRules)
+                    foreach (var rule in _session.RulingOptions.ActiveRules)
                     {
                         ImGui.TableNextColumn();
                         string toPrint =
@@ -288,7 +292,8 @@ internal class LootSessionUi : HrtWindow
                 else
                 {
                     ImGui.Text(singleResult.Category.FriendlyName());
-                    foreach (var _ in this._session.RulingOptions.ActiveRules) {
+                    foreach (var _ in _session.RulingOptions.ActiveRules)
+                    {
                         ImGui.TableNextColumn();
                         ImGui.Text("-");
                     }

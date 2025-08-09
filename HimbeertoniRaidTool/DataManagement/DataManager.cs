@@ -110,7 +110,7 @@ public class HrtDataManager
     {
         try
         {
-            Util.WriteAllTextSafe(file.FullName, data);
+            FilesystemUtil.WriteAllTextSafe(file.FullName, data);
             return true;
         }
         catch (Win32Exception e)

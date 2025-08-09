@@ -1,11 +1,11 @@
 ﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
@@ -129,7 +129,7 @@ internal class LootmasterUi : HrtWindow
                     {
                         ImGui.SameLine();
                         if (ImGuiHelper.Button($"{playableClass.Job} ({playableClass.Level:D2})", null, true,
-                                new Vector2(67f * ScaleFactor, 0f)))
+                                               new Vector2(67f * ScaleFactor, 0f)))
                             p.MainChar.MainJob = playableClass.Job;
                     }
                     ImGui.SameLine();
@@ -457,12 +457,12 @@ internal class LootmasterUi : HrtWindow
                      */
                     ImGui.SetCursorPosY(dualTopRowY);
                     UiSystem.Helpers.DrawGearSetCombo("##curGear", gear, curJob.GearSets, s => curJob.CurGear = s,
-                        curJob.Job, comboWidth);
+                                                      curJob.Job, comboWidth);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualTopRowY);
                     if (ImGuiHelper.EditButton(gear, "##editCurGear", true, ButtonSize))
                         UiSystem.EditWindows.Create(gear, g => curJob.CurGear = g, null,
-                            () => curJob.RemoveGearSet(curJob.CurGear), curJob.Job);
+                                                    () => curJob.RemoveGearSet(curJob.CurGear), curJob.Job);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualTopRowY);
                     ImGuiHelper.GearUpdateButtons(player, _module, false, ButtonSize);
@@ -470,13 +470,14 @@ internal class LootmasterUi : HrtWindow
                      * Current BiS
                      */
                     ImGui.SetCursorPosY(dualBottomRowY);
-                    UiSystem.Helpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s, curJob.Job,
-                        comboWidth);
+                    UiSystem.Helpers.DrawGearSetCombo("##curBis", bis, curJob.BisSets, s => curJob.CurBis = s,
+                                                      curJob.Job,
+                                                      comboWidth);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualBottomRowY);
                     if (ImGuiHelper.EditButton(bis, "##editBiSGear", true, ButtonSize))
                         UiSystem.EditWindows.Create(bis, g => curJob.CurBis = g, null,
-                            () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job);
+                                                    () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualBottomRowY);
                     ImGuiHelper.ExternalGearUpdateButton(bis, _module, ButtonSize);
@@ -692,7 +693,7 @@ internal class LootmasterUi : HrtWindow
                     {
                         Vector2 iconSize = new(ImGui.GetTextLineHeightWithSpacing()
                                              * (extended ? multiLine ? 2.4f : 1.4f : 1f));
-                        ImGui.Image(icon.ImGuiHandle, iconSize * ScaleFactor);
+                        ImGui.Image(icon.Handle, iconSize * ScaleFactor);
                         ImGui.SameLine();
                     }
                 }
@@ -703,7 +704,7 @@ internal class LootmasterUi : HrtWindow
                 if (extended) ImGui.SetCursorPosY(ImGui.GetCursorPosY() + fullLineHeight * (multiLine ? 0.7f : 0.2f));
                 Action<string> drawText = CurConfig.ColoredItemNames
                     ? t => ImGui.TextColored(LevelColor(CurConfig, itemToDraw), t)
-                    : ImGui.Text;
+                    : t => ImGui.Text(t);
                 drawText(toDraw);
                 if (!extended || !itemToDraw.Materia.Any())
                     return;
