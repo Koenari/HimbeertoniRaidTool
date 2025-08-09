@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Common.Localization;
@@ -7,7 +8,6 @@ using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
@@ -191,7 +191,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             ImGui.Separator();
             ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
             ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {_dataCopy.RolePriority}");
-            _dataCopy.RolePriority.DrawEdit(ImGui.InputInt);
+            _dataCopy.RolePriority.DrawEdit((string s, ref int i) => ImGui.InputInt(s, ref i));
         }
 
         public void OnHide() { }

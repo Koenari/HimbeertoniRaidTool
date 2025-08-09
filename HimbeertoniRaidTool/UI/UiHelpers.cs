@@ -1,12 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Globalization;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
-using ImGuiNET;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
 using XIVCalc.Interfaces;
@@ -41,7 +41,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         var icon = item is null ? null : uiSystem.GetIcon(item);
         if (icon is not null)
         {
-            ImGui.Image(icon.ImGuiHandle, new Vector2(24, 24));
+            ImGui.Image(icon.Handle, new Vector2(24, 24));
             if (ImGui.IsItemHovered())
             {
                 using var tooltip = ImRaii.Tooltip();
@@ -81,7 +81,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                              GearItem item, Action<GearItem> onItemChange, Job curJob = Job.ADV)
     {
         //LuminaItem Icon with Info
-        ImGui.Image(uiSystem.GetIcon(item).ImGuiHandle, new Vector2(24, 24));
+        ImGui.Image(uiSystem.GetIcon(item).Handle, new Vector2(24, 24));
         if (ImGui.IsItemHovered())
         {
             using var tooltip = ImRaii.Tooltip();
@@ -152,7 +152,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                                                            - ImGui.GetTextLineHeight()) * 2);
 
             var mat = item.Materia.Skip(i).First();
-            ImGui.Image(uiSystem.GetIcon(mat).ImGuiHandle, new Vector2(24, 24));
+            ImGui.Image(uiSystem.GetIcon(mat).Handle, new Vector2(24, 24));
             if (ImGui.IsItemHovered())
             {
                 using var tooltip = ImRaii.Tooltip();
@@ -387,7 +387,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         {
             using (ImRaii.Group())
             {
-                ImGui.Image(uiSystem.GetIcon(food).ImGuiHandle,
+                ImGui.Image(uiSystem.GetIcon(food).Handle,
                             new Vector2(ImGui.GetTextLineHeightWithSpacing() * 1.4f));
                 ImGui.SameLine();
                 ImGui.Text(food.ToString());

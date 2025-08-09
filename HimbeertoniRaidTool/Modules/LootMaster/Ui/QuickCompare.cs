@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 using Lumina.Excel.Sheets;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;

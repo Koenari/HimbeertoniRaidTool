@@ -1,11 +1,11 @@
 ﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
@@ -692,7 +692,7 @@ internal class LootmasterUi : HrtWindow
                     {
                         Vector2 iconSize = new(ImGui.GetTextLineHeightWithSpacing()
                                              * (extended ? multiLine ? 2.4f : 1.4f : 1f));
-                        ImGui.Image(icon.ImGuiHandle, iconSize * ScaleFactor);
+                        ImGui.Image(icon.Handle, iconSize * ScaleFactor);
                         ImGui.SameLine();
                     }
                 }
@@ -703,7 +703,7 @@ internal class LootmasterUi : HrtWindow
                 if (extended) ImGui.SetCursorPosY(ImGui.GetCursorPosY() + fullLineHeight * (multiLine ? 0.7f : 0.2f));
                 Action<string> drawText = CurConfig.ColoredItemNames
                     ? t => ImGui.TextColored(LevelColor(CurConfig, itemToDraw), t)
-                    : ImGui.Text;
+                    : t => ImGui.Text(t);
                 drawText(toDraw);
                 if (!extended || !itemToDraw.Materia.Any())
                     return;

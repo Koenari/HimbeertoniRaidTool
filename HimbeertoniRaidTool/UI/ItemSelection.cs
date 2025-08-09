@@ -1,9 +1,9 @@
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
-using ImGuiNET;
 using Lumina.Excel;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
@@ -103,7 +103,7 @@ internal class SelectFoodItemWindow : SelectItemWindow<FoodItem>
             ImGui.SameLine();
             using (ImRaii.Group())
             {
-                ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).ImGuiHandle, new Vector2(32f, 32f));
+                ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).Handle, new Vector2(32f, 32f));
                 ImGui.SameLine();
                 ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
             }
@@ -213,7 +213,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             using (ImRaii.Group())
             {
                 var icon = UiSystem.GetIcon(item.Icon, item.CanBeHq);
-                ImGui.Image(icon.ImGuiHandle, new Vector2(32f, 32f));
+                ImGui.Image(icon.Handle, new Vector2(32f, 32f));
                 ImGui.SameLine();
                 ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
             }
@@ -295,7 +295,7 @@ internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
         void DrawButton(MateriaCategory cat, MateriaLevel lvl)
         {
             var mat = AllMateria[lvl][cat];
-            if (ImGui.ImageButton(UiSystem.GetIcon(mat).ImGuiHandle, new Vector2(32)))
+            if (ImGui.ImageButton(UiSystem.GetIcon(mat).Handle, new Vector2(32)))
                 Save(mat);
             else if (ImGuiHelper.Button(mat.Name, null))
             {

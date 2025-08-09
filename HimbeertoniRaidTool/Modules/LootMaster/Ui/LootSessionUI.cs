@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
 
@@ -121,7 +121,7 @@ internal class LootSessionUi : HrtWindow
                 var item = _session.Loot[row * itemsPerRow + col].item;
                 ImGui.TableNextColumn();
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
-                ImGui.Image(_module.Services.IconCache[item.Icon].ImGuiHandle,
+                ImGui.Image(_module.Services.IconCache[item.Icon].Handle,
                             Vector2.One * ScaleFactor * (itemSize - 30f));
                 if (ImGui.IsItemHovered())
                 {
@@ -185,7 +185,7 @@ internal class LootSessionUi : HrtWindow
         {
             using (ImRaii.Group())
             {
-                ImGui.Image(_module.Services.IconCache[item.Icon].ImGuiHandle,
+                ImGui.Image(_module.Services.IconCache[item.Icon].Handle,
                             Vector2.One * ImGui.GetTextLineHeightWithSpacing());
                 ImGui.SameLine();
                 ImGui.Text(item.Name);
