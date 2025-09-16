@@ -21,13 +21,10 @@ public class LootSession
     public readonly RolePriority RolePriority;
     private RaidGroup _group;
     internal RaidSession? RaidSession;
-    private readonly LootMasterModule _module;
-    private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
     internal LootSession(LootMasterModule module, InstanceWithLoot instance, RaidGroup group)
     {
-        _module = module;
         Instance = instance;
-        RulingOptions = CurConfig.LootRuling.Clone();
+        RulingOptions = module.Configuration.Data.LootRuling.Clone();
         foreach (var item in Instance.PossibleItems)
         {
             Loot.Add((item, 0));
@@ -37,8 +34,8 @@ public class LootSession
             GuaranteedLoot[item] = false;
         }
         _group = Group = group;
-        RolePriority = group.RolePriority ?? CurConfig.RolePriority;
-        var activeSession = _module.Services.ModuleManager.PlannerModule.Module?.ActiveSession;
+        RolePriority = group.RolePriority ?? module.Configuration.Data.RolePriority;
+        var activeSession = module.Services.ModuleManager.PlannerModule.Module?.ActiveSession;
         if (activeSession is not null && activeSession.Group == group) RaidSession = activeSession;
     }
     public LootRuling RulingOptions { get; set; }

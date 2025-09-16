@@ -2,6 +2,7 @@ using System.Globalization;
 using Dalamud.Plugin;
 using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.Localization;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -14,7 +15,8 @@ internal class LocalizationManager : IDisposable
     {
         _pluginInterface = pluginInterface;
         _logger = logger;
-        _logger.Debug($"Initializing Localization Manager with locale {pluginInterface.UiLanguage}");
+        _logger.Debug(
+            "Initializing Localization Manager with locale {PluginInterfaceUiLanguage}", pluginInterface.UiLanguage);
         _pluginInterface.LanguageChanged += OnLanguageChange;
         OnLanguageChanged += CommonLibrary.SetLanguage;
         CurrentLocale = new CultureInfo(_pluginInterface.UiLanguage);
@@ -27,14 +29,14 @@ internal class LocalizationManager : IDisposable
 
         try
         {
-            _logger.Information($"Loading Localization for {languageCode}");
+            _logger.Information("Loading Localization for {LanguageCode}", languageCode);
             CurrentLocale = new CultureInfo(languageCode);
             GeneralLoc.Culture = CurrentLocale;
             OnLanguageChanged?.Invoke(CurrentLocale);
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, $"Unable to Load localization for {languageCode}");
+            _logger.Error(ex, "Unable to Load localization for {LanguageCode}", languageCode);
         }
     }
     public void Dispose()

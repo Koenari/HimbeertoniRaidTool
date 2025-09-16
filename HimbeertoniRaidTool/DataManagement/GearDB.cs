@@ -8,6 +8,7 @@ using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
+using Serilog;
 using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;

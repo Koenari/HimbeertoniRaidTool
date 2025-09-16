@@ -43,7 +43,7 @@ internal class LootmasterUi : HrtWindow
         Title = LootmasterLoc.Ui_Title;
         UiSystem.AddWindow(this);
     }
-    private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
+    private LootMasterConfiguration.ConfigData CurConfig => _module.Configuration.Data;
 
     private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurConfig.ActiveGroupIndex];
     //private GameExpansion ActiveExpansion => CurConfig.ActiveExpansion;

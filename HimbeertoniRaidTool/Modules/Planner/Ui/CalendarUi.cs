@@ -22,7 +22,7 @@ internal class CalendarUi : HrtWindow
     private Vector2 _daySize = new(200, 100);
     public Vector2 DaySize => _daySize;
 
-    public DayOfWeek FirstDayOfWeek => _module.ModuleConfigImpl.Data.FirstDayOfWeek;
+    public DayOfWeek FirstDayOfWeek => _module.Configuration.Data.FirstDayOfWeek;
 
     public CalendarUi(PlannerModule module) : base(module.Services.UiSystem, "##calendarUi")
     {

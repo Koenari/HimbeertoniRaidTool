@@ -6,7 +6,7 @@ using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Planner;
 
-public class PlannerModule : IHrtModule<PlannerModule>
+internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
 {
     #region Static
 
@@ -19,9 +19,7 @@ public class PlannerModule : IHrtModule<PlannerModule>
     public static bool CanBeDisabled => true;
 
     #endregion
-    public IHrtConfiguration Configuration => ModuleConfigImpl;
-
-    internal readonly PlannerModuleConfig ModuleConfigImpl;
+    public PlannerModuleConfig Configuration { get; }
 
 
     public RaidSession? ActiveSession { get; private set; }
@@ -29,14 +27,17 @@ public class PlannerModule : IHrtModule<PlannerModule>
 
     private readonly CalendarUi _calendarUi;
 
-    private List<RaidSession> _sessionCache = new();
-
     private IEnumerable<RaidSession> _sessions => Services.HrtDataManager.RaidSessionDb.GetValues();
 
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
     {
         new("/planner", OnCommand)
         {
+            AltCommands = new List<string>
+            {
+                "/calendar",
+                "/cal",
+            },
             Description = PlannerLoc.Commands_calenadr_helpText,
             ShowInHelp = true,
             ShouldExposeToDalamud = true,
@@ -51,7 +52,7 @@ public class PlannerModule : IHrtModule<PlannerModule>
     {
         Services = services;
         PlannerLoc.Culture = Services.LocalizationManager.CurrentLocale;
-        ModuleConfigImpl = new PlannerModuleConfig(this);
+        Configuration = new PlannerModuleConfig(this);
         _calendarUi = new CalendarUi(this);
         Services.UiSystem.AddWindow(_calendarUi);
 #if DEBUG

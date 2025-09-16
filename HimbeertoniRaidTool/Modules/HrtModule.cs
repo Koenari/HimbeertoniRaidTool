@@ -21,9 +21,12 @@ public interface IHrtModule
     void Dispose();
 }
 
-internal interface IHrtModule<TModule> : IHrtModule where TModule : IHrtModule
+internal interface IHrtModule<out TModule, out TConfig> : IHrtModule
+    where TModule : IHrtModule where TConfig : IHrtConfiguration
 {
     public static abstract TModule Create(IModuleServiceContainer services);
+    new TConfig Configuration { get; }
+    IHrtConfiguration IHrtModule.Configuration => Configuration;
 }
 
 public readonly record struct HrtCommand
@@ -32,7 +35,7 @@ public readonly record struct HrtCommand
     ///     Command user needs to use in chat. Needs to start with a "/"
     /// </summary>
     internal string Command { get; }
-    internal IEnumerable<string> AltCommands { get; init; } = Array.Empty<string>();
+    internal IEnumerable<string> AltCommands { get; init; } = [];
     internal string Description { get; init; } = string.Empty;
     internal bool ShowInHelp { get; init; } = true;
     internal IReadOnlyCommandInfo.HandlerDelegate OnCommand { get; }

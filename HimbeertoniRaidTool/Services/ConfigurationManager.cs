@@ -35,7 +35,7 @@ public class ConfigurationManager : IDisposable
         if (_configurations.ContainsKey(config.GetType()))
             return false;
         _configurations.Add(config.GetType(), config);
-        _services.Logger.Debug($"Registered {config.ParentInternalName} config");
+        _services.Logger.Debug("Registered {ConfigParentInternalName} config", config.ParentInternalName);
         return config.Load(_services.HrtDataManager.ModuleConfigurationManager);
     }
 
@@ -51,7 +51,7 @@ public class ConfigurationManager : IDisposable
     {
         foreach (var config in _configurations.Values)
         {
-            _services.Logger.Debug($"Saved {config.ParentInternalName} config");
+            _services.Logger.Debug("Saved {ConfigParentInternalName} config", config.ParentInternalName);
             config.Save(_services.HrtDataManager.ModuleConfigurationManager);
         }
     }
@@ -103,9 +103,10 @@ public class ConfigurationManager : IDisposable
             using var tabBar = ImRaii.TabBar("Modules");
             foreach (var moduleManifest in _availableModules.Keys)
             {
-                using var tabItem = ImRaii.TabItem(moduleManifest.InternalName);
+                using var tabItem = ImRaii.TabItem($"{moduleManifest.Name}##{moduleManifest.InternalName}");
                 if (!tabItem)
                     continue;
+                ImGui.Text(moduleManifest.Description);
                 using (ImRaii.Disabled(!moduleManifest.CanBeDisabled))
                 {
                     bool enabled = _availableModules[moduleManifest];

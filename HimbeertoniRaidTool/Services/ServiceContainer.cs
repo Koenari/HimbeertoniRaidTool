@@ -7,6 +7,7 @@ using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 

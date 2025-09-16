@@ -3,6 +3,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Plugin.Localization;
+using HimbeertoniRaidTool.Plugin.Modules.Planner;
 using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
@@ -12,15 +13,16 @@ internal class LootSessionUi : HrtWindow
     private const string RULES_POPUP_ID = "RulesButtonPopup";
     private readonly UiSortableList<LootRule> _ruleListUi;
     private readonly LootSession _session;
-    private readonly LootMasterModule _module;
-    private LootMasterConfiguration.ConfigData CurConfig => _module.ConfigImpl.Data;
+    private IModuleManifest<PlannerModule> _plannerModule { get; }
+    private LootMasterConfiguration.ConfigData _curConfig { get; }
 
     internal LootSessionUi(LootMasterModule module, InstanceWithLoot lootSource, RaidGroup group) : base(
         module.Services.UiSystem)
     {
-        _module = module;
+        _plannerModule = module.Services.ModuleManager.PlannerModule;
+        _curConfig = module.Configuration.Data;
         _session = new LootSession(module, lootSource, group);
-        _ruleListUi = new UiSortableList<LootRule>(LootRuling.PossibleRules, CurConfig.LootRuling.RuleSet);
+        _ruleListUi = new UiSortableList<LootRule>(LootRuling.PossibleRules, _curConfig.LootRuling.RuleSet);
 
         MinSize = new Vector2(600, 300);
         //Size = new Vector2(1100, 600);
@@ -61,21 +63,21 @@ internal class LootSessionUi : HrtWindow
                 if (combo)
                 {
                     // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-                    foreach (var group in _module.ConfigImpl.Data.RaidGroups)
+                    foreach (var group in _curConfig.RaidGroups)
                     {
                         if (ImGui.Selectable(group.Name) && group != _session.Group)
                             _session.Group = group;
                     }
                 }
             }
-            var planer = _module.Services.ModuleManager.PlannerModule.Module;
-            if (planer is not null)
+
+            if (_plannerModule.Loaded)
             {
                 ImGui.SameLine();
                 using var combo = ImRaii.Combo("##session", _session.RaidSession?.ToString() ?? "None");
                 if (combo)
                 {
-                    foreach (var session in planer.GetRaidSessions())
+                    foreach (var session in _plannerModule.Module.GetRaidSessions())
                     {
                         if (ImGui.Selectable(session.ToString()) && session != _session.RaidSession)
                             _session.RaidSession = session;
@@ -121,7 +123,7 @@ internal class LootSessionUi : HrtWindow
                 var item = _session.Loot[row * itemsPerRow + col].item;
                 ImGui.TableNextColumn();
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
-                ImGui.Image(_module.Services.IconCache[item.Icon].Handle,
+                ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).Handle,
                             Vector2.One * ScaleFactor * (itemSize - 30f));
                 if (ImGui.IsItemHovered())
                 {
@@ -185,7 +187,7 @@ internal class LootSessionUi : HrtWindow
         {
             using (ImRaii.Group())
             {
-                ImGui.Image(_module.Services.IconCache[item.Icon].Handle,
+                ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).Handle,
                             Vector2.One * ImGui.GetTextLineHeightWithSpacing());
                 ImGui.SameLine();
                 ImGui.Text(item.Name);

@@ -8,6 +8,7 @@ using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
+using Serilog;
 using Action = System.Action;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;

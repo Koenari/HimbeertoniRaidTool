@@ -8,6 +8,7 @@ using HimbeertoniRaidTool.Plugin.Modules.Planner;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
 using HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -25,7 +26,7 @@ internal class ModuleManager
     private readonly ModuleManifest<PlannerModule> _plannerModule;
 
 
-    private IEnumerable<IInternalModuleManifest> AvailableModules
+    private IEnumerable<IInternalModuleManifest> _availableModules
     {
         get
         {
@@ -64,7 +65,8 @@ internal class ModuleManager
         foreach ((var manifest, bool enabledNew) in moduleConfigurationUpdate)
         {
             if (manifest.Enabled == enabledNew) continue;
-            var internalManifest = AvailableModules.FirstOrDefault(m => m?.InternalName == manifest.InternalName, null);
+            var internalManifest =
+                _availableModules.FirstOrDefault(m => m?.InternalName == manifest.InternalName, null);
             if (internalManifest == null) continue;
             _config.ModuleEnabled[internalManifest.InternalName] = enabledNew;
             if (_config.ModuleEnabled[internalManifest.InternalName])
@@ -81,7 +83,7 @@ internal class ModuleManager
     public IEnumerable<IModuleManifest> GetAvailableModules()
     {
         yield return _coreModule;
-        foreach (var moduleManifest in AvailableModules)
+        foreach (var moduleManifest in _availableModules)
         {
             yield return moduleManifest;
         }
@@ -91,7 +93,7 @@ internal class ModuleManager
     {
         //Ensure core module is loaded first
         _coreModule.Enable();
-        foreach (var moduleManifest in AvailableModules)
+        foreach (var moduleManifest in _availableModules)
         {
             if (!_config.IsModuleEnabled(moduleManifest.InternalName))
                 moduleManifest.Disable();
@@ -151,14 +153,14 @@ internal class ModuleManager
     public void Dispose()
     {
         _dataManager.ModuleConfigurationManager.SaveConfiguration(CONFIG_FILE_NAME, _config);
-        foreach (var module in AvailableModules)
+        foreach (var module in _availableModules)
         {
             module.Unload();
         }
         _coreModule.Unload();
         foreach (string command in _dalamudRegisteredCommands)
         {
-            _logger.Error($"Command \"{command}\" was not removed by module unload");
+            _logger.Error("Command \"{Command}\" was not removed by module unload", command);
             _commandManager.RemoveHandler(command);
         }
     }
@@ -177,19 +179,24 @@ internal class ModuleManager
     private class ModuleManifest<TModule>(
         ModuleManager parent,
         bool enabled = true)
-        : IInternalModuleManifest, IModuleManifest<TModule> where TModule : class, IHrtModule<TModule>
+        : IInternalModuleManifest, IModuleManifest<TModule>
+        where TModule : class, IHrtModule<TModule, IHrtConfiguration>
     {
         public string InternalName => TModule.InternalName;
+
+        public string Name => TModule.Name;
+
+        public string Description => TModule.Description;
+
         public TModule? Module { get; private set; }
+
+        [MemberNotNullWhen(true, nameof(Module))]
+        public bool Loaded => Module != null;
 
         public bool CanBeDisabled => TModule.CanBeDisabled;
 
         public bool Enabled { get; private set; } = enabled | !TModule.CanBeDisabled;
         public event Action<IModuleManifest<TModule>>? StateChanged;
-
-        [MemberNotNullWhen(true, nameof(Module))]
-        public bool Loaded => Module != null;
-
         public void Enable()
         {
             Enabled = true;
@@ -208,26 +215,26 @@ internal class ModuleManager
             var moduleType = typeof(TModule);
             try
             {
-                parent._logger.Debug($"Creating instance of: {moduleType.Name}");
+                parent._logger.Debug("Creating instance of: {ModuleTypeName}", moduleType.Name);
                 var module = TModule.Create(parent.CreateModuleServiceContainer<TModule>());
                 if (parent._configurationManager.RegisterConfig(module.Configuration))
                     module.Configuration.AfterLoad();
                 else
-                    parent._logger.Error($"Configuration load error:{TModule.Name}");
-                parent._logger.Debug($"Calling {TModule.InternalName}.AfterFullyLoaded()");
+                    parent._logger.Error("Configuration load error:{S}", TModule.Name);
+                parent._logger.Debug("Calling {S}.AfterFullyLoaded()", TModule.InternalName);
                 module.AfterFullyLoaded();
                 parent._localizationManager.OnLanguageChanged += module.OnLanguageChange;
                 foreach (var command in module.Commands)
                 {
                     parent.AddCommand(command);
                 }
-                parent._logger.Information($"Successfully loaded module: {TModule.Name}");
+                parent._logger.Information("Successfully loaded module: {S}", TModule.Name);
                 Module = module;
                 StateChanged?.Invoke(this);
             }
             catch (Exception e)
             {
-                parent._logger.Error(e, $"Failed to load module: {moduleType.Name}");
+                parent._logger.Error(e, "Failed to load module: {ModuleTypeName}", moduleType.Name);
             }
         }
 
@@ -246,7 +253,7 @@ internal class ModuleManager
             }
             catch (Exception e)
             {
-                parent._logger.Fatal(e, $"Unable to Dispose module \"{typeof(TModule)}\"");
+                parent._logger.Fatal(e, "Unable to Dispose module \"{Type}\"", typeof(TModule));
             }
             finally
             {
@@ -277,6 +284,9 @@ public interface IModuleManifest<out TModule> : IModuleManifest where TModule : 
 {
     public TModule? Module { get; }
 
+    [MemberNotNullWhen(true, nameof(Module))]
+    public bool Loaded { get; }
+
     public event Action<IModuleManifest<TModule>>? StateChanged;
 }
 
@@ -284,10 +294,11 @@ public interface IModuleManifest
 {
     public string InternalName { get; }
 
+    public string Name { get; }
+
+    public string Description { get; }
+
     public bool CanBeDisabled { get; }
 
     public bool Enabled { get; }
-
-    public bool Loaded { get; }
-
 }

@@ -6,6 +6,7 @@ using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Security;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -121,7 +122,7 @@ public class HrtDataManager
         }
         catch (Exception e)
         {
-            _logger.Error(e, $"Could not write data file: {file.FullName}");
+            _logger.Error(e, "Could not write data file: {FileFullName}", file.FullName);
             return false;
         }
     }
@@ -144,7 +145,7 @@ public class HrtDataManager
             savedSuccessful &= _raidSessionDb.Save();
         _saving = false;
         var time2 = DateTime.Now;
-        _logger.Debug($"Database saving time: {time2 - time1}");
+        _logger.Debug("Database saving time: {TimeSpan}", time2 - time1);
         return savedSuccessful;
     }
 
@@ -188,7 +189,7 @@ public class HrtDataManager
             }
             catch (JsonSerializationException e)
             {
-                _parent._logger.Error(e, $"Could not load {typeof(TEntry)} data.");
+                _parent._logger.Error(e, "Could not load {Type} data.", typeof(TEntry));
                 LoadEmpty();
                 return false;
             }

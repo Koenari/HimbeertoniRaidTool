@@ -2,6 +2,7 @@
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using HimbeertoniRaidTool.Plugin.DataManagement;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -33,7 +34,7 @@ internal static class CsHelpers
             };
             if (newItem.ItemLevel < oldItem.ItemLevel && newItem.ItemLevel < noDowngradeBelow)
             {
-                logger.Debug($"Ignored {(GearSetSlot)i} due to item level");
+                logger.Debug("Ignored {GearSetSlot} due to item level", (GearSetSlot)i);
                 continue;
             }
             targetGearSet[(GearSetSlot)i] = newItem;
@@ -60,7 +61,7 @@ internal static class CsHelpers
         }
         catch (Exception e)
         {
-            logger.Error(e, $"Could not inspect character {@object.Name}");
+            logger.Error(e, "Could not inspect character {ObjectName}", @object.Name);
         }
     }
 }
