@@ -158,8 +158,8 @@ public class LootSession
                 RaidSession?.Participants.FirstOrDefault(p => p?.Player.Data == Results[loot].AwardedTo?.Player, null);
             if (participant is not null)
             {
-                instanceSession.Loot.TryAdd(participant, []);
-                instanceSession.Loot[participant].Add(loot.Item1);
+                instanceSession.Loot.TryAdd(participant.Player.Id, []);
+                instanceSession.Loot[participant.Player.Id].Add(loot.Item1);
             }
         }
         EvaluateFinished();

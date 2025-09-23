@@ -922,6 +922,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Nothing chosen.
+        /// </summary>
+        internal static string SelectItemWindow_SaveBtn_tt_Nothing_chosen {
+            get {
+                return ResourceManager.GetString("SelectItemWindow_SaveBtn_tt_Nothing_chosen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose loot from {0}.
+        /// </summary>
+        internal static string SelectLootItemWindow_Title {
+            get {
+                return ResourceManager.GetString("SelectLootItemWindow_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select materia.
         /// </summary>
         internal static string SelectMateriaUi_Title {

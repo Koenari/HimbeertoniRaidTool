@@ -16,11 +16,11 @@ namespace HimbeertoniRaidTool.Plugin.UI;
 
 public class EditWindowFactory(IGlobalServiceContainer services)
 {
-    private HrtDataManager DataManager => services.HrtDataManager;
-    private ConnectorPool ConnectorPool => services.ConnectorPool;
-    private CharacterInfoService CharacterInfoService => services.CharacterInfoService;
-    private TaskManager TaskManager => services.TaskManager;
-    private IUiSystem UiSystem => services.UiSystem;
+    private HrtDataManager _dataManager => services.HrtDataManager;
+    private ConnectorPool _connectorPool => services.ConnectorPool;
+    private CharacterInfoService _characterInfoService => services.CharacterInfoService;
+    private TaskManager _taskManager => services.TaskManager;
+    private IUiSystem _uiSystem => services.UiSystem;
     public void Create<TData>(HrtId id, Action<TData>? onSave = null,
                               Action? onCancel = null, Action? onDelete = null,
                               object? param = null)
@@ -31,26 +31,28 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         switch (type)
         {
             case HrtId.IdType.Group:
-                if (DataManager.RaidGroupDb.TryGet(id, out var group))
+                if (_dataManager.RaidGroupDb.TryGet(id, out var group))
                     Create(group, onSave as Action<RaidGroup>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.Player:
-                if (DataManager.PlayerDb.TryGet(id, out var player))
+                if (_dataManager.PlayerDb.TryGet(id, out var player))
                     Create(player, onSave as Action<Player>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.Character:
-                if (DataManager.CharDb.TryGet(id, out var character))
+                if (_dataManager.CharDb.TryGet(id, out var character))
                     Create(character, onSave as Action<Character>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.Gear:
-                if (DataManager.GearDb.TryGet(id, out var gearSet))
+                if (_dataManager.GearDb.TryGet(id, out var gearSet))
                     Create(gearSet, onSave as Action<GearSet>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.RaidSession:
-                if (DataManager.RaidSessionDb.TryGet(id, out var raidSession))
+                if (_dataManager.RaidSessionDb.TryGet(id, out var raidSession))
                     Create(raidSession, onSave as Action<RaidSession>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.None:
+            case HrtId.IdType.User:
+            case HrtId.IdType.XivAccount:
             default:
                 return;
         }
@@ -74,8 +76,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 rg, onSave as Action<RaidGroup>, onCancel, onDelete),
             HrtId.IdType.RaidSession when data is RaidSession rs => new EditRaidSessionWindow(
                 this, rs, onSave as Action<RaidSession>, onCancel, onDelete),
-            HrtId.IdType.None => null,
-            _                 => null,
+            _ => null,
         };
         if (window == null) return;
         services.UiSystem.AddWindow(window);
@@ -95,7 +96,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         protected TData DataCopy;
 
         protected EditWindow(EditWindowFactory factory, TData original, Action<TData>? onSave, Action? onCancel,
-                             Action? onDelete) : base(factory.UiSystem)
+                             Action? onDelete) : base(factory._uiSystem)
         {
             Factory = factory;
             _original = original;
@@ -166,8 +167,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             destination.Name = DataCopy.Name;
             destination.Type = DataCopy.Type;
             destination.RolePriority = DataCopy.RolePriority;
-            if (destination.LocalId.IsEmpty) Factory.DataManager.RaidGroupDb.TryAdd(destination);
-            Factory.DataManager.Save();
+            if (destination.LocalId.IsEmpty) Factory._dataManager.RaidGroupDb.TryAdd(destination);
+            Factory._dataManager.Save();
         }
         protected override void Cancel() { }
 
@@ -251,7 +252,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             {
                 Factory.Create(new Character(), c =>
                 {
-                    if (Factory.DataManager.CharDb.TryAdd(c))
+                    if (Factory._dataManager.CharDb.TryAdd(c))
                         DataCopy.AddCharacter(c);
                 });
             }
@@ -259,7 +260,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "addFromDb",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeName)))
             {
-                AddChild(Factory.DataManager.CharDb.GetSearchWindow(UiSystem, c => DataCopy.AddCharacter(c)));
+                AddChild(Factory._dataManager.CharDb.GetSearchWindow(UiSystem, c => DataCopy.AddCharacter(c)));
             }
         }
 
@@ -267,7 +268,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         {
             if (destination.LocalId.IsEmpty)
             {
-                Factory.DataManager.PlayerDb.TryAdd(destination);
+                Factory._dataManager.PlayerDb.TryAdd(destination);
             }
             //Player Data
             destination.NickName = DataCopy.NickName;
@@ -281,12 +282,12 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             foreach (var c in toAdd)
             {
                 if (c.LocalId.IsEmpty)
-                    if (!Factory.DataManager.CharDb.TryAdd(c))
+                    if (!Factory._dataManager.CharDb.TryAdd(c))
                         continue;
                 destination.AddCharacter(c);
             }
             destination.MainChar = DataCopy.MainChar;
-            if (destination.MainChar.LocalId.IsEmpty) Factory.DataManager.CharDb.TryAdd(destination.MainChar);
+            if (destination.MainChar.LocalId.IsEmpty) Factory._dataManager.CharDb.TryAdd(destination.MainChar);
         }
     }
 
@@ -310,7 +311,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                                - ImGui.CalcTextSize(GeneralLoc.EditPlayerUi_hdg_characterData).X) / 2f);
             ImGui.Text(GeneralLoc.EditPlayerUi_hdg_characterData);
             if (ImGui.InputText(GeneralLoc.CommonTerms_Name, ref DataCopy.Name, 50)
-             && Factory.CharacterInfoService.TryGetChar(out var pc, DataCopy.Name))
+             && Factory._characterInfoService.TryGetChar(out var pc, DataCopy.Name))
                 DataCopy.HomeWorld ??= pc.HomeWorld.Value;
             if (UiSystem.Helpers.ExcelSheetCombo(GeneralLoc.EditCharUi_in_HomeWorld + "##" + Title, out World w,
                                                  _ => DataCopy.HomeWorld?.Name.ExtractText() ?? "",
@@ -381,10 +382,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 if (newClass == null)
                 {
                     newClass = DataCopy.AddClass(_newJob);
-                    Factory.DataManager.GearDb.TryAdd(newClass.CurGear);
-                    Factory.DataManager.GearDb.TryAdd(newClass.CurBis);
+                    Factory._dataManager.GearDb.TryAdd(newClass.CurGear);
+                    Factory._dataManager.GearDb.TryAdd(newClass.CurBis);
                 }
-                var newBis = Factory.ConnectorPool.GetDefaultBiS(_newJob);
+                var newBis = Factory._connectorPool.GetDefaultBiS(_newJob);
                 newClass.CurBis.ManagedBy = newBis.Service;
                 newClass.CurBis.ExternalId = newBis.Id;
                 newClass.CurBis.ExternalIdx = newBis.Idx;
@@ -424,7 +425,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             foreach (var c in DataCopy.Classes)
             {
                 var target = destination[c.Job];
-                var gearSetDb = Factory.DataManager.GearDb;
+                var gearSetDb = Factory._dataManager.GearDb;
 
                 if (target == null)
                 {
@@ -436,8 +437,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 target.Level = c.Level;
                 target.HideInUi = c.HideInUi;
             }
-            if (destination.LocalId.IsEmpty) Factory.DataManager.CharDb.TryAdd(destination);
-            Factory.DataManager.Save();
+            if (destination.LocalId.IsEmpty) Factory._dataManager.CharDb.TryAdd(destination);
+            Factory._dataManager.Save();
         }
     }
 
@@ -448,7 +449,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         private string _curSetId = "";
         private GearSetManager? _selectedService;
         private GearSetManager? _detectedService;
-        private GearSetManager? CurService => _selectedService ?? _detectedService;
+        private GearSetManager? _curService => _selectedService ?? _detectedService;
         private readonly ConcurrentDictionary<(GearSetManager? service, string id), IList<ExternalBiSDefinition>>
             _externalGearSetCache = [];
         private readonly ConcurrentDictionary<(GearSetManager? service, string id), bool> _currentlyLoading = [];
@@ -469,29 +470,29 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         private void LoadSet()
         {
             if (_curSetId.Length == 0) return;
-            if (_externalGearSetCache.ContainsKey((CurService, _curSetId))) return;
-            if (_currentlyLoading.ContainsKey((CurService, _curSetId))) return;
+            if (_externalGearSetCache.ContainsKey((_curService, _curSetId))) return;
+            if (_currentlyLoading.ContainsKey((_curService, _curSetId))) return;
             foreach (var serviceType in Enum.GetValues<GearSetManager>())
             {
-                if (!Factory.ConnectorPool.TryGetConnector(serviceType, out var connector)) continue;
-                if (!connector.BelongsToThisService(_curSetId) && CurService == null) continue;
-                if (CurService.HasValue && CurService.Value != serviceType) continue;
+                if (!Factory._connectorPool.TryGetConnector(serviceType, out var connector)) continue;
+                if (!connector.BelongsToThisService(_curSetId) && _curService == null) continue;
+                if (_curService.HasValue && _curService.Value != serviceType) continue;
                 _detectedService = serviceType;
                 _selectedService = null;
                 _curSetId = connector.GetId(_curSetId);
-                if (_externalGearSetCache.ContainsKey((CurService, _curSetId))) return;
-                if (_currentlyLoading.ContainsKey((CurService, _curSetId))) return;
-                if (_currentlyLoading.TryAdd((CurService, _curSetId), true))
-                    Factory.TaskManager.RegisterTask(new HrtTask<IList<ExternalBiSDefinition>>(
-                                                         () => connector.GetPossibilities(_curSetId),
-                                                         list =>
-                                                         {
-                                                             _externalGearSetCache.TryAdd(
-                                                                 (CurService, _curSetId), list);
-                                                             _currentlyLoading.Remove(
-                                                                 (CurService, _curSetId), out _);
-                                                         }, "GetSetNames"
-                                                     ));
+                if (_externalGearSetCache.ContainsKey((_curService, _curSetId))) return;
+                if (_currentlyLoading.ContainsKey((_curService, _curSetId))) return;
+                if (_currentlyLoading.TryAdd((_curService, _curSetId), true))
+                    Factory._taskManager.RegisterTask(new HrtTask<IList<ExternalBiSDefinition>>(
+                                                          () => connector.GetPossibilities(_curSetId),
+                                                          list =>
+                                                          {
+                                                              _externalGearSetCache.TryAdd(
+                                                                  (_curService, _curSetId), list);
+                                                              _currentlyLoading.Remove(
+                                                                  (_curService, _curSetId), out _);
+                                                          }, "GetSetNames"
+                                                      ));
                 return;
             }
         }
@@ -600,10 +601,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 newSet.RemoteIDs = [];
                 newSet.ManagedBy = GearSetManager.Hrt;
                 newSet.ExternalId = string.Empty;
-                Factory.DataManager.GearDb.TryAdd(newSet);
+                Factory._dataManager.GearDb.TryAdd(newSet);
                 ReplaceOriginal(newSet);
             }
-            if (Factory.ConnectorPool.TryGetConnector(DataCopy.ManagedBy, out var connector))
+            if (Factory._connectorPool.TryGetConnector(DataCopy.ManagedBy, out var connector))
             {
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(
@@ -659,7 +660,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         {
             foreach (var service in Enum.GetValues<GearSetManager>())
             {
-                if (!Factory.ConnectorPool.TryGetConnector(service, out var connector)) continue;
+                if (!Factory._connectorPool.TryGetConnector(service, out var connector)) continue;
                 //curated BiS
                 var bisSets = connector.GetBiSList(_job);
                 if (!bisSets.Any()) continue;
@@ -679,18 +680,18 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.SetNextItemWidth(100 * ScaleFactor);
             ImGuiHelper.Combo("##manager", ref _selectedService,
                               val => val.HasValue ? val.Value.FriendlyName() : GeneralLoc.EditGearSetUi_txt_AutoDetect,
-                              val => Factory.ConnectorPool.HasConnector(val));
+                              val => Factory._connectorPool.HasConnector(val));
             ImGui.SetNextItemWidth(200 * ScaleFactor);
             ImGui.SameLine();
             ImGui.InputText(GeneralLoc.EditGearSetUi_input_ExtId, ref _curSetId, 255);
             LoadSet();
-            if (_currentlyLoading.ContainsKey((CurService, _curSetId)))
+            if (_currentlyLoading.ContainsKey((_curService, _curSetId)))
             {
                 ImGui.Text(GeneralLoc.EditGearSetUi_txt_Loading);
             }
             else
             {
-                if (_externalGearSetCache.TryGetValue((CurService, _curSetId), out var bisList) && bisList.Any())
+                if (_externalGearSetCache.TryGetValue((_curService, _curSetId), out var bisList) && bisList.Any())
                 {
                     ImGui.Text(GeneralLoc.EditGearSetUi_text_Replace);
                     int numButton = 0;
@@ -716,7 +717,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                                         $"{biSDefinition.Name} ({biSDefinition.Id}:{biSDefinition.Idx}) <{biSDefinition.Service.FriendlyName()}>",
                                         true, size))
                     return;
-                if (Factory.DataManager.GearDb.Search(biSDefinition.Equals, out var newSet))
+                if (Factory._dataManager.GearDb.Search(biSDefinition.Equals, out var newSet))
                 {
                     ReplaceOriginal(newSet);
                     return;
@@ -726,17 +727,17 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                     ExternalId = biSDefinition.Id,
                     ExternalIdx = biSDefinition.Idx,
                 });
-                if (Factory.ConnectorPool.TryGetConnector(biSDefinition.Service, out var connector))
+                if (Factory._connectorPool.TryGetConnector(biSDefinition.Service, out var connector))
                     connector.RequestGearSetUpdate(DataCopy);
             }
         }
 
         protected override void Save(GearSet destination)
         {
-            if (destination.LocalId.IsEmpty) Factory.DataManager.GearDb.TryAdd(destination);
+            if (destination.LocalId.IsEmpty) Factory._dataManager.GearDb.TryAdd(destination);
             DataCopy.TimeStamp = DateTime.Now;
             destination.CopyFrom(DataCopy);
-            Factory.DataManager.Save();
+            Factory._dataManager.Save();
         }
     }
 
@@ -812,7 +813,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.Text("Group:");
             ImGui.SameLine();
             if (ImGuiHelper.SearchableCombo("##group", out var group, DataCopy.Group?.Name ?? string.Empty,
-                                            Factory.DataManager.RaidGroupDb.GetValues(), raidGroup => raidGroup.Name))
+                                            Factory._dataManager.RaidGroupDb.GetValues(), raidGroup => raidGroup.Name))
                 DataCopy.Group = group;
             if (DataCopy.Group is not null)
             {
@@ -887,12 +888,12 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                                             inst => DataCopy.PlannedContent.All(c => c.Instance != inst)))
                 DataCopy.AddInstance(new InstanceSession(instance));
             using var table =
-                ImRaii.Table("##ContentTable", 5, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp);
+                ImRaii.Table("##ContentTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
             if (!table) return;
             ImGui.TableSetupColumn("");
-            ImGui.TableSetupColumn("Name");
-            ImGui.TableSetupColumn("Plan");
-            ImGui.TableSetupColumn("Killed?");
+            ImGui.TableSetupColumn("Instance");
+            //ImGui.TableSetupColumn("Plan");
+            //ImGui.TableSetupColumn("Killed?");
             ImGui.TableSetupColumn("Loot");
             ImGui.TableHeadersRow();
             InstanceSession? toDelete = null;
@@ -900,41 +901,51 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             {
                 using var id = ImRaii.PushId(instanceSession.Instance.Name);
                 ImGui.TableNextColumn();
-                if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "Delete",
-                                       string.Format(GeneralLoc.General_btn_tt_delete, "Instance",
-                                                     instanceSession.Instance.Name)))
+                if (ImGuiHelper.GuardedButton(FontAwesomeIcon.Eraser, "Delete",
+                                              string.Format(GeneralLoc.General_btn_tt_remove, "Instance",
+                                                            instanceSession.Instance.Name)))
                     toDelete = instanceSession;
                 ImGui.TableNextColumn();
                 ImGui.Text(instanceSession.Instance.Name);
-                ImGui.TableNextColumn();
-                ImGui.SetNextItemWidth(170 * ScaleFactor);
+                ImGui.Text("Plan: ");
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(150 * ScaleFactor);
                 ImGuiHelper.Combo("##plan", ref instanceSession.Plan);
-                ImGui.TableNextColumn();
+                ImGui.Text("Killed? ");
+                ImGui.SameLine();
                 ImGui.Checkbox("##killed", ref instanceSession.Killed);
                 ImGui.TableNextColumn();
-                if (instanceSession.Loot.Count <= 0) continue;
-                using var table2 = ImRaii.Table("Loot", 2, ImGuiTableFlags.SizingFixedFit);
-                if (!table2) continue;
-                foreach (var playerLoot in instanceSession.Loot)
+                if (!instanceSession.Killed)
                 {
-                    using var id2 = ImRaii.PushId(playerLoot.Key.Player.Id.ToString());
-                    ImGui.TableNextColumn();
-                    ImGui.Text(playerLoot.Key.Player.Data.Name);
-                    ImGui.TableNextColumn();
-                    foreach (var item in playerLoot.Value)
-                    {
-                        ImGuiHelper.DeleteButton(item);
-                        ImGui.SameLine();
-                        ImGui.Text(item.Name);
+                    ImGui.Text("Not killed yet");
+                    continue;
+                }
+                foreach (var participant in DataCopy.Participants)
+                {
+                    instanceSession.Loot.TryAdd(participant.Player.Id, []);
+                }
+                foreach (var (playerId, loot) in instanceSession.Loot)
+                {
+                    var player = DataCopy.Participants.FirstOrDefault(p => p.Player.Id == playerId)?.Player;
+                    if (player is null) continue;
+                    using var id2 = ImRaii.PushId(playerId.ToString());
 
-                    }
+                    ImGui.Text($"{player.Data.Name} ({player.Data.MainChar.Name})");
+                    ImGui.SameLine();
                     if (ImGuiHelper.AddButton("loot", "Add loot"))
                         UiSystem.AddWindow(
-                            new SelectLootItemWindow(UiSystem, instanceSession.Instance,
-                                                     item => playerLoot.Value.Add(item)));
-                    ;
-                }
+                            new SelectLootItemWindow(UiSystem, instanceSession.Instance, item => loot.Add(item)));
+                    using (ImRaii.PushIndent())
+                    {
+                        foreach (var item in loot)
+                        {
+                            ImGuiHelper.DeleteButton(item);
+                            ImGui.SameLine();
+                            ImGui.Text(item.Name);
 
+                        }
+                    }
+                }
             }
             if (toDelete is not null)
                 DataCopy.RemoveInstance(toDelete);
@@ -944,8 +955,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         {
             destination.CopyFrom(DataCopy);
             if (destination.LocalId.IsEmpty)
-                Factory.DataManager.RaidSessionDb.TryAdd(destination);
-            Factory.DataManager.Save();
+                Factory._dataManager.RaidSessionDb.TryAdd(destination);
+            Factory._dataManager.Save();
         }
         protected override void Cancel() { }
     }

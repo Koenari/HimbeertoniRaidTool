@@ -32,7 +32,8 @@ internal class CalendarUi : HrtWindow
         _inputYear = DateTime.Today.Year;
         _month = (Month)DateTime.Today.Month;
         _inputLastChanged = DateTime.Now;
-        (Size, SizeCondition) = (ImGui.GetIO().DisplaySize / 3, ImGuiCond.Appearing); //Todo: change to first time
+        (Size, SizeCondition) = (ImGui.GetIO().DisplaySize / 3, ImGuiCond.FirstUseEver);
+        Persistent = true;
     }
 
     public override void Draw()
