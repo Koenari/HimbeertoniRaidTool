@@ -12,63 +12,14 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
-internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfiguration.ConfigData, LootMasterModule>,
-                                         IHrtConfiguration
+internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfiguration.ConfigData, LootMasterModule,
+    LootMasterConfiguration.ConfigUi>
 {
-    private const int TARGET_VERSION = 2;
-
-    private bool _fullyLoaded;
     public LootMasterConfiguration(LootMasterModule hrtModule) : base(hrtModule)
     {
         Ui = new ConfigUi(this);
 
     }
-    public override ConfigUi Ui { get; }
-    public override void AfterLoad()
-    {
-        if (_fullyLoaded)
-            return;
-        if (Data.Version > TARGET_VERSION)
-        {
-            const string msg = "Tried loading a configuration from a newer version of the plugin." +
-                               "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
-            Module.Services.Logger.Fatal(msg);
-            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
-            throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
-        }
-        Upgrade();
-        _fullyLoaded = true;
-    }
-
-    private void Upgrade()
-    {
-        while (Data.Version < TARGET_VERSION)
-        {
-            int oldVersion = Data.Version;
-            DoUpgradeStep();
-            if (Data.Version > oldVersion)
-                continue;
-            string msg = $"Error upgrading Lootmaster configuration from version {oldVersion}";
-            Module.Services.Logger.Fatal(msg);
-            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
-            throw new InvalidOperationException(msg);
-
-
-        }
-    }
-
-    private void DoUpgradeStep()
-    {
-        switch (Data.Version)
-        {
-            case 1:
-                //Migration period ended
-                Data.Version = 2;
-                break;
-        }
-    }
-
-
 
     internal sealed class ConfigUi : IHrtConfigUi
     {
@@ -83,10 +34,8 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             _lootList = new UiSortableList<LootRule>(LootRuling.PossibleRules, _dataCopy.LootRuling.RuleSet);
         }
 
-        public void Cancel()
-        {
+        public void Cancel() { }
 
-        }
         private static string GetCharacterNameFormatDescription(string format) => format switch
         {
             "ns" => LootmasterLoc.ConfigUi_CharNameFormat_ns,

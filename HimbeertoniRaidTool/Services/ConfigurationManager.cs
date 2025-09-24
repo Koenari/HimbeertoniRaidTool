@@ -144,7 +144,6 @@ public class ConfigurationManager : IDisposable
 public interface IHrtConfiguration
 {
     public string ParentInternalName { get; }
-    public string ParentName { get; }
     public IHrtConfigUi? Ui { get; }
 
     public event Action? OnConfigChange;
@@ -153,8 +152,8 @@ public interface IHrtConfiguration
     public void AfterLoad();
 }
 
-internal abstract class ModuleConfiguration<TData, TModule>(TModule module) : IHrtConfiguration
-    where TData : IHrtConfigData, new() where TModule : IHrtModule
+internal abstract class ModuleConfiguration<TData, TModule, TUi>(TModule module) : IHrtConfiguration
+    where TData : IHrtConfigData, new() where TModule : IHrtModule where TUi : class, IHrtConfigUi
 {
     private TData _data = new();
     protected readonly TModule Module = module;
@@ -170,8 +169,8 @@ internal abstract class ModuleConfiguration<TData, TModule>(TModule module) : IH
     }
 
     public string ParentInternalName => TModule.InternalName;
-    public string ParentName => TModule.Name;
-    public abstract IHrtConfigUi? Ui { get; }
+    protected TUi? Ui { get; init; } = null;
+    IHrtConfigUi? IHrtConfiguration.Ui => Ui;
 
     public event Action? OnConfigChange;
     public bool Load(IModuleConfigurationManager configManager) =>
@@ -180,7 +179,7 @@ internal abstract class ModuleConfiguration<TData, TModule>(TModule module) : IH
     public bool Save(IModuleConfigurationManager configManager) =>
         configManager.SaveConfiguration(ParentInternalName, _data);
 
-    public abstract void AfterLoad();
+    public virtual void AfterLoad() { }
 }
 
 public interface IHrtConfigUi

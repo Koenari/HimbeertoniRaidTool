@@ -10,9 +10,8 @@ using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
-internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, CoreModule>
+internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, CoreModule, CoreConfig.ConfigUi>
 {
-    private const int TARGET_VERSION = 1;
     private readonly PeriodicTask _saveTask;
     public CoreConfig(CoreModule module) : base(module)
     {
@@ -23,42 +22,13 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, Co
             ShouldRun = false,
         };
     }
-    public override ConfigUi Ui { get; }
-
     public override void AfterLoad()
     {
-        if (Data.Version > TARGET_VERSION)
-        {
-            string msg = GeneralLoc.Config_Error_Downgrade;
-            Module.Services.Logger.Fatal(msg);
-            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
-            throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
-        }
-        Upgrade();
         _saveTask.Repeat = TimeSpan.FromMinutes(Data.SaveIntervalMinutes);
         _saveTask.ShouldRun = Data.SavePeriodically;
         _saveTask.LastRun = DateTime.Now;
         Module.Services.TaskManager.RegisterTask(_saveTask);
     }
-
-    private void Upgrade()
-    {
-        while (Data.Version < TARGET_VERSION)
-        {
-            int oldVersion = Data.Version;
-            DoUpgradeStep();
-            if (Data.Version > oldVersion)
-                continue;
-            string msg = string.Format(CoreLoc.Chat_configUpgradeError, oldVersion);
-            Module.Services.Logger.Fatal(msg);
-            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
-            throw new InvalidOperationException(msg);
-
-
-        }
-    }
-
-    private void DoUpgradeStep() { }
 
     private HrtUiMessage PeriodicSave()
     {
@@ -103,7 +73,6 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, Co
         #region Internal
 
         [JsonProperty] public bool ShowWelcomeWindow = true;
-        [JsonProperty] public int Version = 1;
         [JsonProperty] public Version LastSeenChangelog = new(0, 0, 0, 0);
 
         #endregion

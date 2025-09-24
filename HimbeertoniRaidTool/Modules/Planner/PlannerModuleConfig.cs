@@ -1,22 +1,17 @@
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Planner;
 
-internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.ConfigData, PlannerModule>
+internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.ConfigData, PlannerModule,
+    PlannerModuleConfig.ConfigUi>
 {
     public PlannerModuleConfig(PlannerModule module) : base(module)
     {
-        _ui = new ConfigUi(this);
-    }
-
-    private readonly ConfigUi _ui;
-    public override IHrtConfigUi Ui => _ui;
-
-    public override void AfterLoad()
-    {
+        Ui = new ConfigUi(this);
     }
 
     internal class ConfigUi(PlannerModuleConfig parent) : IHrtConfigUi
@@ -27,13 +22,19 @@ internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.Con
 
         public void Draw()
         {
-            /*
-             * Ui
-             */
-            ImGui.Text("Ui");
-            ImGui.Text("Weeks start on");
-            ImGui.SameLine();
-            ImGuiHelper.Combo("##FirstDayOfWeek", ref _dataCopy.FirstDayOfWeek);
+            using (ImRaii.TabBar("##planner"))
+            {
+                using (var tabItem = ImRaii.TabItem("Appearance"))
+                {
+                    if (tabItem)
+                    {
+                        ImGui.Text("Weeks start on");
+                        ImGui.SameLine();
+                        ImGuiHelper.Combo("##FirstDayOfWeek", ref _dataCopy.FirstDayOfWeek);
+                    }
+                }
+            }
+
         }
 
         public void OnHide() { }
