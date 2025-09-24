@@ -822,8 +822,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 {
                     foreach (var player in DataCopy.Group)
                     {
-                        if (DataCopy.Participants.Any(p => p.Player.Id == player.LocalId)) continue;
-                        DataCopy.Invite(player, out _);
+                        if (DataCopy.Participants.Any(p => p.Character.Id == player.LocalId)) continue;
+                        DataCopy.Invite(player.MainChar, out _);
                     }
                 }
             }
@@ -836,15 +836,15 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.TableSetupColumn("Invite Status");
             ImGui.TableSetupColumn("Participation");
             ImGui.TableHeadersRow();
-            Reference<Player>? toDelete = null;
+            Reference<Character>? toDelete = null;
             foreach (var participant in DataCopy.Participants)
             {
-                using var id = ImRaii.PushId(participant.Player.Id.ToString());
+                using var id = ImRaii.PushId(participant.Character.Id.ToString());
                 ImGui.TableNextColumn();
-                if (ImGuiHelper.DeleteButton(participant.Player.Data))
-                    toDelete = participant.Player;
+                if (ImGuiHelper.DeleteButton(participant.Character.Data))
+                    toDelete = participant.Character;
                 ImGui.TableNextColumn();
-                ImGui.Text($"{participant.Player.Id} ({participant.Player.Data.Name})");
+                ImGui.Text($"{participant.Character.Id} ({participant.Character.Data.Name})");
                 ImGui.TableNextColumn();
                 ImGui.SetNextItemWidth(100 * ScaleFactor);
                 ImGuiHelper.Combo("##invite-status", ref participant.InvitationStatus);
@@ -922,15 +922,15 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 }
                 foreach (var participant in DataCopy.Participants)
                 {
-                    instanceSession.Loot.TryAdd(participant.Player.Id, []);
+                    instanceSession.Loot.TryAdd(participant.Character.Id, []);
                 }
-                foreach (var (playerId, loot) in instanceSession.Loot)
+                foreach (var (charId, loot) in instanceSession.Loot)
                 {
-                    var player = DataCopy.Participants.FirstOrDefault(p => p.Player.Id == playerId)?.Player;
-                    if (player is null) continue;
-                    using var id2 = ImRaii.PushId(playerId.ToString());
+                    var character = DataCopy.Participants.FirstOrDefault(p => p.Character.Id == charId)?.Character;
+                    if (character is null) continue;
+                    using var id2 = ImRaii.PushId(charId.ToString());
 
-                    ImGui.Text($"{player.Data.Name} ({player.Data.MainChar.Name})");
+                    ImGui.Text($"{character.Data.Name}");
                     ImGui.SameLine();
                     if (ImGuiHelper.AddButton("loot", "Add loot"))
                         UiSystem.AddWindow(

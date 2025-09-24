@@ -25,7 +25,7 @@ internal class RaidSessionDb(IIdProvider idProvider, IEnumerable<JsonConverter> 
             if (raidSession.Group is not null) result.Add(raidSession.Group.LocalId);
             foreach (var participant in raidSession.Participants)
             {
-                result.Add(participant.Player.Data.LocalId);
+                result.Add(participant.Character.Data.LocalId);
             }
         }
         return result;

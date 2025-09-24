@@ -155,11 +155,12 @@ public class LootSession
         if (instanceSession is not null)
         {
             var participant =
-                RaidSession?.Participants.FirstOrDefault(p => p?.Player.Data == Results[loot].AwardedTo?.Player, null);
+                RaidSession?.Participants.FirstOrDefault(
+                    p => p != null && p.Character.Data == Results[loot].AwardedTo?.Player.MainChar, null);
             if (participant is not null)
             {
-                instanceSession.Loot.TryAdd(participant.Player.Id, []);
-                instanceSession.Loot[participant.Player.Id].Add(loot.Item1);
+                instanceSession.Loot.TryAdd(participant.Character.Id, []);
+                instanceSession.Loot[participant.Character.Id].Add(loot.Item1);
             }
         }
         EvaluateFinished();
