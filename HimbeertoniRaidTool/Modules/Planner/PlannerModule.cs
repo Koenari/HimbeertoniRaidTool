@@ -54,9 +54,6 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
         Configuration = new PlannerModuleConfig(this);
         _calendarUi = new CalendarUi(this);
         Services.UiSystem.AddWindow(_calendarUi);
-#if DEBUG
-        _calendarUi.Show();
-#endif
         Services.ClientState.Login += OnLogin;
         Services.Framework.Update += Update;
     }
@@ -121,7 +118,7 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
 
 
     public void OnLogin() => UiReady?.Invoke();
-    public void AfterFullyLoaded() => _calendarUi.Show(); //Todo: Remove after testing
+    public void AfterFullyLoaded() { }
 
     public void OnLanguageChange(CultureInfo culture) => PlannerLoc.Culture = culture;
     public void Dispose() { }

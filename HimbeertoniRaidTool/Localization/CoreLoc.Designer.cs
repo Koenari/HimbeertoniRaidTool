@@ -159,6 +159,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New Module.
+        /// </summary>
+        internal static string ChangelogCategory_NewModule {
+            get {
+                return ResourceManager.GetString("ChangelogCategory_NewModule", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Performance.
         /// </summary>
         internal static string ChangelogCategory_Performance {

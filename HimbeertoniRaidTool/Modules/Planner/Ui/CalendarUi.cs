@@ -1,4 +1,3 @@
-using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
@@ -19,9 +18,6 @@ internal class CalendarUi : HrtWindow
 
     private Month _month;
 
-    private Vector2 _daySize = new(200, 100);
-    public Vector2 DaySize => _daySize;
-
     public DayOfWeek FirstDayOfWeek => _module.Configuration.Data.FirstDayOfWeek;
 
     public CalendarUi(PlannerModule module) : base(module.Services.UiSystem, "##calendarUi")
@@ -34,11 +30,11 @@ internal class CalendarUi : HrtWindow
         _inputLastChanged = DateTime.Now;
         (Size, SizeCondition) = (ImGui.GetIO().DisplaySize / 3, ImGuiCond.FirstUseEver);
         Persistent = true;
+        IsOpen = false;
     }
 
     public override void Draw()
     {
-        _daySize.X = (ImGui.GetWindowSize().X - 70 * ScaleFactor) / 7f;
         DrawHeader();
         ProcessInput();
         ImGui.NewLine();
@@ -172,7 +168,7 @@ internal class CalendarUi : HrtWindow
         foreach (var calendarEntry in entries)
         {
             using var table = ImRaii.Table("##calendarEntry", 2,
-                                           ImGuiTableFlags.BordersOuter | ImGuiTableFlags.SizingFixedFit);
+                                           ImGuiTableFlags.BordersOuter | ImGuiTableFlags.SizingStretchProp);
             ImGui.TableNextColumn();
             hasDrawn = true;
             int maxInstances = GameInfo.CurrentSavageTier?.Bosses.Count ?? 0;

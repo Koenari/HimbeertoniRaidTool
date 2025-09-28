@@ -139,6 +139,7 @@ public static class ChangelogEnumExtensions
         ChangeLogEntryCategory.Gear          => CoreLoc.ChangelogCategory_Gear,
         ChangeLogEntryCategory.KnownIssues   => CoreLoc.ChangelogCategory_KnownIssues,
         ChangeLogEntryCategory.Lodestone     => CoreLoc.ChangelogCategory_Lodestone,
+        ChangeLogEntryCategory.NewModule     => CoreLoc.ChangelogCategory_NewModule,
         _                                    => GeneralLoc.CommonTerms_Unknown,
     };
     public static string LocalizedDescription(this ChangelogShowOptions showOption) => showOption switch
