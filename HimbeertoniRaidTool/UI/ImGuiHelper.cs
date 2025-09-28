@@ -295,27 +295,30 @@ public static class ImGuiHelper
         bool changed = false;
         int day = date.Day;
         ImGui.SetNextItemWidth(25 * HrtWindow.ScaleFactor);
-        if (ImGui.InputInt($".##{id}##Day", ref day, 0))
+        if (ImGui.InputInt($".##{id}##Day", ref day))
         {
             changed = true;
             date = date.AddDays(day - date.Day);
         }
+        AddTooltip(GeneralLoc.GeneralTerm_Day);
         ImGui.SameLine();
         ImGui.SetNextItemWidth(25 * HrtWindow.ScaleFactor);
         int month = date.Month;
-        if (ImGui.InputInt($".##{id}##Month", ref month, 0))
+        if (ImGui.InputInt($".##{id}##Month", ref month))
         {
             changed = true;
             date = date.AddMonths(month - date.Month);
         }
+        AddTooltip(GeneralLoc.GeneralTerm_Month);
         ImGui.SameLine();
         ImGui.SetNextItemWidth(50 * HrtWindow.ScaleFactor);
         int year = date.Year;
-        if (ImGui.InputInt($"##{id}##Year", ref year, 0))
+        if (ImGui.InputInt($"##{id}##Year", ref year))
         {
             changed = true;
             date = date.AddYears(year - date.Year);
         }
+        AddTooltip(GeneralLoc.GeneralTerm_Year);
         return changed;
     }
 
@@ -324,19 +327,21 @@ public static class ImGuiHelper
         bool changed = false;
         ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
         int hour = time.Hour;
-        if (ImGui.InputInt($":##{id}##Hour", ref hour, 0))
+        if (ImGui.InputInt($":##{id}##Hour", ref hour))
         {
             changed = true;
             time = time.AddHours(hour - time.Hour);
         }
+        AddTooltip(GeneralLoc.GeneralTerm_Hour);
         ImGui.SameLine();
         ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
         int minute = time.Minute;
-        if (ImGui.InputInt($"##{id}##Minute", ref minute, 0))
+        if (ImGui.InputInt($"##{id}##Minute", ref minute))
         {
             changed = true;
             time = time.AddMinutes(minute - time.Minute);
         }
+        AddTooltip(GeneralLoc.GeneralTerm_Minute);
         return changed;
     }
 
@@ -346,9 +351,9 @@ public static class ImGuiHelper
         using var table = ImRaii.Table("##TimeSection", 2, ImGuiTableFlags.SizingFixedFit);
         if (!table) return changed;
         ImGui.TableNextColumn();
-        ImGui.Text("Date");
+        ImGui.Text(GeneralLoc.GeneralTerm_Date);
         ImGui.TableNextColumn();
-        ImGui.Text("Time");
+        ImGui.Text(GeneralLoc.GeneralTerm_Time);
         ImGui.TableNextColumn();
         var date = DateOnly.FromDateTime(dateTime);
         changed |= DateInput(id, ref date);
@@ -366,19 +371,21 @@ public static class ImGuiHelper
         bool changed = false;
         ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
         int hour = duration.Hours;
-        if (ImGui.InputInt($":##{id}##DurHour", ref hour, 0))
+        if (ImGui.InputInt($":##{id}##DurHour", ref hour))
         {
             changed = true;
             duration += TimeSpan.FromHours(hour - duration.Hours);
         }
+        AddTooltip(GeneralLoc.GeneralTerm_Hour);
         ImGui.SameLine();
         ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
         int minute = duration.Minutes;
-        if (ImGui.InputInt($"##{id}##Minute", ref minute, 0))
+        if (ImGui.InputInt($"##{id}##Minute", ref minute))
         {
             changed = true;
             duration += TimeSpan.FromMinutes(minute - duration.Minutes);
         }
+        AddTooltip(GeneralLoc.GeneralTerm_Minute);
         return changed;
     }
 }

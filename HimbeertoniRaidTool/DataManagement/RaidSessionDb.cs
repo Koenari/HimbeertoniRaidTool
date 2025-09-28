@@ -47,12 +47,13 @@ internal class RaidSessionDb(IIdProvider idProvider, IEnumerable<JsonConverter> 
 
         protected override void DrawContent()
         {
-            ImGui.Text("Title");
+            ImGui.Text(GeneralLoc.RaidSessionSearchUi_dhg_Title);
             ImGui.SameLine();
             ImGui.InputText("##searchTitle", ref _searchTextTitle, 128);
-            ImGui.Text("Group");
+            ImGui.Text(GeneralLoc.GeneralTerm_Group);
             ImGui.SameLine();
-            using (var combo = ImRaii.Combo("Group", _searchGroup?.Name ?? GeneralLoc.GeneralTerm_Show_all))
+            using (var combo = ImRaii.Combo(GeneralLoc.GeneralTerm_Group,
+                                            _searchGroup?.Name ?? GeneralLoc.GeneralTerm_Show_all))
             {
                 if (combo)
                 {
@@ -70,15 +71,15 @@ internal class RaidSessionDb(IIdProvider idProvider, IEnumerable<JsonConverter> 
                 }
             }
 
-            using var resultTable = ImRaii.Table("Sessions", 5,
+            using var resultTable = ImRaii.Table("##Sessions", 5,
                                                  ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg
                                                                          | ImGuiTableFlags.SizingStretchProp);
             if (!resultTable) return;
-            ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("Title", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("Participants", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("Time", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("Duration", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(GeneralLoc.RaidSessionSearchUi_dhg_Title, ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(GeneralLoc.RaidSessionSearchUi_hdg_Participants, ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(GeneralLoc.GeneralTerm_Time, ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(GeneralLoc.GeneralTerm_Duration, ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableHeadersRow();
             foreach (var session in Database.GetValues()
                                             .Where(e => e.Title.Contains(_searchTextTitle,

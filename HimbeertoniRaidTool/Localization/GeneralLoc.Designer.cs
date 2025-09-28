@@ -632,6 +632,132 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add all members.
+        /// </summary>
+        internal static string EditRaidSessionUi_btn_Add_all_members {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_btn_Add_all_members", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add all members of the group to the event.
+        /// </summary>
+        internal static string EditRaidSessionUi_btn_tt_Add_all_members {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_btn_tt_Add_all_members", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Instance.
+        /// </summary>
+        internal static string EditRaidSessionUi_cmb_AddInstance {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_cmb_AddInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Content.
+        /// </summary>
+        internal static string EditRaidSessionUi_hdg_content {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_hdg_content", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Participants.
+        /// </summary>
+        internal static string EditRaidSessionUi_hdg_Participants {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_hdg_Participants", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loot.
+        /// </summary>
+        internal static string EditRaidSessionUi_tbh_hdg_loot {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_tbh_hdg_loot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instance.
+        /// </summary>
+        internal static string EditRaidSessionUi_tblHdg_Instance {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_tblHdg_Instance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invite Status.
+        /// </summary>
+        internal static string EditRaidSessionUi_txt_InviteStatus {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_txt_InviteStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Killed? .
+        /// </summary>
+        internal static string EditRaidSessionUi_txt_Killed {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_txt_Killed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not killed yet.
+        /// </summary>
+        internal static string EditRaidSessionUi_txt_Not_killed_yet {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_txt_Not_killed_yet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing planned yet.
+        /// </summary>
+        internal static string EditRaidSessionUi_txt_Nothing_planned_yet {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_txt_Nothing_planned_yet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Participation.
+        /// </summary>
+        internal static string EditRaidSessionUi_txt_ParticipationStatus {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_txt_ParticipationStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plan: .
+        /// </summary>
+        internal static string EditRaidSessionUi_txt_Plan {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_txt_Plan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set All.
+        /// </summary>
+        internal static string EditRaidSessionUi_txt_setAll {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_txt_setAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit {0} {1}.
         /// </summary>
         internal static string EditUi_Title {
@@ -776,11 +902,101 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Date.
+        /// </summary>
+        internal static string GeneralTerm_Date {
+            get {
+                return ResourceManager.GetString("GeneralTerm_Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Day.
+        /// </summary>
+        internal static string GeneralTerm_Day {
+            get {
+                return ResourceManager.GetString("GeneralTerm_Day", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duration.
+        /// </summary>
+        internal static string GeneralTerm_Duration {
+            get {
+                return ResourceManager.GetString("GeneralTerm_Duration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Group:.
+        /// </summary>
+        internal static string GeneralTerm_Group {
+            get {
+                return ResourceManager.GetString("GeneralTerm_Group", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hour.
+        /// </summary>
+        internal static string GeneralTerm_Hour {
+            get {
+                return ResourceManager.GetString("GeneralTerm_Hour", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Minute.
+        /// </summary>
+        internal static string GeneralTerm_Minute {
+            get {
+                return ResourceManager.GetString("GeneralTerm_Minute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Month.
+        /// </summary>
+        internal static string GeneralTerm_Month {
+            get {
+                return ResourceManager.GetString("GeneralTerm_Month", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Show all.
         /// </summary>
         internal static string GeneralTerm_Show_all {
             get {
                 return ResourceManager.GetString("GeneralTerm_Show_all", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Time.
+        /// </summary>
+        internal static string GeneralTerm_Time {
+            get {
+                return ResourceManager.GetString("GeneralTerm_Time", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Year.
+        /// </summary>
+        internal static string GeneralTerm_Year {
+            get {
+                return ResourceManager.GetString("GeneralTerm_Year", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instance.
+        /// </summary>
+        internal static string GeneralTerms_Instance {
+            get {
+                return ResourceManager.GetString("GeneralTerms_Instance", resourceCulture);
             }
         }
         
@@ -891,6 +1107,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string LodestoneConnector_msg_Success {
             get {
                 return ResourceManager.GetString("LodestoneConnector_msg_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Title.
+        /// </summary>
+        internal static string RaidSessionSearchUi_dhg_Title {
+            get {
+                return ResourceManager.GetString("RaidSessionSearchUi_dhg_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Participants.
+        /// </summary>
+        internal static string RaidSessionSearchUi_hdg_Participants {
+            get {
+                return ResourceManager.GetString("RaidSessionSearchUi_hdg_Participants", resourceCulture);
             }
         }
         

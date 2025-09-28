@@ -62,7 +62,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     protected Vector2 MinSize = default;
     protected bool OpenCentered;
     protected string Title = "";
-    public bool Persistent { get; protected set; } = false;
+    public bool Persistent { get; protected init; } = false;
     protected IUiSystem UiSystem { get; }
 
     protected HrtWindow(IUiSystem uiSystem, string? id = null, ImGuiWindowFlags flags = ImGuiWindowFlags.None) : base(

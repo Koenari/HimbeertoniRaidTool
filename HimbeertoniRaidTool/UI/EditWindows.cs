@@ -11,6 +11,7 @@ using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using Lumina.Excel.Sheets;
 using Action = System.Action;
+using EnumExtensions = HimbeertoniRaidTool.Common.Extensions.EnumExtensions;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -779,38 +780,37 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             if (!table) return;
             bool changed = false;
             ImGui.TableNextColumn();
-            ImGui.Text("Date");
+            ImGui.Text(GeneralLoc.GeneralTerm_Date);
 
             ImGui.TableNextColumn();
-            ImGui.Text("Time");
+            ImGui.Text(GeneralLoc.GeneralTerm_Time);
 
             ImGui.TableNextColumn();
-            ImGui.Text("Duration");
+            ImGui.Text(GeneralLoc.GeneralTerm_Duration);
 
             ImGui.TableNextColumn();
             var date = DateOnly.FromDateTime(DataCopy.StartTime);
-            changed |= ImGuiHelper.DateInput("date", ref date);
+            changed |= ImGuiHelper.DateInput("##date", ref date);
             ImGui.SameLine();
             ImGui.Text("  ");
-            ImGui.Spacing();
             ImGui.TableNextColumn();
             var time = TimeOnly.FromDateTime(DataCopy.StartTime);
-            changed |= ImGuiHelper.TimeInput("time", ref time);
+            changed |= ImGuiHelper.TimeInput("##time", ref time);
             if (changed)
                 DataCopy.StartTime = new DateTime(date, time);
             ImGui.SameLine();
             ImGui.Text("  ");
             ImGui.TableNextColumn();
             var duration = DataCopy.Duration;
-            if (ImGuiHelper.DurationInput("duration", ref duration))
+            if (ImGuiHelper.DurationInput("##duration", ref duration))
                 DataCopy.Duration = duration;
 
         }
 
         private void DrawParticipantSection()
         {
-            ImGui.Text("Participants");
-            ImGui.Text("Group:");
+            ImGui.Text(GeneralLoc.EditRaidSessionUi_hdg_Participants);
+            ImGui.Text(GeneralLoc.GeneralTerm_Group);
             ImGui.SameLine();
             if (ImGuiHelper.SearchableCombo("##group", out var group, DataCopy.Group?.Name ?? string.Empty,
                                             Factory._dataManager.RaidGroupDb.GetValues(), raidGroup => raidGroup.Name))
@@ -818,7 +818,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             if (DataCopy.Group is not null)
             {
                 ImGui.SameLine();
-                if (ImGuiHelper.Button("Add all members", "Add all members of the group to the event"))
+                if (ImGuiHelper.Button(GeneralLoc.EditRaidSessionUi_btn_Add_all_members,
+                                       GeneralLoc.EditRaidSessionUi_btn_tt_Add_all_members))
                 {
                     foreach (var player in DataCopy.Group)
                     {
@@ -831,10 +832,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             using var table = ImRaii.Table("##ParticipantTable", 4,
                                            ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
             if (!table) return;
-            ImGui.TableSetupColumn("");
-            ImGui.TableSetupColumn("Name");
-            ImGui.TableSetupColumn("Invite Status");
-            ImGui.TableSetupColumn("Participation");
+            ImGui.TableSetupColumn(string.Empty);
+            ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Name);
+            ImGui.TableSetupColumn(GeneralLoc.EditRaidSessionUi_txt_InviteStatus);
+            ImGui.TableSetupColumn(GeneralLoc.EditRaidSessionUi_txt_ParticipationStatus);
             ImGui.TableHeadersRow();
             Reference<Character>? toDelete = null;
             foreach (var participant in DataCopy.Participants)
@@ -847,20 +848,20 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 ImGui.Text($"{participant.Character.Id} ({participant.Character.Data.Name})");
                 ImGui.TableNextColumn();
                 ImGui.SetNextItemWidth(100 * ScaleFactor);
-                ImGuiHelper.Combo("##invite-status", ref participant.InvitationStatus);
+                ImGuiHelper.Combo("##invite-status", ref participant.InvitationStatus, EnumExtensions.FriendlyName);
                 ImGui.TableNextColumn();
                 ImGui.SetNextItemWidth(100 * ScaleFactor);
-                ImGuiHelper.Combo("##part-status", ref participant.ParticipationStatus);
+                ImGuiHelper.Combo("##part-status", ref participant.ParticipationStatus, EnumExtensions.FriendlyName);
             }
             if (toDelete is not null)
                 DataCopy.Uninvite(toDelete);
             ImGui.TableNextColumn();
             ImGui.TableNextColumn();
-            ImGui.Text("Set All");
+            ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_setAll);
             ImGui.TableNextColumn();
             ImGui.SetNextItemWidth(100 * ScaleFactor);
             var invitationStatus = InviteStatus.NoStatus;
-            if (ImGuiHelper.Combo("##invite-status", ref invitationStatus))
+            if (ImGuiHelper.Combo("##invite-status", ref invitationStatus, EnumExtensions.FriendlyName))
             {
                 foreach (var participant in DataCopy.Participants)
                 {
@@ -870,7 +871,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.TableNextColumn();
             ImGui.SetNextItemWidth(100 * ScaleFactor);
             var participationStatus = ParticipationStatus.NoStatus;
-            if (ImGuiHelper.Combo("##part-status", ref participationStatus))
+            if (ImGuiHelper.Combo("##part-status", ref participationStatus, EnumExtensions.FriendlyName))
             {
                 foreach (var participant in DataCopy.Participants)
                 {
@@ -881,43 +882,47 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
         private void DrawContentSection()
         {
-            ImGui.Text("Content");
-            if (ImGuiHelper.SearchableCombo("", out var instance, "Add Instance",
+            ImGui.Text(GeneralLoc.EditRaidSessionUi_hdg_content);
+            if (ImGuiHelper.SearchableCombo("", out var instance, GeneralLoc.EditRaidSessionUi_cmb_AddInstance,
                                             GameInfo.CurrentSavageTier!.Bosses, i => i.Name,
                                             (inst, sP) => inst.Name.Contains(sP),
                                             inst => DataCopy.PlannedContent.All(c => c.Instance != inst)))
                 DataCopy.AddInstance(new InstanceSession(instance));
+            if (!DataCopy.PlannedContent.Any())
+            {
+                ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Nothing_planned_yet);
+                return;
+            }
             using var table =
                 ImRaii.Table("##ContentTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
             if (!table) return;
             ImGui.TableSetupColumn("");
-            ImGui.TableSetupColumn("Instance");
-            //ImGui.TableSetupColumn("Plan");
-            //ImGui.TableSetupColumn("Killed?");
-            ImGui.TableSetupColumn("Loot");
+            ImGui.TableSetupColumn(GeneralLoc.EditRaidSessionUi_tblHdg_Instance);
+            ImGui.TableSetupColumn(GeneralLoc.EditRaidSessionUi_tbh_hdg_loot);
             ImGui.TableHeadersRow();
             InstanceSession? toDelete = null;
             foreach (var instanceSession in DataCopy.PlannedContent)
             {
                 using var id = ImRaii.PushId(instanceSession.Instance.Name);
                 ImGui.TableNextColumn();
-                if (ImGuiHelper.GuardedButton(FontAwesomeIcon.Eraser, "Delete",
-                                              string.Format(GeneralLoc.General_btn_tt_remove, "Instance",
+                if (ImGuiHelper.GuardedButton(FontAwesomeIcon.Eraser, "##delete",
+                                              string.Format(GeneralLoc.General_btn_tt_remove,
+                                                            GeneralLoc.GeneralTerms_Instance,
                                                             instanceSession.Instance.Name)))
                     toDelete = instanceSession;
                 ImGui.TableNextColumn();
                 ImGui.Text(instanceSession.Instance.Name);
-                ImGui.Text("Plan: ");
+                ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Plan);
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(150 * ScaleFactor);
-                ImGuiHelper.Combo("##plan", ref instanceSession.Plan);
-                ImGui.Text("Killed? ");
+                ImGuiHelper.Combo("##plan", ref instanceSession.Plan, EnumExtensions.FriendlyName);
+                ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Killed);
                 ImGui.SameLine();
                 ImGui.Checkbox("##killed", ref instanceSession.Killed);
                 ImGui.TableNextColumn();
                 if (!instanceSession.Killed)
                 {
-                    ImGui.Text("Not killed yet");
+                    ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Not_killed_yet);
                     continue;
                 }
                 foreach (var participant in DataCopy.Participants)
@@ -930,7 +935,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                     if (character is null) continue;
                     using var id2 = ImRaii.PushId(charId.ToString());
 
-                    ImGui.Text($"{character.Data.Name}");
+                    ImGui.Text(character.Data.Name);
                     ImGui.SameLine();
                     if (ImGuiHelper.AddButton("loot", "Add loot"))
                         UiSystem.AddWindow(
