@@ -8,6 +8,18 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 10, 0, 0))
+        {
+            NotableFeatures =
+            {
+                new ChangeLogEntry(
+                    NewModule,
+                    "Planner\nPlan and document your raid sessions. Keep track of absences and loot\n Open via /hrt planner"),
+                new ChangeLogEntry(LootSession,
+                                   "Loot assigned in loot session can be saved to the corresponding raid session"),
+                new ChangeLogEntry(General, "You can disable not needed modules in the config"),
+            },
+        },
         new(new Version(1, 9, 1, 1))
         {
             NotableFeatures = { new ChangeLogEntry(General, "Updated for 7.3") },
@@ -634,6 +646,7 @@ public enum ChangeLogEntryCategory
     Gear,
     KnownIssues,
     Lodestone,
+    NewModule,
 }
 
 public enum ChangelogShowOptions

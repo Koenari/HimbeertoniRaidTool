@@ -11,29 +11,18 @@ interface. To counter these hardships, I started this project.
 ## Functionality
 
 * Lootmaster
-  * Overview of current and BiS Gear of players 
-      > /hrt lootmaster or /hrt lm
+  > /hrt lootmaster or /hrt lm
+  * Overview of current and BiS Gear of players  
   * Loot distribution helper: Calculates priority for loot based on a rule set
-  * Stat calculation: Let's you see stats and their meaning for any gearset present
-* *planned* Raid planner
+  * Stat calculation: Lets you see stats and their meaning for any gearset present
+* Raid planner 
+  > /hrt planner or /hrt calendar
   * Plan your raid sessions
   * Keep track of loot and attendance
 
 ### Future Features
 Please refer to the [**open issues**](https://github.com/Koenari/HimbeertoniRaidTool/issues)
 
-## Compatibility matrix
-If you have not used the plugin for a longer period of time some data might not be able to be migrated, 
-generally we try to at least be compatible with versions from the last 6 months at least. The following
-table shows detailed compatibility information.
-
-| Data / Config   | From >=1.4.x | From 1.2.x-1.3.x | From <1.2.x |
-|:---:|:---:|:---:|:---:|
-| To >=1.4.x      | -    | :white_check_mark: / :white_check_mark:<sup>1</sup> | :x: / :x: |
-| To 1.2.x-1.3.x  | -   |   - |    :white_check_mark: / :white_check_mark: | 
-| To <1.2.x       | -   |  - |    - | 
-
-1 - Some options are lost
 ## Installation
 ### Prerequisites
 This plugin needs [XIV Launcher](https://goatcorp.github.io/) with activated in-game features to work. 
