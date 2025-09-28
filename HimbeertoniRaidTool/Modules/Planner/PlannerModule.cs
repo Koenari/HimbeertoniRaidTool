@@ -1,5 +1,6 @@
 using System.Globalization;
 using Dalamud.Plugin.Services;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Planner.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
@@ -21,9 +22,7 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
     #endregion
     public PlannerModuleConfig Configuration { get; }
 
-
     public RaidSession? ActiveSession { get; private set; }
-    private RaidSession? _nextSession = null;
 
     private readonly CalendarUi _calendarUi;
 
@@ -60,19 +59,9 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
 #endif
         Services.ClientState.Login += OnLogin;
         Services.Framework.Update += Update;
-        UpdateNextSession();
     }
 
     public static PlannerModule Create(IModuleServiceContainer services) => new(services);
-    private void UpdateNextSession()
-    {
-        foreach (var session in Services.HrtDataManager.RaidSessionDb.GetValues())
-        {
-            if (session.StartTime < DateTime.Now) continue;
-            if (_nextSession == null || session.StartTime < _nextSession.StartTime)
-                _nextSession = session;
-        }
-    }
 
     /// <summary>
     /// Gets all raid sessions in the specified time frame
@@ -85,6 +74,49 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
         if (from is null) return _sessions;
         until ??= from.Value.AddDays(1);
         return _sessions.Where(s => s.StartTime >= from && s.StartTime < until);
+    }
+
+    public void CreateActiveRaidSession(Reference<RaidGroup>? group = null, Action<RaidSession>? onCreated = null)
+    {
+        var localChar = Services.ClientState.LocalPlayer;
+        Character? self = null;
+        if (localChar is not null)
+        {
+            var searchPred = CharacterDb.GetStandardPredicate(
+                Character.CalcCharId(Services.ClientState.LocalContentId), localChar.HomeWorld.RowId,
+                localChar.Name.TextValue);
+            Services.HrtDataManager.CharDb.Search(searchPred, out self);
+        }
+        var raidSession = new RaidSession(DateTime.Now, TimeSpan.FromHours(1), self);
+        if (group is not null)
+        {
+            raidSession.Group = group.Data;
+            foreach (var player in group.Data)
+            {
+                if (!raidSession.Invite(player.MainChar, out var participant)) continue;
+                participant.InvitationStatus = InviteStatus.Confirmed;
+                participant.ParticipationStatus = ParticipationStatus.Present;
+            }
+        }
+        else
+        {
+            FillRaidSessionFromCurrentGroup(raidSession);
+        }
+        Services.UiSystem.EditWindows.Create(raidSession, onCreated);
+    }
+
+    private void FillRaidSessionFromCurrentGroup(RaidSession session)
+    {
+        var charDb = Services.HrtDataManager.CharDb;
+        foreach (var partyMember in Services.PartyList)
+        {
+            var searchPred = CharacterDb.GetStandardPredicate(Character.CalcCharId(partyMember.ContentId),
+                                                              partyMember.World.RowId, partyMember.Name.TextValue);
+            if (!charDb.Search(searchPred, out var partyMemberChar)) continue;
+            if (!session.Invite(partyMemberChar, out var participant)) continue;
+            participant.InvitationStatus = InviteStatus.Confirmed;
+            participant.ParticipationStatus = ParticipationStatus.Present;
+        }
     }
 
 
@@ -111,9 +143,7 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
     {
         if (ActiveSession != null && ActiveSession.EndTime < DateTime.Now)
             ActiveSession = null;
-        if (ActiveSession != null || _nextSession == null) return;
-        ActiveSession = _nextSession;
-        UpdateNextSession();
+        ActiveSession ??= _sessions.FirstOrDefault(s => s?.StartTime < DateTime.Now && s.EndTime > DateTime.Now, null);
     }
     public void OnCommand(string command, string args)
     {

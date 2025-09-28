@@ -35,8 +35,14 @@ public class LootSession
         }
         _group = Group = group;
         RolePriority = group.RolePriority ?? module.Configuration.Data.RolePriority;
-        var activeSession = module.Services.ModuleManager.PlannerModule.Module?.ActiveSession;
-        if (activeSession is not null && activeSession.Group == group) RaidSession = activeSession;
+        var planner = module.Services.ModuleManager.PlannerModule;
+        if (planner.Loaded)
+        {
+            var activeSession = planner.Module.ActiveSession;
+            if (activeSession is not null && activeSession.Group == group)
+                RaidSession = activeSession;
+        }
+
     }
     public LootRuling RulingOptions { get; set; }
     public State CurrentState { get; private set; } = State.Started;

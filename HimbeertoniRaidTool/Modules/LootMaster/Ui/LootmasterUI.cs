@@ -273,6 +273,13 @@ internal class LootmasterUi : HrtWindow
         if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "##showConfig",
                                LootmasterLoc.ui_btn_tt_showConfig))
             _module.Services.ConfigManager.Show();
+        if (_module.Services.ModuleManager.PlannerModule.Loaded)
+        {
+            ImGui.SameLine();
+            if (ImGuiHelper.Button(FontAwesomeIcon.Calendar, "##showPlanner", "Show calendar"))
+                _module.Services.ModuleManager.PlannerModule.Module?.OnCommand("/planner", "");
+        }
+
         ImGui.SameLine();
         DrawLootHandlerButtons();
         DrawRaidGroupSwitchBar();

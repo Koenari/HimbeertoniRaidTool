@@ -41,8 +41,7 @@ internal class LootSessionUi : HrtWindow
         ImGui.Text($"{LootmasterLoc.LootsessionUi_txt_state}: {_session.CurrentState.FriendlyName()}");
         ImGui.SameLine();
 
-        if (ImGuiHelper.Button(FontAwesomeIcon.Cogs, "##RulesButton",
-                               LootmasterLoc.LootSessionUi_btn_tt_Rules))
+        if (ImGuiHelper.Button(FontAwesomeIcon.Cogs, "##RulesButton", LootmasterLoc.LootSessionUi_btn_tt_Rules))
             ImGui.OpenPopup(RULES_POPUP_ID);
         using (var popup = ImRaii.Popup(RULES_POPUP_ID))
         {
@@ -77,6 +76,8 @@ internal class LootSessionUi : HrtWindow
                 using var combo = ImRaii.Combo("##session", _session.RaidSession?.ToString() ?? "None");
                 if (combo)
                 {
+                    if (ImGui.Selectable("None"))
+                        _session.RaidSession = null;
                     foreach (var session in _plannerModule.Module.GetRaidSessions())
                     {
                         if (ImGui.Selectable(session.ToString()) && session != _session.RaidSession)
@@ -84,6 +85,11 @@ internal class LootSessionUi : HrtWindow
                     }
                 }
             }
+            ImGui.SameLine();
+            if (ImGuiHelper.AddButton("raid session", "activeSession", _plannerModule.Loaded) && _plannerModule.Loaded)
+                _plannerModule.Module.CreateActiveRaidSession(_session.Group, rs => _session.RaidSession = rs);
+            ImGui.SameLine();
+            ImGui.Text(" ");
             ImGui.SameLine();
             if (ImGuiHelper.Button(LootmasterLoc.LootSessionUi_btn_Calc, LootmasterLoc.LootSessionUi_btn_tt_Calc))
                 _session.Evaluate();

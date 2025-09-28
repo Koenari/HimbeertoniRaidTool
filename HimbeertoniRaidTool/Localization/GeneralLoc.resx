@@ -601,4 +601,10 @@ You need to update to use this plugin!</value>
     <data name="RaidSessionSearchUi_dhg_Title" xml:space="preserve">
         <value>Title</value>
     </data>
+    <data name="CalendarUi_tt_Click_to_edit" xml:space="preserve">
+        <value>Click to edit</value>
+    </data>
+    <data name="CalendarUi_txt_Active_session" xml:space="preserve">
+        <value>Active session: </value>
+    </data>
 </root>

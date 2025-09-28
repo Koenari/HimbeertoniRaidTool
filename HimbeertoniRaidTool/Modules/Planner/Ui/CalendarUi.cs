@@ -113,6 +113,19 @@ internal class CalendarUi : HrtWindow
             _inputYear = _year = now.Year;
             _month = (Month)now.Month;
         }
+        ImGui.SameLine();
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetTextLineHeight());
+        ImGui.Text(GeneralLoc.CalendarUi_txt_Active_session);
+        ImGui.SameLine();
+        if (_module.ActiveSession is null)
+            ImGui.Text(GeneralLoc.CommonTerms_None);
+        else
+        {
+            ImGui.TextColored(Colors.TextPetrol, $"{_module.ActiveSession}");
+            ImGuiHelper.AddTooltip(GeneralLoc.CalendarUi_tt_Click_to_edit);
+            if (ImGui.IsItemClicked())
+                _module.Services.UiSystem.EditWindows.Create(_module.ActiveSession);
+        }
     }
 
     private void DrawCalendar()

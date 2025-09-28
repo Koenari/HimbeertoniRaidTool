@@ -60,6 +60,24 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Click to edit.
+        /// </summary>
+        internal static string CalendarUi_tt_Click_to_edit {
+            get {
+                return ResourceManager.GetString("CalendarUi_tt_Click_to_edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Active session: .
+        /// </summary>
+        internal static string CalendarUi_txt_Active_session {
+            get {
+                return ResourceManager.GetString("CalendarUi_txt_Active_session", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} classes.
         /// </summary>
         internal static string CharacterSearchUi_txt_classCount {
