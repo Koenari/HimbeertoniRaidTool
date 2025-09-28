@@ -9,36 +9,49 @@ using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core;
 
-internal class CoreModule : IHrtModule
+internal class CoreModule : IHrtModule<CoreModule, CoreConfig>
 {
+    #region Static
+
+    public static string Name => CoreLoc.Module_Name;
+
+    public static string Description => CoreLoc.Module_Description;
+
+    public static string InternalName => "Core";
+
+    public static bool CanBeDisabled => false;
+
+    #endregion
+
     private static readonly UiConfig FalseConfig = new(false);
     private static readonly UiConfig TrueConfig = new(true);
     private static CoreModule? _instance;
 
     public static UiConfig UiConfig =>
-        _instance?._config.Data.HideInCombat ?? false ? TrueConfig : FalseConfig;
+        _instance?.Configuration.Data.HideInCombat ?? false ? TrueConfig : FalseConfig;
 
     private readonly ChangeLog _changelog;
-    private readonly CoreConfig _config;
-    private readonly List<HrtCommand> _registeredCommands = new();
+    private readonly List<HrtCommand> _registeredCommands = [];
     private readonly WelcomeWindow _wcw;
 
-    public CoreModule()
+    private CoreModule(IModuleServiceContainer services)
     {
-        Services = ServiceManager.GetServiceContainer(this);
-        CoreLoc.Culture = new CultureInfo(Services.PluginInterface.UiLanguage);
+        Services = services;
+        CoreLoc.Culture = Services.LocalizationManager.CurrentLocale;
         _wcw = new WelcomeWindow(this);
         Services.UiSystem.AddWindow(_wcw);
-        _config = new CoreConfig(this);
-        _changelog = new ChangeLog(this, new ChangelogOptionsWrapper(_config));
+        Configuration = new CoreConfig(this);
+        _changelog = new ChangeLog(this, new ChangelogOptionsWrapper(Configuration));
 
         foreach (var command in InternalCommands)
         {
             AddCommand(command);
         }
-        _config.OnConfigChange += OnConfigChange;
+        Configuration.OnConfigChange += OnConfigChange;
         _instance = this;
     }
+
+    public static CoreModule Create(IModuleServiceContainer services) => new(services);
 
     private IEnumerable<HrtCommand> InternalCommands => new List<HrtCommand>
     {
@@ -68,26 +81,21 @@ internal class CoreModule : IHrtModule
             Description = CoreLoc.command_hrt_changelog,
         },
     };
-    public bool HideInCombat => _config.Data.HideInCombat;
-    public string Name => CoreLoc.Module_Name;
-    public string Description => CoreLoc.Module_Description;
+    public bool HideInCombat => Configuration.Data.HideInCombat;
+
 
     public IModuleServiceContainer Services { get; }
     public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
     {
-        new()
+        new("/hrt", OnCommand)
         {
-            Command = "/hrt",
             Description = CoreLoc.Command_hrt_help,
             ShowInHelp = true,
-            OnCommand = OnCommand,
             ShouldExposeToDalamud = true,
         },
     };
-
-    public string InternalName => "Core";
-    public IHrtConfiguration Configuration => _config;
+    public CoreConfig Configuration { get; }
 
     public void HandleMessage(HrtUiMessage message)
     {
@@ -149,30 +157,31 @@ internal class CoreModule : IHrtModule
             if (!Services.ConnectorPool.TryGetConnector(serviceType, out var connector)) continue;
             Services.TaskManager.RegisterTask(
                 new HrtTask<HrtUiMessage>(
-                    () => connector.UpdateAllSets(_config.Data.UpdateEtroBisOnStartup,
-                                                  _config.Data.EtroUpdateIntervalDays),
+                    () => connector.UpdateAllSets(Configuration.Data.UpdateEtroBisOnStartup,
+                                                  Configuration.Data.EtroUpdateIntervalDays),
                     HandleMessage, $"Update {serviceType.FriendlyName()} sets")
             );
         }
-        if (_config.Data.ShowWelcomeWindow)
+        if (Configuration.Data.ShowWelcomeWindow)
         {
-            _config.Data.ShowWelcomeWindow = false;
-            _config.Data.LastSeenChangelog = ChangeLog.CurrentVersion;
-            _config.Save(Services.HrtDataManager.ModuleConfigurationManager);
+            Configuration.Data.ShowWelcomeWindow = false;
+            Configuration.Data.LastSeenChangelog = ChangeLog.CurrentVersion;
+            Configuration.Save(Services.HrtDataManager.ModuleConfigurationManager);
             _wcw.Show();
         }
         if (Services.ClientState.IsLoggedIn)
             UiReady?.Invoke();
     }
-    public void Update() { }
-    public void OnLanguageChange(string langCode) => CoreLoc.Culture = new CultureInfo(langCode);
+    public void OnLanguageChange(CultureInfo culture) => CoreLoc.Culture = culture;
     public void Dispose()
     {
-        _config.OnConfigChange -= OnConfigChange;
+        Configuration.OnConfigChange -= OnConfigChange;
         _changelog.Dispose(this);
     }
 
     internal void AddCommand(HrtCommand command) => _registeredCommands.Add(command);
+
+    internal void RemoveCommand(HrtCommand command) => _registeredCommands.Remove(command);
 
     internal void OnCommand(string command, string args)
     {
@@ -180,30 +189,39 @@ internal class CoreModule : IHrtModule
         string subCommand = '/' + (args.IsNullOrEmpty() ? "help" : args.Split(' ')[0]);
         string newArgs = args.IsNullOrEmpty() ? "" : args[(subCommand.Length - 1)..].Trim();
         if (_registeredCommands.Any(x => x.HandlesCommand(subCommand)))
-            _registeredCommands.First(x => x.HandlesCommand(subCommand)).OnCommand(subCommand, newArgs);
+        {
+            var handler = _registeredCommands.First(x => x.HandlesCommand(subCommand));
+            Services.Logger.Debug(
+                "Send command \"{SubCommand}\" and args \"{NewArgs}\" to handler for {HandlerCommand}", subCommand,
+                newArgs, handler.Command);
+            handler.OnCommand(subCommand, newArgs);
+        }
         else
-            Services.Logger.Error($"Argument {args} for command \"/hrt\" not recognized");
+            Services.Logger.Error("Argument {Args} for command \"/hrt\" not recognized", args);
     }
 
     private void OnConfigChange() => Services.TaskManager.RunOnFrameworkThread(UpdateGearDataProviderConfig);
     private void UpdateGearDataProviderConfig()
     {
-        int minILvl = (RestrictToCurrentTier: _config.Data.GearUpdateRestrictToCurrentTier,
-                RestrictToCustomILvL: _config.Data.GearUpdateRestrictToCustomILvL) switch
+        int minILvl = (RestrictToCurrentTier: Configuration.Data.GearUpdateRestrictToCurrentTier,
+                RestrictToCustomILvL: Configuration.Data.GearUpdateRestrictToCustomILvL) switch
             {
                 (true, true) => Math.Min((GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
-                                         _config.Data.GearUpdateCustomILvlCutoff),
+                                         Configuration.Data.GearUpdateCustomILvlCutoff),
                 (true, false) => (GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
-                (false, true) => _config.Data.GearUpdateCustomILvlCutoff,
+                (false, true) => Configuration.Data.GearUpdateCustomILvlCutoff,
                 _             => 0,
             };
 
-        var newOwnConfig = new GearDataProviderConfiguration(_config.Data.UpdateOwnData, _config.Data.UpdateCombatJobs,
-                                                             _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs,
+        var newOwnConfig = new GearDataProviderConfiguration(Configuration.Data.UpdateOwnData,
+                                                             Configuration.Data.UpdateCombatJobs,
+                                                             Configuration.Data.UpdateDoHJobs,
+                                                             Configuration.Data.UpdateDoLJobs,
                                                              minILvl);
-        var newExamineConfig = new GearDataProviderConfiguration(_config.Data.UpdateGearOnExamine,
-                                                                 _config.Data.UpdateCombatJobs,
-                                                                 _config.Data.UpdateDoHJobs, _config.Data.UpdateDoLJobs,
+        var newExamineConfig = new GearDataProviderConfiguration(Configuration.Data.UpdateGearOnExamine,
+                                                                 Configuration.Data.UpdateCombatJobs,
+                                                                 Configuration.Data.UpdateDoHJobs,
+                                                                 Configuration.Data.UpdateDoLJobs,
                                                                  minILvl);
         Services.OwnCharacterDataProvider.Enable(newOwnConfig);
         Services.ExamineGearDataProvider.Enable(newExamineConfig);

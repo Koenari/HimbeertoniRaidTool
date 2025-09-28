@@ -1,12 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
-using ImGuiNET;
+
 
 // ReSharper disable UnusedMember.Global
 
@@ -33,20 +34,20 @@ public static class ImGuiHelper
     public static bool DeleteButton<T>(T data, bool enabled = true, Vector2? size = null)
         where T : IHrtDataType =>
         GuardedButton(FontAwesomeIcon.Eraser, "##delete",
-                      string.Format(GeneralLoc.General_btn_tt_delete, data.DataTypeName, data.Name), enabled,
+                      string.Format(GeneralLoc.General_btn_tt_delete, T.DataTypeName, data.Name), enabled,
                       size ?? new Vector2(50f, 25f));
     public static bool EditButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
         where T : IHrtDataType
-        => Button(FontAwesomeIcon.Edit, id, string.Format(GeneralLoc.General_btn_tt_edit, data.DataTypeName, ""),
+        => Button(FontAwesomeIcon.Edit, id, string.Format(GeneralLoc.General_btn_tt_edit, T.DataTypeName, data.Name),
                   enabled, size);
     public static bool DeleteButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
         where T : IHrtDataType =>
         GuardedButton(FontAwesomeIcon.Eraser, id,
-                      string.Format(GeneralLoc.General_btn_tt_delete, data.DataTypeName, data.Name), enabled, size);
+                      string.Format(GeneralLoc.General_btn_tt_delete, T.DataTypeName, data.Name), enabled, size);
     public static bool RemoveButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
         where T : IHrtDataType =>
         GuardedButton(FontAwesomeIcon.Eraser, id,
-                      string.Format(GeneralLoc.General_btn_tt_remove, data.DataTypeName, data.Name), enabled, size);
+                      string.Format(GeneralLoc.General_btn_tt_remove, T.DataTypeName, data.Name), enabled, size);
     public static bool AddButton(string dataType, string id, bool enabled = true, Vector2 size = default)
         => Button(FontAwesomeIcon.Plus, id, string.Format(GeneralLoc.Ui_btn_tt_add, dataType), enabled, size);
     public static bool GuardedButton(string label, string? tooltip, Vector2 size) =>
@@ -287,6 +288,105 @@ public static class ImGuiHelper
         }
 
         return false;
+    }
+
+    public static bool DateInput(string id, ref DateOnly date)
+    {
+        bool changed = false;
+        int day = date.Day;
+        ImGui.SetNextItemWidth(25 * HrtWindow.ScaleFactor);
+        if (ImGui.InputInt($".##{id}##Day", ref day))
+        {
+            changed = true;
+            date = date.AddDays(day - date.Day);
+        }
+        AddTooltip(GeneralLoc.GeneralTerm_Day);
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(25 * HrtWindow.ScaleFactor);
+        int month = date.Month;
+        if (ImGui.InputInt($".##{id}##Month", ref month))
+        {
+            changed = true;
+            date = date.AddMonths(month - date.Month);
+        }
+        AddTooltip(GeneralLoc.GeneralTerm_Month);
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(50 * HrtWindow.ScaleFactor);
+        int year = date.Year;
+        if (ImGui.InputInt($"##{id}##Year", ref year))
+        {
+            changed = true;
+            date = date.AddYears(year - date.Year);
+        }
+        AddTooltip(GeneralLoc.GeneralTerm_Year);
+        return changed;
+    }
+
+    public static bool TimeInput(string id, ref TimeOnly time)
+    {
+        bool changed = false;
+        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
+        int hour = time.Hour;
+        if (ImGui.InputInt($":##{id}##Hour", ref hour))
+        {
+            changed = true;
+            time = time.AddHours(hour - time.Hour);
+        }
+        AddTooltip(GeneralLoc.GeneralTerm_Hour);
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
+        int minute = time.Minute;
+        if (ImGui.InputInt($"##{id}##Minute", ref minute))
+        {
+            changed = true;
+            time = time.AddMinutes(minute - time.Minute);
+        }
+        AddTooltip(GeneralLoc.GeneralTerm_Minute);
+        return changed;
+    }
+
+    public static bool DateTimeInput(string id, ref DateTime dateTime)
+    {
+        bool changed = false;
+        using var table = ImRaii.Table("##TimeSection", 2, ImGuiTableFlags.SizingFixedFit);
+        if (!table) return changed;
+        ImGui.TableNextColumn();
+        ImGui.Text(GeneralLoc.GeneralTerm_Date);
+        ImGui.TableNextColumn();
+        ImGui.Text(GeneralLoc.GeneralTerm_Time);
+        ImGui.TableNextColumn();
+        var date = DateOnly.FromDateTime(dateTime);
+        changed |= DateInput(id, ref date);
+        ImGui.TableNextColumn();
+        var time = TimeOnly.FromDateTime(dateTime);
+        changed |= TimeInput(id, ref time);
+        if (changed)
+            dateTime = new DateTime(date, time);
+        return changed;
+    }
+
+    public static bool DurationInput(string id, ref TimeSpan duration)
+    {
+
+        bool changed = false;
+        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
+        int hour = duration.Hours;
+        if (ImGui.InputInt($":##{id}##DurHour", ref hour))
+        {
+            changed = true;
+            duration += TimeSpan.FromHours(hour - duration.Hours);
+        }
+        AddTooltip(GeneralLoc.GeneralTerm_Hour);
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
+        int minute = duration.Minutes;
+        if (ImGui.InputInt($"##{id}##Minute", ref minute))
+        {
+            changed = true;
+            duration += TimeSpan.FromMinutes(minute - duration.Minutes);
+        }
+        AddTooltip(GeneralLoc.GeneralTerm_Minute);
+        return changed;
     }
 }
 

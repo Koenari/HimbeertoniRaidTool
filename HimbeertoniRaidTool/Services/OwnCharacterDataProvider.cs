@@ -4,6 +4,7 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.DataManagement;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 

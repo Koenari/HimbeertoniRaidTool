@@ -7,6 +7,7 @@ using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
@@ -38,7 +39,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
                                                                 if (msg.MessageType == HrtUiMessageType.Failure)
                                                                     Logger.Error(msg.Message);
                                                                 else
-                                                                    Logger.Info(msg.Message);
+                                                                    Logger.Information(msg.Message);
                                                             }, "Load BiS list from etro"));
         foreach (var food in dataManager.Excel.GetSheet<LuminaItem>()
                                         .Where(ItemExtensions.IsFood))
@@ -130,7 +131,9 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
         set.TimeStamp = etroSet.lastUpdate;
         set.LastExternalFetchDate = DateTime.UtcNow;
         if (!_foodLookup.TryGetValue(etroSet.food, out var newFood))
-            Logger.Warning($"Did not find food {etroSet.food} for set {set.Name} ({set.ExternalId})");
+            Logger.Warning(
+                "Did not find food {EtroSetFood} for set {SetName} ({SetExternalId})", etroSet.food, set.Name, set
+                    .ExternalId);
         set.Food = newFood;
         HrtUiMessage successMessage = new(string.Format(GeneralLoc.EtroConnector_GetGearSet_Success, set.Name),
                                           HrtUiMessageType.Success);

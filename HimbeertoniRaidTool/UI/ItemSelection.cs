@@ -1,28 +1,26 @@
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
-using ImGuiNET;
 using Lumina.Excel;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-internal abstract class SelectItemWindow<T>(IUiSystem uiSystem, Action<T> onSave, Action<T?> onCancel) : HrtWindow(
+internal abstract class SelectItemWindow<T>(IUiSystem uiSystem, Action<T> onSave, Action<T?>? onCancel) : HrtWindow(
     uiSystem,
     null, ImGuiWindowFlags.NoCollapse)
     where T : Item
 {
-    // ReSharper disable once StaticMemberInGenericType
-    protected ExcelSheet<LuminaItem> Sheet =>
-        UiSystem.GetExcelSheet<LuminaItem>();
+    protected ExcelSheet<LuminaItem> Sheet => UiSystem.GetExcelSheet<LuminaItem>();
     protected T? Item;
-    protected virtual bool CanSave { get; set; } = true;
+    protected virtual bool CanSave => Item != null;
 
 
     public override void Draw()
     {
-        if (CanSave && ImGuiHelper.SaveButton())
+        if (ImGuiHelper.SaveButton(CanSave ? null : GeneralLoc.SelectItemWindow_SaveBtn_tt_Nothing_chosen, CanSave))
             Save();
         ImGui.SameLine();
         if (ImGuiHelper.CancelButton())
@@ -37,13 +35,13 @@ internal abstract class SelectItemWindow<T>(IUiSystem uiSystem, Action<T> onSave
         if (Item != null)
             onSave(Item);
         else
-            onCancel(Item);
+            onCancel?.Invoke(Item);
         Hide();
     }
 
     protected void Cancel()
     {
-        onCancel(Item);
+        onCancel?.Invoke(Item);
         Hide();
     }
 
@@ -103,7 +101,7 @@ internal class SelectFoodItemWindow : SelectItemWindow<FoodItem>
             ImGui.SameLine();
             using (ImRaii.Group())
             {
-                ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).ImGuiHandle, new Vector2(32f, 32f));
+                ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).Handle, new Vector2(32f, 32f));
                 ImGui.SameLine();
                 ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
             }
@@ -139,7 +137,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         }
         else
         {
-            _slots = Item?.Slots ?? Array.Empty<GearSetSlot>();
+            _slots = Item?.Slots ?? [];
         }
 
         _lockJob = job.HasValue;
@@ -199,8 +197,8 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             using (ImRaii.PushColor(ImGuiCol.Button, Colors.RedWood, isCurrentItem))
             {
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{item.RowId}", GeneralLoc.SelectItemUi_btn_tt_useThis,
-                        true,
-                        new Vector2(32f, 32f)))
+                                       true,
+                                       new Vector2(32f, 32f)))
                 {
                     if (isCurrentItem)
                         Cancel();
@@ -213,7 +211,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
             using (ImRaii.Group())
             {
                 var icon = UiSystem.GetIcon(item.Icon, item.CanBeHq);
-                ImGui.Image(icon.ImGuiHandle, new Vector2(32f, 32f));
+                ImGui.Image(icon.Handle, new Vector2(32f, 32f));
                 ImGui.SameLine();
                 ImGui.Text($"{item.Name.ExtractText()} (IL {item.LevelItem.RowId})");
             }
@@ -295,7 +293,7 @@ internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
         void DrawButton(MateriaCategory cat, MateriaLevel lvl)
         {
             var mat = AllMateria[lvl][cat];
-            if (ImGui.ImageButton(UiSystem.GetIcon(mat).ImGuiHandle, new Vector2(32)))
+            if (ImGui.ImageButton(UiSystem.GetIcon(mat).Handle, new Vector2(32)))
                 Save(mat);
             else if (ImGuiHelper.Button(mat.Name, null))
             {
@@ -308,6 +306,31 @@ internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
             mat.Draw();
         }
     }
+}
 
+internal sealed class SelectLootItemWindow : SelectItemWindow<Item>
+{
+    private readonly InstanceWithLoot _instance;
 
+    protected override bool CanSave => false;
+    public SelectLootItemWindow(IUiSystem uiSystem,
+                                InstanceWithLoot instance,
+                                Action<Item> onSave,
+                                Action<Item?>? onCancel = null) : base(uiSystem, onSave, onCancel)
+    {
+        _instance = instance;
+        Title = string.Format(GeneralLoc.SelectLootItemWindow_Title, instance.Name);
+        Size = new Vector2(400f, 200f);
+        SizeCondition = ImGuiCond.Appearing;
+        OpenCentered = true;
+    }
+
+    protected override void DrawItemSelection()
+    {
+        foreach (var loot in _instance.PossibleItems)
+        {
+            if (ImGuiHelper.Button(loot.Name, GeneralLoc.SelectItemUi_btn_tt_useThis))
+                Save(loot);
+        }
+    }
 }

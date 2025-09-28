@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.UI;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -62,11 +63,13 @@ internal class TaskManager : IDisposable
             {
                 if (completedTask.SystemTask.IsFaulted)
                     _logger.Error(completedTask.SystemTask.Exception,
-                                  $"Task \"{completedTask.Name}\" finished with an error");
+                                  "Task \"{CompletedTaskName}\" finished with an error", completedTask.Name);
                 else if (completedTask.HasError)
-                    _logger.Error($"Task \"{completedTask.Name}\" finished with an error: {completedTask.ErrorMsg}");
+                    _logger.Error(
+                        "Task \"{CompletedTaskName}\" finished with an error: {CompletedTaskErrorMsg}", completedTask
+                            .Name, completedTask.ErrorMsg);
                 else
-                    _logger.Info($"Task \"{completedTask.Name}\" finished successful");
+                    _logger.Information("Task \"{CompletedTaskName}\" finished successful", completedTask.Name);
             }
         }
     }
@@ -79,7 +82,7 @@ internal class TaskManager : IDisposable
         {
             if (task.ShouldRun && task.LastRun + task.Repeat < executionTime)
             {
-                _logger.Info($"Starting task: {task.Name}");
+                _logger.Information("Starting task: {TaskName}", task.Name);
                 task.CallBack(task.Action());
                 task.LastRun = executionTime;
             }
@@ -94,7 +97,7 @@ internal class TaskManager : IDisposable
         {
             if (task.ShouldRun && task.LastRun + task.Repeat < executionTime)
             {
-                _logger.Info($"Starting task: {task.Name}");
+                _logger.Information("Starting task: {TaskName}", task.Name);
                 task.CallBack(task.Action());
                 task.LastRun = executionTime;
             }
@@ -114,7 +117,7 @@ internal class TaskManager : IDisposable
         }
         else
         {
-            _logger.Info($"Starting task: {task.Name}");
+            _logger.Information("Starting task: {TaskName}", task.Name);
             _tasksOnce.Enqueue(new TaskWrapper<TData>(task));
         }
     }

@@ -40,13 +40,12 @@ internal unsafe class CharacterInfoService
 
         if (PartyInfo == null)
             return 0;
-        for (uint i = 0; i < PartyInfo->InfoProxyCommonList.DataSize; ++i)
+        for (uint i = 0; i < PartyInfo->DataSize; ++i)
         {
-            var entry = PartyInfo->InfoProxyCommonList.GetEntry(i);
+            var entry = PartyInfo->GetEntry(i);
             if (entry == null) continue;
             if (entry->HomeWorld != character.HomeWorld.RowId) continue;
-            string name = entry->NameString;
-            if (name.Equals(character.Name.TextValue))
+            if (entry->NameString.Equals(character.Name.TextValue))
                 return entry->ContentId;
         }
 
@@ -62,8 +61,7 @@ internal unsafe class CharacterInfoService
             if (result?.Name.TextValue == name
              && (w is null || w.Value.RowId == result.HomeWorld.RowId))
                 return true;
-            else
-                _cache.Remove(name);
+            _cache.Remove(name);
         }
 
         if (_notFound.Contains(name))

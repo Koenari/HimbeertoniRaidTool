@@ -53,7 +53,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
-          cache: true
       - name: Download Dalamud
         run: |
           Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/${{vars.DALAMUD_BRANCH}}/latest.zip -OutFile latest.zip

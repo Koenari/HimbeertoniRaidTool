@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 
@@ -66,7 +66,7 @@ internal class ChangeLogUi : HrtWindow
                 string.Format(CoreLoc.ChangeLogUi_hdg_version, versionEntry.Version),
                 defaultOpen ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None))
             return;
-        
+
         foreach (var entry in versionEntry.NotableFeatures)
         {
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);

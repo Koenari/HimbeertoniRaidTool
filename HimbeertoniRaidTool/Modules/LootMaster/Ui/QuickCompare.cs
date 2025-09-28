@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 using Lumina.Excel.Sheets;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster.Ui;
@@ -37,7 +37,8 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
         /*
          * Current gear
          */
-        using (var table = ImRaii.Table("##GearCompareCurrent", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders))
+        using (var table = ImRaii.Table("##GearCompareCurrent", 2,
+                                        ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders))
         {
             if (table)
             {
@@ -90,54 +91,55 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
          * New Gear
          */
         ImGui.NextColumn();
-        using (var table = ImRaii.Table("##GearCompareNew", 2, ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders))
+        using (var table = ImRaii.Table("##GearCompareNew", 2,
+                                        ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Borders))
         {
             if (table)
             {
                 ImGui.TableSetupColumn(LootmasterLoc.QuickCompareUi_hdg_NewGear);
-            ImGui.TableSetupColumn("");
-            ImGui.TableHeadersRow();
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.MainHand, _newGear[GearSetSlot.MainHand],
-                                          ItemChangeCallback(GearSetSlot.MainHand), _curClass.Job);
-            if (_curClass.Job.CanHaveShield())
-            {
+                ImGui.TableSetupColumn("");
+                ImGui.TableHeadersRow();
                 ImGui.TableNextColumn();
-                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.OffHand, _newGear[GearSetSlot.OffHand],
-                                              ItemChangeCallback(GearSetSlot.OffHand), _curClass.Job);
-            }
-            else
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.MainHand, _newGear[GearSetSlot.MainHand],
+                                              ItemChangeCallback(GearSetSlot.MainHand), _curClass.Job);
+                if (_curClass.Job.CanHaveShield())
+                {
+                    ImGui.TableNextColumn();
+                    UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.OffHand, _newGear[GearSetSlot.OffHand],
+                                                  ItemChangeCallback(GearSetSlot.OffHand), _curClass.Job);
+                }
+                else
+                    ImGui.TableNextColumn();
                 ImGui.TableNextColumn();
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Head, _newGear[GearSetSlot.Head],
-                                          ItemChangeCallback(GearSetSlot.Head), _curClass.Job);
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Ear, _newGear[GearSetSlot.Ear],
-                                          ItemChangeCallback(GearSetSlot.Ear), _curClass.Job);
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Body, _newGear[GearSetSlot.Body],
-                                          ItemChangeCallback(GearSetSlot.Body), _curClass.Job);
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Neck, _newGear[GearSetSlot.Neck],
-                                          ItemChangeCallback(GearSetSlot.Neck), _curClass.Job);
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Hands, _newGear[GearSetSlot.Hands],
-                                          ItemChangeCallback(GearSetSlot.Hands), _curClass.Job);
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Wrist, _newGear[GearSetSlot.Wrist],
-                                          ItemChangeCallback(GearSetSlot.Wrist), _curClass.Job);
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Legs, _newGear[GearSetSlot.Legs],
-                                          ItemChangeCallback(GearSetSlot.Legs), _curClass.Job);
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Ring1, _newGear[GearSetSlot.Ring1],
-                                          ItemChangeCallback(GearSetSlot.Ring1), _curClass.Job);
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Feet, _newGear[GearSetSlot.Feet],
-                                          ItemChangeCallback(GearSetSlot.Feet), _curClass.Job);
-            ImGui.TableNextColumn();
-            UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Ring2, _newGear[GearSetSlot.Ring2],
-                                          ItemChangeCallback(GearSetSlot.Ring2), _curClass.Job);
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Head, _newGear[GearSetSlot.Head],
+                                              ItemChangeCallback(GearSetSlot.Head), _curClass.Job);
+                ImGui.TableNextColumn();
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Ear, _newGear[GearSetSlot.Ear],
+                                              ItemChangeCallback(GearSetSlot.Ear), _curClass.Job);
+                ImGui.TableNextColumn();
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Body, _newGear[GearSetSlot.Body],
+                                              ItemChangeCallback(GearSetSlot.Body), _curClass.Job);
+                ImGui.TableNextColumn();
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Neck, _newGear[GearSetSlot.Neck],
+                                              ItemChangeCallback(GearSetSlot.Neck), _curClass.Job);
+                ImGui.TableNextColumn();
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Hands, _newGear[GearSetSlot.Hands],
+                                              ItemChangeCallback(GearSetSlot.Hands), _curClass.Job);
+                ImGui.TableNextColumn();
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Wrist, _newGear[GearSetSlot.Wrist],
+                                              ItemChangeCallback(GearSetSlot.Wrist), _curClass.Job);
+                ImGui.TableNextColumn();
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Legs, _newGear[GearSetSlot.Legs],
+                                              ItemChangeCallback(GearSetSlot.Legs), _curClass.Job);
+                ImGui.TableNextColumn();
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Ring1, _newGear[GearSetSlot.Ring1],
+                                              ItemChangeCallback(GearSetSlot.Ring1), _curClass.Job);
+                ImGui.TableNextColumn();
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Feet, _newGear[GearSetSlot.Feet],
+                                              ItemChangeCallback(GearSetSlot.Feet), _curClass.Job);
+                ImGui.TableNextColumn();
+                UiSystem.Helpers.DrawGearEdit(this, GearSetSlot.Ring2, _newGear[GearSetSlot.Ring2],
+                                              ItemChangeCallback(GearSetSlot.Ring2), _curClass.Job);
             }
         }
         using (var table = ImRaii.Table("##newFood", 1, ImGuiTableFlags.Borders))

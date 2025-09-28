@@ -1,13 +1,15 @@
-﻿using Dalamud.Game.Command;
+﻿using System.Globalization;
+using Dalamud.Game.Command;
 using HimbeertoniRaidTool.Plugin.UI;
 
 namespace HimbeertoniRaidTool.Plugin.Modules;
 
 public interface IHrtModule
 {
-    string Name { get; }
-    string InternalName { get; }
-    string Description { get; }
+    static abstract string Name { get; }
+    static abstract string InternalName { get; }
+    static abstract string Description { get; }
+    static abstract bool CanBeDisabled { get; }
     IHrtConfiguration Configuration { get; }
     IEnumerable<HrtCommand> Commands { get; }
     IModuleServiceContainer Services { get; }
@@ -15,27 +17,30 @@ public interface IHrtModule
     void HandleMessage(HrtUiMessage message);
     void AfterFullyLoaded();
     void PrintUsage(string command, string args);
-    void OnLanguageChange(string langCode);
+    void OnLanguageChange(CultureInfo culture);
     void Dispose();
 }
 
-public struct HrtCommand
+internal interface IHrtModule<out TModule, out TConfig> : IHrtModule
+    where TModule : IHrtModule where TConfig : IHrtConfiguration
+{
+    public static abstract TModule Create(IModuleServiceContainer services);
+    new TConfig Configuration { get; }
+    IHrtConfiguration IHrtModule.Configuration => Configuration;
+}
+
+public readonly record struct HrtCommand
 {
     /// <summary>
     ///     Command user needs to use in chat. Needs to start with a "/"
     /// </summary>
-    internal string Command = string.Empty;
-
-    internal IEnumerable<string> AltCommands = Array.Empty<string>();
-    internal string Description = string.Empty;
-    internal bool ShowInHelp = true;
-    internal IReadOnlyCommandInfo.HandlerDelegate OnCommand = (_, _) => { };
-    internal bool ShouldExposeToDalamud = false;
-    internal bool ShouldExposeAltsToDalamud = false;
-
-    public HrtCommand()
-    {
-    }
+    internal string Command { get; }
+    internal IEnumerable<string> AltCommands { get; init; } = [];
+    internal string Description { get; init; } = string.Empty;
+    internal bool ShowInHelp { get; init; } = true;
+    internal IReadOnlyCommandInfo.HandlerDelegate OnCommand { get; }
+    internal bool ShouldExposeToDalamud { get; init; } = false;
+    internal bool ShouldExposeAltsToDalamud { get; init; } = false;
 
     public HrtCommand(string command, IReadOnlyCommandInfo.HandlerDelegate onCommand)
     {

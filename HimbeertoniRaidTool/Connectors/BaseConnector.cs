@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
 using HimbeertoniRaidTool.Plugin.UI;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 

@@ -1,12 +1,13 @@
 ﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -59,7 +60,7 @@ internal class RaidGroupDb(IIdProvider idProvider, IEnumerable<JsonConverter> co
             {
                 ImGui.TableNextColumn();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Check, $"{group.LocalId}",
-                                       string.Format(GeneralLoc.SearchWindow_btn_tt_SelectEnty, group.DataTypeName,
+                                       string.Format(GeneralLoc.SearchWindow_btn_tt_SelectEnty, RaidGroup.DataTypeName,
                                                      group)))
                 {
                     Selected = group;

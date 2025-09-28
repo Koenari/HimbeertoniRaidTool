@@ -1,72 +1,25 @@
 ﻿using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Common.Services;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 using Newtonsoft.Json;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
-internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfiguration.ConfigData>, IHrtConfiguration
+internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfiguration.ConfigData, LootMasterModule,
+    LootMasterConfiguration.ConfigUi>
 {
-    private const int TARGET_VERSION = 2;
-
-    private bool _fullyLoaded;
-    public LootMasterConfiguration(IHrtModule hrtModule) : base(hrtModule)
+    public LootMasterConfiguration(LootMasterModule hrtModule) : base(hrtModule)
     {
         Ui = new ConfigUi(this);
 
     }
-    public override ConfigUi Ui { get; }
-    public override void AfterLoad()
-    {
-        if (_fullyLoaded)
-            return;
-        if (Data.Version > TARGET_VERSION)
-        {
-            const string msg = "Tried loading a configuration from a newer version of the plugin." +
-                               "\nTo prevent data loss operation has been stopped.\nYou need to update to use this plugin!";
-            Module.Services.Logger.Fatal(msg);
-            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
-            throw new NotSupportedException($"[HimbeerToniRaidTool]\n{msg}");
-        }
-        Upgrade();
-        _fullyLoaded = true;
-    }
-
-    private void Upgrade()
-    {
-        while (Data.Version < TARGET_VERSION)
-        {
-            int oldVersion = Data.Version;
-            DoUpgradeStep();
-            if (Data.Version > oldVersion)
-                continue;
-            string msg = $"Error upgrading Lootmaster configuration from version {oldVersion}";
-            Module.Services.Logger.Fatal(msg);
-            Module.Services.Chat.PrintError($"[HimbeerToniRaidTool]\n{msg}");
-            throw new InvalidOperationException(msg);
-
-
-        }
-    }
-
-    private void DoUpgradeStep()
-    {
-        switch (Data.Version)
-        {
-            case 1:
-                //Migration period ended
-                Data.Version = 2;
-                break;
-        }
-    }
-
-
 
     internal sealed class ConfigUi : IHrtConfigUi
     {
@@ -81,10 +34,8 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             _lootList = new UiSortableList<LootRule>(LootRuling.PossibleRules, _dataCopy.LootRuling.RuleSet);
         }
 
-        public void Cancel()
-        {
+        public void Cancel() { }
 
-        }
         private static string GetCharacterNameFormatDescription(string format) => format switch
         {
             "ns" => LootmasterLoc.ConfigUi_CharNameFormat_ns,
@@ -189,7 +140,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             ImGui.Separator();
             ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
             ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {_dataCopy.RolePriority}");
-            _dataCopy.RolePriority.DrawEdit(ImGui.InputInt);
+            _dataCopy.RolePriority.DrawEdit((string s, ref int i) => ImGui.InputInt(s, ref i));
         }
 
         public void OnHide() { }
@@ -212,7 +163,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
     }
 
     [JsonObject(MemberSerialization = MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
-    internal sealed class ConfigData : IHrtConfigData
+    internal sealed class ConfigData : IHrtConfigData<ConfigData>
     {
         [JsonIgnore]
         private string? _itemFormatStringCache;
@@ -338,5 +289,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             }
             return string.Join(' ', result);
         }
+
+        public ConfigData Clone() => CloneService.Clone(this);
     }
 }

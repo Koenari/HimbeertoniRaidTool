@@ -1,9 +1,9 @@
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Plugin.Localization;
-using ImGuiNET;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
@@ -73,7 +73,7 @@ internal class InventoryWindow : HrtWindowWithModalChild
             foreach (var item in GameInfo.CurrentExpansion.CurrentSavage
                                          .Bosses.SelectMany(boss => boss.GuaranteedItems))
             {
-                ImGui.Image(UiSystem.GetIcon(item).ImGuiHandle, IconSize);
+                ImGui.Image(UiSystem.GetIcon(item).Handle, IconSize);
                 ImGui.SameLine();
                 ImGui.Text(item.Name);
                 ImGui.SameLine();
@@ -97,9 +97,9 @@ internal class InventoryWindow : HrtWindowWithModalChild
             ImGui.SameLine();
             using (ImRaii.Group())
             {
-                ImGui.Image(icon.ImGuiHandle, IconSize * ScaleFactor);
+                ImGui.Image(icon.Handle, IconSize * ScaleFactor);
                 ImGui.SameLine();
-                ImGui.Text(item.Name);                
+                ImGui.Text(item.Name);
             }
             if (ImGui.IsItemHovered())
             {
@@ -107,15 +107,15 @@ internal class InventoryWindow : HrtWindowWithModalChild
                 item.Draw();
             }
         }
-        
+
         using (ImRaii.Disabled(ChildIsOpen))
         {
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##add", null, true, IconSize * ScaleFactor))
                 ModalChild = new SelectGearItemWindow(UiSystem, item => Inventory.ReserveSlot(item, 1),
-                    _ => { },
-                    null, null, null,
-                    GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel
-                    ?? 0);
+                                                      _ => { },
+                                                      null, null, null,
+                                                      GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel
+                                                   ?? 0);
         }
     }
 }

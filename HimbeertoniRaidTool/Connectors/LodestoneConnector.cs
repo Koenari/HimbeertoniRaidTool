@@ -13,6 +13,7 @@ using NetStone;
 using NetStone.Model.Parseables.Character;
 using NetStone.Model.Parseables.Character.Gear;
 using NetStone.Search.Character;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
@@ -111,7 +112,7 @@ internal class LodestoneConnector : NetStoneBase
                 if (itemEntry == null)
                 {
                     Logger.Warning(
-                        $"Tried parsing the item <{gearPiece.ItemName}> but found nothing.");
+                        "Tried parsing the item <{GearPieceItemName}> but found nothing.", gearPiece.ItemName);
                     classToChange.CurGear[slot] = new GearItem();
                     return;
                 }
@@ -127,9 +128,9 @@ internal class LodestoneConnector : NetStoneBase
                 {
                     if (string.IsNullOrEmpty(materia))
                         return;
-                    uint? materiaCategoryId = _materiaSheet.FirstOrDefault(
-                        el => el.Item.Any(
-                            item => item.Value.Name.ExtractText().Equals(materia))).RowId;
+                    uint? materiaCategoryId = _materiaSheet
+                                              .FirstOrDefault(el => el.Item.Any(item => item.Value.Name.ExtractText()
+                                                                      .Equals(materia))).RowId;
                     if (materiaCategoryId == null)
                         continue;
                     var materiaCategory = (MateriaCategory)materiaCategoryId;
@@ -259,21 +260,20 @@ internal class NetStoneBase : IDisposable
             {
                 if (c.HomeWorldId == 0 || homeWorld == null)
                     return null;
-                Logger.Info("Using name and home world to search...");
+                Logger.Information("Using name and home world to search...");
                 var netStoneResponse = await _lodestoneClient.SearchCharacter(new CharacterSearchQuery
                 {
                     CharacterName = c.Name,
                     World = homeWorld.Value.Name.ExtractText(),
                 });
-                var characterEntry = netStoneResponse?.Results.FirstOrDefault(
-                    res => res.Name == c.Name);
+                var characterEntry = netStoneResponse?.Results.FirstOrDefault(res => res.Name == c.Name);
                 if (!int.TryParse(characterEntry?.Id, out c.LodestoneId))
                     Logger.Warning("Tried parsing LodestoneID but failed.");
                 foundCharacter = characterEntry?.GetCharacter().Result;
             }
             else
             {
-                Logger.Information($"Using ID ({c.LodestoneId}) to search...");
+                Logger.Information("Using ID ({CLodestoneId}) to search...", c.LodestoneId);
                 foundCharacter = await _lodestoneClient.GetCharacter(c.LodestoneId.ToString());
             }
 

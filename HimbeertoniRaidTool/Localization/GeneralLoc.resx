@@ -514,4 +514,97 @@ You need to update to use this plugin!</value>
         <value>Replace with known {0}</value>
         <comment>{0} type of data</comment>
     </data>
+    <data name="GeneralTerm_Show_all" xml:space="preserve">
+        <value>Show all</value>
+    </data>
+    <data name="SelectItemWindow_SaveBtn_tt_Nothing_chosen" xml:space="preserve">
+        <value>Nothing chosen</value>
+    </data>
+    <data name="SelectLootItemWindow_Title" xml:space="preserve">
+        <value>Choose loot from {0}</value>
+    </data>
+    <data name="EditRaidSessionUi_txt_setAll" xml:space="preserve">
+        <value>Set All</value>
+    </data>
+    <data name="EditRaidSessionUi_txt_ParticipationStatus" xml:space="preserve">
+        <value>Participation</value>
+    </data>
+    <data name="EditRaidSessionUi_txt_InviteStatus" xml:space="preserve">
+        <value>Invite Status</value>
+    </data>
+    <data name="EditRaidSessionUi_hdg_content" xml:space="preserve">
+        <value>Content</value>
+    </data>
+    <data name="EditRaidSessionUi_txt_Nothing_planned_yet" xml:space="preserve">
+        <value>Nothing planned yet</value>
+    </data>
+    <data name="EditRaidSessionUi_tblHdg_Instance" xml:space="preserve">
+        <value>Instance</value>
+    </data>
+    <data name="EditRaidSessionUi_txt_Plan" xml:space="preserve">
+        <value>Plan: </value>
+    </data>
+    <data name="EditRaidSessionUi_txt_Killed" xml:space="preserve">
+        <value>Killed? </value>
+    </data>
+    <data name="EditRaidSessionUi_txt_Not_killed_yet" xml:space="preserve">
+        <value>Not killed yet</value>
+    </data>
+    <data name="GeneralTerms_Instance" xml:space="preserve">
+        <value>Instance</value>
+    </data>
+    <data name="EditRaidSessionUi_hdg_Participants" xml:space="preserve">
+        <value>Participants</value>
+    </data>
+    <data name="GeneralTerm_Group" xml:space="preserve">
+        <value>Group:</value>
+    </data>
+    <data name="EditRaidSessionUi_btn_Add_all_members" xml:space="preserve">
+        <value>Add all members</value>
+    </data>
+    <data name="EditRaidSessionUi_btn_tt_Add_all_members" xml:space="preserve">
+        <value>Add all members of the group to the event</value>
+    </data>
+    <data name="GeneralTerm_Day" xml:space="preserve">
+        <value>Day</value>
+    </data>
+    <data name="GeneralTerm_Month" xml:space="preserve">
+        <value>Month</value>
+    </data>
+    <data name="GeneralTerm_Year" xml:space="preserve">
+        <value>Year</value>
+    </data>
+    <data name="GeneralTerm_Hour" xml:space="preserve">
+        <value>Hour</value>
+    </data>
+    <data name="GeneralTerm_Minute" xml:space="preserve">
+        <value>Minute</value>
+    </data>
+    <data name="GeneralTerm_Date" xml:space="preserve">
+        <value>Date</value>
+    </data>
+    <data name="GeneralTerm_Time" xml:space="preserve">
+        <value>Time</value>
+    </data>
+    <data name="GeneralTerm_Duration" xml:space="preserve">
+        <value>Duration</value>
+    </data>
+    <data name="EditRaidSessionUi_cmb_AddInstance" xml:space="preserve">
+        <value>Add Instance</value>
+    </data>
+    <data name="EditRaidSessionUi_tbh_hdg_loot" xml:space="preserve">
+        <value>Loot</value>
+    </data>
+    <data name="RaidSessionSearchUi_hdg_Participants" xml:space="preserve">
+        <value>Participants</value>
+    </data>
+    <data name="RaidSessionSearchUi_dhg_Title" xml:space="preserve">
+        <value>Title</value>
+    </data>
+    <data name="CalendarUi_tt_Click_to_edit" xml:space="preserve">
+        <value>Click to edit</value>
+    </data>
+    <data name="CalendarUi_txt_Active_session" xml:space="preserve">
+        <value>Active session: </value>
+    </data>
 </root>

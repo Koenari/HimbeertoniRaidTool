@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.DataManagement;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 

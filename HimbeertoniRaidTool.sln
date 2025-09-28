@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		HimbeertoniRaidTool\HimbeertoniRaidTool.yaml = HimbeertoniRaidTool\HimbeertoniRaidTool.yaml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HimbeertoniRaidTool.Common", "lib\HimbeertoniRaidTool.Common\HimbeertoniRaidTool.Common.csproj", "{EA419F64-32A4-4027-9956-1A6FF16B94FD}"
@@ -46,5 +47,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B17E85B1-5F60-4440-9F9A-3DDE877E8CDF}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BE08045F-8BEF-4D3B-9965-CCF125442F88} = {421C307F-86F9-4723-9EEF-104BA4D1A983}
 	EndGlobalSection
 EndGlobal

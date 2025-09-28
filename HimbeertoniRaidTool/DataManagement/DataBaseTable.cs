@@ -1,21 +1,26 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Dalamud.Bindings.ImGui;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Plugin.UI;
-using ImGuiNET;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-public interface IDataBaseTable<T> where T : IHasHrtId, new()
+public interface IDataBaseTable<T> where T : class, IHasHrtId<T>, new()
 {
     internal bool Load(JsonSerializerSettings jsonSettings, string data);
     internal bool TryGet(HrtId id, [NotNullWhen(true)] out T? value);
+    internal T? GetNullable(HrtId id);
+    internal Reference<T> GetRef(HrtId id);
     internal bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value);
     internal bool TryAdd(in T value);
+    internal bool TryRemove(T data);
     internal IEnumerable<T> GetValues();
     internal void OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
     internal HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
+    internal OldHrtIdReferenceConverter<T> GetOldRefConverter();
     internal HrtIdReferenceConverter<T> GetRefConverter();
     public HashSet<HrtId> GetReferencedIds();
     internal ulong GetNextSequence();
@@ -27,7 +32,7 @@ public interface IDataBaseTable<T> where T : IHasHrtId, new()
 
 public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonConverter> converters, ILogger logger)
     : IDataBaseTable<T>
-    where T : class, IHasHrtId, new()
+    where T : class, IHasHrtId<T>, new()
 {
 
     protected readonly Dictionary<HrtId, T> Data = new();
@@ -48,7 +53,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
         settings.Converters = savedConverters;
         if (data is null)
         {
-            Logger.Error($"Could not load {typeof(T)} database");
+            Logger.Error("Could not load {Type} database", typeof(T));
             LoadError = true;
             return IsLoaded;
         }
@@ -57,24 +62,33 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
             if (value.LocalId.IsEmpty)
             {
                 Logger.Error(
-                    $"{typeof(T).Name} {value} was missing an ID and was removed from the database");
+                    "{Name} {HasHrtId} was missing an ID and was removed from the database", typeof(T).Name, value);
                 continue;
             }
             if (Data.TryAdd(value.LocalId, value))
                 _nextSequence = Math.Max(_nextSequence, value.LocalId.Sequence);
         }
         _nextSequence++;
-        Logger.Information($"Database contains {Data.Count} entries of type {typeof(T).Name}");
+        Logger.Information("Database contains {DataCount} entries of type {Name}", Data.Count, typeof(T).Name);
         IsLoaded = true;
         return IsLoaded;
     }
     public virtual bool TryGet(HrtId id, [NotNullWhen(true)] out T? value) => Data.TryGetValue(id, out value);
+    public virtual T? GetNullable(HrtId id)
+    {
+        TryGet(id, out var value);
+        return value;
+    }
+    public virtual Reference<T> GetRef(HrtId id) => new(id, GetNullable);
     public virtual bool TryAdd(in T c)
     {
         if (c.LocalId.IsEmpty)
-            c.LocalId = idProvider.CreateId(c.IdType);
+            c.LocalId = idProvider.CreateId(T.IdType);
         return Data.TryAdd(c.LocalId, c);
     }
+
+    public virtual bool TryRemove(T data) => Data.Remove(data.LocalId);
+
     public virtual bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value)
     {
         value = Data.Values.FirstOrDefault(predicate, null);
@@ -82,14 +96,14 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     }
     public void RemoveUnused(HashSet<HrtId> referencedIds)
     {
-        Logger.Debug($"Begin pruning of {typeof(T).Name} database.");
+        Logger.Debug("Begin pruning of {Name} database.", typeof(T).Name);
         IEnumerable<HrtId> keyList = new List<HrtId>(Data.Keys);
         foreach (var id in keyList.Where(id => !referencedIds.Contains(id)))
         {
             Data.Remove(id);
-            Logger.Information($"Removed {id} from {typeof(T).Name} database");
+            Logger.Information("Removed {HrtId} from {Name} database", id, typeof(T).Name);
         }
-        Logger.Debug($"Finished pruning of {typeof(T).Name} database.");
+        Logger.Debug("Finished pruning of {Name} database.", typeof(T).Name);
     }
     public bool Contains(HrtId hrtId) => Data.ContainsKey(hrtId);
     public IEnumerable<T> GetValues() => Data.Values;
@@ -111,6 +125,8 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
     }
     public abstract HashSet<HrtId> GetReferencedIds();
 
+    public OldHrtIdReferenceConverter<T> GetOldRefConverter() => new(this);
+
     public HrtIdReferenceConverter<T> GetRefConverter() => new(this);
 
     public virtual void FixEntries(HrtDataManager hrtDataManager) { }
@@ -121,7 +137,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
         Action<TData> onSelect,
         Action? onCancel) : HrtWindow(uiSystem)
         where TDataBaseTable : IDataBaseTable<TData>
-        where TData : IHasHrtId, new()
+        where TData : class, IHasHrtId<TData>, new()
     {
         protected readonly TDataBaseTable Database = dataBase;
 
@@ -129,7 +145,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
 
         protected void Save()
         {
-            if (Selected == null)
+            if (Selected is null)
                 return;
             onSelect.Invoke(Selected!);
             Hide();

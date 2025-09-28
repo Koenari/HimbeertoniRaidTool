@@ -14,26 +14,36 @@ using Character = HimbeertoniRaidTool.Common.Data.Character;
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-internal sealed class LootMasterModule : IHrtModule
+internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMasterConfiguration>
 {
+    #region Static
+
+    public static string Name => "Loot Master";
+    public static string InternalName => "LootMaster";
+
+    public static string Description => "";
+
+    public static bool CanBeDisabled => false;
+
+    #endregion
+
     private readonly LootmasterUi _ui;
-    internal readonly LootMasterConfiguration ConfigImpl;
-    public LootMasterModule()
+    private LootMasterModule(IModuleServiceContainer services)
     {
-        Services = ServiceManager.GetServiceContainer(this);
-        LootmasterLoc.Culture = new CultureInfo(Services.PluginInterface.UiLanguage);
-        ConfigImpl = new LootMasterConfiguration(this);
+        Services = services;
+        LootmasterLoc.Culture = Services.LocalizationManager.CurrentLocale;
+        Configuration = new LootMasterConfiguration(this);
         _ui = new LootmasterUi(this);
         Services.ClientState.Login += OnLogin;
 
     }
+    public static LootMasterModule Create(IModuleServiceContainer services) => new(services);
+
     //Properties
-    internal List<RaidGroup> RaidGroups => ConfigImpl.Data.RaidGroups;
+    internal List<RaidGroup> RaidGroups => Configuration.Data.RaidGroups;
     //Interface Properties
-    public string Name => "Loot Master";
-    public string InternalName => "LootMaster";
-    public IHrtConfiguration Configuration => ConfigImpl;
-    public string Description => "";
+    public LootMasterConfiguration Configuration { get; }
+
     public IModuleServiceContainer Services { get; }
     public event Action? UiReady;
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
@@ -60,7 +70,7 @@ internal sealed class LootMasterModule : IHrtModule
             };
             if (Services.HrtDataManager.RaidGroupDb.TryAdd(solo))
             {
-                Services.Logger.Info("Add solo group");
+                Services.Logger.Information("Add solo group");
                 RaidGroups.Insert(0, solo);
             }
 
@@ -69,7 +79,9 @@ internal sealed class LootMasterModule : IHrtModule
             Services.TaskManager.RunOnFrameworkThread(OnLogin);
     }
 
-    public void OnLanguageChange(string langCode) => LootmasterLoc.Culture = new CultureInfo(langCode);
+    public void ShowUi() => _ui.Show();
+
+    public void OnLanguageChange(CultureInfo culture) => LootmasterLoc.Culture = culture;
     public void PrintUsage(string command, string args)
     {
         var stringBuilder = new SeStringBuilder()
@@ -91,7 +103,7 @@ internal sealed class LootMasterModule : IHrtModule
     }
 
 
-    public void Dispose() => ConfigImpl.Save(Services.HrtDataManager.ModuleConfigurationManager);
+    public void Dispose() => Configuration.Save(Services.HrtDataManager.ModuleConfigurationManager);
 
     public void HandleMessage(HrtUiMessage message)
     {
@@ -109,17 +121,17 @@ internal sealed class LootMasterModule : IHrtModule
         ulong curCharId =
             Character.CalcCharId(
                 Services.CharacterInfoService.GetContentId(Services.ClientState.LocalPlayer));
-        Services.Logger.Debug($"OnLogin: CurCharID: {curCharId}");
+        Services.Logger.Debug("OnLogin: CurCharID: {CurCharId}", curCharId);
         if (curCharId != 0)
         {
-            Services.Logger.Info("Switching Solo Char");
+            Services.Logger.Information("Switching Solo Char");
             if (soloPlayer.Characters.Any(c => c.CharId == curCharId))
                 soloPlayer.MainChar = soloPlayer.Characters.First(c => c.CharId == curCharId);
             else
                 AddCurrentCharacter(soloPlayer);
         }
 
-        if (ConfigImpl.Data.OpenOnStartup)
+        if (Configuration.Data.OpenOnStartup)
             _ui.Show();
         UiReady?.Invoke();
     }
@@ -156,7 +168,7 @@ internal sealed class LootMasterModule : IHrtModule
     }
     private bool FillCharacter(ref Character destination, IPlayerCharacter source)
     {
-        Services.Logger.Debug($"Filling character: {source.Name}");
+        Services.Logger.Debug("Filling character: {SourceName}", source.Name);
         ulong charId = Character.CalcCharId(Services.CharacterInfoService.GetContentId(source));
         if (Services.HrtDataManager.CharDb.Search(
                 CharacterDb.GetStandardPredicate(charId, source.HomeWorld.RowId, source.Name.TextValue),
@@ -172,7 +184,7 @@ internal sealed class LootMasterModule : IHrtModule
             if (!Services.HrtDataManager.CharDb.TryAdd(destination)) return false;
         }
         var curJob = source.GetJob();
-        Services.Logger.Debug($"Found job: {curJob}");
+        Services.Logger.Debug("Found job: {CurJob}", curJob);
         if (!curJob.IsCombatJob()) return true;
         bool isNewJob = destination[curJob] is null;
         var curClass = destination[curJob] ?? destination.AddClass(curJob);
@@ -321,7 +333,7 @@ internal sealed class LootMasterModule : IHrtModule
 
     public void OnCommand(string command, string args)
     {
-        Services.Logger.Debug($"Lootmaster module handling command: {command} args: \"{args}\"");
+        Services.Logger.Debug("Lootmaster module handling command: {Command} args: \"{Args}\"", command, args);
         switch (args)
         {
             case "toggle":
