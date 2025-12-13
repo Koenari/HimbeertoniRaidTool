@@ -30,7 +30,7 @@ internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.Con
                     {
                         ImGui.Text("Weeks start on");
                         ImGui.SameLine();
-                        ImGuiHelper.Combo("##FirstDayOfWeek", ref _dataCopy.FirstDayOfWeek);
+                        InputHelper.Combo("##FirstDayOfWeek", ref _dataCopy.FirstDayOfWeek);
                     }
                 }
             }

@@ -179,7 +179,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.InputText(GeneralLoc.CommonTerms_Name, ref DataCopy.Name, 100);
             using (ImRaii.Disabled(DataCopy.TypeLocked))
             {
-                ImGuiHelper.Combo(GeneralLoc.EditGroupUi_in_type, ref DataCopy.Type);
+                InputHelper.Combo(GeneralLoc.EditGroupUi_in_type, ref DataCopy.Type);
             }
             //Role priority
             bool overrideRolePriority = DataCopy.RolePriority != null;
@@ -370,7 +370,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 ImGui.Separator();
             }
             if (toDelete is not null) DataCopy.RemoveClass(toDelete.Value);
-            if (ImGuiHelper.SearchableCombo("##addJobCombo", out var job, _newJob.ToString(),
+            if (InputHelper.SearchableCombo("##addJobCombo", out var job, _newJob.ToString(),
                                             Enum.GetValues<Job>(), j => j.ToString(),
                                             (j, s) => j.ToString()
                                                        .Contains(s, StringComparison.CurrentCultureIgnoreCase),
@@ -562,7 +562,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.SetNextItemWidth(70 * ScaleFactor);
             using (ImRaii.Disabled(_providedJob is not null))
             {
-                ImGuiHelper.Combo("##JobSelection", ref _job);
+                InputHelper.Combo("##JobSelection", ref _job);
             }
             ImGui.TableNextColumn();
             ImGui.Text(GeneralLoc.EditGearSetUi_txt_Source);
@@ -679,7 +679,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
             ImGui.Text(GeneralLoc.EditGearSetUi_hdg_ExtCustom);
             ImGui.SetNextItemWidth(100 * ScaleFactor);
-            ImGuiHelper.Combo("##manager", ref _selectedService,
+            InputHelper.Combo("##manager", ref _selectedService,
                               val => val.HasValue ? val.Value.FriendlyName() : GeneralLoc.EditGearSetUi_txt_AutoDetect,
                               val => Factory._connectorPool.HasConnector(val));
             ImGui.SetNextItemWidth(200 * ScaleFactor);
@@ -751,8 +751,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                                      Action? onDelete) : base(factory, original, onSave, onCancel, onDelete)
         {
             CanDelete = true;
-            MinSize = new Vector2(700, 600);
-            Size = new Vector2(1100, 600);
+            MinSize = new Vector2(700, 400);
+            Size = new Vector2(900, 600);
             SizeCondition = ImGuiCond.Appearing;
         }
 
@@ -776,33 +776,15 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.InputText("##name", ref DataCopy.Title, 100);
             ImGui.NewLine();
             ImGui.Text($"{DataCopy.StartTime:D} {DataCopy.StartTime:t} - {DataCopy.EndTime:t}");
-            using var table = ImRaii.Table("##TimeSection", 3, ImGuiTableFlags.SizingFixedFit);
-            if (!table) return;
-            bool changed = false;
-            ImGui.TableNextColumn();
-            ImGui.Text(GeneralLoc.GeneralTerm_Date);
-
-            ImGui.TableNextColumn();
-            ImGui.Text(GeneralLoc.GeneralTerm_Time);
-
-            ImGui.TableNextColumn();
-            ImGui.Text(GeneralLoc.GeneralTerm_Duration);
-
-            ImGui.TableNextColumn();
-            var date = DateOnly.FromDateTime(DataCopy.StartTime);
-            changed |= ImGuiHelper.DateInput("##date", ref date);
+            ImGui.NewLine();
+            var startTime = DataCopy.StartTime;
+            if (InputHelper.InputDateTime("##date", ref startTime, "Start time"))
+                DataCopy.StartTime = startTime;
             ImGui.SameLine();
             ImGui.Text("  ");
-            ImGui.TableNextColumn();
-            var time = TimeOnly.FromDateTime(DataCopy.StartTime);
-            changed |= ImGuiHelper.TimeInput("##time", ref time);
-            if (changed)
-                DataCopy.StartTime = new DateTime(date, time);
             ImGui.SameLine();
-            ImGui.Text("  ");
-            ImGui.TableNextColumn();
             var duration = DataCopy.Duration;
-            if (ImGuiHelper.DurationInput("##duration", ref duration))
+            if (InputHelper.InputDuration("##duration", ref duration))
                 DataCopy.Duration = duration;
 
         }
@@ -812,7 +794,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.Text(GeneralLoc.EditRaidSessionUi_hdg_Participants);
             ImGui.Text(GeneralLoc.GeneralTerm_Group);
             ImGui.SameLine();
-            if (ImGuiHelper.SearchableCombo("##group", out var group, DataCopy.Group?.Name ?? string.Empty,
+            if (InputHelper.SearchableCombo("##group", out var group, DataCopy.Group?.Name ?? string.Empty,
                                             Factory._dataManager.RaidGroupDb.GetValues(), raidGroup => raidGroup.Name))
                 DataCopy.Group = group;
             if (DataCopy.Group is not null)
@@ -848,10 +830,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 ImGui.Text($"{participant.Character.Id} ({participant.Character.Data.Name})");
                 ImGui.TableNextColumn();
                 ImGui.SetNextItemWidth(100 * ScaleFactor);
-                ImGuiHelper.Combo("##invite-status", ref participant.InvitationStatus, EnumExtensions.FriendlyName);
+                InputHelper.Combo("##invite-status", ref participant.InvitationStatus, EnumExtensions.FriendlyName);
                 ImGui.TableNextColumn();
                 ImGui.SetNextItemWidth(100 * ScaleFactor);
-                ImGuiHelper.Combo("##part-status", ref participant.ParticipationStatus, EnumExtensions.FriendlyName);
+                InputHelper.Combo("##part-status", ref participant.ParticipationStatus, EnumExtensions.FriendlyName);
             }
             if (toDelete is not null)
                 DataCopy.Uninvite(toDelete);
@@ -861,7 +843,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.TableNextColumn();
             ImGui.SetNextItemWidth(100 * ScaleFactor);
             var invitationStatus = InviteStatus.NoStatus;
-            if (ImGuiHelper.Combo("##invite-status", ref invitationStatus, EnumExtensions.FriendlyName))
+            if (InputHelper.Combo("##invite-status", ref invitationStatus, EnumExtensions.FriendlyName))
             {
                 foreach (var participant in DataCopy.Participants)
                 {
@@ -871,7 +853,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.TableNextColumn();
             ImGui.SetNextItemWidth(100 * ScaleFactor);
             var participationStatus = ParticipationStatus.NoStatus;
-            if (ImGuiHelper.Combo("##part-status", ref participationStatus, EnumExtensions.FriendlyName))
+            if (InputHelper.Combo("##part-status", ref participationStatus, EnumExtensions.FriendlyName))
             {
                 foreach (var participant in DataCopy.Participants)
                 {
@@ -883,7 +865,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         private void DrawContentSection()
         {
             ImGui.Text(GeneralLoc.EditRaidSessionUi_hdg_content);
-            if (ImGuiHelper.SearchableCombo("", out var instance, GeneralLoc.EditRaidSessionUi_cmb_AddInstance,
+            if (InputHelper.SearchableCombo("", out var instance, GeneralLoc.EditRaidSessionUi_cmb_AddInstance,
                                             GameInfo.CurrentSavageTier!.Bosses, i => i.Name,
                                             (inst, sP) => inst.Name.Contains(sP),
                                             inst => DataCopy.PlannedContent.All(c => c.Instance != inst)))
@@ -915,7 +897,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Plan);
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(150 * ScaleFactor);
-                ImGuiHelper.Combo("##plan", ref instanceSession.Plan, EnumExtensions.FriendlyName);
+                InputHelper.Combo("##plan", ref instanceSession.Plan, EnumExtensions.FriendlyName);
                 ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Killed);
                 ImGui.SameLine();
                 ImGui.Checkbox("##killed", ref instanceSession.Killed);

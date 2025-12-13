@@ -20,10 +20,8 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
 {
     private static readonly Lazy<Vector2> MaxMateriaCatSizeImpl =
         new(() => ImGui.CalcTextSize(Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? ""));
-    private static Vector2 MaxMateriaCatSize => MaxMateriaCatSizeImpl.Value;
     private static readonly Lazy<Vector2> MaxMateriaLevelSizeImpl =
         new(() => ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? ""));
-    private static Vector2 MaxMateriaLevelSize => MaxMateriaLevelSizeImpl.Value;
 
     public IStatTable CreateStatTable(PlayableClass jobClass,
                                       Tribe? tribe,
@@ -159,8 +157,8 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                 mat.Draw();
             }
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
-            if (ImGuiHelper.SearchableCombo(
+            ImGui.SetNextItemWidth(MaxMateriaCatSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
+            if (InputHelper.SearchableCombo(
                     $"##mat{slot}{i}",
                     out var cat,
                     mat.Category.PrefixName(),
@@ -178,8 +176,8 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
             ImGui.SameLine();
             ImGui.Text(GeneralLoc.CommonTerms_Materia);
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(MaxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
-            if (ImGuiHelper.SearchableCombo(
+            ImGui.SetNextItemWidth(MaxMateriaLevelSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
+            if (InputHelper.SearchableCombo(
                     $"##matLevel{slot}{i}",
                     out var level,
                     mat.Level.ToString(),
@@ -202,11 +200,11 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                 parent.AddChild(new SelectMateriaWindow(uiSystem, item.AddMateria, _ => { }, levelToAdd));
             }
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(MaxMateriaCatSize.X + 10 * HrtWindow.ScaleFactor);
-            if (ImGuiHelper.SearchableCombo(
+            ImGui.SetNextItemWidth(MaxMateriaCatSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
+            if (InputHelper.SearchableCombo(
                     $"##matAdd{slot}",
                     out var cat,
-                    MateriaCategory.None.ToString(),
+                    MateriaCategory.None.GetStatType().FriendlyName(),
                     Enum.GetValues<MateriaCategory>(),
                     category => category.GetStatType().FriendlyName(),
                     (category, s) => category.GetStatType().FriendlyName()
@@ -217,7 +215,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                 item.AddMateria(new MateriaItem(cat, levelToAdd));
             }
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(MaxMateriaLevelSize.X + 10 * HrtWindow.ScaleFactor);
+            ImGui.SetNextItemWidth(MaxMateriaLevelSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
             using (ImRaii.Disabled())
             {
                 using var combo = ImRaii.Combo("##Undef", $"{levelToAdd}", ImGuiComboFlags.NoArrowButton);
@@ -231,7 +229,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         }
     }
     //Credit to UnknownX
-    //Modified to have filtering of Excel sheet and be usable by keyboard only
+    //Modified to have filtering of the excel-sheet and be usable by keyboard only
     public bool ExcelSheetCombo<T>(string id, out T selected,
                                    Func<ExcelSheet<T>, string> getPreview,
                                    ImGuiComboFlags flags = ImGuiComboFlags.None) where T : struct, IExcelRow<T>
@@ -275,7 +273,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
     {
         var sheet = uiSystem.GetExcelSheet<T>();
 
-        return ImGuiHelper.SearchableCombo(id, out selected, getPreview(sheet), sheet, toName, searchPredicate,
+        return InputHelper.SearchableCombo(id, out selected, getPreview(sheet), sheet, toName, searchPredicate,
                                            preFilter, flags);
     }
     internal void DrawPlayerCombo(string id, Player player,
@@ -419,77 +417,77 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
             services.ConfigManager.TryGetConfig(typeof(CoreConfig), out CoreConfig? config) ? config : null;
         private PartyBonus? _bonusOverride;
 
-        private PartyBonus Bonus =>
+        private PartyBonus _bonus =>
             _bonusOverride ?? (services.ConfigManager.TryGetConfig(typeof(CoreConfig), out CoreConfig? config) ?
                 config.Data.PartyBonus : PartyBonus.None);
 
-        private GearSetStatBlock Left => new(jobClass, leftGear, tribe, Bonus);
-        private GearSetStatBlock Right => new(jobClass, rightGear, tribe, Bonus);
+        private GearSetStatBlock _left => new(jobClass, leftGear, tribe, _bonus);
+        private GearSetStatBlock _right => new(jobClass, rightGear, tribe, _bonus);
 
         public void Draw()
         {
             (int leftMain, int rightMain) = jobClass.Job.MainStat() switch
             {
-                StatType.Strength     => (Left.Strength, Right.Strength),
-                StatType.Dexterity    => (Left.Dexterity, Right.Dexterity),
-                StatType.Intelligence => (Left.Intelligence, Right.Intelligence),
-                StatType.Mind         => (Left.Mind, Right.Mind),
+                StatType.Strength     => (_left.Strength, _right.Strength),
+                StatType.Dexterity    => (_left.Dexterity, _right.Dexterity),
+                StatType.Intelligence => (_left.Intelligence, _right.Intelligence),
+                StatType.Mind         => (_left.Mind, _right.Mind),
                 _                     => (0, 0),
             };
-            var bonusInput = Bonus;
-            if (ImGuiHelper.Combo("Party Bonus", ref bonusInput, b => b.FriendlyName()))
+            var bonusInput = _bonus;
+            if (InputHelper.Combo("Party Bonus", ref bonusInput, b => b.FriendlyName()))
             {
-                if (bonusInput != Bonus)
+                if (bonusInput != _bonus)
                     _bonusOverride = bonusInput;
                 if (_bonusOverride == _coreConfig?.Data.PartyBonus)
                     _bonusOverride = null;
             }
             BeginAndSetupTable("##MainStats", LootmasterLoc.StatTable_MainStats_Title);
-            DrawStatRow(Left.WeaponDamage, Right.WeaponDamage, "WeaponDamage",
+            DrawStatRow(_left.WeaponDamage, _right.WeaponDamage, "WeaponDamage",
             [
                 ("Weapon DMG Multiplier", s => s.WeaponDamageMultiplier(), val => $"{100 * val:N0} %%", false),
                 ("Dmg100/s", s => s.AverageSkillDamage(100) / s.Gcd(), val => $"{val:N0}", false),
             ]);
-            DrawStatRow(Left.Vitality, Right.Vitality, StatType.Vitality.FriendlyName(),
+            DrawStatRow(_left.Vitality, _right.Vitality, StatType.Vitality.FriendlyName(),
                         [("MaxHP", s => s.MaxHp(), val => $"{val:N0} HP", false)]);
             DrawStatRow(leftMain, rightMain, jobClass.Job.MainStat().FriendlyName(),
                         [("Main Stat Multiplier", s => s.MainStatMultiplier(), val => $"{100 * val:N0} %%", false)]);
-            DrawStatRow(Left.PhysicalDefense, Right.PhysicalDefense, StatType.Defense.FriendlyName(),
+            DrawStatRow(_left.PhysicalDefense, _right.PhysicalDefense, StatType.Defense.FriendlyName(),
                         [("Mitigation", s => s.PhysicalDefenseMitigation(), val => $"{val * 100:N1} %%", false)]);
-            DrawStatRow(Left.MagicalDefense, Right.MagicalDefense, StatType.MagicDefense.FriendlyName(),
+            DrawStatRow(_left.MagicalDefense, _right.MagicalDefense, StatType.MagicDefense.FriendlyName(),
                         [("Mitigation", s => s.MagicalDefenseMitigation(), val => $"{val * 100:N1} %%", false)]);
             ImGui.EndTable();
             ImGui.NewLine();
             BeginAndSetupTable("##SecondaryStats", LootmasterLoc.StatTable_SecondaryStats_Title);
-            DrawStatRow(Left.CriticalHit, Right.CriticalHit, StatType.CriticalHit.FriendlyName(),
+            DrawStatRow(_left.CriticalHit, _right.CriticalHit, StatType.CriticalHit.FriendlyName(),
             [
                 ("Chance", s => s.CritChance(), val => $"{val * 100:N1} %%", false),
                 ("Damage", s => s.CritDamage(), val => $"{val * 100:N1} %%", false),
             ]);
-            DrawStatRow(Left.Determination, Right.Determination, StatType.Determination.FriendlyName(),
+            DrawStatRow(_left.Determination, _right.Determination, StatType.Determination.FriendlyName(),
                         [("Multiplier", s => s.DeterminationMultiplier(), val => $"{val * 100:N1} %%", false)]);
-            DrawStatRow(Left.DirectHit, Right.DirectHit, StatType.DirectHitRate.FriendlyName(),
+            DrawStatRow(_left.DirectHit, _right.DirectHit, StatType.DirectHitRate.FriendlyName(),
                         [("Chance", s => s.DirectHitChance(), val => $"{val * 100:N1} %%", false)]);
             if (jobClass.Job.GetRole() is Role.Healer or Role.Caster)
             {
-                DrawStatRow(Left.SpellSpeed, Right.SpellSpeed, StatType.SpellSpeed.FriendlyName(),
+                DrawStatRow(_left.SpellSpeed, _right.SpellSpeed, StatType.SpellSpeed.FriendlyName(),
                 [
                     ("Gcd", s => s.Gcd(), val => $"{val:N2} s", true),
                     ("Dot/HoT Multiplier", s => s.HotMultiplier(), val => $"{val * 100:N1} %%", false),
                 ]);
                 if (jobClass.Job.GetRole() == Role.Healer)
-                    DrawStatRow(Left.Piety, Right.Piety, StatType.Piety.FriendlyName(),
+                    DrawStatRow(_left.Piety, _right.Piety, StatType.Piety.FriendlyName(),
                                 [("MP Regen", s => s.MpPerTick(), val => $"{val:N0} MP/s", false)]);
             }
             else
             {
-                DrawStatRow(Left.SkillSpeed, Right.SkillSpeed, StatType.SkillSpeed.FriendlyName(),
+                DrawStatRow(_left.SkillSpeed, _right.SkillSpeed, StatType.SkillSpeed.FriendlyName(),
                 [
                     ("Gcd", s => s.Gcd(), val => $"{val:N2} s", true),
                     ("Dot/HoT Multiplier", s => s.DotMultiplier(), val => $"{val * 100:N1} %%", false),
                 ]);
                 if (jobClass.Job.GetRole() == Role.Tank)
-                    DrawStatRow(Left.Tenacity, Right.Tenacity, StatType.Tenacity.FriendlyName(),
+                    DrawStatRow(_left.Tenacity, _right.Tenacity, StatType.Tenacity.FriendlyName(),
                     [
                         ("Outgoing Damage", s => s.TenacityOffensiveModifier(), val => $"{val * 100:N1} %%", false),
                         ("Incoming Damage", s => s.TenacityDefensiveModifier(), val => $"{val * 100:N1} %%", true),
@@ -504,8 +502,8 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                                  []
                                  evalDefinitions)
             {
-                var leftEvaluations = evalDefinitions.Select(s => s.eval(Left.StatEquations)).ToImmutableArray();
-                var rightEvaluations = evalDefinitions.Select(s => s.eval(Right.StatEquations)).ToImmutableArray();
+                var leftEvaluations = evalDefinitions.Select(s => s.eval(_left.StatEquations)).ToImmutableArray();
+                var rightEvaluations = evalDefinitions.Select(s => s.eval(_right.StatEquations)).ToImmutableArray();
                 var formats = evalDefinitions.Select(s => s.format).ToImmutableArray();
                 var lowerIsBetters = evalDefinitions.Select(s => s.lowerIsBeter).ToImmutableArray();
 

@@ -105,7 +105,7 @@ internal class CharacterDb(
             ImGui.TableNextColumn();
             ImGui.Text(GeneralLoc.EditCharUi_in_HomeWorld);
             ImGui.TableNextColumn();
-            if (ImGuiHelper.SearchableCombo("##homeWorld", out uint worldOut,
+            if (InputHelper.SearchableCombo("##homeWorld", out uint worldOut,
                                             GetWorldName(_selectedWorld), Database.Data.Values
                                                 .Select(entry => entry.HomeWorldId).Distinct()
                                                 .Where(entry => entry != 0).Prepend<uint>(0), GetWorldName))

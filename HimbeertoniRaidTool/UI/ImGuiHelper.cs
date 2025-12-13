@@ -17,11 +17,7 @@ namespace HimbeertoniRaidTool.Plugin.UI;
 public static class ImGuiHelper
 {
 
-    private static string _search = string.Empty;
-    private static HashSet<object>? _filtered;
-    private static int _hoveredItem;
-    //This is a small hack since to my knowledge there is no way to close and existing combo when not clicking
-    private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> ComboDic = new();
+
     public static bool SaveButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
         => Button(FontAwesomeIcon.Save, "##save", tooltip ?? GeneralLoc.General_btn_tt_save, enabled,
                   size ?? new Vector2(50f, 25f));
@@ -185,208 +181,37 @@ public static class ImGuiHelper
     }
 
 
-    public static bool Combo<T>(string label, ref T value, Func<T, string>? toName = null, Func<T, bool>? select = null)
-        where T : struct, Enum
+    public static void DrawMonth(string id, DateOnly month, Action<DateOnly, bool> drawDay,
+                                 DayOfWeek firstDayOfWeek = DayOfWeek.Monday, bool abbreviatedDays = false)
     {
-        T? value2 = value;
-        Func<T?, string>? toNameInternal = toName is null ? null : t => t.HasValue ? toName(t.Value) : "";
-        bool result = Combo(label, ref value2, toNameInternal, select, false);
-        if (result && value2.HasValue)
-            value = value2.Value;
-        return result;
-    }
+        using var table = ImRaii.Table($"##{id}", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp);
+        if (!table) return;
+        ImGui.TableSetupColumn(GetDayName((DayOfWeek)(((int)firstDayOfWeek + 0) % 7)));
+        ImGui.TableSetupColumn(GetDayName((DayOfWeek)(((int)firstDayOfWeek + 1) % 7)));
+        ImGui.TableSetupColumn(GetDayName((DayOfWeek)(((int)firstDayOfWeek + 2) % 7)));
+        ImGui.TableSetupColumn(GetDayName((DayOfWeek)(((int)firstDayOfWeek + 3) % 7)));
+        ImGui.TableSetupColumn(GetDayName((DayOfWeek)(((int)firstDayOfWeek + 4) % 7)));
+        ImGui.TableSetupColumn(GetDayName((DayOfWeek)(((int)firstDayOfWeek + 5) % 7)));
+        ImGui.TableSetupColumn(GetDayName((DayOfWeek)(((int)firstDayOfWeek + 6) % 7)));
+        ImGui.TableHeadersRow();
+        var day = new DateOnly(month.Year, month.Month, 1);
+        var nextMonth = day.AddMonths(1);
+        //Backtrack to the first day of the week
 
-
-    public static bool Combo<T>(string label, ref T? value, Func<T?, string>? toName = null,
-                                Func<T, bool>? select = null, bool allowNull = true) where T : struct, Enum
-    {
-        string[] names = Enum.GetNames(typeof(T));
-        toName ??= t => names[t.HasValue ? Array.IndexOf(Enum.GetValues(typeof(T)), t) : 0];
-        select ??= _ => true;
-        bool result = false;
-        using var combo = ImRaii.Combo(label, toName(value));
-        if (!combo)
-            return result;
-        if (allowNull && ImGui.Selectable(toName(null)))
+        day = day.AddDays(firstDayOfWeek - day.DayOfWeek > 0 ? firstDayOfWeek - day.DayOfWeek - 7
+                              : firstDayOfWeek - day.DayOfWeek);
+        //draw entries for month and adjacent days
+        while (day < nextMonth || day.DayOfWeek != firstDayOfWeek)
         {
-            value = null;
-            result = true;
+            ImGui.TableNextColumn();
+            drawDay(day, day.Month == month.Month);
+            day = day.AddDays(1);
         }
-        foreach (var choice in Enum.GetValues<T>())
+        return;
+        string GetDayName(DayOfWeek dayOfWeek)
         {
-            if (!select(choice) || !ImGui.Selectable(toName(choice))) continue;
-            value = choice;
-            result = true;
+            return abbreviatedDays ? dayOfWeek.Abbrev() : dayOfWeek.Name();
         }
-        return result;
-    }
-
-    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
-                                          IEnumerable<T> possibilities, Func<T, string> toName,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : notnull =>
-        SearchableCombo(id, out selected, preview, possibilities, toName,
-                        (p, s) => toName.Invoke(p).Contains(s, StringComparison.InvariantCultureIgnoreCase), flags);
-    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
-                                          IEnumerable<T> possibilities, Func<T, string> toName,
-                                          Func<T, string, bool> searchPredicate,
-                                          ImGuiComboFlags flags = ImGuiComboFlags.None) where T : notnull =>
-        SearchableCombo(id, out selected, preview, possibilities, toName, searchPredicate, _ => true, flags);
-    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
-                                          IEnumerable<T> possibilities, Func<T, string> toName,
-                                          Func<T, string, bool> searchPredicate,
-                                          Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
-        where T : notnull
-    {
-
-        ComboDic.TryAdd(id, (false, false));
-        (bool toggle, bool wasEnterClickedLastTime) = ComboDic[id];
-        selected = default;
-        using var combo = ImRaii.Combo(id + (toggle ? "##x" : ""), preview, flags);
-        if (!combo)
-            return false;
-        if (wasEnterClickedLastTime || ImGui.IsKeyPressed(ImGuiKey.Escape))
-        {
-            toggle = !toggle;
-            _search = string.Empty;
-            _filtered = null;
-        }
-        bool enterClicked = ImGui.IsKeyPressed(ImGuiKey.Enter) || ImGui.IsKeyPressed(ImGuiKey.KeypadEnter);
-        wasEnterClickedLastTime = enterClicked;
-        ComboDic[id] = (toggle, wasEnterClickedLastTime);
-        if (ImGui.IsKeyPressed(ImGuiKey.UpArrow))
-            _hoveredItem--;
-        if (ImGui.IsKeyPressed(ImGuiKey.DownArrow))
-            _hoveredItem++;
-        _hoveredItem = Math.Clamp(_hoveredItem, 0, Math.Max(_filtered?.Count - 1 ?? 0, 0));
-        if (ImGui.IsWindowAppearing() && ImGui.IsWindowFocused() && !ImGui.IsAnyItemActive())
-        {
-            _search = string.Empty;
-            _filtered = null;
-            ImGui.SetKeyboardFocusHere(0);
-        }
-
-        if (ImGui.InputText("##ExcelSheetComboSearch", ref _search, 128))
-            _filtered = null;
-        if (_filtered == null)
-        {
-            _filtered = possibilities.Where(preFilter).Where(s => searchPredicate(s, _search)).Cast<object>()
-                                     .ToHashSet();
-            _hoveredItem = 0;
-        }
-        int i = 0;
-        foreach (var row in _filtered.Cast<T>())
-        {
-            bool hovered = _hoveredItem == i;
-            using var imguiId = ImRaii.PushId(i);
-
-            if (ImGui.Selectable(toName(row), hovered) || enterClicked && hovered)
-            {
-                selected = row;
-                return true;
-            }
-            i++;
-        }
-
-        return false;
-    }
-
-    public static bool DateInput(string id, ref DateOnly date)
-    {
-        bool changed = false;
-        int day = date.Day;
-        ImGui.SetNextItemWidth(25 * HrtWindow.ScaleFactor);
-        if (ImGui.InputInt($".##{id}##Day", ref day))
-        {
-            changed = true;
-            date = date.AddDays(day - date.Day);
-        }
-        AddTooltip(GeneralLoc.GeneralTerm_Day);
-        ImGui.SameLine();
-        ImGui.SetNextItemWidth(25 * HrtWindow.ScaleFactor);
-        int month = date.Month;
-        if (ImGui.InputInt($".##{id}##Month", ref month))
-        {
-            changed = true;
-            date = date.AddMonths(month - date.Month);
-        }
-        AddTooltip(GeneralLoc.GeneralTerm_Month);
-        ImGui.SameLine();
-        ImGui.SetNextItemWidth(50 * HrtWindow.ScaleFactor);
-        int year = date.Year;
-        if (ImGui.InputInt($"##{id}##Year", ref year))
-        {
-            changed = true;
-            date = date.AddYears(year - date.Year);
-        }
-        AddTooltip(GeneralLoc.GeneralTerm_Year);
-        return changed;
-    }
-
-    public static bool TimeInput(string id, ref TimeOnly time)
-    {
-        bool changed = false;
-        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
-        int hour = time.Hour;
-        if (ImGui.InputInt($":##{id}##Hour", ref hour))
-        {
-            changed = true;
-            time = time.AddHours(hour - time.Hour);
-        }
-        AddTooltip(GeneralLoc.GeneralTerm_Hour);
-        ImGui.SameLine();
-        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
-        int minute = time.Minute;
-        if (ImGui.InputInt($"##{id}##Minute", ref minute))
-        {
-            changed = true;
-            time = time.AddMinutes(minute - time.Minute);
-        }
-        AddTooltip(GeneralLoc.GeneralTerm_Minute);
-        return changed;
-    }
-
-    public static bool DateTimeInput(string id, ref DateTime dateTime)
-    {
-        bool changed = false;
-        using var table = ImRaii.Table("##TimeSection", 2, ImGuiTableFlags.SizingFixedFit);
-        if (!table) return changed;
-        ImGui.TableNextColumn();
-        ImGui.Text(GeneralLoc.GeneralTerm_Date);
-        ImGui.TableNextColumn();
-        ImGui.Text(GeneralLoc.GeneralTerm_Time);
-        ImGui.TableNextColumn();
-        var date = DateOnly.FromDateTime(dateTime);
-        changed |= DateInput(id, ref date);
-        ImGui.TableNextColumn();
-        var time = TimeOnly.FromDateTime(dateTime);
-        changed |= TimeInput(id, ref time);
-        if (changed)
-            dateTime = new DateTime(date, time);
-        return changed;
-    }
-
-    public static bool DurationInput(string id, ref TimeSpan duration)
-    {
-
-        bool changed = false;
-        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
-        int hour = duration.Hours;
-        if (ImGui.InputInt($":##{id}##DurHour", ref hour))
-        {
-            changed = true;
-            duration += TimeSpan.FromHours(hour - duration.Hours);
-        }
-        AddTooltip(GeneralLoc.GeneralTerm_Hour);
-        ImGui.SameLine();
-        ImGui.SetNextItemWidth(30 * HrtWindow.ScaleFactor);
-        int minute = duration.Minutes;
-        if (ImGui.InputInt($"##{id}##Minute", ref minute))
-        {
-            changed = true;
-            duration += TimeSpan.FromMinutes(minute - duration.Minutes);
-        }
-        AddTooltip(GeneralLoc.GeneralTerm_Minute);
-        return changed;
     }
 }
 

@@ -94,7 +94,7 @@ internal class CalendarUi : HrtWindow
 
         //Right
         ImGui.SetNextItemWidth(ScaleFactor * 200);
-        ImGuiHelper.Combo(CommonLoc.Month, ref _month);
+        InputHelper.Combo(CommonLoc.Month, ref _month);
         ImGui.SameLine();
         ImGui.SetNextItemWidth(ScaleFactor * 200);
         if (ImGui.InputInt(CommonLoc.Year, ref _inputYear))
@@ -124,38 +124,12 @@ internal class CalendarUi : HrtWindow
         }
     }
 
-    private void DrawCalendar()
-    {
-        using var table = ImRaii.Table("##calendar", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchProp);
-        if (!table) return;
-        ImGui.TableSetupColumn(Weekday.Monday.Name());
-        ImGui.TableSetupColumn(Weekday.Tuesday.Name());
-        ImGui.TableSetupColumn(Weekday.Wednesday.Name());
-        ImGui.TableSetupColumn(Weekday.Thursday.Name());
-        ImGui.TableSetupColumn(Weekday.Friday.Name());
-        ImGui.TableSetupColumn(Weekday.Saturday.Name());
-        ImGui.TableSetupColumn(Weekday.Sunday.Name());
-        ImGui.TableHeadersRow();
-        DateOnly day = new(_year, (int)_month, 1);
-        var nextMonth = day.AddMonths(1);
-        //Backtrack to the first day of a week
-        while (day.DayOfWeek != FirstDayOfWeek)
-        {
-            day = day.AddDays(-1);
-        }
-        //draw entries for month and adjacent days
-        while (day < nextMonth || day.DayOfWeek != FirstDayOfWeek)
-        {
-            ImGui.TableNextColumn();
-            DrawDay(day, _module.GetRaidSessions(day.ToDateTime(TimeOnly.MinValue)));
-            day = day.AddDays(1);
-        }
-    }
+    private void DrawCalendar() => ImGuiHelper.DrawMonth("calendar", new DateOnly(_year, (int)_month, 1), DrawDay);
 
-    private void DrawDay(DateOnly date, IEnumerable<RaidSession> entries)
+    private void DrawDay(DateOnly date, bool isThisMonth)
     {
-
-        using var disabled = ImRaii.Disabled(date.Month != (int)_month);
+        var entries = _module.GetRaidSessions(date.ToDateTime(TimeOnly.MinValue));
+        using var disabled = ImRaii.Disabled(!isThisMonth);
         using var color =
             ImRaii.PushColor(ImGuiCol.Text, Colors.TextPetrol, date == DateOnly.FromDateTime(DateTime.Today));
         ImGui.Spacing();
