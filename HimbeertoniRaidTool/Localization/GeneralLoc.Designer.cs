@@ -785,6 +785,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Start time.
+        /// </summary>
+        internal static string EditRaidSessionUi_txt_startTime {
+            get {
+                return ResourceManager.GetString("EditRaidSessionUi_txt_startTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit {0} {1}.
         /// </summary>
         internal static string EditUi_Title {

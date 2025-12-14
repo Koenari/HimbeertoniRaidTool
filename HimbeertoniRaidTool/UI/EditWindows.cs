@@ -761,8 +761,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         protected override void DrawContent()
         {
             DrawGeneralSection();
-            ImGui.NewLine();
-            using var table = ImRaii.Table("##BottomTable", 2);
+            ImGui.Separator();
+            using var table = ImRaii.Table("##BottomTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.ScrollY);
             if (!table) return;
             ImGui.TableNextColumn();
             DrawParticipantSection();
@@ -773,14 +773,14 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
         private void DrawGeneralSection()
         {
-            ImGui.Text("Name");
+            ImGui.Text(GeneralLoc.CommonTerms_Name);
             ImGui.SameLine();
             ImGui.InputText("##name", ref DataCopy.Title, 100);
-            ImGui.NewLine();
-            ImGui.Text($"{DataCopy.StartTime:D} {DataCopy.StartTime:t} - {DataCopy.EndTime:t}");
-            ImGui.NewLine();
+            ImGui.Separator();
+            ImGui.Text(
+                $"{GeneralLoc.GeneralTerm_Time}: {DataCopy.StartTime:D} {DataCopy.StartTime:t} - {DataCopy.EndTime:t}");
             var startTime = DataCopy.StartTime;
-            if (InputHelper.InputDateTime("##date", ref startTime, "Start time"))
+            if (InputHelper.InputDateTime("##startTime", ref startTime, GeneralLoc.EditRaidSessionUi_txt_startTime))
                 DataCopy.StartTime = startTime;
             ImGui.SameLine();
             ImGui.Text("  ");
@@ -831,7 +831,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                     toDelete = participant.Character;
                 ImGui.TableNextColumn();
                 var job = participant.Character.Data.MainClass;
-                ImGui.Text($"{participant.Character.Data.Name} ({job?.Role.FriendlyName()})");
+                ImGui.Text($"{participant.Character.Data} ({job?.Role.FriendlyName()})");
                 ImGui.TableNextColumn();
                 ImGui.SetNextItemWidth(100 * ScaleFactor);
                 InputHelper.Combo("##invite-status", ref participant.InvitationStatus, EnumExtensions.FriendlyName);
@@ -876,12 +876,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                                             (inst, sP) => inst.Name.Contains(sP),
                                             inst => DataCopy.PlannedContent.All(c => c.Instance != inst))
              && instance is not null)
-                DataCopy.AddInstance(new InstanceSession(instance));
-            if (!DataCopy.PlannedContent.Any())
-            {
-                ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Nothing_planned_yet);
-                return;
-            }
+                DataCopy.AddInstance(new InstanceSession(instance)
+                {
+                    Plan = InstanceSession.PlannedStatus.Planned,
+                });
             using var table =
                 ImRaii.Table("##ContentTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
             if (!table) return;
@@ -889,6 +887,14 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.TableSetupColumn(GeneralLoc.EditRaidSessionUi_tblHdg_Instance);
             ImGui.TableSetupColumn(GeneralLoc.EditRaidSessionUi_tbh_hdg_loot);
             ImGui.TableHeadersRow();
+            if (!DataCopy.PlannedContent.Any())
+            {
+                ImGui.TableNextColumn();
+                ImGui.TableNextColumn();
+                ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Nothing_planned_yet);
+                ImGui.TableNextColumn();
+                return;
+            }
             InstanceSession? toDelete = null;
             foreach (var instanceSession in DataCopy.PlannedContent)
             {
