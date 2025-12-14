@@ -197,7 +197,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             {
                 ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
                 ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {DataCopy.RolePriority}");
-                DataCopy.RolePriority?.DrawEdit((s, ref i) => ImGui.InputInt(s, ref i));
+                DataCopy.RolePriority?.DrawEdit((string s, ref int i) => ImGui.InputInt(s, ref i));
             }
         }
     }
