@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 2
       - name: Get new version
         id: newver
-        uses: mavrosxristoforos/get-xml-info@2.0
+        uses: mavrosxristoforos/get-xml-info@afaa5058ead44cfaff92c6a861b46dd7a8929f60
         with:
           xml-file: ${{env.PROJ_FILE}}
           xpath: '/Project/PropertyGroup/Version'
@@ -36,7 +36,7 @@ jobs:
         run: 'git checkout HEAD^'
       - name: Get old version
         id: oldver
-        uses: mavrosxristoforos/get-xml-info@2.0
+        uses: mavrosxristoforos/get-xml-info@afaa5058ead44cfaff92c6a861b46dd7a8929f60
         with:
           xml-file: ${{env.PROJ_FILE}}
           xpath: '/Project/PropertyGroup/Version'
@@ -82,13 +82,13 @@ jobs:
         with:
           cmd: 'yq .changelog ./HimbeertoniRaidTool/HimbeertoniRaidTool.yaml'
       - name: Write commit
-        uses: sandstromviktor/toml-editor@2.0.0
+        uses: sandstromviktor/toml-editor@2596b2da64ea9aed1d4d4e77f0646ec30b9e88ea
         with:
           file: "HimbeertoniRaidTool/manifest.toml"
           key: "plugin.commit"
           value: "${{ github.sha }}"
       - name: Write changelog
-        uses: sandstromviktor/toml-editor@2.0.0
+        uses: sandstromviktor/toml-editor@2596b2da64ea9aed1d4d4e77f0646ec30b9e88ea
         with:
           file: "HimbeertoniRaidTool/manifest.toml"
           key: "plugin.changelog"
@@ -122,7 +122,7 @@ jobs:
           name: package
           path: artifacts
       - name: 'Create Release'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
         with:
           body: ${{needs.create_manifest.outputs.changelog}}
           tag_name: ${{needs.version-check.outputs.version}}
@@ -139,7 +139,7 @@ jobs:
     needs: [ create_manifest, build, version-check ]
     steps:
       - name: Sync D17 fork
-        uses: AbdulmelikKalkan/sync-fork-upstream@v1.3
+        uses: AbdulmelikKalkan/sync-fork-upstream@6ec773469487cc30a2631d2cfafc1b0f1f82ca6d
         env:
           ACCESS_TOKEN: ${{secrets.DEPLOY_PAT}}
         with:
@@ -170,7 +170,7 @@ jobs:
           git add testing/live/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
           git commit -m "[Testing] ${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
       - name: Push testing
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@77c5b412c50b723d2a4fbc6d71fb5723bcd439aa
         with:
           repository: ${{github.repository_owner}}/DalamudPluginsD17
           github_token: ${{ secrets.DEPLOY_PAT }}
@@ -188,7 +188,7 @@ jobs:
           git add stable/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
           git commit -m "${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
       - name: Push stable
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@77c5b412c50b723d2a4fbc6d71fb5723bcd439aa
         with:
           repository: ${{github.repository_owner}}/DalamudPluginsD17
           github_token: ${{ secrets.DEPLOY_PAT }}
