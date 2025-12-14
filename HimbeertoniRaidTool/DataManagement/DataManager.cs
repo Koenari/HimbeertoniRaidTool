@@ -133,7 +133,7 @@ public class HrtDataManager
             var cls when cls == typeof(RaidSession) => _raidSessionDb.Database as IDataBaseTable<TData>,
             _                                       => null,
 
-        } ?? throw new NotImplementedException($"No table exists for type: {typeof(TData)} ");
+        } ?? throw new ArgumentOutOfRangeException($"No table exists for type: {typeof(TData)} ");
 
     public bool Save()
     {
