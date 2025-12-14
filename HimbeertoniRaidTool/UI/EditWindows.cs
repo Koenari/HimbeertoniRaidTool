@@ -197,7 +197,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             {
                 ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
                 ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {DataCopy.RolePriority}");
-                DataCopy.RolePriority?.DrawEdit((string s, ref int i) => ImGui.InputInt(s, ref i));
+                DataCopy.RolePriority?.DrawEdit((s, ref i) => ImGui.InputInt(s, ref i));
             }
         }
     }
@@ -795,8 +795,10 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.Text(GeneralLoc.GeneralTerm_Group);
             ImGui.SameLine();
             if (InputHelper.SearchableCombo("##group", out var group, DataCopy.Group?.Name ?? string.Empty,
-                                            Factory._dataManager.RaidGroupDb.GetValues(), raidGroup => raidGroup.Name))
+                                            Factory._dataManager.RaidGroupDb.GetValues(),
+                                            raidGroup => raidGroup.Name, true))
                 DataCopy.Group = group;
+            ImGuiHelper.AddTooltip(GeneralLoc.EditaidSessuinUi_combo_tt_group);
             if (DataCopy.Group is not null)
             {
                 ImGui.SameLine();
@@ -868,7 +870,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             if (InputHelper.SearchableCombo("", out var instance, GeneralLoc.EditRaidSessionUi_cmb_AddInstance,
                                             GameInfo.CurrentSavageTier!.Bosses, i => i.Name,
                                             (inst, sP) => inst.Name.Contains(sP),
-                                            inst => DataCopy.PlannedContent.All(c => c.Instance != inst)))
+                                            inst => DataCopy.PlannedContent.All(c => c.Instance != inst))
+             && instance is not null)
                 DataCopy.AddInstance(new InstanceSession(instance));
             if (!DataCopy.PlannedContent.Any())
             {

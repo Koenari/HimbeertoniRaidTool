@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility.Raii;
@@ -47,27 +46,28 @@ public static class InputHelper
     }
     #region Searchable
 
-    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
-                                          IEnumerable<T> possibilities, Func<T, string> toName,
+    public static bool SearchableCombo<T>(string id, out T? selected, string preview,
+                                          IEnumerable<T> possibilities, Func<T, string> toName, bool allowNull = false,
                                           ImGuiComboFlags flags = ImGuiComboFlags.None) where T : notnull =>
         SearchableCombo(id, out selected, preview, possibilities, toName,
-                        (p, s) => toName.Invoke(p).Contains(s, StringComparison.InvariantCultureIgnoreCase),
+                        (p, s) => toName.Invoke(p).Contains(s, StringComparison.InvariantCultureIgnoreCase), allowNull,
                         flags);
-    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
+    public static bool SearchableCombo<T>(string id, out T? selected, string preview,
                                           IEnumerable<T> possibilities, Func<T, string> toName,
-                                          Func<T, string, bool> searchPredicate,
+                                          Func<T, string, bool> searchPredicate, bool allowNull = false,
                                           ImGuiComboFlags flags = ImGuiComboFlags.None) where T : notnull =>
-        SearchableCombo(id, out selected, preview, possibilities, toName, searchPredicate, _ => true, flags);
+        SearchableCombo(id, out selected, preview, possibilities, toName, searchPredicate, _ => true, allowNull, flags);
 
     private static string _search = string.Empty;
     private static HashSet<object>? _filtered;
     private static int _hoveredItem;
     //This is a small hack since to my knowledge there is no way to close an existing combo when not clicking
     private static readonly Dictionary<string, (bool toogle, bool wasEnterClickedLastTime)> _comboDic = new();
-    public static bool SearchableCombo<T>(string id, [NotNullWhen(true)] out T? selected, string preview,
+    public static bool SearchableCombo<T>(string id, out T? selected, string preview,
                                           IEnumerable<T> possibilities, Func<T, string> toName,
                                           Func<T, string, bool> searchPredicate,
-                                          Func<T, bool> preFilter, ImGuiComboFlags flags = ImGuiComboFlags.None)
+                                          Func<T, bool> preFilter, bool allowNull = false,
+                                          ImGuiComboFlags flags = ImGuiComboFlags.None)
         where T : notnull
     {
 
@@ -90,7 +90,7 @@ public static class InputHelper
             _hoveredItem--;
         if (ImGui.IsKeyPressed(ImGuiKey.DownArrow))
             _hoveredItem++;
-        _hoveredItem = Math.Clamp(_hoveredItem, 0, Math.Max(_filtered?.Count - 1 ?? 0, 0));
+        _hoveredItem = Math.Clamp(_hoveredItem, 0, Math.Max(_filtered?.Count - (allowNull ? 0 : 1) ?? 0, 0));
         if (ImGui.IsWindowAppearing() && ImGui.IsWindowFocused() && !ImGui.IsAnyItemActive())
         {
             _search = string.Empty;
@@ -107,6 +107,16 @@ public static class InputHelper
             _hoveredItem = 0;
         }
         int i = 0;
+        if (allowNull)
+        {
+            bool hovered = _hoveredItem == i;
+            if (ImGui.Selectable(GeneralLoc.CommonTerms_None, hovered) || enterClicked && hovered)
+            {
+                selected = default;
+                return true;
+            }
+            i++;
+        }
         foreach (var row in _filtered.Cast<T>())
         {
             bool hovered = _hoveredItem == i;

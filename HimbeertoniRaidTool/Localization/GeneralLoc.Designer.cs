@@ -332,6 +332,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Group that is organizing this session.
+        /// </summary>
+        internal static string EditaidSessuinUi_combo_tt_group {
+            get {
+                return ResourceManager.GetString("EditaidSessuinUi_combo_tt_group", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Do not show this job.
         /// </summary>
         internal static string EditCharUi_cb_hideJob {

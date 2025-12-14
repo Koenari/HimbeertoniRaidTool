@@ -166,7 +166,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                     category => category.PrefixName(),
                     (category, s) => category.PrefixName().Contains(s, StringComparison.InvariantCultureIgnoreCase) ||
                                      category.GetStatType().FriendlyName()
-                                             .Contains(s, StringComparison.InvariantCultureIgnoreCase),
+                                             .Contains(s, StringComparison.InvariantCultureIgnoreCase), false,
                     ImGuiComboFlags.NoArrowButton
                 ) && cat != MateriaCategory.None
                )
@@ -184,7 +184,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                     Enum.GetValues<MateriaLevel>(),
                     val => val.ToString(),
                     (val, s) => val.ToString().Contains(s, StringComparison.InvariantCultureIgnoreCase)
-                             || byte.TryParse(s, out byte search) && search - 1 == (byte)val,
+                             || byte.TryParse(s, out byte search) && search - 1 == (byte)val, false,
                     ImGuiComboFlags.NoArrowButton
                 ))
             {
@@ -208,7 +208,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                     Enum.GetValues<MateriaCategory>(),
                     category => category.GetStatType().FriendlyName(),
                     (category, s) => category.GetStatType().FriendlyName()
-                                             .Contains(s, StringComparison.InvariantCultureIgnoreCase),
+                                             .Contains(s, StringComparison.InvariantCultureIgnoreCase), false,
                     ImGuiComboFlags.NoArrowButton
                 ) && cat != MateriaCategory.None)
             {
@@ -274,7 +274,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         var sheet = uiSystem.GetExcelSheet<T>();
 
         return InputHelper.SearchableCombo(id, out selected, getPreview(sheet), sheet, toName, searchPredicate,
-                                           preFilter, flags);
+                                           preFilter, false, flags);
     }
     internal void DrawPlayerCombo(string id, Player player,
                                   Action<Player> replaceCallback, float width = 80)
