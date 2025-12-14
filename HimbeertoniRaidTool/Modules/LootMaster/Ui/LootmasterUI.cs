@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 
@@ -291,7 +292,7 @@ internal class LootmasterUi : HrtWindow
             }
             else
             {
-                if (ImGuiHelper.AddButton(RaidGroup.DataTypeName, "##solo"))
+                if (ImGuiHelper.AddButton<RaidGroup>("##solo"))
                     UiSystem.EditWindows.Create(CurrentGroup[0]);
             }
         }
@@ -386,7 +387,7 @@ internal class LootmasterUi : HrtWindow
             if (ImGuiHelper.Button(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, RaidGroup.DataTypeName),
                                    null))
             {
-                _module.Services.HrtDataManager.RaidGroupDb.OpenSearchWindow(UiSystem, _module.AddGroup);
+                _module.Services.HrtDataManager.GetTable<RaidGroup>().OpenSearchWindow(UiSystem, _module.AddGroup);
                 ImGui.CloseCurrentPopup();
             }
         }
@@ -548,10 +549,10 @@ internal class LootmasterUi : HrtWindow
                 UiSystem.EditWindows.Create(player);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addPlayerFromDB",
-                                   string.Format(GeneralLoc.Ui_btn_tt_addExisting, RaidGroup.DataTypeName), true,
+                                   string.Format(GeneralLoc.Ui_btn_tt_addExisting, Player.DataTypeName), true,
                                    ButtonSize))
-                _module.Services.HrtDataManager.PlayerDb.OpenSearchWindow(UiSystem,
-                                                                          selected => group[pos] = selected);
+                _module.Services.HrtDataManager.GetTable<Player>().OpenSearchWindow(UiSystem,
+                    selected => group[pos] = selected);
             if (ImGuiHelper.Button(FontAwesomeIcon.LocationCrosshairs, "AddTarget",
                                    string.Format(LootmasterLoc.Ui_btn_addPlayerFromTarget_tt,
                                                  _module.Services.TargetManager.Target?.Name
@@ -566,9 +567,9 @@ internal class LootmasterUi : HrtWindow
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addCharFromDB",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeName), true,
                                    ButtonSize))
-                _module.Services.HrtDataManager.CharDb.OpenSearchWindow(UiSystem, selected =>
+                _module.Services.HrtDataManager.GetTable<Character>().OpenSearchWindow(UiSystem, selected =>
                 {
-                    if (!_module.Services.HrtDataManager.PlayerDb.TryAdd(player))
+                    if (!_module.Services.HrtDataManager.GetTable<Player>().TryAdd(player))
                         return;
                     player.NickName = selected.Name.Split(' ')[0];
                     player.MainChar = selected;

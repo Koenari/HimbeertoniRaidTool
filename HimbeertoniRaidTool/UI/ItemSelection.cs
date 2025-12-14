@@ -156,7 +156,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         ImGui.SetNextItemWidth(65f * ScaleFactor);
         using (ImRaii.Disabled(_lockJob))
         {
-            if (ImGuiHelper.Combo("##job", ref _job, job => job.HasValue ? job.Value.ToString() : "-"))
+            if (InputHelper.Combo("##job", ref _job, job => job.HasValue ? job.Value.ToString() : "-"))
                 ReevaluateItems();
         }
         ImGui.SameLine();
@@ -165,7 +165,7 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
         using (ImRaii.Disabled(_lockSlot))
         {
             var slot = _slots.FirstOrDefault(GearSetSlot.None);
-            if (ImGuiHelper.Combo("##slot", ref slot, t => t.FriendlyName()))
+            if (InputHelper.Combo("##slot", ref slot, t => t.FriendlyName()))
             {
                 _slots = [slot];
                 ReevaluateItems();

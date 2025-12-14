@@ -70,8 +70,8 @@ internal class LodestoneConnector : NetStoneBase
             {
                 classToChange = p.MainChar.AddClass(foundJob.Value);
                 bool hasError = false;
-                hasError |= !_hrtDataManager.GearDb.TryAdd(classToChange.CurGear);
-                hasError |= !_hrtDataManager.GearDb.TryAdd(classToChange.CurBis);
+                hasError |= !_hrtDataManager.GetTable<GearSet>().TryAdd(classToChange.CurGear);
+                hasError |= !_hrtDataManager.GetTable<GearSet>().TryAdd(classToChange.CurBis);
                 if (hasError)
                     return new HrtUiMessage(GeneralLoc.LodestoneConnector_err_FailedToCreateGear,
                                             HrtUiMessageType.Failure);

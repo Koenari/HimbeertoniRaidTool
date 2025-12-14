@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -12,8 +11,8 @@ namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
 public class HrtDataManager
 {
-    public readonly bool Initialized;
-    private volatile bool _saving = false;
+    private readonly bool _initialized;
+    private volatile bool _saving;
     private readonly ILogger _logger;
     //Data
     private readonly DataBaseWrapper<GearSet> _gearDb;
@@ -23,17 +22,12 @@ public class HrtDataManager
     private readonly DataBaseWrapper<RaidSession> _raidSessionDb;
 
     //Directly Accessed Members
-    public bool Ready => Initialized && !_saving;
+    public bool Ready => _initialized && !_saving;
     private readonly string _saveDir;
 
-    internal IDataBaseTable<RaidSession> RaidSessionDb => _raidSessionDb.Database;
-    internal IDataBaseTable<RaidGroup> RaidGroupDb => _raidGroupDb.Database;
-    internal IDataBaseTable<Player> PlayerDb => _playerDb.Database;
-    internal IDataBaseTable<Character> CharDb => _characterDb.Database;
-    internal IDataBaseTable<GearSet> GearDb => _gearDb.Database;
     internal readonly IModuleConfigurationManager ModuleConfigurationManager;
     private readonly List<JsonConverter> _idRefConverters = [];
-    private static readonly JsonSerializerSettings JsonSettings = new()
+    private static readonly JsonSerializerSettings _jsonSettings = new()
     {
         Formatting = Formatting.Indented,
         TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
@@ -78,24 +72,26 @@ public class HrtDataManager
         loadedSuccessful &= _raidGroupDb.Load();
         loadedSuccessful &= _raidSessionDb.Load();
 
-        Initialized = loadedSuccessful;
+        _initialized = loadedSuccessful;
+        if (!_initialized)
+            throw new FailedToLoadException("Could not initialize data manager");
     }
 
     internal void CleanupDatabase()
     {
-        if (!Initialized) return;
+        if (!_initialized) return;
         /*
          * Keeping characters and players in DB for users to add again later
          *
          * PlayerDb.RemoveUnused(RaidGroupDb.GetReferencedIds());
          * CharDb.RemoveUnused(PlayerDb.GetReferencedIds());
          */
-        GearDb.RemoveUnused(CharDb.GetReferencedIds());
-        RaidSessionDb.FixEntries(this);
-        RaidGroupDb.FixEntries(this);
-        PlayerDb.FixEntries(this);
-        CharDb.FixEntries(this);
-        GearDb.FixEntries(this);
+        _gearDb.RemoveUnused(GetTable<Character>().GetReferencedIds());
+        _raidSessionDb.FixEntries(this);
+        _raidGroupDb.FixEntries(this);
+        _playerDb.FixEntries(this);
+        _characterDb.FixEntries(this);
+        _gearDb.FixEntries(this);
     }
 
     internal bool TryRead(FileInfo file, out string data)
@@ -127,9 +123,21 @@ public class HrtDataManager
         }
     }
 
+    public IDataBaseTable<TData> GetTable<TData>() where TData : class, IHrtDataTypeWithId<TData> =>
+        typeof(TData) switch
+        {
+            var cls when cls == typeof(GearSet)     => _gearDb.Database as IDataBaseTable<TData>,
+            var cls when cls == typeof(Character)   => _characterDb.Database as IDataBaseTable<TData>,
+            var cls when cls == typeof(Player)      => _playerDb.Database as IDataBaseTable<TData>,
+            var cls when cls == typeof(RaidGroup)   => _raidGroupDb.Database as IDataBaseTable<TData>,
+            var cls when cls == typeof(RaidSession) => _raidSessionDb.Database as IDataBaseTable<TData>,
+            _                                       => null,
+
+        } ?? throw new ArgumentOutOfRangeException($"No table exists for type: {typeof(TData)} ");
+
     public bool Save()
     {
-        if (!Initialized || _saving)
+        if (!_initialized || _saving)
             return false;
         //Saving all data (functions are locked while this happens)
         _saving = true;
@@ -149,10 +157,10 @@ public class HrtDataManager
         return savedSuccessful;
     }
 
-    private class DataBaseWrapper<TEntry> where TEntry : class, IHasHrtId<TEntry>, new()
+    private class DataBaseWrapper<TEntry> where TEntry : class, IHrtDataTypeWithId<TEntry>
     {
         private readonly HrtDataManager _parent;
-        private readonly IDataBaseTable<TEntry> _database;
+        private readonly IInternalDataBaseTable<TEntry> _database;
         internal IDataBaseTable<TEntry> Database
         {
             get
@@ -166,7 +174,7 @@ public class HrtDataManager
         }
         private readonly FileInfo _file;
 
-        internal DataBaseWrapper(HrtDataManager parent, IDataBaseTable<TEntry> database, string fileName)
+        internal DataBaseWrapper(HrtDataManager parent, IInternalDataBaseTable<TEntry> database, string fileName)
         {
             _parent = parent;
             _database = database;
@@ -185,7 +193,7 @@ public class HrtDataManager
             }
             try
             {
-                return _database.Load(JsonSettings, jsonData);
+                return _database.Load(_jsonSettings, jsonData);
             }
             catch (JsonSerializationException e)
             {
@@ -194,8 +202,10 @@ public class HrtDataManager
                 return false;
             }
         }
-        private bool LoadEmpty() => _database.Load(JsonSettings, "[]");
-        internal bool Save() => _parent.TryWrite(_file, _database.Serialize(JsonSettings));
+        private bool LoadEmpty() => _database.Load(_jsonSettings, "[]");
+        internal bool Save() => _parent.TryWrite(_file, _database.Serialize(_jsonSettings));
+        internal void RemoveUnused(HashSet<HrtId> ids) => _database.RemoveUnused(ids);
+        internal void FixEntries(HrtDataManager parent) => _database.FixEntries(parent);
     }
 
 }

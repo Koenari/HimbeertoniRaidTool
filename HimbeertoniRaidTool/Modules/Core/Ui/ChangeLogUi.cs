@@ -47,7 +47,7 @@ internal class ChangeLogUi : HrtWindow
         const int comboWidth = 200;
         ImGui.SetNextItemWidth(comboWidth * ScaleFactor);
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (_size.X - comboWidth) / 2);
-        ImGuiHelper.Combo("##opt", ref _options, t => t.LocalizedDescription());
+        InputHelper.Combo("##opt", ref _options, t => t.LocalizedDescription());
         float buttonWidth = ImGui.CalcTextSize(CoreLoc.ChangeLogUi_btn_haveRead).X + 20;
         ImGui.SetNextItemWidth(buttonWidth);
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (_size.X - buttonWidth) / 2);

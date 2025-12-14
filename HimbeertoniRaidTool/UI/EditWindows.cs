@@ -32,23 +32,23 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         switch (type)
         {
             case HrtId.IdType.Group:
-                if (_dataManager.RaidGroupDb.TryGet(id, out var group))
+                if (_dataManager.GetTable<RaidGroup>().TryGet(id, out var group))
                     Create(group, onSave as Action<RaidGroup>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.Player:
-                if (_dataManager.PlayerDb.TryGet(id, out var player))
+                if (_dataManager.GetTable<Player>().TryGet(id, out var player))
                     Create(player, onSave as Action<Player>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.Character:
-                if (_dataManager.CharDb.TryGet(id, out var character))
+                if (_dataManager.GetTable<Character>().TryGet(id, out var character))
                     Create(character, onSave as Action<Character>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.Gear:
-                if (_dataManager.GearDb.TryGet(id, out var gearSet))
+                if (_dataManager.GetTable<GearSet>().TryGet(id, out var gearSet))
                     Create(gearSet, onSave as Action<GearSet>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.RaidSession:
-                if (_dataManager.RaidSessionDb.TryGet(id, out var raidSession))
+                if (_dataManager.GetTable<RaidSession>().TryGet(id, out var raidSession))
                     Create(raidSession, onSave as Action<RaidSession>, onCancel, onDelete, param);
                 break;
             case HrtId.IdType.None:
@@ -168,7 +168,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             destination.Name = DataCopy.Name;
             destination.Type = DataCopy.Type;
             destination.RolePriority = DataCopy.RolePriority;
-            if (destination.LocalId.IsEmpty) Factory._dataManager.RaidGroupDb.TryAdd(destination);
+            if (destination.LocalId.IsEmpty) Factory._dataManager.GetTable<RaidGroup>().TryAdd(destination);
             Factory._dataManager.Save();
         }
         protected override void Cancel() { }
@@ -179,7 +179,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.InputText(GeneralLoc.CommonTerms_Name, ref DataCopy.Name, 100);
             using (ImRaii.Disabled(DataCopy.TypeLocked))
             {
-                ImGuiHelper.Combo(GeneralLoc.EditGroupUi_in_type, ref DataCopy.Type);
+                InputHelper.Combo(GeneralLoc.EditGroupUi_in_type, ref DataCopy.Type);
             }
             //Role priority
             bool overrideRolePriority = DataCopy.RolePriority != null;
@@ -197,7 +197,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             {
                 ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
                 ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {DataCopy.RolePriority}");
-                DataCopy.RolePriority?.DrawEdit((string s, ref int i) => ImGui.InputInt(s, ref i));
+                DataCopy.RolePriority?.DrawEdit((s, ref i) => ImGui.InputInt(s, ref i));
             }
         }
     }
@@ -253,7 +253,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             {
                 Factory.Create(new Character(), c =>
                 {
-                    if (Factory._dataManager.CharDb.TryAdd(c))
+                    if (Factory._dataManager.GetTable<Character>().TryAdd(c))
                         DataCopy.AddCharacter(c);
                 });
             }
@@ -261,7 +261,8 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "addFromDb",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeName)))
             {
-                AddChild(Factory._dataManager.CharDb.GetSearchWindow(UiSystem, c => DataCopy.AddCharacter(c)));
+                AddChild(Factory._dataManager.GetTable<Character>()
+                                .GetSearchWindow(UiSystem, c => DataCopy.AddCharacter(c)));
             }
         }
 
@@ -269,7 +270,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         {
             if (destination.LocalId.IsEmpty)
             {
-                Factory._dataManager.PlayerDb.TryAdd(destination);
+                Factory._dataManager.GetTable<Player>().TryAdd(destination);
             }
             //Player Data
             destination.NickName = DataCopy.NickName;
@@ -283,12 +284,13 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             foreach (var c in toAdd)
             {
                 if (c.LocalId.IsEmpty)
-                    if (!Factory._dataManager.CharDb.TryAdd(c))
+                    if (!Factory._dataManager.GetTable<Character>().TryAdd(c))
                         continue;
                 destination.AddCharacter(c);
             }
             destination.MainChar = DataCopy.MainChar;
-            if (destination.MainChar.LocalId.IsEmpty) Factory._dataManager.CharDb.TryAdd(destination.MainChar);
+            if (destination.MainChar.LocalId.IsEmpty)
+                Factory._dataManager.GetTable<Character>().TryAdd(destination.MainChar);
         }
     }
 
@@ -370,21 +372,21 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 ImGui.Separator();
             }
             if (toDelete is not null) DataCopy.RemoveClass(toDelete.Value);
-            if (ImGuiHelper.SearchableCombo("##addJobCombo", out var job, _newJob.ToString(),
+            if (InputHelper.SearchableCombo("##addJobCombo", out var job, _newJob.ToString(),
                                             Enum.GetValues<Job>(), j => j.ToString(),
                                             (j, s) => j.ToString()
                                                        .Contains(s, StringComparison.CurrentCultureIgnoreCase),
                                             j => DataCopy.Classes.All(y => y.Job != j)))
                 _newJob = job;
             ImGui.SameLine();
-            if (ImGuiHelper.AddButton(PlayableClass.DataTypeName, "##addJobBtn"))
+            if (ImGuiHelper.AddButton<PlayableClass>("##addJobBtn"))
             {
                 var newClass = DataCopy[_newJob];
                 if (newClass == null)
                 {
                     newClass = DataCopy.AddClass(_newJob);
-                    Factory._dataManager.GearDb.TryAdd(newClass.CurGear);
-                    Factory._dataManager.GearDb.TryAdd(newClass.CurBis);
+                    Factory._dataManager.GetTable<GearSet>().TryAdd(newClass.CurGear);
+                    Factory._dataManager.GetTable<GearSet>().TryAdd(newClass.CurBis);
                 }
                 var newBis = Factory._connectorPool.GetDefaultBiS(_newJob);
                 newClass.CurBis.ManagedBy = newBis.Service;
@@ -426,7 +428,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             foreach (var c in DataCopy.Classes)
             {
                 var target = destination[c.Job];
-                var gearSetDb = Factory._dataManager.GearDb;
+                var gearSetDb = Factory._dataManager.GetTable<GearSet>();
 
                 if (target == null)
                 {
@@ -438,7 +440,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 target.Level = c.Level;
                 target.HideInUi = c.HideInUi;
             }
-            if (destination.LocalId.IsEmpty) Factory._dataManager.CharDb.TryAdd(destination);
+            if (destination.LocalId.IsEmpty) Factory._dataManager.GetTable<Character>().TryAdd(destination);
             Factory._dataManager.Save();
         }
     }
@@ -562,7 +564,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.SetNextItemWidth(70 * ScaleFactor);
             using (ImRaii.Disabled(_providedJob is not null))
             {
-                ImGuiHelper.Combo("##JobSelection", ref _job);
+                InputHelper.Combo("##JobSelection", ref _job);
             }
             ImGui.TableNextColumn();
             ImGui.Text(GeneralLoc.EditGearSetUi_txt_Source);
@@ -602,7 +604,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 newSet.RemoteIDs = [];
                 newSet.ManagedBy = GearSetManager.Hrt;
                 newSet.ExternalId = string.Empty;
-                Factory._dataManager.GearDb.TryAdd(newSet);
+                Factory._dataManager.GetTable<GearSet>().TryAdd(newSet);
                 ReplaceOriginal(newSet);
             }
             if (Factory._connectorPool.TryGetConnector(DataCopy.ManagedBy, out var connector))
@@ -679,7 +681,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
             ImGui.Text(GeneralLoc.EditGearSetUi_hdg_ExtCustom);
             ImGui.SetNextItemWidth(100 * ScaleFactor);
-            ImGuiHelper.Combo("##manager", ref _selectedService,
+            InputHelper.Combo("##manager", ref _selectedService,
                               val => val.HasValue ? val.Value.FriendlyName() : GeneralLoc.EditGearSetUi_txt_AutoDetect,
                               val => Factory._connectorPool.HasConnector(val));
             ImGui.SetNextItemWidth(200 * ScaleFactor);
@@ -718,7 +720,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                                         $"{biSDefinition.Name} ({biSDefinition.Id}:{biSDefinition.Idx}) <{biSDefinition.Service.FriendlyName()}>",
                                         true, size))
                     return;
-                if (Factory._dataManager.GearDb.Search(biSDefinition.Equals, out var newSet))
+                if (Factory._dataManager.GetTable<GearSet>().Search(biSDefinition.Equals, out var newSet))
                 {
                     ReplaceOriginal(newSet);
                     return;
@@ -735,7 +737,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
         protected override void Save(GearSet destination)
         {
-            if (destination.LocalId.IsEmpty) Factory._dataManager.GearDb.TryAdd(destination);
+            if (destination.LocalId.IsEmpty) Factory._dataManager.GetTable<GearSet>().TryAdd(destination);
             DataCopy.TimeStamp = DateTime.Now;
             destination.CopyFrom(DataCopy);
             Factory._dataManager.Save();
@@ -751,16 +753,16 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                                      Action? onDelete) : base(factory, original, onSave, onCancel, onDelete)
         {
             CanDelete = true;
-            MinSize = new Vector2(700, 600);
-            Size = new Vector2(1100, 600);
+            MinSize = new Vector2(700, 400);
+            Size = new Vector2(900, 600);
             SizeCondition = ImGuiCond.Appearing;
         }
 
         protected override void DrawContent()
         {
             DrawGeneralSection();
-            ImGui.NewLine();
-            using var table = ImRaii.Table("##BottomTable", 2);
+            ImGui.Separator();
+            using var table = ImRaii.Table("##BottomTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.ScrollY);
             if (!table) return;
             ImGui.TableNextColumn();
             DrawParticipantSection();
@@ -771,38 +773,20 @@ public class EditWindowFactory(IGlobalServiceContainer services)
 
         private void DrawGeneralSection()
         {
-            ImGui.Text("Name");
+            ImGui.Text(GeneralLoc.CommonTerms_Name);
             ImGui.SameLine();
             ImGui.InputText("##name", ref DataCopy.Title, 100);
-            ImGui.NewLine();
-            ImGui.Text($"{DataCopy.StartTime:D} {DataCopy.StartTime:t} - {DataCopy.EndTime:t}");
-            using var table = ImRaii.Table("##TimeSection", 3, ImGuiTableFlags.SizingFixedFit);
-            if (!table) return;
-            bool changed = false;
-            ImGui.TableNextColumn();
-            ImGui.Text(GeneralLoc.GeneralTerm_Date);
-
-            ImGui.TableNextColumn();
-            ImGui.Text(GeneralLoc.GeneralTerm_Time);
-
-            ImGui.TableNextColumn();
-            ImGui.Text(GeneralLoc.GeneralTerm_Duration);
-
-            ImGui.TableNextColumn();
-            var date = DateOnly.FromDateTime(DataCopy.StartTime);
-            changed |= ImGuiHelper.DateInput("##date", ref date);
+            ImGui.Separator();
+            ImGui.Text(
+                $"{GeneralLoc.GeneralTerm_Time}: {DataCopy.StartTime:D} {DataCopy.StartTime:t} - {DataCopy.EndTime:t}");
+            var startTime = DataCopy.StartTime;
+            if (InputHelper.InputDateTime("##startTime", ref startTime, GeneralLoc.EditRaidSessionUi_txt_startTime))
+                DataCopy.StartTime = startTime;
             ImGui.SameLine();
             ImGui.Text("  ");
-            ImGui.TableNextColumn();
-            var time = TimeOnly.FromDateTime(DataCopy.StartTime);
-            changed |= ImGuiHelper.TimeInput("##time", ref time);
-            if (changed)
-                DataCopy.StartTime = new DateTime(date, time);
             ImGui.SameLine();
-            ImGui.Text("  ");
-            ImGui.TableNextColumn();
             var duration = DataCopy.Duration;
-            if (ImGuiHelper.DurationInput("##duration", ref duration))
+            if (InputHelper.InputDuration("##duration", ref duration))
                 DataCopy.Duration = duration;
 
         }
@@ -812,9 +796,11 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.Text(GeneralLoc.EditRaidSessionUi_hdg_Participants);
             ImGui.Text(GeneralLoc.GeneralTerm_Group);
             ImGui.SameLine();
-            if (ImGuiHelper.SearchableCombo("##group", out var group, DataCopy.Group?.Name ?? string.Empty,
-                                            Factory._dataManager.RaidGroupDb.GetValues(), raidGroup => raidGroup.Name))
+            if (InputHelper.SearchableCombo("##group", out var group, DataCopy.Group?.Name ?? string.Empty,
+                                            Factory._dataManager.GetTable<RaidGroup>().GetValues(),
+                                            raidGroup => raidGroup.Name, true))
                 DataCopy.Group = group;
+            ImGuiHelper.AddTooltip(GeneralLoc.EditaidSessuinUi_combo_tt_group);
             if (DataCopy.Group is not null)
             {
                 ImGui.SameLine();
@@ -828,7 +814,6 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                     }
                 }
             }
-            if (!DataCopy.Participants.Any()) return;
             using var table = ImRaii.Table("##ParticipantTable", 4,
                                            ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
             if (!table) return;
@@ -845,23 +830,26 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 if (ImGuiHelper.DeleteButton(participant.Character.Data))
                     toDelete = participant.Character;
                 ImGui.TableNextColumn();
-                ImGui.Text($"{participant.Character.Id} ({participant.Character.Data.Name})");
+                var job = participant.Character.Data.MainClass;
+                ImGui.Text($"{participant.Character.Data} ({job?.Role.FriendlyName()})");
                 ImGui.TableNextColumn();
                 ImGui.SetNextItemWidth(100 * ScaleFactor);
-                ImGuiHelper.Combo("##invite-status", ref participant.InvitationStatus, EnumExtensions.FriendlyName);
+                InputHelper.Combo("##invite-status", ref participant.InvitationStatus, EnumExtensions.FriendlyName);
                 ImGui.TableNextColumn();
                 ImGui.SetNextItemWidth(100 * ScaleFactor);
-                ImGuiHelper.Combo("##part-status", ref participant.ParticipationStatus, EnumExtensions.FriendlyName);
+                InputHelper.Combo("##part-status", ref participant.ParticipationStatus, EnumExtensions.FriendlyName);
             }
             if (toDelete is not null)
                 DataCopy.Uninvite(toDelete);
             ImGui.TableNextColumn();
+            if (ImGuiHelper.AddButton<Character>("addParticipant", true, ImGuiHelper.DefaultWideButtonSize))
+                UiSystem.OpenSearchWindow<Character>(character => DataCopy.Invite(character, out _));
             ImGui.TableNextColumn();
             ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_setAll);
             ImGui.TableNextColumn();
             ImGui.SetNextItemWidth(100 * ScaleFactor);
             var invitationStatus = InviteStatus.NoStatus;
-            if (ImGuiHelper.Combo("##invite-status", ref invitationStatus, EnumExtensions.FriendlyName))
+            if (InputHelper.Combo("##invite-status", ref invitationStatus, EnumExtensions.FriendlyName))
             {
                 foreach (var participant in DataCopy.Participants)
                 {
@@ -871,7 +859,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.TableNextColumn();
             ImGui.SetNextItemWidth(100 * ScaleFactor);
             var participationStatus = ParticipationStatus.NoStatus;
-            if (ImGuiHelper.Combo("##part-status", ref participationStatus, EnumExtensions.FriendlyName))
+            if (InputHelper.Combo("##part-status", ref participationStatus, EnumExtensions.FriendlyName))
             {
                 foreach (var participant in DataCopy.Participants)
                 {
@@ -883,16 +871,15 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         private void DrawContentSection()
         {
             ImGui.Text(GeneralLoc.EditRaidSessionUi_hdg_content);
-            if (ImGuiHelper.SearchableCombo("", out var instance, GeneralLoc.EditRaidSessionUi_cmb_AddInstance,
+            if (InputHelper.SearchableCombo("", out var instance, GeneralLoc.EditRaidSessionUi_cmb_AddInstance,
                                             GameInfo.CurrentSavageTier!.Bosses, i => i.Name,
                                             (inst, sP) => inst.Name.Contains(sP),
-                                            inst => DataCopy.PlannedContent.All(c => c.Instance != inst)))
-                DataCopy.AddInstance(new InstanceSession(instance));
-            if (!DataCopy.PlannedContent.Any())
-            {
-                ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Nothing_planned_yet);
-                return;
-            }
+                                            inst => DataCopy.PlannedContent.All(c => c.Instance != inst))
+             && instance is not null)
+                DataCopy.AddInstance(new InstanceSession(instance)
+                {
+                    Plan = InstanceSession.PlannedStatus.Planned,
+                });
             using var table =
                 ImRaii.Table("##ContentTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
             if (!table) return;
@@ -900,6 +887,14 @@ public class EditWindowFactory(IGlobalServiceContainer services)
             ImGui.TableSetupColumn(GeneralLoc.EditRaidSessionUi_tblHdg_Instance);
             ImGui.TableSetupColumn(GeneralLoc.EditRaidSessionUi_tbh_hdg_loot);
             ImGui.TableHeadersRow();
+            if (!DataCopy.PlannedContent.Any())
+            {
+                ImGui.TableNextColumn();
+                ImGui.TableNextColumn();
+                ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Nothing_planned_yet);
+                ImGui.TableNextColumn();
+                return;
+            }
             InstanceSession? toDelete = null;
             foreach (var instanceSession in DataCopy.PlannedContent)
             {
@@ -915,7 +910,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
                 ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Plan);
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(150 * ScaleFactor);
-                ImGuiHelper.Combo("##plan", ref instanceSession.Plan, EnumExtensions.FriendlyName);
+                InputHelper.Combo("##plan", ref instanceSession.Plan, EnumExtensions.FriendlyName);
                 ImGui.Text(GeneralLoc.EditRaidSessionUi_txt_Killed);
                 ImGui.SameLine();
                 ImGui.Checkbox("##killed", ref instanceSession.Killed);
@@ -960,7 +955,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
         {
             destination.CopyFrom(DataCopy);
             if (destination.LocalId.IsEmpty)
-                Factory._dataManager.RaidSessionDb.TryAdd(destination);
+                Factory._dataManager.GetTable<RaidSession>().TryAdd(destination);
             Factory._dataManager.Save();
         }
         protected override void Cancel() { }

@@ -8,7 +8,7 @@ using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
-public interface IDataBaseTable<T> where T : class, IHasHrtId<T>, new()
+public interface IDataBaseTable<T> where T : class, IHrtDataTypeWithId<T>
 {
     internal bool Load(JsonSerializerSettings jsonSettings, string data);
     internal bool TryGet(HrtId id, [NotNullWhen(true)] out T? value);
@@ -20,19 +20,24 @@ public interface IDataBaseTable<T> where T : class, IHasHrtId<T>, new()
     internal IEnumerable<T> GetValues();
     internal void OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
     internal HrtWindow GetSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
-    internal OldHrtIdReferenceConverter<T> GetOldRefConverter();
-    internal HrtIdReferenceConverter<T> GetRefConverter();
-    public HashSet<HrtId> GetReferencedIds();
-    internal ulong GetNextSequence();
     internal bool Contains(HrtId hrtId);
-    public void RemoveUnused(HashSet<HrtId> referencedIds);
-    public void FixEntries(HrtDataManager hrtDataManager);
+    internal ulong GetNextSequence();
+    HashSet<HrtId> GetReferencedIds();
+}
+
+internal interface IInternalDataBaseTable<TData> : IDataBaseTable<TData> where TData : class, IHrtDataTypeWithId<TData>
+{
+    internal OldHrtIdReferenceConverter<TData> GetOldRefConverter();
+    internal HrtIdReferenceConverter<TData> GetRefConverter();
+
+    void RemoveUnused(HashSet<HrtId> referencedIds);
+    void FixEntries(HrtDataManager hrtDataManager);
     internal string Serialize(JsonSerializerSettings settings);
 }
 
-public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonConverter> converters, ILogger logger)
-    : IDataBaseTable<T>
-    where T : class, IHasHrtId<T>, new()
+internal abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonConverter> converters, ILogger logger)
+    : IInternalDataBaseTable<T>
+    where T : class, IHrtDataTypeWithId<T>
 {
 
     protected readonly Dictionary<HrtId, T> Data = new();
@@ -137,7 +142,7 @@ public abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<JsonC
         Action<TData> onSelect,
         Action? onCancel) : HrtWindow(uiSystem)
         where TDataBaseTable : IDataBaseTable<TData>
-        where TData : class, IHasHrtId<TData>, new()
+        where TData : class, IHrtDataTypeWithId<TData>
     {
         protected readonly TDataBaseTable Database = dataBase;
 

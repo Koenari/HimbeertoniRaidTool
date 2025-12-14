@@ -91,7 +91,7 @@ public static class DrawDataExtension
         if (item.CanBePurchased())
         {
             DrawRow(GeneralLoc.DrawItem_hdg_ShopCosts, string.Empty);
-            foreach ((string? shopName, var shopEntry) in item.PurchasedFrom())
+            foreach ((string shopName, var shopEntry) in item.PurchasedFrom())
             {
                 ImGui.TableNextColumn();
                 ImGui.Text($"    {shopName}");
@@ -192,7 +192,7 @@ public static class DrawDataExtension
         if (left.CanBePurchased() || right.CanBePurchased())
         {
             DrawRow(GeneralLoc.DrawItem_hdg_ShopCosts, string.Empty, string.Empty);
-            foreach ((string? shopName, var shopEntry) in left.PurchasedFrom().Concat(right.PurchasedFrom()))
+            foreach ((string shopName, var shopEntry) in left.PurchasedFrom().Concat(right.PurchasedFrom()))
             {
                 if (!shopsDone.Add(shopName)) continue;
                 ImGui.TableNextColumn();

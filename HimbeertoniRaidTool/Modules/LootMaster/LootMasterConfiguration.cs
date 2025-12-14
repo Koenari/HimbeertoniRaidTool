@@ -262,7 +262,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             RaidGroups.Clear();
             foreach (var id in _raidGroupIds)
             {
-                if (dataManager.RaidGroupDb.TryGet(id, out var group))
+                if (dataManager.GetTable<RaidGroup>().TryGet(id, out var group))
                     RaidGroups.Add(group);
             }
         }

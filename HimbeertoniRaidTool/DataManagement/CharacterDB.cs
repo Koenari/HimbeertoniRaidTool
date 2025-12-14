@@ -51,9 +51,9 @@ internal class CharacterDb(
         {
             playableClass.RemoveEmptySets();
             if (playableClass.CurGear.LocalId.IsEmpty)
-                hrtDataManager.GearDb.TryAdd(playableClass.CurGear);
+                hrtDataManager.GetTable<GearSet>().TryAdd(playableClass.CurGear);
             if (playableClass.CurBis.LocalId.IsEmpty)
-                hrtDataManager.GearDb.TryAdd(playableClass.CurBis);
+                hrtDataManager.GetTable<GearSet>().TryAdd(playableClass.CurBis);
         }
     }
 
@@ -105,7 +105,7 @@ internal class CharacterDb(
             ImGui.TableNextColumn();
             ImGui.Text(GeneralLoc.EditCharUi_in_HomeWorld);
             ImGui.TableNextColumn();
-            if (ImGuiHelper.SearchableCombo("##homeWorld", out uint worldOut,
+            if (InputHelper.SearchableCombo("##homeWorld", out uint worldOut,
                                             GetWorldName(_selectedWorld), Database.Data.Values
                                                 .Select(entry => entry.HomeWorldId).Distinct()
                                                 .Where(entry => entry != 0).Prepend<uint>(0), GetWorldName))

@@ -148,7 +148,7 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, Co
             {
                 ImGui.Text("Party Bonus");
                 ImGui.SameLine();
-                ImGuiHelper.Combo("##PartyBonus", ref _dataCopy.PartyBonus, b => b.FriendlyName());
+                InputHelper.Combo("##PartyBonus", ref _dataCopy.PartyBonus, b => b.FriendlyName());
             }
             ImGui.Separator();
             //AutoSave
@@ -169,7 +169,7 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, Co
             ImGui.Text(CoreLoc.ConfigUi_hdg_changelog);
             using (ImRaii.PushIndent())
             {
-                ImGuiHelper.Combo("##showChangelog", ref _dataCopy.ChangelogNotificationOptions,
+                InputHelper.Combo("##showChangelog", ref _dataCopy.ChangelogNotificationOptions,
                                   t => t.LocalizedDescription());
             }
             ImGui.Separator();

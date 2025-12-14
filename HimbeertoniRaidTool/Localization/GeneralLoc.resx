@@ -607,4 +607,10 @@ You need to update to use this plugin!</value>
     <data name="CalendarUi_txt_Active_session" xml:space="preserve">
         <value>Active session: </value>
     </data>
+    <data name="EditaidSessuinUi_combo_tt_group" xml:space="preserve">
+        <value>Group that is organizing this session</value>
+    </data>
+    <data name="EditRaidSessionUi_txt_startTime" xml:space="preserve">
+        <value>Start time</value>
+    </data>
 </root>

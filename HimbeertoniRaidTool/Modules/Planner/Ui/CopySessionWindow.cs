@@ -1,5 +1,4 @@
 using System.Numerics;
-using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using HimbeertoniRaidTool.Plugin.UI;
 
@@ -23,8 +22,7 @@ public class CopySessionWindow : HrtWindow
     {
         if (ImGuiHelper.Button(FontAwesomeIcon.Copy, "Copy", "Copy the current session to the specified time"))
             Save();
-        ImGui.Text("New Start Time");
-        ImGuiHelper.DateTimeInput("targetTime", ref _targetStart);
+        InputHelper.InputDateTime("targetTime", ref _targetStart, "New Start Time");
     }
 
     private void Save()
@@ -42,7 +40,7 @@ public class CopySessionWindow : HrtWindow
             instanceSession.Killed = false;
             instanceSession.Loot.Clear();
         }
-        UiSystem.GetHrtDataManager().RaidSessionDb.TryAdd(newSession);
+        UiSystem.GetDbTable<RaidSession>().TryAdd(newSession);
         Hide();
     }
 }

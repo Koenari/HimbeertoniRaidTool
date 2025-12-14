@@ -18,7 +18,7 @@ internal static class CsHelpers
         var targetGearSet = targetClass.AutoUpdatedGearSet;
         if (targetGearSet.LocalId.IsEmpty)
         {
-            dataManager.GearDb.TryAdd(targetGearSet);
+            dataManager.GetTable<GearSet>().TryAdd(targetGearSet);
         }
         for (int i = 0; i < 13; i++)
         {

@@ -18,15 +18,15 @@ public interface IModuleServiceContainer : IGlobalServiceContainer
 
 public interface IGlobalServiceContainer : IDisposable
 {
-    public IChatProvider Chat { get; }
-    public IDataManager DataManager { get; }
-    public ITargetManager TargetManager { get; }
-    public IClientState ClientState { get; }
-    public IPartyList PartyList { get; }
-    public ICondition Condition { get; }
-    public ILogger Logger { get; }
-    public IconCache IconCache { get; }
-    public HrtDataManager HrtDataManager { get; }
+    IChatProvider Chat { get; }
+    IDataManager DataManager { get; }
+    ITargetManager TargetManager { get; }
+    IClientState ClientState { get; }
+    IPartyList PartyList { get; }
+    ICondition Condition { get; }
+    ILogger Logger { get; }
+    IconCache IconCache { get; }
+    HrtDataManager HrtDataManager { get; }
     internal TaskManager TaskManager { get; }
     internal ConnectorPool ConnectorPool { get; }
     internal ConfigurationManager ConfigManager { get; }
@@ -96,8 +96,6 @@ internal class GlobalServiceContainer : IGlobalServiceContainer
         Chat = new DalamudChatProxy(DalamudServices.ChatGui);
         IconCache = new IconCache(DalamudServices.TextureProvider);
         HrtDataManager = new HrtDataManager(DalamudServices.PluginInterface, Logger, DataManager);
-        if (!HrtDataManager.Initialized)
-            throw new FailedToLoadException("Could not initialize data manager");
         TaskManager = new TaskManager(DalamudServices.Framework, Logger);
         ConnectorPool = new ConnectorPool(HrtDataManager, TaskManager, DataManager, Logger);
         CharacterInfoService = new CharacterInfoService(DalamudServices.ObjectTable, PartyList, ClientState);
