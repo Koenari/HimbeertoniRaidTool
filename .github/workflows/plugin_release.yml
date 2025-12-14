@@ -113,10 +113,11 @@ jobs:
       - name: 'Create Release'
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
         with:
+          target_commitish: ${{github.sha}}
           body: ${{needs.create_manifest.outputs.changelog}}
           tag_name: ${{needs.version-check.outputs.version}}
           generate_release_notes: true
-          prerelease: ${{github.ref_name}} == testing
+          prerelease: ${{ github.ref_name == 'testing'}}
           files: artifacts/*
   deploy_d17:
     name: Commit to D17 fork
@@ -143,7 +144,7 @@ jobs:
           fetch-depth: 0
           ref: main
           path: d17repo
-      - name: Downlaod Manifest
+      - name: Download Manifest
         uses: actions/download-artifact@v4
         with:
           name: manifest
@@ -166,7 +167,7 @@ jobs:
           directory: d17repo
           branch: testing-${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}
       - name: Create stable branch
-        if: '${{ github.ref_name != ''testing''}}'
+        continue-on-error: true
         run: |
           cd d17repo
           git config --local user.email "action@github.com"
@@ -174,6 +175,7 @@ jobs:
           git branch --track ${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}} main
           git checkout ${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}
           cp ../artifacts/manifest.toml stable/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
+          git rm testing/live/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
           git add stable/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
           git commit -m "${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
       - name: Push stable
