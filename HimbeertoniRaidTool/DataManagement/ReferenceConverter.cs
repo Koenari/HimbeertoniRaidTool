@@ -5,10 +5,10 @@ using Newtonsoft.Json.Linq;
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
 public class HrtIdReferenceConverter<TData> : JsonConverter<Reference<TData>>
-    where TData : class, IHasHrtId<TData>, new()
+    where TData : class, IHrtDataTypeWithId<TData>
 {
     private readonly IDataBaseTable<TData> _db;
-    private static readonly Reference<TData> EmptyRef = new(HrtId.Empty, _ => new TData());
+    private static readonly Reference<TData> EmptyRef = new(HrtId.Empty, _ => TData.Empty);
     internal HrtIdReferenceConverter(IDataBaseTable<TData> db)
     {
         _db = db;
@@ -38,7 +38,7 @@ public class HrtIdReferenceConverter<TData> : JsonConverter<Reference<TData>>
     }
 }
 
-public class OldHrtIdReferenceConverter<T> : JsonConverter<T> where T : class, IHasHrtId<T>, new()
+public class OldHrtIdReferenceConverter<T> : JsonConverter<T> where T : class, IHrtDataTypeWithId<T>
 {
     private readonly IDataBaseTable<T> _db;
 
@@ -60,12 +60,12 @@ public class OldHrtIdReferenceConverter<T> : JsonConverter<T> where T : class, I
                                JsonSerializer serializer)
     {
         if (reader.TokenType == JsonToken.Null || objectType != typeof(T))
-            return new T();
+            return T.Empty;
 
         var id = JObject.Load(reader).ToObject<HrtId>();
         if (id is null)
-            return new T();
+            return T.Empty;
         _db.TryGet(id, out var result);
-        return result ?? new T();
+        return result ?? T.Empty;
     }
 }

@@ -135,7 +135,7 @@ internal class CalendarUi : HrtWindow
         ImGui.Spacing();
         ImGui.Text($"{date.Day}");
         ImGui.SameLine();
-        if (ImGuiHelper.AddButton(RaidSession.DataTypeName, $"#add{date.DayOfYear}"))
+        if (ImGuiHelper.AddButton<RaidSession>($"#add{date.DayOfYear}"))
             _module.Services.UiSystem.EditWindows.Create(new RaidSession(date.ToDateTime(TimeOnly.MinValue)));
         bool hasDrawn = false;
 
@@ -160,7 +160,7 @@ internal class CalendarUi : HrtWindow
 
             void DeleteEntry()
             {
-                _module.Services.HrtDataManager.RaidSessionDb.TryRemove(calendarEntry);
+                _module.Services.HrtDataManager.GetTable<RaidSession>().TryRemove(calendarEntry);
             }
         }
         if (!hasDrawn) ImGui.Text(PlannerLoc.UI_Calendar_Day_Nothing);

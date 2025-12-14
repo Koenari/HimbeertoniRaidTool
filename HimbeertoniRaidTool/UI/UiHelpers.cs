@@ -5,6 +5,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules.Core;
 using Lumina.Excel;
@@ -285,7 +286,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_ReplaceNew, Player.DataTypeName)))
             uiSystem.EditWindows.Create(new Player(), replaceCallback);
         if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_ReplaceKnown, Player.DataTypeName)))
-            services.HrtDataManager.PlayerDb.OpenSearchWindow(uiSystem, replaceCallback);
+            services.HrtDataManager.GetTable<Player>().OpenSearchWindow(uiSystem, replaceCallback);
 
     }
     internal void DrawCharacterCombo(string id, Player player, string nameFormat,
@@ -306,7 +307,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         }
         if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, Character.DataTypeName)))
         {
-            services.HrtDataManager.CharDb.OpenSearchWindow(uiSystem, player.AddCharacter);
+            services.HrtDataManager.GetTable<Character>().OpenSearchWindow(uiSystem, player.AddCharacter);
         }
         return;
         string ToName(Character character)
@@ -371,7 +372,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
                 }
                 if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, GearSet.DataTypeName)))
                 {
-                    services.HrtDataManager.GearDb.OpenSearchWindow(uiSystem, changeCallback);
+                    services.HrtDataManager.GetTable<GearSet>().OpenSearchWindow(uiSystem, changeCallback);
                 }
             }
         }

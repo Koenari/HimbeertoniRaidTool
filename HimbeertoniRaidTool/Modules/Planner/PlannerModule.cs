@@ -26,7 +26,7 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
 
     private readonly CalendarUi _calendarUi;
 
-    private IEnumerable<RaidSession> _sessions => Services.HrtDataManager.RaidSessionDb.GetValues();
+    private IEnumerable<RaidSession> _sessions => Services.HrtDataManager.GetTable<RaidSession>().GetValues();
 
     public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
     {
@@ -82,7 +82,7 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
             var searchPred = CharacterDb.GetStandardPredicate(
                 Character.CalcCharId(Services.ClientState.LocalContentId), localChar.HomeWorld.RowId,
                 localChar.Name.TextValue);
-            Services.HrtDataManager.CharDb.Search(searchPred, out self);
+            Services.HrtDataManager.GetTable<Character>().Search(searchPred, out self);
         }
         var raidSession = new RaidSession(DateTime.Now, TimeSpan.FromHours(1), self);
         if (group is not null)
@@ -104,7 +104,7 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
 
     private void FillRaidSessionFromCurrentGroup(RaidSession session)
     {
-        var charDb = Services.HrtDataManager.CharDb;
+        var charDb = Services.HrtDataManager.GetTable<Character>();
         foreach (var partyMember in Services.PartyList)
         {
             var searchPred = CharacterDb.GetStandardPredicate(Character.CalcCharId(partyMember.ContentId),

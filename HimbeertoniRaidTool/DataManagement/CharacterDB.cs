@@ -51,9 +51,9 @@ internal class CharacterDb(
         {
             playableClass.RemoveEmptySets();
             if (playableClass.CurGear.LocalId.IsEmpty)
-                hrtDataManager.GearDb.TryAdd(playableClass.CurGear);
+                hrtDataManager.GetTable<GearSet>().TryAdd(playableClass.CurGear);
             if (playableClass.CurBis.LocalId.IsEmpty)
-                hrtDataManager.GearDb.TryAdd(playableClass.CurBis);
+                hrtDataManager.GetTable<GearSet>().TryAdd(playableClass.CurBis);
         }
     }
 

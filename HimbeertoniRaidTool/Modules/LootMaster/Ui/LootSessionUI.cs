@@ -86,7 +86,7 @@ internal class LootSessionUi : HrtWindow
                 }
             }
             ImGui.SameLine();
-            if (ImGuiHelper.AddButton("raid session", "activeSession", _plannerModule.Loaded) && _plannerModule.Loaded)
+            if (ImGuiHelper.AddButton<RaidSession>("activeSession", _plannerModule.Loaded) && _plannerModule.Loaded)
                 _plannerModule.Module.CreateActiveRaidSession(_session.Group, rs => _session.RaidSession = rs);
             ImGui.SameLine();
             ImGui.Text(" ");

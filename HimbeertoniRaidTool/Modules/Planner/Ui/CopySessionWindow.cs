@@ -40,7 +40,7 @@ public class CopySessionWindow : HrtWindow
             instanceSession.Killed = false;
             instanceSession.Loot.Clear();
         }
-        UiSystem.GetHrtDataManager().RaidSessionDb.TryAdd(newSession);
+        UiSystem.GetDbTable<RaidSession>().TryAdd(newSession);
         Hide();
     }
 }

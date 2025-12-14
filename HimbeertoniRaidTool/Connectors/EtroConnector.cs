@@ -200,7 +200,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
         var oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
-        foreach (var gearSet in _hrtDataManager.GearDb.GetValues()
+        foreach (var gearSet in _hrtDataManager.GetTable<GearSet>().GetValues()
                                                .Where(set => set.ManagedBy == GearSetManager.Etro))
         {
             totalCount++;

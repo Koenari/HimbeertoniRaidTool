@@ -18,16 +18,18 @@ public interface IWindowSystem
 
 public interface IUiSystem : IWindowSystem
 {
-    public EditWindowFactory EditWindows { get; }
-    public UiHelpers Helpers { get; }
-    public IDalamudTextureWrap GetIcon(Item item);
-    public IDalamudTextureWrap GetIcon(uint iconId, bool hq);
-    public bool DrawConditionsMet();
-    public ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType>;
+    EditWindowFactory EditWindows { get; }
+    UiHelpers Helpers { get; }
+    IDalamudTextureWrap GetIcon(Item item);
+    IDalamudTextureWrap GetIcon(uint iconId, bool hq);
+    bool DrawConditionsMet();
+    ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType>;
 
-    public HrtDataManager GetHrtDataManager();
+    void OpenSearchWindow<TData>(Action<TData> onSelect, Action? onCancel = null)
+        where TData : class, IHrtDataTypeWithId<TData>;
+    IDataBaseTable<TData> GetDbTable<TData>() where TData : class, IHrtDataTypeWithId<TData>;
 
-    public void OpenSettingsWindow();
+    void OpenSettingsWindow();
 }
 
 internal static class UiSystemFactory
@@ -42,30 +44,35 @@ internal static class UiSystemFactory
         private readonly DalamudWindowSystem _windowSystem;
         public EditWindowFactory EditWindows { get; }
         public UiHelpers Helpers { get; }
-        private IGlobalServiceContainer Services { get; }
+        private IGlobalServiceContainer _services { get; }
 
         protected UiSystem(DalamudWindowSystem windowSystem, IGlobalServiceContainer services)
         {
             _windowSystem = windowSystem;
-            Services = services;
-            EditWindows = new EditWindowFactory(Services);
-            Helpers = new UiHelpers(this, Services);
+            _services = services;
+            EditWindows = new EditWindowFactory(_services);
+            Helpers = new UiHelpers(this, _services);
 
         }
 
         public IDalamudTextureWrap GetIcon(Item item) => GetIcon(item.Icon, item is HqItem { IsHq: true });
-        public IDalamudTextureWrap GetIcon(uint iconId, bool hq) => Services.IconCache.LoadIcon(iconId, hq);
+        public IDalamudTextureWrap GetIcon(uint iconId, bool hq) => _services.IconCache.LoadIcon(iconId, hq);
         public ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType> =>
-            Services.DataManager.GetExcelSheet<TType>()
+            _services.DataManager.GetExcelSheet<TType>()
          ?? throw new NullReferenceException("UiSystem was not initialized");
 
-        public HrtDataManager GetHrtDataManager() => Services.HrtDataManager;
+        public void OpenSearchWindow<TData>(Action<TData> onSelect, Action? onCancel = null)
+            where TData : class, IHrtDataTypeWithId<TData> => _services.HrtDataManager.GetTable<TData>()
+                                                                       .OpenSearchWindow(this, onSelect, onCancel);
+
+        public IDataBaseTable<TData> GetDbTable<TData>() where TData : class, IHrtDataTypeWithId<TData>
+            => _services.HrtDataManager.GetTable<TData>();
 
         public bool DrawConditionsMet() =>
-            !(CoreModule.UiConfig.HideInCombat && Services.Condition[ConditionFlag.InCombat])
-         && !Services.Condition[ConditionFlag.BetweenAreas];
+            !(CoreModule.UiConfig.HideInCombat && _services.Condition[ConditionFlag.InCombat])
+         && !_services.Condition[ConditionFlag.BetweenAreas];
 
-        public void OpenSettingsWindow() => Services.ConfigManager.Show();
+        public void OpenSettingsWindow() => _services.ConfigManager.Show();
 
         public void Draw()
         {
@@ -73,7 +80,7 @@ internal static class UiSystemFactory
                                         .ToList();
             foreach (var window in toRemove)
             {
-                Services.Logger.Debug("Cleaning Up Window: {WindowWindowName}", window.WindowName);
+                _services.Logger.Debug("Cleaning Up Window: {WindowWindowName}", window.WindowName);
                 window.Dispose();
                 _windowSystem.RemoveWindow(window);
             }

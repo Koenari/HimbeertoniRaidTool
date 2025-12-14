@@ -142,7 +142,7 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
         var oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
-        foreach (var gearSet in hrtDataManager.GearDb.GetValues()
+        foreach (var gearSet in hrtDataManager.GetTable<GearSet>().GetValues()
                                               .Where(set => set.ManagedBy == GearSetManager.XivGear))
         {
             totalCount++;

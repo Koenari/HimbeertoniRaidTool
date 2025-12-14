@@ -83,7 +83,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
 
         ulong charId = Character.CalcCharId(_clientState.LocalContentId);
 
-        if (!_hrtDataManager.CharDb.Search(
+        if (!_hrtDataManager.GetTable<Character>().Search(
                 CharacterDb.GetStandardPredicate(charId, source.HomeWorld.RowId, source.Name.TextValue),
                 out target)) return;
         if (target.CharId == 0)

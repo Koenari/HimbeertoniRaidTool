@@ -16,22 +16,22 @@ namespace HimbeertoniRaidTool.Plugin.UI;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class ImGuiHelper
 {
-
+    public static readonly Vector2 DefaultWideButtonSize = new(50, 25);
 
     public static bool SaveButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
         => Button(FontAwesomeIcon.Save, "##save", tooltip ?? GeneralLoc.General_btn_tt_save, enabled,
-                  size ?? new Vector2(50f, 25f));
+                  size ?? DefaultWideButtonSize);
     public static bool CancelButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
         => Button(FontAwesomeIcon.WindowClose, "##cancel", tooltip ?? GeneralLoc.Ui_btn_tt_cancel, enabled,
-                  size ?? new Vector2(50f, 25f));
+                  size ?? DefaultWideButtonSize);
     public static bool CloseButton(string? tooltip = null, bool enabled = true, Vector2? size = null)
         => Button(FontAwesomeIcon.WindowClose, "##close", tooltip ?? GeneralLoc.General_btn_tt_close, enabled,
-                  size ?? new Vector2(50f, 25f));
+                  size ?? DefaultWideButtonSize);
     public static bool DeleteButton<T>(T data, bool enabled = true, Vector2? size = null)
         where T : IHrtDataType =>
         GuardedButton(FontAwesomeIcon.Eraser, "##delete",
                       string.Format(GeneralLoc.General_btn_tt_delete, T.DataTypeName, data.Name), enabled,
-                      size ?? new Vector2(50f, 25f));
+                      size ?? DefaultWideButtonSize);
     public static bool EditButton<T>(T data, string id, bool enabled = true, Vector2 size = default)
         where T : IHrtDataType
         => Button(FontAwesomeIcon.Edit, id, string.Format(GeneralLoc.General_btn_tt_edit, T.DataTypeName, data.Name),
@@ -44,6 +44,8 @@ public static class ImGuiHelper
         where T : IHrtDataType =>
         GuardedButton(FontAwesomeIcon.Eraser, id,
                       string.Format(GeneralLoc.General_btn_tt_remove, T.DataTypeName, data.Name), enabled, size);
+    public static bool AddButton<T>(string id, bool enabled = true, Vector2 size = default) where T : IHrtDataType
+        => AddButton(T.DataTypeName, id, enabled, size);
     public static bool AddButton(string dataType, string id, bool enabled = true, Vector2 size = default)
         => Button(FontAwesomeIcon.Plus, id, string.Format(GeneralLoc.Ui_btn_tt_add, dataType), enabled, size);
     public static bool GuardedButton(string label, string? tooltip, Vector2 size) =>

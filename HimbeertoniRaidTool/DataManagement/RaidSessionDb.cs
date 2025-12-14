@@ -61,7 +61,7 @@ internal class RaidSessionDb(IIdProvider idProvider, IEnumerable<JsonConverter> 
                     {
                         _searchGroup = null;
                     }
-                    foreach (var group in UiSystem.GetHrtDataManager().RaidGroupDb.GetValues())
+                    foreach (var group in UiSystem.GetDbTable<RaidGroup>().GetValues())
                     {
                         if (ImGui.Selectable($"{group.Name} ({group.Count})##{group.LocalId}", group == _searchGroup))
                         {

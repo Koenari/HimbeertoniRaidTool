@@ -102,7 +102,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
         ulong charId = Character.CalcCharId(_characterInfoService.GetContentId(sourceChar));
 
         //Do not execute on characters not already known
-        if (!_hrtDataManager.CharDb.Search(
+        if (!_hrtDataManager.GetTable<Character>().Search(
                 CharacterDb.GetStandardPredicate(charId, sourceChar.HomeWorld.RowId, sourceChar.Name.TextValue),
                 out var targetChar))
         {
@@ -137,16 +137,16 @@ internal class ExamineGearDataProvider : IGearDataProvider
 
             targetClass = targetChar.AddClass(targetJob);
             var defaultBiS = _connectorPool.GetDefaultBiS(targetJob);
-            if (_hrtDataManager.GearDb.Search(defaultBiS.Equals, out var existingBis))
+            if (_hrtDataManager.GetTable<GearSet>().Search(defaultBiS.Equals, out var existingBis))
                 targetClass.CurBis = existingBis;
             else
             {
                 targetClass.CurBis = defaultBiS.ToGearSet();
-                if (_hrtDataManager.GearDb.TryAdd(targetClass.CurBis)
+                if (_hrtDataManager.GetTable<GearSet>().TryAdd(targetClass.CurBis)
                  && _connectorPool.TryGetConnector(defaultBiS.Service, out var connector))
                     connector.RequestGearSetUpdate(targetClass.CurBis);
             }
-            if (!_hrtDataManager.GearDb.TryAdd(targetClass.CurGear))
+            if (!_hrtDataManager.GetTable<GearSet>().TryAdd(targetClass.CurGear))
             {
                 _logger.Error(
                     "Could not create gearset for new job {TargetJob} for {TargetCharName}@{ReadOnlySeString}",

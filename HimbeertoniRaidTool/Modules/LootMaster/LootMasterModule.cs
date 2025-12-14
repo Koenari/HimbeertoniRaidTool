@@ -68,7 +68,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
             {
                 TypeLocked = true,
             };
-            if (Services.HrtDataManager.RaidGroupDb.TryAdd(solo))
+            if (Services.HrtDataManager.GetTable<RaidGroup>().TryAdd(solo))
             {
                 Services.Logger.Information("Add solo group");
                 RaidGroups.Insert(0, solo);
@@ -149,7 +149,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
     }
     private bool FillPlayer(Player player, IPlayerCharacter source)
     {
-        if (player.LocalId.IsEmpty && !Services.HrtDataManager.PlayerDb.TryAdd(player)) return false;
+        if (player.LocalId.IsEmpty && !Services.HrtDataManager.GetTable<Player>().TryAdd(player)) return false;
         if (player.NickName.IsNullOrEmpty())
             player.NickName = source.Name.TextValue.Split(' ')[0];
         var c = new Character();
@@ -170,7 +170,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
     {
         Services.Logger.Debug("Filling character: {SourceName}", source.Name);
         ulong charId = Character.CalcCharId(Services.CharacterInfoService.GetContentId(source));
-        if (Services.HrtDataManager.CharDb.Search(
+        if (Services.HrtDataManager.GetTable<Character>().Search(
                 CharacterDb.GetStandardPredicate(charId, source.HomeWorld.RowId, source.Name.TextValue),
                 out var dbChar))
         {
@@ -181,7 +181,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
             destination.HomeWorldId = source.HomeWorld.RowId;
             destination.Name = source.Name.TextValue;
             destination.CharId = charId;
-            if (!Services.HrtDataManager.CharDb.TryAdd(destination)) return false;
+            if (!Services.HrtDataManager.GetTable<Character>().TryAdd(destination)) return false;
         }
         var curJob = source.GetJob();
         Services.Logger.Debug("Found job: {CurJob}", curJob);
@@ -191,7 +191,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
         if (isNewJob)
         {
             curClass.Level = source.Level;
-            var gearDb = Services.HrtDataManager.GearDb;
+            var gearDb = Services.HrtDataManager.GetTable<GearSet>();
             var defaultBis = Services.ConnectorPool.GetDefaultBiS(curClass.Job);
             if (!gearDb.Search(defaultBis.Equals, out var bisSet))
             {
@@ -212,7 +212,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
     internal void AddGroup(RaidGroup group, bool getGroupInfos)
     {
         if (group.LocalId.IsEmpty)
-            Services.HrtDataManager.RaidGroupDb.TryAdd(group);
+            Services.HrtDataManager.GetTable<RaidGroup>().TryAdd(group);
         RaidGroups.Add(group);
         if (!getGroupInfos)
             return;
@@ -306,12 +306,12 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
         {
             var p = group[pos];
             p.NickName = pm.Name.TextValue.Split(' ')[0];
-            if (!Services.HrtDataManager.CharDb.Search(
+            if (!Services.HrtDataManager.GetTable<Character>().Search(
                     CharacterDb.GetStandardPredicate(Character.CalcCharId((ulong)pm.ContentId), pm.World.RowId,
                                                      pm.Name.TextValue), out var character))
             {
                 character = new Character(pm.Name.TextValue, pm.World.Value.RowId);
-                Services.HrtDataManager.CharDb.TryAdd(character);
+                Services.HrtDataManager.GetTable<Character>().TryAdd(character);
                 bool canParseJob = Enum.TryParse(pm.ClassJob.Value.Abbreviation.ExtractText(), out Job c);
                 if (Services.CharacterInfoService.TryGetChar(out var pc, p.MainChar.Name,
                                                              p.MainChar.HomeWorld) && canParseJob && c != Job.ADV)
@@ -323,7 +323,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
                     {
                         ExternalId = defaultBis.Id,
                     };
-                    Services.HrtDataManager.GearDb.TryAdd(bis);
+                    Services.HrtDataManager.GetTable<GearSet>().TryAdd(bis);
                     p.MainChar.MainClass.CurBis = bis;
                 }
             }
