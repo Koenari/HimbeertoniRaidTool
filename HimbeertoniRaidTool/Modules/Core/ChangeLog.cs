@@ -8,6 +8,14 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 10, 0, 1))
+        {
+            MinorFeatures =
+            {
+                new ChangeLogEntry(UserInterface, "Better input for dates and times"),
+                new ChangeLogEntry(UserInterface, "Can now add any character to a raid session"),
+            },
+        },
         new(new Version(1, 10, 0, 0))
         {
             NotableFeatures =
@@ -602,8 +610,8 @@ public class ChangeLog
 
     public interface IConfigOptions
     {
-        public Version LastSeenChangelog { get; set; }
-        public ChangelogShowOptions ChangelogNotificationOptions { get; set; }
+        Version LastSeenChangelog { get; set; }
+        ChangelogShowOptions ChangelogNotificationOptions { get; set; }
     }
 }
 
