@@ -117,10 +117,9 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
     {
         var soloPlayer = RaidGroups[0][0];
         if (!soloPlayer.Filled || !soloPlayer.Characters.Any())
-            FillPlayerFromSelf(soloPlayer);
-        ulong curCharId =
-            Character.CalcCharId(
-                Services.CharacterInfoService.GetContentId(Services.ClientState.LocalPlayer));
+            FillPlayer(soloPlayer, null, true);
+        if (!Services.PlayerState.IsLoaded) return;
+        ulong curCharId = Character.CalcCharId(Services.PlayerState.ContentId);
         Services.Logger.Debug("OnLogin: CurCharID: {CurCharId}", curCharId);
         if (curCharId != 0)
         {
@@ -128,7 +127,11 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
             if (soloPlayer.Characters.Any(c => c.CharId == curCharId))
                 soloPlayer.MainChar = soloPlayer.Characters.First(c => c.CharId == curCharId);
             else
-                AddCurrentCharacter(soloPlayer);
+            {
+                var character = new Character();
+                FillCharacter(ref character, null, true);
+                soloPlayer.MainChar = character;
+            }
         }
 
         if (Configuration.Data.OpenOnStartup)
@@ -141,56 +144,77 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
         var target = Services.TargetManager.Target;
         return target is IPlayerCharacter character && FillPlayer(player, character);
     }
-    private void FillPlayerFromSelf(Player player)
+    private bool FillPlayer(Player player, IPlayerCharacter? source, bool useSelf = false)
     {
-        var character = Services.ClientState.LocalPlayer;
-        if (character != null)
-            FillPlayer(player, character);
-    }
-    private bool FillPlayer(Player player, IPlayerCharacter source)
-    {
+        var selfInfo = Services.PlayerState;
+        string playerName;
+        if (useSelf)
+        {
+            if (!selfInfo.IsLoaded) return false;
+            playerName = selfInfo.CharacterName;
+        }
+        else
+        {
+            if (source == null) return false;
+            playerName = source.Name.TextValue;
+        }
+        playerName = playerName.Split(' ')[0];
         if (player.LocalId.IsEmpty && !Services.HrtDataManager.GetTable<Player>().TryAdd(player)) return false;
         if (player.NickName.IsNullOrEmpty())
-            player.NickName = source.Name.TextValue.Split(' ')[0];
+            player.NickName = playerName;
         var c = new Character();
-        bool result = FillCharacter(ref c, source);
+        bool result = FillCharacter(ref c, source, useSelf);
         player.MainChar = c;
         return result;
     }
 
-    private void AddCurrentCharacter(Player player)
+
+    private bool FillCharacter(ref Character destination, IPlayerCharacter? source, bool useSelf = false)
     {
-        var sourceCharacter = Services.ClientState.LocalPlayer;
-        var character = new Character();
-        if (sourceCharacter == null) return;
-        FillCharacter(ref character, sourceCharacter);
-        player.MainChar = character;
-    }
-    private bool FillCharacter(ref Character destination, IPlayerCharacter source)
-    {
-        Services.Logger.Debug("Filling character: {SourceName}", source.Name);
-        ulong charId = Character.CalcCharId(Services.CharacterInfoService.GetContentId(source));
+        string characterName;
+        uint homeWorldId;
+        ulong charId;
+        Job curJob;
+        int level;
+        if (useSelf)
+        {
+            if (!Services.PlayerState.IsLoaded) return false;
+            characterName = Services.PlayerState.CharacterName;
+            homeWorldId = Services.PlayerState.HomeWorld.RowId;
+            charId = Character.CalcCharId(Services.PlayerState.ContentId);
+            curJob = (Job)Services.PlayerState.ClassJob.RowId;
+            level = Services.PlayerState.Level;
+        }
+        else
+        {
+            if (source is null) return false;
+            characterName = source.Name.TextValue;
+            homeWorldId = source.HomeWorld.RowId;
+            charId = Character.CalcCharId(Services.CharacterInfoService.GetContentId(source));
+            curJob = source.GetJob();
+            level = source.Level;
+        }
+        Services.Logger.Debug("Filling character: {SourceName}", characterName);
+
         if (Services.HrtDataManager.GetTable<Character>().Search(
-                CharacterDb.GetStandardPredicate(charId, source.HomeWorld.RowId, source.Name.TextValue),
-                out var dbChar))
+                CharacterDb.GetStandardPredicate(charId, homeWorldId, characterName), out var dbChar))
         {
             destination = dbChar;
         }
         else
         {
-            destination.HomeWorldId = source.HomeWorld.RowId;
-            destination.Name = source.Name.TextValue;
+            destination.HomeWorldId = homeWorldId;
+            destination.Name = characterName;
             destination.CharId = charId;
             if (!Services.HrtDataManager.GetTable<Character>().TryAdd(destination)) return false;
         }
-        var curJob = source.GetJob();
         Services.Logger.Debug("Found job: {CurJob}", curJob);
         if (!curJob.IsCombatJob()) return true;
         bool isNewJob = destination[curJob] is null;
         var curClass = destination[curJob] ?? destination.AddClass(curJob);
         if (isNewJob)
         {
-            curClass.Level = source.Level;
+            curClass.Level = level;
             var gearDb = Services.HrtDataManager.GetTable<GearSet>();
             var defaultBis = Services.ConnectorPool.GetDefaultBiS(curClass.Job);
             if (!gearDb.Search(defaultBis.Equals, out var bisSet))
@@ -234,7 +258,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
                 FillPlayer(group[0], target);
             }
             else
-                FillPlayerFromSelf(group[0]);
+                FillPlayer(group[0], null, true);
             return;
         }
 

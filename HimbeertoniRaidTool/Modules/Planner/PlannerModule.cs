@@ -75,13 +75,12 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
 
     public void CreateActiveRaidSession(Reference<RaidGroup>? group = null, Action<RaidSession>? onCreated = null)
     {
-        var localChar = Services.ClientState.LocalPlayer;
         Character? self = null;
-        if (localChar is not null)
+        if (Services.PlayerState.IsLoaded)
         {
-            var searchPred = CharacterDb.GetStandardPredicate(
-                Character.CalcCharId(Services.ClientState.LocalContentId), localChar.HomeWorld.RowId,
-                localChar.Name.TextValue);
+            var searchPred = CharacterDb.GetStandardPredicate(Character.CalcCharId(Services.PlayerState.ContentId),
+                                                              Services.PlayerState.HomeWorld.RowId,
+                                                              Services.PlayerState.CharacterName);
             Services.HrtDataManager.GetTable<Character>().Search(searchPred, out self);
         }
         var raidSession = new RaidSession(DateTime.Now, TimeSpan.FromHours(1), self);

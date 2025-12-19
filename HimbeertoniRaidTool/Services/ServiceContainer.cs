@@ -22,6 +22,7 @@ public interface IGlobalServiceContainer : IDisposable
     IDataManager DataManager { get; }
     ITargetManager TargetManager { get; }
     IClientState ClientState { get; }
+    IPlayerState PlayerState { get; }
     IPartyList PartyList { get; }
     ICondition Condition { get; }
     ILogger Logger { get; }
@@ -61,6 +62,7 @@ internal sealed class ModuleScopedServiceContainer<TModule> : IModuleServiceCont
     public IDataManager DataManager => _globalServices.DataManager;
     public ITargetManager TargetManager => _globalServices.TargetManager;
     public IClientState ClientState => _globalServices.ClientState;
+    public IPlayerState PlayerState => _globalServices.PlayerState;
     public IObjectTable ObjectTable => _globalServices.DalamudServices.ObjectTable;
     public IPartyList PartyList => _globalServices.PartyList;
     public ICondition Condition => _globalServices.Condition;
@@ -98,13 +100,14 @@ internal class GlobalServiceContainer : IGlobalServiceContainer
         HrtDataManager = new HrtDataManager(DalamudServices.PluginInterface, Logger, DataManager);
         TaskManager = new TaskManager(DalamudServices.Framework, Logger);
         ConnectorPool = new ConnectorPool(HrtDataManager, TaskManager, DataManager, Logger);
-        CharacterInfoService = new CharacterInfoService(DalamudServices.ObjectTable, PartyList, ClientState);
+        CharacterInfoService = new CharacterInfoService(DalamudServices.ObjectTable, PartyList, PlayerState);
         ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider, Logger,
                                                               DalamudServices.ObjectTable, HrtDataManager,
                                                               CharacterInfoService,
                                                               ConnectorPool);
-        OwnCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.ClientState,
-                                                                DalamudServices.Framework, Logger, HrtDataManager);
+        OwnCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.PlayerState,
+                                                                DalamudServices.ClientState, DalamudServices.Framework,
+                                                                Logger, HrtDataManager);
         UiSystem = UiSystemFactory.CreateGlobalUiSystem(this);
         ConfigManager =
             new ConfigurationManager(pluginInterface, this);
@@ -133,6 +136,7 @@ internal class GlobalServiceContainer : IGlobalServiceContainer
     public IDataManager DataManager => DalamudServices.DataManager;
     public ITargetManager TargetManager => DalamudServices.TargetManager;
     public IClientState ClientState => DalamudServices.ClientState;
+    public IPlayerState PlayerState => DalamudServices.PlayerState;
     public IPartyList PartyList => DalamudServices.PartyList;
     public ICondition Condition => DalamudServices.Condition;
     public ILogger Logger { get; }
@@ -164,6 +168,8 @@ internal class GlobalServiceContainer : IGlobalServiceContainer
         [PluginService] public IDalamudPluginInterface PluginInterface { get; set; }
 
         [PluginService] public IClientState ClientState { get; set; }
+
+        [PluginService] public IPlayerState PlayerState { get; set; }
 
         [PluginService] public IObjectTable ObjectTable { get; set; }
 
