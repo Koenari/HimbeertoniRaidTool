@@ -10,5 +10,5 @@ tags:
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      User Interface: Better input for dates and times
-      User Interface: Can now add any character to a raid session
+      General: Updated for 7.4
+      Loot Session: All non weapon drops are now pre-selected in loot session

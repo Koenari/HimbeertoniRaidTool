@@ -8,6 +8,12 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 10, 1, 0))
+        {
+            NotableFeatures = { new ChangeLogEntry(General, "Updated for 7.4") },
+            MinorFeatures =
+                { new ChangeLogEntry(LootSession, "All non weapon drops are now pre-selected in loot session") },
+        },
         new(new Version(1, 10, 0, 2))
         {
             MinorFeatures =
