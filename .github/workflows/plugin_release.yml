@@ -12,7 +12,7 @@ env:
   PLUGIN_NAME: 'Himbeertoni Raid Tool'
   PLUGIN_NAME_INTERNAL: 'HimbeertoniRaidTool'
   PROJ_FILE: 'HimbeertoniRaidTool/HimbeertoniRaidTool.Plugin.csproj'
-  PLUGIN_PACKAGE: 'HimbeertoniRaidTool/bin/Release/HimbeertoniRaidTool/latest.zip'
+  PLUGIN_PACKAGE: 'HimbeertoniRaidTool/bin/x64/Release/HimbeertoniRaidTool/latest.zip'
   CUSTOM_REPO_URL: ''
 jobs:
   version-check:
