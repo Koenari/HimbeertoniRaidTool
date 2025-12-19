@@ -1,22 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Dalamud.NET.Sdk/13.1.0">
+<Project>
+    <Sdk Name="Dalamud.NET.Sdk" Version="14.0.1"/>
     <PropertyGroup>
         <Authors>Koenari</Authors>
         <Version>1.10.0.2</Version>
         <Description>A collection of useful tools for RaidGroups, including loot management</Description>
         <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>
-        <Configurations>Release;Debug</Configurations>
-        <LangVersion>12</LangVersion>
-    </PropertyGroup>
-    <PropertyGroup>
-        <Nullable>enable</Nullable>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    </PropertyGroup>
-    <PropertyGroup>
         <AssemblyName>HimbeertoniRaidTool</AssemblyName>
         <Product>Himbeertoni Raid Tool</Product>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
