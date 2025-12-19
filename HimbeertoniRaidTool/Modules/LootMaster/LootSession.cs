@@ -17,7 +17,7 @@ public class LootSession
     }
 
     public readonly InstanceWithLoot Instance;
-    internal readonly List<(Item item, int count)> Loot = new();
+    internal readonly List<(Item item, int count)> Loot = [];
     public readonly RolePriority RolePriority;
     private RaidGroup _group;
     internal RaidSession? RaidSession;
@@ -27,7 +27,7 @@ public class LootSession
         RulingOptions = module.Configuration.Data.LootRuling.Clone();
         foreach (var item in Instance.PossibleItems)
         {
-            Loot.Add((item, 0));
+            Loot.Add((item, item.IsGear ? 0 : 1));
         }
         foreach (var item in instance.GuaranteedItems)
         {

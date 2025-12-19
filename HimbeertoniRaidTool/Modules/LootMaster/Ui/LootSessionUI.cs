@@ -105,57 +105,28 @@ internal class LootSessionUi : HrtWindow
 
     private void DrawLootSelection()
     {
-        const float itemSize = 80f;
-        const int itemsPerRow = 7;
-        int rows = (int)Math.Ceiling(_session.Loot.Count / (float)itemsPerRow);
-        using var disabled = ImRaii.Disabled(_session.CurrentState >= LootSession.State.LootChosen);
-        for (int row = 0; row < rows; row++)
+        var itemSize = new Vector2(75) * ScaleFactor;
+
+        using var table = ImRaii.Table("##LootSelection", 10, ImGuiTableFlags.SizingFixedFit);
+        if (!table) return;
+        for (int i = 0; i < _session.Loot.Count; i++)
         {
-            using var id = ImRaii.PushId(row);
-
-            using var table = ImRaii.Table("##LootSelection", itemsPerRow,
-                                           ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.SizingFixedFit);
-            if (!table)
-                continue;
-
-            for (int col = 0; col < itemsPerRow; col++)
+            ImGui.TableNextColumn();
+            (var item, int count) = _session.Loot[i];
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + itemSize.X * 0.125f);
+            ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).Handle, itemSize * 0.75f);
+            if (ImGui.IsItemHovered())
             {
-                if (row * itemsPerRow + col >= _session.Loot.Count)
-                {
-                    ImGui.TableNextRow();
-                    break;
-                }
-
-                var item = _session.Loot[row * itemsPerRow + col].item;
-                ImGui.TableNextColumn();
-                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10f * ScaleFactor);
-                ImGui.Image(UiSystem.GetIcon(item.Icon, item.CanBeHq).Handle,
-                            Vector2.One * ScaleFactor * (itemSize - 30f));
-                if (ImGui.IsItemHovered())
-                {
-                    using var tooltip = ImRaii.Tooltip();
-                    item.Draw();
-                }
+                using var tooltip = ImRaii.Tooltip();
+                item.Draw();
             }
-
-            for (int col = 0; col < itemsPerRow; col++)
+            int count2 = count;
+            ImGui.SetNextItemWidth(itemSize.X);
+            if (ImGui.InputInt($"##Input{item.Id}", ref count2, 1))
             {
-                if (row * itemsPerRow + col >= _session.Loot.Count)
-                {
-                    ImGui.TableNextRow();
-                    break;
-                }
-
-                (var item, int count) = _session.Loot[row * itemsPerRow + col];
-                ImGui.TableNextColumn();
-                int count2 = count;
-                ImGui.SetNextItemWidth(ScaleFactor * (itemSize - 10f));
-                if (ImGui.InputInt($"##Input{item.Id}", ref count2))
-                {
-                    if (count2 < 0)
-                        count2 = 0;
-                    _session.Loot[row * itemsPerRow + col] = (item, count2);
-                }
+                if (count2 < 0)
+                    count2 = 0;
+                _session.Loot[i] = (item, count2);
             }
         }
     }
