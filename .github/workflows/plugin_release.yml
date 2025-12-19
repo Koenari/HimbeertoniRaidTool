@@ -100,7 +100,7 @@ jobs:
   create_release:
     name: 'Create Tag and Release'
     runs-on: ubuntu-latest
-    if: ${{vars.CREATE_RELEASE}}
+    if: ${{vars.CREATE_RELEASE && github.ref_name != 'testing'}}
     needs: [ create_manifest, build, version-check ]
     steps:
       - name: Checkout
@@ -117,7 +117,6 @@ jobs:
           body: ${{needs.create_manifest.outputs.changelog}}
           tag_name: ${{needs.version-check.outputs.version}}
           generate_release_notes: true
-          prerelease: ${{ github.ref_name == 'testing'}}
           files: artifacts/*
   deploy_d17:
     name: Commit to D17 fork
@@ -150,6 +149,7 @@ jobs:
           name: manifest
           path: artifacts
       - name: Create testing branch
+        if: ${{github.ref_name == 'testing'}}
         run: |
           cd d17repo
           git config --local user.email "action@github.com"
@@ -160,6 +160,7 @@ jobs:
           git add testing/live/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
           git commit -m "[Testing] ${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
       - name: Push testing
+        if: ${{github.ref_name == 'testing'}}
         uses: ad-m/github-push-action@77c5b412c50b723d2a4fbc6d71fb5723bcd439aa
         with:
           repository: ${{github.repository_owner}}/DalamudPluginsD17
@@ -167,6 +168,7 @@ jobs:
           directory: d17repo
           branch: testing-${{env.PLUGIN_NAME_INTERNAL}}-${{env.version}}
       - name: Create stable branch
+        if: ${{github.ref_name != 'testing'}}
         continue-on-error: true
         run: |
           cd d17repo
@@ -179,6 +181,7 @@ jobs:
           git add stable/${{env.PLUGIN_NAME_INTERNAL}}/manifest.toml
           git commit -m "${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
       - name: Push stable
+        if: ${{github.ref_name != 'testing'}}
         uses: ad-m/github-push-action@77c5b412c50b723d2a4fbc6d71fb5723bcd439aa
         with:
           repository: ${{github.repository_owner}}/DalamudPluginsD17
