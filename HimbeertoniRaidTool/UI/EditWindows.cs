@@ -878,7 +878,7 @@ public class EditWindowFactory(IGlobalServiceContainer services)
              && instance is not null)
                 DataCopy.AddInstance(new InstanceSession(instance)
                 {
-                    Plan = InstanceSession.PlannedStatus.Planned,
+                    Plan = PlannedStatus.Planned,
                 });
             using var table =
                 ImRaii.Table("##ContentTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);

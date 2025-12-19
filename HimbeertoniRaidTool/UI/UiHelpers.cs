@@ -136,7 +136,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
             if (i == matCount - 1)
             {
                 if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"##delete{slot}mat{i}",
-                                       string.Format(GeneralLoc.General_btn_tt_remove, MateriaItem.DataTypeNameStatic,
+                                       string.Format(GeneralLoc.General_btn_tt_remove, MateriaItem.DataTypeName,
                                                      string.Empty)))
                 {
                     item.RemoveMateria(i);

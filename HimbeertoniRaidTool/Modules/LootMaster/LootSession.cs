@@ -93,7 +93,7 @@ public class LootSession
         List<GearItem> possibleItems;
         if (droppedItem.IsGear)
             possibleItems = [new GearItem(droppedItem.Id)];
-        else if (droppedItem.IsContainerItem() || droppedItem.IsExchangableItem())
+        else if (droppedItem.IsContainerItem() || droppedItem.IsExchangeableItem())
             possibleItems = droppedItem.PossiblePurchases().ToList();
         else
             return results;
@@ -183,7 +183,7 @@ public class LootSession
         {
             Tried = true,
             Killed = true,
-            Plan = InstanceSession.PlannedStatus.NotPlanned,
+            Plan = PlannedStatus.NotPlanned,
         };
         RaidSession?.AddInstance(session);
     }
@@ -345,7 +345,7 @@ public class LootResult
     public bool CanUse() =>
         //Direct gear or coffer drops are always usable
         ApplicableJob is not null && (
-            !_droppedItem.IsExchangableItem()
+            !_droppedItem.IsExchangeableItem()
          || NeededItems.Any(item => item.PurchasedFrom().Any(shopEntry =>
                 {
                     foreach (var cost in shopEntry.entry.ItemCosts)
