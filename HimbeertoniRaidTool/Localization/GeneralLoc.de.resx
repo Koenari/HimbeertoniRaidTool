@@ -508,4 +508,103 @@ Bitte aktualisiere das Plugin auf die aktuelle Version!</value>
         <value>Ersetzen durch bekanntes {0}</value>
         <comment>{0} type of data</comment>
     </data>
+  <data name="GeneralTerm_Show_all" xml:space="preserve">
+        <value>Alle anzeigen</value>
+    </data>
+  <data name="SelectItemWindow_SaveBtn_tt_Nothing_chosen" xml:space="preserve">
+        <value>Nichts ausgewählt</value>
+    </data>
+  <data name="SelectLootItemWindow_Title" xml:space="preserve">
+        <value>Beute von {0} wählen</value>
+    </data>
+  <data name="EditRaidSessionUi_txt_setAll" xml:space="preserve">
+        <value>Alle ändern</value>
+    </data>
+  <data name="EditRaidSessionUi_txt_ParticipationStatus" xml:space="preserve">
+        <value>Teilnahme</value>
+    </data>
+  <data name="EditRaidSessionUi_txt_InviteStatus" xml:space="preserve">
+        <value>Einladungsstatus</value>
+    </data>
+  <data name="EditRaidSessionUi_hdg_content" xml:space="preserve">
+        <value>Inhalte</value>
+    </data>
+  <data name="EditRaidSessionUi_txt_Nothing_planned_yet" xml:space="preserve">
+        <value>Bis jetzt ist nichts geplant</value>
+    </data>
+  <data name="EditRaidSessionUi_tblHdg_Instance" xml:space="preserve">
+        <value>Instanz</value>
+    </data>
+  <data name="EditRaidSessionUi_txt_Plan" xml:space="preserve">
+        <value>Plan: </value>
+    </data>
+  <data name="EditRaidSessionUi_txt_Killed" xml:space="preserve">
+        <value>Getötet? </value>
+    </data>
+  <data name="EditRaidSessionUi_txt_Not_killed_yet" xml:space="preserve">
+        <value>Noch nicht getötet</value>
+    </data>
+  <data name="GeneralTerms_Instance" xml:space="preserve">
+        <value>Instanz</value>
+    </data>
+  <data name="EditRaidSessionUi_hdg_Participants" xml:space="preserve">
+        <value>Teilnehmer</value>
+    </data>
+  <data name="GeneralTerm_Group" xml:space="preserve">
+        <value>Gruppe:</value>
+    </data>
+  <data name="EditRaidSessionUi_btn_Add_all_members" xml:space="preserve">
+        <value>Alle Mitglieder hinzufügen</value>
+    </data>
+  <data name="EditRaidSessionUi_btn_tt_Add_all_members" xml:space="preserve">
+        <value>Alle Mitglieder der Gruppe zum Event hinzufügen</value>
+    </data>
+  <data name="GeneralTerm_Day" xml:space="preserve">
+        <value>Tag</value>
+    </data>
+  <data name="GeneralTerm_Month" xml:space="preserve">
+        <value>Monat</value>
+    </data>
+  <data name="GeneralTerm_Year" xml:space="preserve">
+        <value>Jahr</value>
+    </data>
+  <data name="GeneralTerm_Hour" xml:space="preserve">
+        <value>Stunde</value>
+    </data>
+  <data name="GeneralTerm_Minute" xml:space="preserve">
+        <value>Minute</value>
+    </data>
+  <data name="GeneralTerm_Date" xml:space="preserve">
+        <value>Datum</value>
+    </data>
+  <data name="GeneralTerm_Time" xml:space="preserve">
+        <value>Zeit</value>
+    </data>
+  <data name="GeneralTerm_Duration" xml:space="preserve">
+        <value>Dauer</value>
+    </data>
+  <data name="EditRaidSessionUi_cmb_AddInstance" xml:space="preserve">
+        <value>Instanz hinzufügen</value>
+    </data>
+  <data name="EditRaidSessionUi_tbh_hdg_loot" xml:space="preserve">
+        <value>Beute</value>
+    </data>
+  <data name="RaidSessionSearchUi_hdg_Participants" xml:space="preserve">
+        <value>Teilnehmer</value>
+    </data>
+  <data name="RaidSessionSearchUi_dhg_Title" xml:space="preserve">
+        <value>Titel</value>
+    </data>
+  <data name="CalendarUi_tt_Click_to_edit" xml:space="preserve">
+        <value>Klicken zum Bearbeiten</value>
+    </data>
+  <data name="CalendarUi_txt_Active_session" xml:space="preserve">
+        <value>Aktive Sitzung: </value>
+    </data>
+  <data name="EditaidSessuinUi_combo_tt_group" xml:space="preserve">
+        <value>Gruppe, die diese Sitzung organisiert</value>
+    </data>
+  <data name="EditRaidSessionUi_txt_startTime" xml:space="preserve">
+        <value>Startzeit</value>
+    </data>
 </root>
