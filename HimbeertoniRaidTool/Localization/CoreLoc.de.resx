@@ -331,4 +331,7 @@
   <data name="ChangeLogUi_text_openSettings" xml:space="preserve">
         <value>Zu den Einstellungen</value>
     </data>
+  <data name="ChangelogCategory_NewModule" xml:space="preserve">
+        <value>Neues Modul</value>
+    </data>
 </root>
