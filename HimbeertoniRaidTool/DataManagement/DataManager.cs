@@ -35,7 +35,8 @@ public class HrtDataManager
         NullValueHandling = NullValueHandling.Ignore,
         ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
     };
-    public HrtDataManager(IDalamudPluginInterface pluginInterface, ILogger logger, IDataManager dataManager)
+    public HrtDataManager(IDalamudPluginInterface pluginInterface, ILogger logger, IDataManager dataManager,
+                          TaskManager taskManager)
     {
         _logger = logger;
         bool loadedSuccessful = true;
@@ -75,9 +76,16 @@ public class HrtDataManager
         _initialized = loadedSuccessful;
         if (!_initialized)
             throw new FailedToLoadException("Could not initialize data manager");
+        taskManager.RegisterTask(
+            new HrtTask<string>(() =>
+            {
+                CleanupDatabase();
+                return "Database cleaned up";
+            }, _logger.Information, "Cleanup database")
+        );
     }
 
-    internal void CleanupDatabase()
+    private void CleanupDatabase()
     {
         if (!_initialized) return;
         /*

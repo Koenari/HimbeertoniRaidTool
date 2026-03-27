@@ -7,17 +7,17 @@ using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal class TaskManager : IDisposable
+public class TaskManager : IDisposable
 {
     private readonly IFramework _framework;
     private readonly ILogger _logger;
 
     private interface ITaskWrapper
     {
-        public Task SystemTask { get; }
-        public string Name { get; }
-        public bool HasError { get; }
-        public string ErrorMsg { get; }
+        Task SystemTask { get; }
+        string Name { get; }
+        bool HasError { get; }
+        string ErrorMsg { get; }
     }
 
     private class TaskWrapper<TData>(HrtTask<TData> task) : ITaskWrapper

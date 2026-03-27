@@ -97,8 +97,8 @@ internal class GlobalServiceContainer : IGlobalServiceContainer
         Logger = new LoggingProxy(DalamudServices.PluginLog, "[HRT]");
         Chat = new DalamudChatProxy(DalamudServices.ChatGui);
         IconCache = new IconCache(DalamudServices.TextureProvider);
-        HrtDataManager = new HrtDataManager(DalamudServices.PluginInterface, Logger, DataManager);
         TaskManager = new TaskManager(DalamudServices.Framework, Logger);
+        HrtDataManager = new HrtDataManager(DalamudServices.PluginInterface, Logger, DataManager, TaskManager);
         ConnectorPool = new ConnectorPool(HrtDataManager, TaskManager, DataManager, Logger);
         CharacterInfoService = new CharacterInfoService(DalamudServices.ObjectTable, PartyList, PlayerState);
         ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider, Logger,

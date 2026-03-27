@@ -144,14 +144,6 @@ internal class CoreModule : IHrtModule<CoreModule, CoreConfig>
     public void AfterFullyLoaded()
     {
         OnConfigChange();
-        Services.TaskManager.RegisterTask(
-            new HrtTask<HrtUiMessage>(() =>
-            {
-                Services.HrtDataManager.CleanupDatabase();
-                return HrtUiMessage.Empty;
-            }, HandleMessage, "Cleanup database")
-        );
-
         foreach (var serviceType in Enum.GetValues<GearSetManager>())
         {
             if (!Services.ConnectorPool.TryGetConnector(serviceType, out var connector)) continue;
