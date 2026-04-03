@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Interface;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.DataManagement;
@@ -13,7 +14,6 @@ using Character = HimbeertoniRaidTool.Common.Data.Character;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
-// ReSharper disable once ClassNeverInstantiated.Global
 internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMasterConfiguration>
 {
     #region Static
@@ -21,33 +21,35 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
     public static string Name => "Loot Master";
     public static string InternalName => "LootMaster";
 
-    public static string Description => "";
+    public static string Description => LootmasterLoc.Module_description;
 
     public static bool CanBeDisabled => false;
 
     #endregion
 
     private readonly LootmasterUi _ui;
-    private LootMasterModule(IModuleServiceContainer services)
+    private LootMasterModule(IModuleServiceContainer services, LootMasterConfiguration config)
     {
         Services = services;
         LootmasterLoc.Culture = Services.LocalizationManager.CurrentLocale;
-        Configuration = new LootMasterConfiguration(this);
+        Configuration = config;
         _ui = new LootmasterUi(this);
         Services.ClientState.Login += OnLogin;
 
     }
-    public static LootMasterModule Create(IModuleServiceContainer services) => new(services);
+    public static LootMasterModule Create(IModuleServiceContainer services, LootMasterConfiguration config) =>
+        new(services, config);
 
     //Properties
     internal List<RaidGroup> RaidGroups => Configuration.Data.RaidGroups;
     //Interface Properties
+    public static LootMasterConfiguration CreateConfiguration(IModuleServiceContainer services) => new(services);
     public LootMasterConfiguration Configuration { get; }
 
     public IModuleServiceContainer Services { get; }
     public event Action? UiReady;
-    public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
-    {
+    public IList<HrtCommand> Commands =>
+    [
         new("/lootmaster", OnCommand)
         {
             AltCommands = new List<string>
@@ -58,7 +60,12 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
             ShouldExposeToDalamud = true,
             ShouldExposeAltsToDalamud = true,
         },
-    };
+
+    ];
+    public IList<ButtenDescriptor> GlobalButtons =>
+    [
+        new(FontAwesomeIcon.Table, "Lootmaster", LootmasterLoc.btn_global_Open_tt, _ui.Show),
+    ];
     public void AfterFullyLoaded()
     {
         if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo)

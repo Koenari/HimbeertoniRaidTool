@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Dalamud.Game.ClientState.Objects;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -7,16 +6,23 @@ using HimbeertoniRaidTool.Common;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
+using HimbeertoniRaidTool.Plugin.UI;
 using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-public interface IModuleServiceContainer : IGlobalServiceContainer
+public interface IModuleServiceContainer : IServiceContainer
 {
-
+    internal IModuleScopedModuleManager ModuleManager { get; }
 }
 
-public interface IGlobalServiceContainer : IDisposable
+public interface IGlobalServiceContainer : IServiceContainer
+{
+    internal IModuleManager ModuleManager { get; }
+    internal CommandManager CommandManager { get; }
+}
+
+public interface IServiceContainer : IDisposable
 {
     IChatProvider Chat { get; }
     IDataManager DataManager { get; }
@@ -32,30 +38,31 @@ public interface IGlobalServiceContainer : IDisposable
     internal ConnectorPool ConnectorPool { get; }
     internal ConfigurationManager ConfigManager { get; }
     internal CharacterInfoService CharacterInfoService { get; }
-    internal ExamineGearDataProvider ExamineGearDataProvider { get; }
-    internal OwnCharacterDataProvider OwnCharacterDataProvider { get; }
     internal IUiSystem UiSystem { get; }
-    internal ModuleManager ModuleManager { get; }
     internal LocalizationManager LocalizationManager { get; }
     internal IFramework Framework { get; }
 }
 
 internal class ServiceContainerFactory(GlobalServiceContainer globalServices)
 {
-    public IModuleServiceContainer CreateModuleServiceContainer<TModule>()
+    public IModuleServiceContainer CreateModuleServiceContainer<TModule>(
+        IModuleScopedModuleManager moduleScopedModuleManager)
         where TModule : IHrtModule =>
-        new ModuleScopedServiceContainer<TModule>(globalServices);
+        new ModuleScopedServiceContainer<TModule>(globalServices, moduleScopedModuleManager);
 }
 
 internal sealed class ModuleScopedServiceContainer<TModule> : IModuleServiceContainer where TModule : IHrtModule
 {
     private readonly GlobalServiceContainer _globalServices;
-    public ModuleScopedServiceContainer(GlobalServiceContainer globalServices)
+
+    public ModuleScopedServiceContainer(GlobalServiceContainer globalServices,
+                                        IModuleScopedModuleManager moduleScopedModuleManager)
     {
         _globalServices = globalServices;
         Logger = new LoggingProxy(_globalServices.Logger, $"[{TModule.Name}]");
         UiSystem = UiSystemFactory.CreateUiSystem<TModule>(this);
         _globalServices.DalamudServices.PluginInterface.UiBuilder.Draw += UiSystem.Draw;
+        ModuleManager = moduleScopedModuleManager;
     }
 
     public IChatProvider Chat => _globalServices.Chat;
@@ -73,10 +80,8 @@ internal sealed class ModuleScopedServiceContainer<TModule> : IModuleServiceCont
     public ConnectorPool ConnectorPool => _globalServices.ConnectorPool;
     public ConfigurationManager ConfigManager => _globalServices.ConfigManager;
     public CharacterInfoService CharacterInfoService => _globalServices.CharacterInfoService;
-    public ExamineGearDataProvider ExamineGearDataProvider => _globalServices.ExamineGearDataProvider;
-    public OwnCharacterDataProvider OwnCharacterDataProvider => _globalServices.OwnCharacterDataProvider;
     public IUiSystem UiSystem { get; }
-    public ModuleManager ModuleManager => _globalServices.ModuleManager;
+    public IModuleScopedModuleManager ModuleManager { get; }
     public LocalizationManager LocalizationManager => _globalServices.LocalizationManager;
     public IFramework Framework => _globalServices.Framework;
 
@@ -99,21 +104,25 @@ internal class GlobalServiceContainer : IGlobalServiceContainer
         IconCache = new IconCache(DalamudServices.TextureProvider);
         TaskManager = new TaskManager(DalamudServices.Framework, Logger);
         HrtDataManager = new HrtDataManager(DalamudServices.PluginInterface, Logger, DataManager, TaskManager);
-        ConnectorPool = new ConnectorPool(HrtDataManager, TaskManager, DataManager, Logger);
-        CharacterInfoService = new CharacterInfoService(DalamudServices.ObjectTable, PartyList, PlayerState);
-        ExamineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider, Logger,
-                                                              DalamudServices.ObjectTable, HrtDataManager,
-                                                              CharacterInfoService,
-                                                              ConnectorPool);
-        OwnCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.PlayerState,
-                                                                DalamudServices.ClientState, DalamudServices.Framework,
-                                                                Logger, HrtDataManager);
         UiSystem = UiSystemFactory.CreateGlobalUiSystem(this);
-        ConfigManager =
-            new ConfigurationManager(pluginInterface, this);
+        ConfigManager = new ConfigurationManager(pluginInterface, Logger, TaskManager, HrtDataManager, UiSystem);
+        ConnectorPool = new ConnectorPool(HrtDataManager, TaskManager, DataManager, Logger, ConfigManager);
+        CharacterInfoService = new CharacterInfoService(DalamudServices.ObjectTable, PartyList, PlayerState);
+        _examineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider, Logger,
+                                                               DalamudServices.ObjectTable, HrtDataManager,
+                                                               CharacterInfoService,
+                                                               ConnectorPool, ConfigManager);
+        _ownCharacterDataProvider = new OwnCharacterDataProvider(DalamudServices.PlayerState,
+                                                                 DalamudServices.ClientState, DalamudServices.Framework,
+                                                                 Logger, HrtDataManager, ConfigManager);
         LocalizationManager = new LocalizationManager(DalamudServices.PluginInterface, Logger);
-        ModuleManager = new ModuleManager(Logger, ConfigManager, HrtDataManager, DalamudServices.CommandManager,
-                                          LocalizationManager, DalamudServices.PluginInterface,
+        var changelogService = new ChangelogService(ConfigManager, UiSystem);
+        var oobe = new OutOfTheBoxExperience(UiSystem, ConfigManager, DalamudServices.ClientState);
+        CommandManager = new CommandManager(DalamudServices.CommandManager, Logger, ConfigManager, Chat, oobe,
+                                            changelogService);
+
+        ModuleManager = new ModuleManager(Logger, ConfigManager, CommandManager, LocalizationManager,
+                                          DalamudServices.PluginInterface,
                                           new ServiceContainerFactory(this));
         DalamudServices.PluginInterface.UiBuilder.Draw += UiSystem.Draw;
     }
@@ -124,11 +133,12 @@ internal class GlobalServiceContainer : IGlobalServiceContainer
         ConfigManager.Save();
         HrtDataManager.Save();
         ModuleManager.Dispose();
+        CommandManager.Dispose();
         UiSystem.RemoveAllWindows();
         ConnectorPool.Dispose();
         ConfigManager.Dispose();
-        ExamineGearDataProvider.Dispose();
-        OwnCharacterDataProvider.Dispose();
+        _examineGearDataProvider.Dispose();
+        _ownCharacterDataProvider.Dispose();
         TaskManager.Dispose();
     }
     public IUiSystem UiSystem { get; }
@@ -146,10 +156,11 @@ internal class GlobalServiceContainer : IGlobalServiceContainer
     public ConnectorPool ConnectorPool { get; }
     public ConfigurationManager ConfigManager { get; }
     public CharacterInfoService CharacterInfoService { get; }
-    public ExamineGearDataProvider ExamineGearDataProvider { get; }
-    public OwnCharacterDataProvider OwnCharacterDataProvider { get; }
+    private ExamineGearDataProvider _examineGearDataProvider { get; }
+    private OwnCharacterDataProvider _ownCharacterDataProvider { get; }
     internal DalamudServiceWrapper DalamudServices { get; }
-    public ModuleManager ModuleManager { get; }
+    public IModuleManager ModuleManager { get; }
+    public CommandManager CommandManager { get; }
     public LocalizationManager LocalizationManager { get; }
     public IFramework Framework => DalamudServices.Framework;
 

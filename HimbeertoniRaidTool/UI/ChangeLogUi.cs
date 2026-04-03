@@ -3,9 +3,8 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Plugin.Localization;
-using HimbeertoniRaidTool.Plugin.UI;
 
-namespace HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
+namespace HimbeertoniRaidTool.Plugin.UI;
 
 internal class ChangeLogUi : HrtWindow
 {

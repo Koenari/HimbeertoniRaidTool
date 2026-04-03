@@ -6,17 +6,19 @@ using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal class OwnCharacterDataProvider : IGearDataProvider
+internal class OwnCharacterDataProvider : IDisposable
 {
     private readonly IPlayerState _playerState;
     private readonly IClientState _clientState;
     private readonly IFramework _framework;
     private readonly ILogger _logger;
     private readonly HrtDataManager _hrtDataManager;
+    private readonly ConfigurationManager _configurationManager;
+    private CoreConfig.ConfigData Configuration => _configurationManager.CoreConfig.Data;
     private readonly TimeSpan _timeBetweenGearUpdates = TimeSpan.FromMinutes(5);
     private readonly TimeSpan _timeBetweenWalletUpdates = TimeSpan.FromSeconds(30);
 
-    private GearDataProviderConfiguration _config = GearDataProviderConfiguration.Disabled;
+
     private Character? _curChar;
     private ulong _curCharContentId;
 
@@ -26,25 +28,20 @@ internal class OwnCharacterDataProvider : IGearDataProvider
     private TimeSpan _timeSinceLastWalletUpdate;
     public OwnCharacterDataProvider(IPlayerState playerState, IClientState clientState, IFramework framework,
                                     ILogger logger,
-                                    HrtDataManager hrtDataManager)
+                                    HrtDataManager hrtDataManager, ConfigurationManager configurationManager)
     {
         _playerState = playerState;
         _clientState = clientState;
         _framework = framework;
         _logger = logger;
         _hrtDataManager = hrtDataManager;
+        _configurationManager = configurationManager;
         _timeSinceLastGearUpdate = _timeBetweenGearUpdates;
         _timeSinceLastWalletUpdate = _timeBetweenWalletUpdates;
         _clientState.ClassJobChanged += UpdateJobAndGear;
         _clientState.LevelChanged += UpdateJobAndGear;
         _framework.Update += OnFrameworkUpdate;
     }
-    public void Enable(GearDataProviderConfiguration config)
-    {
-        if (_disposed) return;
-        _config = config;
-    }
-    public void Disable() => _config = GearDataProviderConfiguration.Disabled;
     public void Dispose()
     {
         if (_disposed) return;
@@ -55,7 +52,7 @@ internal class OwnCharacterDataProvider : IGearDataProvider
     }
     private void OnFrameworkUpdate(IFramework framework)
     {
-        if (_disposed || !_config.Enabled || !_playerState.IsLoaded) return;
+        if (_disposed || !Configuration.UpdateOwnData || !_playerState.IsLoaded) return;
         _timeSinceLastWalletUpdate += framework.UpdateDelta;
         _timeSinceLastGearUpdate += framework.UpdateDelta;
         if (_timeSinceLastWalletUpdate < _timeBetweenWalletUpdates) return;
@@ -109,14 +106,16 @@ internal class OwnCharacterDataProvider : IGearDataProvider
         if (!_playerState.IsLoaded || _curChar == null) return;
         var job = (Job)rawJob;
         int level = rawLevel == 0 ? _playerState.Level : (int)rawLevel;
-        if (job.IsCombatJob() && !_config.CombatJobsEnabled) return;
-        if (job.IsDoH() && !_config.DoHEnabled) return;
-        if (job.IsDoL() && !_config.DoLEnabled) return;
+        if (job.IsCombatJob() && !Configuration.UpdateCombatJobs) return;
+        if (job.IsDoH() && !Configuration.UpdateDoHJobs) return;
+        if (job.IsDoL() && !Configuration.UpdateDoLJobs) return;
         _logger.Debug("UpdateJobAndGear: {Job} {Level}", job, level);
         var targetClass = _curChar[job] ?? _curChar.AddClass(job);
         if (targetClass.Level < level) targetClass.Level = level;
-        CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass, _config.MinILvlDowngrade,
+        CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass,
+                                                   Configuration.MinILvlDowngrade,
                                                    _logger, _hrtDataManager);
         _timeSinceLastGearUpdate = TimeSpan.Zero;
     }
+
 }

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Web;
+using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.Connectors.Utils;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -9,9 +10,23 @@ using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
-internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager taskManager, ILogger logger)
-    : WebConnector(logger, new RateLimit(5, TimeSpan.FromSeconds(10))), IReadOnlyGearConnector
+internal class XivGearAppConnector : WebConnector, IReadOnlyGearConnector
 {
+    private readonly HrtDataManager _hrtDataManager;
+    private readonly TaskManager _taskManager;
+    public XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager taskManager, ILogger logger,
+                               ConfigurationManager configurationManager) : base(
+        logger, new RateLimit(5, TimeSpan.FromSeconds(10)))
+    {
+        _hrtDataManager = hrtDataManager;
+        _taskManager = taskManager;
+
+        _taskManager.RegisterTask(
+            new HrtTask<HrtUiMessage>(
+                () => UpdateAllSets(configurationManager.CoreConfig.Data.UpdateXivGearBisOnStartup,
+                                    configurationManager.CoreConfig.Data.XivGearUpdateIntervalDays),
+                logger.Write, $"Update {GearSetManager.XivGear.FriendlyName()} sets"));
+    }
     private const string WEB_BASE_URL = "https://xivgear.app/?page=sl|";
     private const string GEAR_WEB_BASE_URL = WEB_BASE_URL + "?page=sl|";
     private const string API_BASE_URL = "https://api.xivgear.app/";
@@ -64,7 +79,7 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
                                      string taskName = "Gearset Update")
     {
         messageCallback ??= _ => { };
-        taskManager.RegisterTask(new HrtTask<HrtUiMessage>(() => UpdateGearSet(set), messageCallback, taskName));
+        _taskManager.RegisterTask(new HrtTask<HrtUiMessage>(() => UpdateGearSet(set), messageCallback, taskName));
     }
     public HrtUiMessage UpdateGearSet(GearSet set)
     {
@@ -142,8 +157,8 @@ internal class XivGearAppConnector(HrtDataManager hrtDataManager, TaskManager ta
         var oldestValid = DateTime.UtcNow - new TimeSpan(maxAgeInDays, 0, 0, 0);
         int totalCount = 0;
         int updateCount = 0;
-        foreach (var gearSet in hrtDataManager.GetTable<GearSet>().GetValues()
-                                              .Where(set => set.ManagedBy == GearSetManager.XivGear))
+        foreach (var gearSet in _hrtDataManager.GetTable<GearSet>().GetValues()
+                                               .Where(set => set.ManagedBy == GearSetManager.XivGear))
         {
             totalCount++;
             if (gearSet.IsEmpty || gearSet.LastExternalFetchDate < oldestValid && updateAll)

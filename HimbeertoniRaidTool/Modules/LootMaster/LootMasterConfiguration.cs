@@ -15,7 +15,7 @@ namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfiguration.ConfigData, LootMasterModule,
     LootMasterConfiguration.ConfigUi>
 {
-    public LootMasterConfiguration(LootMasterModule hrtModule) : base(hrtModule)
+    public LootMasterConfiguration(IModuleServiceContainer serviceContainer) : base(serviceContainer)
     {
         Ui = new ConfigUi(this);
 
@@ -140,7 +140,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             ImGui.Separator();
             ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
             ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {_dataCopy.RolePriority}");
-            _dataCopy.RolePriority.DrawEdit((string s, ref int i) => ImGui.InputInt(s, ref i));
+            _dataCopy.RolePriority.DrawEdit((s, ref i) => ImGui.InputInt(s, ref i));
         }
 
         public void OnHide() { }
@@ -149,7 +149,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         {
             _config.Data.BeforeSave();
             _dataCopy = _config.Data.Clone();
-            _dataCopy.AfterLoad(_config.Module.Services.HrtDataManager);
+            _dataCopy.AfterLoad(_config.Services.HrtDataManager);
             _lootList = new UiSortableList<LootRule>(LootRuling.PossibleRules, _dataCopy.LootRuling.RuleSet);
         }
 
@@ -158,7 +158,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             _dataCopy.LootRuling.RuleSet = [.._lootList.List];
             _dataCopy.BeforeSave();
             _config.Data = _dataCopy;
-            _config.Data.AfterLoad(_config.Module.Services.HrtDataManager);
+            _config.Data.AfterLoad(_config.Services.HrtDataManager);
         }
     }
 
@@ -170,6 +170,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         [JsonProperty("RaidGroupIds", ObjectCreationHandling = ObjectCreationHandling.Replace)]
         private List<HrtId> _raidGroupIds = new();
         [JsonProperty("UserItemFormat")]
+        // ReSharper disable once ReplaceWithFieldKeyword
         private string _userItemFormat = "{source} {slot}";
         [JsonProperty]
         public bool ColoredItemNames = true;
@@ -187,8 +188,6 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             //30 or more below
             new(0.85f, 0.17f, 0.17f, 1f),
         };
-        //retired on 2024-12-29
-        [JsonProperty("LastGroupIndex")] private int LastGroupIndex { set => ActiveGroupIndex = value; }
 
         [JsonProperty("ActiveGroupIndex")]
         public int ActiveGroupIndex;
@@ -198,15 +197,15 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public LootRuling LootRuling = new()
         {
-            RuleSet = new List<LootRule>
-            {
-                new(LootRuleEnum.BisOverUpgrade),
-                new(LootRuleEnum.RolePrio),
-                new(LootRuleEnum.DpsGain),
-                new(LootRuleEnum.HighestItemLevelGain),
-                new(LootRuleEnum.LowestItemLevel),
-                new(LootRuleEnum.Random),
-            },
+            RuleSet =
+            [
+                new LootRule(LootRuleEnum.BisOverUpgrade),
+                new LootRule(LootRuleEnum.RolePrio),
+                new LootRule(LootRuleEnum.DpsGain),
+                new LootRule(LootRuleEnum.HighestItemLevelGain),
+                new LootRule(LootRuleEnum.LowestItemLevel),
+                new LootRule(LootRuleEnum.Random),
+            ],
         };
         /*
          * Appearance

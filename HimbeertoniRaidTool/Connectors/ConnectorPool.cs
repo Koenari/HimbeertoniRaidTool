@@ -5,17 +5,18 @@ using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Connectors;
 
-internal class ConnectorPool : IDisposable
+public class ConnectorPool : IDisposable
 {
     private readonly EtroConnector _etroConnector;
     internal readonly LodestoneConnector LodestoneConnector;
     private readonly XivGearAppConnector _xivGearAppConnector;
 
-    internal ConnectorPool(HrtDataManager hrtDataManager, TaskManager tm, IDataManager dataManager, ILogger log)
+    internal ConnectorPool(HrtDataManager hrtDataManager, TaskManager tm, IDataManager dataManager, ILogger log,
+                           ConfigurationManager configurationManager)
     {
-        _etroConnector = new EtroConnector(hrtDataManager, tm, log, dataManager);
+        _etroConnector = new EtroConnector(hrtDataManager, tm, log, dataManager, configurationManager);
         LodestoneConnector = new LodestoneConnector(hrtDataManager, dataManager, log);
-        _xivGearAppConnector = new XivGearAppConnector(hrtDataManager, tm, log);
+        _xivGearAppConnector = new XivGearAppConnector(hrtDataManager, tm, log, configurationManager);
     }
 
     public bool TryGetConnector(GearSetManager type, [NotNullWhen(true)] out IReadOnlyGearConnector? connector)

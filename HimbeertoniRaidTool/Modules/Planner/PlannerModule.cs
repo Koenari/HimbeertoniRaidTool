@@ -1,4 +1,5 @@
 using System.Globalization;
+using Dalamud.Interface;
 using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -20,6 +21,7 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
     public static bool CanBeDisabled => true;
 
     #endregion
+
     public PlannerModuleConfig Configuration { get; }
 
     public RaidSession? ActiveSession { get; private set; }
@@ -28,37 +30,35 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
 
     private IEnumerable<RaidSession> _sessions => Services.HrtDataManager.GetTable<RaidSession>().GetValues();
 
-    public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
-    {
-        new("/planner", OnCommand)
+    public IList<HrtCommand> Commands =>
+    [
+        new("/planner", OnCommand, PlannerLoc.Commands_calenadr_helpText, ["/calendar", "/cal"])
         {
-            AltCommands = new List<string>
-            {
-                "/calendar",
-                "/cal",
-            },
-            Description = PlannerLoc.Commands_calenadr_helpText,
-            ShowInHelp = true,
             ShouldExposeToDalamud = true,
-
         },
-    };
+    ];
+    public IList<ButtenDescriptor> GlobalButtons =>
+    [
+        new(FontAwesomeIcon.Calendar, "##showPlanner", "Show calendar", _calendarUi.Show),
+    ];
     public IModuleServiceContainer Services { get; }
 
     public event Action? UiReady;
 
-    private PlannerModule(IModuleServiceContainer services)
+    private PlannerModule(IModuleServiceContainer services, PlannerModuleConfig config)
     {
         Services = services;
         PlannerLoc.Culture = Services.LocalizationManager.CurrentLocale;
-        Configuration = new PlannerModuleConfig(this);
+        Configuration = config;
         _calendarUi = new CalendarUi(this);
         Services.UiSystem.AddWindow(_calendarUi);
         Services.ClientState.Login += OnLogin;
         Services.Framework.Update += Update;
     }
 
-    public static PlannerModule Create(IModuleServiceContainer services) => new(services);
+    public static PlannerModule Create(IModuleServiceContainer services, PlannerModuleConfig config) =>
+        new(services, config);
+    public static PlannerModuleConfig CreateConfiguration(IModuleServiceContainer services) => new(services);
 
     /// <summary>
     /// Gets all raid sessions in the specified time frame

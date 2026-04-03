@@ -13,15 +13,18 @@ internal class LootSessionUi : HrtWindow
     private const string RULES_POPUP_ID = "RulesButtonPopup";
     private readonly UiSortableList<LootRule> _ruleListUi;
     private readonly LootSession _session;
-    private IModuleManifest<PlannerModule> _plannerModule { get; }
     private LootMasterConfiguration.ConfigData _curConfig { get; }
+    private IModuleServiceContainer _services { get; }
 
     internal LootSessionUi(LootMasterModule module, InstanceWithLoot lootSource, RaidGroup group) : base(
         module.Services.UiSystem)
     {
-        _plannerModule = module.Services.ModuleManager.PlannerModule;
         _curConfig = module.Configuration.Data;
+        _services = module.Services;
+        var raidSessionResult =
+            _services.ModuleManager.ExecuteIntegration<PlannerModule, RaidSession?>(GetCurrentRaidSessionIntegration);
         _session = new LootSession(module, lootSource, group);
+        _session.RaidSession = raidSessionResult.ReturnValue;
         _ruleListUi = new UiSortableList<LootRule>(LootRuling.PossibleRules, _curConfig.LootRuling.RuleSet);
 
         MinSize = new Vector2(600, 300);
@@ -30,6 +33,28 @@ internal class LootSessionUi : HrtWindow
         Title = string.Format(LootmasterLoc.LootSessionUi_Title, lootSource.Name);
         Flags = ImGuiWindowFlags.AlwaysAutoResize;
         OpenCentered = true;
+    }
+
+    private static RaidSession? GetCurrentRaidSessionIntegration(PlannerModule plannerModule) =>
+        plannerModule.ActiveSession;
+
+    private void DrawPlannerIntegration(PlannerModule plannerModule)
+    {
+        ImGui.SameLine();
+        using var combo = ImRaii.Combo("##session", _session.RaidSession?.ToString() ?? "None");
+        if (combo)
+        {
+            if (ImGui.Selectable("None"))
+                _session.RaidSession = null;
+            foreach (var session in plannerModule.GetRaidSessions())
+            {
+                if (ImGui.Selectable(session.ToString()) && session != _session.RaidSession)
+                    _session.RaidSession = session;
+            }
+        }
+        ImGui.SameLine();
+        if (ImGuiHelper.AddButton<RaidSession>("activeSession"))
+            plannerModule.CreateActiveRaidSession(_session.Group, rs => _session.RaidSession = rs);
     }
 
     public override void Draw()
@@ -69,25 +94,9 @@ internal class LootSessionUi : HrtWindow
                     }
                 }
             }
+            _services.ModuleManager.ExecuteIntegration<PlannerModule>(DrawPlannerIntegration);
 
-            if (_plannerModule.Loaded)
-            {
-                ImGui.SameLine();
-                using var combo = ImRaii.Combo("##session", _session.RaidSession?.ToString() ?? "None");
-                if (combo)
-                {
-                    if (ImGui.Selectable("None"))
-                        _session.RaidSession = null;
-                    foreach (var session in _plannerModule.Module.GetRaidSessions())
-                    {
-                        if (ImGui.Selectable(session.ToString()) && session != _session.RaidSession)
-                            _session.RaidSession = session;
-                    }
-                }
-            }
-            ImGui.SameLine();
-            if (ImGuiHelper.AddButton<RaidSession>("activeSession", _plannerModule.Loaded) && _plannerModule.Loaded)
-                _plannerModule.Module.CreateActiveRaidSession(_session.Group, rs => _session.RaidSession = rs);
+
             ImGui.SameLine();
             ImGui.Text(" ");
             ImGui.SameLine();

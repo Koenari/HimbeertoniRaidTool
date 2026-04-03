@@ -24,7 +24,8 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
     private readonly Dictionary<uint, FoodItem> _foodLookup = [];
     private readonly TaskManager _taskManager;
     private readonly HrtDataManager _hrtDataManager;
-    internal EtroConnector(HrtDataManager hrtDataManager, TaskManager tm, ILogger log, IDataManager dataManager) : base(
+    internal EtroConnector(HrtDataManager hrtDataManager, TaskManager tm, ILogger log, IDataManager dataManager,
+                           ConfigurationManager configurationManager) : base(
         log, new RateLimit(10, new TimeSpan(0, 0, 30)))
     {
         _hrtDataManager = hrtDataManager;
@@ -33,20 +34,19 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
         {
             _bisCache.Add(job, []);
         }
-        _taskManager.RegisterTask(new HrtTask<HrtUiMessage>(FillBisList,
-                                                            msg =>
-                                                            {
-                                                                if (msg.MessageType == HrtUiMessageType.Failure)
-                                                                    Logger.Error(msg.Message);
-                                                                else
-                                                                    Logger.Information(msg.Message);
-                                                            }, "Load BiS list from etro"));
+        _taskManager.RegisterTask(new HrtTask<HrtUiMessage>(FillBisList, log.Write, "Load BiS list from etro"));
         foreach (var food in dataManager.Excel.GetSheet<LuminaItem>()
                                         .Where(ItemExtensions.IsFood))
         {
             _foodLookup[food.ItemAction.Value.Data[1]] = new FoodItem(food.RowId);
 
         }
+        _taskManager.RegisterTask(
+            new HrtTask<HrtUiMessage>(
+                () => UpdateAllSets(configurationManager.CoreConfig.Data.UpdateEtroBisOnStartup,
+                                    configurationManager.CoreConfig.Data.EtroUpdateIntervalDays),
+                log.Write, $"Update {GearSetManager.Etro.FriendlyName()} sets")
+        );
     }
     private static JsonSerializerSettings JsonSettings => new()
     {

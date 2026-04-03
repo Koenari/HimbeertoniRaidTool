@@ -9,7 +9,7 @@ namespace HimbeertoniRaidTool.Plugin.Modules.Planner;
 internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.ConfigData, PlannerModule,
     PlannerModuleConfig.ConfigUi>
 {
-    public PlannerModuleConfig(PlannerModule module) : base(module)
+    public PlannerModuleConfig(IModuleServiceContainer serviceContainer) : base(serviceContainer)
     {
         Ui = new ConfigUi(this);
     }

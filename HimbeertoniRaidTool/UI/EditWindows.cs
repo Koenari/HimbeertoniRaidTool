@@ -15,7 +15,7 @@ using EnumExtensions = HimbeertoniRaidTool.Common.Extensions.EnumExtensions;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-public class EditWindowFactory(IGlobalServiceContainer services)
+public class EditWindowFactory(IServiceContainer services)
 {
     private HrtDataManager _dataManager => services.HrtDataManager;
     private ConnectorPool _connectorPool => services.ConnectorPool;

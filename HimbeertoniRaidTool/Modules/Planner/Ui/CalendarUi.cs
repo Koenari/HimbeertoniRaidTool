@@ -63,6 +63,7 @@ internal class CalendarUi : HrtWindow
 
     private void DrawHeader()
     {
+        _module.Services.ModuleManager.DrawGlobalButtons();
         if (ImGuiHelper.Button(FontAwesomeIcon.AngleLeft, "prevMonth", "Show last month"))
         {
             if (_month == Month.January)

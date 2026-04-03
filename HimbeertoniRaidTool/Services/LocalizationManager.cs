@@ -32,6 +32,7 @@ internal class LocalizationManager : IDisposable
             _logger.Information("Loading Localization for {LanguageCode}", languageCode);
             CurrentLocale = new CultureInfo(languageCode);
             GeneralLoc.Culture = CurrentLocale;
+            CoreLoc.Culture = CurrentLocale;
             OnLanguageChanged?.Invoke(CurrentLocale);
         }
         catch (Exception ex)

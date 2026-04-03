@@ -1,30 +1,37 @@
 using System.Diagnostics.CodeAnalysis;
-using Dalamud.Game.Command;
+using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
 using Dalamud.Plugin;
-using Dalamud.Plugin.Services;
-using HimbeertoniRaidTool.Plugin.DataManagement;
+using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.Modules.Planner;
-using HimbeertoniRaidTool.Plugin.Modules.Core;
 using HimbeertoniRaidTool.Plugin.Modules.LootMaster;
-using Newtonsoft.Json;
+using HimbeertoniRaidTool.Plugin.UI;
 using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal class ModuleManager
+internal interface IModuleScopedModuleManager
 {
-    public IModuleManifest<CoreModule> CoreModule => _coreModule;
-    public IModuleManifest<LootMasterModule> LootMasterModule => _lootMasterModule;
-    public IModuleManifest<PlannerModule> PlannerModule => _plannerModule;
+    void DrawGlobalButtons();
+    (bool Sucess, TReturn? ReturnValue) ExecuteIntegration<TCallee, TReturn>(
+        Func<TCallee, TReturn> integrationFunc)
+        where TCallee : class, IHrtModule;
+    void ExecuteIntegration<TCallee>(Action<TCallee> integrationFunc)
+        where TCallee : class, IHrtModule;
+}
 
-    private const string CONFIG_FILE_NAME = "ModuleManager";
-    private readonly ConfigData _config = new();
+internal interface IModuleManager
+{
+    IEnumerable<IModuleManifest> GetAvailableModules();
+    internal void LoadModules();
+    void Dispose();
+}
 
-    private readonly ModuleManifest<CoreModule> _coreModule;
-    private readonly ModuleManifest<LootMasterModule> _lootMasterModule;
-    private readonly ModuleManifest<PlannerModule> _plannerModule;
-
+internal class ModuleManager : IModuleManager
+{
+    private readonly ModuleManifest<LootMasterModule, LootMasterConfiguration> _lootMasterModule;
+    private readonly ModuleManifest<PlannerModule, PlannerModuleConfig> _plannerModule;
 
     private IEnumerable<IInternalModuleManifest> _availableModules
     {
@@ -34,42 +41,46 @@ internal class ModuleManager
             yield return _plannerModule;
         }
     }
-    private readonly HashSet<string> _dalamudRegisteredCommands = [];
     private readonly ILogger _logger;
     private readonly ConfigurationManager _configurationManager;
-    private readonly HrtDataManager _dataManager;
-    private readonly ICommandManager _commandManager;
+    private readonly CommandManager _commandManager;
     private readonly LocalizationManager _localizationManager;
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly ServiceContainerFactory _serviceContainerFactory;
 
-    public ModuleManager(ILogger logger, ConfigurationManager configurationManager, HrtDataManager dataManager,
-                         ICommandManager commandManager, LocalizationManager localizationManager,
+    public ModuleManager(ILogger logger, ConfigurationManager configurationManager,
+                         CommandManager commandManager, LocalizationManager localizationManager,
                          IDalamudPluginInterface pluginInterface, ServiceContainerFactory serviceContainerFactory)
     {
         _configurationManager = configurationManager;
-        _dataManager = dataManager;
         _commandManager = commandManager;
         _logger = logger;
         _localizationManager = localizationManager;
         _pluginInterface = pluginInterface;
         _serviceContainerFactory = serviceContainerFactory;
-        _dataManager.ModuleConfigurationManager.LoadConfiguration(CONFIG_FILE_NAME, ref _config);
-        _coreModule = new ModuleManifest<CoreModule>(this);
-        _lootMasterModule = new ModuleManifest<LootMasterModule>(this, _config.IsModuleEnabled<LootMasterModule>());
-        _plannerModule = new ModuleManifest<PlannerModule>(this, _config.IsModuleEnabled<PlannerModule>());
+        _lootMasterModule = new ModuleManifest<LootMasterModule, LootMasterConfiguration>(
+            new ModuleScopedModuleManager<LootMasterModule>(this),
+            configurationManager.CoreConfig.Data
+                                .IsModuleEnabled<LootMasterModule>());
+        _plannerModule = new ModuleManifest<PlannerModule, PlannerModuleConfig>(
+            new ModuleScopedModuleManager<PlannerModule>(this),
+            configurationManager.CoreConfig.Data
+                                .IsModuleEnabled<PlannerModule>());
+        _configurationManager.CoreConfig.OnConfigChange += UpdateConfiguration;
     }
 
-    internal void UpdateConfiguration(Dictionary<IModuleManifest, bool> moduleConfigurationUpdate)
+    public void UpdateConfiguration()
     {
-        foreach ((var manifest, bool enabledNew) in moduleConfigurationUpdate)
+        foreach ((string internalName, bool enabledNew) in _configurationManager.CoreConfig.Data.ModulesEnabled)
         {
+            var manifest = _availableModules.FirstOrDefault(m => m?.InternalName == internalName, null);
+            if (manifest == null) continue;
             if (manifest.Enabled == enabledNew) continue;
             var internalManifest =
                 _availableModules.FirstOrDefault(m => m?.InternalName == manifest.InternalName, null);
             if (internalManifest == null) continue;
-            _config.ModuleEnabled[internalManifest.InternalName] = enabledNew;
-            if (_config.ModuleEnabled[internalManifest.InternalName])
+            _configurationManager.CoreConfig.Data.ModulesEnabled[internalManifest.InternalName] = enabledNew;
+            if (_configurationManager.CoreConfig.Data.ModulesEnabled[internalManifest.InternalName])
             {
                 internalManifest.Enable();
             }
@@ -80,22 +91,18 @@ internal class ModuleManager
         }
     }
 
-    public IEnumerable<IModuleManifest> GetAvailableModules()
-    {
-        yield return _coreModule;
-        foreach (var moduleManifest in _availableModules)
-        {
-            yield return moduleManifest;
-        }
-    }
+    internal IModuleManifest<TModule>? GetModule<TModule>()
+        where TModule : class, IHrtModule =>
+        _availableModules.FirstOrDefault(m => m?.InternalName == TModule.InternalName,
+                                         null) as IModuleManifest<TModule>;
 
-    internal void LoadModules()
+    public IEnumerable<IModuleManifest> GetAvailableModules() => _availableModules;
+
+    public void LoadModules()
     {
-        //Ensure core module is loaded first
-        _coreModule.Enable();
         foreach (var moduleManifest in _availableModules)
         {
-            if (!_config.IsModuleEnabled(moduleManifest.InternalName))
+            if (!_configurationManager.CoreConfig.Data.IsModuleEnabled(moduleManifest.InternalName))
                 moduleManifest.Disable();
             moduleManifest.Load();
         }
@@ -103,84 +110,87 @@ internal class ModuleManager
             _pluginInterface.UiBuilder.OpenMainUi += _lootMasterModule.Module.ShowUi;
     }
 
-    private IModuleServiceContainer CreateModuleServiceContainer<TModule>() where TModule : IHrtModule =>
-        _serviceContainerFactory.CreateModuleServiceContainer<TModule>();
 
-    private void RemoveCommand(HrtCommand command)
+
+    internal void DrawGlobalButtons<TModule>() where TModule : IHrtModule
     {
-        if (_dalamudRegisteredCommands.Remove(command.Command))
-            _commandManager.RemoveHandler(command.Command);
-        foreach (string altCommand in command.AltCommands)
+        if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "##showConfig", LootmasterLoc.ui_btn_tt_showConfig))
+            _configurationManager.Show();
+        foreach (var manifest in _availableModules)
         {
-            if (_dalamudRegisteredCommands.Remove(altCommand))
-                _commandManager.RemoveHandler(altCommand);
-        }
-        _coreModule.Module?.RemoveCommand(command);
-    }
-
-    private void AddCommand(HrtCommand command)
-    {
-        if (command.ShouldExposeToDalamud)
-        {
-            if (!_dalamudRegisteredCommands.Contains(command.Command) && _commandManager.AddHandler(command.Command,
-                    new CommandInfo(command.OnCommand)
-                    {
-                        HelpMessage = command.Description,
-                        ShowInHelp = command.ShowInHelp,
-                    }))
+            if (manifest.InternalName == TModule.InternalName) continue;
+            foreach (var descriptor in manifest.GlobalButtons)
             {
-                _dalamudRegisteredCommands.Add(command.Command);
-            }
-
-
-            if (command.ShouldExposeAltsToDalamud)
-            {
-                foreach (string alt in command.AltCommands)
-                {
-                    if (!_dalamudRegisteredCommands.Contains(alt) && _commandManager.AddHandler(alt,
-                            new CommandInfo(command.OnCommand)
-                            {
-                                HelpMessage = command.Description,
-                                ShowInHelp = false,
-                            }))
-                        _dalamudRegisteredCommands.Add(alt);
-                }
+                ImGui.SameLine();
+                if (ImGuiHelper.Button(descriptor.Icon, descriptor.Id, descriptor.ToolTip))
+                    descriptor.OnClick();
             }
         }
-
-        _coreModule.Module?.AddCommand(command);
     }
+
+
+
     public void Dispose()
     {
-        _dataManager.ModuleConfigurationManager.SaveConfiguration(CONFIG_FILE_NAME, _config);
+        _configurationManager.CoreConfig.OnConfigChange -= UpdateConfiguration;
         foreach (var module in _availableModules)
         {
             module.Unload();
         }
-        _coreModule.Unload();
-        foreach (string command in _dalamudRegisteredCommands)
+    }
+
+    internal class ModuleScopedModuleManager<TModule>(ModuleManager parent)
+        : IModuleScopedModuleManager
+        where TModule : IHrtModule
+    {
+
+
+        public void DrawGlobalButtons() => parent.DrawGlobalButtons<TModule>();
+        public (bool Sucess, TReturn? ReturnValue) ExecuteIntegration<TCallee, TReturn>(
+            Func<TCallee, TReturn> integrationFunc)
+            where TCallee : class, IHrtModule
         {
-            _logger.Error("Command \"{Command}\" was not removed by module unload", command);
-            _commandManager.RemoveHandler(command);
+            var callee = parent.GetModule<TCallee>();
+            if (callee is { Loaded: true })
+                return (true, integrationFunc(callee.Module));
+            return (false, default);
+
         }
+        public void ExecuteIntegration<TCallee>(Action<TCallee> integrationFunc)
+            where TCallee : class, IHrtModule
+        {
+            var callee = parent.GetModule<TCallee>();
+            if (callee is { Loaded: true })
+                integrationFunc(callee.Module);
+        }
+
+        internal IModuleServiceContainer CreateModuleServiceContainer() =>
+            parent._serviceContainerFactory.CreateModuleServiceContainer<TModule>(this);
+
+        internal void RemoveCommands(IEnumerable<HrtCommand> commands) =>
+            parent._commandManager.RemoveCommands(commands);
+
+        internal void AddCommands(IEnumerable<HrtCommand> commands) => parent._commandManager.AddCommands(commands);
+        public ILogger Logger => parent._logger;
+        public ConfigurationManager ConfigurationManager => parent._configurationManager;
+        public LocalizationManager LocalizationManager => parent._localizationManager;
+
     }
 
     private interface IInternalModuleManifest : IModuleManifest
     {
-        public void Enable();
+        void Enable();
 
-        public void Disable();
+        void Disable();
 
         internal void Load();
 
         internal void Unload();
+        IList<ButtenDescriptor> GlobalButtons { get; }
     }
 
-    private class ModuleManifest<TModule>(
-        ModuleManager parent,
-        bool enabled = true)
-        : IInternalModuleManifest, IModuleManifest<TModule>
-        where TModule : class, IHrtModule<TModule, IHrtConfiguration>
+    private class ModuleManifest<TModule, TConfig> : IInternalModuleManifest, IModuleManifest<TModule>
+        where TModule : class, IHrtModule<TModule, TConfig> where TConfig : IHrtModuleConfiguration
     {
         public string InternalName => TModule.InternalName;
 
@@ -195,8 +205,24 @@ internal class ModuleManager
 
         public bool CanBeDisabled => TModule.CanBeDisabled;
 
-        public bool Enabled { get; private set; } = enabled | !TModule.CanBeDisabled;
+        public bool Enabled { get; private set; }
         public event Action<IModuleManifest<TModule>>? StateChanged;
+
+        public IList<ButtenDescriptor> GlobalButtons => Module?.GlobalButtons ?? Array.Empty<ButtenDescriptor>();
+
+        private readonly IModuleServiceContainer _serviceContainer;
+        private readonly TConfig _configuration;
+        private readonly ModuleScopedModuleManager<TModule> _parent;
+        public ModuleManifest(ModuleScopedModuleManager<TModule> parent,
+                              bool enabled = true)
+        {
+            _parent = parent;
+            Enabled = enabled | !TModule.CanBeDisabled;
+            _serviceContainer = parent.CreateModuleServiceContainer();
+            _configuration = TModule.CreateConfiguration(_serviceContainer);
+            parent.ConfigurationManager.RegisterConfig(_configuration);
+        }
+
         public void Enable()
         {
             Enabled = true;
@@ -215,45 +241,39 @@ internal class ModuleManager
             var moduleType = typeof(TModule);
             try
             {
-                parent._logger.Debug("Creating instance of: {ModuleTypeName}", moduleType.Name);
-                var module = TModule.Create(parent.CreateModuleServiceContainer<TModule>());
-                if (parent._configurationManager.RegisterConfig(module.Configuration))
+                _parent.Logger.Debug("Creating instance of: {ModuleTypeName}", moduleType.Name);
+                var module = TModule.Create(_serviceContainer, _configuration);
+                if (_parent.ConfigurationManager.RegisterConfig(module.Configuration))
                     module.Configuration.AfterLoad();
                 else
-                    parent._logger.Error("Configuration load error:{S}", TModule.Name);
-                parent._logger.Debug("Calling {S}.AfterFullyLoaded()", TModule.InternalName);
+                    _parent.Logger.Error("Configuration load error:{S}", TModule.Name);
+                _parent.Logger.Debug("Calling {S}.AfterFullyLoaded()", TModule.InternalName);
                 module.AfterFullyLoaded();
-                parent._localizationManager.OnLanguageChanged += module.OnLanguageChange;
-                foreach (var command in module.Commands)
-                {
-                    parent.AddCommand(command);
-                }
-                parent._logger.Information("Successfully loaded module: {S}", TModule.Name);
+                _parent.LocalizationManager.OnLanguageChanged += module.OnLanguageChange;
+                _parent.AddCommands(module.Commands);
+                _parent.Logger.Information("Successfully loaded module: {S}", TModule.Name);
                 Module = module;
                 StateChanged?.Invoke(this);
             }
             catch (Exception e)
             {
-                parent._logger.Error(e, "Failed to load module: {ModuleTypeName}", moduleType.Name);
+                _parent.Logger.Error(e, "Failed to load module: {ModuleTypeName}", moduleType.Name);
             }
         }
 
         public void Unload()
         {
             if (Module == null) return;
-            foreach (var command in Module.Commands)
-            {
-                parent.RemoveCommand(command);
-            }
+            _parent.RemoveCommands(Module.Commands);
             try
             {
-                parent._localizationManager.OnLanguageChanged -= Module.OnLanguageChange;
+                _parent.LocalizationManager.OnLanguageChanged -= Module.OnLanguageChange;
                 Module.Dispose();
                 Module.Services.Dispose();
             }
             catch (Exception e)
             {
-                parent._logger.Fatal(e, "Unable to Dispose module \"{Type}\"", typeof(TModule));
+                _parent.Logger.Fatal(e, "Unable to Dispose module \"{Type}\"", typeof(TModule));
             }
             finally
             {
@@ -263,42 +283,36 @@ internal class ModuleManager
         }
     }
 
-    private class ConfigData : IHrtConfigData
-    {
-        [JsonProperty] public Dictionary<string, bool> ModuleEnabled { get; set; } = [];
+}
 
-        public bool IsModuleEnabled<TModule>() where TModule : IHrtModule => IsModuleEnabled(TModule.InternalName);
+internal static class ConfigDataExtension
+{
+    public static bool IsModuleEnabled<TModule>(this CoreConfig.ConfigData data) where TModule : IHrtModule =>
+        data.IsModuleEnabled(TModule.InternalName);
 
-        public bool IsModuleEnabled(string internalName) =>
-            ModuleEnabled.TryAdd(internalName, true) || ModuleEnabled[internalName];
-
-        public void AfterLoad(HrtDataManager dataManager) { }
-
-        public void BeforeSave() { }
-    }
-
-
+    public static bool IsModuleEnabled(this CoreConfig.ConfigData data, string internalName) =>
+        data.ModulesEnabled.TryAdd(internalName, true) || data.ModulesEnabled[internalName];
 }
 
 public interface IModuleManifest<out TModule> : IModuleManifest where TModule : class, IHrtModule
 {
-    public TModule? Module { get; }
+    TModule? Module { get; }
 
     [MemberNotNullWhen(true, nameof(Module))]
-    public bool Loaded { get; }
+    bool Loaded { get; }
 
-    public event Action<IModuleManifest<TModule>>? StateChanged;
+    event Action<IModuleManifest<TModule>>? StateChanged;
 }
 
 public interface IModuleManifest
 {
-    public string InternalName { get; }
+    string InternalName { get; }
 
-    public string Name { get; }
+    string Name { get; }
 
-    public string Description { get; }
+    string Description { get; }
 
-    public bool CanBeDisabled { get; }
+    bool CanBeDisabled { get; }
 
-    public bool Enabled { get; }
+    bool Enabled { get; }
 }

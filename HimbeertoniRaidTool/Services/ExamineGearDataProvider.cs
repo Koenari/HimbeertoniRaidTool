@@ -12,25 +12,28 @@ using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal class ExamineGearDataProvider : IGearDataProvider
+internal class ExamineGearDataProvider : IDisposable
 {
     private readonly ILogger _logger;
     private readonly IObjectTable _objectTable;
     private readonly HrtDataManager _hrtDataManager;
     private readonly CharacterInfoService _characterInfoService;
     private readonly ConnectorPool _connectorPool;
+    private readonly ConfigurationManager _configurationManager;
+    private CoreConfig.ConfigData Configuration => _configurationManager.CoreConfig.Data;
     private readonly Hook<AddonCharacterInspect.Delegates.OnRefresh>? _hook;
-    private GearDataProviderConfiguration _configuration;
+    //private GearDataProviderConfiguration _configuration;
 
     internal ExamineGearDataProvider(IGameInteropProvider iopProvider, ILogger logger, IObjectTable objectTable,
                                      HrtDataManager hrtDataManager, CharacterInfoService characterInfoService,
-                                     ConnectorPool connectorPool)
+                                     ConnectorPool connectorPool, ConfigurationManager configurationManager)
     {
         _logger = logger;
         _objectTable = objectTable;
         _hrtDataManager = hrtDataManager;
         _characterInfoService = characterInfoService;
         _connectorPool = connectorPool;
+        _configurationManager = configurationManager;
         try
         {
             unsafe
@@ -45,22 +48,20 @@ internal class ExamineGearDataProvider : IGearDataProvider
             _hook = null;
             _logger.Error(e, "Unable to load examine hook");
         }
-
+        _configurationManager.CoreConfig.OnConfigChange += OnConfigurationChanged;
     }
 
-    public void Enable(GearDataProviderConfiguration configuration)
+    public void OnConfigurationChanged()
     {
-        _configuration = configuration;
-        _hook?.Enable();
-    }
-    public void Disable()
-    {
-        _configuration = GearDataProviderConfiguration.Disabled;
-        _hook?.Disable();
+        if (Configuration.UpdateGearOnExamine)
+            _hook?.Enable();
+        else
+            _hook?.Disable();
     }
 
     public void Dispose()
     {
+        _configurationManager.CoreConfig.OnConfigChange -= OnConfigurationChanged;
         if (_hook is null || _hook.IsDisposed)
             return;
         _hook.Dispose();
@@ -76,7 +77,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
 
     private void GetItemInfos()
     {
-        if (!_configuration.Enabled)
+        if (!Configuration.UpdateGearOnExamine)
             return;
         uint entityId;
         unsafe
@@ -120,9 +121,9 @@ internal class ExamineGearDataProvider : IGearDataProvider
         targetChar.Name = sourceChar.Name.TextValue;
 
         var targetJob = sourceChar.GetJob();
-        if (targetJob.IsCombatJob() && !_configuration.CombatJobsEnabled
-         || targetJob.IsDoH() && !_configuration.DoHEnabled
-         || targetJob.IsDoL() && !_configuration.DoLEnabled)
+        if (targetJob.IsCombatJob() && !Configuration.UpdateCombatJobs
+         || targetJob.IsDoH() && !Configuration.UpdateDoHJobs
+         || targetJob.IsDoL() && !Configuration.UpdateDoLJobs)
             return;
         var targetClass = targetChar[targetJob];
         if (targetClass == null)
@@ -161,7 +162,7 @@ internal class ExamineGearDataProvider : IGearDataProvider
         try
         {
             if (CsHelpers.UpdateGearFromInventoryContainer(InventoryType.Examine, targetClass,
-                                                           _configuration.MinILvlDowngrade, _logger, _hrtDataManager))
+                                                           Configuration.MinILvlDowngrade, _logger, _hrtDataManager))
             {
                 _logger.Information("Updated Gear for: {TargetCharName} @ {ReadOnlySeString}", targetChar.Name,
                                     targetChar.HomeWorld?.Name);

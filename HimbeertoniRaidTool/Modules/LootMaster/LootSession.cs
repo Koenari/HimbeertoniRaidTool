@@ -35,13 +35,7 @@ public class LootSession
         }
         _group = Group = group;
         RolePriority = group.RolePriority ?? module.Configuration.Data.RolePriority;
-        var planner = module.Services.ModuleManager.PlannerModule;
-        if (planner.Loaded)
-        {
-            var activeSession = planner.Module.ActiveSession;
-            if (activeSession is not null && activeSession.Group == group)
-                RaidSession = activeSession;
-        }
+
 
     }
     public LootRuling RulingOptions { get; set; }
@@ -58,12 +52,12 @@ public class LootSession
 
     public Dictionary<(Item, int), LootResultContainer> Results { get; } = new();
     public Dictionary<Item, bool> GuaranteedLoot { get; } = new();
-    private int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
+    private int _numLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
     public void Evaluate()
     {
         if (CurrentState < State.LootChosen)
             CurrentState = State.LootChosen;
-        if (Results.Count != NumLootItems && CurrentState < State.DistributionStarted)
+        if (Results.Count != _numLootItems && CurrentState < State.DistributionStarted)
         {
             Results.Clear();
             foreach ((var item, int count) in Loot)

@@ -5,9 +5,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
-using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
-using HimbeertoniRaidTool.Plugin.Modules.Core;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
 using XIVCalc.Interfaces;
@@ -17,7 +15,7 @@ namespace HimbeertoniRaidTool.Plugin.UI;
 
 public interface IStatTable : IDrawable;
 
-public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
+public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
 {
     private static readonly Lazy<Vector2> MaxMateriaCatSizeImpl =
         new(() => ImGui.CalcTextSize(Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? ""));
@@ -404,7 +402,7 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
     }
 
     private class StatTable(
-        IGlobalServiceContainer services,
+        IServiceContainer services,
         PlayableClass jobClass,
         Tribe? tribe,
         IReadOnlyGearSet leftGear,
@@ -415,11 +413,11 @@ public class UiHelpers(IUiSystem uiSystem, IGlobalServiceContainer services)
         StatTableCompareMode compareMode = StatTableCompareMode.Default) : IStatTable
     {
         private readonly CoreConfig? _coreConfig =
-            services.ConfigManager.TryGetConfig(typeof(CoreConfig), out CoreConfig? config) ? config : null;
+            services.ConfigManager.TryGetConfig(out CoreConfig? config) ? config : null;
         private PartyBonus? _bonusOverride;
 
         private PartyBonus _bonus =>
-            _bonusOverride ?? (services.ConfigManager.TryGetConfig(typeof(CoreConfig), out CoreConfig? config) ?
+            _bonusOverride ?? (services.ConfigManager.TryGetConfig(out CoreConfig? config) ?
                 config.Data.PartyBonus : PartyBonus.None);
 
         private GearSetStatBlock _left => new(jobClass, leftGear, tribe, _bonus);

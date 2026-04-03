@@ -1,9 +1,9 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Windowing;
+using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
-using HimbeertoniRaidTool.Plugin.Modules.Core;
 using HimbeertoniRaidTool.Plugin.UI;
 using Lumina.Excel;
 
@@ -20,6 +20,7 @@ public interface IUiSystem : IWindowSystem
 {
     EditWindowFactory EditWindows { get; }
     UiHelpers Helpers { get; }
+    ConnectorPool GetConnectorPool();
     IDalamudTextureWrap GetIcon(Item item);
     IDalamudTextureWrap GetIcon(uint iconId, bool hq);
     bool DrawConditionsMet();
@@ -44,9 +45,9 @@ internal static class UiSystemFactory
         private readonly DalamudWindowSystem _windowSystem;
         public EditWindowFactory EditWindows { get; }
         public UiHelpers Helpers { get; }
-        private IGlobalServiceContainer _services { get; }
+        private IServiceContainer _services { get; }
 
-        protected UiSystem(DalamudWindowSystem windowSystem, IGlobalServiceContainer services)
+        protected UiSystem(DalamudWindowSystem windowSystem, IServiceContainer services)
         {
             _windowSystem = windowSystem;
             _services = services;
@@ -54,7 +55,7 @@ internal static class UiSystemFactory
             Helpers = new UiHelpers(this, _services);
 
         }
-
+        public ConnectorPool GetConnectorPool() => _services.ConnectorPool;
         public IDalamudTextureWrap GetIcon(Item item) => GetIcon(item.Icon, item is HqItem { IsHq: true });
         public IDalamudTextureWrap GetIcon(uint iconId, bool hq) => _services.IconCache.LoadIcon(iconId, hq);
         public ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType> =>
@@ -69,7 +70,7 @@ internal static class UiSystemFactory
             => _services.HrtDataManager.GetTable<TData>();
 
         public bool DrawConditionsMet() =>
-            !(CoreModule.UiConfig.HideInCombat && _services.Condition[ConditionFlag.InCombat])
+            !(_services.ConfigManager.CoreConfig.Data.HideInCombat && _services.Condition[ConditionFlag.InCombat])
          && !_services.Condition[ConditionFlag.BetweenAreas];
 
         public void OpenSettingsWindow() => _services.ConfigManager.Show();

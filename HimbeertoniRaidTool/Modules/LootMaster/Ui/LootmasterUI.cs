@@ -25,7 +25,6 @@ public enum SlotDrawFlags
 internal class LootmasterUi : HrtWindow
 {
     private readonly Vector2 _buttonSize;
-    private readonly Vector2 _buttonSizeVertical;
     private readonly LootMasterModule _module;
     private readonly Queue<HrtUiMessage> _messageQueue = new();
     private (HrtUiMessage message, DateTime time)? _currentMessage;
@@ -39,7 +38,7 @@ internal class LootmasterUi : HrtWindow
         _module = lootMaster;
         Size = new Vector2(1720, 750);
         _buttonSize = new Vector2(30f, 25f);
-        _buttonSizeVertical = new Vector2(_buttonSize.Y, _buttonSize.X);
+        ButtonSizeVertical = new Vector2(_buttonSize.Y, _buttonSize.X);
         SizeCondition = ImGuiCond.FirstUseEver;
         Title = LootmasterLoc.Ui_Title;
         UiSystem.AddWindow(this);
@@ -49,7 +48,7 @@ internal class LootmasterUi : HrtWindow
     private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurConfig.ActiveGroupIndex];
     //private GameExpansion ActiveExpansion => CurConfig.ActiveExpansion;
     private Vector2 ButtonSize => _buttonSize * ScaleFactor;
-    private Vector2 ButtonSizeVertical => _buttonSizeVertical * ScaleFactor;
+    private Vector2 ButtonSizeVertical => field * ScaleFactor;
 
     private static TimeSpan MessageTimeByMessageType(HrtUiMessageType type) => type switch
     {
@@ -271,15 +270,7 @@ internal class LootmasterUi : HrtWindow
         if (CurConfig.ActiveGroupIndex > _module.RaidGroups.Count - 1 || CurConfig.ActiveGroupIndex < 0)
             CurConfig.ActiveGroupIndex = 0;
         DrawUiMessages();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "##showConfig",
-                               LootmasterLoc.ui_btn_tt_showConfig))
-            _module.Services.ConfigManager.Show();
-        if (_module.Services.ModuleManager.PlannerModule.Loaded)
-        {
-            ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Calendar, "##showPlanner", "Show calendar"))
-                _module.Services.ModuleManager.PlannerModule.Module?.OnCommand("/planner", "");
-        }
+        _module.Services.ModuleManager.DrawGlobalButtons();
 
         ImGui.SameLine();
         DrawLootHandlerButtons();
