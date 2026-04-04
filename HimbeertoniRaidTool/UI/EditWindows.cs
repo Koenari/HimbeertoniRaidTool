@@ -15,13 +15,18 @@ using EnumExtensions = HimbeertoniRaidTool.Common.Extensions.EnumExtensions;
 
 namespace HimbeertoniRaidTool.Plugin.UI;
 
-public class EditWindowFactory(IServiceContainer services)
+public class EditWindowFactory(
+    IUiSystem uiSystem,
+    HrtDataManager dataManager,
+    ConnectorPool connectorPool,
+    CharacterInfoService characterInfoService,
+    TaskManager taskManager)
 {
-    private HrtDataManager _dataManager => services.HrtDataManager;
-    private ConnectorPool _connectorPool => services.ConnectorPool;
-    private CharacterInfoService _characterInfoService => services.CharacterInfoService;
-    private TaskManager _taskManager => services.TaskManager;
-    private IUiSystem _uiSystem => services.UiSystem;
+    private readonly HrtDataManager _dataManager = dataManager;
+    private readonly ConnectorPool _connectorPool = connectorPool;
+    private readonly CharacterInfoService _characterInfoService = characterInfoService;
+    private readonly TaskManager _taskManager = taskManager;
+    private IUiSystem _uiSystem => uiSystem;
     public void Create<TData>(HrtId id, Action<TData>? onSave = null,
                               Action? onCancel = null, Action? onDelete = null,
                               object? param = null)
@@ -80,7 +85,7 @@ public class EditWindowFactory(IServiceContainer services)
             _ => null,
         };
         if (window == null) return;
-        services.UiSystem.AddWindow(window);
+        uiSystem.AddWindow(window);
         window.Show();
 
     }
@@ -193,12 +198,10 @@ public class EditWindowFactory(IServiceContainer services)
                 });
             }
 
-            if (overrideRolePriority)
-            {
-                ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
-                ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {DataCopy.RolePriority}");
-                DataCopy.RolePriority?.DrawEdit((string s, ref int i) => ImGui.InputInt(s, ref i));
-            }
+            if (!overrideRolePriority) return;
+            ImGui.Text(LootmasterLoc.ConfigUi_hdg_RolePriority);
+            ImGui.Text($"{LootmasterLoc.ConfigUi_txt_currentPrio}: {DataCopy.RolePriority}");
+            DataCopy.RolePriority?.DrawEdit((s, ref i) => ImGui.InputInt(s, ref i));
         }
     }
 

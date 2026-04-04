@@ -2,6 +2,7 @@
 using System.IO;
 using Dalamud.Utility;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.DataManagement;
 
@@ -15,7 +16,8 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
 {
     private readonly DirectoryInfo _moduleConfigDir;
     private readonly HrtDataManager _parent;
-    private static readonly JsonSerializerSettings JsonSerializerSettings = new()
+    private readonly ILogger _logger;
+    private static readonly JsonSerializerSettings _jsonSerializerSettings = new()
     {
         Formatting = Formatting.Indented,
         TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
@@ -23,9 +25,10 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
         NullValueHandling = NullValueHandling.Ignore,
 
     };
-    internal ModuleConfigurationManager(HrtDataManager parent, string configDir)
+    internal ModuleConfigurationManager(HrtDataManager parent, ILogger logger, string configDir)
     {
         _parent = parent;
+        _logger = logger;
         _moduleConfigDir = new DirectoryInfo(configDir + "\\moduleConfigs\\");
         try
         {
@@ -41,7 +44,7 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
     {
         configData.BeforeSave();
         FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
-        string json = JsonConvert.SerializeObject(configData, JsonSerializerSettings);
+        string json = JsonConvert.SerializeObject(configData, _jsonSerializerSettings);
         bool writeSuccess;
         try
         {
@@ -58,9 +61,9 @@ internal class ModuleConfigurationManager : IModuleConfigurationManager
     {
         FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
         if (!file.Exists) return true;
-        if (!_parent.TryRead(file, out string json))
+        if (!FileHelpers.TryRead(file, out string json, _logger))
             return false;
-        var fromJson = JsonConvert.DeserializeObject<T>(json, JsonSerializerSettings);
+        var fromJson = JsonConvert.DeserializeObject<T>(json, _jsonSerializerSettings);
         if (fromJson != null)
         {
             configData = fromJson;

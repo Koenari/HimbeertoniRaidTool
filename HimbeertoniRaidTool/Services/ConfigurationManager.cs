@@ -14,24 +14,21 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 public class ConfigurationManager : IDisposable
 {
     private readonly Dictionary<Type, IHrtModuleConfiguration> _configurations = new();
-    private readonly ConfigUi _ui;
+    private ConfigUi? _ui;
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly ILogger _logger;
     private readonly HrtDataManager _hrtDataManager;
-    private readonly IUiSystem _uiSystem;
     private readonly PeriodicTask _saveTask;
     internal CoreConfig CoreConfig { get; }
 
     internal ConfigurationManager(IDalamudPluginInterface pluginInterface, ILogger logger, TaskManager taskManager,
-                                  HrtDataManager hrtDataManager, IUiSystem uiSystem)
+                                  HrtDataManager hrtDataManager)
     {
         _pluginInterface = pluginInterface;
         _logger = logger;
         _hrtDataManager = hrtDataManager;
-        _uiSystem = uiSystem;
-        _ui = new ConfigUi(this);
-        _uiSystem.AddWindow(_ui);
-        CoreConfig = new CoreConfig(logger, taskManager, uiSystem);
+
+        CoreConfig = new CoreConfig();
         if (CoreConfig.Load(hrtDataManager.ModuleConfigurationManager))
             CoreConfig.AfterLoad();
         _pluginInterface.UiBuilder.OpenConfigUi += Show;
@@ -55,6 +52,12 @@ public class ConfigurationManager : IDisposable
         CoreConfig.OnConfigChange += UpdateTask;
     }
 
+    internal void InitUi(IUiSystem uiSystem)
+    {
+        _ui = new ConfigUi(this, uiSystem);
+        uiSystem.AddWindow(_ui);
+    }
+
     private void UpdateTask()
     {
         _saveTask.ShouldRun = CoreConfig.Data.SavePeriodically;
@@ -69,10 +72,10 @@ public class ConfigurationManager : IDisposable
     {
         CoreConfig.OnConfigChange -= UpdateTask;
         _pluginInterface.UiBuilder.OpenConfigUi -= Show;
-
+        Save();
     }
 
-    internal void Show() => _ui.Show();
+    internal void Show() => _ui?.Show();
 
     internal bool RegisterConfig(IHrtModuleConfiguration config)
     {
@@ -107,8 +110,8 @@ public class ConfigurationManager : IDisposable
     {
         private readonly ConfigurationManager _configManager;
 
-        public ConfigUi(ConfigurationManager configManager) : base(configManager._uiSystem,
-                                                                   "HimbeerToniRaidToolConfiguration")
+        public ConfigUi(ConfigurationManager configManager, IUiSystem uiSystem) : base(uiSystem,
+            "HimbeerToniRaidToolConfiguration")
         {
             _configManager = configManager;
             (Size, SizeCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);

@@ -60,7 +60,9 @@ internal sealed class ModuleScopedServiceContainer<TModule> : IModuleServiceCont
     {
         _globalServices = globalServices;
         Logger = new LoggingProxy(_globalServices.Logger, $"[{TModule.Name}]");
-        UiSystem = UiSystemFactory.CreateUiSystem<TModule>(this);
+        UiSystem = UiSystemFactory.CreateUiSystem<TModule>(HrtDataManager, ConnectorPool, DataManager,
+                                                           CharacterInfoService, TaskManager, ConfigManager, IconCache,
+                                                           Condition, Logger);
         _globalServices.DalamudServices.PluginInterface.UiBuilder.Draw += UiSystem.Draw;
         ModuleManager = moduleScopedModuleManager;
     }
@@ -104,10 +106,14 @@ internal class GlobalServiceContainer : IGlobalServiceContainer
         IconCache = new IconCache(DalamudServices.TextureProvider);
         TaskManager = new TaskManager(DalamudServices.Framework, Logger);
         HrtDataManager = new HrtDataManager(DalamudServices.PluginInterface, Logger, DataManager, TaskManager);
-        UiSystem = UiSystemFactory.CreateGlobalUiSystem(this);
-        ConfigManager = new ConfigurationManager(pluginInterface, Logger, TaskManager, HrtDataManager, UiSystem);
+        ConfigManager = new ConfigurationManager(pluginInterface, Logger, TaskManager, HrtDataManager);
         ConnectorPool = new ConnectorPool(HrtDataManager, TaskManager, DataManager, Logger, ConfigManager);
         CharacterInfoService = new CharacterInfoService(DalamudServices.ObjectTable, PartyList, PlayerState);
+        UiSystem = UiSystemFactory.CreateGlobalUiSystem(HrtDataManager, ConnectorPool, DataManager,
+                                                        CharacterInfoService, TaskManager, ConfigManager, IconCache,
+                                                        Condition, Logger);
+        ConfigManager.InitUi(UiSystem);
+
         _examineGearDataProvider = new ExamineGearDataProvider(DalamudServices.GameInteropProvider, Logger,
                                                                DalamudServices.ObjectTable, HrtDataManager,
                                                                CharacterInfoService,

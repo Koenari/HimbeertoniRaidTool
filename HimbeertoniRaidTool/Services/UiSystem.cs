@@ -1,11 +1,13 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Windowing;
+using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.Connectors;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.UI;
 using Lumina.Excel;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
@@ -20,7 +22,6 @@ public interface IUiSystem : IWindowSystem
 {
     EditWindowFactory EditWindows { get; }
     UiHelpers Helpers { get; }
-    ConnectorPool GetConnectorPool();
     IDalamudTextureWrap GetIcon(Item item);
     IDalamudTextureWrap GetIcon(uint iconId, bool hq);
     bool DrawConditionsMet();
@@ -35,45 +36,79 @@ public interface IUiSystem : IWindowSystem
 
 internal static class UiSystemFactory
 {
-    public static IUiSystem CreateUiSystem<TModule>(IModuleServiceContainer services)
+    public static IUiSystem CreateUiSystem<TModule>(
+        HrtDataManager hrtDataManager,
+        ConnectorPool connectorPool,
+        IDataManager dalamudDataManager,
+        CharacterInfoService characterInfoService,
+        TaskManager taskManager,
+        ConfigurationManager configManager,
+        IconCache iconCache,
+        ICondition condition,
+        ILogger logger)
         where TModule : IHrtModule =>
-        new ModuleScopedUiSystem<TModule>(services);
-    public static IUiSystem CreateGlobalUiSystem(IGlobalServiceContainer services) => new GlobalUiSystem(services);
+        new ModuleScopedUiSystem<TModule>(hrtDataManager, connectorPool, dalamudDataManager, characterInfoService,
+                                          taskManager, configManager, iconCache, condition, logger);
+    public static IUiSystem CreateGlobalUiSystem(
+        HrtDataManager hrtDataManager,
+        ConnectorPool connectorPool,
+        IDataManager dalamudDataManager,
+        CharacterInfoService characterInfoService,
+        TaskManager taskManager,
+        ConfigurationManager configManager,
+        IconCache iconCache,
+        ICondition condition,
+        ILogger logger) => new GlobalUiSystem(hrtDataManager, connectorPool, dalamudDataManager, characterInfoService,
+                                              taskManager, configManager, iconCache, condition, logger);
 
     private abstract class UiSystem : IUiSystem
     {
         private readonly DalamudWindowSystem _windowSystem;
         public EditWindowFactory EditWindows { get; }
         public UiHelpers Helpers { get; }
-        private IServiceContainer _services { get; }
+        private readonly IconCache _iconCache;
+        private readonly IDataManager _dalamudDataManager;
+        private readonly HrtDataManager _hrtDataManager;
+        private readonly ICondition _condition;
+        private readonly ConfigurationManager _configManager;
+        private readonly ILogger _logger;
 
-        protected UiSystem(DalamudWindowSystem windowSystem, IServiceContainer services)
+        protected UiSystem(DalamudWindowSystem windowSystem, HrtDataManager hrtDataManager, ConnectorPool connectorPool,
+                           IDataManager dalamudDataManager, CharacterInfoService characterInfoService,
+                           TaskManager taskManager, ConfigurationManager configManager, IconCache iconCache,
+                           ICondition condition, ILogger logger)
         {
             _windowSystem = windowSystem;
-            _services = services;
-            EditWindows = new EditWindowFactory(_services);
-            Helpers = new UiHelpers(this, _services);
+            _dalamudDataManager = dalamudDataManager;
+            _iconCache = iconCache;
+            _hrtDataManager = hrtDataManager;
+            _condition = condition;
+            _configManager = configManager;
+            _logger = logger;
+            EditWindows = new EditWindowFactory(this, hrtDataManager, connectorPool,
+                                                characterInfoService, taskManager);
+            Helpers = new UiHelpers(this, configManager, hrtDataManager);
 
         }
-        public ConnectorPool GetConnectorPool() => _services.ConnectorPool;
         public IDalamudTextureWrap GetIcon(Item item) => GetIcon(item.Icon, item is HqItem { IsHq: true });
-        public IDalamudTextureWrap GetIcon(uint iconId, bool hq) => _services.IconCache.LoadIcon(iconId, hq);
+        public IDalamudTextureWrap GetIcon(uint iconId, bool hq) => _iconCache.LoadIcon(iconId, hq);
         public ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType> =>
-            _services.DataManager.GetExcelSheet<TType>()
+            _dalamudDataManager.GetExcelSheet<TType>()
          ?? throw new NullReferenceException("UiSystem was not initialized");
 
         public void OpenSearchWindow<TData>(Action<TData> onSelect, Action? onCancel = null)
-            where TData : class, IHrtDataTypeWithId<TData> => _services.HrtDataManager.GetTable<TData>()
-                                                                       .OpenSearchWindow(this, onSelect, onCancel);
+            where TData : class, IHrtDataTypeWithId<TData> => _hrtDataManager.GetTable<TData>()
+                                                                             .OpenSearchWindow(
+                                                                                 this, onSelect, onCancel);
 
         public IDataBaseTable<TData> GetDbTable<TData>() where TData : class, IHrtDataTypeWithId<TData>
-            => _services.HrtDataManager.GetTable<TData>();
+            => _hrtDataManager.GetTable<TData>();
 
         public bool DrawConditionsMet() =>
-            !(_services.ConfigManager.CoreConfig.Data.HideInCombat && _services.Condition[ConditionFlag.InCombat])
-         && !_services.Condition[ConditionFlag.BetweenAreas];
+            !(_configManager.CoreConfig.Data.HideInCombat && _condition[ConditionFlag.InCombat])
+         && !_condition[ConditionFlag.BetweenAreas];
 
-        public void OpenSettingsWindow() => _services.ConfigManager.Show();
+        public void OpenSettingsWindow() => _configManager.Show();
 
         public void Draw()
         {
@@ -81,7 +116,7 @@ internal static class UiSystemFactory
                                         .ToList();
             foreach (var window in toRemove)
             {
-                _services.Logger.Debug("Cleaning Up Window: {WindowWindowName}", window.WindowName);
+                _logger.Debug("Cleaning Up Window: {WindowWindowName}", window.WindowName);
                 window.Dispose();
                 _windowSystem.RemoveWindow(window);
             }
@@ -97,12 +132,33 @@ internal static class UiSystemFactory
         public void RemoveAllWindows() => _windowSystem.RemoveAllWindows();
     }
 
-    private class ModuleScopedUiSystem<TModule>(IModuleServiceContainer services)
-        : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT::{TModule.InternalName}")), services)
+    private class ModuleScopedUiSystem<TModule>(
+        HrtDataManager hrtDataManager,
+        ConnectorPool connectorPool,
+        IDataManager dalamudDataManager,
+        CharacterInfoService characterInfoService,
+        TaskManager taskManager,
+        ConfigurationManager configManager,
+        IconCache iconCache,
+        ICondition condition,
+        ILogger logger)
+        : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT::{TModule.InternalName}")), hrtDataManager,
+                   connectorPool, dalamudDataManager, characterInfoService, taskManager, configManager, iconCache,
+                   condition, logger)
         where TModule : IHrtModule;
 
-    private class GlobalUiSystem(IGlobalServiceContainer services)
-        : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT")), services);
+    private class GlobalUiSystem(
+        HrtDataManager hrtDataManager,
+        ConnectorPool connectorPool,
+        IDataManager dalamudDataManager,
+        CharacterInfoService characterInfoService,
+        TaskManager taskManager,
+        ConfigurationManager configManager,
+        IconCache iconCache,
+        ICondition condition,
+        ILogger logger)
+        : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT")), hrtDataManager, connectorPool, dalamudDataManager,
+                   characterInfoService, taskManager, configManager, iconCache, condition, logger);
 
     private class DalamudWindowSystem(WindowSystem implementation) : IWindowSystem
     {

@@ -422,7 +422,7 @@ internal class LootmasterUi : HrtWindow
             if (ImGuiHelper.EditButton(player.MainChar, "##editCharacter"))
                 UiSystem.EditWindows.Create(player.MainChar);
             var curJob = player.MainChar.MainClass;
-            UiSystem.Helpers.DrawClassCombo("##Class", player.MainChar, 110 * ScaleFactor);
+            UiHelpers.DrawClassCombo("##Class", player.MainChar, 110 * ScaleFactor);
             if (curJob is not null)
             {
                 ImGui.SameLine();

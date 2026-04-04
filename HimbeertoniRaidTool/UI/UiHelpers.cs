@@ -5,6 +5,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
+using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
@@ -15,11 +16,11 @@ namespace HimbeertoniRaidTool.Plugin.UI;
 
 public interface IStatTable : IDrawable;
 
-public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
+public class UiHelpers(IUiSystem uiSystem, ConfigurationManager configurationManager, HrtDataManager hrtDataManager)
 {
-    private static readonly Lazy<Vector2> MaxMateriaCatSizeImpl =
+    private static readonly Lazy<Vector2> _maxMateriaCatSizeImpl =
         new(() => ImGui.CalcTextSize(Enum.GetNames<MateriaCategory>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? ""));
-    private static readonly Lazy<Vector2> MaxMateriaLevelSizeImpl =
+    private static readonly Lazy<Vector2> _maxMateriaLevelSizeImpl =
         new(() => ImGui.CalcTextSize(Enum.GetNames<MateriaLevel>().MaxBy(s => ImGui.CalcTextSize(s).X) ?? ""));
 
     public IStatTable CreateStatTable(PlayableClass jobClass,
@@ -30,7 +31,8 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
                                       string diffHeader,
                                       string rightHeader,
                                       StatTableCompareMode compareMode = StatTableCompareMode.Default) =>
-        new StatTable(services, jobClass, tribe, leftGear, rightGear, leftHeader, diffHeader, rightHeader, compareMode);
+        new StatTable(configurationManager, jobClass, tribe, leftGear, rightGear, leftHeader, diffHeader, rightHeader,
+                      compareMode);
 
     public void DrawFoodEdit(HrtWindowWithModalChild parent, FoodItem? item, Action<FoodItem?> onItemChange)
     {
@@ -156,7 +158,7 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
                 mat.Draw();
             }
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(MaxMateriaCatSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
+            ImGui.SetNextItemWidth(_maxMateriaCatSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
             if (InputHelper.SearchableCombo(
                     $"##mat{slot}{i}",
                     out var cat,
@@ -175,7 +177,7 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
             ImGui.SameLine();
             ImGui.Text(GeneralLoc.CommonTerms_Materia);
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(MaxMateriaLevelSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
+            ImGui.SetNextItemWidth(_maxMateriaLevelSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
             if (InputHelper.SearchableCombo(
                     $"##matLevel{slot}{i}",
                     out var level,
@@ -199,7 +201,7 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
                 parent.AddChild(new SelectMateriaWindow(uiSystem, item.AddMateria, _ => { }, levelToAdd));
             }
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(MaxMateriaCatSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
+            ImGui.SetNextItemWidth(_maxMateriaCatSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
             if (InputHelper.SearchableCombo(
                     $"##matAdd{slot}",
                     out var cat,
@@ -214,7 +216,7 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
                 item.AddMateria(new MateriaItem(cat, levelToAdd));
             }
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(MaxMateriaLevelSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
+            ImGui.SetNextItemWidth(_maxMateriaLevelSizeImpl.Value.X + 10 * HrtWindow.ScaleFactor);
             using (ImRaii.Disabled())
             {
                 using var combo = ImRaii.Combo("##Undef", $"{levelToAdd}", ImGuiComboFlags.NoArrowButton);
@@ -284,7 +286,7 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
         if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_ReplaceNew, Player.DataTypeName)))
             uiSystem.EditWindows.Create(new Player(), replaceCallback);
         if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_ReplaceKnown, Player.DataTypeName)))
-            services.HrtDataManager.GetTable<Player>().OpenSearchWindow(uiSystem, replaceCallback);
+            hrtDataManager.GetTable<Player>().OpenSearchWindow(uiSystem, replaceCallback);
 
     }
     internal void DrawCharacterCombo(string id, Player player, string nameFormat,
@@ -305,7 +307,7 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
         }
         if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, Character.DataTypeName)))
         {
-            services.HrtDataManager.GetTable<Character>().OpenSearchWindow(uiSystem, player.AddCharacter);
+            hrtDataManager.GetTable<Character>().OpenSearchWindow(uiSystem, player.AddCharacter);
         }
         return;
         string ToName(Character character)
@@ -313,7 +315,7 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
             return character.ToString(nameFormat, null);
         }
     }
-    internal void DrawClassCombo(string id, Character character, float width = 110)
+    internal static void DrawClassCombo(string id, Character character, float width = 110)
     {
         if (character.Classes.Any())
         {
@@ -370,7 +372,7 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
                 }
                 if (ImGui.Selectable(string.Format(GeneralLoc.UiHelpers_txt_AddKnown, GearSet.DataTypeName)))
                 {
-                    services.HrtDataManager.GetTable<GearSet>().OpenSearchWindow(uiSystem, changeCallback);
+                    hrtDataManager.GetTable<GearSet>().OpenSearchWindow(uiSystem, changeCallback);
                 }
             }
         }
@@ -402,7 +404,7 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
     }
 
     private class StatTable(
-        IServiceContainer services,
+        ConfigurationManager configManager,
         PlayableClass jobClass,
         Tribe? tribe,
         IReadOnlyGearSet leftGear,
@@ -412,13 +414,9 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
         string rightHeader,
         StatTableCompareMode compareMode = StatTableCompareMode.Default) : IStatTable
     {
-        private readonly CoreConfig? _coreConfig =
-            services.ConfigManager.TryGetConfig(out CoreConfig? config) ? config : null;
         private PartyBonus? _bonusOverride;
 
-        private PartyBonus _bonus =>
-            _bonusOverride ?? (services.ConfigManager.TryGetConfig(out CoreConfig? config) ?
-                config.Data.PartyBonus : PartyBonus.None);
+        private PartyBonus _bonus => _bonusOverride ?? configManager.CoreConfig.Data.PartyBonus;
 
         private GearSetStatBlock _left => new(jobClass, leftGear, tribe, _bonus);
         private GearSetStatBlock _right => new(jobClass, rightGear, tribe, _bonus);
@@ -438,7 +436,7 @@ public class UiHelpers(IUiSystem uiSystem, IServiceContainer services)
             {
                 if (bonusInput != _bonus)
                     _bonusOverride = bonusInput;
-                if (_bonusOverride == _coreConfig?.Data.PartyBonus)
+                if (_bonusOverride == configManager.CoreConfig.Data.PartyBonus)
                     _bonusOverride = null;
             }
             BeginAndSetupTable("##MainStats", LootmasterLoc.StatTable_MainStats_Title);

@@ -2,7 +2,6 @@
 using System.Threading;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Security;
 using Newtonsoft.Json;
 using Serilog;
@@ -14,6 +13,7 @@ public class HrtDataManager
     private readonly bool _initialized;
     private volatile bool _saving;
     private readonly ILogger _logger;
+    private readonly string _saveDir;
     //Data
     private readonly DataBaseWrapper<GearSet> _gearDb;
     private readonly DataBaseWrapper<Character> _characterDb;
@@ -23,7 +23,6 @@ public class HrtDataManager
 
     //Directly Accessed Members
     public bool Ready => _initialized && !_saving;
-    private readonly string _saveDir;
 
     internal readonly IModuleConfigurationManager ModuleConfigurationManager;
     private readonly List<JsonConverter> _idRefConverters = [];
@@ -52,7 +51,7 @@ public class HrtDataManager
             throw new FailedToLoadException("Could not create data directory");
         }
         _saveDir = pluginInterface.ConfigDirectory.FullName;
-        ModuleConfigurationManager = new ModuleConfigurationManager(this, _saveDir);
+        ModuleConfigurationManager = new ModuleConfigurationManager(this, _logger, _saveDir);
         IIdProvider idProvider = new LocalIdProvider(this);
         _gearDb = new DataBaseWrapper<GearSet>(this, new GearDb(idProvider, logger), "GearDB.json");
         _characterDb =
@@ -100,35 +99,6 @@ public class HrtDataManager
         _playerDb.FixEntries(this);
         _characterDb.FixEntries(this);
         _gearDb.FixEntries(this);
-    }
-
-    internal bool TryRead(FileInfo file, out string data)
-    {
-        data = "";
-        try
-        {
-            using var reader = file.OpenText();
-            data = reader.ReadToEnd();
-            return true;
-        }
-        catch (Exception e)
-        {
-            _logger.Error(e, "Could not load data file");
-            return false;
-        }
-    }
-    internal bool TryWrite(FileInfo file, string data)
-    {
-        try
-        {
-            FilesystemUtil.WriteAllTextSafe(file.FullName, data);
-            return true;
-        }
-        catch (Exception e)
-        {
-            _logger.Error(e, "Could not write data file: {FileFullName}", file.FullName);
-            return false;
-        }
     }
 
     public IDataBaseTable<TData> GetTable<TData>() where TData : class, IHrtDataTypeWithId<TData> =>
@@ -194,7 +164,7 @@ public class HrtDataManager
         {
             if (!_file.Exists)
                 return LoadEmpty();
-            if (!_parent.TryRead(_file, out string jsonData))
+            if (!FileHelpers.TryRead(_file, out string jsonData, _parent._logger))
             {
                 LoadEmpty();
                 return false;
@@ -211,7 +181,7 @@ public class HrtDataManager
             }
         }
         private bool LoadEmpty() => _database.Load(_jsonSettings, "[]");
-        internal bool Save() => _parent.TryWrite(_file, _database.Serialize(_jsonSettings));
+        internal bool Save() => FileHelpers.TryWrite(_file, _database.Serialize(_jsonSettings), _parent._logger);
         internal void RemoveUnused(HashSet<HrtId> ids) => _database.RemoveUnused(ids);
         internal void FixEntries(HrtDataManager parent) => _database.FixEntries(parent);
     }

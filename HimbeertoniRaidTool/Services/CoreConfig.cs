@@ -6,21 +6,15 @@ using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
 internal sealed class CoreConfig : Configuration<CoreConfig.ConfigData, CoreConfig.ConfigUi>
 {
-    private readonly TaskManager _taskManager;
-    private readonly ILogger _logger;
 
-    public CoreConfig(ILogger logger, TaskManager taskManager, IUiSystem uiSystem) :
-        base("Core")
+    public CoreConfig() : base("Core")
     {
-        Ui = new ConfigUi(this, uiSystem);
-        _taskManager = taskManager;
-        _logger = logger;
+        Ui = new ConfigUi(this);
 
     }
 
@@ -110,13 +104,11 @@ internal sealed class CoreConfig : Configuration<CoreConfig.ConfigData, CoreConf
         #endregion
     }
 
-    internal class ConfigUi(CoreConfig parent, IUiSystem uiSystem) : IHrtConfigUi
+    internal class ConfigUi(CoreConfig parent) : IHrtConfigUi
     {
         private ConfigData _dataCopy = parent.Data.Clone();
 
-        public void Cancel()
-        {
-        }
+        public void Cancel() { }
 
         public void Draw()
         {
@@ -216,34 +208,12 @@ internal sealed class CoreConfig : Configuration<CoreConfig.ConfigData, CoreConf
             }
         }
 
-        private void DrawConnectorSection(GearSetManager type, ref bool doUpdates, ref int maxAgeInDays)
+        private static void DrawConnectorSection(GearSetManager type, ref bool doUpdates, ref int maxAgeInDays)
         {
             string serviceName = type.FriendlyName();
             using (ImRaii.PushId(serviceName))
             {
                 ImGui.Text(string.Format(CoreLoc.ConfigUi_hdg_externalUpdates, serviceName));
-                if (uiSystem.GetConnectorPool().TryGetConnector(type, out var connector))
-                {
-                    ImGui.SameLine();
-                    if (ImGuiHelper.Button("Update now",
-                                           $"Triggers auto updates for {serviceName} according to below rules now"))
-                    {
-                        int maxAge = maxAgeInDays;
-                        parent._taskManager.RegisterTask(
-                            new HrtTask<HrtUiMessage>(
-                                () => connector.UpdateAllSets(true, maxAge),
-                                parent._logger.Write, serviceName));
-                    }
-                    ImGui.SameLine();
-                    if (ImGuiHelper.GuardedButton("Force-update",
-                                                  $"Triggers auto updates for EVERY set from {serviceName}. This might take a while"))
-                    {
-                        parent._taskManager.RegisterTask(
-                            new HrtTask<HrtUiMessage>(
-                                () => connector.UpdateAllSets(true, 0), parent._logger.Write,
-                                serviceName));
-                    }
-                }
                 using (ImRaii.PushIndent())
                 {
                     ImGui.Checkbox(string.Format(CoreLoc.ConfigUi_cb_extAutoUpdate, serviceName), ref doUpdates);
@@ -258,9 +228,7 @@ internal sealed class CoreConfig : Configuration<CoreConfig.ConfigData, CoreConf
             ImGui.Separator();
         }
 
-        public void OnHide()
-        {
-        }
+        public void OnHide() { }
 
         public void OnShow() => _dataCopy = parent.Data.Clone();
 
