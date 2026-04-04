@@ -14,11 +14,9 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 internal interface IModuleScopedModuleManager
 {
     void DrawGlobalButtons();
-    (bool Sucess, TReturn? ReturnValue) ExecuteIntegration<TCallee, TReturn>(
-        Func<TCallee, TReturn> integrationFunc)
+    (bool Sucess, TReturn? ReturnValue) ExecuteIntegration<TCallee, TReturn>(Func<TCallee, TReturn> integrationFunc)
         where TCallee : class, IHrtModule;
-    void ExecuteIntegration<TCallee>(Action<TCallee> integrationFunc)
-        where TCallee : class, IHrtModule;
+    void ExecuteIntegration<TCallee>(Action<TCallee> integrationFunc) where TCallee : class, IHrtModule;
 }
 
 internal interface IModuleManager
@@ -136,6 +134,7 @@ internal class ModuleManager : IModuleManager
         foreach (var module in _availableModules)
         {
             module.Unload();
+            module.Dispose();
         }
     }
 
@@ -177,7 +176,7 @@ internal class ModuleManager : IModuleManager
 
     }
 
-    private interface IInternalModuleManifest : IModuleManifest
+    private interface IInternalModuleManifest : IModuleManifest, IDisposable
     {
         void Enable();
 
@@ -220,7 +219,10 @@ internal class ModuleManager : IModuleManager
             Enabled = enabled | !TModule.CanBeDisabled;
             _serviceContainer = parent.CreateModuleServiceContainer();
             _configuration = TModule.CreateConfiguration(_serviceContainer);
-            parent.ConfigurationManager.RegisterConfig(_configuration);
+            if (_parent.ConfigurationManager.RegisterConfig(_configuration))
+                _configuration.AfterLoad();
+            else
+                _parent.Logger.Error("Configuration load error:{S}", TModule.Name);
         }
 
         public void Enable()
@@ -243,10 +245,6 @@ internal class ModuleManager : IModuleManager
             {
                 _parent.Logger.Debug("Creating instance of: {ModuleTypeName}", moduleType.Name);
                 var module = TModule.Create(_serviceContainer, _configuration);
-                if (_parent.ConfigurationManager.RegisterConfig(module.Configuration))
-                    module.Configuration.AfterLoad();
-                else
-                    _parent.Logger.Error("Configuration load error:{S}", TModule.Name);
                 _parent.Logger.Debug("Calling {S}.AfterFullyLoaded()", TModule.InternalName);
                 module.AfterFullyLoaded();
                 _parent.LocalizationManager.OnLanguageChanged += module.OnLanguageChange;
@@ -269,7 +267,6 @@ internal class ModuleManager : IModuleManager
             {
                 _parent.LocalizationManager.OnLanguageChanged -= Module.OnLanguageChange;
                 Module.Dispose();
-                Module.Services.Dispose();
             }
             catch (Exception e)
             {
@@ -281,6 +278,7 @@ internal class ModuleManager : IModuleManager
                 StateChanged?.Invoke(this);
             }
         }
+        public void Dispose() => _serviceContainer.Dispose();
     }
 
 }

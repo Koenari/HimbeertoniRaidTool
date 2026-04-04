@@ -49,10 +49,6 @@ public class CommandManager
         new("/changelog", _changelog.ShowUi, CoreLoc.command_hrt_changelog),
     ];
 
-    internal void AddCommand(HrtCommand command) => _registeredCommands.Add(command);
-
-    internal void RemoveCommand(HrtCommand command) => _registeredCommands.Remove(command);
-
     internal void RemoveCommands(IEnumerable<HrtCommand> commands)
     {
         foreach (var command in commands)
@@ -64,13 +60,12 @@ public class CommandManager
                 if (_dalamudRegisteredCommands.Remove(altCommand))
                     _dalamudCommandManager.RemoveHandler(altCommand);
             }
-            RemoveCommand(command);
+            _registeredCommands.Remove(command);
         }
     }
 
     private void RegisterToDalamud(HrtCommand command)
     {
-        if (!command.ShouldExposeToDalamud) return;
         if (!_dalamudRegisteredCommands.Contains(command.Command) && _dalamudCommandManager.AddHandler(
                 command.Command,
                 new CommandInfo(command.OnCommand)
@@ -100,8 +95,9 @@ public class CommandManager
     {
         foreach (var command in commands)
         {
-            RegisterToDalamud(command);
-            AddCommand(command);
+            if (command.ShouldExposeToDalamud)
+                RegisterToDalamud(command);
+            _registeredCommands.Add(command);
         }
 
     }
@@ -111,12 +107,11 @@ public class CommandManager
         if (!command.Equals("/help")) return;
         string subCommand = '/' + args.Split(' ')[0];
         //Propagate help call to sub command
+        HrtCommand? singleCommand = null;
         if (_registeredCommands.Any(c => c.HandlesCommand(subCommand)))
         {
-            string newArgs = $"help {args[(subCommand.Length - 1)..]}".Trim();
 
-            _registeredCommands.First(x => x.HandlesCommand(subCommand)).OnCommand(subCommand, newArgs);
-            return;
+            singleCommand = _registeredCommands.First(x => x.HandlesCommand(subCommand));
         }
 
         var stringBuilder = new SeStringBuilder()
@@ -124,15 +119,35 @@ public class CommandManager
                             .AddUiForeground("[Help]", 62)
                             .AddText(CoreLoc.Chat_help_heading)
                             .Add(new NewLinePayload());
-        foreach (var c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
+        if (singleCommand != null)
+        {
+            BuildSingleCommand(singleCommand.Value);
+        }
+        else
+        {
+            foreach (var c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
+            {
+                BuildSingleCommand(c);
+            }
+        }
+        _chat.Print(stringBuilder.BuiltString);
+        return;
+        void BuildSingleCommand(HrtCommand c)
         {
             stringBuilder
-                .AddUiForeground($"/hrt {c.Command[1..]}", 37)
+                .AddUiForeground(c.ShouldExposeToDalamud ? c.Command : $"/hrt {c.Command[1..]}", 37)
                 .AddText($" - {c.Description}")
                 .Add(new NewLinePayload());
+            foreach ((string argument, string helpText) in c.AdditionalArgumentHelp)
+            {
+                stringBuilder
+                    .AddUiForeground(
+                        $"{(c.ShouldExposeToDalamud ? c.Command : $"/hrt {c.Command[1..]}")} {c.Command[1..]} {argument}",
+                        37)
+                    .AddText($" - {helpText}")
+                    .Add(new NewLinePayload());
+            }
         }
-
-        _chat.Print(stringBuilder.BuiltString);
     }
 
     internal void OnCommand(string command, string args)
@@ -159,6 +174,6 @@ public class CommandManager
             _logger.Error("Command \"{Command}\" was not removed by module unload", command);
             _dalamudCommandManager.RemoveHandler(command);
         }
-
+        _dalamudRegisteredCommands.Clear();
     }
 }

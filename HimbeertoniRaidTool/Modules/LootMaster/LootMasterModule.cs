@@ -1,8 +1,6 @@
 ﻿using System.Globalization;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
-using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Extensions;
@@ -47,18 +45,22 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
     public LootMasterConfiguration Configuration { get; }
 
     public IModuleServiceContainer Services { get; }
-    public event Action? UiReady;
     public IList<HrtCommand> Commands =>
     [
-        new("/lootmaster", OnCommand)
+        new("/lootmaster", (_, args) =>
         {
-            AltCommands = new List<string>
-            {
-                "/lm",
-            },
-            Description = LootmasterLoc.command_lootmaster,
+            if (args == "toggle")
+                _ui.IsOpen = !_ui.IsOpen;
+            else
+                _ui.Show();
+        }, LootmasterLoc.command_show_helpText, ["/lm"])
+        {
             ShouldExposeToDalamud = true,
             ShouldExposeAltsToDalamud = true,
+            AdditionalArgumentHelp =
+            [
+                new ValueTuple<string, string>("toggle", LootmasterLoc.command_toggle_helpText),
+            ],
         },
 
     ];
@@ -89,35 +91,12 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
     public void ShowUi() => _ui.Show();
 
     public void OnLanguageChange(CultureInfo culture) => LootmasterLoc.Culture = culture;
-    public void PrintUsage(string command, string args)
-    {
-        var stringBuilder = new SeStringBuilder()
-                            .AddUiForeground("[Himbeertoni Raid Tool]", 45)
-                            .AddUiForeground("[Help]", 62)
-                            .AddText(LootmasterLoc.chat_usage_heading)
-                            .Add(new NewLinePayload());
 
-        stringBuilder
-            .AddUiForeground("/lootmaster", 37)
-            .AddText($" - {LootmasterLoc.command_show_helpText}")
-            .Add(new NewLinePayload());
-        stringBuilder
-            .AddUiForeground("/lootmaster toggle", 37)
-            .AddText($" - {LootmasterLoc.command_toggle_helpText}")
-            .Add(new NewLinePayload());
-
-        Services.Chat.Print(stringBuilder.BuiltString);
-    }
-
-
-    public void Dispose() => Configuration.Save(Services.HrtDataManager.ModuleConfigurationManager);
+    public void Dispose() { }
 
     public void HandleMessage(HrtUiMessage message)
     {
-        if (message.MessageType is HrtUiMessageType.Failure or HrtUiMessageType.Error)
-            Services.Logger.Warning(message.Message);
-        else
-            Services.Logger.Information(message.Message);
+        Services.Logger.Write(message);
         _ui.HandleMessage(message);
     }
     private void OnLogin()
@@ -140,10 +119,8 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
                 soloPlayer.MainChar = character;
             }
         }
-
         if (Configuration.Data.OpenOnStartup)
             _ui.Show();
-        UiReady?.Invoke();
     }
     public bool FillPlayerFromTarget(Player player)
     {
@@ -362,20 +339,4 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
         }
     }
 
-    public void OnCommand(string command, string args)
-    {
-        Services.Logger.Debug("Lootmaster module handling command: {Command} args: \"{Args}\"", command, args);
-        switch (args)
-        {
-            case "toggle":
-                _ui.IsOpen = !_ui.IsOpen;
-                break;
-            case "help":
-                PrintUsage("/help", "");
-                break;
-            default:
-                _ui.Show();
-                break;
-        }
-    }
 }

@@ -11,13 +11,11 @@ public interface IHrtModule
     static abstract string InternalName { get; }
     static abstract string Description { get; }
     static abstract bool CanBeDisabled { get; }
-    internal IHrtConfiguration Configuration { get; }
     internal IList<HrtCommand> Commands { get; }
     internal IList<ButtenDescriptor> GlobalButtons { get; }
     internal IModuleServiceContainer Services { get; }
     internal void HandleMessage(HrtUiMessage message);
     internal void AfterFullyLoaded();
-    internal void PrintUsage(string command, string args);
     internal void OnLanguageChange(CultureInfo culture);
     internal void Dispose();
 }
@@ -27,8 +25,6 @@ internal interface IHrtModule<out TModule, TConfig> : IHrtModule
 {
     static abstract TModule Create(IModuleServiceContainer services, TConfig configuration);
     static abstract TConfig CreateConfiguration(IModuleServiceContainer services);
-    new TConfig Configuration { get; }
-    IHrtConfiguration IHrtModule.Configuration => Configuration;
 }
 
 public readonly record struct ButtenDescriptor(FontAwesomeIcon Icon, string Id, string ToolTip, Action OnClick);
@@ -39,15 +35,16 @@ public readonly record struct HrtCommand
     ///     Command user needs to use in chat. Needs to start with a "/"
     /// </summary>
     internal string Command { get; }
-    internal IEnumerable<string> AltCommands { get; init; } = [];
-    internal string Description { get; init; } = string.Empty;
+    internal IList<string> AltCommands { get; } = [];
+    internal string Description { get; } = string.Empty;
     internal bool ShowInHelp { get; init; } = true;
     internal IReadOnlyCommandInfo.HandlerDelegate OnCommand { get; }
     internal bool ShouldExposeToDalamud { get; init; } = false;
     internal bool ShouldExposeAltsToDalamud { get; init; } = false;
+    internal IList<(string argument, string helpText)> AdditionalArgumentHelp { get; init; } = [];
 
-    public HrtCommand(string command, IReadOnlyCommandInfo.HandlerDelegate onCommand, string description = "",
-                      IEnumerable<string>? altCommands = null)
+    public HrtCommand(string command, IReadOnlyCommandInfo.HandlerDelegate onCommand, string description,
+                      IList<string>? altCommands = null)
     {
         Command = command;
         OnCommand = onCommand;
@@ -55,13 +52,11 @@ public readonly record struct HrtCommand
         AltCommands = altCommands ?? [];
     }
 
-    public HrtCommand(string command, Action onCommand, string description = "",
-                      IEnumerable<string>? altCommands = null) : this(
-        command, (_, _) => onCommand.Invoke(), description, altCommands)
-    {
-    }
+    public HrtCommand(string command, Action onCommand, string description, IList<string>? altCommands = null) : this(
+        command, (_, _) => onCommand.Invoke(), description, altCommands) { }
 
     internal bool HandlesCommand(string command) =>
-        Command.Equals(command) || AltCommands.Any(c => c.Equals(command));
+        Command.Equals(command, StringComparison.OrdinalIgnoreCase)
+     || AltCommands.Any(c => c.Equals(command, StringComparison.OrdinalIgnoreCase));
 
 }
