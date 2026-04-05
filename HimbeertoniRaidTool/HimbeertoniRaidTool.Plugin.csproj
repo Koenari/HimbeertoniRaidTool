@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
-    <Sdk Name="Dalamud.NET.Sdk" Version="14.0.1"/>
+    <Sdk Name="Dalamud.NET.Sdk" Version="14.0.2"/>
     <PropertyGroup>
         <Authors>Koenari</Authors>
         <Version>1.10.1.0</Version>

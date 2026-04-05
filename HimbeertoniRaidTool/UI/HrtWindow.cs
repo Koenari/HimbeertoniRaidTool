@@ -10,17 +10,16 @@ public abstract class HrtWindowWithModalChild(
     ImGuiWindowFlags flags = ImGuiWindowFlags.None)
     : HrtWindow(uiSystem, id, flags)
 {
-    private HrtWindow? _modalChild;
     protected HrtWindow? ModalChild
     {
-        get => _modalChild;
+        get;
         set
         {
-            _modalChild = value;
-            _modalChild?.Show();
+            field = value;
+            field?.Show();
         }
     }
-    public bool ChildIsOpen => _modalChild is { IsOpen: true };
+    public bool ChildIsOpen => ModalChild is { IsOpen: true };
     public override void Update()
     {
         if (ModalChild is { IsOpen: false })
@@ -42,13 +41,7 @@ public abstract class HrtWindowWithModalChild(
         if (!open)
             ModalChild.IsOpen = open;
     }
-    public bool AddChild(HrtWindow? child)
-    {
-        if (_modalChild != null)
-            return false;
-        ModalChild = child;
-        return true;
-    }
+    public void AddChild(HrtWindow? child) => ModalChild ??= child;
 }
 
 public abstract class HrtWindow : Window, IEquatable<HrtWindow>
@@ -62,7 +55,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     protected Vector2 MinSize = default;
     protected bool OpenCentered;
     protected string Title = "";
-    public bool Persistent { get; protected init; } = false;
+    public bool Persistent { get; protected init; }
     protected IUiSystem UiSystem { get; }
 
     protected HrtWindow(IUiSystem uiSystem, string? id = null, ImGuiWindowFlags flags = ImGuiWindowFlags.None) : base(
@@ -75,6 +68,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     public static float ScaleFactor => ImGui.GetIO().FontGlobalScale;
     public bool Equals(HrtWindow? other) => _id.Equals(other?._id);
     public void Show() => IsOpen = true;
+    // ReSharper disable once MemberCanBeProtected.Global
     public void Hide() => IsOpen = false;
     public override void Update()
     {
@@ -122,13 +116,6 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
     public override bool Equals(object? obj) => Equals(obj as HrtWindow);
 
     public override int GetHashCode() => _id.GetHashCode();
-}
-
-public readonly struct UiConfig(bool hideInCombat)
-{
-    public static UiConfig Default => new(false);
-    public readonly bool HideInCombat = hideInCombat;
-
 }
 
 public readonly struct HrtUiMessage(string msg, HrtUiMessageType msgType = HrtUiMessageType.Info)

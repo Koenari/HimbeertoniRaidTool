@@ -29,7 +29,7 @@ public class ConfigurationManager : IDisposable
         _hrtDataManager = hrtDataManager;
 
         CoreConfig = new CoreConfig();
-        if (CoreConfig.Load(hrtDataManager.ModuleConfigurationManager))
+        if (CoreConfig.Load(hrtDataManager))
             CoreConfig.AfterLoad();
         _pluginInterface.UiBuilder.OpenConfigUi += Show;
 
@@ -83,7 +83,7 @@ public class ConfigurationManager : IDisposable
             return false;
         _configurations.Add(config.GetType(), config);
         _logger.Debug("Registered {ConfigParentInternalName} config", config.ParentInternalName);
-        return config.Load(_hrtDataManager.ModuleConfigurationManager);
+        return config.Load(_hrtDataManager);
     }
 
     internal bool TryGetConfig<TConfig>([NotNullWhen(true)] out TConfig? config)
@@ -98,11 +98,11 @@ public class ConfigurationManager : IDisposable
     internal void Save()
     {
         _logger.Debug("Saved {ConfigParentInternalName} config", CoreConfig.ParentInternalName);
-        CoreConfig.Save(_hrtDataManager.ModuleConfigurationManager);
+        CoreConfig.Save(_hrtDataManager);
         foreach (var config in _configurations.Values)
         {
             _logger.Debug("Saved {ConfigParentInternalName} config", config.ParentInternalName);
-            config.Save(_hrtDataManager.ModuleConfigurationManager);
+            config.Save(_hrtDataManager);
         }
     }
 
@@ -199,8 +199,8 @@ public interface IHrtConfiguration
     IHrtConfigUi? Ui { get; }
 
     event Action? OnConfigChange;
-    internal bool Load(IModuleConfigurationManager configManager);
-    internal bool Save(IModuleConfigurationManager configManager);
+    internal bool Load(HrtDataManager configFileManager);
+    internal bool Save(HrtDataManager configFileManager);
     void AfterLoad();
 }
 
@@ -241,11 +241,11 @@ internal abstract class Configuration<TData, TUi>(string internalName) : IHrtCon
     IHrtConfigUi? IHrtConfiguration.Ui => Ui;
 
     public event Action? OnConfigChange;
-    public bool Load(IModuleConfigurationManager configManager) =>
-        configManager.LoadConfiguration(ParentInternalName, ref _data);
+    public bool Load(HrtDataManager hrtDataManager) =>
+        hrtDataManager.LoadConfiguration(ParentInternalName, ref _data);
 
-    public bool Save(IModuleConfigurationManager configManager) =>
-        configManager.SaveConfiguration(ParentInternalName, _data);
+    public bool Save(HrtDataManager hrtDataManager) =>
+        hrtDataManager.SaveConfiguration(ParentInternalName, _data);
 
     public virtual void AfterLoad() { }
 }
@@ -263,6 +263,6 @@ public interface IHrtConfigData<out T> : IHrtConfigData, ICloneable<T>;
 
 public interface IHrtConfigData
 {
-    void AfterLoad(HrtDataManager dataManager);
+    void AfterLoad();
     void BeforeSave();
 }

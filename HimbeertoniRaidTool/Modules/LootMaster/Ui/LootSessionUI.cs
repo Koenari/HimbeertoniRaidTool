@@ -13,19 +13,22 @@ internal class LootSessionUi : HrtWindow
     private const string RULES_POPUP_ID = "RulesButtonPopup";
     private readonly UiSortableList<LootRule> _ruleListUi;
     private readonly LootSession _session;
-    private LootMasterConfiguration.ConfigData _curConfig { get; }
     private IModuleServiceContainer _services { get; }
+    private List<RaidGroup> _raidGroups { get; }
 
     internal LootSessionUi(LootMasterModule module, InstanceWithLoot lootSource, RaidGroup group) : base(
         module.Services.UiSystem)
     {
-        _curConfig = module.Configuration.Data;
         _services = module.Services;
+        _raidGroups = module.RaidGroups;
         var raidSessionResult =
             _services.ModuleManager.ExecuteIntegration<PlannerModule, RaidSession?>(GetCurrentRaidSessionIntegration);
-        _session = new LootSession(module, lootSource, group);
-        _session.RaidSession = raidSessionResult.ReturnValue;
-        _ruleListUi = new UiSortableList<LootRule>(LootRuling.PossibleRules, _curConfig.LootRuling.RuleSet);
+        _session = new LootSession(module, lootSource, group)
+        {
+            RaidSession = raidSessionResult.ReturnValue,
+        };
+        _ruleListUi =
+            new UiSortableList<LootRule>(LootRuling.PossibleRules, module.Configuration.Data.LootRuling.RuleSet);
 
         MinSize = new Vector2(600, 300);
         //Size = new Vector2(1100, 600);
@@ -87,7 +90,7 @@ internal class LootSessionUi : HrtWindow
                 if (combo)
                 {
                     // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-                    foreach (var group in _curConfig.RaidGroups)
+                    foreach (var group in _raidGroups)
                     {
                         if (ImGui.Selectable(group.Name) && group != _session.Group)
                             _session.Group = group;
@@ -149,7 +152,7 @@ internal class LootSessionUi : HrtWindow
             return;
         ImGui.TextWrapped($"{LootmasterLoc.LootSession_text_rolePriority}:\n{_session.RolePriority}");
         if (_ruleListUi.Draw())
-            _session.RulingOptions.RuleSet = new List<LootRule>(_ruleListUi.List);
+            _session.RulingOptions.RuleSet = [.._ruleListUi.List];
         ImGui.NewLine();
         ImGui.TextWrapped(LootmasterLoc.LootSession_text_rolePriorityHint);
     }

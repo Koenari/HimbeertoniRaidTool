@@ -20,14 +20,14 @@ internal class LocalIdProvider : IIdProvider
     internal LocalIdProvider(HrtDataManager dataManager)
     {
         _dataManager = dataManager;
-        if (!dataManager.ModuleConfigurationManager.LoadConfiguration(CONFIG_FILE_NAME, ref _data))
+        if (!dataManager.LoadConfiguration(CONFIG_FILE_NAME, ref _data))
             throw new FailedToLoadException("Could not create ID Authority");
         _signingProvider = new HMACSHA512(_data.Key);
         if (_data.Authority != 0)
             return;
         SecureRandom(ref _data.Authority);
         _numberGenerator.GetBytes(_data.Key);
-        if (!dataManager.ModuleConfigurationManager.SaveConfiguration(CONFIG_FILE_NAME, _data))
+        if (!dataManager.SaveConfiguration(CONFIG_FILE_NAME, _data))
             throw new FailedToLoadException("Could not create ID Authority");
         _signingProvider = new HMACSHA512(_data.Key);
     }
@@ -88,7 +88,7 @@ internal class LocalIdProvider : IIdProvider
         [JsonProperty] public ulong Counter = 1;
         [JsonProperty] public byte[] Key = new byte[KEY_SIZE_BYTES];
 
-        public void AfterLoad(HrtDataManager dataManager) { }
+        public void AfterLoad() { }
 
         public void BeforeSave() { }
     }

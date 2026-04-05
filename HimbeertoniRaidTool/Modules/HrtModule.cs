@@ -37,7 +37,6 @@ public readonly record struct HrtCommand
     internal string Command { get; }
     internal IList<string> AltCommands { get; } = [];
     internal string Description { get; } = string.Empty;
-    internal bool ShowInHelp { get; init; } = true;
     internal IReadOnlyCommandInfo.HandlerDelegate OnCommand { get; }
     internal bool ShouldExposeToDalamud { get; init; } = false;
     internal bool ShouldExposeAltsToDalamud { get; init; } = false;

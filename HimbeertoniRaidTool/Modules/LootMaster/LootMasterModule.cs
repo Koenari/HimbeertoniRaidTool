@@ -39,7 +39,20 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
         new(services, config);
 
     //Properties
-    internal List<RaidGroup> RaidGroups => Configuration.Data.RaidGroups;
+    internal List<RaidGroup> RaidGroups
+    {
+        get
+        {
+            field ??= [];
+            if (field.Count != 0) return field;
+            foreach (var id in Configuration.Data.RaidGroupIds)
+            {
+                if (Services.HrtDataManager.GetTable<RaidGroup>().TryGet(id, out var group))
+                    field.Add(group);
+            }
+            return field;
+        }
+    }
     //Interface Properties
     public static LootMasterConfiguration CreateConfiguration(IModuleServiceContainer services) => new(services);
     public LootMasterConfiguration Configuration { get; }
@@ -92,7 +105,7 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
 
     public void OnLanguageChange(CultureInfo culture) => LootmasterLoc.Culture = culture;
 
-    public void Dispose() { }
+    public void Dispose() => Configuration.Data.RaidGroupIds = RaidGroups.ConvertAll(g => g.LocalId);
 
     public void HandleMessage(HrtUiMessage message)
     {

@@ -40,7 +40,7 @@ internal sealed class CoreConfig : Configuration<CoreConfig.ConfigData, CoreConf
 
         #endregion
 
-        public void AfterLoad(HrtDataManager dataManager) { }
+        public void AfterLoad() { }
 
         public void BeforeSave() { }
 

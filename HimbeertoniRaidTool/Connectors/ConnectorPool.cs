@@ -30,8 +30,6 @@ public class ConnectorPool : IDisposable
     {
         GearSetManager.Etro    => _etroConnector,
         GearSetManager.XivGear => _xivGearAppConnector,
-        GearSetManager.Hrt     => null,
-        GearSetManager.Unknown => null,
         _                      => null,
     };
 

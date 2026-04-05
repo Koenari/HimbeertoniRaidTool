@@ -51,7 +51,7 @@ public class UiHelpers(IUiSystem uiSystem, ConfigurationManager configurationMan
         }
         //Quick select
         string itemName = item?.ToString() ?? string.Empty;
-        if (ExcelSheetCombo($"##Food", out LuminaItem outItem, _ => itemName,
+        if (ExcelSheetCombo("##Food", out LuminaItem outItem, _ => itemName,
                             i => i.Name.ExtractText(), ItemExtensions.IsFood,
                             ImGuiComboFlags.NoArrowButton))
         {
@@ -61,7 +61,7 @@ public class UiHelpers(IUiSystem uiSystem, ConfigurationManager configurationMan
         ImGui.SameLine();
         using (ImRaii.Disabled(parent.ChildIsOpen))
         {
-            if (ImGuiHelper.Button(FontAwesomeIcon.Search, $"FoodChangeItem",
+            if (ImGuiHelper.Button(FontAwesomeIcon.Search, "FoodChangeItem",
                                    GeneralLoc.EditGearSetUi_btn_tt_selectItem))
                 parent.AddChild(new SelectFoodItemWindow(uiSystem, onItemChange, _ => { },
                                                          item,
@@ -69,7 +69,7 @@ public class UiHelpers(IUiSystem uiSystem, ConfigurationManager configurationMan
                                                                  ?.ItemLevel(GearSetSlot.Body) + 10 ?? 0));
         }
         ImGui.SameLine();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, $"DeleteFood", GeneralLoc.General_btn_tt_remove))
+        if (ImGuiHelper.Button(FontAwesomeIcon.Eraser, "DeleteFood", GeneralLoc.General_btn_tt_remove))
         {
             item = null;
             onItemChange(item);

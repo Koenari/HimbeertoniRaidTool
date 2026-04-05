@@ -93,8 +93,7 @@ internal static class UiSystemFactory
         public IDalamudTextureWrap GetIcon(Item item) => GetIcon(item.Icon, item is HqItem { IsHq: true });
         public IDalamudTextureWrap GetIcon(uint iconId, bool hq) => _iconCache.LoadIcon(iconId, hq);
         public ExcelSheet<TType> GetExcelSheet<TType>() where TType : struct, IExcelRow<TType> =>
-            _dalamudDataManager.GetExcelSheet<TType>()
-         ?? throw new NullReferenceException("UiSystem was not initialized");
+            _dalamudDataManager.GetExcelSheet<TType>();
 
         public void OpenSearchWindow<TData>(Action<TData> onSelect, Action? onCancel = null)
             where TData : class, IHrtDataTypeWithId<TData> => _hrtDataManager.GetTable<TData>()
@@ -157,7 +156,7 @@ internal static class UiSystemFactory
         IconCache iconCache,
         ICondition condition,
         ILogger logger)
-        : UiSystem(new DalamudWindowSystem(new WindowSystem($"HRT")), hrtDataManager, connectorPool, dalamudDataManager,
+        : UiSystem(new DalamudWindowSystem(new WindowSystem("HRT")), hrtDataManager, connectorPool, dalamudDataManager,
                    characterInfoService, taskManager, configManager, iconCache, condition, logger);
 
     private class DalamudWindowSystem(WindowSystem implementation) : IWindowSystem

@@ -10,15 +10,15 @@ namespace HimbeertoniRaidTool.Plugin.Connectors;
 
 public interface IReadOnlyGearConnector
 {
-    public bool BelongsToThisService(string url);
-    public string GetId(string url);
-    public string GetWebUrl(string id);
-    public IList<ExternalBiSDefinition> GetPossibilities(string id);
-    public IList<ExternalBiSDefinition> GetBiSList(Job job);
+    bool BelongsToThisService(string url);
+    string GetId(string url);
+    string GetWebUrl(string id);
+    IList<ExternalBiSDefinition> GetPossibilities(string id);
+    IList<ExternalBiSDefinition> GetBiSList(Job job);
     internal HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays);
-    public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
-                                     string taskName = "Gearset Update");
-    public HrtUiMessage UpdateGearSet(GearSet set);
+    void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
+                              string taskName = "Gearset Update");
+    HrtUiMessage UpdateGearSet(GearSet set);
 }
 
 public record ExternalBiSDefinition(GearSetManager Service, string Id, int Idx, string Name)
@@ -40,6 +40,7 @@ public record ExternalBiSDefinition(GearSetManager Service, string Id, int Idx, 
 
 internal abstract class WebConnector
 {
+    private static readonly HttpClient _client = new();
     private readonly ConcurrentDictionary<string, (DateTime time, HttpResponseMessage response)> _cachedRequests;
     private readonly TimeSpan _cacheTime;
     private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
@@ -92,8 +93,7 @@ internal abstract class WebConnector
         _currentRequests.TryAdd(url, DateTime.Now);
         try
         {
-            HttpClient client = new();
-            var response = await client.GetAsync(url);
+            var response = await _client.GetAsync(url);
             _cachedRequests.TryAdd(url, (DateTime.Now, response));
             return response;
         }

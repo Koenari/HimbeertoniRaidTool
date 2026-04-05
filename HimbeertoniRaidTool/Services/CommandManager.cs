@@ -71,7 +71,6 @@ public class CommandManager
                 new CommandInfo(command.OnCommand)
                 {
                     HelpMessage = command.Description,
-                    ShowInHelp = command.ShowInHelp,
                 }))
         {
             _dalamudRegisteredCommands.Add(command.Command);
@@ -125,7 +124,7 @@ public class CommandManager
         }
         else
         {
-            foreach (var c in _registeredCommands.Where(com => !com.Command.Equals("/hrt") && com.ShowInHelp))
+            foreach (var c in _registeredCommands.Where(com => !com.Command.Equals("/hrt")))
             {
                 BuildSingleCommand(c);
             }

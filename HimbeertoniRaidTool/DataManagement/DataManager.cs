@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using System.Threading;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Security;
 using Newtonsoft.Json;
 using Serilog;
@@ -13,7 +15,8 @@ public class HrtDataManager
     private readonly bool _initialized;
     private volatile bool _saving;
     private readonly ILogger _logger;
-    private readonly string _saveDir;
+    private readonly DirectoryInfo _saveDir;
+    private readonly DirectoryInfo _moduleConfigDir;
     //Data
     private readonly DataBaseWrapper<GearSet> _gearDb;
     private readonly DataBaseWrapper<Character> _characterDb;
@@ -23,8 +26,6 @@ public class HrtDataManager
 
     //Directly Accessed Members
     public bool Ready => _initialized && !_saving;
-
-    internal readonly IModuleConfigurationManager ModuleConfigurationManager;
     private readonly List<JsonConverter> _idRefConverters = [];
     private static readonly JsonSerializerSettings _jsonSettings = new()
     {
@@ -38,20 +39,24 @@ public class HrtDataManager
                           TaskManager taskManager)
     {
         _logger = logger;
+        _saveDir = pluginInterface.ConfigDirectory;
         bool loadedSuccessful = true;
         //Set up files &folders
+        _moduleConfigDir = new DirectoryInfo(_saveDir + "\\moduleConfigs\\");
+        try { }
+        catch (IOException) { }
         try
         {
             if (!pluginInterface.ConfigDirectory.Exists)
                 pluginInterface.ConfigDirectory.Create();
+            if (!_moduleConfigDir.Exists)
+                _moduleConfigDir.Create();
         }
         catch (IOException ioe)
         {
             _logger.Error(ioe, "Could not create data directory");
             throw new FailedToLoadException("Could not create data directory");
         }
-        _saveDir = pluginInterface.ConfigDirectory.FullName;
-        ModuleConfigurationManager = new ModuleConfigurationManager(this, _logger, _saveDir);
         IIdProvider idProvider = new LocalIdProvider(this);
         _gearDb = new DataBaseWrapper<GearSet>(this, new GearDb(idProvider, logger), "GearDB.json");
         _characterDb =
@@ -112,6 +117,40 @@ public class HrtDataManager
             _                                       => null,
 
         } ?? throw new ArgumentOutOfRangeException($"No table exists for type: {typeof(TData)} ");
+
+    public bool SaveConfiguration<T>(string internalName, T configData) where T : IHrtConfigData, new()
+    {
+        configData.BeforeSave();
+        FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
+        string json = JsonConvert.SerializeObject(configData, _jsonSettings);
+        bool writeSuccess;
+        try
+        {
+            FilesystemUtil.WriteAllTextSafe(file.FullName, json);
+            writeSuccess = true;
+        }
+        catch (Win32Exception)
+        {
+            writeSuccess = false;
+        }
+        return writeSuccess;
+    }
+    public bool LoadConfiguration<T>(string internalName, ref T configData) where T : IHrtConfigData, new()
+    {
+        FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
+        if (!file.Exists) return true;
+        if (!FileHelpers.TryRead(file, out string json, _logger))
+            return false;
+        var fromJson = JsonConvert.DeserializeObject<T>(json, _jsonSettings);
+        if (fromJson != null)
+        {
+            configData = fromJson;
+            configData.AfterLoad();
+            return true;
+        }
+        else
+            return false;
+    }
 
     public bool Save()
     {

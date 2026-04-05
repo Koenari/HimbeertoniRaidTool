@@ -4,7 +4,6 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
-using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 
@@ -45,7 +44,7 @@ internal class LootmasterUi : HrtWindow
     }
     private LootMasterConfiguration.ConfigData CurConfig => _module.Configuration.Data;
 
-    private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurConfig.ActiveGroupIndex];
+    private RaidGroup CurrentGroup => _module.RaidGroups[CurConfig.ActiveGroupIndex];
     //private GameExpansion ActiveExpansion => CurConfig.ActiveExpansion;
     private Vector2 ButtonSize => _buttonSize * ScaleFactor;
     private Vector2 ButtonSizeVertical => field * ScaleFactor;

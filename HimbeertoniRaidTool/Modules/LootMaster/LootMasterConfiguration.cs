@@ -149,16 +149,13 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         {
             _config.Data.BeforeSave();
             _dataCopy = _config.Data.Clone();
-            _dataCopy.AfterLoad(_config.Services.HrtDataManager);
             _lootList = new UiSortableList<LootRule>(LootRuling.PossibleRules, _dataCopy.LootRuling.RuleSet);
         }
 
         public void Save()
         {
             _dataCopy.LootRuling.RuleSet = [.._lootList.List];
-            _dataCopy.BeforeSave();
             _config.Data = _dataCopy;
-            _config.Data.AfterLoad(_config.Services.HrtDataManager);
         }
     }
 
@@ -168,7 +165,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         [JsonIgnore]
         private string? _itemFormatStringCache;
         [JsonProperty("RaidGroupIds", ObjectCreationHandling = ObjectCreationHandling.Replace)]
-        private List<HrtId> _raidGroupIds = new();
+        public List<HrtId> RaidGroupIds = [];
         [JsonProperty("UserItemFormat")]
         // ReSharper disable once ReplaceWithFieldKeyword
         private string _userItemFormat = "{source} {slot}";
@@ -212,8 +209,6 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
          */
         [JsonProperty]
         public bool OpenOnStartup;
-        [JsonIgnore]
-        public List<RaidGroup> RaidGroups = new();
         [JsonProperty("RaidTierIndex")]
         public int? RaidTierOverride;
         [JsonProperty("ActiveExpansion")]
@@ -256,17 +251,9 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         }
         [JsonIgnore]
         public string ItemFormatString => _itemFormatStringCache ??= ParseItemFormatString(UserItemFormat);
-        public void AfterLoad(HrtDataManager dataManager)
-        {
-            RaidGroups.Clear();
-            foreach (var id in _raidGroupIds)
-            {
-                if (dataManager.GetTable<RaidGroup>().TryGet(id, out var group))
-                    RaidGroups.Add(group);
-            }
-        }
+        public void AfterLoad() { }
 
-        public void BeforeSave() => _raidGroupIds = RaidGroups.ConvertAll(g => g.LocalId);
+        public void BeforeSave() { }
         private static string ParseItemFormatString(string input)
         {
             List<string> result = new();

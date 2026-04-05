@@ -96,7 +96,7 @@ public class EditWindowFactory(
         private readonly Action? _onCancel;
         private readonly Action<TData>? _onSave;
         private readonly Action? _onDelete;
-        protected bool CanDelete = false;
+        protected bool CanDelete;
         protected readonly EditWindowFactory Factory;
         private TData _original;
         protected TData DataCopy;

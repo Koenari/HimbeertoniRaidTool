@@ -86,16 +86,16 @@ public static class ImGuiHelper
         return result;
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // ReSharper disable once UnusedMethodReturnValue.Global
     public static bool Checkbox(string label, ref bool value, string? tooltip)
     {
         bool result = ImGui.Checkbox(label, ref value);
         if (tooltip is not null) AddTooltip(tooltip);
         return result;
     }
-    public static bool GearUpdateButtons(Player p, IHrtModule module, bool showMultiple = false, Vector2 size = default)
+    public static void GearUpdateButtons(Player p, IHrtModule module, bool showMultiple = false, Vector2 size = default)
     {
         using var id = ImRaii.PushId(p.NickName);
-        bool result = false;
         string inspectTooltip = GeneralLoc.Ui_btn_Inspect_tt;
         bool canInspect = true;
         if (!module.Services.CharacterInfoService.TryGetChar(out var playerChar, p.MainChar.Name,
@@ -105,12 +105,12 @@ public static class ImGuiHelper
             inspectTooltip = GeneralLoc.Ui_btn_tt_CharacterNotInReach;
         }
         if (canInspect || showMultiple)
-            result |= DrawInspectButton();
+            DrawInspectButton();
         if (!canInspect || showMultiple)
         {
             if (showMultiple)
                 ImGui.SameLine();
-            result |= DrawLodestoneButton();
+            DrawLodestoneButton();
         }
         if (!showMultiple)
         {
@@ -124,7 +124,7 @@ public static class ImGuiHelper
                     ImGui.CloseCurrentPopup();
             }
         }
-        return result;
+        return;
         bool DrawInspectButton(bool insideContextMenu = false)
         {
             if (Button(FontAwesomeIcon.Search, "##inspect",
@@ -154,7 +154,7 @@ public static class ImGuiHelper
         }
     }
 
-    public static bool ExternalGearUpdateButton(GearSet set, IHrtModule module, Vector2 size = default)
+    public static void ExternalGearUpdateButton(GearSet set, IHrtModule module, Vector2 size = default)
     {
         using var id = ImRaii.PushId(set.LocalId.ToString());
         if (module.Services.ConnectorPool.TryGetConnector(set.ManagedBy, out var connector))
@@ -168,12 +168,11 @@ public static class ImGuiHelper
                                                    GeneralLoc.Ui_btn_tt_GearSetUpdate, set.Name,
                                                    set.ExternalId,
                                                    set.ManagedBy.FriendlyName()));
-            return result;
+            return;
         }
         Button(FontAwesomeIcon.Download, set.ExternalId,
                "This set is not managed by an external service",
                false, size);
-        return false;
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void AddTooltip(string tooltip)

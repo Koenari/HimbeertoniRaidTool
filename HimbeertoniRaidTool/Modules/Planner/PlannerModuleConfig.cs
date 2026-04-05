@@ -48,7 +48,7 @@ internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.Con
     {
         [JsonProperty("BeginOfWeek")] public DayOfWeek FirstDayOfWeek = DayOfWeek.Monday;
 
-        public void AfterLoad(HrtDataManager dataManager) { }
+        public void AfterLoad() { }
         public void BeforeSave() { }
 
         public ConfigData Clone() => (ConfigData)MemberwiseClone();

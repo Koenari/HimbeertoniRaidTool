@@ -14,32 +14,23 @@ namespace HimbeertoniRaidTool.Plugin.Services;
 public interface IModuleServiceContainer : IServiceContainer
 {
     internal IModuleScopedModuleManager ModuleManager { get; }
+    internal TaskManager TaskManager { get; }
+    internal LocalizationManager LocalizationManager { get; }
 }
 
-public interface IGlobalServiceContainer : IServiceContainer
-{
-    internal IModuleManager ModuleManager { get; }
-    internal CommandManager CommandManager { get; }
-}
+public interface IGlobalServiceContainer : IServiceContainer { }
 
 public interface IServiceContainer : IDisposable
 {
-    IChatProvider Chat { get; }
-    IDataManager DataManager { get; }
     ITargetManager TargetManager { get; }
     IClientState ClientState { get; }
     IPlayerState PlayerState { get; }
     IPartyList PartyList { get; }
-    ICondition Condition { get; }
     ILogger Logger { get; }
-    IconCache IconCache { get; }
     HrtDataManager HrtDataManager { get; }
-    internal TaskManager TaskManager { get; }
     internal ConnectorPool ConnectorPool { get; }
-    internal ConfigurationManager ConfigManager { get; }
     internal CharacterInfoService CharacterInfoService { get; }
     internal IUiSystem UiSystem { get; }
-    internal LocalizationManager LocalizationManager { get; }
     internal IFramework Framework { get; }
 }
 
