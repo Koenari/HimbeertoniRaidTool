@@ -48,7 +48,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
                 log.Write, $"Update {GearSetManager.Etro.FriendlyName()} sets")
         );
     }
-    private static JsonSerializerSettings JsonSettings => new()
+    private static JsonSerializerSettings _jsonSettings => new()
     {
         StringEscapeHandling = StringEscapeHandling.Default,
         FloatParseHandling = FloatParseHandling.Double,
@@ -69,7 +69,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
         if (httpResponse is not { IsSuccessStatusCode: true }) return [];
         var readTask = httpResponse.Content.ReadAsStringAsync();
         readTask.Wait();
-        var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(readTask.Result, JsonSettings);
+        var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(readTask.Result, _jsonSettings);
         return etroSet?.name is null ? [] : [new ExternalBiSDefinition(GearSetManager.Etro, id, 0, etroSet.name)];
     }
     private HrtUiMessage FillBisList()
@@ -78,7 +78,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
         string? jsonResponse = GetContent(MakeWebRequest(BIS_API_BASE_URL));
         if (jsonResponse == null)
             return failureMessage;
-        var sets = JsonConvert.DeserializeObject<EtroGearSet[]>(jsonResponse, JsonSettings);
+        var sets = JsonConvert.DeserializeObject<EtroGearSet[]>(jsonResponse, _jsonSettings);
         if (sets == null) return failureMessage;
         foreach (var set in sets)
         {
@@ -101,7 +101,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
     private EtroRelic? GetRelicItem(string id)
     {
         string? relicJson = GetContent(MakeWebRequest(RELIC_API_BASE_URL + id));
-        return relicJson == null ? null : JsonConvert.DeserializeObject<EtroRelic>(relicJson, JsonSettings);
+        return relicJson == null ? null : JsonConvert.DeserializeObject<EtroRelic>(relicJson, _jsonSettings);
     }
 
     public HrtUiMessage UpdateGearSet(GearSet set)
@@ -124,7 +124,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
         }
         var readTask = httpResponse.Content.ReadAsStringAsync();
         readTask.Wait();
-        var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(readTask.Result, JsonSettings);
+        var etroSet = JsonConvert.DeserializeObject<EtroGearSet>(readTask.Result, _jsonSettings);
         if (etroSet == null)
             return failureMessage;
         set.Name = etroSet.name ?? "";

@@ -13,7 +13,7 @@ internal class CalendarUi : HrtWindow
     private readonly PlannerModule _module;
     private int _year;
     private int _inputYear;
-    private bool _inputHasChanged = false;
+    private bool _inputHasChanged;
     private DateTime _inputLastChanged;
 
     private Month _month;

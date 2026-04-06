@@ -32,7 +32,7 @@ internal class XivGearAppConnector : WebConnector, IReadOnlyGearConnector
     private const string API_BASE_URL = "https://api.xivgear.app/";
     private const string GEAR_API_BASE_URL = API_BASE_URL + "shortlink/";
 
-    private static JsonSerializerSettings JsonSettings => new()
+    private static JsonSerializerSettings _jsonSettings => new()
     {
         StringEscapeHandling = StringEscapeHandling.Default,
         FloatParseHandling = FloatParseHandling.Double,
@@ -104,7 +104,7 @@ internal class XivGearAppConnector : WebConnector, IReadOnlyGearConnector
         XivGearSet? xivSet;
         if (IsSheetInternal(readTask.Result))
         {
-            var xivGearSheet = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result, JsonSettings);
+            var xivGearSheet = JsonConvert.DeserializeObject<XivGearSheet>(readTask.Result, _jsonSettings);
             xivSet = xivGearSheet?.sets?[set.ExternalIdx];
             if (xivSet != null && xivGearSheet != null)
             {
@@ -113,7 +113,7 @@ internal class XivGearAppConnector : WebConnector, IReadOnlyGearConnector
         }
         else
         {
-            xivSet = JsonConvert.DeserializeObject<XivGearSet>(readTask.Result, JsonSettings);
+            xivSet = JsonConvert.DeserializeObject<XivGearSet>(readTask.Result, _jsonSettings);
         }
         if (xivSet == null)
             return failureMessage;

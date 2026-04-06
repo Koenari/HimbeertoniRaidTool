@@ -237,7 +237,7 @@ internal abstract class Configuration<TData, TUi>(string internalName) : IHrtCon
     }
 
     public string ParentInternalName => internalName;
-    public TUi? Ui { get; init; }
+    public TUi? Ui { get; protected init; }
     IHrtConfigUi? IHrtConfiguration.Ui => Ui;
 
     public event Action? OnConfigChange;

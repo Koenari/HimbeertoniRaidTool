@@ -43,7 +43,7 @@ internal class RaidSessionDb(IIdProvider idProvider, IEnumerable<JsonConverter> 
         }
 
         private string _searchTextTitle = "";
-        private RaidGroup? _searchGroup = null;
+        private RaidGroup? _searchGroup;
 
         protected override void DrawContent()
         {

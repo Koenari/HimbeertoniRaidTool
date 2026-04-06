@@ -20,9 +20,7 @@ internal class ExamineGearDataProvider : IDisposable
     private readonly CharacterInfoService _characterInfoService;
     private readonly ConnectorPool _connectorPool;
     private readonly ConfigurationManager _configurationManager;
-    private CoreConfig.ConfigData Configuration => _configurationManager.CoreConfig.Data;
     private readonly Hook<AddonCharacterInspect.Delegates.OnRefresh>? _hook;
-    //private GearDataProviderConfiguration _configuration;
 
     internal ExamineGearDataProvider(IGameInteropProvider iopProvider, ILogger logger, IObjectTable objectTable,
                                      HrtDataManager hrtDataManager, CharacterInfoService characterInfoService,
@@ -53,7 +51,7 @@ internal class ExamineGearDataProvider : IDisposable
 
     public void OnConfigurationChanged()
     {
-        if (Configuration.UpdateGearOnExamine)
+        if (_configurationManager.CoreConfig.Data.UpdateGearOnExamine)
             _hook?.Enable();
         else
             _hook?.Disable();
@@ -77,7 +75,7 @@ internal class ExamineGearDataProvider : IDisposable
 
     private void GetItemInfos()
     {
-        if (!Configuration.UpdateGearOnExamine)
+        if (!_configurationManager.CoreConfig.Data.UpdateGearOnExamine)
             return;
         uint entityId;
         unsafe
@@ -121,9 +119,9 @@ internal class ExamineGearDataProvider : IDisposable
         targetChar.Name = sourceChar.Name.TextValue;
 
         var targetJob = sourceChar.GetJob();
-        if (targetJob.IsCombatJob() && !Configuration.UpdateCombatJobs
-         || targetJob.IsDoH() && !Configuration.UpdateDoHJobs
-         || targetJob.IsDoL() && !Configuration.UpdateDoLJobs)
+        if (targetJob.IsCombatJob() && !_configurationManager.CoreConfig.Data.UpdateCombatJobs
+         || targetJob.IsDoH() && !_configurationManager.CoreConfig.Data.UpdateDoHJobs
+         || targetJob.IsDoL() && !_configurationManager.CoreConfig.Data.UpdateDoLJobs)
             return;
         var targetClass = targetChar[targetJob];
         if (targetClass == null)
@@ -162,7 +160,8 @@ internal class ExamineGearDataProvider : IDisposable
         try
         {
             if (CsHelpers.UpdateGearFromInventoryContainer(InventoryType.Examine, targetClass,
-                                                           Configuration.MinILvlDowngrade, _logger, _hrtDataManager))
+                                                           _configurationManager.CoreConfig.Data.MinILvlDowngrade,
+                                                           _logger, _hrtDataManager))
             {
                 _logger.Information("Updated Gear for: {TargetCharName} @ {ReadOnlySeString}", targetChar.Name,
                                     targetChar.HomeWorld?.Name);

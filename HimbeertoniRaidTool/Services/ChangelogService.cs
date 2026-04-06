@@ -663,8 +663,8 @@ public readonly struct SingleVersionChangelog(Version version)
 
 public readonly struct ChangeLogEntry(ChangeLogEntryCategory category, string description, int issueNr = 0)
 {
-    public ChangeLogEntryCategory Category { get; init; } = category;
-    public string Description { get; init; } = description;
+    public ChangeLogEntryCategory Category { get; } = category;
+    public string Description { get; } = description;
     public IList<string> BulletPoints { get; } = new List<string>();
     public int GitHubIssueNumber { get; } = issueNr;
     public bool HasGitHubIssue => GitHubIssueNumber > 0;

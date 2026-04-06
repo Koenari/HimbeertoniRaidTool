@@ -60,7 +60,7 @@ public class LootRule(LootRuleEnum rule) : IEquatable<LootRule>, IDrawable, IHrt
             _                           => false,
         };
 
-    private string IgnoreTooltip =>
+    private string _ignoreTooltip =>
         Rule switch
         {
             LootRuleEnum.BisOverUpgrade => LootmasterLoc.LootRule_draw_cb_tt_ignore_bis,
@@ -81,7 +81,7 @@ public class LootRule(LootRuleEnum rule) : IEquatable<LootRule>, IDrawable, IHrt
         {
             ImGui.SameLine();
             ImGui.Checkbox($"{LootmasterLoc.LootRule_draw_cb_ignore}##ignore", ref IgnorePlayers);
-            ImGuiHelper.AddTooltip(IgnoreTooltip);
+            ImGuiHelper.AddTooltip(_ignoreTooltip);
         }
     }
     public bool Equals(LootRule? obj) => obj?.Rule == Rule;

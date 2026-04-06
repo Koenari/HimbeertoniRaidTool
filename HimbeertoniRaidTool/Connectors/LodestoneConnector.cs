@@ -204,7 +204,7 @@ internal class NetStoneBase : IDisposable
 
     private readonly RateLimit _rateLimit;
     protected readonly bool Initialized;
-    protected ILogger Logger;
+    protected readonly ILogger Logger;
 
     internal NetStoneBase(ILogger logger, RateLimit rateLimit = default, TimeSpan? cacheTime = null)
     {

@@ -5,7 +5,6 @@ using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Common.Localization;
 using HimbeertoniRaidTool.Common.Security;
 using HimbeertoniRaidTool.Common.Services;
-using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
@@ -175,7 +174,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
         public bool IgnoreMateriaForBiS;
         [JsonProperty]
         public Vector4[] ItemLevelColors =
-        {
+        [
             //At or above cur max iLvl
             new(0.17f, 0.85f, 0.17f, 1f),
             //10 below
@@ -184,7 +183,7 @@ internal class LootMasterConfiguration : ModuleConfiguration<LootMasterConfigura
             new(0.85f, 0.85f, 0.17f, 1f),
             //30 or more below
             new(0.85f, 0.17f, 0.17f, 1f),
-        };
+        ];
 
         [JsonProperty("ActiveGroupIndex")]
         public int ActiveGroupIndex;

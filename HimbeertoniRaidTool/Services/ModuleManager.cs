@@ -205,7 +205,6 @@ internal class ModuleManager : IModuleManager
         public bool CanBeDisabled => TModule.CanBeDisabled;
 
         public bool Enabled { get; private set; }
-        public event Action<IModuleManifest<TModule>>? StateChanged;
 
         public IList<ButtenDescriptor> GlobalButtons => Module?.GlobalButtons ?? Array.Empty<ButtenDescriptor>();
 
@@ -251,7 +250,6 @@ internal class ModuleManager : IModuleManager
                 _parent.AddCommands(module.Commands);
                 _parent.Logger.Information("Successfully loaded module: {S}", TModule.Name);
                 Module = module;
-                StateChanged?.Invoke(this);
             }
             catch (Exception e)
             {
@@ -275,7 +273,6 @@ internal class ModuleManager : IModuleManager
             finally
             {
                 Module = null;
-                StateChanged?.Invoke(this);
             }
         }
         public void Dispose() => _serviceContainer.Dispose();
@@ -298,8 +295,6 @@ public interface IModuleManifest<out TModule> : IModuleManifest where TModule : 
 
     [MemberNotNullWhen(true, nameof(Module))]
     bool Loaded { get; }
-
-    event Action<IModuleManifest<TModule>>? StateChanged;
 }
 
 public interface IModuleManifest

@@ -14,7 +14,6 @@ internal class OwnCharacterDataProvider : IDisposable
     private readonly ILogger _logger;
     private readonly HrtDataManager _hrtDataManager;
     private readonly ConfigurationManager _configurationManager;
-    private CoreConfig.ConfigData Configuration => _configurationManager.CoreConfig.Data;
     private readonly TimeSpan _timeBetweenGearUpdates = TimeSpan.FromMinutes(5);
     private readonly TimeSpan _timeBetweenWalletUpdates = TimeSpan.FromSeconds(30);
 
@@ -52,7 +51,7 @@ internal class OwnCharacterDataProvider : IDisposable
     }
     private void OnFrameworkUpdate(IFramework framework)
     {
-        if (_disposed || !Configuration.UpdateOwnData || !_playerState.IsLoaded) return;
+        if (_disposed || !_configurationManager.CoreConfig.Data.UpdateOwnData || !_playerState.IsLoaded) return;
         _timeSinceLastWalletUpdate += framework.UpdateDelta;
         _timeSinceLastGearUpdate += framework.UpdateDelta;
         if (_timeSinceLastWalletUpdate < _timeBetweenWalletUpdates) return;
@@ -106,14 +105,14 @@ internal class OwnCharacterDataProvider : IDisposable
         if (!_playerState.IsLoaded || _curChar == null) return;
         var job = (Job)rawJob;
         int level = rawLevel == 0 ? _playerState.Level : (int)rawLevel;
-        if (job.IsCombatJob() && !Configuration.UpdateCombatJobs) return;
-        if (job.IsDoH() && !Configuration.UpdateDoHJobs) return;
-        if (job.IsDoL() && !Configuration.UpdateDoLJobs) return;
+        if (job.IsCombatJob() && !_configurationManager.CoreConfig.Data.UpdateCombatJobs) return;
+        if (job.IsDoH() && !_configurationManager.CoreConfig.Data.UpdateDoHJobs) return;
+        if (job.IsDoL() && !_configurationManager.CoreConfig.Data.UpdateDoLJobs) return;
         _logger.Debug("UpdateJobAndGear: {Job} {Level}", job, level);
         var targetClass = _curChar[job] ?? _curChar.AddClass(job);
         if (targetClass.Level < level) targetClass.Level = level;
         CsHelpers.UpdateGearFromInventoryContainer(InventoryType.EquippedItems, targetClass,
-                                                   Configuration.MinILvlDowngrade,
+                                                   _configurationManager.CoreConfig.Data.MinILvlDowngrade,
                                                    _logger, _hrtDataManager);
         _timeSinceLastGearUpdate = TimeSpan.Zero;
     }

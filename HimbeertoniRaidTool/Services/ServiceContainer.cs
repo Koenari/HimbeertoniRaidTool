@@ -18,8 +18,6 @@ public interface IModuleServiceContainer : IServiceContainer
     internal LocalizationManager LocalizationManager { get; }
 }
 
-public interface IGlobalServiceContainer : IServiceContainer { }
-
 public interface IServiceContainer : IDisposable
 {
     ITargetManager TargetManager { get; }
@@ -85,7 +83,7 @@ internal sealed class ModuleScopedServiceContainer<TModule> : IModuleServiceCont
     }
 }
 
-internal class GlobalServiceContainer : IGlobalServiceContainer
+internal class GlobalServiceContainer
 {
     internal GlobalServiceContainer(IDalamudPluginInterface pluginInterface)
     {
