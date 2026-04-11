@@ -220,11 +220,9 @@
   </data>
   <data name="SortableList_btn_tt_moveUp">
     <value>Nach oben</value>
-    <comment>{0} data type</comment>
   </data>
   <data name="SortableList_btn_tt_moveDown">
     <value>Nach unten</value>
-    <comment>{0} data type</comment>
   </data>
   <data name="CommonTerms_itemLvl_abbrev">
     <value>G.-St.</value>
