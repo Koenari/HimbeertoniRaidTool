@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
+using HimbeertoniRaidTool.Plugin.Helpers;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 
@@ -26,7 +27,7 @@ internal class LootmasterUi : HrtWindow
     private readonly LootMasterModule _module;
     private readonly Queue<HrtUiMessage> _messageQueue = new();
     private (HrtUiMessage message, DateTime time)? _currentMessage;
-    private readonly Dictionary<PlayableClass, IStatTable> _statTables = new();
+    private readonly Dictionary<(PlayableClass, GearSet, GearSet), IStatTable> _statTables = new();
 
     internal LootmasterUi(LootMasterModule lootMaster) : base(lootMaster.Services.UiSystem, "LootMaster",
                                                               ImGuiWindowFlags.HorizontalScrollbar)
@@ -176,7 +177,7 @@ internal class LootmasterUi : HrtWindow
         {
             if (statsChild.Success && curClass is not null)
             {
-                if (!_statTables.TryGetValue(curClass, out var statTable))
+                if (!_statTables.TryGetValue((curClass, curClass.CurGear, curClass.CurBis), out var statTable))
                 {
                     statTable = UiSystem.Helpers.CreateStatTable(curClass, p.MainChar.Tribe, curClass.CurGear,
                                                                  curClass.CurBis, LootmasterLoc.CurrentGear,
@@ -184,7 +185,7 @@ internal class LootmasterUi : HrtWindow
                                                                  GeneralLoc.CommonTerms_BiS,
                                                                  UiHelpers.StatTableCompareMode.DoCompare
                                                                | UiHelpers.StatTableCompareMode.DiffRightToLeft);
-                    _statTables.Add(curClass, statTable);
+                    _statTables.Add((curClass, curClass.CurGear, curClass.CurBis), statTable);
                 }
                 statTable.Draw();
             }
