@@ -50,7 +50,8 @@ internal sealed class ModuleScopedServiceContainer<TModule> : IModuleServiceCont
         _globalServices = globalServices;
         Logger = new LoggingProxy(_globalServices.Logger, $"[{TModule.Name}]");
         UiSystem = UiSystemFactory.CreateUiSystem<TModule>(HrtDataManager, ConnectorPool, DataManager,
-                                                           CharacterInfoService, TaskManager, ConfigManager, IconCache,
+                                                           CharacterInfoService, TaskManager, ConfigManager,
+                                                           globalServices.IconCache,
                                                            Condition, Logger);
         _globalServices.DalamudServices.PluginInterface.UiBuilder.Draw += UiSystem.Draw;
         ModuleManager = moduleScopedModuleManager;
@@ -65,7 +66,6 @@ internal sealed class ModuleScopedServiceContainer<TModule> : IModuleServiceCont
     public IPartyList PartyList => _globalServices.PartyList;
     public ICondition Condition => _globalServices.Condition;
     public ILogger Logger { get; }
-    public IconCache IconCache => _globalServices.IconCache;
     public HrtDataManager HrtDataManager => _globalServices.HrtDataManager;
     public TaskManager TaskManager => _globalServices.TaskManager;
     public ConnectorPool ConnectorPool => _globalServices.ConnectorPool;

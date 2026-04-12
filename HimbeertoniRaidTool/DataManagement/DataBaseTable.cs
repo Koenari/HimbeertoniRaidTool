@@ -15,6 +15,7 @@ public interface IDataBaseTable<T> where T : class, IHrtDataTypeWithId<T>
     internal Reference<T> GetRef(HrtId id);
     internal bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value);
     internal bool TryAdd(in T value);
+    // ReSharper disable once UnusedMethodReturnValue.Global
     internal bool TryRemove(T data);
     internal IEnumerable<T> GetValues();
     internal void OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
@@ -78,7 +79,7 @@ internal abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<Jso
         return IsLoaded;
     }
     public virtual bool TryGet(HrtId id, [NotNullWhen(true)] out T? value) => Data.TryGetValue(id, out value);
-    public virtual T? GetNullable(HrtId id)
+    public T? GetNullable(HrtId id)
     {
         TryGet(id, out var value);
         return value;

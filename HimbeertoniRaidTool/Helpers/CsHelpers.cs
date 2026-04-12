@@ -4,7 +4,7 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using Serilog;
 
-namespace HimbeertoniRaidTool.Plugin.Services;
+namespace HimbeertoniRaidTool.Plugin.Helpers;
 
 internal static class CsHelpers
 {

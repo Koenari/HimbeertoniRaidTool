@@ -15,10 +15,12 @@ public interface IReadOnlyGearConnector
     string GetWebUrl(string id);
     IList<ExternalBiSDefinition> GetPossibilities(string id);
     IList<ExternalBiSDefinition> GetBiSList(Job job);
+    // ReSharper disable once UnusedMemberInSuper.Global
     internal HrtUiMessage UpdateAllSets(bool updateAll, int maxAgeInDays);
     void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
                               string taskName = "Gearset Update");
-    HrtUiMessage UpdateGearSet(GearSet set);
+    // ReSharper disable once UnusedMemberInSuper.Global
+    internal HrtUiMessage UpdateGearSet(GearSet set);
 }
 
 public record ExternalBiSDefinition(GearSetManager Service, string Id, int Idx, string Name)
@@ -41,9 +43,9 @@ public record ExternalBiSDefinition(GearSetManager Service, string Id, int Idx, 
 internal abstract class WebConnector
 {
     private static readonly HttpClient _client = new();
-    private readonly ConcurrentDictionary<string, (DateTime time, HttpResponseMessage response)> _cachedRequests;
+    private readonly ConcurrentDictionary<string, (DateTime time, HttpResponseMessage response)> _cachedRequests = [];
     private readonly TimeSpan _cacheTime;
-    private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
+    private readonly ConcurrentDictionary<string, DateTime> _currentRequests = [];
     private readonly RateLimit _rateLimit;
     protected readonly ILogger Logger;
 
@@ -51,8 +53,6 @@ internal abstract class WebConnector
     {
         Logger = logger;
         _rateLimit = rateLimit;
-        _cachedRequests = new ConcurrentDictionary<string, (DateTime time, HttpResponseMessage response)>();
-        _currentRequests = new ConcurrentDictionary<string, DateTime>();
         _cacheTime = cacheTime ?? new TimeSpan(0, 15, 0);
     }
 

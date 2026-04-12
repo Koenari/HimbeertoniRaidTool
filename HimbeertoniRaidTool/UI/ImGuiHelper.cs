@@ -5,6 +5,8 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
+using HimbeertoniRaidTool.Plugin.Connectors;
+using HimbeertoniRaidTool.Plugin.Helpers;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 
@@ -139,14 +141,16 @@ public static class ImGuiHelper
         bool DrawLodestoneButton(bool insideContextMenu = false)
         {
             string tooltip = GeneralLoc.Ui_btn_tt_Lodestone;
-            if (Button(FontAwesomeIcon.CloudDownloadAlt, "lodestone",
-                       $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({GeneralLoc.Ui_rightClickHint})" : "")}",
-                       module.Services.ConnectorPool.LodestoneConnector.CanBeUsed, size))
+            if (module.Services.ConnectorPool.TryGetConnector<LodestoneConnector>(out var lodestoneConnector)
+             && Button(
+                    FontAwesomeIcon.CloudDownloadAlt, "lodestone",
+                    $"{tooltip}{(!showMultiple && !insideContextMenu ? $" ({GeneralLoc.Ui_rightClickHint})" : "")}",
+                    true, size))
             {
                 module.HandleMessage(
                     new HrtUiMessage($"{GeneralLoc.LodestonConnetor_msg_UpdateStarted} {p.MainChar.Name}"));
                 module.Services.TaskManager.RegisterTask(
-                    new HrtTask<HrtUiMessage>(() => module.Services.ConnectorPool.LodestoneConnector.UpdateCharacter(p),
+                    new HrtTask<HrtUiMessage>(() => lodestoneConnector.UpdateCharacter(p),
                                               module.HandleMessage, $"Update {p.MainChar.Name} from Lodestone"));
                 return true;
             }

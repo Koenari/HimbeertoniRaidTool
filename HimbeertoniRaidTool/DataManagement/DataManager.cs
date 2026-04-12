@@ -5,6 +5,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Plugin.Helpers;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -135,21 +136,17 @@ public class HrtDataManager
         }
         return writeSuccess;
     }
-    public bool LoadConfiguration<T>(string internalName, ref T configData) where T : IHrtConfigData, new()
+    public bool LoadConfiguration<T>(string fileName, ref T configData) where T : IHrtConfigData, new()
     {
-        FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
+        FileInfo file = new(_moduleConfigDir.FullName + fileName + ".json");
         if (!file.Exists) return true;
         if (!FileHelpers.TryRead(file, out string json, _logger))
             return false;
         var fromJson = JsonConvert.DeserializeObject<T>(json, _jsonSettings);
-        if (fromJson != null)
-        {
-            configData = fromJson;
-            configData.AfterLoad();
-            return true;
-        }
-        else
-            return false;
+        if (fromJson == null) return false;
+        configData = fromJson;
+        configData.AfterLoad();
+        return true;
     }
 
     public bool Save()

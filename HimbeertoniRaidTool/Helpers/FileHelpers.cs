@@ -2,7 +2,7 @@ using System.IO;
 using Dalamud.Utility;
 using Serilog;
 
-namespace HimbeertoniRaidTool.Plugin.Services;
+namespace HimbeertoniRaidTool.Plugin.Helpers;
 
 public static class FileHelpers
 {

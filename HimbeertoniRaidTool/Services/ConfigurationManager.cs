@@ -198,8 +198,8 @@ public interface IHrtConfiguration
     string ParentInternalName { get; }
     IHrtConfigUi? Ui { get; }
 
-    event Action? OnConfigChange;
     internal bool Load(HrtDataManager configFileManager);
+    // ReSharper disable once UnusedMethodReturnValue.Global
     internal bool Save(HrtDataManager configFileManager);
     void AfterLoad();
 }

@@ -21,7 +21,6 @@ internal interface IModuleScopedModuleManager
 
 internal interface IModuleManager
 {
-    IEnumerable<IModuleManifest> GetAvailableModules();
     internal void LoadModules();
     void Dispose();
 }
@@ -94,7 +93,6 @@ internal class ModuleManager : IModuleManager
         _availableModules.FirstOrDefault(m => m?.InternalName == TModule.InternalName,
                                          null) as IModuleManifest<TModule>;
 
-    public IEnumerable<IModuleManifest> GetAvailableModules() => _availableModules;
 
     public void LoadModules()
     {
@@ -176,8 +174,12 @@ internal class ModuleManager : IModuleManager
 
     }
 
-    private interface IInternalModuleManifest : IModuleManifest, IDisposable
+    private interface IInternalModuleManifest : IDisposable
     {
+        string InternalName { get; }
+
+        bool Enabled { get; }
+
         void Enable();
 
         void Disable();
@@ -193,16 +195,10 @@ internal class ModuleManager : IModuleManager
     {
         public string InternalName => TModule.InternalName;
 
-        public string Name => TModule.Name;
-
-        public string Description => TModule.Description;
-
         public TModule? Module { get; private set; }
 
         [MemberNotNullWhen(true, nameof(Module))]
         public bool Loaded => Module != null;
-
-        public bool CanBeDisabled => TModule.CanBeDisabled;
 
         public bool Enabled { get; private set; }
 
@@ -232,7 +228,7 @@ internal class ModuleManager : IModuleManager
 
         public void Disable()
         {
-            if (!CanBeDisabled) return;
+            if (!TModule.CanBeDisabled) return;
             Enabled = false;
             Unload();
         }
@@ -282,30 +278,20 @@ internal class ModuleManager : IModuleManager
 
 internal static class ConfigDataExtension
 {
-    public static bool IsModuleEnabled<TModule>(this CoreConfig.ConfigData data) where TModule : IHrtModule =>
-        data.IsModuleEnabled(TModule.InternalName);
+    extension(CoreConfig.ConfigData data)
+    {
+        public bool IsModuleEnabled<TModule>() where TModule : IHrtModule =>
+            data.IsModuleEnabled(TModule.InternalName);
+        public bool IsModuleEnabled(string internalName) =>
+            data.ModulesEnabled.TryAdd(internalName, true) || data.ModulesEnabled[internalName];
+    }
 
-    public static bool IsModuleEnabled(this CoreConfig.ConfigData data, string internalName) =>
-        data.ModulesEnabled.TryAdd(internalName, true) || data.ModulesEnabled[internalName];
 }
 
-public interface IModuleManifest<out TModule> : IModuleManifest where TModule : class, IHrtModule
+public interface IModuleManifest<out TModule> where TModule : class, IHrtModule
 {
     TModule? Module { get; }
 
     [MemberNotNullWhen(true, nameof(Module))]
     bool Loaded { get; }
-}
-
-public interface IModuleManifest
-{
-    string InternalName { get; }
-
-    string Name { get; }
-
-    string Description { get; }
-
-    bool CanBeDisabled { get; }
-
-    bool Enabled { get; }
 }

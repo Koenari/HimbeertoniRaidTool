@@ -94,7 +94,7 @@ internal sealed class EtroConnector : WebConnector, IReadOnlyGearConnector
     public void RequestGearSetUpdate(GearSet set, Action<HrtUiMessage>? messageCallback = null,
                                      string taskName = "Etro Update")
     {
-        messageCallback ??= _ => { };
+        messageCallback ??= Logger.Write;
         _taskManager.RegisterTask(new HrtTask<HrtUiMessage>(() => UpdateGearSet(set), messageCallback, taskName));
     }
 

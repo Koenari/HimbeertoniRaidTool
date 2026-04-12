@@ -101,7 +101,6 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
             SizeCondition = ImGuiCond.Always;
             _hasResizedLastFrame = true;
             _shouldResize = false;
-            //ServiceManager.Logger.Debug($"Tried Resizing to: {Size.Value.X}x{Size.Value.Y}");
         }
 
     }
@@ -111,7 +110,7 @@ public abstract class HrtWindow : Window, IEquatable<HrtWindow>
         _shouldResize = true;
     }
 
-    public virtual void Dispose() { }
+    public static void Dispose() { }
 
     public override bool Equals(object? obj) => Equals(obj as HrtWindow);
 

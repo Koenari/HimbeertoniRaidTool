@@ -38,8 +38,6 @@ internal class LodestoneConnector : NetStoneBase
         };
     }
 
-    public bool CanBeUsed => Initialized;
-
     public HrtUiMessage UpdateCharacter(Player p)
     {
         var updateAsync = UpdateCharacterAsync(p);
@@ -200,25 +198,36 @@ internal class NetStoneBase : IDisposable
     private readonly ConcurrentDictionary<string, (DateTime time, LodestoneCharacter response)> _cachedRequests;
     private readonly TimeSpan _cacheTime;
     private readonly ConcurrentDictionary<string, DateTime> _currentRequests;
-    private readonly LodestoneClient _lodestoneClient;
+    private LodestoneClient? _lodestoneClient
+    {
+        get
+        {
+            if (field is not null) return field;
+            try
+            {
+                field = GetLodestoneClient();
+            }
+            catch (Exception)
+            {
+                Logger.Error("Lodestone Connector could not be initialized");
+            }
+            return field;
+        }
+    }
 
     private readonly RateLimit _rateLimit;
-    protected readonly bool Initialized;
     protected readonly ILogger Logger;
 
     internal NetStoneBase(ILogger logger, RateLimit rateLimit = default, TimeSpan? cacheTime = null)
     {
         Logger = logger;
-        Initialized = false;
         try
         {
             _lodestoneClient = GetLodestoneClient();
-            Initialized = true;
         }
         catch (Exception)
         {
             Logger.Error("Lodestone Connector could not be initialized");
-            _lodestoneClient = null!;
         }
         _rateLimit = rateLimit;
         _cacheTime = cacheTime ?? new TimeSpan(1, 30, 0);
@@ -243,6 +252,7 @@ internal class NetStoneBase : IDisposable
     /// <returns></returns>
     internal async Task<LodestoneCharacter?> FetchCharacterFromLodestone(Character c)
     {
+        if (_lodestoneClient == null) return null;
         UpdateCache();
         while (RateLimitHit() || _currentRequests.ContainsKey(c.Name))
         {
@@ -304,5 +314,5 @@ internal class NetStoneBase : IDisposable
         return result.Result;
     }
 
-    public void Dispose() => _lodestoneClient.Dispose();
+    public void Dispose() => _lodestoneClient?.Dispose();
 }

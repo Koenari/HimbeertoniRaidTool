@@ -135,11 +135,11 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
         if (Configuration.Data.OpenOnStartup)
             _ui.Show();
     }
-    public bool FillPlayerFromTarget(Player player)
+    public void FillPlayerFromTarget(Player player)
     {
-
         var target = Services.TargetManager.Target;
-        return target is IPlayerCharacter character && FillPlayer(player, character);
+        if (target is IPlayerCharacter character)
+            FillPlayer(player, character);
     }
     private bool FillPlayer(Player player, IPlayerCharacter? source, bool useSelf = false)
     {
