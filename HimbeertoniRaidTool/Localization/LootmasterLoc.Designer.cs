@@ -69,6 +69,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open Lootmaster.
+        /// </summary>
+        internal static string btn_global_Open_tt {
+            get {
+                return ResourceManager.GetString("btn_global_Open_tt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Commands used for Loot Master:.
         /// </summary>
         internal static string chat_usage_heading {
@@ -770,6 +779,15 @@ namespace HimbeertoniRaidTool.Plugin.Localization {
         internal static string LootUI_Results_Rule {
             get {
                 return ResourceManager.GetString("LootUI_Results_Rule", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage gear and loot for your raid groups..
+        /// </summary>
+        internal static string Module_description {
+            get {
+                return ResourceManager.GetString("Module_description", resourceCulture);
             }
         }
         

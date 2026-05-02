@@ -7,62 +7,111 @@ using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.Modules;
 using HimbeertoniRaidTool.Plugin.UI;
+using Serilog;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
 public class ConfigurationManager : IDisposable
 {
-    private readonly Dictionary<Type, IHrtConfiguration> _configurations = new();
-    private readonly ConfigUi _ui;
+    private readonly Dictionary<Type, IHrtModuleConfiguration> _configurations = new();
+    private ConfigUi? _ui;
     private readonly IDalamudPluginInterface _pluginInterface;
-    private readonly IGlobalServiceContainer _services;
+    private readonly ILogger _logger;
+    private readonly HrtDataManager _hrtDataManager;
+    private readonly PeriodicTask _saveTask;
+    internal CoreConfig CoreConfig { get; }
 
-    internal ConfigurationManager(IDalamudPluginInterface pluginInterface, IGlobalServiceContainer services)
+    internal ConfigurationManager(IDalamudPluginInterface pluginInterface, ILogger logger, TaskManager taskManager,
+                                  HrtDataManager hrtDataManager)
     {
         _pluginInterface = pluginInterface;
-        _services = services;
-        _ui = new ConfigUi(this);
-        _services.UiSystem.AddWindow(_ui);
+        _logger = logger;
+        _hrtDataManager = hrtDataManager;
+
+        CoreConfig = new CoreConfig();
+        if (CoreConfig.Load(hrtDataManager))
+            CoreConfig.AfterLoad();
         _pluginInterface.UiBuilder.OpenConfigUi += Show;
+
+
+        _saveTask = new PeriodicTask(() =>
+                                     {
+                                         if (hrtDataManager.Save())
+                                             return new HrtUiMessage(CoreLoc.UiMessage_PeriodicSaveSuccessful,
+                                                                     HrtUiMessageType.Success);
+                                         return new HrtUiMessage(CoreLoc.UiMessage_PeriodicSaveFailed,
+                                                                 HrtUiMessageType.Failure);
+                                     }, logger.Write, "Automatic Save",
+                                     TimeSpan.FromMinutes(CoreConfig.Data.SaveIntervalMinutes))
+        {
+            ShouldRun = CoreConfig.Data.SavePeriodically,
+            Repeat = TimeSpan.FromMinutes(CoreConfig.Data.SaveIntervalMinutes),
+            LastRun = DateTime.Now,
+        };
+        taskManager.RegisterTask(_saveTask);
+        CoreConfig.OnConfigChange += UpdateTask;
     }
 
-    public void Dispose() => _pluginInterface.UiBuilder.OpenConfigUi -= Show;
+    internal void InitUi(IUiSystem uiSystem)
+    {
+        _ui = new ConfigUi(this, uiSystem);
+        uiSystem.AddWindow(_ui);
+    }
 
-    internal void Show() => _ui.Show();
+    private void UpdateTask()
+    {
+        _saveTask.ShouldRun = CoreConfig.Data.SavePeriodically;
+        _saveTask.Repeat = TimeSpan.FromMinutes(CoreConfig.Data.SaveIntervalMinutes);
+        _saveTask.LastRun = DateTime.Now;
+    }
 
-    internal bool RegisterConfig(IHrtConfiguration config)
+
+
+
+    public void Dispose()
+    {
+        CoreConfig.OnConfigChange -= UpdateTask;
+        _pluginInterface.UiBuilder.OpenConfigUi -= Show;
+        Save();
+    }
+
+    internal void Show() => _ui?.Show();
+
+    internal bool RegisterConfig(IHrtModuleConfiguration config)
     {
         if (_configurations.ContainsKey(config.GetType()))
             return false;
         _configurations.Add(config.GetType(), config);
-        _services.Logger.Debug("Registered {ConfigParentInternalName} config", config.ParentInternalName);
-        return config.Load(_services.HrtDataManager.ModuleConfigurationManager);
+        _logger.Debug("Registered {ConfigParentInternalName} config", config.ParentInternalName);
+        return config.Load(_hrtDataManager);
     }
 
-    internal bool TryGetConfig<T>(Type type, [NotNullWhen(true)] out T? config) where T : class, IHrtConfiguration
+    internal bool TryGetConfig<TConfig>([NotNullWhen(true)] out TConfig? config)
+        where TConfig : class, IHrtConfiguration
     {
         config = null;
-        if (_configurations.TryGetValue(type, out var configInner))
-            config = configInner as T;
+        if (_configurations.TryGetValue(typeof(TConfig), out var configInner))
+            config = configInner as TConfig;
         return config != null;
     }
 
     internal void Save()
     {
+        _logger.Debug("Saved {ConfigParentInternalName} config", CoreConfig.ParentInternalName);
+        CoreConfig.Save(_hrtDataManager);
         foreach (var config in _configurations.Values)
         {
-            _services.Logger.Debug("Saved {ConfigParentInternalName} config", config.ParentInternalName);
-            config.Save(_services.HrtDataManager.ModuleConfigurationManager);
+            _logger.Debug("Saved {ConfigParentInternalName} config", config.ParentInternalName);
+            config.Save(_hrtDataManager);
         }
     }
 
     private class ConfigUi : HrtWindow
     {
         private readonly ConfigurationManager _configManager;
-        private readonly Dictionary<IModuleManifest, bool> _availableModules = new();
 
-        public ConfigUi(ConfigurationManager configManager) : base(configManager._services.UiSystem,
-                                                                   "HimbeerToniRaidToolConfiguration")
+        public ConfigUi(ConfigurationManager configManager, IUiSystem uiSystem) : base(uiSystem,
+            "HimbeerToniRaidToolConfiguration")
         {
             _configManager = configManager;
             (Size, SizeCondition) = (new Vector2(450, 500), ImGuiCond.Appearing);
@@ -74,11 +123,6 @@ public class ConfigurationManager : IDisposable
 
         public override void OnOpen()
         {
-            _availableModules.Clear();
-            foreach (var manifest in _configManager._services.ModuleManager.GetAvailableModules())
-            {
-                _availableModules.Add(manifest, manifest.Enabled);
-            }
             foreach (var config in _configManager._configurations.Values)
             {
                 config.Ui?.OnShow();
@@ -101,31 +145,38 @@ public class ConfigurationManager : IDisposable
             if (ImGuiHelper.CancelButton())
                 Cancel();
             using var tabBar = ImRaii.TabBar("Modules");
-            foreach (var moduleManifest in _availableModules.Keys)
+
             {
-                using var tabItem = ImRaii.TabItem($"{moduleManifest.Name}##{moduleManifest.InternalName}");
+                var configuration = _configManager.CoreConfig;
+                using var tabItem = ImRaii.TabItem($"General##{configuration.ParentInternalName}");
+                if (tabItem)
+                    (configuration as IHrtConfiguration).Ui?.Draw();
+            }
+            foreach (var configuration in _configManager._configurations.Values)
+            {
+                using var tabItem = ImRaii.TabItem($"{configuration.ModuleName}##{configuration.ParentInternalName}");
                 if (!tabItem)
                     continue;
-                ImGui.Text(moduleManifest.Description);
-                using (ImRaii.Disabled(!moduleManifest.CanBeDisabled))
+                ImGui.Text(configuration.ModuleDescription);
+                using (ImRaii.Disabled(!configuration.ModuleCanBeDisabled))
                 {
-                    bool enabled = _availableModules[moduleManifest];
-                    if (ImGui.Checkbox($"Enabled##{moduleManifest.InternalName}", ref enabled))
-                        _availableModules[moduleManifest] = enabled;
+                    bool enabled =
+                        _configManager.CoreConfig.Data.ModulesEnabled.TryAdd(configuration.ParentInternalName, true)
+                     || _configManager.CoreConfig.Data.ModulesEnabled[configuration.ParentInternalName];
+                    if (ImGui.Checkbox($"Enabled##{configuration.ParentInternalName}", ref enabled))
+                        _configManager.CoreConfig.Data.ModulesEnabled[configuration.ParentInternalName] = enabled;
                 }
-                var c = _configManager._configurations.Values.FirstOrDefault(
-                    config => config?.ParentInternalName == moduleManifest.InternalName, null);
-                c?.Ui?.Draw();
+                configuration.Ui?.Draw();
             }
         }
 
         private void Save()
         {
+            _configManager.CoreConfig.Ui?.Save();
             foreach (var c in _configManager._configurations.Values)
             {
                 c.Ui?.Save();
             }
-            _configManager._services.ModuleManager.UpdateConfiguration(_availableModules);
             _configManager.Save();
             Hide();
         }
@@ -139,24 +190,41 @@ public class ConfigurationManager : IDisposable
             Hide();
         }
     }
+
 }
 
 public interface IHrtConfiguration
 {
-    public string ParentInternalName { get; }
-    public IHrtConfigUi? Ui { get; }
+    string ParentInternalName { get; }
+    IHrtConfigUi? Ui { get; }
 
-    public event Action? OnConfigChange;
-    internal bool Load(IModuleConfigurationManager configManager);
-    internal bool Save(IModuleConfigurationManager configManager);
-    public void AfterLoad();
+    internal bool Load(HrtDataManager configFileManager);
+    // ReSharper disable once UnusedMethodReturnValue.Global
+    internal bool Save(HrtDataManager configFileManager);
+    void AfterLoad();
 }
 
-internal abstract class ModuleConfiguration<TData, TModule, TUi>(TModule module) : IHrtConfiguration
+internal abstract class ModuleConfiguration<TData, TModule, TUi>(IModuleServiceContainer serviceContainer)
+    : Configuration<TData, TUi>(TModule.InternalName), IHrtModuleConfiguration
     where TData : IHrtConfigData, new() where TModule : IHrtModule where TUi : class, IHrtConfigUi
 {
+    protected IModuleServiceContainer Services => serviceContainer;
+    public string ModuleName => TModule.Name;
+    public string ModuleDescription => TModule.Description;
+    public bool ModuleCanBeDisabled => TModule.CanBeDisabled;
+}
+
+internal interface IHrtModuleConfiguration : IHrtConfiguration
+{
+    string ModuleName { get; }
+    string ModuleDescription { get; }
+    bool ModuleCanBeDisabled { get; }
+}
+
+internal abstract class Configuration<TData, TUi>(string internalName) : IHrtConfiguration
+    where TData : IHrtConfigData, new() where TUi : class, IHrtConfigUi
+{
     private TData _data = new();
-    protected readonly TModule Module = module;
 
     public TData Data
     {
@@ -168,33 +236,33 @@ internal abstract class ModuleConfiguration<TData, TModule, TUi>(TModule module)
         }
     }
 
-    public string ParentInternalName => TModule.InternalName;
-    protected TUi? Ui { get; init; } = null;
+    public string ParentInternalName => internalName;
+    public TUi? Ui { get; protected init; }
     IHrtConfigUi? IHrtConfiguration.Ui => Ui;
 
     public event Action? OnConfigChange;
-    public bool Load(IModuleConfigurationManager configManager) =>
-        configManager.LoadConfiguration(ParentInternalName, ref _data);
+    public bool Load(HrtDataManager hrtDataManager) =>
+        hrtDataManager.LoadConfiguration(ParentInternalName, ref _data);
 
-    public bool Save(IModuleConfigurationManager configManager) =>
-        configManager.SaveConfiguration(ParentInternalName, _data);
+    public bool Save(HrtDataManager hrtDataManager) =>
+        hrtDataManager.SaveConfiguration(ParentInternalName, _data);
 
     public virtual void AfterLoad() { }
 }
 
 public interface IHrtConfigUi
 {
-    public void OnShow();
-    public void Draw();
-    public void OnHide();
-    public void Save();
-    public void Cancel();
+    void OnShow();
+    void Draw();
+    void OnHide();
+    void Save();
+    void Cancel();
 }
 
 public interface IHrtConfigData<out T> : IHrtConfigData, ICloneable<T>;
 
 public interface IHrtConfigData
 {
-    public void AfterLoad(HrtDataManager dataManager);
-    public void BeforeSave();
+    void AfterLoad();
+    void BeforeSave();
 }

@@ -2,42 +2,21 @@
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Common.Services;
-using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
-using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 
-namespace HimbeertoniRaidTool.Plugin.Modules.Core;
+namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, CoreModule, CoreConfig.ConfigUi>
+internal sealed class CoreConfig : Configuration<CoreConfig.ConfigData, CoreConfig.ConfigUi>
 {
-    private readonly PeriodicTask _saveTask;
-    public CoreConfig(CoreModule module) : base(module)
+
+    public CoreConfig() : base("Core")
     {
         Ui = new ConfigUi(this);
-        _saveTask = new PeriodicTask(PeriodicSave, module.HandleMessage, "Automatic Save",
-                                     TimeSpan.FromMinutes(Data.SaveIntervalMinutes))
-        {
-            ShouldRun = false,
-        };
-    }
-    public override void AfterLoad()
-    {
-        _saveTask.Repeat = TimeSpan.FromMinutes(Data.SaveIntervalMinutes);
-        _saveTask.ShouldRun = Data.SavePeriodically;
-        _saveTask.LastRun = DateTime.Now;
-        Module.Services.TaskManager.RegisterTask(_saveTask);
+
     }
 
-    private HrtUiMessage PeriodicSave()
-    {
-        if (Module.Services.HrtDataManager.Save())
-            return new HrtUiMessage(CoreLoc.UiMessage_PeriodicSaveSuccessful,
-                                    HrtUiMessageType.Success);
-        return new HrtUiMessage(CoreLoc.UiMessage_PeriodicSaveFailed,
-                                HrtUiMessageType.Failure);
-    }
 
     internal sealed class ConfigData : IHrtConfigData<ConfigData>
     {
@@ -60,7 +39,7 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, Co
 
         #endregion
 
-        public void AfterLoad(HrtDataManager dataManager) { }
+        public void AfterLoad() { }
 
         public void BeforeSave() { }
 
@@ -108,15 +87,27 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, Co
         #endregion
 
         public ConfigData Clone() => CloneService.Clone(this);
+
+        #region Helpers
+
+        public int MinILvlDowngrade => (RestrictToCurrentTier: GearUpdateRestrictToCurrentTier,
+                RestrictToCustomILvL: GearUpdateRestrictToCustomILvL) switch
+            {
+                (true, true) => Math.Min((GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
+                                         GearUpdateCustomILvlCutoff),
+                (true, false) => (GameInfo.PreviousSavageTier?.ArmorItemLevel ?? -10) + 10,
+                (false, true) => GearUpdateCustomILvlCutoff,
+                _             => 0,
+            };
+
+        #endregion
     }
 
     internal class ConfigUi(CoreConfig parent) : IHrtConfigUi
     {
         private ConfigData _dataCopy = parent.Data.Clone();
 
-        public void Cancel()
-        {
-        }
+        public void Cancel() { }
 
         public void Draw()
         {
@@ -216,36 +207,12 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, Co
             }
         }
 
-        private void DrawConnectorSection(GearSetManager type, ref bool doUpdates, ref int maxAgeInDays)
+        private static void DrawConnectorSection(GearSetManager type, ref bool doUpdates, ref int maxAgeInDays)
         {
             string serviceName = type.FriendlyName();
             using (ImRaii.PushId(serviceName))
             {
                 ImGui.Text(string.Format(CoreLoc.ConfigUi_hdg_externalUpdates, serviceName));
-                if (parent.Module.Services.ConnectorPool.TryGetConnector(
-                        type, out var connector))
-                {
-                    ImGui.SameLine();
-                    if (ImGuiHelper.Button("Update now",
-                                           $"Triggers auto updates for {serviceName} according to below rules now"))
-                    {
-                        int maxAge = maxAgeInDays;
-                        parent.Module.Services.TaskManager.RegisterTask(
-                            new HrtTask<HrtUiMessage>(
-                                () => connector.UpdateAllSets(true, maxAge),
-                                parent.Module.HandleMessage, serviceName));
-                    }
-                    ImGui.SameLine();
-                    if (ImGuiHelper.GuardedButton("Force-update",
-                                                  $"Triggers auto updates for EVERY set from {serviceName}. This might take a while"))
-                    {
-                        parent.Module.Services.TaskManager.RegisterTask(
-                            new HrtTask<HrtUiMessage>(
-                                () => connector.UpdateAllSets(true, 0),
-                                parent.Module.HandleMessage,
-                                serviceName));
-                    }
-                }
                 using (ImRaii.PushIndent())
                 {
                     ImGui.Checkbox(string.Format(CoreLoc.ConfigUi_cb_extAutoUpdate, serviceName), ref doUpdates);
@@ -260,18 +227,13 @@ internal sealed class CoreConfig : ModuleConfiguration<CoreConfig.ConfigData, Co
             ImGui.Separator();
         }
 
-        public void OnHide()
-        {
-        }
+        public void OnHide() { }
 
         public void OnShow() => _dataCopy = parent.Data.Clone();
 
         public void Save()
         {
-            if (_dataCopy.SaveIntervalMinutes != parent.Data.SaveIntervalMinutes)
-                parent._saveTask.Repeat = TimeSpan.FromMinutes(_dataCopy.SaveIntervalMinutes);
-            if (_dataCopy.SavePeriodically != parent.Data.SavePeriodically)
-                parent._saveTask.ShouldRun = _dataCopy.SavePeriodically;
+            _dataCopy.ModulesEnabled = parent.Data.ModulesEnabled;
             parent.Data = _dataCopy;
         }
     }

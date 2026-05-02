@@ -2,7 +2,7 @@
 
 namespace HimbeertoniRaidTool.Plugin;
 
-// ReSharper disable once UnusedMember.Global
+// ReSharper disable once UnusedType.Global
 public sealed class HrtPlugin : IDalamudPlugin
 {
 

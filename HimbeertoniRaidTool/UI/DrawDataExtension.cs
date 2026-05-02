@@ -12,13 +12,13 @@ public static class DrawDataExtension
     {
         var gameItem = new GameItem(item);
         if (gameItem.IsFood)
-            Draw(new FoodItem(item.RowId));
+            new FoodItem(item.RowId).Draw();
         else if (gameItem.IsGear)
-            Draw(new GearItem(item.RowId));
+            new GearItem(item.RowId).Draw();
         else if (gameItem.IsMateria)
-            Draw(new MateriaItem(item.RowId));
+            new MateriaItem(item.RowId).Draw();
         else
-            Draw(new Item(item.RowId));
+            new Item(item.RowId).Draw();
     }
     public static void Draw(this Item item)
     {

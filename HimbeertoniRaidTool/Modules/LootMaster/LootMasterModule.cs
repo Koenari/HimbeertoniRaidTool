@@ -1,8 +1,7 @@
 ﻿using System.Globalization;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
-using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Interface;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Extensions;
 using HimbeertoniRaidTool.Plugin.DataManagement;
@@ -13,7 +12,6 @@ using Character = HimbeertoniRaidTool.Common.Data.Character;
 
 namespace HimbeertoniRaidTool.Plugin.Modules.LootMaster;
 
-// ReSharper disable once ClassNeverInstantiated.Global
 internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMasterConfiguration>
 {
     #region Static
@@ -21,44 +19,68 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
     public static string Name => "Loot Master";
     public static string InternalName => "LootMaster";
 
-    public static string Description => "";
+    public static string Description => LootmasterLoc.Module_description;
 
     public static bool CanBeDisabled => false;
 
     #endregion
 
     private readonly LootmasterUi _ui;
-    private LootMasterModule(IModuleServiceContainer services)
+    private LootMasterModule(IModuleServiceContainer services, LootMasterConfiguration config)
     {
         Services = services;
         LootmasterLoc.Culture = Services.LocalizationManager.CurrentLocale;
-        Configuration = new LootMasterConfiguration(this);
+        Configuration = config;
         _ui = new LootmasterUi(this);
         Services.ClientState.Login += OnLogin;
 
     }
-    public static LootMasterModule Create(IModuleServiceContainer services) => new(services);
+    public static LootMasterModule Create(IModuleServiceContainer services, LootMasterConfiguration config) =>
+        new(services, config);
 
     //Properties
-    internal List<RaidGroup> RaidGroups => Configuration.Data.RaidGroups;
+    internal List<RaidGroup> RaidGroups
+    {
+        get
+        {
+            field ??= [];
+            if (field.Count != 0) return field;
+            foreach (var id in Configuration.Data.RaidGroupIds)
+            {
+                if (Services.HrtDataManager.GetTable<RaidGroup>().TryGet(id, out var group))
+                    field.Add(group);
+            }
+            return field;
+        }
+    }
     //Interface Properties
+    public static LootMasterConfiguration CreateConfiguration(IModuleServiceContainer services) => new(services);
     public LootMasterConfiguration Configuration { get; }
 
     public IModuleServiceContainer Services { get; }
-    public event Action? UiReady;
-    public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
-    {
-        new("/lootmaster", OnCommand)
+    public IList<HrtCommand> Commands =>
+    [
+        new("/lootmaster", (_, args) =>
         {
-            AltCommands = new List<string>
-            {
-                "/lm",
-            },
-            Description = LootmasterLoc.command_lootmaster,
+            if (args == "toggle")
+                _ui.IsOpen = !_ui.IsOpen;
+            else
+                _ui.Show();
+        }, LootmasterLoc.command_show_helpText, ["/lm"])
+        {
             ShouldExposeToDalamud = true,
             ShouldExposeAltsToDalamud = true,
+            AdditionalArgumentHelp =
+            [
+                new ValueTuple<string, string>("toggle", LootmasterLoc.command_toggle_helpText),
+            ],
         },
-    };
+
+    ];
+    public IList<ButtenDescriptor> GlobalButtons =>
+    [
+        new(FontAwesomeIcon.Table, "Lootmaster", LootmasterLoc.btn_global_Open_tt, _ui.Show),
+    ];
     public void AfterFullyLoaded()
     {
         if (RaidGroups.Count == 0 || RaidGroups[0].Type != GroupType.Solo)
@@ -82,35 +104,12 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
     public void ShowUi() => _ui.Show();
 
     public void OnLanguageChange(CultureInfo culture) => LootmasterLoc.Culture = culture;
-    public void PrintUsage(string command, string args)
-    {
-        var stringBuilder = new SeStringBuilder()
-                            .AddUiForeground("[Himbeertoni Raid Tool]", 45)
-                            .AddUiForeground("[Help]", 62)
-                            .AddText(LootmasterLoc.chat_usage_heading)
-                            .Add(new NewLinePayload());
 
-        stringBuilder
-            .AddUiForeground("/lootmaster", 37)
-            .AddText($" - {LootmasterLoc.command_show_helpText}")
-            .Add(new NewLinePayload());
-        stringBuilder
-            .AddUiForeground("/lootmaster toggle", 37)
-            .AddText($" - {LootmasterLoc.command_toggle_helpText}")
-            .Add(new NewLinePayload());
-
-        Services.Chat.Print(stringBuilder.BuiltString);
-    }
-
-
-    public void Dispose() => Configuration.Save(Services.HrtDataManager.ModuleConfigurationManager);
+    public void Dispose() => Configuration.Data.RaidGroupIds = RaidGroups.ConvertAll(g => g.LocalId);
 
     public void HandleMessage(HrtUiMessage message)
     {
-        if (message.MessageType is HrtUiMessageType.Failure or HrtUiMessageType.Error)
-            Services.Logger.Warning(message.Message);
-        else
-            Services.Logger.Information(message.Message);
+        Services.Logger.Write(message);
         _ui.HandleMessage(message);
     }
     private void OnLogin()
@@ -133,16 +132,14 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
                 soloPlayer.MainChar = character;
             }
         }
-
         if (Configuration.Data.OpenOnStartup)
             _ui.Show();
-        UiReady?.Invoke();
     }
-    public bool FillPlayerFromTarget(Player player)
+    public void FillPlayerFromTarget(Player player)
     {
-
         var target = Services.TargetManager.Target;
-        return target is IPlayerCharacter character && FillPlayer(player, character);
+        if (target is IPlayerCharacter character)
+            FillPlayer(player, character);
     }
     private bool FillPlayer(Player player, IPlayerCharacter? source, bool useSelf = false)
     {
@@ -355,20 +352,4 @@ internal sealed class LootMasterModule : IHrtModule<LootMasterModule, LootMaster
         }
     }
 
-    public void OnCommand(string command, string args)
-    {
-        Services.Logger.Debug("Lootmaster module handling command: {Command} args: \"{Args}\"", command, args);
-        switch (args)
-        {
-            case "toggle":
-                _ui.IsOpen = !_ui.IsOpen;
-                break;
-            case "help":
-                PrintUsage("/help", "");
-                break;
-            default:
-                _ui.Show();
-                break;
-        }
-    }
 }

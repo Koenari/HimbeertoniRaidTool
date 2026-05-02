@@ -18,9 +18,7 @@ internal class GearDb : DataBaseTable<GearSet>
     private readonly Dictionary<string, HrtId> _etroLookup = new();
 
     internal GearDb(IIdProvider idProvider, ILogger logger) : base(
-        idProvider, Array.Empty<JsonConverter>(), logger)
-    {
-    }
+        idProvider, Array.Empty<JsonConverter>(), logger) { }
     public new bool Load(JsonSerializerSettings settings, string serializedData)
     {
         base.Load(settings, serializedData);
@@ -98,12 +96,12 @@ internal class GearDb : DataBaseTable<GearSet>
             ImGui.Text(LootmasterLoc.GearSetSearchWindow_iLvlRange);
             ImGui.SameLine();
             ImGui.SetNextItemWidth(50 * ScaleFactor);
-            ImGui.InputInt("##minLvl", ref _iLvlMin, 0);
+            ImGui.InputInt("##minLvl", ref _iLvlMin);
             ImGui.SameLine();
             ImGui.Text("-");
             ImGui.SameLine();
             ImGui.SetNextItemWidth(50 * ScaleFactor);
-            ImGui.InputInt("##maxLvl", ref _iLvlMax, 0);
+            ImGui.InputInt("##maxLvl", ref _iLvlMax);
             /*
              * List
              */

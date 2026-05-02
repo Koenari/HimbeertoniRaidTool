@@ -243,13 +243,13 @@ internal class SelectGearItemWindow : SelectItemWindow<GearItem>
 
 internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
 {
-    private static readonly Dictionary<MateriaLevel, Dictionary<MateriaCategory, MateriaItem>> AllMateria;
+    private static readonly Dictionary<MateriaLevel, Dictionary<MateriaCategory, MateriaItem>> _allMateria;
 
     private readonly MateriaLevel _maxLvl;
 
     static SelectMateriaWindow()
     {
-        AllMateria = new Dictionary<MateriaLevel, Dictionary<MateriaCategory, MateriaItem>>();
+        _allMateria = new Dictionary<MateriaLevel, Dictionary<MateriaCategory, MateriaItem>>();
         foreach (var lvl in Enum.GetValues<MateriaLevel>())
         {
             Dictionary<MateriaCategory, MateriaItem> mats = new();
@@ -257,7 +257,7 @@ internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
             {
                 mats[cat] = new MateriaItem(cat, lvl);
             }
-            AllMateria[lvl] = mats;
+            _allMateria[lvl] = mats;
         }
     }
 
@@ -292,7 +292,7 @@ internal class SelectMateriaWindow : SelectItemWindow<MateriaItem>
 
         void DrawButton(MateriaCategory cat, MateriaLevel lvl)
         {
-            var mat = AllMateria[lvl][cat];
+            var mat = _allMateria[lvl][cat];
             if (ImGui.ImageButton(UiSystem.GetIcon(mat).Handle, new Vector2(32)))
                 Save(mat);
             else if (ImGuiHelper.Button(mat.Name, null))

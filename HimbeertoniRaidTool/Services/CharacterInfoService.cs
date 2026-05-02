@@ -6,7 +6,7 @@ using Lumina.Excel.Sheets;
 
 namespace HimbeertoniRaidTool.Plugin.Services;
 
-internal unsafe class CharacterInfoService(IObjectTable objectTable, IPartyList partyList, IPlayerState playerState)
+public unsafe class CharacterInfoService(IObjectTable objectTable, IPartyList partyList, IPlayerState playerState)
 {
     private static InfoProxyPartyMember* _partyInfo => InfoProxyPartyMember.Instance();
     private readonly Dictionary<string, ulong> _cache = new();

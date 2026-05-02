@@ -4,7 +4,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using HimbeertoniRaidTool.Common.Extensions;
-using HimbeertoniRaidTool.Plugin.DataManagement;
+using HimbeertoniRaidTool.Plugin.Helpers;
 using HimbeertoniRaidTool.Plugin.Localization;
 using HimbeertoniRaidTool.Plugin.UI;
 
@@ -24,12 +24,10 @@ public enum SlotDrawFlags
 
 internal class LootmasterUi : HrtWindow
 {
-    private readonly Vector2 _buttonSize;
-    private readonly Vector2 _buttonSizeVertical;
     private readonly LootMasterModule _module;
     private readonly Queue<HrtUiMessage> _messageQueue = new();
     private (HrtUiMessage message, DateTime time)? _currentMessage;
-    private readonly Dictionary<PlayableClass, IStatTable> _statTables = new();
+    private readonly Dictionary<(PlayableClass, GearSet, GearSet), IStatTable> _statTables = new();
 
     internal LootmasterUi(LootMasterModule lootMaster) : base(lootMaster.Services.UiSystem, "LootMaster",
                                                               ImGuiWindowFlags.HorizontalScrollbar)
@@ -39,17 +37,16 @@ internal class LootmasterUi : HrtWindow
         _module = lootMaster;
         Size = new Vector2(1720, 750);
         _buttonSize = new Vector2(30f, 25f);
-        _buttonSizeVertical = new Vector2(_buttonSize.Y, _buttonSize.X);
+        _buttonSizeVertical = new Vector2(25f, 30f);
         SizeCondition = ImGuiCond.FirstUseEver;
         Title = LootmasterLoc.Ui_Title;
         UiSystem.AddWindow(this);
     }
-    private LootMasterConfiguration.ConfigData CurConfig => _module.Configuration.Data;
+    private LootMasterConfiguration.ConfigData _curConfig => _module.Configuration.Data;
 
-    private RaidGroup CurrentGroup => CurConfig.RaidGroups[CurConfig.ActiveGroupIndex];
-    //private GameExpansion ActiveExpansion => CurConfig.ActiveExpansion;
-    private Vector2 ButtonSize => _buttonSize * ScaleFactor;
-    private Vector2 ButtonSizeVertical => _buttonSizeVertical * ScaleFactor;
+    private RaidGroup _currentGroup => _module.RaidGroups[_curConfig.ActiveGroupIndex];
+    private Vector2 _buttonSize => field * ScaleFactor;
+    private Vector2 _buttonSizeVertical => field * ScaleFactor;
 
     private static TimeSpan MessageTimeByMessageType(HrtUiMessageType type) => type switch
     {
@@ -91,7 +88,7 @@ internal class LootmasterUi : HrtWindow
         ImGui.Spacing();
         ImGui.Text($"{p.NickName} :");
         ImGui.SameLine();
-        UiSystem.Helpers.DrawCharacterCombo("##charSelect", p, CurConfig.CharacterNameFormat);
+        UiSystem.Helpers.DrawCharacterCombo("##charSelect", p, _curConfig.CharacterNameFormat);
         ImGui.SameLine();
         ImGuiHelper.GearUpdateButtons(p, _module, true);
         ImGui.SameLine();
@@ -180,7 +177,7 @@ internal class LootmasterUi : HrtWindow
         {
             if (statsChild.Success && curClass is not null)
             {
-                if (!_statTables.TryGetValue(curClass, out var statTable))
+                if (!_statTables.TryGetValue((curClass, curClass.CurGear, curClass.CurBis), out var statTable))
                 {
                     statTable = UiSystem.Helpers.CreateStatTable(curClass, p.MainChar.Tribe, curClass.CurGear,
                                                                  curClass.CurBis, LootmasterLoc.CurrentGear,
@@ -188,7 +185,7 @@ internal class LootmasterUi : HrtWindow
                                                                  GeneralLoc.CommonTerms_BiS,
                                                                  UiHelpers.StatTableCompareMode.DoCompare
                                                                | UiHelpers.StatTableCompareMode.DiffRightToLeft);
-                    _statTables.Add(curClass, statTable);
+                    _statTables.Add((curClass, curClass.CurGear, curClass.CurBis), statTable);
                 }
                 statTable.Draw();
             }
@@ -268,32 +265,24 @@ internal class LootmasterUi : HrtWindow
 
     public override void Draw()
     {
-        if (CurConfig.ActiveGroupIndex > _module.RaidGroups.Count - 1 || CurConfig.ActiveGroupIndex < 0)
-            CurConfig.ActiveGroupIndex = 0;
+        if (_curConfig.ActiveGroupIndex > _module.RaidGroups.Count - 1 || _curConfig.ActiveGroupIndex < 0)
+            _curConfig.ActiveGroupIndex = 0;
         DrawUiMessages();
-        if (ImGuiHelper.Button(FontAwesomeIcon.Cog, "##showConfig",
-                               LootmasterLoc.ui_btn_tt_showConfig))
-            _module.Services.ConfigManager.Show();
-        if (_module.Services.ModuleManager.PlannerModule.Loaded)
-        {
-            ImGui.SameLine();
-            if (ImGuiHelper.Button(FontAwesomeIcon.Calendar, "##showPlanner", "Show calendar"))
-                _module.Services.ModuleManager.PlannerModule.Module?.OnCommand("/planner", "");
-        }
+        _module.Services.ModuleManager.DrawGlobalButtons();
 
         ImGui.SameLine();
         DrawLootHandlerButtons();
         DrawRaidGroupSwitchBar();
-        if (CurrentGroup.Type == GroupType.Solo)
+        if (_currentGroup.Type == GroupType.Solo)
         {
-            if (CurrentGroup[0].MainChar.Filled)
+            if (_currentGroup[0].MainChar.Filled)
             {
-                DrawDetailedPlayer(CurrentGroup[0]);
+                DrawDetailedPlayer(_currentGroup[0]);
             }
             else
             {
                 if (ImGuiHelper.AddButton<RaidGroup>("##solo"))
-                    UiSystem.EditWindows.Create(CurrentGroup[0]);
+                    UiSystem.EditWindows.Create(_currentGroup[0]);
             }
         }
         else
@@ -318,9 +307,9 @@ internal class LootmasterUi : HrtWindow
                     }
                     ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthFixed);
                     ImGui.TableHeadersRow();
-                    for (int position = 0; position < CurrentGroup.Count; position++)
+                    for (int position = 0; position < _currentGroup.Count; position++)
                     {
-                        DrawPlayerRow(CurrentGroup, position);
+                        DrawPlayerRow(_currentGroup, position);
                     }
                 }
             }
@@ -336,13 +325,13 @@ internal class LootmasterUi : HrtWindow
             using var id = ImRaii.PushId(tabBarIdx);
             //0 is reserved for Solo on current Character (only partially editable)
             bool isPredefinedSolo = tabBarIdx == 0;
-            bool isActiveGroup = tabBarIdx == CurConfig.ActiveGroupIndex;
+            bool isActiveGroup = tabBarIdx == _curConfig.ActiveGroupIndex;
 
             var group = _module.RaidGroups[tabBarIdx];
             using var color = ImRaii.PushColor(ImGuiCol.Tab, Colors.RedWood, isActiveGroup);
 
             if (ImGui.TabItemButton(group.Name))
-                CurConfig.ActiveGroupIndex = tabBarIdx;
+                _curConfig.ActiveGroupIndex = tabBarIdx;
             ImGuiHelper.AddTooltip(GeneralLoc.Ui_rightClickHint);
 
             using var popup = ImRaii.ContextPopupItem(group.Name);
@@ -406,14 +395,14 @@ internal class LootmasterUi : HrtWindow
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + lineSpacing * 1.5f);
         if (ImGuiHelper.Button(FontAwesomeIcon.ArrowUp, "##sortUp",
                                string.Format(GeneralLoc.SortableList_btn_tt_moveUp, Player.DataTypeName), pos > 0,
-                               ButtonSizeVertical))
-            CurrentGroup.SwapPlayers(pos - 1, pos);
+                               _buttonSizeVertical))
+            _currentGroup.SwapPlayers(pos - 1, pos);
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + lineSpacing * 0.5f);
         if (ImGuiHelper.Button(FontAwesomeIcon.ArrowDown, "##sortDown",
                                string.Format(GeneralLoc.SortableList_btn_tt_moveDown, Player.DataTypeName),
-                               pos < CurrentGroup.Count - 1,
-                               ButtonSizeVertical))
-            CurrentGroup.SwapPlayers(pos, pos + 1);
+                               pos < _currentGroup.Count - 1,
+                               _buttonSizeVertical))
+            _currentGroup.SwapPlayers(pos, pos + 1);
         if (player.Filled)
         {
             //Player Column
@@ -425,13 +414,13 @@ internal class LootmasterUi : HrtWindow
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player, "##editPlayer"))
                 UiSystem.EditWindows.Create(player);
-            UiSystem.Helpers.DrawCharacterCombo("##CharCombo", player, CurConfig.CharacterNameFormat,
+            UiSystem.Helpers.DrawCharacterCombo("##CharCombo", player, _curConfig.CharacterNameFormat,
                                                 110 * ScaleFactor);
             ImGui.SameLine();
             if (ImGuiHelper.EditButton(player.MainChar, "##editCharacter"))
                 UiSystem.EditWindows.Create(player.MainChar);
             var curJob = player.MainChar.MainClass;
-            UiSystem.Helpers.DrawClassCombo("##Class", player.MainChar, 110 * ScaleFactor);
+            UiHelpers.DrawClassCombo("##Class", player.MainChar, 110 * ScaleFactor);
             if (curJob is not null)
             {
                 ImGui.SameLine();
@@ -467,12 +456,12 @@ internal class LootmasterUi : HrtWindow
                                                       curJob.Job, comboWidth);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualTopRowY);
-                    if (ImGuiHelper.EditButton(gear, "##editCurGear", true, ButtonSize))
+                    if (ImGuiHelper.EditButton(gear, "##editCurGear", true, _buttonSize))
                         UiSystem.EditWindows.Create(gear, g => curJob.CurGear = g, null,
                                                     () => curJob.RemoveGearSet(curJob.CurGear), curJob.Job);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualTopRowY);
-                    ImGuiHelper.GearUpdateButtons(player, _module, false, ButtonSize);
+                    ImGuiHelper.GearUpdateButtons(player, _module, false, _buttonSize);
                     /*
                      * Current BiS
                      */
@@ -482,12 +471,12 @@ internal class LootmasterUi : HrtWindow
                                                       comboWidth);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualBottomRowY);
-                    if (ImGuiHelper.EditButton(bis, "##editBiSGear", true, ButtonSize))
+                    if (ImGuiHelper.EditButton(bis, "##editBiSGear", true, _buttonSize))
                         UiSystem.EditWindows.Create(bis, g => curJob.CurBis = g, null,
                                                     () => curJob.RemoveBisSet(curJob.CurBis), curJob.Job);
                     ImGui.SameLine();
                     ImGui.SetCursorPosY(dualBottomRowY);
-                    ImGuiHelper.ExternalGearUpdateButton(bis, _module, ButtonSize);
+                    ImGuiHelper.ExternalGearUpdateButton(bis, _module, _buttonSize);
                 }
                 foreach (var (slot, itemTuple) in curJob.ItemTuples)
                 {
@@ -509,26 +498,26 @@ internal class LootmasterUi : HrtWindow
                 if (ImGuiHelper.Button(FontAwesomeIcon.MagnifyingGlassChart, "##quickCompare",
                                        LootmasterLoc.Ui_btn_tt_quickCompare,
                                        curJob != null,
-                                       ButtonSize))
+                                       _buttonSize))
                     UiSystem.AddWindow(new QuickCompareWindow(
                                            UiSystem, (item, flags) => DrawSlot((item, GearItem.Empty), flags), curJob!,
                                            player.MainChar.Tribe));
                 ImGui.SameLine();
                 if (ImGuiHelper.Button(FontAwesomeIcon.Wallet, "##inventory",
                                        LootmasterLoc.Ui_btn_tt_inventory, true,
-                                       ButtonSize))
+                                       _buttonSize))
                     UiSystem.AddWindow(new InventoryWindow(_module.Services.UiSystem, player.MainChar,
                                                            _module.Services.CharacterInfoService));
                 ImGui.SetCursorPosY(dualBottomRowY);
                 if (ImGuiHelper.Button(FontAwesomeIcon.SearchPlus, "##details",
                                        $"{LootmasterLoc.Ui_btn_tt_PlayerDetails} {player.NickName}",
-                                       true, ButtonSize))
+                                       true, _buttonSize))
                     UiSystem.AddWindow(new PlayerDetailWindow(UiSystem, DrawDetailedPlayer, player));
                 ImGui.SameLine();
                 if (ImGuiHelper.GuardedButton(FontAwesomeIcon.TrashAlt, "##remove",
                                               string.Format(GeneralLoc.Ui_btn_tt_removeFrom, player.NickName,
                                                             group.Name),
-                                              ButtonSize))
+                                              _buttonSize))
                     group[pos] = new Player();
             }
         }
@@ -545,19 +534,19 @@ internal class LootmasterUi : HrtWindow
             ImGui.TableNextColumn();
             if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##addNew",
                                    string.Format(GeneralLoc.Ui_btn_tt_addEmpty, Player.DataTypeName),
-                                   true, ButtonSize))
+                                   true, _buttonSize))
                 UiSystem.EditWindows.Create(player);
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addPlayerFromDB",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, Player.DataTypeName), true,
-                                   ButtonSize))
+                                   _buttonSize))
                 _module.Services.HrtDataManager.GetTable<Player>().OpenSearchWindow(UiSystem,
                     selected => group[pos] = selected);
             if (ImGuiHelper.Button(FontAwesomeIcon.LocationCrosshairs, "AddTarget",
                                    string.Format(LootmasterLoc.Ui_btn_addPlayerFromTarget_tt,
                                                  _module.Services.TargetManager.Target?.Name
                                               ?? GeneralLoc.CommonTerms_None),
-                                   _module.Services.TargetManager.Target is not null, ButtonSize))
+                                   _module.Services.TargetManager.Target is not null, _buttonSize))
             {
                 _module.FillPlayerFromTarget(player);
                 if (_module.Services.TargetManager.Target is IPlayerCharacter target)
@@ -566,7 +555,7 @@ internal class LootmasterUi : HrtWindow
             ImGui.SameLine();
             if (ImGuiHelper.Button(FontAwesomeIcon.Search, "##addCharFromDB",
                                    string.Format(GeneralLoc.Ui_btn_tt_addExisting, Character.DataTypeName), true,
-                                   ButtonSize))
+                                   _buttonSize))
                 _module.Services.HrtDataManager.GetTable<Character>().OpenSearchWindow(UiSystem, selected =>
                 {
                     if (!_module.Services.HrtDataManager.GetTable<Player>().TryAdd(player))
@@ -578,8 +567,8 @@ internal class LootmasterUi : HrtWindow
     }
     private void DrawLootHandlerButtons()
     {
-        ImGui.SetNextItemWidth(ImGui.CalcTextSize(CurConfig.ActiveExpansion.Name).X + 32f * ScaleFactor);
-        using (var combo = ImRaii.Combo("##expansion", CurConfig.ActiveExpansion.Name))
+        ImGui.SetNextItemWidth(ImGui.CalcTextSize(_curConfig.ActiveExpansion.Name).X + 32f * ScaleFactor);
+        using (var combo = ImRaii.Combo("##expansion", _curConfig.ActiveExpansion.Name))
         {
             if (combo)
             {
@@ -591,28 +580,28 @@ internal class LootmasterUi : HrtWindow
                     if (ImGui.Selectable(expansion.Name))
                     {
                         if (expansion == GameInfo.CurrentExpansion)
-                            CurConfig.ExpansionOverride = null;
+                            _curConfig.ExpansionOverride = null;
                         else
-                            CurConfig.ExpansionOverride = i;
+                            _curConfig.ExpansionOverride = i;
                     }
                 }
             }
         }
         ImGui.SameLine();
-        ImGui.SetNextItemWidth(ImGui.CalcTextSize(CurConfig.SelectedRaidTier.Name).X + 32f * ScaleFactor);
-        using (var combo = ImRaii.Combo("##raidTier", CurConfig.SelectedRaidTier.Name))
+        ImGui.SetNextItemWidth(ImGui.CalcTextSize(_curConfig.SelectedRaidTier.Name).X + 32f * ScaleFactor);
+        using (var combo = ImRaii.Combo("##raidTier", _curConfig.SelectedRaidTier.Name))
         {
             if (combo)
             {
-                for (int i = 0; i < CurConfig.ActiveExpansion.SavageRaidTiers.Length; i++)
+                for (int i = 0; i < _curConfig.ActiveExpansion.SavageRaidTiers.Length; i++)
                 {
-                    var tier = CurConfig.ActiveExpansion.SavageRaidTiers[i];
+                    var tier = _curConfig.ActiveExpansion.SavageRaidTiers[i];
                     if (ImGui.Selectable(tier.Name))
                     {
-                        if (i == CurConfig.ActiveExpansion.SavageRaidTiers.Length - 1)
-                            CurConfig.RaidTierOverride = null;
+                        if (i == _curConfig.ActiveExpansion.SavageRaidTiers.Length - 1)
+                            _curConfig.RaidTierOverride = null;
                         else
-                            CurConfig.RaidTierOverride = i;
+                            _curConfig.RaidTierOverride = i;
                     }
                 }
             }
@@ -623,10 +612,10 @@ internal class LootmasterUi : HrtWindow
         ImGui.Text(LootmasterLoc.Ui_text_openLootSessioon + ":");
         ImGui.SameLine();
 
-        foreach (var lootSource in CurConfig.SelectedRaidTier.Bosses)
+        foreach (var lootSource in _curConfig.SelectedRaidTier.Bosses)
         {
             if (ImGuiHelper.Button(lootSource.Name, null, lootSource.IsAvailable))
-                UiSystem.AddWindow(new LootSessionUi(_module, lootSource, CurrentGroup));
+                UiSystem.AddWindow(new LootSessionUi(_module, lootSource, _currentGroup));
             ImGui.SameLine();
         }
 
@@ -643,7 +632,7 @@ internal class LootmasterUi : HrtWindow
         float cursorSingleLarge = originalY + fullLineHeight * 0.7f + lineSpacing;
         bool extended = style.HasFlag(SlotDrawFlags.ExtendedView);
         bool singleItem = style.HasFlag(SlotDrawFlags.SingleItem);
-        var comparisonMode = CurConfig.IgnoreMateriaForBiS
+        var comparisonMode = _curConfig.IgnoreMateriaForBiS
             ? ItemComparisonMode.IgnoreMateria : ItemComparisonMode.Full;
         var (item, bis) = itemTuple;
         if (!item.Filled && !bis.Filled)
@@ -694,7 +683,7 @@ internal class LootmasterUi : HrtWindow
         {
             if (itemToDraw.Filled)
             {
-                if (extended || CurConfig.ShowIconInGroupOverview)
+                if (extended || _curConfig.ShowIconInGroupOverview)
                 {
                     var icon = UiSystem.GetIcon(itemToDraw);
                     {
@@ -704,13 +693,13 @@ internal class LootmasterUi : HrtWindow
                         ImGui.SameLine();
                     }
                 }
-                string toDraw = string.Format(CurConfig.ItemFormatString,
+                string toDraw = string.Format(_curConfig.ItemFormatString,
                                               itemToDraw.ItemLevel,
                                               itemToDraw.Source().FriendlyName(),
                                               itemToDraw.Slots.FirstOrDefault(GearSetSlot.None).FriendlyName());
                 if (extended) ImGui.SetCursorPosY(ImGui.GetCursorPosY() + fullLineHeight * (multiLine ? 0.7f : 0.2f));
-                Action<string> drawText = CurConfig.ColoredItemNames
-                    ? t => ImGui.TextColored(LevelColor(CurConfig, itemToDraw), t)
+                Action<string> drawText = _curConfig.ColoredItemNames
+                    ? t => ImGui.TextColored(LevelColor(_curConfig, itemToDraw), t)
                     : t => ImGui.Text(t);
                 drawText(toDraw);
                 if (!extended || !itemToDraw.Materia.Any())

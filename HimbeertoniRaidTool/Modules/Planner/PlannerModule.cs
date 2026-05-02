@@ -1,4 +1,5 @@
 using System.Globalization;
+using Dalamud.Interface;
 using Dalamud.Plugin.Services;
 using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.Localization;
@@ -20,6 +21,7 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
     public static bool CanBeDisabled => true;
 
     #endregion
+
     public PlannerModuleConfig Configuration { get; }
 
     public RaidSession? ActiveSession { get; private set; }
@@ -28,37 +30,38 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
 
     private IEnumerable<RaidSession> _sessions => Services.HrtDataManager.GetTable<RaidSession>().GetValues();
 
-    public IEnumerable<HrtCommand> Commands => new List<HrtCommand>
-    {
-        new("/planner", OnCommand)
+    public IList<HrtCommand> Commands =>
+    [
+        new("/planner", (_, args) =>
         {
-            AltCommands = new List<string>
-            {
-                "/calendar",
-                "/cal",
-            },
-            Description = PlannerLoc.Commands_calenadr_helpText,
-            ShowInHelp = true,
+            if (args == "toggle")
+                _calendarUi.IsOpen = !_calendarUi.IsOpen;
+            else
+                _calendarUi.Show();
+        }, PlannerLoc.Commands_calenadr_helpText, ["/calendar", "/cal"])
+        {
             ShouldExposeToDalamud = true,
-
         },
-    };
+    ];
+    public IList<ButtenDescriptor> GlobalButtons =>
+    [
+        new(FontAwesomeIcon.Calendar, "##showPlanner", "Show calendar", _calendarUi.Show),
+    ];
     public IModuleServiceContainer Services { get; }
 
-    public event Action? UiReady;
-
-    private PlannerModule(IModuleServiceContainer services)
+    private PlannerModule(IModuleServiceContainer services, PlannerModuleConfig config)
     {
         Services = services;
         PlannerLoc.Culture = Services.LocalizationManager.CurrentLocale;
-        Configuration = new PlannerModuleConfig(this);
+        Configuration = config;
         _calendarUi = new CalendarUi(this);
         Services.UiSystem.AddWindow(_calendarUi);
-        Services.ClientState.Login += OnLogin;
         Services.Framework.Update += Update;
     }
 
-    public static PlannerModule Create(IModuleServiceContainer services) => new(services);
+    public static PlannerModule Create(IModuleServiceContainer services, PlannerModuleConfig config) =>
+        new(services, config);
+    public static PlannerModuleConfig CreateConfiguration(IModuleServiceContainer services) => new(services);
 
     /// <summary>
     /// Gets all raid sessions in the specified time frame
@@ -70,7 +73,7 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
     {
         if (from is null) return _sessions;
         until ??= from.Value.AddDays(1);
-        return _sessions.Where(s => s.StartTime >= from && s.StartTime < until);
+        return _sessions.Where(s => s.StartTime >= from && s.StartTime < until).OrderBy(s => s.StartTime);
     }
 
     public void CreateActiveRaidSession(Reference<RaidGroup>? group = null, Action<RaidSession>? onCreated = null)
@@ -115,8 +118,6 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
         }
     }
 
-
-    public void OnLogin() => UiReady?.Invoke();
     public void AfterFullyLoaded() { }
 
     public void OnLanguageChange(CultureInfo culture) => PlannerLoc.Culture = culture;
@@ -141,18 +142,4 @@ internal class PlannerModule : IHrtModule<PlannerModule, PlannerModuleConfig>
             ActiveSession = null;
         ActiveSession ??= _sessions.FirstOrDefault(s => s?.StartTime < DateTime.Now && s.EndTime > DateTime.Now, null);
     }
-    public void OnCommand(string command, string args)
-    {
-        switch (args)
-        {
-            case "toggle":
-                _calendarUi.IsOpen = !_calendarUi.IsOpen;
-                break;
-            default:
-                _calendarUi.Show();
-                break;
-        }
-    }
-
-    public void PrintUsage(string command, string args) => throw new NotImplementedException();
 }

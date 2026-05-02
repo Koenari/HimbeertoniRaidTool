@@ -29,7 +29,6 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
                                                       LootmasterLoc.QuickCompareUi_hdg_NewGear);
 
     }
-    private GearSet CurGear => _curClass.CurGear;
     public override void Draw()
     {
         using var child = ImRaii.Child("##SoloView");
@@ -47,29 +46,29 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
                 ImGui.TableHeadersRow();
                 ImGui.TableNextColumn();
                 const SlotDrawFlags slotDrawFlags = SlotDrawFlags.DetailedSingle;
-                _drawFunction(CurGear[GearSetSlot.MainHand], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.MainHand], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.OffHand], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.OffHand], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.Head], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.Head], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.Ear], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.Ear], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.Body], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.Body], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.Neck], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.Neck], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.Hands], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.Hands], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.Wrist], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.Wrist], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.Legs], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.Legs], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.Ring1], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.Ring1], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.Feet], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.Feet], slotDrawFlags);
                 ImGui.TableNextColumn();
-                _drawFunction(CurGear[GearSetSlot.Ring2], slotDrawFlags);
+                _drawFunction(_curClass.CurGear[GearSetSlot.Ring2], slotDrawFlags);
             }
         }
         using (var table = ImRaii.Table("##GearCompareFoodCurrent", 1, ImGuiTableFlags.Borders))
@@ -79,7 +78,7 @@ internal class QuickCompareWindow : HrtWindowWithModalChild
                 ImGui.TableSetupColumn(GeneralLoc.CommonTerms_Food.Capitalized());
                 ImGui.TableHeadersRow();
                 ImGui.TableNextColumn();
-                UiSystem.Helpers.DrawFood(CurGear.Food);
+                UiSystem.Helpers.DrawFood(_curClass.CurGear.Food);
             }
         }
         /*

@@ -1,6 +1,5 @@
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility.Raii;
-using HimbeertoniRaidTool.Plugin.DataManagement;
 using HimbeertoniRaidTool.Plugin.UI;
 using Newtonsoft.Json;
 
@@ -9,7 +8,7 @@ namespace HimbeertoniRaidTool.Plugin.Modules.Planner;
 internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.ConfigData, PlannerModule,
     PlannerModuleConfig.ConfigUi>
 {
-    public PlannerModuleConfig(PlannerModule module) : base(module)
+    public PlannerModuleConfig(IModuleServiceContainer serviceContainer) : base(serviceContainer)
     {
         Ui = new ConfigUi(this);
     }
@@ -48,7 +47,7 @@ internal class PlannerModuleConfig : ModuleConfiguration<PlannerModuleConfig.Con
     {
         [JsonProperty("BeginOfWeek")] public DayOfWeek FirstDayOfWeek = DayOfWeek.Monday;
 
-        public void AfterLoad(HrtDataManager dataManager) { }
+        public void AfterLoad() { }
         public void BeforeSave() { }
 
         public ConfigData Clone() => (ConfigData)MemberwiseClone();

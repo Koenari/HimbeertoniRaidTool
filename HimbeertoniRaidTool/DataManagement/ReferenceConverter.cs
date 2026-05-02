@@ -8,7 +8,7 @@ public class HrtIdReferenceConverter<TData> : JsonConverter<Reference<TData>>
     where TData : class, IHrtDataTypeWithId<TData>
 {
     private readonly IDataBaseTable<TData> _db;
-    private static readonly Reference<TData> EmptyRef = new(HrtId.Empty, _ => TData.Empty);
+    private static readonly Reference<TData> _emptyRef = new(HrtId.Empty, _ => TData.Empty);
     internal HrtIdReferenceConverter(IDataBaseTable<TData> db)
     {
         _db = db;
@@ -29,11 +29,11 @@ public class HrtIdReferenceConverter<TData> : JsonConverter<Reference<TData>>
                                               JsonSerializer serializer)
     {
         if (reader.TokenType == JsonToken.Null || objectType != typeof(Reference<TData>))
-            return EmptyRef;
+            return _emptyRef;
 
         var id = JObject.Load(reader).ToObject<HrtId>();
         if (id is null)
-            return EmptyRef;
+            return _emptyRef;
         return _db.GetRef(id);
     }
 }

@@ -20,10 +20,8 @@ internal class InventoryWindow : HrtWindowWithModalChild
     ];
     private readonly CharacterInfoService _characterInfoService;
     private readonly Character _character;
-    private Inventory Inventory => _character.MainInventory;
-    private Wallet Wallet => _character.Wallet;
 
-    private static readonly Vector2 IconSize = new(ImGui.GetTextLineHeightWithSpacing());
+    private static readonly Vector2 _iconSize = new(ImGui.GetTextLineHeightWithSpacing());
     internal InventoryWindow(IUiSystem uiSystem, Character c, CharacterInfoService characterInfoService) :
         base(uiSystem)
     {
@@ -49,9 +47,9 @@ internal class InventoryWindow : HrtWindowWithModalChild
     {
         ImGui.Text($"{CommonLoc.CommonTerms_Wallet}");
         ImGui.NewLine();
-        foreach (var (cur, _) in Wallet.Where(c => !_hiddenCurrencies.Contains(c.Key)))
+        foreach (var (cur, _) in _character.Wallet.Where(c => !_hiddenCurrencies.Contains(c.Key)))
         {
-            int value = Wallet[cur];
+            int value = _character.Wallet[cur];
             if (_characterInfoService.IsSelf(_character))
             {
                 ImGui.Text($"{value:N0} {cur}");
@@ -61,8 +59,8 @@ internal class InventoryWindow : HrtWindowWithModalChild
                 ImGui.Text($"{cur}:");
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(125 * ScaleFactor);
-                if (ImGui.InputInt($"##{cur}", ref value, 0, 0))
-                    Wallet[cur] = value;
+                if (ImGui.InputInt($"##{cur}", ref value))
+                    _character.Wallet[cur] = value;
 
             }
         }
@@ -73,31 +71,31 @@ internal class InventoryWindow : HrtWindowWithModalChild
             foreach (var item in GameInfo.CurrentExpansion.CurrentSavage
                                          .Bosses.SelectMany(boss => boss.GuaranteedItems))
             {
-                ImGui.Image(UiSystem.GetIcon(item).Handle, IconSize);
+                ImGui.Image(UiSystem.GetIcon(item).Handle, _iconSize);
                 ImGui.SameLine();
                 ImGui.Text(item.Name);
                 ImGui.SameLine();
-                var entry = Inventory[Inventory.IndexOf(item.Id)];
+                var entry = _character.MainInventory[_character.MainInventory.IndexOf(item.Id)];
                 ImGui.SetNextItemWidth(150f * ScaleFactor);
                 ImGui.InputInt($"##{item.Name}", ref entry.Quantity);
-                Inventory[Inventory.IndexOf(item.Id)] = entry;
+                _character.MainInventory[_character.MainInventory.IndexOf(item.Id)] = entry;
             }
 
         ImGui.Separator();
         ImGui.Text(LootmasterLoc.InventoryUi_hdg_additionalGear);
         ImGui.NewLine();
-        foreach ((int idx, var entry) in Inventory.Where(e => e.Value.IsGear))
+        foreach ((int idx, var entry) in _character.MainInventory.Where(e => e.Value.IsGear))
         {
             using var id = ImRaii.PushId(idx);
             if (entry.Item is not GearItem item)
                 continue;
             var icon = UiSystem.GetIcon(item);
-            if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "##delete", null, true, IconSize * ScaleFactor))
-                Inventory.Remove(idx);
+            if (ImGuiHelper.Button(FontAwesomeIcon.Trash, "##delete", null, true, _iconSize * ScaleFactor))
+                _character.MainInventory.Remove(idx);
             ImGui.SameLine();
             using (ImRaii.Group())
             {
-                ImGui.Image(icon.Handle, IconSize * ScaleFactor);
+                ImGui.Image(icon.Handle, _iconSize * ScaleFactor);
                 ImGui.SameLine();
                 ImGui.Text(item.Name);
             }
@@ -110,8 +108,8 @@ internal class InventoryWindow : HrtWindowWithModalChild
 
         using (ImRaii.Disabled(ChildIsOpen))
         {
-            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##add", null, true, IconSize * ScaleFactor))
-                ModalChild = new SelectGearItemWindow(UiSystem, item => Inventory.ReserveSlot(item, 1),
+            if (ImGuiHelper.Button(FontAwesomeIcon.Plus, "##add", null, true, _iconSize * ScaleFactor))
+                ModalChild = new SelectGearItemWindow(UiSystem, item => _character.MainInventory.ReserveSlot(item, 1),
                                                       _ => { },
                                                       null, null, null,
                                                       GameInfo.CurrentExpansion.CurrentSavage?.ArmorItemLevel

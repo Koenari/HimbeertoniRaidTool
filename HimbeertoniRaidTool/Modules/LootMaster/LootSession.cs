@@ -35,13 +35,7 @@ public class LootSession
         }
         _group = Group = group;
         RolePriority = group.RolePriority ?? module.Configuration.Data.RolePriority;
-        var planner = module.Services.ModuleManager.PlannerModule;
-        if (planner.Loaded)
-        {
-            var activeSession = planner.Module.ActiveSession;
-            if (activeSession is not null && activeSession.Group == group)
-                RaidSession = activeSession;
-        }
+
 
     }
     public LootRuling RulingOptions { get; set; }
@@ -58,12 +52,12 @@ public class LootSession
 
     public Dictionary<(Item, int), LootResultContainer> Results { get; } = new();
     public Dictionary<Item, bool> GuaranteedLoot { get; } = new();
-    private int NumLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
+    private int _numLootItems => Loot.Aggregate(0, (sum, x) => sum + x.count);
     public void Evaluate()
     {
         if (CurrentState < State.LootChosen)
             CurrentState = State.LootChosen;
-        if (Results.Count != NumLootItems && CurrentState < State.DistributionStarted)
+        if (Results.Count != _numLootItems && CurrentState < State.DistributionStarted)
         {
             Results.Clear();
             foreach ((var item, int count) in Loot)
@@ -219,7 +213,7 @@ public enum LootCategory
 
 public class LootResult
 {
-    private static readonly Random Random = new(Guid.NewGuid().GetHashCode());
+    private static readonly Random _random = new(Guid.NewGuid().GetHashCode());
     private readonly LootSession _session;
     private readonly HashSet<GearItem> _applicableItems;
     public readonly PlayableClass? ApplicableJob;
@@ -238,13 +232,12 @@ public class LootResult
         var job1 = job ?? p.MainChar.MainJob ?? Job.ADV;
         _droppedItem = droppedItem;
         ApplicableJob = Player.MainChar[job1];
-        Roll = Random.Next(0, 101);
+        Roll = _random.Next(0, 101);
         //Filter items by job
         _applicableItems = [..possibleItems.Where(i => i.Jobs.Contains(job1))];
     }
-    private IEnumerable<Item> GuaranteedLoot => _session.GuaranteedLoot.Keys;
-    private bool IsEvaluated { get; set; }
-    public bool ShouldIgnore => IsEvaluated && _session.RulingOptions.ActiveRules.Any(x => x.ShouldIgnore(this));
+    private bool _isEvaluated { get; set; }
+    public bool ShouldIgnore => _isEvaluated && _session.RulingOptions.ActiveRules.Any(x => x.ShouldIgnore(this));
     public void Evaluate()
     {
         CalcNeed();
@@ -252,7 +245,7 @@ public class LootResult
         {
             EvaluatedRules[rule] = rule.Eval(this);
         }
-        IsEvaluated = true;
+        _isEvaluated = true;
     }
     public LootRule DecidingFactor(LootResult? other)
     {
@@ -377,7 +370,7 @@ public class LootResult
                     if (costItem.IsTomeStone()) continue;
                     if (ApplicableJob.CurGear.Contains(new Item(costItem.RowId))) continue;
                     if (Player.MainChar.MainInventory.ItemCount(costItem.RowId)
-                      + (GuaranteedLoot.Any(loot => loot.Id == costItem.RowId) ? 1 : 0)
+                      + (_session.GuaranteedLoot.Keys.Any(loot => loot.Id == costItem.RowId) ? 1 : 0)
                      >= cost.CurrencyCost) continue;
                     return false;
                 }

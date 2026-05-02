@@ -12,10 +12,10 @@ public interface IDataBaseTable<T> where T : class, IHrtDataTypeWithId<T>
 {
     internal bool Load(JsonSerializerSettings jsonSettings, string data);
     internal bool TryGet(HrtId id, [NotNullWhen(true)] out T? value);
-    internal T? GetNullable(HrtId id);
     internal Reference<T> GetRef(HrtId id);
     internal bool Search(in Func<T?, bool> predicate, [NotNullWhen(true)] out T? value);
     internal bool TryAdd(in T value);
+    // ReSharper disable once UnusedMethodReturnValue.Global
     internal bool TryRemove(T data);
     internal IEnumerable<T> GetValues();
     internal void OpenSearchWindow(IUiSystem uiSystem, Action<T> onSelect, Action? onCancel = null);
@@ -42,9 +42,9 @@ internal abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<Jso
 
     protected readonly Dictionary<HrtId, T> Data = new();
     private readonly IImmutableList<JsonConverter> _refConverters = ImmutableList.CreateRange(converters);
-    private ulong _nextSequence = 0;
-    protected bool LoadError = false;
-    protected bool IsLoaded = false;
+    private ulong _nextSequence;
+    protected bool LoadError;
+    protected bool IsLoaded;
     protected readonly ILogger Logger = logger;
 
     public virtual bool Load(JsonSerializerSettings settings, string serializedData)
@@ -79,7 +79,7 @@ internal abstract class DataBaseTable<T>(IIdProvider idProvider, IEnumerable<Jso
         return IsLoaded;
     }
     public virtual bool TryGet(HrtId id, [NotNullWhen(true)] out T? value) => Data.TryGetValue(id, out value);
-    public virtual T? GetNullable(HrtId id)
+    public T? GetNullable(HrtId id)
     {
         TryGet(id, out var value);
         return value;

@@ -1,8 +1,58 @@
-﻿using HimbeertoniRaidTool.Plugin.Localization;
-using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
-using static HimbeertoniRaidTool.Plugin.Modules.Core.ChangeLogEntryCategory;
+using HimbeertoniRaidTool.Plugin.Localization;
+using HimbeertoniRaidTool.Plugin.UI;
 
-namespace HimbeertoniRaidTool.Plugin.Modules.Core;
+namespace HimbeertoniRaidTool.Plugin.Services;
+
+using static ChangeLogEntryCategory;
+
+public class ChangelogService
+{
+    private readonly ChangelogOptionsWrapper _configOptions;
+    private readonly ChangeLog _changelog;
+    private readonly ChangeLogUi _ui;
+
+    internal ChangelogService(ConfigurationManager configManager, IUiSystem uiSystem)
+    {
+        _configOptions = new ChangelogOptionsWrapper(configManager.CoreConfig);
+        _changelog = new ChangeLog(_configOptions);
+        _ui = new ChangeLogUi(uiSystem, _changelog);
+        OnStartup();
+    }
+
+    public void ShowUi() => _ui.Show();
+    private void OnStartup()
+    {
+        if (_configOptions.LastSeenChangelog is { Major: 0, Minor: 0, Revision: 0, Build: 0 })
+            _configOptions.LastSeenChangelog = ChangeLog.CurrentVersion;
+        switch (_configOptions.ChangelogNotificationOptions)
+        {
+            case ChangelogShowOptions.ShowAll when _changelog.UnseenChangeLogs.Any():
+            case ChangelogShowOptions.ShowNotable
+                when _changelog.UnseenChangeLogs.Any(e => e.HasNotableFeatures):
+                _ui.Show();
+                break;
+            case ChangelogShowOptions.ShowNone:
+                _configOptions.LastSeenChangelog = ChangeLog.CurrentVersion;
+                break;
+            default:
+                return;
+        }
+    }
+
+    private class ChangelogOptionsWrapper(CoreConfig coreConfig) : ChangeLog.IConfigOptions
+    {
+        public Version LastSeenChangelog
+        {
+            get => coreConfig.Data.LastSeenChangelog;
+            set => coreConfig.Data.LastSeenChangelog = value;
+        }
+        public ChangelogShowOptions ChangelogNotificationOptions
+        {
+            get => coreConfig.Data.ChangelogNotificationOptions;
+            set => coreConfig.Data.ChangelogNotificationOptions = value;
+        }
+    }
+}
 
 public class ChangeLog
 {
@@ -80,7 +130,7 @@ public class ChangeLog
                 new ChangeLogEntry(
                     General,
                     "Home world transfer /name changes of known characters are now automatically applied with gear updates"),
-                new ChangeLogEntry(ChangeLogEntryCategory.System,
+                new ChangeLogEntry(System,
                                    "Some changes to item handling which should reduce size of database files"),
             },
         },
@@ -134,7 +184,7 @@ public class ChangeLog
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.System,
+                new ChangeLogEntry(System,
                                    "A lot of changes on underlying systems. If you notice anything behaving strangely let me know via the official discord"),
             },
         },
@@ -286,7 +336,7 @@ public class ChangeLog
         {
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.System,
+                new ChangeLogEntry(System,
                                    "Changes to data storage (drops support for data from versions < 1.4.0)"),
                 new ChangeLogEntry(UserInterface, "New interface for searching characters from database"),
                 new ChangeLogEntry(General, "Fix \"Dmg\" Calc being slightly off"),
@@ -437,7 +487,7 @@ public class ChangeLog
         {
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.System, "Changed how groups and players are stored"),
+                new ChangeLogEntry(System, "Changed how groups and players are stored"),
             },
         },
         new(new Version(1, 3, 4, 1))
@@ -498,7 +548,7 @@ public class ChangeLog
             },
             MinorFeatures =
             {
-                new ChangeLogEntry(ChangeLogEntryCategory.System,
+                new ChangeLogEntry(System,
                                    "Remove unused entries from database (old gear sets and characters)"),
                 new ChangeLogEntry(Bis,
                                    "Import crafted items as HQ from etro.gg  (broken since 1.2.x)", 126),
@@ -525,7 +575,7 @@ public class ChangeLog
             {
                 new ChangeLogEntry(Bugfix, "Only cap applicable stats on items"),
                 new ChangeLogEntry(LootSession, "Removed manually curated DPS for players"),
-                new ChangeLogEntry(ChangeLogEntryCategory.System,
+                new ChangeLogEntry(System,
                                    "Properly handle local and etro.gg sets (Etro sets cannot be edited and need to be converted to local to edit)"),
                 new ChangeLogEntry(UserInterface, "Slightly reworked Ui for editing gear"),
                 new ChangeLogEntry(General, "You can now edit the names of gear sets"),
@@ -580,39 +630,17 @@ public class ChangeLog
             },
         },
     };
-    private readonly ChangeLogUi _ui;
     public readonly IConfigOptions Config;
-    public ChangeLog(IHrtModule module, IConfigOptions config)
+    public ChangeLog(IConfigOptions config)
     {
         Config = config;
-        _ui = new ChangeLogUi(module.Services.UiSystem, this);
-        module.UiReady += OnStartup;
     }
     public static Version CurrentVersion => Entries[0].Version;
     public IEnumerable<SingleVersionChangelog> UnseenChangeLogs =>
         Entries.Where(e => e.Version > Config.LastSeenChangelog);
     public IEnumerable<SingleVersionChangelog> SeenChangeLogs =>
         Entries.Where(e => e.Version <= Config.LastSeenChangelog);
-    public void ShowUi() => _ui.Show();
-    private void OnStartup()
-    {
-        if (Config.LastSeenChangelog is { Major: 0, Minor: 0, Revision: 0, Build: 0 })
-            Config.LastSeenChangelog = Entries.First(e => e.Version.Minor != CurrentVersion.Minor).Version;
-        switch (Config.ChangelogNotificationOptions)
-        {
-            case ChangelogShowOptions.ShowAll when UnseenChangeLogs.Any():
-            case ChangelogShowOptions.ShowNotable
-                when UnseenChangeLogs.Any(e => e.HasNotableFeatures):
-                _ui.Show();
-                break;
-            case ChangelogShowOptions.ShowNone:
-                Config.LastSeenChangelog = CurrentVersion;
-                break;
-            default:
-                return;
-        }
-    }
-    public void Dispose(IHrtModule module) => module.UiReady -= OnStartup;
+
 
     public interface IConfigOptions
     {
@@ -635,8 +663,8 @@ public readonly struct SingleVersionChangelog(Version version)
 
 public readonly struct ChangeLogEntry(ChangeLogEntryCategory category, string description, int issueNr = 0)
 {
-    public ChangeLogEntryCategory Category { get; init; } = category;
-    public string Description { get; init; } = description;
+    public ChangeLogEntryCategory Category { get; } = category;
+    public string Description { get; } = description;
     public IList<string> BulletPoints { get; } = new List<string>();
     public int GitHubIssueNumber { get; } = issueNr;
     public bool HasGitHubIssue => GitHubIssueNumber > 0;

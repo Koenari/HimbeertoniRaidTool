@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using System.Threading;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using HimbeertoniRaidTool.Common.Security;
+using HimbeertoniRaidTool.Plugin.Helpers;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -14,6 +16,8 @@ public class HrtDataManager
     private readonly bool _initialized;
     private volatile bool _saving;
     private readonly ILogger _logger;
+    private readonly DirectoryInfo _saveDir;
+    private readonly DirectoryInfo _moduleConfigDir;
     //Data
     private readonly DataBaseWrapper<GearSet> _gearDb;
     private readonly DataBaseWrapper<Character> _characterDb;
@@ -23,9 +27,6 @@ public class HrtDataManager
 
     //Directly Accessed Members
     public bool Ready => _initialized && !_saving;
-    private readonly string _saveDir;
-
-    internal readonly IModuleConfigurationManager ModuleConfigurationManager;
     private readonly List<JsonConverter> _idRefConverters = [];
     private static readonly JsonSerializerSettings _jsonSettings = new()
     {
@@ -35,23 +36,28 @@ public class HrtDataManager
         NullValueHandling = NullValueHandling.Ignore,
         ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
     };
-    public HrtDataManager(IDalamudPluginInterface pluginInterface, ILogger logger, IDataManager dataManager)
+    public HrtDataManager(IDalamudPluginInterface pluginInterface, ILogger logger, IDataManager dataManager,
+                          TaskManager taskManager)
     {
         _logger = logger;
+        _saveDir = pluginInterface.ConfigDirectory;
         bool loadedSuccessful = true;
         //Set up files &folders
+        _moduleConfigDir = new DirectoryInfo(_saveDir + "\\moduleConfigs\\");
+        try { }
+        catch (IOException) { }
         try
         {
             if (!pluginInterface.ConfigDirectory.Exists)
                 pluginInterface.ConfigDirectory.Create();
+            if (!_moduleConfigDir.Exists)
+                _moduleConfigDir.Create();
         }
         catch (IOException ioe)
         {
             _logger.Error(ioe, "Could not create data directory");
             throw new FailedToLoadException("Could not create data directory");
         }
-        _saveDir = pluginInterface.ConfigDirectory.FullName;
-        ModuleConfigurationManager = new ModuleConfigurationManager(this, _saveDir);
         IIdProvider idProvider = new LocalIdProvider(this);
         _gearDb = new DataBaseWrapper<GearSet>(this, new GearDb(idProvider, logger), "GearDB.json");
         _characterDb =
@@ -75,9 +81,16 @@ public class HrtDataManager
         _initialized = loadedSuccessful;
         if (!_initialized)
             throw new FailedToLoadException("Could not initialize data manager");
+        taskManager.RegisterTask(
+            new HrtTask<string>(() =>
+            {
+                CleanupDatabase();
+                return "Database cleaned up";
+            }, _logger.Information, "Cleanup database")
+        );
     }
 
-    internal void CleanupDatabase()
+    private void CleanupDatabase()
     {
         if (!_initialized) return;
         /*
@@ -94,35 +107,6 @@ public class HrtDataManager
         _gearDb.FixEntries(this);
     }
 
-    internal bool TryRead(FileInfo file, out string data)
-    {
-        data = "";
-        try
-        {
-            using var reader = file.OpenText();
-            data = reader.ReadToEnd();
-            return true;
-        }
-        catch (Exception e)
-        {
-            _logger.Error(e, "Could not load data file");
-            return false;
-        }
-    }
-    internal bool TryWrite(FileInfo file, string data)
-    {
-        try
-        {
-            FilesystemUtil.WriteAllTextSafe(file.FullName, data);
-            return true;
-        }
-        catch (Exception e)
-        {
-            _logger.Error(e, "Could not write data file: {FileFullName}", file.FullName);
-            return false;
-        }
-    }
-
     public IDataBaseTable<TData> GetTable<TData>() where TData : class, IHrtDataTypeWithId<TData> =>
         typeof(TData) switch
         {
@@ -134,6 +118,36 @@ public class HrtDataManager
             _                                       => null,
 
         } ?? throw new ArgumentOutOfRangeException($"No table exists for type: {typeof(TData)} ");
+
+    public bool SaveConfiguration<T>(string internalName, T configData) where T : IHrtConfigData, new()
+    {
+        configData.BeforeSave();
+        FileInfo file = new(_moduleConfigDir.FullName + internalName + ".json");
+        string json = JsonConvert.SerializeObject(configData, _jsonSettings);
+        bool writeSuccess;
+        try
+        {
+            FilesystemUtil.WriteAllTextSafe(file.FullName, json);
+            writeSuccess = true;
+        }
+        catch (Win32Exception)
+        {
+            writeSuccess = false;
+        }
+        return writeSuccess;
+    }
+    public bool LoadConfiguration<T>(string fileName, ref T configData) where T : IHrtConfigData, new()
+    {
+        FileInfo file = new(_moduleConfigDir.FullName + fileName + ".json");
+        if (!file.Exists) return true;
+        if (!FileHelpers.TryRead(file, out string json, _logger))
+            return false;
+        var fromJson = JsonConvert.DeserializeObject<T>(json, _jsonSettings);
+        if (fromJson == null) return false;
+        configData = fromJson;
+        configData.AfterLoad();
+        return true;
+    }
 
     public bool Save()
     {
@@ -186,7 +200,7 @@ public class HrtDataManager
         {
             if (!_file.Exists)
                 return LoadEmpty();
-            if (!_parent.TryRead(_file, out string jsonData))
+            if (!FileHelpers.TryRead(_file, out string jsonData, _parent._logger))
             {
                 LoadEmpty();
                 return false;
@@ -203,7 +217,7 @@ public class HrtDataManager
             }
         }
         private bool LoadEmpty() => _database.Load(_jsonSettings, "[]");
-        internal bool Save() => _parent.TryWrite(_file, _database.Serialize(_jsonSettings));
+        internal bool Save() => FileHelpers.TryWrite(_file, _database.Serialize(_jsonSettings), _parent._logger);
         internal void RemoveUnused(HashSet<HrtId> ids) => _database.RemoveUnused(ids);
         internal void FixEntries(HrtDataManager parent) => _database.FixEntries(parent);
     }

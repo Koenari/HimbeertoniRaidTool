@@ -1,4 +1,5 @@
 using Dalamud.Plugin.Services;
+using HimbeertoniRaidTool.Plugin.UI;
 using Serilog;
 using Serilog.Events;
 
@@ -42,4 +43,24 @@ internal class LoggingProxy(ILogger implementation, string prefix) : ILogger
         Write(logEvent.Level, logEvent.Exception, logEvent.MessageTemplate.Text, logEvent.Properties);
     public void Write(LogEventLevel level, Exception? exception, string messageTemplate, params object?[]? values) =>
         implementation.Write(level, exception, PrefixMessage(messageTemplate), values);
+}
+
+public static class LoggerExtensions
+{
+    public static void Write(this ILogger logger, HrtUiMessage logEvent)
+    {
+        switch (logEvent.MessageType)
+        {
+            case HrtUiMessageType.Error or HrtUiMessageType.Failure:
+                logger.Error(logEvent.Message);
+                break;
+            case HrtUiMessageType.Warning or HrtUiMessageType.Important:
+                logger.Warning(logEvent.Message);
+                break;
+            case HrtUiMessageType.Info or HrtUiMessageType.Success:
+                logger.Information(logEvent.Message);
+                break;
+        }
+    }
+
 }

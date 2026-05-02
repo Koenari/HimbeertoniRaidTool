@@ -64,7 +64,7 @@ internal class CharacterDb(
     private class CharacterSearchWindow : SearchWindow<Character, CharacterDb>
     {
         private readonly IDataManager _dataManager;
-        private uint _selectedWorld = 0;
+        private uint _selectedWorld;
         private readonly Dictionary<uint, string> _worldCache = [];
         private string _searchText = string.Empty;
 

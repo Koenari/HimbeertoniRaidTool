@@ -414,4 +414,10 @@
     <data name="ConfigUi_CharNameFormat_a" xml:space="preserve">
         <value>Censored</value>
     </data>
+    <data name="btn_global_Open_tt" xml:space="preserve">
+        <value>Open Lootmaster</value>
+    </data>
+    <data name="Module_description" xml:space="preserve">
+        <value>Manage gear and loot for your raid groups.</value>
+    </data>
 </root>

@@ -8,8 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using HimbeertoniRaidTool.Plugin.Modules.Core;
-using HimbeertoniRaidTool.Plugin.Modules.Core.Ui;
+using HimbeertoniRaidTool.Plugin.Services;
+using HimbeertoniRaidTool.Plugin.UI;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization.TypeInspectors;
@@ -23,22 +23,22 @@ string fileName = args[0];
 string internalName = args[1];
 Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
 Thread.CurrentThread.CurrentCulture = new CultureInfo("en");
-SingleVersionChangelog currentVersion = args.Length > 2
+var currentVersion = args.Length > 2
     ? ChangeLog.Entries.First(entry => entry.Version == new Version(args[2])) : ChangeLog.Entries[0];
 StringBuilder programOutput = new();
 
-foreach (ChangeLogEntry entry in currentVersion.NotableFeatures)
+foreach (var entry in currentVersion.NotableFeatures)
 {
     AppendChangelogEntry(programOutput, entry);
 }
-foreach (ChangeLogEntry entry in currentVersion.MinorFeatures)
+foreach (var entry in currentVersion.MinorFeatures)
 {
     AppendChangelogEntry(programOutput, entry);
 }
 if (currentVersion.HasKnownIssues)
 {
     programOutput.AppendLine("Known Issues:");
-    foreach (ChangeLogEntry entry in currentVersion.KnownIssues)
+    foreach (var entry in currentVersion.KnownIssues)
     {
         AppendChangelogEntry(programOutput, entry);
     }
