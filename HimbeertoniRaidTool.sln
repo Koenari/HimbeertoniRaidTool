@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Github Actions", "Github Ac
 		.github\workflows\plugin_release.yml = .github\workflows\plugin_release.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetStone", "lib\NetStone\NetStone\NetStone.csproj", "{192DB421-A6AC-4BF0-9A6C-CD1D7781C23E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,10 @@ Global
 		{13C812E9-0D42-4B95-8646-40EEBF30636F}.Debug|Any CPU.Build.0 = Debug|x64
 		{13C812E9-0D42-4B95-8646-40EEBF30636F}.Release|Any CPU.ActiveCfg = Release|x64
 		{13C812E9-0D42-4B95-8646-40EEBF30636F}.Release|Any CPU.Build.0 = Release|x64
+		{192DB421-A6AC-4BF0-9A6C-CD1D7781C23E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{192DB421-A6AC-4BF0-9A6C-CD1D7781C23E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{192DB421-A6AC-4BF0-9A6C-CD1D7781C23E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{192DB421-A6AC-4BF0-9A6C-CD1D7781C23E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
