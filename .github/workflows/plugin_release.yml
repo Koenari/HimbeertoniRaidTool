@@ -22,13 +22,13 @@ jobs:
       version: ${{steps.newver.outputs.info}}
       old-version: ${{steps.oldver.outputs.info}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: 'true'
           fetch-depth: 2
       - name: Get new version
         id: newver
-        uses: mavrosxristoforos/get-xml-info@afaa5058ead44cfaff92c6a861b46dd7a8929f60
+        uses: mavrosxristoforos/get-xml-info@cc0a00b30a53c3adf0ea2cbfd8314cea394fbbad
         with:
           xml-file: ${{env.PROJ_FILE}}
           xpath: '/Project/PropertyGroup/Version'
@@ -36,7 +36,7 @@ jobs:
         run: 'git checkout HEAD^'
       - name: Get old version
         id: oldver
-        uses: mavrosxristoforos/get-xml-info@afaa5058ead44cfaff92c6a861b46dd7a8929f60
+        uses: mavrosxristoforos/get-xml-info@cc0a00b30a53c3adf0ea2cbfd8314cea394fbbad
         with:
           xml-file: ${{env.PROJ_FILE}}
           xpath: '/Project/PropertyGroup/Version'
@@ -46,13 +46,13 @@ jobs:
     needs: version-check
     if: ${{needs.version-check.outputs.version != needs.version-check.outputs.old-version}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: 'true'
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
       - name: Download Dalamud
         run: |
           Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/${{vars.DALAMUD_BRANCH}}/latest.zip -OutFile latest.zip
@@ -75,7 +75,7 @@ jobs:
     outputs:
       changelog: ${{ steps.yaml-data.outputs.result}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Read changelog
         id: yaml-data
         uses: mikefarah/yq@v4
@@ -93,7 +93,7 @@ jobs:
           file: "HimbeertoniRaidTool/manifest.toml"
           key: "plugin.changelog"
           value: "${{ steps.yaml-data.outputs.result }}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: manifest
           path: HimbeertoniRaidTool/manifest.toml
@@ -104,14 +104,14 @@ jobs:
     needs: [ create_manifest, build, version-check ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: 'Download packaged build'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: package
           path: artifacts
       - name: 'Create Release'
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda
         with:
           target_commitish: ${{github.sha}}
           body: ${{needs.create_manifest.outputs.changelog}}
@@ -161,7 +161,7 @@ jobs:
           git commit -m "[Testing] ${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
       - name: Push testing
         if: ${{github.ref_name == 'testing'}}
-        uses: ad-m/github-push-action@77c5b412c50b723d2a4fbc6d71fb5723bcd439aa
+        uses: ad-m/github-push-action@4cc74773234f74829a8c21bc4d69dd4be9cfa599
         with:
           repository: ${{github.repository_owner}}/DalamudPluginsD17
           github_token: ${{ secrets.DEPLOY_PAT }}
@@ -182,7 +182,7 @@ jobs:
           git commit -m "${{env.PLUGIN_NAME}} ${{env.version}}" -m "${{env.changelog}}"
       - name: Push stable
         if: ${{github.ref_name != 'testing'}}
-        uses: ad-m/github-push-action@77c5b412c50b723d2a4fbc6d71fb5723bcd439aa
+        uses: ad-m/github-push-action@4cc74773234f74829a8c21bc4d69dd4be9cfa599
         with:
           repository: ${{github.repository_owner}}/DalamudPluginsD17
           github_token: ${{ secrets.DEPLOY_PAT }}
