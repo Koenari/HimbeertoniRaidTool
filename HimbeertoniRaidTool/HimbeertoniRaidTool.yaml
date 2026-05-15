@@ -3,12 +3,12 @@ name: Himbeertoni Raid Tool
 punchline: All you need for Raiding
 description: A collection of useful tools for raid groups, including loot management
 tags:
-- Raid
-- Loot
-- Equipment
-- Gear
+  - Raid
+  - Loot
+  - Equipment
+  - Gear
 internal_name: HimbeertoniRaidTool
 repo_url: https://github.com/Koenari/HimbeertoniRaidTool/
 changelog: >2+
-      General: Updated for 7.4
-      Loot Session: All non weapon drops are now pre-selected in loot session
+      General: Updated for 7.5
+      System: Internal changes to facilitate faster updates in the future
