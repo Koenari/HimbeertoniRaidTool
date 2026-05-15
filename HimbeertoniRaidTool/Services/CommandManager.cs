@@ -141,7 +141,7 @@ public class CommandManager
             {
                 stringBuilder
                     .AddUiForeground(
-                        $"{(c.ShouldExposeToDalamud ? c.Command : $"/hrt {c.Command[1..]}")} {c.Command[1..]} {argument}",
+                        $"{(c.ShouldExposeToDalamud ? c.Command : $"/hrt {c.Command[1..]}")} {argument}",
                         37)
                     .AddText($" - {helpText}")
                     .Add(new NewLinePayload());
