@@ -58,6 +58,12 @@ public class ChangeLog
 {
     public static readonly IReadOnlyList<SingleVersionChangelog> Entries = new List<SingleVersionChangelog>
     {
+        new(new Version(1, 10, 2, 0))
+        {
+            NotableFeatures = { new ChangeLogEntry(General, "Updated for 7.5") },
+            MinorFeatures =
+                { new ChangeLogEntry(System, "Internal changes to facilitate faster updates in the future") },
+        },
         new(new Version(1, 10, 1, 0))
         {
             NotableFeatures = { new ChangeLogEntry(General, "Updated for 7.4") },
