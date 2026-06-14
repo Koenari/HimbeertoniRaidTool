@@ -3,7 +3,7 @@
     <Sdk Name="Dalamud.NET.Sdk" Version="15.0.0"/>
     <PropertyGroup>
         <Authors>Koenari</Authors>
-        <Version>1.10.2.0</Version>
+        <Version>1.10.2.1</Version>
         <Description>A collection of useful tools for RaidGroups, including loot management and raid planning</Description>
         <PackageProjectUrl>https://github.com/Koenari/HimbeertoniRaidTool</PackageProjectUrl>
         <AssemblyName>HimbeertoniRaidTool</AssemblyName>
